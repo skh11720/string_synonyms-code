@@ -15,9 +15,9 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 
 public class Mine extends Algorithm {
-  ArrayList<Record> tableR;
-  ArrayList<Record> tableS;
-  ArrayList<Rule>   rulelist;
+  ArrayList<Record>                           tableR;
+  ArrayList<Record>                           tableS;
+  ArrayList<Rule>                             rulelist;
 
   WYK_HashMap<IntegerPair, ArrayList<Record>> idx;
 

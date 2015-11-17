@@ -17,31 +17,31 @@ public class Record implements Comparable<Record> {
   /**
    * For fast hashing
    */
-  private boolean                  validHashValue = false;
+  private boolean                  validHashValue      = false;
   private int                      hashValue;
 
   /**
    * Actual tokens
    */
-  private int[]               tokens;
+  private int[]                    tokens;
   /**
    * For DynamicMatch
    */
-  private Rule[][]            applicableRules     = null;
-  private Rule_InverseTrie    applicableRulesTrie = null;
+  private Rule[][]                 applicableRules     = null;
+  private Rule_InverseTrie         applicableRulesTrie = null;
   /**
    * For {@link algorithm.dynamic.DynamicMatch06_C}
    */
-  private IntegerSet[]        availableTokens     = null;
+  private IntegerSet[]             availableTokens     = null;
   /**
    * For Length filter
    */
-  private int[][]             candidateLengths    = null;
-  private static final Rule[] EMPTY_RULE          = new Rule[0];
+  private int[][]                  candidateLengths    = null;
+  private static final Rule[]      EMPTY_RULE          = new Rule[0];
   /**
    * Estimate the number of equivalent records
    */
-  private long[]              estimated_equivs    = null;
+  private long[]                   estimated_equivs    = null;
 
   private Record() {
     id = -1;
@@ -174,13 +174,13 @@ public class Record implements Comparable<Record> {
   public IntegerSet[] getAvailableTokens() {
     return availableTokens;
   }
-  
+
   public int getNumApplicableRules() {
     int count = 0;
-    for(int i = 0 ; i < applicableRules.length ; ++i) {
-      for(Rule rule : applicableRules[i]) {
-        if(rule.getFrom().length == 1 && rule.getFrom().length == 1 &&
-           rule.getFrom()[0] == rule.getTo()[0])
+    for (int i = 0; i < applicableRules.length; ++i) {
+      for (Rule rule : applicableRules[i]) {
+        if (rule.getFrom().length == 1 && rule.getFrom().length == 1
+            && rule.getFrom()[0] == rule.getTo()[0])
           continue;
         ++count;
       }
@@ -252,7 +252,8 @@ public class Record implements Comparable<Record> {
     ArrayList<Rule> rules = atm.applicableRules(tokens, idx);
     for (Rule rule : rules) {
       if (rule.getFrom().length == 1 && rule.getTo().length == 1
-          && rule.getFrom()[0] == rule.getTo()[0]) continue;
+          && rule.getFrom()[0] == rule.getTo()[0])
+        continue;
       Record new_rec = applyRule(rule, idx);
       int new_idx = idx + rule.toSize();
       new_rec.expandAll(rslt, atm, new_idx);

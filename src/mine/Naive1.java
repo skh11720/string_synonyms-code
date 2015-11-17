@@ -27,7 +27,7 @@ public class Naive1 extends Algorithm {
   Rule_ACAutomata                   automata;
   RuleTrie                          ruletrie;
 
-  static int threshold = 1000;
+  static int                        threshold = 1000;
 
   protected Naive1(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -41,7 +41,7 @@ public class Naive1 extends Algorithm {
     automata = new Rule_ACAutomata(rulelist);
     ruletrie = new RuleTrie(rulelist);
   }
-  
+
   private void Init() {
     rec2idx = new HashMap<Record, HashSet<Integer>>();
     for (int i = 0; i < tableR.size(); ++i) {
@@ -97,11 +97,10 @@ public class Naive1 extends Algorithm {
       if (est >= threshold) continue;
       ArrayList<Record> expanded = recS.expandAll(ruletrie);
       for (Record exp : expanded) {
-        if(!rec2idx.containsKey(exp)) continue;
+        if (!rec2idx.containsKey(exp)) continue;
         HashSet<Integer> overlapidx = rec2idx.get(exp);
-        for(Integer idx : overlapidx)
-          if(idx != idxS)
-            rslt.add(new IntegerPair(idx, idxS));
+        for (Integer idx : overlapidx)
+          if (idx != idxS) rslt.add(new IntegerPair(idx, idxS));
       }
     }
 

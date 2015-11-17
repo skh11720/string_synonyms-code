@@ -23,13 +23,13 @@ import tools.Rule_ACAutomata;
  * Generate all expanded records and map them to the original record.
  */
 public class SI_Join_Naive2 extends Algorithm {
-  IntegerMap<HashSet<SIRecordExpanded>> idxR;
-  IntegerMap<HashSet<SIRecordExpanded>> idxS;
+  IntegerMap<HashSet<SIRecordExpanded>>        idxR;
+  IntegerMap<HashSet<SIRecordExpanded>>        idxS;
   HashMap<SIRecordExpanded, HashSet<SIRecord>> mapR;
   HashMap<SIRecordExpanded, HashSet<SIRecord>> mapS;
-  ArrayList<SIRecord> tableR;
-  ArrayList<SIRecord> tableS;
-  ArrayList<Rule>     rulelist;
+  ArrayList<SIRecord>                          tableR;
+  ArrayList<SIRecord>                          tableS;
+  ArrayList<Rule>                              rulelist;
 
   public SI_Join_Naive2(String DBR_file, String DBS_file, String rulefile)
       throws IOException {
@@ -63,19 +63,19 @@ public class SI_Join_Naive2 extends Algorithm {
     br.close();
     return rslt;
   }
-  
+
   private void buildMap() {
     mapR = new HashMap<SIRecordExpanded, HashSet<SIRecord>>();
     mapS = new HashMap<SIRecordExpanded, HashSet<SIRecord>>();
-    for(SIRecord rec : tableR) {
-      for(SIRecordExpanded exp : rec.generateAll()) {
-        if(!mapR.containsKey(exp)) mapR.put(exp, new HashSet<SIRecord>());
+    for (SIRecord rec : tableR) {
+      for (SIRecordExpanded exp : rec.generateAll()) {
+        if (!mapR.containsKey(exp)) mapR.put(exp, new HashSet<SIRecord>());
         mapR.get(exp).add(rec);
       }
     }
-    for(SIRecord rec : tableS) {
-      for(SIRecordExpanded exp : rec.generateAll()) {
-        if(!mapS.containsKey(exp)) mapS.put(exp, new HashSet<SIRecord>());
+    for (SIRecord rec : tableS) {
+      for (SIRecordExpanded exp : rec.generateAll()) {
+        if (!mapS.containsKey(exp)) mapS.put(exp, new HashSet<SIRecord>());
         mapS.get(exp).add(rec);
       }
     }
@@ -109,19 +109,23 @@ public class SI_Join_Naive2 extends Algorithm {
     }
     idxR = new IntegerMap<HashSet<SIRecordExpanded>>();
     idxS = new IntegerMap<HashSet<SIRecordExpanded>>();
-    for(SIRecordExpanded exp : mapR.keySet()) {
-      int prefix_size = exp.getSize() - (int)Math.ceil(threshold * exp.getSize()) + 1;
+    for (SIRecordExpanded exp : mapR.keySet()) {
+      int prefix_size = exp.getSize()
+          - (int) Math.ceil(threshold * exp.getSize()) + 1;
       HashSet<Integer> sigset = filterR.filter(exp, prefix_size);
-      for(Integer sig : sigset) {
-        if(!idxR.containsKey(sig)) idxR.put(sig, new HashSet<SIRecordExpanded>());
+      for (Integer sig : sigset) {
+        if (!idxR.containsKey(sig))
+          idxR.put(sig, new HashSet<SIRecordExpanded>());
         idxR.get(sig).add(exp);
       }
     }
-    for(SIRecordExpanded exp : mapS.keySet()) {
-      int prefix_size = exp.getSize() - (int)Math.ceil(threshold * exp.getSize()) + 1;
+    for (SIRecordExpanded exp : mapS.keySet()) {
+      int prefix_size = exp.getSize()
+          - (int) Math.ceil(threshold * exp.getSize()) + 1;
       HashSet<Integer> sigset = filterS.filter(exp, prefix_size);
-      for(Integer sig : sigset) {
-        if(!idxS.containsKey(sig)) idxS.put(sig, new HashSet<SIRecordExpanded>());
+      for (Integer sig : sigset) {
+        if (!idxS.containsKey(sig))
+          idxS.put(sig, new HashSet<SIRecordExpanded>());
         idxS.get(sig).add(exp);
       }
     }
@@ -136,25 +140,26 @@ public class SI_Join_Naive2 extends Algorithm {
     long startTime = System.currentTimeMillis();
 
     HashSet<SIRecordPair> candidates = new HashSet<SIRecordPair>();
-    for(Map.Entry<Integer, HashSet<SIRecordExpanded>> entry : idxR.entrySet()) {
-       if(!idxS.containsKey(entry.getKey())) continue;
-       HashSet<SIRecordExpanded> iidxR = entry.getValue();
-       HashSet<SIRecordExpanded> iidxS = idxS.get(entry.getKey());
-       for(SIRecordExpanded expR : iidxR)
-         for(SIRecordExpanded expS : iidxS) {
-           if(expR.jaccard(expS) >= threshold) {
-             HashSet<SIRecord> recRs = mapR.get(expR);
-             HashSet<SIRecord> recSs = mapS.get(expS);
-             for(SIRecord recR : recRs)
-               for(SIRecord recS : recSs)
-                 candidates.add(new SIRecordPair(recR, recS));
-           }
-         }
+    for (Map.Entry<Integer, HashSet<SIRecordExpanded>> entry : idxR
+        .entrySet()) {
+      if (!idxS.containsKey(entry.getKey())) continue;
+      HashSet<SIRecordExpanded> iidxR = entry.getValue();
+      HashSet<SIRecordExpanded> iidxS = idxS.get(entry.getKey());
+      for (SIRecordExpanded expR : iidxR)
+        for (SIRecordExpanded expS : iidxS) {
+          if (expR.jaccard(expS) >= threshold) {
+            HashSet<SIRecord> recRs = mapR.get(expR);
+            HashSet<SIRecord> recSs = mapS.get(expS);
+            for (SIRecord recR : recRs)
+              for (SIRecord recS : recSs)
+                candidates.add(new SIRecordPair(recR, recS));
+          }
+        }
     }
     System.out.print("Validating finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println("Similar pairs : " + candidates.size());
-    for(SIRecordPair pair : candidates)
+    for (SIRecordPair pair : candidates)
       System.out.println(pair.rec1.toString() + " == " + pair.rec2.toString());
   }
 

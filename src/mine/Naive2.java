@@ -22,7 +22,7 @@ public class Naive2 extends Algorithm {
   Rule_ACAutomata          automata;
   RuleTrie                 ruletrie;
 
-  static int threshold = 1000;
+  static int               threshold = 1000;
 
   protected Naive2(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -70,18 +70,18 @@ public class Naive2 extends Algorithm {
     ruletrie = new RuleTrie(rulelist);
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 
-    for(int idxS = 0 ; idxS < tableS.size(); ++idxS) {
+    for (int idxS = 0; idxS < tableS.size(); ++idxS) {
       Record recS = tableS.get(idxS);
       recS.preprocessRules(automata);
       recS.preprocessEstimatedRecords();
       long est = recS.getEstNumRecords();
       if (est >= threshold) continue;
       ArrayList<Record> expanded = recS.expandAll(ruletrie);
-      for(Record exp : expanded) {
+      for (Record exp : expanded) {
         ArrayList<Record> double_expanded = exp.expandAll(ruletrie);
-        for(Record dexp : double_expanded)
-          if(rec2idx.containsKey(dexp) && dexp.compareTo(recS) != 0) {
-            if(rec2idx.get(dexp) != idxS)
+        for (Record dexp : double_expanded)
+          if (rec2idx.containsKey(dexp) && dexp.compareTo(recS) != 0) {
+            if (rec2idx.get(dexp) != idxS)
               rslt.add(new IntegerPair(rec2idx.get(dexp), idxS));
           }
       }

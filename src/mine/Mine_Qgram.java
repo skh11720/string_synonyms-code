@@ -15,9 +15,9 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 
 public class Mine_Qgram extends Algorithm {
-  ArrayList<Record> tableR;
-  ArrayList<Record> tableS;
-  ArrayList<Rule>   rulelist;
+  ArrayList<Record>                        tableR;
+  ArrayList<Record>                        tableS;
+  ArrayList<Rule>                          rulelist;
 
   WYK_HashMap<IndexKey, ArrayList<Record>> idx;
 
@@ -175,7 +175,7 @@ public class Mine_Qgram extends Algorithm {
           IndexKey key = new IndexKey(0, new int[] { token, 0 });
           ArrayList<Record> candidates = idx.get(key);
 
-          if(candidates == null) continue;
+          if (candidates == null) continue;
           for (Record recR : candidates) {
             boolean compare = Validator.DP_A_Queue(recR, recS, true);
             if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));

@@ -27,20 +27,20 @@ public class SI_Tree {
   /**
    * Flag to designate similarity function
    */
-  public static boolean   exactAnswer = false;
+  public static boolean          exactAnswer = false;
 
   /**
    * Number of fence entries
    */
-  public long FEsize  = 0;
+  public long                    FEsize      = 0;
   /**
    * Number of leaf entries
    */
-  public long LEsize  = 0;
+  public long                    LEsize      = 0;
   /**
    * Number of signatures
    */
-  public long sigsize = 0;
+  public long                    sigsize     = 0;
 
   /**
    * Construct a SI-Tree
@@ -158,22 +158,20 @@ public class SI_Tree {
               // // Line 9~10 : Add candidate pair
               for (SIRecord rec1 : Ls) {
                 HashSet<SIRecordExpanded> exp1 = null;
-                if(exactAnswer) exp1 = rec1.generateAll();
+                if (exactAnswer) exp1 = rec1.generateAll();
                 for (SIRecord rec2 : Lt) {
                   SIRecordPair sirp = new SIRecordPair(rec1, rec2);
-                  if(evaled.contains(sirp))
-                    ++duplicate_results;
-                  //else
-                  //  evaled.add(sirp);
+                  if (evaled.contains(sirp)) ++duplicate_results;
+                  // else
+                  // evaled.add(sirp);
                   // Similarity check
                   double sim = 0;
-                  if(exactAnswer) {
+                  if (exactAnswer) {
                     HashSet<SIRecordExpanded> exp2 = rec2.generateAll();
-                    for(SIRecordExpanded exp1R : exp1)
-                      for(SIRecordExpanded exp2R : exp2)
+                    for (SIRecordExpanded exp1R : exp1)
+                      for (SIRecordExpanded exp2R : exp2)
                         sim = Math.max(sim, exp1R.jaccard(exp2R));
-                  }
-                  else
+                  } else
                     sim = SimilarityFunc.selectiveExp(rec1, rec2);
                   if (sim >= threshold) results.add(sirp);
                   ++count;
@@ -234,24 +232,22 @@ public class SI_Tree {
               for (SIRecord rec1 : Ls) {
                 int id1 = rec1.getID();
                 HashSet<SIRecordExpanded> exp1 = null;
-                if(exactAnswer) exp1 = rec1.generateAll();
+                if (exactAnswer) exp1 = rec1.generateAll();
                 for (SIRecord rec2 : Lt) {
                   int id2 = rec2.getID();
                   if (id1 <= id2) break;
                   SIRecordPair sirp = new SIRecordPair(rec1, rec2);
-                  if(evaled.contains(sirp))
-                    ++duplicate_results;
+                  if (evaled.contains(sirp)) ++duplicate_results;
                   // else
-                  //  evaled.add(sirp);
+                  // evaled.add(sirp);
                   // Similarity check
                   double sim = 0;
-                  if(exactAnswer) {
+                  if (exactAnswer) {
                     HashSet<SIRecordExpanded> exp2 = rec2.generateAll();
-                    for(SIRecordExpanded exp1R : exp1)
-                      for(SIRecordExpanded exp2R : exp2)
+                    for (SIRecordExpanded exp1R : exp1)
+                      for (SIRecordExpanded exp2R : exp2)
                         sim = Math.max(sim, exp1R.jaccard(exp2R));
-                  }
-                  else
+                  } else
                     sim = SimilarityFunc.selectiveExp(rec1, rec2);
                   if (sim >= threshold) results.add(sirp);
                   ++count;

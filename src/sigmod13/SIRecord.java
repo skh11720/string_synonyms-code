@@ -51,12 +51,12 @@ public class SIRecord {
   }
 
   public SIRecord(SIRecordExpanded rec) {
-	  id = -1;
-	  tokens = new IntegerSet(rec.getOriginalTokens());
-	  tokens.addAll(rec.getExpandedTokens());
-	  fullExpanded = tokens;
-	  applicableRules = emptyRules;
-	}
+    id = -1;
+    tokens = new IntegerSet(rec.getOriginalTokens());
+    tokens.addAll(rec.getExpandedTokens());
+    fullExpanded = tokens;
+    applicableRules = emptyRules;
+  }
 
   public int getID() {
     return id;
@@ -65,7 +65,7 @@ public class SIRecord {
   public IntegerSet getTokens() {
     return tokens;
   }
-  
+
   public final HashSet<Rule> getApplicableRules() {
     return applicableRules;
   }
@@ -80,8 +80,9 @@ public class SIRecord {
 
       Queue<SIRecordExpanded> bufferQueue = new LinkedList<SIRecordExpanded>();
       for (Rule rule : applicableRules) {
-        if(rule.getFrom().length == 1 && rule.getTo().length == 1 &&
-            rule.getFrom()[0] == rule.getTo()[0]) continue;
+        if (rule.getFrom().length == 1 && rule.getTo().length == 1
+            && rule.getFrom()[0] == rule.getTo()[0])
+          continue;
         while (!queue.isEmpty()) {
           SIRecordExpanded curr = queue.poll();
           SIRecordExpanded expanded = new SIRecordExpanded(curr);
@@ -132,15 +133,15 @@ public class SIRecord {
     return (double) cupsize
         / (double) (fullExpanded.size() + o.fullExpanded.size() - cupsize);
   }
-  
+
   @Override
   public int hashCode() {
     return tokens.hashCode();
   }
-  
+
   @Override
   public boolean equals(Object o) {
-    return id == ((SIRecord)o).id;
+    return id == ((SIRecord) o).id;
   }
 
   @Override

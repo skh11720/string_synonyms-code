@@ -49,12 +49,12 @@ public class SI_SelfJoin extends Algorithm {
     br.close();
     long count = 0;
     int max = 0;
-    for(SIRecord rec : rslt) {
+    for (SIRecord rec : rslt) {
       int tmp = rec.getApplicableRules().size();
       count += tmp;
       max = Math.max(max, tmp);
     }
-    System.out.println("Avg rules : " + ((double)count / rslt.size()));
+    System.out.println("Avg rules : " + ((double) count / rslt.size()));
     System.out.println("Max rules : " + max);
     return rslt;
   }
