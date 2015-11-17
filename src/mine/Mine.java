@@ -15,11 +15,16 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 
 public class Mine extends Algorithm {
-  ArrayList<Record>                           tableR;
-  ArrayList<Record>                           tableS;
-  ArrayList<Rule>                             rulelist;
+  ArrayList<Record>                                         tableR;
+  ArrayList<Record>                                         tableS;
+  ArrayList<Rule>                                           rulelist;
 
-  WYK_HashMap<IntegerPair, ArrayList<Record>> idx;
+  /**
+   * Key: (token, index) pair<br/>
+   * Value IntervalTree Key: length of record (min, max)
+   * Value IntervalTree Value: record
+   */
+  WYK_HashMap<IntegerPair, IntervalTreeRW<Integer, Record>> idx;
 
   protected Mine(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -98,10 +103,11 @@ public class Mine extends Algorithm {
       }
     }
 
-    idx = new WYK_HashMap<IntegerPair, ArrayList<Record>>();
+    idx = new WYK_HashMap<IntegerPair, IntervalTreeRW<Integer, Record>>();
     for (Record rec : tableR) {
       IntegerSet[] availableTokens = rec.getAvailableTokens();
-      int minlength = rec.getCandidateLengths(rec.size() - 1)[0];
+      int[] range = rec.getCandidateLengths(rec.size() - 1);
+      int minlength = range[0];
       int minIdx = -1;
       int minInvokes = Integer.MAX_VALUE;
       for (int i = 0; i < minlength; ++i) {
@@ -119,13 +125,12 @@ public class Mine extends Algorithm {
 
       for (int token : availableTokens[minIdx]) {
         IntegerPair ip = new IntegerPair(token, minIdx);
-        ArrayList<Record> list = idx.get(ip);
+        IntervalTreeRW<Integer, Record> list = idx.get(ip);
         if (list == null) {
-          list = new ArrayList<Record>();
-          list.add(rec);
+          list = new IntervalTreeRW<Integer, Record>();
           idx.put(ip, list);
-        } else
-          list.add(rec);
+        }
+        list.insert(range[0], range[1], rec);
       }
       elements += availableTokens[minIdx].size();
     }
@@ -137,12 +142,14 @@ public class Mine extends Algorithm {
 
     for (Record recS : tableS) {
       IntegerSet[] availableTokens = recS.getAvailableTokens();
+      int[] range = recS.getCandidateLengths(recS.size() - 1);
       for (int i = 0; i < availableTokens.length; ++i) {
         for (int token : availableTokens[i]) {
           IntegerPair ip = new IntegerPair(token, i);
-          ArrayList<Record> candidates = idx.get(ip);
+          IntervalTreeRW<Integer, Record> tree = idx.get(ip);
 
-          if (candidates == null) continue;
+          if (tree == null) continue;
+          ArrayList<Record> candidates = tree.search(range[0], range[1]);
           for (Record recR : candidates) {
             boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS,
                 true);
