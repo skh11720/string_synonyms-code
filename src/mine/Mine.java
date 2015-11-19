@@ -144,17 +144,19 @@ public class Mine extends Algorithm {
       IntegerSet[] availableTokens = recS.getAvailableTokens();
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       for (int i = 0; i < availableTokens.length; ++i) {
+        WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
         for (int token : availableTokens[i]) {
           IntegerPair ip = new IntegerPair(token, i);
           IntervalTreeRW<Integer, Record> tree = idx.get(ip);
 
           if (tree == null) continue;
-          ArrayList<Record> candidates = tree.search(range[0], range[1]);
-          for (Record recR : candidates) {
-            boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS,
-                true);
-            if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
-          }
+          ArrayList<Record> candidatelist = tree.search(range[0], range[1]);
+          candidates.addAll(candidatelist);
+        }
+        for (Record recR : candidates) {
+          boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS,
+              true);
+          if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
         }
       }
     }

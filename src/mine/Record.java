@@ -75,6 +75,7 @@ public class Record implements Comparable<Record> {
    * preprocessLengths(), addSelfTokenRules() and preprocessRules() should be
    * called before this method is called
    */
+  // Interval tree를 이용해서 available token set을 저장할 수도 있음
   public void preprocessAvailableTokens() {
     availableTokens = new IntegerSet[candidateLengths[tokens.length - 1][1]];
     for (int i = 0; i < availableTokens.length; ++i)
