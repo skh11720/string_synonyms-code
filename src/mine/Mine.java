@@ -66,13 +66,35 @@ public class Mine extends Algorithm {
 
   private void preprocess() {
     Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
+    
+    long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
     for (Record rec : tableR) {
       rec.preprocessRules(automata);
-      rec.preprocessLengths();
-      rec.preprocessAvailableTokens();
-      rec.preprocessEstimatedRecords();
     }
+    long time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess rules : " + time);
+
+    currentTime = System.currentTimeMillis();
+    for (Record rec : tableR) {
+    	rec.preprocessLengths();
+    }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess rules : " + time);
+
+    currentTime = System.currentTimeMillis();
+    for (Record rec : tableR) {
+        rec.preprocessAvailableTokens();
+      }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess rules : " + time);
+
+    currentTime = System.currentTimeMillis();
+    for (Record rec : tableR) {
+        rec.preprocessEstimatedRecords();
+      }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess rules : " + time);
 
     // Preprocess each records in S
     for (Record rec : tableS) {
@@ -85,6 +107,7 @@ public class Mine extends Algorithm {
 
   private void buildIndex() {
     long elements = 0;
+    long predictCount = 0;
     // Build an index
     // Count Invokes per each (token, loc) pair
     WYK_HashMap<IntegerPair, Integer> invokes = new WYK_HashMap<IntegerPair, Integer>();
@@ -122,6 +145,8 @@ public class Mine extends Algorithm {
           minInvokes = invoke;
         }
       }
+      
+      predictCount += minInvokes;
 
       for (int token : availableTokens[minIdx]) {
         IntegerPair ip = new IntegerPair(token, minIdx);
@@ -134,7 +159,19 @@ public class Mine extends Algorithm {
       }
       elements += availableTokens[minIdx].size();
     }
-    System.out.println("Elements in the index : " + elements);
+    System.out.println("Predict : " + predictCount);
+    System.out.println("Idx size : " + elements);
+    
+    ///// Statistics
+    int sum = 0;
+    long count = 0;
+    for(IntervalTreeRW<Integer, Record> list : idx.values()) {
+    	if(list.size() == 1) continue;
+    	sum++;
+    	count += list.size();
+    }
+    System.out.println("iIdx size : " + count);
+    System.out.println("Rec per idx : " + ((double)count) / sum);
   }
 
   private WYK_HashSet<IntegerPair> join() {
