@@ -134,6 +134,14 @@ public class SIRecord {
         / (double) (fullExpanded.size() + o.fullExpanded.size() - cupsize);
   }
 
+  public boolean contains(int token) {
+    return tokens.contains(token);
+  }
+
+  public boolean fullExpandedContains(int token) {
+    return fullExpanded.contains(token);
+  }
+
   @Override
   public int hashCode() {
     return tokens.hashCode();

@@ -60,6 +60,7 @@ public class Rule implements Comparable<Rule> {
 
   @Override
   public boolean equals(Object o) {
+    if(this == o) return true;
     Rule ro = (Rule) o;
     if (from.length == ro.from.length && to.length == ro.to.length) {
       for (int i = 0; i < fromSize(); ++i)

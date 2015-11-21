@@ -1,6 +1,8 @@
 package sigmod13;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import tools.Rule;
 
@@ -54,12 +56,16 @@ public class SimilarityFunc {
     // Line 1 : Calcualte candidate rule set
     // Procedure findCandidateRuleSet(), line 4
     // Line 4 : Calcualte candidate rule set
-    HashSet<Rule> C1 = new HashSet<Rule>();
-    for (Rule rule : rec1.applicableRules)
-      if (ruleGain(rule, rec1, rec2) > 0) C1.add(rule);
-    HashSet<Rule> C2 = new HashSet<Rule>();
-    for (Rule rule : rec2.applicableRules)
-      if (ruleGain(rule, rec2, rec1) > 0) C2.add(rule);
+    LinkedList<RuleGainPair> C1list = new LinkedList<RuleGainPair>();
+    for (Rule rule : rec1.applicableRules) {
+      double gain = ruleGain(rule, rec1, rec2);
+      if (gain > 0) C1list.add(new RuleGainPair(gain, rule));
+    }
+    LinkedList<RuleGainPair> C2list = new LinkedList<RuleGainPair>();
+    for (Rule rule : rec2.applicableRules) {
+      double gain = ruleGain(rule, rec2, rec1);
+      if (gain > 0) C2list.add(new RuleGainPair(gain, rule));
+    }
 
     // Line 5 : repeat until no rule can be removed
     // TODO : Bottle neck
@@ -70,9 +76,11 @@ public class SimilarityFunc {
       SIRecord erec2 = new SIRecord(rec2);
       try {
         // Line 6 : Calculate S'_1
-        erec1.applyRule(C1);
+        for (RuleGainPair rgp : C1list)
+          erec1.applyRule(rgp.rule);
         // Line 7 : Calculate S'_2
-        erec2.applyRule(C2);
+        for (RuleGainPair rgp : C2list)
+          erec2.applyRule(rgp.rule);
       } catch (Exception e) {
         // This should never be happen
         e.printStackTrace();
@@ -82,24 +90,23 @@ public class SimilarityFunc {
       double threshold = theta / (1 + theta);
 
       // Line 9 ~ 11
-      // Java HashSet throws ConcurrentModificationException if trying to
-      // modify while iterating. Therefore, we have use some buffer
-      // HashSet.
-      HashSet<Rule> buffer = new HashSet<Rule>();
-      for (Rule rule : C1)
-        if (ruleGain(rule, rec1, rec2) < threshold)
+      Iterator<RuleGainPair> it1 = C1list.iterator();
+      while (it1.hasNext()) {
+        RuleGainPair rgp = it1.next();
+        if (rgp.rulegain < threshold) {
+          it1.remove();
           removed = true;
-        else
-          buffer.add(rule);
-      C1 = buffer;
-      buffer = new HashSet<Rule>();
+        }
+      }
 
-      for (Rule rule : C2)
-        if (ruleGain(rule, rec2, rec1) < threshold)
+      Iterator<RuleGainPair> it2 = C2list.iterator();
+      while (it2.hasNext()) {
+        RuleGainPair rgp = it2.next();
+        if (rgp.rulegain < threshold) {
+          it2.remove();
           removed = true;
-        else
-          buffer.add(rule);
-      C2 = buffer;
+        }
+      }
     } while (removed);
 
     // Line 2 : calculate \theta
@@ -109,6 +116,12 @@ public class SimilarityFunc {
     // Line 14 : Initialize S'_2
     SIRecord erec2 = new SIRecord(rec2);
     // Line 15 : repeat until there is no applicable rule
+    HashSet<Rule> C1 = new HashSet<Rule>();
+    HashSet<Rule> C2 = new HashSet<Rule>();
+    for (RuleGainPair rgp : C1list)
+      C1.add(rgp.rule);
+    for (RuleGainPair rgp : C2list)
+      C2.add(rgp.rule);
     while (C1.size() != 0 || C2.size() != 0) {
       // Line 16 : find the current most gain-effective rule
       Rule best_rule = null;
@@ -142,14 +155,14 @@ public class SimilarityFunc {
           // This should never be happen
           e.printStackTrace();
         }
-      }
+      } else
+        break;
 
       // Line 19 : remove the best rule
       if (best_from_1)
         C1.remove(best_rule);
       else
         C2.remove(best_rule);
-
     }
 
     // Line 20 : return the similarity
@@ -158,29 +171,40 @@ public class SimilarityFunc {
 
   /**
    * Calculate rule gain
-   * 
+   *
    * @param rule
    *          An applicable rule of rec1
    */
   private static double ruleGain(Rule rule, SIRecord rec1, SIRecord rec2) {
     // Line 1 : Calculate |U| instead of U
     int sizeU = 0;
-    for (int str : rule.getTo())
-      if (!rec1.getTokens().contains(str)) ++sizeU;
-
-    // Line 2-3
+    int sizeG = 0;
+    for (int str : rule.getTo()) {
+      if (!rec1.contains(str)) {
+        ++sizeU;
+        if (rec2.fullExpandedContains(str)) ++sizeG;
+      }
+    }
     if (sizeU == 0) return 0;
+    return (double) sizeG / sizeU;
+  }
+}
 
-    // Line 4
-    // S'_2 is already calculated
+class RuleGainPair {
+  double rulegain;
+  Rule   rule;
 
-    // Line 5 : Calculate G
-    HashSet<Integer> G = new HashSet<Integer>();
-    for (int str : rule.getTo())
-      if (rec2.fullExpanded.contains(str)) G.add(str);
-    G.removeAll(rec1.getTokens());
+  RuleGainPair(double rulegain, Rule rule) {
+    this.rulegain = rulegain;
+    this.rule = rule;
+  }
 
-    // Line 6
-    return (double) G.size() / sizeU;
+  public int hashCode() {
+    return rule.hashCode();
+  }
+
+  public boolean equals(Object o) {
+    RuleGainPair rgp = (RuleGainPair) o;
+    return rule.equals(rgp);
   }
 }
