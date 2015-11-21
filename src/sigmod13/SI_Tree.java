@@ -196,7 +196,6 @@ public class SI_Tree {
   public HashSet<SIRecordPair> selfjoin(double threshold) {
     // Line 1 : Initialize
     HashSet<SIRecordPair> results = new HashSet<SIRecordPair>();
-    HashSet<SIRecordPair> evaled = new HashSet<SIRecordPair>();
     long count = 0;
     long duplicate_results = 0;
 
@@ -215,6 +214,7 @@ public class SI_Tree {
             // any candidate pair
             if (Math.min(le_this.t, le_other.t) < cut) continue;
 
+            HashSet<SIRecordPair> evaled = new HashSet<SIRecordPair>();
             // Line 6 : Find all the overlapping signatures
             for (int sig : le_this.P.keySet()) {
               if (!le_other.P.containsKey(sig)) continue;
@@ -235,11 +235,14 @@ public class SI_Tree {
                 if (exactAnswer) exp1 = rec1.generateAll();
                 for (SIRecord rec2 : Lt) {
                   int id2 = rec2.getID();
-                  if (id1 <= id2) break;
+                  if (id1 <= id2) continue;
                   SIRecordPair sirp = new SIRecordPair(rec1, rec2);
-                  if (evaled.contains(sirp)) ++duplicate_results;
-                  // else
-                  // evaled.add(sirp);
+                  if (evaled.contains(sirp)) {
+                    ++duplicate_results;
+                    continue;
+                  }
+                  else
+                    evaled.add(sirp);
                   // Similarity check
                   double sim = 0;
                   if (exactAnswer) {
