@@ -134,7 +134,7 @@ public class SI_SelfJoin extends Algorithm {
     String Rulefile = args[1];
     double threshold = Double.parseDouble(args[2]);
     int filterNo = Integer.parseInt(args[3]);
-    SI_Tree.exactAnswer = (args.length == 5);
+    SI_Tree.exactAnswer = false;//(args.length == 5);
 
     long startTime = System.currentTimeMillis();
     SI_SelfJoin inst = new SI_SelfJoin(Rfile, Rulefile);

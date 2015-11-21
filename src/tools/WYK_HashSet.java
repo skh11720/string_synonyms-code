@@ -113,7 +113,7 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
   private void resize(int nextSize) {
     nextSize = Math.max(10, nextSize);
     Entry[] temp = array;
-    array = (Entry[]) Array.newInstance(Entry.class, size);
+    array = (Entry[]) Array.newInstance(Entry.class, nextSize);
     nextExpandSize = (int) (array.length * factor);
 
     // Move entries in temp to new array

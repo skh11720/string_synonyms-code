@@ -299,7 +299,7 @@ public class SI_Tree {
               int id2 = rec2.getID();
               if (is_selfjoin && id1 <= id2) break;
               // Similarity check
-              double sim = SimilarityFunc.fullExp2(rec1, rec2);
+              double sim = SimilarityFunc.selectiveExp(rec1, rec2);
               if (sim == 1) {
                 SIRecordPair sirp = new SIRecordPair(rec, rec2);
                 results.add(sirp);
