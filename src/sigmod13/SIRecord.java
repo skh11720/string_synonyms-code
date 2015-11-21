@@ -36,7 +36,7 @@ public class SIRecord {
       applicableRules.add(rule);
 
     // Full expand
-    fullExpanded = new IntegerSet(this.tokens);
+    fullExpanded = this.tokens.copy();
     for (Rule rule : applicableRules)
       for (int s : rule.getTo())
         fullExpanded.add(s);
@@ -44,7 +44,7 @@ public class SIRecord {
 
   public SIRecord(SIRecord rec) {
     id = -1;
-    tokens = new IntegerSet(rec.tokens);
+    tokens = rec.tokens.copy();
     // Applicable rules does not change
     applicableRules = rec.applicableRules;
     fullExpanded = rec.fullExpanded;
@@ -52,7 +52,7 @@ public class SIRecord {
 
   public SIRecord(SIRecordExpanded rec) {
     id = -1;
-    tokens = new IntegerSet(rec.getOriginalTokens());
+    tokens = rec.getOriginalTokens().copy();
     tokens.addAll(rec.getExpandedTokens());
     fullExpanded = tokens;
     applicableRules = emptyRules;

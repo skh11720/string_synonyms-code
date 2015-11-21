@@ -52,6 +52,18 @@ public class IntegerSet implements Iterable<Integer>, Set<Integer> {
       add(i);
   }
 
+  public IntegerSet copy() {
+    IntegerSet replica = new IntegerSet();
+    replica.array = new Entry[array.length];
+    for (int i = 0; i < array.length; ++i)
+      if (array[i] != null) replica.array[i] = new Entry(array[i]);
+    replica.size = size;
+    replica.factor = factor;
+    replica.nextExpandSize = nextExpandSize;
+    replica.hash = hash;
+    return replica;
+  }
+
   public boolean containsI(int key) {
     Entry curr = array[getIdx(key)];
     while (curr != null) {
@@ -105,7 +117,7 @@ public class IntegerSet implements Iterable<Integer>, Set<Integer> {
 
   /**
    * Expand the array with the given size
-   * 
+   *
    * @param nextSize
    */
   private void resize(int nextSize) {
@@ -262,6 +274,11 @@ public class IntegerSet implements Iterable<Integer>, Set<Integer> {
 
     Entry(int record) {
       this.record = record;
+    }
+
+    Entry(Entry o) {
+      this.record = o.record;
+      if (o.next != null) next = new Entry(o.next);
     }
 
     public String toString() {
