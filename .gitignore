@@ -2,5 +2,6 @@ res/
 wordnet/
 aol/
 JiahengLu/
+*.class
 *.txt
 *.swp

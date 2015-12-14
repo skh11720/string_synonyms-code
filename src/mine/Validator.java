@@ -314,11 +314,14 @@ public class Validator {
             if (next == null)
               continue;
             // Check if the next sub-match can be used further
-            else if (UseLengthFilter && !Validator.checkLengthFilter(difflen, r,
-                next.idx1, t, next.idx2))
-              continue;
+            else if (UseLengthFilter) {
+              int tmpdifflen = R_is_shorter_than_T ? difflen : -difflen;
+              if (!Validator.checkLengthFilter(tmpdifflen, r, next.idx1, t,
+                  next.idx2))
+                continue;
+            }
             // Check if we found an answer
-            else if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
+            if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
                 && next.type == 0)
               return true;
             // Check if the next sub-match is already discovered
