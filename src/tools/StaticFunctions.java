@@ -1,6 +1,8 @@
 package tools;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
 
 import mine.Record;
 
@@ -27,7 +29,7 @@ public class StaticFunctions {
 
   /**
    * Check if a given pattern is a prefix of given string
-   * 
+   *
    * @param str
    *          The string
    * @param pattern
@@ -50,7 +52,7 @@ public class StaticFunctions {
 
   /**
    * Copy a given string starts from given 'from' value
-   * 
+   *
    * @param src
    *          The source string
    * @param from
@@ -63,10 +65,80 @@ public class StaticFunctions {
     return rslt;
   }
 
+  private static class RecordIntTriple implements Comparable<RecordIntTriple> {
+    Record rec;
+    int    i1;
+    int    i2;
+
+    RecordIntTriple(Record rec, int i1, int i2) {
+      this.rec = rec;
+      this.i1 = i1;
+      this.i2 = i2;
+    }
+
+    @Override
+    public int compareTo(RecordIntTriple o) {
+      return Integer.compare(rec.getID(), o.rec.getID());
+    }
+  }
+
+  public static List<Record> union(List<? extends List<Record>> list) {
+    // Merge candidates
+    PriorityQueue<RecordIntTriple> pq = new PriorityQueue<RecordIntTriple>();
+    for (int i = 0; i < list.size(); ++i) {
+      List<Record> candidates = list.get(i);
+      if (!candidates.isEmpty())
+        pq.add(new RecordIntTriple(candidates.get(0), i, 0));
+    }
+    List<Record> candidates = new ArrayList<Record>();
+    Record last = null;
+    while (!pq.isEmpty()) {
+      RecordIntTriple p = pq.poll();
+      if (last == null || last.getID() != p.rec.getID()) {
+        last = p.rec;
+        candidates.add(p.rec);
+      }
+      List<Record> origin = list.get(p.i1);
+      ++p.i2;
+      if (origin.size() > p.i2) {
+        p.rec = origin.get(p.i2);
+        pq.add(p);
+      }
+    }
+    return candidates;
+  }
+
+  public static List<Record> intersection(List<? extends List<Record>> list) {
+    if(list.size() == 1) return list.get(0);
+    PriorityQueue<RecordIntTriple> pq = new PriorityQueue<RecordIntTriple>();
+    for (int i = 0; i < list.size(); ++i) {
+      List<Record> candidates = list.get(i);
+      if (!candidates.isEmpty())
+        pq.add(new RecordIntTriple(candidates.get(0), i, 0));
+    }
+    List<Record> candidates = new ArrayList<Record>();
+    Record last = null;
+    int count = 0;
+    while (!pq.isEmpty()) {
+      RecordIntTriple p = pq.poll();
+      if (last == null || last.getID() != p.rec.getID()) {
+        last = p.rec;
+        count = 1;
+      } else if (++count == list.size()) candidates.add(last);
+      List<Record> origin = list.get(p.i1);
+      ++p.i2;
+      if (origin.size() > p.i2) {
+        p.rec = origin.get(p.i2);
+        pq.add(p);
+      }
+    }
+    return candidates;
+  }
+
   /**
    * Merge two sorted ArrrayLists
    */
-  public static ArrayList<Record> union(ArrayList<Record> al1,
+  public static List<Record> union(ArrayList<Record> al1,
       ArrayList<Record> al2) {
     ArrayList<Record> rslt = new ArrayList<Record>();
     int idx1 = 0, idx2 = 0;
@@ -96,7 +168,7 @@ public class StaticFunctions {
   /**
    * Do intersection between two sorted ArrrayLists
    */
-  public static ArrayList<Record> intersection(ArrayList<Record> al1,
+  public static List<Record> intersection(ArrayList<Record> al1,
       ArrayList<Record> al2) {
     ArrayList<Record> rslt = new ArrayList<Record>();
     int idx1 = 0, idx2 = 0;
