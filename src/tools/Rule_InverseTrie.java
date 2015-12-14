@@ -39,16 +39,13 @@ public class Rule_InverseTrie {
     while (i < residual.length) {
       int token = residual[i];
       State next;
-      if (curr.output != null) {
-        for (PositionalRule prule : curr.output)
-          if (prule.idx == idx) rslt.add(prule.rule);
-      }
+      if(curr.output != null)
+        for(PositionalRule prule : curr.output)
+          if(prule.idx == idx) rslt.add(prule.rule);
       if (curr.split != null && (next = curr.split.get(token)) != null) {
         curr = next;
         ++i;
-      } else if (curr.split == null)
-        break;
-      else
+      } else
         return rslt;
     }
     Queue<State> queue = new LinkedList<State>();
