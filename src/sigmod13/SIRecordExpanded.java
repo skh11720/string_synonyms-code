@@ -1,14 +1,16 @@
 package sigmod13;
 
+import java.util.Collection;
+
 import tools.IntegerSet;
 import tools.Rule;
 
 /**
  * Expanded record
  */
-public class SIRecordExpanded {
-  private IntegerSet originalTokens;
-  private IntegerSet expandedTokens;
+public class SIRecordExpanded implements SIRecord.Expanded {
+  private final Collection<Integer> originalTokens;
+  private final IntegerSet          expandedTokens;
 
   public SIRecordExpanded(SIRecord rec) {
     originalTokens = rec.getTokens();
@@ -20,16 +22,16 @@ public class SIRecordExpanded {
     expandedTokens = new IntegerSet(rec.expandedTokens);
   }
 
-  public IntegerSet getOriginalTokens() {
+  public SIRecord toRecord() {
+    return new SIRecord(this);
+  }
+
+  public Collection<Integer> getOriginalTokens() {
     return originalTokens;
   }
 
   public IntegerSet getExpandedTokens() {
     return expandedTokens;
-  }
-
-  public int getSize() {
-    return originalTokens.size() + expandedTokens.size();
   }
 
   public void applyRule(Rule rule) throws Exception {
@@ -73,5 +75,16 @@ public class SIRecordExpanded {
     int union = originalTokens.size() + expandedTokens.size()
         + o.originalTokens.size() + o.expandedTokens.size() - intersection;
     return (double) intersection / union;
+  }
+
+  @Override
+  public int size() {
+    return originalTokens.size() + expandedTokens.size();
+  }
+
+  @Override
+  public double similarity(RecordInterface.Expanded o) {
+    if (o.getClass() != SIRecordExpanded.class) return 0;
+    return jaccard((SIRecordExpanded) o);
   }
 }

@@ -1,4 +1,4 @@
-package sigmod13;
+package sigmod13.modified;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -6,21 +6,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import sigmod13.filter.ITF1;
-import sigmod13.filter.ITF2;
-import sigmod13.filter.ITF3;
-import sigmod13.filter.ITF4;
-import sigmod13.filter.ITF_Filter;
+import mine.Record;
+import sigmod13.SI_Tree;
 import tools.Algorithm;
 import tools.Pair;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 
-public class SI_SelfJoin extends Algorithm {
-  ArrayList<SIRecord> table;
-  ArrayList<Rule>     rulelist;
+public class SI_SelfJoin_Modified extends Algorithm {
+  ArrayList<Record> table;
+  ArrayList<Rule>   rulelist;
 
-  public SI_SelfJoin(String DBR_file, String rulefile) throws IOException {
+  public SI_SelfJoin_Modified(String DBR_file, String rulefile)
+      throws IOException {
     super(rulefile, DBR_file, DBR_file);
     int size = -1;
     readRules(rulefile);
@@ -37,27 +35,50 @@ public class SI_SelfJoin extends Algorithm {
     br.close();
   }
 
-  private ArrayList<SIRecord> readRecords(String DBfile, int num)
+  private ArrayList<Record> readRecords(String DBfile, int num)
       throws IOException {
-    Rule_ACAutomata ruleAC = new Rule_ACAutomata(rulelist);
-    ArrayList<SIRecord> rslt = new ArrayList<SIRecord>();
+    ArrayList<Record> rslt = new ArrayList<Record>();
     BufferedReader br = new BufferedReader(new FileReader(DBfile));
     String line;
     while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new SIRecord(rslt.size(), line, str2int, ruleAC));
+      rslt.add(new Record(rslt.size(), line, str2int));
       --num;
     }
     br.close();
-    long count = 0;
-    int max = 0;
-    for (SIRecord rec : rslt) {
-      int tmp = rec.getApplicableRules().size();
-      count += tmp;
-      max = Math.max(max, tmp);
-    }
-    System.out.println("Avg rules : " + ((double) count / rslt.size()));
-    System.out.println("Max rules : " + max);
     return rslt;
+  }
+
+  private void preprocess() {
+    Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
+
+    long currentTime = System.currentTimeMillis();
+    // Preprocess each records in R
+    for (Record rec : table) {
+      rec.preprocessRules(automata);
+    }
+    long time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess rules : " + time);
+
+    currentTime = System.currentTimeMillis();
+    for (Record rec : table) {
+      rec.preprocessLengths();
+    }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess lengths: " + time);
+
+    currentTime = System.currentTimeMillis();
+    for (Record rec : table) {
+      rec.preprocessAvailableTokens();
+    }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess available tokens: " + time);
+
+    currentTime = System.currentTimeMillis();
+    for (Record rec : table) {
+      rec.preprocessEstimatedRecords();
+    }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess est records: " + time);
   }
 
   public void run(double threshold, int filterType) throws IOException {
@@ -65,26 +86,11 @@ public class SI_SelfJoin extends Algorithm {
     // InputStreamReader(System.in));
     // br.readLine();
 
+    preprocess();
+
     long startTime = System.currentTimeMillis();
 
-    ITF_Filter filter = null;
-
-    switch (filterType) {
-      case 1:
-        filter = new ITF1(table, rulelist);
-        break;
-      case 2:
-        filter = new ITF2(table, rulelist);
-        break;
-      case 3:
-        filter = new ITF3(table, rulelist);
-        break;
-      case 4:
-        filter = new ITF4(table, rulelist);
-        break;
-      default:
-    }
-    SI_Tree<SIRecord> tree = new SI_Tree<SIRecord>(threshold, filter, table);
+    SI_Tree<Record> tree = new SI_Tree<Record>(threshold, null, table);
     System.out.println("Node size : " + (tree.FEsize + tree.LEsize));
     System.out.println("Sig size : " + tree.sigsize);
 
@@ -96,10 +102,10 @@ public class SI_SelfJoin extends Algorithm {
     selfjoin(tree, threshold);
   }
 
-  public void selfjoin(SI_Tree<SIRecord> treeR, double threshold) {
+  public void selfjoin(SI_Tree<Record> treeR, double threshold) {
     long startTime = System.currentTimeMillis();
 
-    HashSet<Pair<SIRecord>> candidates = treeR.selfjoin(threshold);
+    HashSet<Pair<Record>> candidates = treeR.selfjoin(threshold);
     // long counter = treeR.join(treeS, threshold);
     System.out.print("Retrieveing candidates finished");
 
@@ -110,12 +116,10 @@ public class SI_SelfJoin extends Algorithm {
 
     long similar = 0;
 
-    // for(Pair<SIRecord> pair : candidates)
-    // System.out.println(pair.rec1 + "\t" + pair.rec2);
-
-    for (Pair<SIRecord> pair : candidates)
-      if (SimilarityFunc.selectiveExp(pair.rec1, pair.rec2) >= threshold)
-        ++similar;
+    for (Pair<Record> pair : candidates) {
+      System.out.println(pair.rec1 + "\t" + pair.rec2);
+      ++similar;
+    }
 
     System.out.print("Validating finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
@@ -138,7 +142,7 @@ public class SI_SelfJoin extends Algorithm {
     SI_Tree.exactAnswer = false;// (args.length == 5);
 
     long startTime = System.currentTimeMillis();
-    SI_SelfJoin inst = new SI_SelfJoin(Rfile, Rulefile);
+    SI_SelfJoin_Modified inst = new SI_SelfJoin_Modified(Rfile, Rulefile);
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run(threshold, filterNo);

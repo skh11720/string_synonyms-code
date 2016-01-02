@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,10 +19,12 @@ import tools.StaticFunctions;
 import tools.WYK_HashSet;
 
 public class JoinD extends Algorithm {
-  public static final int                                a = 3;
+  boolean                                                skipChecking = false;
+  public static int                                      a            = 3;
   ArrayList<Record>                                      tableR;
   ArrayList<Record>                                      tableS;
   ArrayList<Rule>                                        rulelist;
+  RecordIDComparator                                     idComparator;
 
   /**
    * Key: token<br/>
@@ -41,6 +42,7 @@ public class JoinD extends Algorithm {
     Record.setStrList(strlist);
     tableR = readRecords(Rfile, size);
     tableS = readRecords(Sfile, size);
+    idComparator = new RecordIDComparator();
   }
 
   private void readRules(String Rulefile) throws IOException {
@@ -153,6 +155,7 @@ public class JoinD extends Algorithm {
 
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
+    int count = 0;
 
     for (Record recS : tableS) {
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
@@ -166,23 +169,23 @@ public class JoinD extends Algorithm {
           IntervalTreeRW<Integer, Record> tree = map.get(token);
           if (tree == null) continue;
           List<Record> candidates = tree.search(range[0], range[1]);
-          Collections.sort(candidates, new Comparator<Record>() {
-            @Override
-            public int compare(Record o1, Record o2) {
-              return Integer.compare(o1.getID(), o2.getID());
-            }
-          });
+          Collections.sort(candidates, idComparator);
           ithCandidates.add(candidates);
         }
-        candidatesList.add(StaticFunctions.union(ithCandidates));
+        candidatesList.add(StaticFunctions.union(ithCandidates, idComparator));
       }
-      List<Record> candidates = StaticFunctions.intersection(candidatesList);
+      List<Record> candidates = StaticFunctions.intersection(candidatesList,
+          idComparator);
+      count += candidates.size();
 
+      if(skipChecking) continue;
       for (Record recR : candidates) {
         boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
         if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
       }
+
     }
+    System.out.println("comparisions : " + count);
 
     return rslt;
   }
@@ -239,22 +242,25 @@ public class JoinD extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 3) {
+    if (args.length != 4 && args.length != 5) {
       printUsage();
       return;
     }
     String Rfile = args[0];
     String Sfile = args[1];
     String Rulefile = args[2];
+    JoinD.a = Integer.parseInt(args[3]);
+    boolean skipChecking = args.length == 5;
 
     long startTime = System.currentTimeMillis();
     JoinD inst = new JoinD(Rulefile, Rfile, Sfile);
+    inst.skipChecking = skipChecking;
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
   }
 
   private static void printUsage() {
-    System.out.println("Usage : <R file> <S file> <Rule file>");
+    System.out.println("Usage : <R file> <S file> <Rule file> <a>");
   }
 }

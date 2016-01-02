@@ -1,6 +1,9 @@
 package tools;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -50,6 +53,11 @@ public class StaticFunctions {
     return true;
   }
 
+  public static boolean overlap(int min1, int max1, int min2, int max2) {
+    if (min1 > max2 || max1 < min2) return false;
+    return true;
+  }
+
   /**
    * Copy a given string starts from given 'from' value
    *
@@ -65,40 +73,55 @@ public class StaticFunctions {
     return rslt;
   }
 
-  private static class RecordIntTriple implements Comparable<RecordIntTriple> {
-    Record rec;
-    int    i1;
-    int    i2;
+  private static class RecordIntTriple<T> {
+    T   rec;
+    int i1;
+    int i2;
 
-    RecordIntTriple(Record rec, int i1, int i2) {
+    RecordIntTriple(T rec, int i1, int i2) {
       this.rec = rec;
       this.i1 = i1;
       this.i2 = i2;
     }
+  }
+
+  private static class RecordIntTripleComparator<T>
+      implements Comparator<RecordIntTriple<T>> {
+    Comparator<T> cmp;
+
+    RecordIntTripleComparator(Comparator<T> cmp) {
+      this.cmp = cmp;
+    }
 
     @Override
-    public int compareTo(RecordIntTriple o) {
-      return Integer.compare(rec.getID(), o.rec.getID());
+    public int compare(RecordIntTriple<T> o1, RecordIntTriple<T> o2) {
+      return cmp.compare(o1.rec, o2.rec);
     }
   }
 
-  public static List<Record> union(List<? extends List<Record>> list) {
+  public static <T> List<T> union(List<? extends List<T>> list,
+      Comparator<T> cmp) {
+    if (list.size() == 0)
+      return new ArrayList<T>();
+    else if (list.size() == 1) return list.get(0);
     // Merge candidates
-    PriorityQueue<RecordIntTriple> pq = new PriorityQueue<RecordIntTriple>();
+    RecordIntTripleComparator<T> ritCom = new RecordIntTripleComparator<T>(cmp);
+    PriorityQueue<RecordIntTriple<T>> pq = new PriorityQueue<RecordIntTriple<T>>(
+        list.size(), ritCom);
     for (int i = 0; i < list.size(); ++i) {
-      List<Record> candidates = list.get(i);
+      List<T> candidates = list.get(i);
       if (!candidates.isEmpty())
-        pq.add(new RecordIntTriple(candidates.get(0), i, 0));
+        pq.add(new RecordIntTriple<T>(candidates.get(0), i, 0));
     }
-    List<Record> candidates = new ArrayList<Record>();
-    Record last = null;
+    List<T> candidates = new ArrayList<T>();
+    T last = null;
     while (!pq.isEmpty()) {
-      RecordIntTriple p = pq.poll();
-      if (last == null || last.getID() != p.rec.getID()) {
+      RecordIntTriple<T> p = pq.poll();
+      if (last == null || cmp.compare(last, p.rec) != 0) {
         last = p.rec;
         candidates.add(p.rec);
       }
-      List<Record> origin = list.get(p.i1);
+      List<T> origin = list.get(p.i1);
       ++p.i2;
       if (origin.size() > p.i2) {
         p.rec = origin.get(p.i2);
@@ -108,24 +131,64 @@ public class StaticFunctions {
     return candidates;
   }
 
-  public static List<Record> intersection(List<? extends List<Record>> list) {
-    if(list.size() == 1) return list.get(0);
-    PriorityQueue<RecordIntTriple> pq = new PriorityQueue<RecordIntTriple>();
-    for (int i = 0; i < list.size(); ++i) {
-      List<Record> candidates = list.get(i);
-      if (!candidates.isEmpty())
-        pq.add(new RecordIntTriple(candidates.get(0), i, 0));
+  public static <T> List<T> intersection(List<? extends List<T>> list,
+      Comparator<T> cmp) {
+    LinkedList<T> intersection = new LinkedList<T>();
+    if (list.size() == 0) return intersection;
+    intersection.addAll(list.get(0));
+    for (int i = 1; i < list.size(); ++i) {
+      List<T> src = list.get(i);
+      if (src.size() == 0 || intersection.size() == 0) {
+        intersection.clear();
+        break;
+      }
+      Iterator<T> iter1 = intersection.iterator();
+      Iterator<T> iter2 = src.iterator();
+      T v1 = iter1.next();
+      T v2 = iter2.next();
+      while (v1 != null && v2 != null) {
+        int compare = cmp.compare(v1, v2);
+        if (compare == 0) {
+          v1 = iter1.hasNext() ? iter1.next() : null;
+          v2 = iter2.hasNext() ? iter2.next() : null;
+        } else if (compare < 0) {
+          iter1.remove();
+          v1 = iter1.hasNext() ? iter1.next() : null;
+        } else
+          v2 = iter2.hasNext() ? iter2.next() : null;
+      }
+      if (v2 == null)
+        while (iter1.hasNext()) {
+          iter1.remove();
+          iter1.next();
+        }
     }
-    List<Record> candidates = new ArrayList<Record>();
-    Record last = null;
+    return intersection;
+  }
+
+  public static <T> List<T> intersection2(List<? extends List<T>> list,
+      Comparator<T> cmp) {
+    if (list.size() == 0)
+      return new ArrayList<T>();
+    else if (list.size() == 1) return list.get(0);
+    RecordIntTripleComparator<T> ritCom = new RecordIntTripleComparator<T>(cmp);
+    PriorityQueue<RecordIntTriple<T>> pq = new PriorityQueue<RecordIntTriple<T>>(
+        list.size(), ritCom);
+    for (int i = 0; i < list.size(); ++i) {
+      List<T> candidates = list.get(i);
+      if (!candidates.isEmpty())
+        pq.add(new RecordIntTriple<T>(candidates.get(0), i, 0));
+    }
+    List<T> candidates = new ArrayList<T>();
+    T last = null;
     int count = 0;
     while (!pq.isEmpty()) {
-      RecordIntTriple p = pq.poll();
-      if (last == null || last.getID() != p.rec.getID()) {
+      RecordIntTriple<T> p = pq.poll();
+      if (last == null || cmp.compare(last, p.rec) != 0) {
         last = p.rec;
         count = 1;
       } else if (++count == list.size()) candidates.add(last);
-      List<Record> origin = list.get(p.i1);
+      List<T> origin = list.get(p.i1);
       ++p.i2;
       if (origin.size() > p.i2) {
         p.rec = origin.get(p.i2);

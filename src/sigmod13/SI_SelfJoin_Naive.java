@@ -12,6 +12,7 @@ import sigmod13.filter.ITF3;
 import sigmod13.filter.ITF4;
 import sigmod13.filter.ITF_Filter;
 import tools.Algorithm;
+import tools.Pair;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 
@@ -75,7 +76,7 @@ public class SI_SelfJoin_Naive extends Algorithm {
         break;
       default:
     }
-    SI_Tree tree = new SI_Tree(threshold, filter, table);
+    SI_Tree<SIRecord> tree = new SI_Tree<SIRecord>(threshold, filter, table);
     System.out.println("Node size : " + (tree.FEsize + tree.LEsize));
     System.out.println("Sig size : " + tree.sigsize);
 
@@ -87,10 +88,10 @@ public class SI_SelfJoin_Naive extends Algorithm {
     naiveselfjoin(tree, threshold);
   }
 
-  public void naiveselfjoin(SI_Tree treeR, double threshold) {
+  public void naiveselfjoin(SI_Tree<SIRecord> treeR, double threshold) {
     long startTime = System.currentTimeMillis();
 
-    HashSet<SIRecordPair> candidates = treeR.naivejoin(table, true);
+    HashSet<Pair<SIRecord>> candidates = treeR.naivejoin(table, true);
     // long counter = treeR.join(treeS, threshold);
     System.out.print("Retrieveing candidates finished");
 
@@ -101,10 +102,10 @@ public class SI_SelfJoin_Naive extends Algorithm {
 
     long similar = 0;
 
-    // for(SIRecordPair pair : candidates)
+    // for(Pair<SIRecord> pair : candidates)
     // System.out.println(pair.rec1 + "\t" + pair.rec2);
 
-    // for (SIRecordPair pair : candidates)
+    // for (Pair<SIRecord> pair : candidates)
     // if (SimilarityFunc.selectiveExp(pair.rec1, pair.rec2) >= threshold)
     // ++similar;
 

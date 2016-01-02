@@ -15,6 +15,7 @@ import sigmod13.filter.ITF4;
 import sigmod13.filter.ITF_Filter;
 import tools.Algorithm;
 import tools.IntegerMap;
+import tools.Pair;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 
@@ -110,8 +111,8 @@ public class SI_Join_Naive2 extends Algorithm {
     idxR = new IntegerMap<HashSet<SIRecordExpanded>>();
     idxS = new IntegerMap<HashSet<SIRecordExpanded>>();
     for (SIRecordExpanded exp : mapR.keySet()) {
-      int prefix_size = exp.getSize()
-          - (int) Math.ceil(threshold * exp.getSize()) + 1;
+      int prefix_size = exp.size()
+          - (int) Math.ceil(threshold * exp.size()) + 1;
       HashSet<Integer> sigset = filterR.filter(exp, prefix_size);
       for (Integer sig : sigset) {
         if (!idxR.containsKey(sig))
@@ -120,8 +121,8 @@ public class SI_Join_Naive2 extends Algorithm {
       }
     }
     for (SIRecordExpanded exp : mapS.keySet()) {
-      int prefix_size = exp.getSize()
-          - (int) Math.ceil(threshold * exp.getSize()) + 1;
+      int prefix_size = exp.size()
+          - (int) Math.ceil(threshold * exp.size()) + 1;
       HashSet<Integer> sigset = filterS.filter(exp, prefix_size);
       for (Integer sig : sigset) {
         if (!idxS.containsKey(sig))
@@ -139,7 +140,7 @@ public class SI_Join_Naive2 extends Algorithm {
   public void join(double threshold) {
     long startTime = System.currentTimeMillis();
 
-    HashSet<SIRecordPair> candidates = new HashSet<SIRecordPair>();
+    HashSet<Pair<SIRecord>> candidates = new HashSet<Pair<SIRecord>>();
     for (Map.Entry<Integer, HashSet<SIRecordExpanded>> entry : idxR
         .entrySet()) {
       if (!idxS.containsKey(entry.getKey())) continue;
@@ -152,14 +153,14 @@ public class SI_Join_Naive2 extends Algorithm {
             HashSet<SIRecord> recSs = mapS.get(expS);
             for (SIRecord recR : recRs)
               for (SIRecord recS : recSs)
-                candidates.add(new SIRecordPair(recR, recS));
+                candidates.add(new Pair<SIRecord>(recR, recS));
           }
         }
     }
     System.out.print("Validating finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println("Similar pairs : " + candidates.size());
-    for (SIRecordPair pair : candidates)
+    for (Pair<SIRecord> pair : candidates)
       System.out.println(pair.rec1.toString() + " == " + pair.rec2.toString());
   }
 

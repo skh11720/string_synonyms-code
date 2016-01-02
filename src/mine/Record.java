@@ -1,47 +1,54 @@
 package mine;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
+import sigmod13.RecordInterface;
+import sigmod13.filter.ITF_Filter;
 import tools.IntegerSet;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
 import tools.Rule_InverseTrie;
 import tools.StaticFunctions;
+import tools.WYK_HashSet;
 
-public class Record implements Comparable<Record> {
-  private static ArrayList<String> strlist;
-  private final int                id;
+public class Record
+    implements Comparable<Record>, RecordInterface, RecordInterface.Expanded {
+  protected static ArrayList<String> strlist;
+  protected static RuleTrie          atm;
+  protected final int                id;
   /**
    * For fast hashing
    */
-  private boolean                  validHashValue      = false;
-  private int                      hashValue;
+  protected boolean                  validHashValue      = false;
+  protected int                      hashValue;
 
   /**
    * Actual tokens
    */
-  private int[]                    tokens;
+  protected int[]                    tokens;
   /**
    * For DynamicMatch
    */
-  private Rule[][]                 applicableRules     = null;
-  private Rule_InverseTrie         applicableRulesTrie = null;
+  protected Rule[][]                 applicableRules     = null;
+  protected Rule_InverseTrie         applicableRulesTrie = null;
   /**
    * For {@link algorithm.dynamic.DynamicMatch06_C}
    */
-  private IntegerSet[]             availableTokens     = null;
+  protected IntegerSet[]             availableTokens     = null;
   /**
    * For Length filter
    */
-  private int[][]                  candidateLengths    = null;
-  private static final Rule[]      EMPTY_RULE          = new Rule[0];
+  protected int[][]                  candidateLengths    = null;
+  protected static final Rule[]      EMPTY_RULE          = new Rule[0];
   /**
    * Estimate the number of equivalent records
    */
-  private long[]                   estimated_equivs    = null;
+  protected long[]                   estimated_equivs    = null;
 
   private Record() {
     id = -1;
@@ -49,6 +56,10 @@ public class Record implements Comparable<Record> {
 
   public static void setStrList(ArrayList<String> strlist) {
     Record.strlist = strlist;
+  }
+
+  public static void setRuleTrie(RuleTrie atm) {
+    Record.atm = atm;
   }
 
   public Record(int id, String str, HashMap<String, Integer> str2int) {
@@ -59,7 +70,7 @@ public class Record implements Comparable<Record> {
       tokens[i] = str2int.get(pstr[i]);
   }
 
-  Record(Record o) {
+  public Record(Record o) {
     id = -1;
     tokens = new int[o.tokens.length];
     for (int i = 0; i < tokens.length; ++i)
@@ -307,5 +318,64 @@ public class Record implements Comparable<Record> {
   public boolean equals(Object o) {
     Record orec = (Record) o;
     return StaticFunctions.compare(tokens, orec.tokens) == 0;
+  }
+
+  @Override
+  public int getMinLength() {
+    return candidateLengths[candidateLengths.length - 1][0];
+  }
+
+  @Override
+  public int getMaxLength() {
+    return candidateLengths[candidateLengths.length - 1][1];
+  }
+
+  @Override
+  public Collection<Integer> getTokens() {
+    List<Integer> list = new ArrayList<Integer>();
+    for (int i : tokens)
+      list.add(i);
+    return list;
+  }
+
+  @Override
+  public double similarity(RecordInterface rec) {
+    if (rec.getClass() != Record.class) return 0;
+    boolean equiv = Validator.DP_A_Queue_useACAutomata(this, (Record) rec,
+        true);
+    if (equiv)
+      return 1;
+    else
+      return 0;
+  }
+
+  @Override
+  public Set<Integer> getSignatures(ITF_Filter filter, double theta) {
+    IntegerSet sig = new IntegerSet();
+    sig.add(tokens[0]);
+    return sig;
+  }
+
+  @Override
+  public Set<? extends Expanded> generateAll() {
+    List<Record> list = this.expandAll(atm);
+    Set<Record> set = new WYK_HashSet<Record>(list);
+    return set;
+  }
+
+  @Override
+  public RecordInterface toRecord() {
+    return this;
+  }
+
+  @Override
+  public double similarity(Expanded rec) {
+    if (rec.getClass() != Record.class) return 0;
+    boolean equiv = Validator.DP_A_Queue_useACAutomata(this, (Record) rec,
+        true);
+    if (equiv)
+      return 1;
+    else
+      return 0;
   }
 }

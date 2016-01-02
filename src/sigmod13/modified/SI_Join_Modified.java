@@ -1,4 +1,4 @@
-package sigmod13;
+package sigmod13.modified;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import sigmod13.SIRecord;
+import sigmod13.SI_Tree;
 import sigmod13.filter.ITF1;
 import sigmod13.filter.ITF2;
 import sigmod13.filter.ITF3;
@@ -16,12 +18,12 @@ import tools.Pair;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 
-public class SI_Join extends Algorithm {
+public class SI_Join_Modified extends Algorithm {
   ArrayList<SIRecord> tableR;
   ArrayList<SIRecord> tableS;
   ArrayList<Rule>     rulelist;
 
-  public SI_Join(String DBR_file, String DBS_file, String rulefile)
+  public SI_Join_Modified(String DBR_file, String DBS_file, String rulefile)
       throws IOException {
     super(rulefile, DBR_file, DBS_file);
     int size = -1;
@@ -140,7 +142,7 @@ public class SI_Join extends Algorithm {
     SI_Tree.exactAnswer = (args.length == 6);
 
     long startTime = System.currentTimeMillis();
-    SI_Join inst = new SI_Join(Rfile, Sfile, Rulefile);
+    SI_Join_Modified inst = new SI_Join_Modified(Rfile, Sfile, Rulefile);
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run(threshold, filterNo);

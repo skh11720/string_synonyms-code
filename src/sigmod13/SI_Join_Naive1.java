@@ -12,6 +12,7 @@ import sigmod13.filter.ITF3;
 import sigmod13.filter.ITF4;
 import sigmod13.filter.ITF_Filter;
 import tools.Algorithm;
+import tools.Pair;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 
@@ -80,7 +81,7 @@ public class SI_Join_Naive1 extends Algorithm {
         break;
       default:
     }
-    SI_Tree treeR = new SI_Tree(threshold, filterR, tableR);
+    SI_Tree<SIRecord> treeR = new SI_Tree<SIRecord>(threshold, filterR, tableR);
     System.out.println("Node size : " + (treeR.FEsize + treeR.LEsize));
     System.out.println("Sig size : " + treeR.sigsize);
 
@@ -92,10 +93,10 @@ public class SI_Join_Naive1 extends Algorithm {
     join(treeR, threshold);
   }
 
-  public void join(SI_Tree treeR, double threshold) {
+  public void join(SI_Tree<SIRecord> treeR, double threshold) {
     long startTime = System.currentTimeMillis();
 
-    HashSet<SIRecordPair> candidates = treeR.naivejoin(tableS, false);
+    HashSet<Pair<SIRecord>> candidates = treeR.naivejoin(tableS, false);
     // long counter = treeR.join(treeS, threshold);
     System.out.print("Retrieveing candidates finished");
 

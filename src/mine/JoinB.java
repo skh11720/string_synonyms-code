@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,9 +19,11 @@ import tools.StaticFunctions;
 import tools.WYK_HashSet;
 
 public class JoinB extends Algorithm {
+  boolean                                     skipChecking = false;
   ArrayList<Record>                           tableR;
   ArrayList<Record>                           tableS;
   ArrayList<Rule>                             rulelist;
+  RecordIDComparator                          idComparator;
 
   /**
    * Key: token<br/>
@@ -40,6 +41,7 @@ public class JoinB extends Algorithm {
     Record.setStrList(strlist);
     tableR = readRecords(Rfile, size);
     tableS = readRecords(Sfile, size);
+    idComparator = new RecordIDComparator();
   }
 
   private void readRules(String Rulefile) throws IOException {
@@ -155,17 +157,14 @@ public class JoinB extends Algorithm {
 
         if (tree == null) continue;
         ArrayList<Record> candidates = tree.search(range[0], range[1]);
-        Collections.sort(candidates, new Comparator<Record>() {
-          @Override
-          public int compare(Record o1, Record o2) {
-            return Integer.compare(o1.getID(), o2.getID());
-          }
-        });
+        Collections.sort(candidates, idComparator);
         candidatesList.add(candidates);
       }
 
-      List<Record> candidates = StaticFunctions.union(candidatesList);
+      List<Record> candidates = StaticFunctions.union(candidatesList,
+          idComparator);
 
+      if(skipChecking) continue;
       for (Record recR : candidates) {
         boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
         if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
@@ -227,16 +226,18 @@ public class JoinB extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 3) {
+    if (args.length != 3 && args.length != 4) {
       printUsage();
       return;
     }
     String Rfile = args[0];
     String Sfile = args[1];
     String Rulefile = args[2];
+    boolean skipChecking = args.length == 4;
 
     long startTime = System.currentTimeMillis();
     JoinB inst = new JoinB(Rulefile, Rfile, Sfile);
+    inst.skipChecking = skipChecking;
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();

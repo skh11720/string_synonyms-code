@@ -1,15 +1,18 @@
 package sigmod13;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 
+import sigmod13.filter.ITF_Filter;
 import tools.IntegerSet;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 
-public class SIRecord {
+public class SIRecord implements RecordInterface, Comparable<SIRecord> {
   private final int                  id;
   private final IntegerSet           tokens;
   final IntegerSet                   fullExpanded;
@@ -52,7 +55,7 @@ public class SIRecord {
 
   public SIRecord(SIRecordExpanded rec) {
     id = -1;
-    tokens = rec.getOriginalTokens().copy();
+    tokens = new IntegerSet(rec.getOriginalTokens());
     tokens.addAll(rec.getExpandedTokens());
     fullExpanded = tokens;
     applicableRules = emptyRules;
@@ -62,10 +65,6 @@ public class SIRecord {
     return id;
   }
 
-  public IntegerSet getTokens() {
-    return tokens;
-  }
-
   public final HashSet<Rule> getApplicableRules() {
     return applicableRules;
   }
@@ -73,6 +72,7 @@ public class SIRecord {
   /**
    * Generate all the possible expanded sets
    */
+  @Override
   public HashSet<SIRecordExpanded> generateAll() {
     try {
       Queue<SIRecordExpanded> queue = new LinkedList<SIRecordExpanded>();
@@ -155,5 +155,55 @@ public class SIRecord {
   @Override
   public String toString() {
     return tokens.toString();
+  }
+
+  @Override
+  public int getMinLength() {
+    return tokens.size();
+  }
+
+  @Override
+  public int getMaxLength() {
+    return fullExpanded.size();
+  }
+
+  @Override
+  public int size() {
+    return tokens.size();
+  }
+
+  @Override
+  public Collection<Integer> getTokens() {
+    return tokens;
+  }
+
+  @Override
+  public Set<Integer> getSignatures(ITF_Filter filter, double theta) {
+    IntegerSet signature = new IntegerSet();
+    if (theta == 1) {
+      signature.addAll(filter.filter(new SIRecordExpanded(this), 1));
+      return signature;
+    }
+    HashSet<SIRecordExpanded> expanded = generateAll();
+    for (SIRecordExpanded exp : expanded) {
+      // In the paper the number of signature is states as belows.
+      // int cut = (int) Math.ceil((1.0 - theta) * exp.size());
+      // However, it should be
+      int cut = 1 + exp.size() - (int) Math.ceil(theta * exp.size());
+      HashSet<Integer> sig = filter.filter(exp, cut);
+      signature.addAll(sig);
+    }
+    return signature;
+  }
+
+  @Override
+  public double similarity(RecordInterface rec) {
+    if (rec.getClass() != SIRecord.class) return 0;
+    return SimilarityFunc.fullExp2(this, (SIRecord) rec);
+  }
+
+  @Override
+  public int compareTo(SIRecord o) {
+    return Integer.compare(id, o.id);
   }
 }

@@ -6,32 +6,33 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import tools.Algorithm;
+import tools.IntegerMap;
 import tools.IntegerSet;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
-import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 
-public class JoinH extends Algorithm {
-  boolean skipChecking = false;
-  ArrayList<Record>                                         tableR;
-  ArrayList<Record>                                         tableS;
-  ArrayList<Rule>                                           rulelist;
-  RecordIDComparator                                        idComparator;
+public class JoinDNoIntervalTree extends Algorithm {
+  boolean                                      skipChecking = false;
+  public static int                            a            = 3;
+  ArrayList<Record>                            tableR;
+  ArrayList<Record>                            tableS;
+  ArrayList<Rule>                              rulelist;
+  RecordIDComparator                           idComparator;
 
   /**
-   * Key: (token, index) pair<br/>
-   * Value IntervalTree Key: length of record (min, max)
+   * Key: token<br/>
+   * Value IntervalTree Key: length of record (min, max)<br/>
    * Value IntervalTree Value: record
    */
-  WYK_HashMap<IntegerPair, IntervalTreeRW<Integer, Record>> idx;
+  ArrayList<IntegerMap<ArrayList<IndexEntry>>> idx;
 
-  protected JoinH(String rulefile, String Rfile, String Sfile)
+  protected JoinDNoIntervalTree(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
     int size = 1000000;
@@ -86,21 +87,21 @@ public class JoinH extends Algorithm {
       rec.preprocessLengths();
     }
     time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
+    System.out.println("Preprocess lengths: " + time);
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
       rec.preprocessAvailableTokens();
     }
     time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
+    System.out.println("Preprocess available tokens: " + time);
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
       rec.preprocessEstimatedRecords();
     }
     time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
+    System.out.println("Preprocess est records: " + time);
 
     // Preprocess each records in S
     for (Record rec : tableS) {
@@ -113,68 +114,39 @@ public class JoinH extends Algorithm {
 
   private void buildIndex() {
     long elements = 0;
-    long predictCount = 0;
     // Build an index
-    // Count Invokes per each (token, loc) pair
-    WYK_HashMap<IntegerPair, Integer> invokes = new WYK_HashMap<IntegerPair, Integer>();
-    for (Record rec : tableS) {
-      IntegerSet[] availableTokens = rec.getAvailableTokens();
-      for (int i = 0; i < availableTokens.length; ++i) {
-        for (int token : availableTokens[i]) {
-          IntegerPair ip = new IntegerPair(token, i);
-          Integer count = invokes.get(ip);
-          if (count == null)
-            count = 1;
-          else
-            count += 1;
-          invokes.put(ip, count);
-        }
-      }
-    }
 
-    idx = new WYK_HashMap<IntegerPair, IntervalTreeRW<Integer, Record>>();
+    idx = new ArrayList<IntegerMap<ArrayList<IndexEntry>>>();
+    for (int i = 0; i < a; ++i)
+      idx.add(new IntegerMap<ArrayList<IndexEntry>>());
     for (Record rec : tableR) {
       IntegerSet[] availableTokens = rec.getAvailableTokens();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
-      int minlength = range[0];
-      int minIdx = -1;
-      int minInvokes = Integer.MAX_VALUE;
-      for (int i = 0; i < minlength; ++i) {
-        int invoke = 0;
+      int boundary = Math.min(range[1], a);
+      for (int i = 0; i < boundary; ++i) {
+        IntegerMap<ArrayList<IndexEntry>> map = idx.get(i);
         for (int token : availableTokens[i]) {
-          IntegerPair ip = new IntegerPair(token, i);
-          Integer count = invokes.get(ip);
-          if (count != null) invoke += count;
+          ArrayList<IndexEntry> list = map.get(token);
+          if (list == null) {
+            list = new ArrayList<IndexEntry>();
+            map.put(token, list);
+          }
+          list.add(new IndexEntry(range[0], range[1], rec));
         }
-        if (invoke < minInvokes) {
-          minIdx = i;
-          minInvokes = invoke;
-        }
+        elements += availableTokens[i].size();
       }
-
-      predictCount += minInvokes;
-
-      for (int token : availableTokens[minIdx]) {
-        IntegerPair ip = new IntegerPair(token, minIdx);
-        IntervalTreeRW<Integer, Record> list = idx.get(ip);
-        if (list == null) {
-          list = new IntervalTreeRW<Integer, Record>();
-          idx.put(ip, list);
-        }
-        list.insert(range[0], range[1], rec);
-      }
-      elements += availableTokens[minIdx].size();
     }
-    System.out.println("Predict : " + predictCount);
     System.out.println("Idx size : " + elements);
 
-    ///// Statistics
+    // Statistics
     int sum = 0;
     long count = 0;
-    for (IntervalTreeRW<Integer, Record> list : idx.values()) {
-      if (list.size() == 1) continue;
-      sum++;
-      count += list.size();
+    for (IntegerMap<ArrayList<IndexEntry>> map : idx) {
+      for (ArrayList<IndexEntry> list : map.values()) {
+        if (list.size() == 1) continue;
+        sum++;
+        count += list.size();
+      }
     }
     System.out.println("iIdx size : " + count);
     System.out.println("Rec per idx : " + ((double) count) / sum);
@@ -182,31 +154,39 @@ public class JoinH extends Algorithm {
 
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
+    int count = 0;
 
     for (Record recS : tableS) {
+      List<List<Record>> candidatesList = new ArrayList<List<Record>>();
       IntegerSet[] availableTokens = recS.getAvailableTokens();
       int[] range = recS.getCandidateLengths(recS.size() - 1);
-      for (int i = 0; i < availableTokens.length; ++i) {
-        List<ArrayList<Record>> candidatesList = new ArrayList<ArrayList<Record>>();
+      int boundary = Math.min(range[0], a);
+      for (int i = 0; i < boundary; ++i) {
+        List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
+        IntegerMap<ArrayList<IndexEntry>> map = idx.get(i);
         for (int token : availableTokens[i]) {
-          IntegerPair ip = new IntegerPair(token, i);
-          IntervalTreeRW<Integer, Record> tree = idx.get(ip);
-
+          ArrayList<IndexEntry> tree = map.get(token);
           if (tree == null) continue;
-          ArrayList<Record> candidates = tree.search(range[0], range[1]);
-          Collections.sort(candidates, idComparator);
-          candidatesList.add(candidates);
+          List<Record> list = new ArrayList<Record>();
+          for (IndexEntry e : tree)
+            if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
+              list.add(e.rec);
+          ithCandidates.add(list);
         }
-        List<Record> candidates = StaticFunctions.union(candidatesList,
-            idComparator);
-        if(skipChecking) continue;
-        for (Record recR : candidates) {
-          boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS,
-              true);
-          if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
-        }
+        candidatesList.add(StaticFunctions.union(ithCandidates, idComparator));
       }
+      List<Record> candidates = StaticFunctions.intersection(candidatesList,
+          idComparator);
+      count += candidates.size();
+
+      if (skipChecking) continue;
+      for (Record recR : candidates) {
+        boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+        if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+      }
+
     }
+    System.out.println("comparisions : " + count);
 
     return rslt;
   }
@@ -228,12 +208,19 @@ public class JoinH extends Algorithm {
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
     System.out.println("Comparisons: " + Validator.checked);
+    System.out.println("Filtered: " + Validator.filtered);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
+      HashMap<Integer, ArrayList<Record>> tmp = new HashMap<Integer, ArrayList<Record>>();
       for (IntegerPair ip : rslt) {
-        if (ip.i1 != ip.i2) bw.write(tableR.get(ip.i1).toString(strlist)
-            + "\t==\t" + tableR.get(ip.i2).toString(strlist) + "\n");
+        if (!tmp.containsKey(ip.i1)) tmp.put(ip.i1, new ArrayList<Record>());
+        if (ip.i1 != ip.i2) tmp.get(ip.i1).add(tableS.get(ip.i2));
+      }
+      for (int i = 0; i < tableR.size(); ++i) {
+        if (!tmp.containsKey(i) || tmp.get(i).size() == 0) continue;
+        bw.write(tableR.get(i).toString() + "\t");
+        bw.write(tmp.get(i).toString() + "\n");
       }
       bw.close();
     } catch (IOException e) {
@@ -243,17 +230,18 @@ public class JoinH extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 3 && args.length != 4) {
+    if (args.length != 4 && args.length != 5) {
       printUsage();
       return;
     }
     String Rfile = args[0];
     String Sfile = args[1];
     String Rulefile = args[2];
-    boolean skipChecking = args.length == 4;
+    JoinDNoIntervalTree.a = Integer.parseInt(args[3]);
+    boolean skipChecking = args.length == 5;
 
     long startTime = System.currentTimeMillis();
-    JoinH inst = new JoinH(Rulefile, Rfile, Sfile);
+    JoinDNoIntervalTree inst = new JoinDNoIntervalTree(Rulefile, Rfile, Sfile);
     inst.skipChecking = skipChecking;
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
@@ -261,6 +249,6 @@ public class JoinH extends Algorithm {
   }
 
   private static void printUsage() {
-    System.out.println("Usage : <R file> <S file> <Rule file>");
+    System.out.println("Usage : <R file> <S file> <Rule file> <a>");
   }
 }
