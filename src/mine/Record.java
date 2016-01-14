@@ -77,9 +77,9 @@ public class Record
       tokens[i] = o.tokens[i];
   }
 
-  public void preprocessRules(Rule_ACAutomata automata) {
+  public void preprocessRules(Rule_ACAutomata automata, boolean buildtrie) {
     applicableRules = automata.applicableRules(tokens, 0);
-    applicableRulesTrie = new Rule_InverseTrie(applicableRules);
+    if (buildtrie) applicableRulesTrie = new Rule_InverseTrie(applicableRules);
   }
 
   /**
@@ -87,8 +87,41 @@ public class Record
    * called before this method is called
    */
   // Interval tree를 이용해서 available token set을 저장할 수도 있음
-  public void preprocessAvailableTokens() {
-    availableTokens = new IntegerSet[candidateLengths[tokens.length - 1][1]];
+  public void preprocessAvailableTokens(int maxlength) {
+    assert (maxlength > 0);
+    maxlength = Math.min(maxlength, candidateLengths[tokens.length - 1][1]);
+    availableTokens = new IntegerSet[maxlength];
+    for (int i = 0; i < maxlength; ++i)
+      availableTokens[i] = new IntegerSet();
+    for (int i = 0; i < tokens.length; ++i) {
+      Rule[] rules = applicableRules[i];
+      int[] range;
+      if (i == 0)
+        range = new int[] { 0, 0 };
+      else
+        range = candidateLengths[i - 1];
+      int from = range[0];
+      int to = range[1];
+      for (Rule rule : rules) {
+        int[] tokens = rule.getTo();
+        for (int j = 0; j < tokens.length; ++j) {
+          for (int k = from; k <= to; ++k) {
+            if (k + j >= maxlength) break;
+            availableTokens[k + j].add(tokens[j]);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * preprocessLengths(), addSelfTokenRules() and preprocessRules() should be
+   * called before this method is called
+   */
+  // Interval tree를 이용해서 available token set을 저장할 수도 있음
+  public IntegerSet[] computeAvailableTokens() {
+    IntegerSet[] availableTokens = new IntegerSet[candidateLengths[tokens.length
+        - 1][1]];
     for (int i = 0; i < availableTokens.length; ++i)
       availableTokens[i] = new IntegerSet();
     for (int i = 0; i < tokens.length; ++i) {
@@ -108,6 +141,7 @@ public class Record
         }
       }
     }
+    return availableTokens;
   }
 
   /**
@@ -178,12 +212,8 @@ public class Record
     }
   }
 
-  public IntegerSet getAvailableTokens(int k) {
-    if (availableTokens == null) return null;
-    return availableTokens[k];
-  }
-
   public IntegerSet[] getAvailableTokens() {
+    if (availableTokens == null) return computeAvailableTokens();
     return availableTokens;
   }
 
@@ -338,11 +368,18 @@ public class Record
     return list;
   }
 
+  public int[] getTokenArray() {
+    return tokens;
+  }
+
   @Override
   public double similarity(RecordInterface rec) {
     if (rec.getClass() != Record.class) return 0;
-    boolean equiv = Validator.DP_A_Queue_useACAutomata(this, (Record) rec,
-        true);
+    boolean equiv;
+    if (applicableRulesTrie == null)
+      equiv = Validator.DP_A_Queue(this, (Record) rec, false);
+    else
+      equiv = Validator.DP_A_Queue_useACAutomata(this, (Record) rec, true);
     if (equiv)
       return 1;
     else
@@ -352,7 +389,8 @@ public class Record
   @Override
   public Set<Integer> getSignatures(ITF_Filter filter, double theta) {
     IntegerSet sig = new IntegerSet();
-    sig.add(tokens[0]);
+    for (int token : availableTokens[0])
+      sig.add(token);
     return sig;
   }
 

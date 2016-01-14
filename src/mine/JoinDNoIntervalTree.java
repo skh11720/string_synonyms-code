@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import tools.Algorithm;
 import tools.IntegerMap;
 import tools.IntegerSet;
@@ -18,7 +25,9 @@ import tools.StaticFunctions;
 import tools.WYK_HashSet;
 
 public class JoinDNoIntervalTree extends Algorithm {
-  boolean                                      skipChecking = false;
+  static boolean                               skipChecking = false;
+  static boolean                               useAutomata  = true;
+  static boolean                               compact      = false;
   public static int                            a            = 3;
   ArrayList<Record>                            tableR;
   ArrayList<Record>                            tableS;
@@ -77,7 +86,7 @@ public class JoinDNoIntervalTree extends Algorithm {
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
     for (Record rec : tableR) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, useAutomata);
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
@@ -89,12 +98,14 @@ public class JoinDNoIntervalTree extends Algorithm {
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess lengths: " + time);
 
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessAvailableTokens();
+    if (!compact) {
+      currentTime = System.currentTimeMillis();
+      for (Record rec : tableR) {
+        rec.preprocessAvailableTokens(a);
+      }
+      time = System.currentTimeMillis() - currentTime;
+      System.out.println("Preprocess available tokens: " + time);
     }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess available tokens: " + time);
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
@@ -105,9 +116,9 @@ public class JoinDNoIntervalTree extends Algorithm {
 
     // Preprocess each records in S
     for (Record rec : tableS) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, true);
       rec.preprocessLengths();
-      rec.preprocessAvailableTokens();
+      if (!compact) rec.preprocessAvailableTokens(a);
       rec.preprocessEstimatedRecords();
     }
   }
@@ -138,35 +149,59 @@ public class JoinDNoIntervalTree extends Algorithm {
     }
     System.out.println("Idx size : " + elements);
 
-    // Statistics
-    int sum = 0;
-    long count = 0;
-    for (IntegerMap<ArrayList<IndexEntry>> map : idx) {
-      for (ArrayList<IndexEntry> list : map.values()) {
-        if (list.size() == 1) continue;
+    for (int i = 0; i < a; ++i) {
+      IntegerMap<ArrayList<IndexEntry>> ithidx = idx.get(i);
+      System.out.println(i + "th iIdx key-value pairs: " + ithidx.size());
+      // Statistics
+      int sum = 0;
+      int singlelistsize = 0;
+      long count = 0;
+      long sqsum = 0;
+      for (ArrayList<IndexEntry> list : ithidx.values()) {
+        sqsum += list.size() * list.size();
+        if (list.size() == 1) {
+          ++singlelistsize;
+          continue;
+        }
         sum++;
         count += list.size();
       }
+      System.out.println(i + "th Single value list size : " + singlelistsize);
+      System.out.println(i + "th iIdx size : " + count);
+      System.out.println(i + "th Rec per idx : " + ((double) count) / sum);
+      System.out.println(i + "th Sqsum : " + sqsum);
     }
-    System.out.println("iIdx size : " + count);
-    System.out.println("Rec per idx : " + ((double) count) / sum);
   }
 
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
     int count = 0;
 
+    long cand_sum[] = new long[a];
+    int count_cand[] = new int[a];
+    int count_empty[] = new int[a];
+    long[] sum = new long[a];
     for (Record recS : tableS) {
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
       IntegerSet[] availableTokens = recS.getAvailableTokens();
+
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       int boundary = Math.min(range[0], a);
+      for (int i = 0; i < boundary; ++i) {
+        int asdf = availableTokens[i].size();
+        sum[i] += asdf;
+      }
       for (int i = 0; i < boundary; ++i) {
         List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
         IntegerMap<ArrayList<IndexEntry>> map = idx.get(i);
         for (int token : availableTokens[i]) {
           ArrayList<IndexEntry> tree = map.get(token);
-          if (tree == null) continue;
+          if (tree == null) {
+            ++count_empty[i];
+            continue;
+          }
+          cand_sum[i] += tree.size();
+          ++count_cand[i];
           List<Record> list = new ArrayList<Record>();
           for (IndexEntry e : tree)
             if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
@@ -181,10 +216,20 @@ public class JoinDNoIntervalTree extends Algorithm {
 
       if (skipChecking) continue;
       for (Record recR : candidates) {
-        boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+        boolean compare = false;
+        if (useAutomata)
+          compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+        else
+          compare = Validator.DP_A_Queue(recR, recS, true);
         if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
       }
 
+    }
+    for (int i = 0; i < a; ++i) {
+      System.out.println(i + "th Key membership check : " + sum[i]);
+      System.out
+          .println("Avg candidates : " + cand_sum[i] + "/" + count_cand[i]);
+      System.out.println("Empty candidates : " + count_empty[i]);
     }
     System.out.println("comparisions : " + count);
 
@@ -209,6 +254,7 @@ public class JoinDNoIntervalTree extends Algorithm {
     System.out.println(rslt.size());
     System.out.println("Comparisons: " + Validator.checked);
     System.out.println("Filtered: " + Validator.filtered);
+    System.out.println("Total iters: " + Validator.niters);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
@@ -230,22 +276,48 @@ public class JoinDNoIntervalTree extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 4 && args.length != 5) {
+    String[] remainingArgs = parse(args);
+    if (remainingArgs.length != 4) {
       printUsage();
       return;
     }
-    String Rfile = args[0];
-    String Sfile = args[1];
-    String Rulefile = args[2];
-    JoinDNoIntervalTree.a = Integer.parseInt(args[3]);
-    boolean skipChecking = args.length == 5;
+    String Rfile = remainingArgs[0];
+    String Sfile = remainingArgs[1];
+    String Rulefile = remainingArgs[2];
+    JoinDNoIntervalTree.a = Integer.parseInt(remainingArgs[3]);
 
     long startTime = System.currentTimeMillis();
     JoinDNoIntervalTree inst = new JoinDNoIntervalTree(Rulefile, Rfile, Sfile);
-    inst.skipChecking = skipChecking;
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
+  }
+
+  private static String[] parse(String[] args) {
+    Options options = buildOptions();
+    CommandLineParser parser = new DefaultParser();
+    CommandLine cmd = null;
+    try {
+      cmd = parser.parse(options, args);
+    } catch (ParseException e) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("JoinD", options, true);
+      System.exit(1);
+    }
+    useAutomata = !cmd.hasOption("noautomata");
+    skipChecking = cmd.hasOption("skipequiv");
+    compact = cmd.hasOption("compact");
+    if (compact) useAutomata = false;
+    return cmd.getArgs();
+  }
+
+  private static Options buildOptions() {
+    Options options = new Options();
+    options.addOption("noautomata", false,
+        "Do not use automata to check equivalency");
+    options.addOption("skipequiv", false, "Skip equivalency check");
+    options.addOption("compact", false, "Use memory-compact version");
+    return options;
   }
 
   private static void printUsage() {

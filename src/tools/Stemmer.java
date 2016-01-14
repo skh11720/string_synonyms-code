@@ -14,7 +14,7 @@ import java.io.IOException;
  * by calling one of the various stem(something) methods.
  */
 
-class Stemmer {
+public class Stemmer {
   private char[]           b;
   /**
    * offset into b

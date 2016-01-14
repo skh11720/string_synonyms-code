@@ -63,17 +63,17 @@ public class Mine_Qgram extends Algorithm {
     Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
     // Preprocess each records in R
     for (Record rec : tableR) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, true);
       rec.preprocessLengths();
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(Integer.MAX_VALUE);
       rec.preprocessEstimatedRecords();
     }
 
     // Preprocess each records in S
     for (Record rec : tableS) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, true);
       rec.preprocessLengths();
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(Integer.MAX_VALUE);
       rec.preprocessEstimatedRecords();
     }
   }

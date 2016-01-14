@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import tools.Algorithm;
 import tools.IntegerMap;
 import tools.IntegerSet;
@@ -18,7 +25,9 @@ import tools.StaticFunctions;
 import tools.WYK_HashSet;
 
 public class JoinBNoIntervalTree extends Algorithm {
-  boolean                           skipChecking = false;
+  static boolean                    skipChecking = false;
+  static boolean                    useAutomata  = true;
+  static boolean                    compact      = false;
   ArrayList<Record>                 tableR;
   ArrayList<Record>                 tableS;
   ArrayList<Rule>                   rulelist;
@@ -76,7 +85,7 @@ public class JoinBNoIntervalTree extends Algorithm {
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
     for (Record rec : tableR) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, useAutomata);
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
@@ -90,7 +99,7 @@ public class JoinBNoIntervalTree extends Algorithm {
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(1);
     }
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess available tokens: " + time);
@@ -104,9 +113,9 @@ public class JoinBNoIntervalTree extends Algorithm {
 
     // Preprocess each records in S
     for (Record rec : tableS) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, useAutomata);
       rec.preprocessLengths();
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(1);
       rec.preprocessEstimatedRecords();
     }
   }
@@ -117,7 +126,9 @@ public class JoinBNoIntervalTree extends Algorithm {
 
     idx = new IntegerMap<ArrayList<IndexEntry>>();
     for (Record rec : tableR) {
+      // All available tokens at the first position
       IntegerSet[] availableTokens = rec.getAvailableTokens();
+      // All available equivalent string lengths
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       for (int token : availableTokens[0]) {
         ArrayList<IndexEntry> list = idx.get(token);
@@ -127,29 +138,44 @@ public class JoinBNoIntervalTree extends Algorithm {
         }
         list.add(new IndexEntry(range[0], range[1], rec));
       }
+      // Number of replicas of current record
       elements += availableTokens[0].size();
     }
     System.out.println("Idx size : " + elements);
 
     // Statistics
+    System.out.println("iIdx key-value pairs: " + idx.size());
     int sum = 0;
+    int singlelistsize = 0;
     long count = 0;
     for (ArrayList<IndexEntry> list : idx.values()) {
-      if (list.size() == 1) continue;
+      if (list.size() == 1) {
+        ++singlelistsize;
+        continue;
+      }
       sum++;
       count += list.size();
     }
+    System.out.println("Single value list size : " + singlelistsize);
     System.out.println("iIdx size : " + count);
-    System.out.println("Rec per idx : " + ((double) count) / sum);
+    System.out.println("Rec per key-value pair : " + ((double) count) / sum);
   }
 
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 
+    // Union하는 set의 평균 개수 및 동시에 union하는 set의 개수
+    long set_union_count = 0;
+    long set_union_sum = 0;
+    long set_union_setsize_sum = 0;
+    // inverted index의 key 조회횟수의 합
+    long sum = 0;
     for (Record recS : tableS) {
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 
       IntegerSet[] availableTokens = recS.getAvailableTokens();
+      int asdf = availableTokens[0].size();
+      sum += asdf;
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       for (int token : availableTokens[0]) {
         ArrayList<IndexEntry> tree = idx.get(token);
@@ -159,18 +185,29 @@ public class JoinBNoIntervalTree extends Algorithm {
         for (IndexEntry e : tree)
           if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
             list.add(e.rec);
+        set_union_setsize_sum += list.size();
         candidatesList.add(list);
       }
 
       List<Record> candidates = StaticFunctions.union(candidatesList,
           idComparator);
+      set_union_sum = candidatesList.size();
+      ++set_union_count;
 
       if (skipChecking) continue;
       for (Record recR : candidates) {
-        boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+        boolean compare = false;
+        if (useAutomata)
+          compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+        else
+          compare = Validator.DP_A_Queue(recR, recS, true);
         if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
       }
     }
+    System.out.println("Key membership check : " + sum);
+    System.out.println("set_union_count: " + set_union_count);
+    System.out.println("set_union_sum: " + set_union_sum);
+    System.out.println("set_union_setsize_sum: " + set_union_setsize_sum);
 
     return rslt;
   }
@@ -206,6 +243,7 @@ public class JoinBNoIntervalTree extends Algorithm {
     System.out.println(rslt.size());
     System.out.println("Comparisons: " + Validator.checked);
     System.out.println("Filtered: " + Validator.filtered);
+    System.out.println("Total iters: " + Validator.niters);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
@@ -227,21 +265,46 @@ public class JoinBNoIntervalTree extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 3 && args.length != 4) {
+    String[] remainingArgs = parse(args);
+    if (remainingArgs.length != 3) {
       printUsage();
       return;
     }
-    String Rfile = args[0];
-    String Sfile = args[1];
-    String Rulefile = args[2];
-    boolean skipChecking = args.length == 4;
+    String Rfile = remainingArgs[0];
+    String Sfile = remainingArgs[1];
+    String Rulefile = remainingArgs[2];
 
     long startTime = System.currentTimeMillis();
     JoinBNoIntervalTree inst = new JoinBNoIntervalTree(Rulefile, Rfile, Sfile);
-    inst.skipChecking = skipChecking;
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
+  }
+
+  private static String[] parse(String[] args) {
+    Options options = buildOptions();
+    CommandLineParser parser = new DefaultParser();
+    CommandLine cmd = null;
+    try {
+      cmd = parser.parse(options, args);
+    } catch (ParseException e) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("JoinD", options, true);
+      System.exit(1);
+    }
+    useAutomata = !cmd.hasOption("noautomata");
+    skipChecking = cmd.hasOption("skipequiv");
+    compact = cmd.hasOption("compact");
+    return cmd.getArgs();
+  }
+
+  private static Options buildOptions() {
+    Options options = new Options();
+    options.addOption("noautomata", false,
+        "Do not use automata to check equivalency");
+    options.addOption("skipequiv", false, "Skip equivalency check");
+    options.addOption("compact", false, "Use memory-compact version");
+    return options;
   }
 
   private static void printUsage() {

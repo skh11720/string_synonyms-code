@@ -78,7 +78,7 @@ public class JoinD extends Algorithm {
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
     for (Record rec : tableR) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, true);
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
@@ -92,7 +92,7 @@ public class JoinD extends Algorithm {
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(a);
     }
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess available tokens: " + time);
@@ -106,9 +106,9 @@ public class JoinD extends Algorithm {
 
     // Preprocess each records in S
     for (Record rec : tableS) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, true);
       rec.preprocessLengths();
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(a);
       rec.preprocessEstimatedRecords();
     }
   }

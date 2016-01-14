@@ -6,28 +6,31 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import tools.Algorithm;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
-import tools.WYK_HashSet;
+import tools.StaticFunctions;
 
 /**
  * Expand from both sides
  */
 public class Naive1 extends Algorithm {
-  ArrayList<Record>                 tableR;
-  HashMap<Record, HashSet<Integer>> rec2idx;
-  ArrayList<Record>                 tableS;
-  ArrayList<Rule>                   rulelist;
-  Rule_ACAutomata                   automata;
-  RuleTrie                          ruletrie;
+  ArrayList<Record>                   tableR;
+  /**
+   * Store the original index from expanded string
+   */
+  HashMap<Record, ArrayList<Integer>> rec2idx;
+  ArrayList<Record>                   tableS;
+  ArrayList<Rule>                     rulelist;
+  Rule_ACAutomata                     automata;
+  RuleTrie                            ruletrie;
 
-  static int                        threshold = 1000;
+  static int                          threshold = 1000;
 
   protected Naive1(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -43,18 +46,20 @@ public class Naive1 extends Algorithm {
   }
 
   private void Init() {
-    rec2idx = new HashMap<Record, HashSet<Integer>>();
+    rec2idx = new HashMap<Record, ArrayList<Integer>>();
     for (int i = 0; i < tableR.size(); ++i) {
       Record recR = tableS.get(i);
-      recR.preprocessRules(automata);
+      recR.preprocessRules(automata, false);
       recR.preprocessEstimatedRecords();
       long est = recR.getEstNumRecords();
       if (est >= threshold) continue;
       List<Record> expanded = recR.expandAll(ruletrie);
       for (Record exp : expanded) {
         if (!rec2idx.containsKey(exp))
-          rec2idx.put(exp, new HashSet<Integer>(5));
-        rec2idx.get(exp).add(i);
+          rec2idx.put(exp, new ArrayList<Integer>(5));
+        ArrayList<Integer> list = rec2idx.get(exp);
+        if (!list.isEmpty() && list.get(list.size() - 1) == i) continue;
+        list.add(i);
       }
     }
   }
@@ -86,22 +91,33 @@ public class Naive1 extends Algorithm {
     return rslt;
   }
 
-  private WYK_HashSet<IntegerPair> join() {
-    WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
+  private class IntegerComparator implements Comparator<Integer> {
+    @Override
+    public int compare(Integer o1, Integer o2) {
+      return o1.compareTo(o2);
+    }
+  }
+
+  private List<IntegerPair> join() {
+    ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
     for (int idxS = 0; idxS < tableS.size(); ++idxS) {
       Record recS = tableS.get(idxS);
-      recS.preprocessRules(automata);
+      recS.preprocessRules(automata, false);
       recS.preprocessEstimatedRecords();
       long est = recS.getEstNumRecords();
       if (est >= threshold) continue;
       ArrayList<Record> expanded = recS.expandAll(ruletrie);
+      ArrayList<List<Integer>> candidates = new ArrayList<List<Integer>>();
       for (Record exp : expanded) {
         if (!rec2idx.containsKey(exp)) continue;
-        HashSet<Integer> overlapidx = rec2idx.get(exp);
-        for (Integer idx : overlapidx)
-          if (idx != idxS) rslt.add(new IntegerPair(idx, idxS));
+        ArrayList<Integer> overlapidx = rec2idx.get(exp);
+        candidates.add(overlapidx);
       }
+      List<Integer> union = StaticFunctions.union(candidates,
+          new IntegerComparator());
+      for (Integer idx : union)
+        if (idx != idxS) rslt.add(new IntegerPair(idx, idxS));
     }
 
     return rslt;
@@ -113,7 +129,7 @@ public class Naive1 extends Algorithm {
     System.out.print("Building Index finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     startTime = System.currentTimeMillis();
-    WYK_HashSet<IntegerPair> rslt = join();
+    List<IntegerPair> rslt = join();
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());

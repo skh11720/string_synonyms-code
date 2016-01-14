@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import tools.Algorithm;
 import tools.Rule;
@@ -16,6 +17,9 @@ import tools.WYK_HashSet;
 
 public class Naive2 extends Algorithm {
   ArrayList<Record>        tableR;
+  /**
+   * Map each record to its own index
+   */
   HashMap<Record, Integer> rec2idx;
   ArrayList<Record>        tableS;
   ArrayList<Rule>          rulelist;
@@ -65,25 +69,29 @@ public class Naive2 extends Algorithm {
     return rslt;
   }
 
-  private WYK_HashSet<IntegerPair> join() {
+  private List<IntegerPair> join() {
     automata = new Rule_ACAutomata(rulelist);
     ruletrie = new RuleTrie(rulelist);
-    WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
+    List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
     for (int idxS = 0; idxS < tableS.size(); ++idxS) {
       Record recS = tableS.get(idxS);
-      recS.preprocessRules(automata);
+      recS.preprocessRules(automata, false);
       recS.preprocessEstimatedRecords();
       long est = recS.getEstNumRecords();
       if (est >= threshold) continue;
       ArrayList<Record> expanded = recS.expandAll(ruletrie);
       for (Record exp : expanded) {
         ArrayList<Record> double_expanded = exp.expandAll(ruletrie);
-        for (Record dexp : double_expanded)
-          if (rec2idx.containsKey(dexp) && dexp.compareTo(recS) != 0) {
-            if (rec2idx.get(dexp) != idxS)
-              rslt.add(new IntegerPair(rec2idx.get(dexp), idxS));
-          }
+        WYK_HashSet<Integer> candidates = new WYK_HashSet<Integer>();
+        for (Record dexp : double_expanded) {
+          Integer idx = rec2idx.get(dexp);
+          if (idx == null) continue;
+          candidates.add(idx);
+        }
+        for (Integer idx : candidates) {
+          rslt.add(new IntegerPair(idx, idxS));
+        }
       }
     }
 
@@ -92,7 +100,7 @@ public class Naive2 extends Algorithm {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    WYK_HashSet<IntegerPair> rslt = join();
+    List<IntegerPair> rslt = join();
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());

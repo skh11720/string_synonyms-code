@@ -18,7 +18,8 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 
 public class JoinH extends Algorithm {
-  boolean skipChecking = false;
+  boolean                                                   skipChecking = false;
+  boolean                                                   useAutomata  = true;
   ArrayList<Record>                                         tableR;
   ArrayList<Record>                                         tableS;
   ArrayList<Rule>                                           rulelist;
@@ -76,7 +77,7 @@ public class JoinH extends Algorithm {
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
     for (Record rec : tableR) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, useAutomata);
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
@@ -90,7 +91,7 @@ public class JoinH extends Algorithm {
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(Integer.MAX_VALUE);
     }
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
@@ -104,9 +105,9 @@ public class JoinH extends Algorithm {
 
     // Preprocess each records in S
     for (Record rec : tableS) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, useAutomata);
       rec.preprocessLengths();
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(Integer.MAX_VALUE);
       rec.preprocessEstimatedRecords();
     }
   }
@@ -168,23 +169,40 @@ public class JoinH extends Algorithm {
     System.out.println("Predict : " + predictCount);
     System.out.println("Idx size : " + elements);
 
-    ///// Statistics
+    ///// Statistic
+    System.out.println("iIdx key-value pairs: " + idx.size());
     int sum = 0;
+    int singlelistsize = 0;
     long count = 0;
+    long sqsum = 0;
     for (IntervalTreeRW<Integer, Record> list : idx.values()) {
-      if (list.size() == 1) continue;
+      sqsum += list.size() * list.size();
+      if (list.size() == 1) {
+        ++singlelistsize;
+        continue;
+      }
       sum++;
       count += list.size();
     }
+    System.out.println("Single value list size : " + singlelistsize);
     System.out.println("iIdx size : " + count);
     System.out.println("Rec per idx : " + ((double) count) / sum);
+    System.out.println("Sqsum : " + sqsum);
   }
 
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 
+    long cand_sum = 0;
+    int count_cand = 0;
+    int count_empty = 0;
+    long sum = 0;
     for (Record recS : tableS) {
       IntegerSet[] availableTokens = recS.getAvailableTokens();
+      for (IntegerSet set : availableTokens) {
+        sum += set.size();
+      }
+
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       for (int i = 0; i < availableTokens.length; ++i) {
         List<ArrayList<Record>> candidatesList = new ArrayList<ArrayList<Record>>();
@@ -192,14 +210,20 @@ public class JoinH extends Algorithm {
           IntegerPair ip = new IntegerPair(token, i);
           IntervalTreeRW<Integer, Record> tree = idx.get(ip);
 
-          if (tree == null) continue;
+          if (tree == null) {
+            ++count_empty;
+            continue;
+          }
+          ++count_cand;
+          cand_sum += tree.size();
+          if (range.length > 0) continue;
           ArrayList<Record> candidates = tree.search(range[0], range[1]);
           Collections.sort(candidates, idComparator);
           candidatesList.add(candidates);
         }
         List<Record> candidates = StaticFunctions.union(candidatesList,
             idComparator);
-        if(skipChecking) continue;
+        if (skipChecking) continue;
         for (Record recR : candidates) {
           boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS,
               true);
@@ -207,7 +231,9 @@ public class JoinH extends Algorithm {
         }
       }
     }
-
+    System.out.println("th Key membership check : " + sum);
+    System.out.println("Avg candidates : " + cand_sum + "/" + count_cand);
+    System.out.println("Empty candidates : " + count_empty);
     return rslt;
   }
 

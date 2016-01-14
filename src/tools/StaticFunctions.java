@@ -11,7 +11,31 @@ import mine.Record;
 
 public class StaticFunctions {
   /**
-   * Compare two integer array
+   * Compare two integer arrays str1[from1..from1+length),
+   * str2[from2..from2+length)
+   */
+  public static int compare(int[] str1, int from1, int[] str2, int from2,
+      int length) {
+    int idx1 = from1;
+    int idx2 = from2;
+    for (int i = 0; i < length; ++i) {
+      // Check if length bound is satisfied
+      if (str1.length == idx1) {
+        if (str2.length == idx2)
+          return 0;
+        else
+          return -1;
+      } else if (str2.length == idx2) return 1;
+      int cmp = Integer.compare(str1[idx1], str2[idx2]);
+      if (cmp != 0) return cmp;
+      ++idx1;
+      ++idx2;
+    }
+    return 0;
+  }
+
+  /**
+   * Compare two integer arrays
    */
   public static int compare(int[] str1, int[] str2) {
     if (str1.length == 0 || str2.length == 0) return str1.length - str2.length;
@@ -157,11 +181,10 @@ public class StaticFunctions {
         } else
           v2 = iter2.hasNext() ? iter2.next() : null;
       }
-      if (v2 == null)
-        while (iter1.hasNext()) {
-          iter1.remove();
-          iter1.next();
-        }
+      if (v2 == null) while (iter1.hasNext()) {
+        iter1.remove();
+        iter1.next();
+      }
     }
     return intersection;
   }

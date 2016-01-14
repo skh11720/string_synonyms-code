@@ -2,19 +2,18 @@ package sigmod13;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import sigmod13.filter.ITF_Filter;
-
 import tools.IntegerMap;
 import tools.Pair;
 import tools.StaticFunctions;
 
 public class SI_Tree<T extends RecordInterface & Comparable<T>> {
+  public static boolean             skipEquiCheck = false;
   /**
    * A root entry of S-Directory (level 0) <br/>
    * Key for a fence entry is <b>u</b>.
@@ -35,20 +34,20 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
   /**
    * Flag to designate similarity function
    */
-  public static boolean             exactAnswer = false;
+  public static boolean             exactAnswer   = false;
 
   /**
    * Number of fence entries
    */
-  public long                       FEsize      = 0;
+  public long                       FEsize        = 0;
   /**
    * Number of leaf entries
    */
-  public long                       LEsize      = 0;
+  public long                       LEsize        = 0;
   /**
    * Number of signatures
    */
-  public long                       sigsize     = 0;
+  public long                       sigsize       = 0;
   /**
    * Comparator of Pair<T>
    */
@@ -63,7 +62,9 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
     this.filter = filter;
     pairComparator = new Comparator<Pair<T>>() {
       public int compare(Pair<T> o1, Pair<T> o2) {
-        return o1.compareTo(o2);
+        int cmp = Integer.compare(o1.rec1.getID(), o2.rec1.getID());
+        if (cmp == 0) return Integer.compare(o1.rec2.getID(), o2.rec2.getID());
+        return cmp;
       }
     };
   }
@@ -81,7 +82,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
    *          The record to add
    */
   public void add(T rec) {
-    int u = rec.size();
+    int u = rec.getMinLength();
     if (!root.containsKey(u)) root.put(u, new FenceEntry(u));
     root.get(u).add(rec);
     ++size;
@@ -140,6 +141,11 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
   public List<Pair<T>> join(SI_Tree<T> o, double threshold) {
     // Line 1 : Initialize
     List<Pair<T>> results = new ArrayList<Pair<T>>();
+    // Union하는 set의 평균 개수 및 동시에 union하는 set의 개수
+    long set_union_count = 0;
+    long set_union_sum = 0;
+    long set_union_setsize_sum = 0;
+    // Number of comparisions
     long count = 0;
 
     // Line 2 : For all the combinations of fence entries
@@ -198,27 +204,33 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
               // if (sim >= threshold) results.add(sirp);
               // ++count;
               // }
-              Collections.sort(sig_candidates);
+              // Collections.sort(sig_candidates);
+              set_union_setsize_sum += sig_candidates.size();
               candidates.add(sig_candidates);
             }
-            System.out.println("Perform union");
             List<Pair<T>> union_candidates = StaticFunctions.union(candidates,
                 pairComparator);
-            System.out.println("Union finished");
-            results.addAll(union_candidates);
-//            for (Pair<T> p : union_candidates) {
-//              T rec1 = p.rec1;
-//              T rec2 = p.rec2;
-//              double sim = 0;
-//              sim = rec1.similarity(rec2);
-//              if (sim >= threshold) results.add(p);
-//              ++count;
-//            }
+            ++set_union_count;
+            set_union_sum += candidates.size();
+            // results.addAll(union_candidates);
+            if(skipEquiCheck)
+              continue;
+            for (Pair<T> p : union_candidates) {
+              T rec1 = p.rec1;
+              T rec2 = p.rec2;
+              double sim = 0;
+              sim = rec1.similarity(rec2);
+              if (sim >= threshold) results.add(p);
+              ++count;
+            }
           }
         }
       }
     }
     System.out.println("Comparisons : " + count);
+    System.out.println("set_union_count: " + set_union_count);
+    System.out.println("set_union_sum: " + set_union_sum);
+    System.out.println("set_union_setsize_sum: " + set_union_setsize_sum);
     return results;
   }
 

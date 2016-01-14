@@ -8,6 +8,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import tools.Algorithm;
 import tools.IntegerSet;
 import tools.Rule;
@@ -17,7 +24,12 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 
 public class JoinHNoIntervalTree extends Algorithm {
-  boolean                                    skipChecking = false;
+  static boolean                             useAutomata  = true;
+  static boolean                             skipChecking = false;
+  static int                                 maxIndex     = Integer.MAX_VALUE;
+  static boolean                             compact      = false;
+  static boolean                             singleside   = false;
+
   ArrayList<Record>                          tableR;
   ArrayList<Record>                          tableS;
   ArrayList<Rule>                            rulelist;
@@ -74,7 +86,7 @@ public class JoinHNoIntervalTree extends Algorithm {
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
     for (Record rec : tableR) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, useAutomata);
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
@@ -84,27 +96,29 @@ public class JoinHNoIntervalTree extends Algorithm {
       rec.preprocessLengths();
     }
     time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
+    System.out.println("Preprocess lengths: " + time);
 
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessAvailableTokens();
+    if (!compact) {
+      currentTime = System.currentTimeMillis();
+      for (Record rec : tableR) {
+        rec.preprocessAvailableTokens(maxIndex);
+      }
+      time = System.currentTimeMillis() - currentTime;
+      System.out.println("Preprocess tokens: " + time);
     }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
       rec.preprocessEstimatedRecords();
     }
     time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
+    System.out.println("Preprocess est records: " + time);
 
     // Preprocess each records in S
     for (Record rec : tableS) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, useAutomata);
       rec.preprocessLengths();
-      rec.preprocessAvailableTokens();
+      if (!compact) rec.preprocessAvailableTokens(maxIndex);
       rec.preprocessEstimatedRecords();
     }
   }
@@ -117,7 +131,8 @@ public class JoinHNoIntervalTree extends Algorithm {
     WYK_HashMap<IntegerPair, Integer> invokes = new WYK_HashMap<IntegerPair, Integer>();
     for (Record rec : tableS) {
       IntegerSet[] availableTokens = rec.getAvailableTokens();
-      for (int i = 0; i < availableTokens.length; ++i) {
+      int searchmax = Math.min(availableTokens.length, maxIndex);
+      for (int i = 0; i < searchmax; ++i) {
         for (int token : availableTokens[i]) {
           IntegerPair ip = new IntegerPair(token, i);
           Integer count = invokes.get(ip);
@@ -134,10 +149,10 @@ public class JoinHNoIntervalTree extends Algorithm {
     for (Record rec : tableR) {
       IntegerSet[] availableTokens = rec.getAvailableTokens();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
-      int minlength = range[0];
       int minIdx = -1;
       int minInvokes = Integer.MAX_VALUE;
-      for (int i = 0; i < minlength; ++i) {
+      int searchmax = Math.min(range[0], maxIndex);
+      for (int i = 0; i < searchmax; ++i) {
         int invoke = 0;
         for (int token : availableTokens[i]) {
           IntegerPair ip = new IntegerPair(token, i);
@@ -184,7 +199,8 @@ public class JoinHNoIntervalTree extends Algorithm {
     for (Record recS : tableS) {
       IntegerSet[] availableTokens = recS.getAvailableTokens();
       int[] range = recS.getCandidateLengths(recS.size() - 1);
-      for (int i = 0; i < availableTokens.length; ++i) {
+      int searchmax = Math.min(availableTokens.length, maxIndex);
+      for (int i = 0; i < searchmax; ++i) {
         List<List<Record>> candidatesList = new ArrayList<List<Record>>();
         for (int token : availableTokens[i]) {
           IntegerPair ip = new IntegerPair(token, i);
@@ -201,8 +217,13 @@ public class JoinHNoIntervalTree extends Algorithm {
             idComparator);
         if (skipChecking) continue;
         for (Record recR : candidates) {
-          boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS,
-              true);
+          boolean compare = false;
+          if (singleside)
+            compare = Validator.DP_SingleSide(recR, recS);
+          else if (useAutomata)
+            compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+          else
+            compare = Validator.DP_A_Queue(recR, recS, true);
           if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
         }
       }
@@ -228,6 +249,7 @@ public class JoinHNoIntervalTree extends Algorithm {
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
     System.out.println("Comparisons: " + Validator.checked);
+    System.out.println("Total iters: " + Validator.niters);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
@@ -243,36 +265,56 @@ public class JoinHNoIntervalTree extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 3 && args.length != 4) {
+    String[] remainingArgs = parse(args);
+    if (remainingArgs.length != 3) {
       printUsage();
       return;
     }
-    String Rfile = args[0];
-    String Sfile = args[1];
-    String Rulefile = args[2];
-    boolean skipChecking = args.length == 4;
+    String Rfile = remainingArgs[0];
+    String Sfile = remainingArgs[1];
+    String Rulefile = remainingArgs[2];
 
     long startTime = System.currentTimeMillis();
     JoinHNoIntervalTree inst = new JoinHNoIntervalTree(Rulefile, Rfile, Sfile);
-    inst.skipChecking = skipChecking;
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
   }
 
+  private static String[] parse(String[] args) {
+    Options options = buildOptions();
+    CommandLineParser parser = new DefaultParser();
+    CommandLine cmd = null;
+    try {
+      cmd = parser.parse(options, args);
+    } catch (ParseException e) {
+      HelpFormatter formatter = new HelpFormatter();
+      formatter.printHelp("JoinH", options, true);
+      System.exit(1);
+    }
+    useAutomata = !cmd.hasOption("noautomata");
+    skipChecking = cmd.hasOption("skipequiv");
+    compact = cmd.hasOption("compact");
+    if (compact) useAutomata = false;
+    singleside = cmd.hasOption("singleside");
+    if (cmd.hasOption("n"))
+      maxIndex = Integer.parseInt(cmd.getOptionValue("n"));
+    return cmd.getArgs();
+  }
+
+  private static Options buildOptions() {
+    Options options = new Options();
+    options.addOption("n", true, "Maximum index to find minimum point");
+    options.addOption("noautomata", false,
+        "Do not use automata to check equivalency");
+    options.addOption("skipequiv", false, "Skip equivalency check");
+    options.addOption("compact", false, "Use memory-compact version");
+    options.addOption("singleside", false,
+        "Use single-side equiv check algorithm");
+    return options;
+  }
+
   private static void printUsage() {
     System.out.println("Usage : <R file> <S file> <Rule file>");
-  }
-}
-
-class IndexEntry {
-  int    min;
-  int    max;
-  Record rec;
-
-  IndexEntry(int min, int max, Record rec) {
-    this.min = min;
-    this.max = max;
-    this.rec = rec;
   }
 }

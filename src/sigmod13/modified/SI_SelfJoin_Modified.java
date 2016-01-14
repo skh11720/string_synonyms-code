@@ -54,7 +54,7 @@ public class SI_SelfJoin_Modified extends Algorithm {
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
     for (Record rec : table) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, false);
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
@@ -68,7 +68,7 @@ public class SI_SelfJoin_Modified extends Algorithm {
 
     currentTime = System.currentTimeMillis();
     for (Record rec : table) {
-      rec.preprocessAvailableTokens();
+      rec.preprocessAvailableTokens(1);
     }
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess available tokens: " + time);

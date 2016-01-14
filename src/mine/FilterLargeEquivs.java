@@ -31,7 +31,7 @@ public class FilterLargeEquivs extends Algorithm {
     Rule_ACAutomata automata = new Rule_ACAutomata(rules);
     Record.setStrList(inst.strlist);
     for (Record rec : records) {
-      rec.preprocessRules(automata);
+      rec.preprocessRules(automata, false);
       rec.preprocessEstimatedRecords();
       if (rec.getEstNumRecords() > threshold) continue;
       bw.write(rec.toString() + "\n");

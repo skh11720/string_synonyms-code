@@ -10,6 +10,7 @@ import tools.WYK_HashSet;
 
 public class Validator {
   public static long filtered = 0;
+  public static long niters   = 0;
   public static long checked  = 0;
 
   /**
@@ -72,6 +73,7 @@ public class Validator {
 
     // Begin
     while (!queue.isEmpty()) {
+      ++niters;
       QueueEntry qe = queue.poll();
       int i = qe.idx1;
       int j = qe.idx2;
@@ -247,6 +249,7 @@ public class Validator {
 
     // Begin
     while (!queue.isEmpty()) {
+      ++niters;
       QueueEntry qe = queue.poll();
       int i = qe.idx1;
       int j = qe.idx2;
@@ -428,5 +431,30 @@ public class Validator {
       }
     }
     return false;
+  }
+
+  /**
+   * Check if r can be transformed to t
+   *
+   * @param r
+   * @param t
+   * @return true if r can be transformed to t
+   */
+  public static boolean DP_SingleSide(Record r, Record t) {
+    boolean matrix[][] = new boolean[r.size() + 1][t.size() + 1];
+    matrix[0][0] = true;
+    for (int i = 1; i <= r.size(); ++i) {
+      for (int j = 1; j <= t.size(); ++j) {
+        if (matrix[i - 1][j - 1] == false) continue;
+        Rule[] rules = r.getApplicableRules(i - 1);
+        for (Rule rule : rules) {
+          int len = rule.getTo().length;
+          if (StaticFunctions.compare(rule.getTo(), 0, t.getTokenArray(), j - 1,
+              len) == 0)
+            matrix[i + rule.getFrom().length - 1][j + len - 1] = true;
+        }
+      }
+    }
+    return matrix[r.size()][t.size()];
   }
 }

@@ -37,4 +37,9 @@ public class Pair<T extends Comparable<T>> implements Comparable<Pair<T>> {
     else
       return cmp;
   }
+  
+  @Override
+  public String toString() {
+    return "(" + rec1.toString() + ", " + rec2.toString() + ")";
+  }
 }
