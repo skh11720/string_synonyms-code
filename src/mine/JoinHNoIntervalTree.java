@@ -85,11 +85,15 @@ public class JoinHNoIntervalTree extends Algorithm {
 
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
+    long applicableRules = 0;
     for (Record rec : tableR) {
       rec.preprocessRules(automata, useAutomata);
+      applicableRules += rec.getNumApplicableRules();
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
+    System.out.println(
+        "Avg applicable rules : " + applicableRules + "/" + tableR.size());
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
@@ -196,6 +200,7 @@ public class JoinHNoIntervalTree extends Algorithm {
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 
+    long appliedRules_sum = 0;
     for (Record recS : tableS) {
       IntegerSet[] availableTokens = recS.getAvailableTokens();
       int[] range = recS.getCandidateLengths(recS.size() - 1);
@@ -217,17 +222,22 @@ public class JoinHNoIntervalTree extends Algorithm {
             idComparator);
         if (skipChecking) continue;
         for (Record recR : candidates) {
-          boolean compare = false;
+          int compare = -1;
           if (singleside)
             compare = Validator.DP_SingleSide(recR, recS);
           else if (useAutomata)
             compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
           else
             compare = Validator.DP_A_Queue(recR, recS, true);
-          if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+          if (compare >= 0) {
+            rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+            appliedRules_sum += compare;
+          }
         }
       }
     }
+    System.out
+        .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
 
     return rslt;
   }

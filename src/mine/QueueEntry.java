@@ -9,6 +9,8 @@ public class QueueEntry {
   final int[]      residual;
   final QueueEntry prev;
   final int        hash;
+  // Temporary variable to track the number of rule applications
+  int              appliedRules = 0;
 
   QueueEntry(int idx1, int idx2, QueueEntry prev, int type, int[] residual) {
     this.idx1 = idx1;

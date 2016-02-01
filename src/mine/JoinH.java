@@ -197,6 +197,7 @@ public class JoinH extends Algorithm {
     int count_cand = 0;
     int count_empty = 0;
     long sum = 0;
+    long appliedRules_sum = 0;
     for (Record recS : tableS) {
       IntegerSet[] availableTokens = recS.getAvailableTokens();
       for (IntegerSet set : availableTokens) {
@@ -225,15 +226,19 @@ public class JoinH extends Algorithm {
             idComparator);
         if (skipChecking) continue;
         for (Record recR : candidates) {
-          boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS,
-              true);
-          if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+          int compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+          if (compare >= 0) {
+            rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+            appliedRules_sum += compare;
+          }
         }
       }
     }
     System.out.println("th Key membership check : " + sum);
     System.out.println("Avg candidates : " + cand_sum + "/" + count_cand);
     System.out.println("Empty candidates : " + count_empty);
+    System.out
+        .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
     return rslt;
   }
 

@@ -48,8 +48,10 @@ public class Validator {
     return rslt;
   }
 
-  public static boolean DP_A_Queue(Record r, Record t,
-      boolean UseLengthFilter) {
+  /**
+   * Returns the number of applied rules if matched. -1 otherwise.
+   */
+  public static int DP_A_Queue(Record r, Record t, boolean UseLengthFilter) {
     // Increase counter
     ++checked;
     // Check if interval of two given strings overlap or not
@@ -57,7 +59,7 @@ public class Validator {
       int[] rCandidateLengths = r.getCandidateLengths(r.size() - 1);
       int[] tCandidateLengths = t.getCandidateLengths(t.size() - 1);
       if (!StaticFunctions.overlap(rCandidateLengths, tCandidateLengths))
-        return false;
+        return -1;
     }
 
     // Initialize queue
@@ -96,6 +98,11 @@ public class Validator {
             if (difflen == 0
                 && StaticFunctions.compare(rule1.getTo(), rule2.getTo()) == 0) {
               next = new QueueEntry(idx1, idx2, qe, 0, null);
+              if (rule1.fromSize() == 1
+                  && rule1.getFrom()[0] == rule2.getFrom()[0])
+                ;
+              else
+                next.appliedRules = qe.appliedRules + 1;
             }
             // Case d is a prefix of b
             else if (difflen > 0
@@ -122,7 +129,7 @@ public class Validator {
             // Check if we found an answer
             else if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
                 && next.type == 0)
-              return true;
+              return next.appliedRules;
             // Check if the next sub-match is already discovered
             else if (!discovered.contains(next)) {
               queue.add(next);
@@ -166,10 +173,15 @@ public class Validator {
           else if (UseLengthFilter && !Validator.checkLengthFilter(difflen, r,
               next.idx1, t, next.idx2))
             continue;
+          if (rule.fromSize() == 1 && rule.toSize() == 1
+              && rule.getFrom()[0] == rule.getTo()[0])
+            ;
+          else
+            next.appliedRules = qe.appliedRules + 1;
           // Check if we found an answer
-          else if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
+          if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
               && next.type == 0)
-            return true;
+            return next.appliedRules;
           // Check if the next sub-match is already discovered
           else if (!discovered.contains(next)) {
             queue.add(next);
@@ -210,10 +222,15 @@ public class Validator {
           else if (UseLengthFilter && !Validator.checkLengthFilter(difflen, r,
               next.idx1, t, next.idx2))
             continue;
+          if (rule.fromSize() == 1 && rule.toSize() == 1
+              && rule.getFrom()[0] == rule.getTo()[0])
+            ;
+          else
+            next.appliedRules = qe.appliedRules + 1;
           // Check if we found an answer
-          else if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
+          if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
               && next.type == 0)
-            return true;
+            return next.appliedRules;
           // Check if the next sub-match is already discovered
           else if (!discovered.contains(next)) {
             queue.add(next);
@@ -221,10 +238,13 @@ public class Validator {
           }
         }
     }
-    return false;
+    return -1;
   }
 
-  public static boolean DP_A_Queue_useACAutomata(Record r, Record t,
+  /**
+   * Returns the number of applied rules if matched. -1 otherwise.
+   */
+  public static int DP_A_Queue_useACAutomata(Record r, Record t,
       boolean UseLengthFilter) {
     // Increase counter
     ++checked;
@@ -233,7 +253,7 @@ public class Validator {
       int[] rCandidateLengths = r.getCandidateLengths(r.size() - 1);
       int[] tCandidateLengths = t.getCandidateLengths(t.size() - 1);
       if (!StaticFunctions.overlap(rCandidateLengths, tCandidateLengths))
-        return false;
+        return -1;
     }
 
     // Initialize queue
@@ -291,6 +311,11 @@ public class Validator {
                 next = new QueueEntry(idx1, idx2, qe, 0, null);
               else
                 next = new QueueEntry(idx2, idx1, qe, 0, null);
+              if (rule1.fromSize() == 1
+                  && rule1.getFrom()[0] == rule2.getFrom()[0])
+                ;
+              else
+                next.appliedRules = qe.appliedRules + 1;
             }
             // Case d is a prefix of b
             else if (difflen > 0
@@ -326,7 +351,7 @@ public class Validator {
             // Check if we found an answer
             if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
                 && next.type == 0)
-              return true;
+              return next.appliedRules;
             // Check if the next sub-match is already discovered
             else if (!discovered.contains(next)) {
               queue.add(next);
@@ -372,10 +397,15 @@ public class Validator {
           else if (UseLengthFilter && !Validator.checkLengthFilter(difflen, r,
               next.idx1, t, next.idx2))
             continue;
+          if (rule.fromSize() == 1 && rule.toSize() == 1
+              && rule.getFrom()[0] == rule.getTo()[0])
+            ;
+          else
+            next.appliedRules = qe.appliedRules + 1;
           // Check if we found an answer
-          else if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
+          if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
               && next.type == 0)
-            return true;
+            return next.appliedRules;
           // Check if the next sub-match is already discovered
           else if (!discovered.contains(next)) {
             queue.add(next);
@@ -418,10 +448,15 @@ public class Validator {
           else if (UseLengthFilter && !Validator.checkLengthFilter(difflen, r,
               next.idx1, t, next.idx2))
             continue;
+          if (rule.fromSize() == 1 && rule.toSize() == 1
+              && rule.getFrom()[0] == rule.getTo()[0])
+            ;
+          else
+            next.appliedRules = qe.appliedRules + 1;
           // Check if we found an answer
-          else if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
+          if (next.idx1 == (r.size() - 1) && next.idx2 == (t.size() - 1)
               && next.type == 0)
-            return true;
+            return next.appliedRules;
           // Check if the next sub-match is already discovered
           else if (!discovered.contains(next)) {
             queue.add(next);
@@ -430,7 +465,7 @@ public class Validator {
         }
       }
     }
-    return false;
+    return -1;
   }
 
   /**
@@ -440,21 +475,22 @@ public class Validator {
    * @param t
    * @return true if r can be transformed to t
    */
-  public static boolean DP_SingleSide(Record r, Record t) {
-    boolean matrix[][] = new boolean[r.size() + 1][t.size() + 1];
-    matrix[0][0] = true;
+  public static int DP_SingleSide(Record r, Record t) {
+    int matrix[][] = new int[r.size() + 1][t.size() + 1];
+    matrix[0][0] = 1;
     for (int i = 1; i <= r.size(); ++i) {
       for (int j = 1; j <= t.size(); ++j) {
-        if (matrix[i - 1][j - 1] == false) continue;
+        if (matrix[i - 1][j - 1] == 0) continue;
         Rule[] rules = r.getApplicableRules(i - 1);
         for (Rule rule : rules) {
           int len = rule.getTo().length;
           if (StaticFunctions.compare(rule.getTo(), 0, t.getTokenArray(), j - 1,
               len) == 0)
-            matrix[i + rule.getFrom().length - 1][j + len - 1] = true;
+            matrix[i + rule.getFrom().length - 1][j + len
+                - 1] = matrix[i - 1][j - 1] + 1;
         }
       }
     }
-    return matrix[r.size()][t.size()];
+    return matrix[r.size()][t.size()] - 1;
   }
 }

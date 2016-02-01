@@ -177,8 +177,8 @@ public class Mine_Qgram extends Algorithm {
 
           if (candidates == null) continue;
           for (Record recR : candidates) {
-            boolean compare = Validator.DP_A_Queue(recR, recS, true);
-            if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+            int compare = Validator.DP_A_Queue(recR, recS, true);
+            if (compare >= 0) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
           }
         }
       } else {
@@ -190,8 +190,8 @@ public class Mine_Qgram extends Algorithm {
 
               if (candidates == null) continue;
               for (Record recR : candidates) {
-                boolean compare = Validator.DP_A_Queue(recR, recS, true);
-                if (compare)
+                int compare = Validator.DP_A_Queue(recR, recS, true);
+                if (compare >= 0)
                   rslt.add(new IntegerPair(recR.getID(), recS.getID()));
               }
             }

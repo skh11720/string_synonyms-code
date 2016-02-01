@@ -375,12 +375,12 @@ public class Record
   @Override
   public double similarity(RecordInterface rec) {
     if (rec.getClass() != Record.class) return 0;
-    boolean equiv;
+    int compare;
     if (applicableRulesTrie == null)
-      equiv = Validator.DP_A_Queue(this, (Record) rec, false);
+      compare = Validator.DP_A_Queue(this, (Record) rec, false);
     else
-      equiv = Validator.DP_A_Queue_useACAutomata(this, (Record) rec, true);
-    if (equiv)
+      compare = Validator.DP_A_Queue_useACAutomata(this, (Record) rec, true);
+    if (compare >= 0)
       return 1;
     else
       return 0;
@@ -409,9 +409,8 @@ public class Record
   @Override
   public double similarity(Expanded rec) {
     if (rec.getClass() != Record.class) return 0;
-    boolean equiv = Validator.DP_A_Queue_useACAutomata(this, (Record) rec,
-        true);
-    if (equiv)
+    int compare = Validator.DP_A_Queue_useACAutomata(this, (Record) rec, true);
+    if (compare >= 0)
       return 1;
     else
       return 0;

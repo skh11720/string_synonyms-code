@@ -196,12 +196,12 @@ public class JoinBNoIntervalTree extends Algorithm {
 
       if (skipChecking) continue;
       for (Record recR : candidates) {
-        boolean compare = false;
+        int compare = -1;
         if (useAutomata)
           compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
         else
           compare = Validator.DP_A_Queue(recR, recS, true);
-        if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+        if (compare >= 0) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
       }
     }
     System.out.println("Key membership check : " + sum);

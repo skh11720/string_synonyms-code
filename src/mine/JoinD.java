@@ -180,8 +180,8 @@ public class JoinD extends Algorithm {
 
       if(skipChecking) continue;
       for (Record recR : candidates) {
-        boolean compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
-        if (compare) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+        int compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+        if (compare >= 0) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
       }
 
     }
