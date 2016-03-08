@@ -1,14 +1,14 @@
 package tools;
 
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Map;
 
 public class Rule implements Comparable<Rule> {
   private final int hash;
   int[]             from;
   int[]             to;
 
-  public Rule(String str, HashMap<String, Integer> str2int) {
+  public Rule(String str, Map<String, Integer> str2int) {
     int hash = 0;
     String[] pstr = str.split(",");
     String[] fpstr = pstr[0].trim().split(" ");
@@ -60,7 +60,7 @@ public class Rule implements Comparable<Rule> {
 
   @Override
   public boolean equals(Object o) {
-    if(this == o) return true;
+    if (this == o) return true;
     Rule ro = (Rule) o;
     if (from.length == ro.from.length && to.length == ro.to.length) {
       for (int i = 0; i < fromSize(); ++i)

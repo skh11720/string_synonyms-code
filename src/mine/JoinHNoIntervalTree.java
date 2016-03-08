@@ -29,11 +29,15 @@ public class JoinHNoIntervalTree extends Algorithm {
   static int                                 maxIndex     = Integer.MAX_VALUE;
   static boolean                             compact      = false;
   static boolean                             singleside   = false;
+  static boolean                             earlyprune   = false;
+  static boolean                             useMatrix    = false;
 
   ArrayList<Record>                          tableR;
   ArrayList<Record>                          tableS;
   ArrayList<Rule>                            rulelist;
   RecordIDComparator                         idComparator;
+
+  static String                              outputfile;
 
   /**
    * Key: (token, index) pair<br/>
@@ -118,12 +122,22 @@ public class JoinHNoIntervalTree extends Algorithm {
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess est records: " + time);
 
+    currentTime = System.currentTimeMillis();
+    for (Record rec : tableR) {
+      rec.preprocessSearchRanges();
+      rec.preprocessSuffixApplicableRules();
+    }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess for early pruning: " + time);
+
     // Preprocess each records in S
     for (Record rec : tableS) {
       rec.preprocessRules(automata, useAutomata);
       rec.preprocessLengths();
       if (!compact) rec.preprocessAvailableTokens(maxIndex);
       rec.preprocessEstimatedRecords();
+      rec.preprocessSearchRanges();
+      rec.preprocessSuffixApplicableRules();
     }
   }
 
@@ -223,9 +237,12 @@ public class JoinHNoIntervalTree extends Algorithm {
         if (skipChecking) continue;
         for (Record recR : candidates) {
           int compare = -1;
-          if (singleside)
-            compare = Validator.DP_SingleSide(recR, recS);
-          else if (useAutomata)
+          if (useMatrix) {
+            if (earlyprune)
+              compare = Validator.DP_A_MatrixwithEarlyPruning(recR, recS);
+            else
+              compare = Validator.DP_A_Matrix(recR, recS);
+          } else if (useAutomata)
             compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
           else
             compare = Validator.DP_A_Queue(recR, recS, true);
@@ -242,27 +259,180 @@ public class JoinHNoIntervalTree extends Algorithm {
     return rslt;
   }
 
+  private void buildIndexSingleSide() {
+    long elements = 0;
+    long predictCount = 0;
+    // Build an index
+    // Count Invokes per each (token, loc) pair
+    WYK_HashMap<IntegerPair, Integer> invokes = new WYK_HashMap<IntegerPair, Integer>();
+    for (Record rec : tableS) {
+      int[] tokens = rec.getTokenArray();
+      for (int i = 0; i < tokens.length; ++i) {
+        IntegerPair ip = new IntegerPair(tokens[i], i);
+        Integer count = invokes.get(ip);
+        if (count == null)
+          count = 1;
+        else
+          count += 1;
+        invokes.put(ip, count);
+      }
+    }
+
+    idx = new WYK_HashMap<IntegerPair, List<IndexEntry>>();
+    for (Record rec : tableR) {
+      IntegerSet[] availableTokens = rec.getAvailableTokens();
+      int[] range = rec.getCandidateLengths(rec.size() - 1);
+      int minIdx = -1;
+      int minInvokes = Integer.MAX_VALUE;
+      int searchmax = Math.min(range[0], maxIndex);
+      for (int i = 0; i < searchmax; ++i) {
+        int invoke = 0;
+        for (int token : availableTokens[i]) {
+          IntegerPair ip = new IntegerPair(token, i);
+          Integer count = invokes.get(ip);
+          if (count != null) invoke += count;
+        }
+        if (invoke < minInvokes) {
+          minIdx = i;
+          minInvokes = invoke;
+        }
+      }
+
+      predictCount += minInvokes;
+
+      for (int token : availableTokens[minIdx]) {
+        IntegerPair ip = new IntegerPair(token, minIdx);
+        List<IndexEntry> list = idx.get(ip);
+        if (list == null) {
+          list = new ArrayList<IndexEntry>();
+          idx.put(ip, list);
+        }
+        list.add(new IndexEntry(range[0], range[1], rec));
+      }
+      elements += availableTokens[minIdx].size();
+    }
+    System.out.println("Predict : " + predictCount);
+    System.out.println("Idx size : " + elements);
+
+    ///// Statistics
+    int sum = 0;
+    long count = 0;
+    for (List<IndexEntry> list : idx.values()) {
+      if (list.size() == 1) continue;
+      sum++;
+      count += list.size();
+    }
+    System.out.println("iIdx size : " + count);
+    System.out.println("Rec per idx : " + ((double) count) / sum);
+  }
+
+  private WYK_HashSet<IntegerPair> joinSingleSide() {
+    WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
+
+    long appliedRules_sum = 0;
+    for (Record recS : tableS) {
+      int[] tokens = recS.getTokenArray();
+      int minlength = recS.getMinLength();
+      int maxlength = recS.getMaxLength();
+      for (int i = 0; i < tokens.length; ++i) {
+        List<Record> candidatesList = new ArrayList<Record>();
+        IntegerPair ip = new IntegerPair(tokens[i], i);
+        List<IndexEntry> tree = idx.get(ip);
+
+        if (tree == null) continue;
+        for (IndexEntry e : tree)
+          if (StaticFunctions.overlap(e.min, e.max, minlength, maxlength))
+            candidatesList.add(e.rec);
+        if (skipChecking) continue;
+        for (Record recR : candidatesList) {
+          int compare = -1;
+          if (earlyprune)
+            compare = Validator.DP_SingleSidewithEarlyPruning(recR, recS);
+          else
+            compare = Validator.DP_SingleSide(recR, recS);
+          if (compare >= 0) {
+            rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+            appliedRules_sum += compare;
+          }
+        }
+      }
+    }
+    System.out
+        .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
+
+    return rslt;
+  }
+
+  public void statistics() {
+    long strlengthsum = 0;
+    long strmaxinvsearchrangesum = 0;
+    int strs = 0;
+    int maxstrlength = 0;
+
+    long rhslengthsum = 0;
+    int rules = 0;
+    int maxrhslength = 0;
+
+    for (Record rec : tableR) {
+      strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
+      int length = rec.getTokenArray().length;
+      ++strs;
+      strlengthsum += length;
+      maxstrlength = Math.max(maxstrlength, length);
+    }
+    for (Record rec : tableS) {
+      strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
+      int length = rec.getTokenArray().length;
+      ++strs;
+      strlengthsum += length;
+      maxstrlength = Math.max(maxstrlength, length);
+    }
+
+    for (Rule rule : rulelist) {
+      int length = rule.getTo().length;
+      ++rules;
+      rhslengthsum += length;
+      maxrhslength = Math.max(maxrhslength, length);
+    }
+
+    System.out.println("Average str length: " + strlengthsum + "/" + strs);
+    System.out.println(
+        "Average maxinvsearchrange: " + strmaxinvsearchrangesum + "/" + strs);
+    System.out.println("Maximum str length: " + maxstrlength);
+    System.out.println("Average rhs length: " + rhslengthsum + "/" + rules);
+    System.out.println("Maximum rhs length: " + maxrhslength);
+  }
+
   public void run() {
     long startTime = System.currentTimeMillis();
     preprocess();
     System.out.print("Preprocess finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
+    // Retrieve statistics
+    statistics();
+
     startTime = System.currentTimeMillis();
-    buildIndex();
+    if (singleside)
+      buildIndexSingleSide();
+    else
+      buildIndex();
     System.out.print("Building Index finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
     startTime = System.currentTimeMillis();
-    WYK_HashSet<IntegerPair> rslt = join();
+    WYK_HashSet<IntegerPair> rslt = (singleside ? joinSingleSide() : join());
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
     System.out.println("Comparisons: " + Validator.checked);
-    System.out.println("Total iters: " + Validator.niters);
+    System.out.println("Total iter entries: " + Validator.niterentry);
+    System.out.println("Total iter rules: " + Validator.niterrules);
+    System.out.println("Early evaled: " + Validator.earlyevaled);
+    System.out.println("Early stopped: " + Validator.earlystopped);
 
     try {
-      BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
+      BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
       for (IntegerPair ip : rslt) {
         if (ip.i1 != ip.i2) bw.write(tableR.get(ip.i1).toString(strlist)
             + "\t==\t" + tableR.get(ip.i2).toString(strlist) + "\n");
@@ -276,13 +446,14 @@ public class JoinHNoIntervalTree extends Algorithm {
 
   public static void main(String[] args) throws IOException {
     String[] remainingArgs = parse(args);
-    if (remainingArgs.length != 3) {
+    if (remainingArgs.length != 4) {
       printUsage();
       return;
     }
     String Rfile = remainingArgs[0];
     String Sfile = remainingArgs[1];
     String Rulefile = remainingArgs[2];
+    outputfile = remainingArgs[3];
 
     long startTime = System.currentTimeMillis();
     JoinHNoIntervalTree inst = new JoinHNoIntervalTree(Rulefile, Rfile, Sfile);
@@ -309,6 +480,8 @@ public class JoinHNoIntervalTree extends Algorithm {
     singleside = cmd.hasOption("singleside");
     if (cmd.hasOption("n"))
       maxIndex = Integer.parseInt(cmd.getOptionValue("n"));
+    earlyprune = cmd.hasOption("earlyprune");
+    useMatrix = cmd.hasOption("matrix");
     return cmd.getArgs();
   }
 
@@ -321,6 +494,8 @@ public class JoinHNoIntervalTree extends Algorithm {
     options.addOption("compact", false, "Use memory-compact version");
     options.addOption("singleside", false,
         "Use single-side equiv check algorithm");
+    options.addOption("earlyprune", false, "Use early pruning strategies");
+    options.addOption("matrix", false, "Use matrix in equivalence check");
     return options;
   }
 

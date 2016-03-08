@@ -6,8 +6,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -17,31 +17,31 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import tools.Algorithm;
-import tools.IntegerMap;
-import tools.IntegerSet;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
+import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 
-public class JoinDNoIntervalTree extends Algorithm {
-  static boolean                               skipChecking = false;
-  static boolean                               useAutomata  = true;
-  static boolean                               compact      = false;
-  public static int                            a            = 3;
-  ArrayList<Record>                            tableR;
-  ArrayList<Record>                            tableS;
-  ArrayList<Rule>                              rulelist;
-  RecordIDComparator                           idComparator;
+public class Join2GramNoIntervalTree extends Algorithm {
+  static boolean                      useAutomata  = true;
+  static boolean                      skipChecking = false;
+  static int                          maxIndex     = Integer.MAX_VALUE;
+  static boolean                      compact      = false;
+  static boolean                      singleside   = false;
+
+  ArrayList<Record>                   tableR;
+  ArrayList<Record>                   tableS;
+  ArrayList<Rule>                     rulelist;
+  RecordIDComparator                  idComparator;
 
   /**
-   * Key: token<br/>
-   * Value IntervalTree Key: length of record (min, max)<br/>
-   * Value IntervalTree Value: record
+   * Key: 2gram<br/>
+   * Value: (min, max, record) triple
    */
-  ArrayList<IntegerMap<ArrayList<IndexEntry>>> idx;
+  WYK_HashMap<Long, List<IndexEntry>> idx;
 
-  protected JoinDNoIntervalTree(String rulefile, String Rfile, String Sfile)
+  protected Join2GramNoIntervalTree(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
     int size = 1000000;
@@ -85,11 +85,15 @@ public class JoinDNoIntervalTree extends Algorithm {
 
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
+    long applicableRules = 0;
     for (Record rec : tableR) {
       rec.preprocessRules(automata, useAutomata);
+      applicableRules += rec.getNumApplicableRules();
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
+    System.out.println(
+        "Avg applicable rules : " + applicableRules + "/" + tableR.size());
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
@@ -101,10 +105,10 @@ public class JoinDNoIntervalTree extends Algorithm {
     if (!compact) {
       currentTime = System.currentTimeMillis();
       for (Record rec : tableR) {
-        rec.preprocessAvailableTokens(a);
+        rec.preprocessAvailableTokens(maxIndex);
       }
       time = System.currentTimeMillis() - currentTime;
-      System.out.println("Preprocess available tokens: " + time);
+      System.out.println("Preprocess tokens: " + time);
     }
 
     currentTime = System.currentTimeMillis();
@@ -116,122 +120,80 @@ public class JoinDNoIntervalTree extends Algorithm {
 
     // Preprocess each records in S
     for (Record rec : tableS) {
-      rec.preprocessRules(automata, true);
+      rec.preprocessRules(automata, useAutomata);
       rec.preprocessLengths();
-      if (!compact) rec.preprocessAvailableTokens(a);
+      if (!compact) rec.preprocessAvailableTokens(maxIndex);
       rec.preprocessEstimatedRecords();
     }
   }
 
   private void buildIndex() {
     long elements = 0;
-    // Build an index
 
-    idx = new ArrayList<IntegerMap<ArrayList<IndexEntry>>>();
-    for (int i = 0; i < a; ++i)
-      idx.add(new IntegerMap<ArrayList<IndexEntry>>());
+    idx = new WYK_HashMap<Long, List<IndexEntry>>();
     for (Record rec : tableR) {
-      IntegerSet[] availableTokens = rec.getAvailableTokens();
-      int[] range = rec.getCandidateLengths(rec.size() - 1);
-      int boundary = Math.min(range[1], a);
-      for (int i = 0; i < boundary; ++i) {
-        IntegerMap<ArrayList<IndexEntry>> map = idx.get(i);
-        for (int token : availableTokens[i]) {
-          ArrayList<IndexEntry> list = map.get(token);
-          if (list == null) {
-            list = new ArrayList<IndexEntry>();
-            map.put(token, list);
-          }
-          list.add(new IndexEntry(range[0], range[1], rec));
+      Set<Long> twoGrams = rec.getFirstRule2Grams();
+      for (Long twoGram : twoGrams) {
+        List<IndexEntry> list = idx.get(twoGram);
+        if (list == null) {
+          list = new ArrayList<IndexEntry>();
+          idx.put(twoGram, list);
         }
-        elements += availableTokens[i].size();
+        list.add(new IndexEntry(rec.getMinLength(), rec.getMaxLength(), rec));
       }
+      elements += twoGrams.size();
     }
     System.out.println("Idx size : " + elements);
 
-    for (int i = 0; i < a; ++i) {
-      IntegerMap<ArrayList<IndexEntry>> ithidx = idx.get(i);
-      System.out.println(i + "th iIdx key-value pairs: " + ithidx.size());
-      // Statistics
-      int sum = 0;
-      int singlelistsize = 0;
-      long count = 0;
-      long sqsum = 0;
-      for (ArrayList<IndexEntry> list : ithidx.values()) {
-        sqsum += list.size() * list.size();
-        if (list.size() == 1) {
-          ++singlelistsize;
-          continue;
-        }
-        sum++;
-        count += list.size();
-      }
-      System.out.println(i + "th Single value list size : " + singlelistsize);
-      System.out.println(i + "th iIdx size : " + count);
-      System.out.println(i + "th Rec per idx : " + ((double) count) / sum);
-      System.out.println(i + "th Sqsum : " + sqsum);
+    ///// Statistics
+    int sum = 0;
+    long count = 0;
+    for (List<IndexEntry> list : idx.values()) {
+      if (list.size() == 1) continue;
+      sum++;
+      count += list.size();
     }
+    System.out.println("iIdx size : " + count);
+    System.out.println("Rec per idx : " + ((double) count) / sum);
   }
 
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
-    int count = 0;
 
-    long cand_sum[] = new long[a];
-    int count_cand[] = new int[a];
-    int count_empty[] = new int[a];
-    long[] sum = new long[a];
+    long appliedRules_sum = 0;
     for (Record recS : tableS) {
-      List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-      IntegerSet[] availableTokens = recS.getAvailableTokens();
-
       int[] range = recS.getCandidateLengths(recS.size() - 1);
-      int boundary = Math.min(range[0], a);
-      for (int i = 0; i < boundary; ++i) {
-        int asdf = availableTokens[i].size();
-        sum[i] += asdf;
-      }
-      for (int i = 0; i < boundary; ++i) {
-        List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
-        IntegerMap<ArrayList<IndexEntry>> map = idx.get(i);
-        for (int token : availableTokens[i]) {
-          ArrayList<IndexEntry> tree = map.get(token);
-          if (tree == null) {
-            ++count_empty[i];
-            continue;
-          }
-          cand_sum[i] += tree.size();
-          ++count_cand[i];
-          List<Record> list = new ArrayList<Record>();
-          for (IndexEntry e : tree)
-            if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
-              list.add(e.rec);
-          ithCandidates.add(list);
-        }
-        candidatesList.add(StaticFunctions.union(ithCandidates, idComparator));
-      }
-      List<Record> candidates = StaticFunctions.intersection(candidatesList,
-          idComparator);
-      count += candidates.size();
+      Set<Long> twoGrams = recS.getFirstRule2Grams();
+      List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+      for (Long twoGram : twoGrams) {
+        List<IndexEntry> tree = idx.get(twoGram);
 
+        if (tree == null) continue;
+        List<Record> list = new ArrayList<Record>();
+        for (IndexEntry e : tree)
+          if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
+            list.add(e.rec);
+        candidatesList.add(list);
+      }
+      List<Record> candidates = StaticFunctions.union(candidatesList,
+          idComparator);
       if (skipChecking) continue;
       for (Record recR : candidates) {
         int compare = -1;
-        if (useAutomata)
+        if (singleside)
+          compare = Validator.DP_SingleSide(recR, recS);
+        else if (useAutomata)
           compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
         else
           compare = Validator.DP_A_Queue(recR, recS, true);
-        if (compare >= 0) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+        if (compare >= 0) {
+          rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+          appliedRules_sum += compare;
+        }
       }
-
     }
-    for (int i = 0; i < a; ++i) {
-      System.out.println(i + "th Key membership check : " + sum[i]);
-      System.out
-          .println("Avg candidates : " + cand_sum[i] + "/" + count_cand[i]);
-      System.out.println("Empty candidates : " + count_empty[i]);
-    }
-    System.out.println("comparisions : " + count);
+    System.out
+        .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
 
     return rslt;
   }
@@ -253,20 +215,13 @@ public class JoinDNoIntervalTree extends Algorithm {
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
     System.out.println("Comparisons: " + Validator.checked);
-    System.out.println("Filtered: " + Validator.filtered);
     System.out.println("Total iters: " + Validator.niterentry);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
-      HashMap<Integer, ArrayList<Record>> tmp = new HashMap<Integer, ArrayList<Record>>();
       for (IntegerPair ip : rslt) {
-        if (!tmp.containsKey(ip.i1)) tmp.put(ip.i1, new ArrayList<Record>());
-        if (ip.i1 != ip.i2) tmp.get(ip.i1).add(tableS.get(ip.i2));
-      }
-      for (int i = 0; i < tableR.size(); ++i) {
-        if (!tmp.containsKey(i) || tmp.get(i).size() == 0) continue;
-        bw.write(tableR.get(i).toString() + "\t");
-        bw.write(tmp.get(i).toString() + "\n");
+        if (ip.i1 != ip.i2) bw.write(tableR.get(ip.i1).toString(strlist)
+            + "\t==\t" + tableR.get(ip.i2).toString(strlist) + "\n");
       }
       bw.close();
     } catch (IOException e) {
@@ -277,17 +232,17 @@ public class JoinDNoIntervalTree extends Algorithm {
 
   public static void main(String[] args) throws IOException {
     String[] remainingArgs = parse(args);
-    if (remainingArgs.length != 4) {
+    if (remainingArgs.length != 3) {
       printUsage();
       return;
     }
     String Rfile = remainingArgs[0];
     String Sfile = remainingArgs[1];
     String Rulefile = remainingArgs[2];
-    JoinDNoIntervalTree.a = Integer.parseInt(remainingArgs[3]);
 
     long startTime = System.currentTimeMillis();
-    JoinDNoIntervalTree inst = new JoinDNoIntervalTree(Rulefile, Rfile, Sfile);
+    Join2GramNoIntervalTree inst = new Join2GramNoIntervalTree(Rulefile, Rfile,
+        Sfile);
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
@@ -301,26 +256,32 @@ public class JoinDNoIntervalTree extends Algorithm {
       cmd = parser.parse(options, args);
     } catch (ParseException e) {
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("JoinD", options, true);
+      formatter.printHelp("JoinH", options, true);
       System.exit(1);
     }
     useAutomata = !cmd.hasOption("noautomata");
     skipChecking = cmd.hasOption("skipequiv");
     compact = cmd.hasOption("compact");
     if (compact) useAutomata = false;
+    singleside = cmd.hasOption("singleside");
+    if (cmd.hasOption("n"))
+      maxIndex = Integer.parseInt(cmd.getOptionValue("n"));
     return cmd.getArgs();
   }
 
   private static Options buildOptions() {
     Options options = new Options();
+    options.addOption("n", true, "Maximum index to find minimum point");
     options.addOption("noautomata", false,
         "Do not use automata to check equivalency");
     options.addOption("skipequiv", false, "Skip equivalency check");
     options.addOption("compact", false, "Use memory-compact version");
+    options.addOption("singleside", false,
+        "Use single-side equiv check algorithm");
     return options;
   }
 
   private static void printUsage() {
-    System.out.println("Usage : <R file> <S file> <Rule file> <a>");
+    System.out.println("Usage : <R file> <S file> <Rule file>");
   }
 }

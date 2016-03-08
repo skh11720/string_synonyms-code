@@ -1,5 +1,6 @@
 package mine;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -9,9 +10,11 @@ import tools.StaticFunctions;
 import tools.WYK_HashSet;
 
 public class Validator {
-  public static long filtered = 0;
-  public static long niters   = 0;
-  public static long checked  = 0;
+  public static long filtered     = 0;
+  public static long niterentry   = 0;
+  public static long checked      = 0;
+  public static long niterrules   = 0;
+  public static long nitermatches = 0;
 
   /**
    * @param difflen
@@ -75,7 +78,7 @@ public class Validator {
 
     // Begin
     while (!queue.isEmpty()) {
-      ++niters;
+      ++niterentry;
       QueueEntry qe = queue.poll();
       int i = qe.idx1;
       int j = qe.idx2;
@@ -87,6 +90,7 @@ public class Validator {
           // If this rule is applied, r[0...idx1] will be sub-matched
           int idx1 = i + rule1.fromSize();
           for (Rule rule2 : t.getApplicableRules(j + 1)) {
+            ++niterrules;
             next = null;
             // If this rule is applied, t[0...idx2] will be
             // sub-matched
@@ -140,6 +144,7 @@ public class Validator {
       // Case l=1
       else if (qe.type == 1)
         for (Rule rule : t.getApplicableRules(j + 1)) {
+          ++niterrules;
           next = null;
           // If this rule is applied, t[0...idx2] will be sub-matched
           int idx2 = j + rule.fromSize();
@@ -191,6 +196,7 @@ public class Validator {
       // Case l=2
       else
         for (Rule rule : r.getApplicableRules(i + 1)) {
+          ++niterrules;
           next = null;
           // If this rule is applied, r[0...idx1] will be sub-matched
           int idx1 = i + rule.fromSize();
@@ -269,7 +275,7 @@ public class Validator {
 
     // Begin
     while (!queue.isEmpty()) {
-      ++niters;
+      ++niterentry;
       QueueEntry qe = queue.poll();
       int i = qe.idx1;
       int j = qe.idx2;
@@ -297,6 +303,7 @@ public class Validator {
           List<Rule> candidates = long_record.getMatched(rule1.getTo(),
               long_idx + 1);
           for (Rule rule2 : candidates) {
+            ++niterrules;
             next = null;
             // If this rule is applied, t[0...idx2] will be
             // sub-matched
@@ -364,6 +371,7 @@ public class Validator {
       else if (qe.type == 1) {
         List<Rule> candidates = t.getMatched(qe.residual, j + 1);
         for (Rule rule : candidates) {
+          ++niterrules;
           next = null;
           // If this rule is applied, t[0...idx2] will be sub-matched
           int idx2 = j + rule.fromSize();
@@ -417,6 +425,7 @@ public class Validator {
       else {
         List<Rule> candidates = r.getMatched(qe.residual, i + 1);
         for (Rule rule : candidates) {
+          ++niterrules;
           next = null;
           // If this rule is applied, r[0...idx1] will be sub-matched
           int idx1 = i + rule.fromSize();
@@ -469,28 +478,520 @@ public class Validator {
   }
 
   /**
-   * Check if r can be transformed to t
-   *
-   * @param r
-   * @param t
-   * @return true if r can be transformed to t
+   * Temporary matrix to save match result of DP_SingleSide
    */
-  public static int DP_SingleSide(Record r, Record t) {
-    int matrix[][] = new int[r.size() + 1][t.size() + 1];
-    matrix[0][0] = 1;
-    for (int i = 1; i <= r.size(); ++i) {
+  private static int matrix[][] = new int[1][0];
+
+  /**
+   * Check if s can be transformed to t
+   *
+   * @param s
+   * @param t
+   * @return true if s can be transformed to t
+   */
+  public static int DP_SingleSide(Record s, Record t) {
+    ++checked;
+    /**
+     * If temporary matrix size is not enough, enlarge the space
+     */
+    if (s.size() >= matrix.length || t.size() >= matrix[0].length) {
+      int rows = Math.max(s.size() + 1, matrix.length);
+      int cols = Math.max(t.size() + 1, matrix[0].length);
+      matrix = new int[rows][cols];
+      matrix[0][0] = 1;
+    }
+    for (int i = 1; i <= s.size(); ++i) {
       for (int j = 1; j <= t.size(); ++j) {
-        if (matrix[i - 1][j - 1] == 0) continue;
-        Rule[] rules = r.getApplicableRules(i - 1);
+        ++niterentry;
+        matrix[i][j] = 0;
+        /*
+         * compute matrix[i][j]
+         */
+        Rule[] rules = s.getSuffixApplicableRules(i - 1);
         for (Rule rule : rules) {
-          int len = rule.getTo().length;
-          if (StaticFunctions.compare(rule.getTo(), 0, t.getTokenArray(), j - 1,
-              len) == 0)
-            matrix[i + rule.getFrom().length - 1][j + len
-                - 1] = matrix[i - 1][j - 1] + 1;
+          ++niterrules;
+          int[] lhs = rule.getFrom();
+          int[] rhs = rule.getTo();
+          if (j - rhs.length < 0)
+            continue;
+          else if (matrix[i - lhs.length][j - rhs.length] == 0)
+            continue;
+          else if (StaticFunctions.compare(rhs, 0, t.getTokenArray(),
+              j - rhs.length, rhs.length) == 0) {
+            matrix[i][j] = matrix[i - lhs.length][j - rhs.length] + 1;
+            break;
+          }
         }
       }
     }
-    return matrix[r.size()][t.size()] - 1;
+    return matrix[s.size()][t.size()] - 1;
+  }
+
+  /**
+   * Temporary matrix to save sum of matrix values
+   */
+  private static int[][] P            = new int[1][0];
+
+  public static long     earlyevaled  = 0;
+  public static long     earlystopped = 0;
+
+  /**
+   * Check if s can be transformed to t
+   *
+   * @param s
+   * @param t
+   * @return true if s can be transformed to t
+   */
+  public static int DP_SingleSidewithEarlyPruning(Record s, Record t) {
+    ++checked;
+    /**
+     * If temporary matrix size is not enough, enlarge the space
+     */
+    if (s.size() >= matrix.length || t.size() >= matrix[0].length) {
+      int rows = Math.max(s.size() + 1, matrix.length);
+      int cols = Math.max(t.size() + 1, matrix[0].length);
+      matrix = new int[rows][cols];
+      matrix[0][0] = 1;
+    }
+    if (s.size() >= P.length || t.size() >= P[0].length) {
+      int rows = Math.max(s.size() + 1, P.length);
+      int cols = Math.max(t.size() + 1, P[0].length);
+      P = new int[rows][cols];
+      P[0][0] = 1;
+      for (int i = 1; i < rows; ++i)
+        P[i][0] = 1;
+      for (int i = 1; i < cols; ++i)
+        P[0][i] = 1;
+    }
+    short maxsearchrange = s.getMaxSearchRange();
+    short maxinvsearchrange = s.getMaxInvSearchRange();
+    for (int i = 1; i <= s.size(); ++i) {
+      /*
+       * P[i][j]: sum_{i'=0}^i sum_{j'=0}^j M[i',j']
+       */
+      int Q = 0;
+      short searchrange = s.getSearchRange(i - 1);
+      short invsearchrange = s.getInvSearchRange(i - 1);
+
+      int ip = Math.max(0, i - searchrange);
+      for (int j = 1; j <= t.size(); ++j) {
+        /*
+         * Q: sum_{j'=0}^{j-1} M[i,j']
+         */
+        ++niterentry;
+        matrix[i][j] = 0;
+        /*
+         * Claim 2
+         * Let i' = i - maxsearchrange and j' = j - maxinvsearchrange.
+         * P[i-1, j] + Q - P[i', j'] = 0
+         * <==> s cannot be transformed to t
+         */
+        int valid = P[i - 1][j] + Q;
+        if (i > maxsearchrange && j > maxinvsearchrange)
+          valid -= P[i - maxsearchrange - 1][j - maxinvsearchrange - 1];
+        if (valid == 0) {
+          ++earlystopped;
+          return -1;
+        }
+        int jp = Math.max(0, j - invsearchrange);
+        /*
+         * Claim 1
+         * Let i' = i - searchrange and j' = j - invsearchrange.
+         * M[i,j] = 1
+         * ==> M[i'..i, j'..j] has at least one 1 (except M[i,j])
+         * <==> P[i-1, j] + Q - P[i'-1, j-1] - P[i-1, j'-1] + P[i'-1, j'-1] \neq
+         * 0
+         * If there is no empty string in lhs/rhs of a rule,
+         * <==> P[i-1, j-1] - P[i'-1, j-1] - P[i-1, j'-1] + P[i'-1, j'-1] \neq 0
+         */
+        valid = P[i - 1][j - 1];
+        if (ip > 0) {
+          valid -= P[ip - 1][j - 1];
+          if (jp > 0) valid += P[ip - 1][jp - 1];
+        }
+        if (jp > 0) valid -= P[i - 1][jp - 1];
+        if (valid == 0) {
+          P[i][j] = P[i - 1][j] + Q;
+          ++earlyevaled;
+          continue;
+        }
+        /*
+         * compute matrix[i][j], P[i][j] and Q.
+         * Note that P[i][j] = P[i-1][j] + Q + matrix[i][j].
+         */
+        Rule[] rules = s.getSuffixApplicableRules(i - 1);
+        for (Rule rule : rules) {
+          ++niterrules;
+          int[] lhs = rule.getFrom();
+          int[] rhs = rule.getTo();
+          if (j - rhs.length < 0)
+            continue;
+          else if (matrix[i - lhs.length][j - rhs.length] == 0)
+            continue;
+          else if (StaticFunctions.compare(rhs, 0, t.getTokenArray(),
+              j - rhs.length, rhs.length) == 0) {
+            matrix[i][j] = matrix[i - lhs.length][j - rhs.length] + 1;
+            break;
+          }
+        }
+        Q += (matrix[i][j] == 0 ? 0 : 1);
+        /*
+         * Q is updated. (Q = sum_{j'=1}^j M[i,j'])
+         * Thus, P[i][j] = P[i-1][j] + Q.
+         */
+        P[i][j] = P[i - 1][j] + Q;
+      }
+    }
+    return matrix[s.size()][t.size()] - 1;
+  }
+
+  /**
+   * Temporary matrix to save match result of doubleside equivalence check.</br>
+   * dmatrix[i][j] stores all sub-matches for s[1..i]=>x1,
+   * t[1..j]=>x2 where x1 is sub/superstring of x2 and |x1|-|x2|=k
+   */
+  @SuppressWarnings({ "unchecked" })
+  private static HashSet<Submatch>[][] dmatrix = new HashSet[1][0];
+  private static final int             maxRHS  = 10;
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public static int DP_A_Matrix(Record s, Record t) {
+    ++checked;
+    /**
+     * If temporary matrix size is not enough, enlarge the space
+     */
+    if (s.size() >= dmatrix.length || t.size() >= dmatrix[0].length) {
+      int rows = Math.max(s.size() + 1, dmatrix.length);
+      int cols = Math.max(t.size() + 1, dmatrix[0].length);
+      dmatrix = new HashSet[rows][cols];
+      for (int i = 0; i < dmatrix.length; ++i)
+        for (int j = 0; j < dmatrix[0].length; ++j)
+          dmatrix[i][j] = new HashSet();
+      dmatrix[0][0].add(EQUALMATCH);
+    }
+    for (int i = 0; i <= s.size(); ++i) {
+      for (int j = 0; j <= t.size(); ++j) {
+        if (i == 0 && j == 0) continue;
+        dmatrix[i][j].clear();
+        ++niterentry;
+        /*
+         * Applicable rules of suffixes of s[1..i]
+         */
+        if (i != 0) {
+          Rule[] rules = s.getSuffixApplicableRules(i - 1);
+          for (Rule rule : rules) {
+            ++niterrules;
+            int[] lhs = rule.getFrom();
+            int[] rhs = rule.getTo();
+            boolean selfrule = (lhs.length == 1 && rhs.length == 1
+                && lhs[0] == rhs[0]);
+            HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i
+                - lhs.length][j];
+            if (prevmatches.isEmpty()) continue;
+            for (Submatch match : prevmatches) {
+              ++nitermatches;
+              int nextNRules = match.nAppliedRules + (selfrule ? 0 : 1);
+              // If previous match is 'equals', simply add current rule
+              if (match.rule == null) {
+                dmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
+                continue;
+              }
+              // Do not append additional rule if remaining string of previous
+              // match is from s.
+              else if (match.remainS) continue;
+              int[] remainRHS = match.rule.getTo();
+              int sidx = 0;
+              int tidx = match.idx;
+              boolean expandable = true;
+              while (tidx < remainRHS.length && sidx < rhs.length
+                  && expandable) {
+                if (rhs[sidx] != remainRHS[tidx]) expandable = false;
+                ++sidx;
+                ++tidx;
+              }
+              if (expandable) {
+                if (sidx == rhs.length && tidx == remainRHS.length) {
+                  // Exact match
+                  if (i == s.size() && j == t.size()) return nextNRules;
+                  dmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
+                }
+                // rhs is fully matched (!remainS)
+                else if (sidx == rhs.length)
+                  dmatrix[i][j]
+                      .add(new Submatch(match.rule, false, tidx, nextNRules));
+                // remainRHS is fully matched (remainS)
+                else
+                  dmatrix[i][j].add(new Submatch(rule, true, sidx, nextNRules));
+              }
+            }
+          }
+        }
+        /**
+         * Applicable rules of suffixes of t[1..j]
+         */
+        if (j != 0) {
+          Rule[] rules = t.getSuffixApplicableRules(j - 1);
+          for (Rule rule : rules) {
+            ++niterrules;
+            int[] lhs = rule.getFrom();
+            int[] rhs = rule.getTo();
+            boolean selfrule = (lhs.length == 1 && rhs.length == 1
+                && lhs[0] == rhs[0]);
+            HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i][j
+                - lhs.length];
+            if (prevmatches.isEmpty()) continue;
+            for (Submatch match : prevmatches) {
+              ++nitermatches;
+              int nextNRules = match.nAppliedRules + (selfrule ? 0 : 1);
+              // If previous match is 'equals', do not apply this rule
+              // since a rule of s is always applied first.
+              if (match.rule == null)
+                continue;
+              // Do not append additional rule if remaining string of previous
+              // match is from t.
+              else if (!match.remainS) continue;
+              int[] remainRHS = match.rule.getTo();
+              int sidx = match.idx;
+              int tidx = 0;
+              boolean expandable = true;
+              while (sidx < remainRHS.length && tidx < rhs.length
+                  && expandable) {
+                if (rhs[tidx] != remainRHS[sidx]) expandable = false;
+                ++sidx;
+                ++tidx;
+              }
+              if (expandable) {
+                if (tidx == rhs.length && sidx == remainRHS.length) {
+                  // Exact match
+                  if (i == s.size() && j == t.size()) return nextNRules;
+                  dmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
+                }
+                // rhs is fully matched (remainS)
+                else if (tidx == rhs.length)
+                  dmatrix[i][j]
+                      .add(new Submatch(match.rule, true, sidx, nextNRules));
+                // remainRHS is fully matched (!remainS)
+                else
+                  dmatrix[i][j]
+                      .add(new Submatch(rule, false, tidx, nextNRules));
+              }
+            }
+          }
+        }
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Temporary matrix to save sum of matrix values
+   */
+  private static int[][] dP = new int[1][0];
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public static int DP_A_MatrixwithEarlyPruning(Record s, Record t) {
+    ++checked;
+    /**
+     * If temporary matrix size is not enough, enlarge the space
+     */
+    if (s.size() >= dmatrix.length || t.size() >= dmatrix[0].length) {
+      int rows = Math.max(s.size() + 1, dmatrix.length);
+      int cols = Math.max(t.size() + 1, dmatrix[0].length);
+      dmatrix = new HashSet[rows][cols];
+      for (int i = 0; i < dmatrix.length; ++i)
+        for (int j = 0; j < dmatrix[0].length; ++j)
+          dmatrix[i][j] = new HashSet();
+      dmatrix[0][0].add(EQUALMATCH);
+    }
+    if (s.size() >= dP.length || t.size() >= dP[0].length) {
+      int rows = Math.max(s.size() + 1, dP.length);
+      int cols = Math.max(t.size() + 1, dP[0].length);
+      dP = new int[rows][cols];
+      dP[0][0] = 1;
+    }
+
+    for (int i = 0; i <= s.size(); ++i) {
+      int Q = 0;
+      for (int j = 0; j <= t.size(); ++j) {
+        if (i == 0 && j == 0) {
+          ++Q;
+          continue;
+        }
+        dmatrix[i][j].clear();
+        ++niterentry;
+
+        boolean s_skipped = i == 0;
+        boolean t_skipped = j == 0;
+        /*
+         * Applicable rules of suffixes of s[1..i]
+         */
+        if (i != 0) {
+          // Check if we can skip evaluating current entry
+          short searchrange = s.getSearchRange(i - 1);
+          int ip = Math.max(0, i - searchrange);
+          int valid = dP[i - 1][j];
+          if (ip > 0) {
+            valid -= dP[ip - 1][j];
+            if (j > 0) valid += dP[ip - 1][j - 1];
+          } if (j > 0) valid -= dP[i - 1][j - 1];
+
+          if (valid == 0)
+            s_skipped = true;
+          else {
+            Rule[] rules = s.getSuffixApplicableRules(i - 1);
+            for (Rule rule : rules) {
+              ++niterrules;
+              int[] lhs = rule.getFrom();
+              int[] rhs = rule.getTo();
+              boolean selfrule = (lhs.length == 1 && rhs.length == 1
+                  && lhs[0] == rhs[0]);
+              HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i
+                  - lhs.length][j];
+              if (prevmatches.isEmpty()) continue;
+              for (Submatch match : prevmatches) {
+                ++nitermatches;
+                int nextNRules = match.nAppliedRules + (selfrule ? 0 : 1);
+                // If previous match is 'equals', simply add current rule
+                if (match.rule == null) {
+                  dmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
+                  continue;
+                }
+                // Do not append additional rule if remaining string of previous
+                // match is from s.
+                else if (match.remainS) continue;
+                int[] remainRHS = match.rule.getTo();
+                int sidx = 0;
+                int tidx = match.idx;
+                boolean expandable = true;
+                while (tidx < remainRHS.length && sidx < rhs.length
+                    && expandable) {
+                  if (rhs[sidx] != remainRHS[tidx]) expandable = false;
+                  ++sidx;
+                  ++tidx;
+                }
+                if (expandable) {
+                  if (sidx == rhs.length && tidx == remainRHS.length) {
+                    // Exact match
+                    if (i == s.size() && j == t.size()) return nextNRules;
+                    dmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
+                  }
+                  // rhs is fully matched (!remainS)
+                  else if (sidx == rhs.length)
+                    dmatrix[i][j]
+                        .add(new Submatch(match.rule, false, tidx, nextNRules));
+                  // remainRHS is fully matched (remainS)
+                  else
+                    dmatrix[i][j]
+                        .add(new Submatch(rule, true, sidx, nextNRules));
+                }
+              }
+            }
+          }
+        }
+        /**
+         * Applicable rules of suffixes of t[1..j]
+         */
+        if (j != 0) {
+          // Check if we can skip evaluating current entry
+          short searchrange = t.getSearchRange(j - 1);
+          int jp = Math.max(0, j - searchrange);
+          int valid = dP[i][j - 1];
+          if (jp > 0) {
+            valid -= dP[i][jp - 1];
+            if (i > 0) valid += dP[i - 1][jp - 1];
+          } if (i > 0) valid -= dP[i - 1][j - 1];
+          if (valid == 0)
+            t_skipped = true;
+          else {
+            Rule[] rules = t.getSuffixApplicableRules(j - 1);
+            for (Rule rule : rules) {
+              ++niterrules;
+              int[] lhs = rule.getFrom();
+              int[] rhs = rule.getTo();
+              HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i][j
+                  - lhs.length];
+              if (prevmatches.isEmpty()) continue;
+              for (Submatch match : prevmatches) {
+                ++nitermatches;
+                int nextNRules = match.nAppliedRules + 1;
+                // If previous match is 'equals', do not apply this rule
+                // since a rule of s is always applied first.
+                if (match.rule == null)
+                  continue;
+                // Do not append additional rule if remaining string of previous
+                // match is from t.
+                else if (!match.remainS) continue;
+                int[] remainRHS = match.rule.getTo();
+                int sidx = match.idx;
+                int tidx = 0;
+                boolean expandable = true;
+                while (sidx < remainRHS.length && tidx < rhs.length
+                    && expandable) {
+                  if (rhs[tidx] != remainRHS[sidx]) expandable = false;
+                  ++sidx;
+                  ++tidx;
+                }
+                if (expandable) {
+                  if (tidx == rhs.length && sidx == remainRHS.length) {
+                    // Exact match
+                    if (i == s.size() && j == t.size()) return nextNRules;
+                    dmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
+                  }
+                  // rhs is fully matched (remainS)
+                  else if (tidx == rhs.length)
+                    dmatrix[i][j]
+                        .add(new Submatch(match.rule, true, sidx, nextNRules));
+                  // remainRHS is fully matched (!remainS)
+                  else
+                    dmatrix[i][j]
+                        .add(new Submatch(rule, false, tidx, nextNRules));
+                }
+              }
+            }
+          }
+        }
+        if (s_skipped && t_skipped)
+          ++earlyevaled;
+        if (!dmatrix[i][j].isEmpty()) ++Q;
+        if (i == 0)
+          dP[i][j] = Q;
+        else
+          dP[i][j] = dP[i - 1][j] + Q;
+      }
+    }
+    return -1;
+  }
+
+  private static Submatch EQUALMATCH = new Validator.Submatch(null, false, 0,
+      0);
+
+  /**
+   * Represents a remaining substring rule.rhs[idx..|rule.rhs|]
+   */
+  private static class Submatch {
+    Rule    rule;
+    boolean remainS;
+    short   idx;
+    short   nAppliedRules;
+
+    Submatch(Rule rule, boolean remainS, int idx, int nAppliedRules) {
+      this.rule = rule;
+      this.remainS = remainS;
+      this.idx = (short) idx;
+      this.nAppliedRules = (short) nAppliedRules;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o.getClass() != Submatch.class) return false;
+      Submatch os = (Submatch) o;
+      return (rule == os.rule && remainS == os.remainS && idx == os.idx);
+    }
+
+    @Override
+    public int hashCode() {
+      if (rule == null) return maxRHS;
+      return (rule.hashCode() * maxRHS) + idx;
+    }
   }
 }

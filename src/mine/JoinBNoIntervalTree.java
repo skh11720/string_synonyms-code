@@ -243,7 +243,7 @@ public class JoinBNoIntervalTree extends Algorithm {
     System.out.println(rslt.size());
     System.out.println("Comparisons: " + Validator.checked);
     System.out.println("Filtered: " + Validator.filtered);
-    System.out.println("Total iters: " + Validator.niters);
+    System.out.println("Total iters: " + Validator.niterentry);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));

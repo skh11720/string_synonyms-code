@@ -2,8 +2,9 @@ package mine;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import sigmod13.RecordInterface;
@@ -24,7 +25,7 @@ public class Record
   /**
    * For fast hashing
    */
-  protected boolean                  validHashValue      = false;
+  protected boolean                  validHashValue        = false;
   protected int                      hashValue;
 
   /**
@@ -32,23 +33,45 @@ public class Record
    */
   protected int[]                    tokens;
   /**
-   * For DynamicMatch
+   * For DynamicMatch.
+   * applicableRules[i] contains all the rules which can be applied to the
+   * prefix of str[i].
    */
-  protected Rule[][]                 applicableRules     = null;
-  protected Rule_InverseTrie         applicableRulesTrie = null;
+  protected Rule[][]                 applicableRules       = null;
+  /**
+   * For DynamicMatch.
+   * applicableRules[i] contains all the rules which can be applied to the
+   * suffix of str[i].
+   */
+  protected Rule[][]                 suffixApplicableRules = null;
+  protected Rule_InverseTrie         applicableRulesTrie   = null;
   /**
    * For {@link algorithm.dynamic.DynamicMatch06_C}
    */
-  protected IntegerSet[]             availableTokens     = null;
+  protected IntegerSet[]             availableTokens       = null;
   /**
    * For Length filter
    */
-  protected int[][]                  candidateLengths    = null;
-  protected static final Rule[]      EMPTY_RULE          = new Rule[0];
+  protected int[][]                  candidateLengths      = null;
+  protected static final Rule[]      EMPTY_RULE            = new Rule[0];
   /**
    * Estimate the number of equivalent records
    */
-  protected long[]                   estimated_equivs    = null;
+  protected long[]                   estimated_equivs      = null;
+  /**
+   * For early pruning of one-side equivalence check.<br/>
+   * Suppose that we are computing M[i,j].<br/>
+   * If searchrange[i] = l, we may search M[i-l..i,*] only.
+   */
+  protected short[]                  searchrange           = null;
+  protected short                    maxsearchrange        = 1;
+  /**
+   * For early pruning of one-side equivalence check.<br/>
+   * Suppose that we are computing M[i,j].<br/>
+   * If invsearchrange[i] = l, we may search M[*,j-l..j] only.
+   */
+  protected short[]                  invsearchrange        = null;
+  protected short                    maxinvsearchrange     = 1;
 
   private Record() {
     id = -1;
@@ -62,7 +85,7 @@ public class Record
     Record.atm = atm;
   }
 
-  public Record(int id, String str, HashMap<String, Integer> str2int) {
+  public Record(int id, String str, Map<String, Integer> str2int) {
     this.id = id;
     String[] pstr = str.split("[ |\t]+");
     tokens = new int[pstr.length];
@@ -212,9 +235,92 @@ public class Record
     }
   }
 
+  public void preprocessSearchRanges() {
+    searchrange = new short[tokens.length];
+    invsearchrange = new short[tokens.length];
+    // Assumption : no lhs/rhs of a rule is empty
+    for (int i = 0; i < tokens.length; ++i)
+      searchrange[i] = invsearchrange[i] = 1;
+    for (int i = 0; i < tokens.length; ++i) {
+      for (Rule r : applicableRules[i]) {
+        int[] from = r.getFrom();
+        int[] to = r.getTo();
+        // suffix index : i + |from| - 1
+        int suffixidx = i + from.length - 1;
+        searchrange[suffixidx] = (short) Math.max(searchrange[suffixidx],
+            from.length);
+        maxsearchrange = (short) Math.max(maxsearchrange,
+            searchrange[suffixidx]);
+        invsearchrange[suffixidx] = (short) Math.max(invsearchrange[suffixidx],
+            to.length);
+        maxinvsearchrange = (short) Math.max(maxinvsearchrange,
+            invsearchrange[suffixidx]);
+      }
+    }
+  }
+
+  public void preprocessSuffixApplicableRules() {
+    List<List<Rule>> tmplist = new ArrayList<List<Rule>>();
+    for (int i = 0; i < tokens.length; ++i)
+      tmplist.add(new ArrayList<Rule>());
+    for (int i = tokens.length - 1; i >= 0 ; --i) {
+      for (Rule rule : applicableRules[i]) {
+        int suffixidx = i + rule.getFrom().length - 1;
+        tmplist.get(suffixidx).add(rule);
+      }
+    }
+    suffixApplicableRules = new Rule[tokens.length][];
+    for (int i = 0; i < tokens.length; ++i)
+      suffixApplicableRules[i] = tmplist.get(i).toArray(new Rule[0]);
+  }
+
   public IntegerSet[] getAvailableTokens() {
     if (availableTokens == null) return computeAvailableTokens();
     return availableTokens;
+  }
+
+  /**
+   * Returns 2grams which can be obtained by using at least 2 different rules
+   */
+  public Set<Long> getFirstCrossing2Grams() {
+    Set<Long> result = new HashSet<Long>();
+    Rule[] firstRules = applicableRules[0];
+    // For each rule, find the last token.
+    for (Rule rule : firstRules) {
+      int[] from = rule.getFrom();
+      int[] to = rule.getTo();
+      // If there is no more string to apply a rule, it simply return the last
+      // token.
+      if (from.length == tokens.length) {
+        result.add((long) to[to.length - 1]);
+        continue;
+      }
+      // Find another rule that can applied right next to the current rule
+      Rule[] nextRules = applicableRules[from.length];
+      long tmpgram = ((long) to[to.length - 1]) * ((long) Integer.MAX_VALUE);
+      for (Rule nextrule : nextRules) {
+        int[] nextto = nextrule.getTo();
+        long gram = tmpgram + nextto[0];
+        result.add(gram);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns 2grams which exist in the first applicable rules
+   */
+  public Set<Long> getFirstRule2Grams() {
+    Set<Long> result = new HashSet<Long>();
+    Rule[] firstRules = applicableRules[0];
+    for (Rule rule : firstRules) {
+      int[] to = rule.getTo();
+      for (int i = 0; i < to.length - 1; ++i) {
+        long gram = ((long) to[i]) * ((long) Integer.MAX_VALUE) + to[i + 1];
+        result.add(gram);
+      }
+    }
+    return result;
   }
 
   public int getNumApplicableRules() {
@@ -237,6 +343,31 @@ public class Record
       return applicableRules[k];
     else
       return EMPTY_RULE;
+  }
+
+  public Rule[] getSuffixApplicableRules(int k) {
+    if (suffixApplicableRules == null)
+      return null;
+    else if (k < suffixApplicableRules.length)
+      return suffixApplicableRules[k];
+    else
+      return EMPTY_RULE;
+  }
+
+  public short getSearchRange(int k) {
+    return searchrange[k];
+  }
+
+  public short getMaxSearchRange() {
+    return maxsearchrange;
+  }
+
+  public short getInvSearchRange(int k) {
+    return invsearchrange[k];
+  }
+
+  public short getMaxInvSearchRange() {
+    return maxinvsearchrange;
   }
 
   public List<Rule> getMatched(int[] residual, int sidx) {

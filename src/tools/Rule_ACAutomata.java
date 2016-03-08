@@ -77,7 +77,7 @@ public class Rule_ACAutomata {
   }
 
   /**
-   * Automatically adds a self rule
+   * Do not Automatically adds a self rule
    */
   @SuppressWarnings("unchecked")
   public Rule[][] applicableRules(int[] tokens, int startIdx) {
@@ -91,7 +91,6 @@ public class Rule_ACAutomata {
     State curr = root;
     int i = startIdx;
     while (i < tokens.length) {
-      // Add self-rule
       State next;
       if (curr.split != null && (next = curr.split.get(tokens[i])) != null) {
         curr = next;
