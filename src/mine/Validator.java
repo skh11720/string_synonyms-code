@@ -518,7 +518,8 @@ public class Validator {
             continue;
           else if (StaticFunctions.compare(rhs, 0, t.getTokenArray(),
               j - rhs.length, rhs.length) == 0) {
-            matrix[i][j] = matrix[i - lhs.length][j - rhs.length] + 1;
+            matrix[i][j] = matrix[i - lhs.length][j - rhs.length];
+            if (!isSelfRule(rule)) ++matrix[i][j];
             break;
           }
         }
@@ -630,7 +631,8 @@ public class Validator {
             continue;
           else if (StaticFunctions.compare(rhs, 0, t.getTokenArray(),
               j - rhs.length, rhs.length) == 0) {
-            matrix[i][j] = matrix[i - lhs.length][j - rhs.length] + 1;
+            matrix[i][j] = matrix[i - lhs.length][j - rhs.length];
+            if (!isSelfRule(rule)) ++matrix[i][j];
             break;
           }
         }
@@ -683,14 +685,12 @@ public class Validator {
             ++niterrules;
             int[] lhs = rule.getFrom();
             int[] rhs = rule.getTo();
-            boolean selfrule = (lhs.length == 1 && rhs.length == 1
-                && lhs[0] == rhs[0]);
             HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i
                 - lhs.length][j];
             if (prevmatches.isEmpty()) continue;
             for (Submatch match : prevmatches) {
               ++nitermatches;
-              int nextNRules = match.nAppliedRules + (selfrule ? 0 : 1);
+              int nextNRules = match.nAppliedRules + (isSelfRule(rule) ? 0 : 1);
               // If previous match is 'equals', simply add current rule
               if (match.rule == null) {
                 dmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
@@ -810,6 +810,8 @@ public class Validator {
       dP[0][0] = 1;
     }
 
+    short smaxsearchrange = s.getMaxSearchRange();
+    short tmaxsearchrange = t.getMaxSearchRange();
     for (int i = 0; i <= s.size(); ++i) {
       int Q = 0;
       for (int j = 0; j <= t.size(); ++j) {
@@ -819,6 +821,20 @@ public class Validator {
         }
         dmatrix[i][j].clear();
         ++niterentry;
+        /*
+         * Claim 2
+         * Let i' = i - smaxsearchrange and j' = j - tmaxsearchrange.
+         * P[i-1, j] + Q - P[i', j'] = 0
+         * <==> s cannot be transformed to t
+         */
+        int valid = Q;
+        if (i > 0) valid += dP[i - 1][j];
+        if (i > smaxsearchrange && j > tmaxsearchrange)
+          valid -= dP[i - smaxsearchrange - 1][j - tmaxsearchrange - 1];
+        if (valid == 0) {
+          ++earlystopped;
+          return -1;
+        }
 
         boolean s_skipped = i == 0;
         boolean t_skipped = j == 0;
@@ -829,11 +845,12 @@ public class Validator {
           // Check if we can skip evaluating current entry
           short searchrange = s.getSearchRange(i - 1);
           int ip = Math.max(0, i - searchrange);
-          int valid = dP[i - 1][j];
+          valid = dP[i - 1][j];
           if (ip > 0) {
             valid -= dP[ip - 1][j];
             if (j > 0) valid += dP[ip - 1][j - 1];
-          } if (j > 0) valid -= dP[i - 1][j - 1];
+          }
+          if (j > 0) valid -= dP[i - 1][j - 1];
 
           if (valid == 0)
             s_skipped = true;
@@ -843,14 +860,13 @@ public class Validator {
               ++niterrules;
               int[] lhs = rule.getFrom();
               int[] rhs = rule.getTo();
-              boolean selfrule = (lhs.length == 1 && rhs.length == 1
-                  && lhs[0] == rhs[0]);
               HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i
                   - lhs.length][j];
               if (prevmatches.isEmpty()) continue;
               for (Submatch match : prevmatches) {
                 ++nitermatches;
-                int nextNRules = match.nAppliedRules + (selfrule ? 0 : 1);
+                int nextNRules = match.nAppliedRules
+                    + (isSelfRule(rule) ? 0 : 1);
                 // If previous match is 'equals', simply add current rule
                 if (match.rule == null) {
                   dmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
@@ -895,11 +911,12 @@ public class Validator {
           // Check if we can skip evaluating current entry
           short searchrange = t.getSearchRange(j - 1);
           int jp = Math.max(0, j - searchrange);
-          int valid = dP[i][j - 1];
+          valid = dP[i][j - 1];
           if (jp > 0) {
             valid -= dP[i][jp - 1];
             if (i > 0) valid += dP[i - 1][jp - 1];
-          } if (i > 0) valid -= dP[i - 1][j - 1];
+          }
+          if (i > 0) valid -= dP[i - 1][j - 1];
           if (valid == 0)
             t_skipped = true;
           else {
@@ -950,8 +967,7 @@ public class Validator {
             }
           }
         }
-        if (s_skipped && t_skipped)
-          ++earlyevaled;
+        if (s_skipped && t_skipped) ++earlyevaled;
         if (!dmatrix[i][j].isEmpty()) ++Q;
         if (i == 0)
           dP[i][j] = Q;
@@ -964,6 +980,11 @@ public class Validator {
 
   private static Submatch EQUALMATCH = new Validator.Submatch(null, false, 0,
       0);
+
+  private static boolean isSelfRule(Rule rule) {
+    return rule.getFrom()[0] == rule.getTo()[0] && rule.getFrom().length == 1
+        && rule.getTo().length == 1;
+  }
 
   /**
    * Represents a remaining substring rule.rhs[idx..|rule.rhs|]

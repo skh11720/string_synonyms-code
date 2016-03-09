@@ -77,6 +77,19 @@ public class ValidatorTest {
     checkDS(24, 60, 30, true);
   }
 
+  @Test
+  public void testDS() {
+    String str1 = "A B C D";
+    String str2 = "a b c d";
+    String[] rulearray = new String[] { "A, a", "B, x", "D, d" };
+    build(str1, str2, rulearray);
+    Validator.DP_A_MatrixwithEarlyPruning(s, t);
+    System.out.println(Validator.niterentry);
+    System.out.println(Validator.earlyevaled);
+    System.out.println(Validator.niterrules);
+    System.out.println(Validator.earlystopped);
+  }
+
   /**
    * Check if the number of evaluations / early-evaluated are matched and
    * procedure is early-pruned
