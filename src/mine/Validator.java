@@ -649,32 +649,49 @@ public class Validator {
 
   /**
    * Temporary matrix to save match result of doubleside equivalence check.</br>
-   * dmatrix[i][j] stores all sub-matches for s[1..i]=>x1,
-   * t[1..j]=>x2 where x1 is sub/superstring of x2 and |x1|-|x2|=k
+   * dsmatrix[i][j] stores all sub-matches for s[1..i]=>x1,
+   * t[1..j]=>x2 where x1 is sub/superstring of x2 and |x1|-|x2|<=0 </br>
+   * Every rule applied to s must use this matrix to retrieve previous matches.
    */
   @SuppressWarnings({ "unchecked" })
-  private static HashSet<Submatch>[][] dmatrix = new HashSet[1][0];
-  private static final int             maxRHS  = 10;
+  private static HashSet<Submatch>[][] dsmatrix = new HashSet[1][0];
+  /**
+   * Temporary matrix to save match result of doubleside equivalence check.</br>
+   * dtmatrix[i][j] stores all sub-matches for s[1..i]=>x1,
+   * t[1..j]=>x2 where x1 is sub/superstring of x2 and |x1|-|x2|>0
+   * Every rule applied to t must use this matrix to retrieve previous matches.
+   */
+  @SuppressWarnings("unchecked")
+  private static HashSet<Submatch>[][] dtmatrix = new HashSet[1][0];
+  private static final int             maxRHS   = 10;
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
+  private static void enlargeDSMatchMatrix(int slen, int tlen) {
+    if (slen >= dsmatrix.length || tlen >= dsmatrix[0].length) {
+      int rows = Math.max(slen + 1, dsmatrix.length);
+      int cols = Math.max(tlen + 1, dsmatrix[0].length);
+      dsmatrix = new HashSet[rows][cols];
+      dtmatrix = new HashSet[rows][cols];
+      for (int i = 0; i < dsmatrix.length; ++i)
+        for (int j = 0; j < dsmatrix[0].length; ++j) {
+          dsmatrix[i][j] = new HashSet();
+          dtmatrix[i][j] = new HashSet();
+        }
+      dsmatrix[0][0].add(EQUALMATCH);
+    }
+  }
+
   public static int DP_A_Matrix(Record s, Record t) {
     ++checked;
     /**
      * If temporary matrix size is not enough, enlarge the space
      */
-    if (s.size() >= dmatrix.length || t.size() >= dmatrix[0].length) {
-      int rows = Math.max(s.size() + 1, dmatrix.length);
-      int cols = Math.max(t.size() + 1, dmatrix[0].length);
-      dmatrix = new HashSet[rows][cols];
-      for (int i = 0; i < dmatrix.length; ++i)
-        for (int j = 0; j < dmatrix[0].length; ++j)
-          dmatrix[i][j] = new HashSet();
-      dmatrix[0][0].add(EQUALMATCH);
-    }
+    enlargeDSMatchMatrix(s.size(), t.size());
     for (int i = 0; i <= s.size(); ++i) {
       for (int j = 0; j <= t.size(); ++j) {
         if (i == 0 && j == 0) continue;
-        dmatrix[i][j].clear();
+        dsmatrix[i][j].clear();
+        dtmatrix[i][j].clear();
         ++niterentry;
         /*
          * Applicable rules of suffixes of s[1..i]
@@ -685,7 +702,7 @@ public class Validator {
             ++niterrules;
             int[] lhs = rule.getFrom();
             int[] rhs = rule.getTo();
-            HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i
+            HashSet<Submatch> prevmatches = (HashSet<Submatch>) dsmatrix[i
                 - lhs.length][j];
             if (prevmatches.isEmpty()) continue;
             for (Submatch match : prevmatches) {
@@ -693,7 +710,7 @@ public class Validator {
               int nextNRules = match.nAppliedRules + (isSelfRule(rule) ? 0 : 1);
               // If previous match is 'equals', simply add current rule
               if (match.rule == null) {
-                dmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
+                dtmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
                 continue;
               }
               // Do not append additional rule if remaining string of previous
@@ -713,15 +730,16 @@ public class Validator {
                 if (sidx == rhs.length && tidx == remainRHS.length) {
                   // Exact match
                   if (i == s.size() && j == t.size()) return nextNRules;
-                  dmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
+                  dsmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
                 }
                 // rhs is fully matched (!remainS)
                 else if (sidx == rhs.length)
-                  dmatrix[i][j]
+                  dsmatrix[i][j]
                       .add(new Submatch(match.rule, false, tidx, nextNRules));
                 // remainRHS is fully matched (remainS)
                 else
-                  dmatrix[i][j].add(new Submatch(rule, true, sidx, nextNRules));
+                  dtmatrix[i][j]
+                      .add(new Submatch(rule, true, sidx, nextNRules));
               }
             }
           }
@@ -737,7 +755,7 @@ public class Validator {
             int[] rhs = rule.getTo();
             boolean selfrule = (lhs.length == 1 && rhs.length == 1
                 && lhs[0] == rhs[0]);
-            HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i][j
+            HashSet<Submatch> prevmatches = (HashSet<Submatch>) dtmatrix[i][j
                 - lhs.length];
             if (prevmatches.isEmpty()) continue;
             for (Submatch match : prevmatches) {
@@ -764,15 +782,15 @@ public class Validator {
                 if (tidx == rhs.length && sidx == remainRHS.length) {
                   // Exact match
                   if (i == s.size() && j == t.size()) return nextNRules;
-                  dmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
+                  dsmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
                 }
                 // rhs is fully matched (remainS)
                 else if (tidx == rhs.length)
-                  dmatrix[i][j]
+                  dtmatrix[i][j]
                       .add(new Submatch(match.rule, true, sidx, nextNRules));
                 // remainRHS is fully matched (!remainS)
                 else
-                  dmatrix[i][j]
+                  dsmatrix[i][j]
                       .add(new Submatch(rule, false, tidx, nextNRules));
               }
             }
@@ -786,40 +804,39 @@ public class Validator {
   /**
    * Temporary matrix to save sum of matrix values
    */
-  private static int[][] dP = new int[1][0];
+  private static int[][] dsP = new int[1][0];
+  private static int[][] dtP = new int[1][0];
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private static void enlargeDSPMatrix(int slen, int tlen) {
+    if (slen >= dsP.length || tlen >= dsP[0].length) {
+      int rows = Math.max(slen + 1, dsP.length);
+      int cols = Math.max(tlen + 1, dsP[0].length);
+      dsP = new int[rows][cols];
+      dtP = new int[rows][cols];
+      dsP[0][0] = 1;
+    }
+  }
+
   public static int DP_A_MatrixwithEarlyPruning(Record s, Record t) {
     ++checked;
     /**
      * If temporary matrix size is not enough, enlarge the space
      */
-    if (s.size() >= dmatrix.length || t.size() >= dmatrix[0].length) {
-      int rows = Math.max(s.size() + 1, dmatrix.length);
-      int cols = Math.max(t.size() + 1, dmatrix[0].length);
-      dmatrix = new HashSet[rows][cols];
-      for (int i = 0; i < dmatrix.length; ++i)
-        for (int j = 0; j < dmatrix[0].length; ++j)
-          dmatrix[i][j] = new HashSet();
-      dmatrix[0][0].add(EQUALMATCH);
-    }
-    if (s.size() >= dP.length || t.size() >= dP[0].length) {
-      int rows = Math.max(s.size() + 1, dP.length);
-      int cols = Math.max(t.size() + 1, dP[0].length);
-      dP = new int[rows][cols];
-      dP[0][0] = 1;
-    }
+    enlargeDSMatchMatrix(s.size(), t.size());
+    enlargeDSPMatrix(s.size(), t.size());
 
     short smaxsearchrange = s.getMaxSearchRange();
     short tmaxsearchrange = t.getMaxSearchRange();
     for (int i = 0; i <= s.size(); ++i) {
-      int Q = 0;
+      int sQ = 0;
+      int tQ = 0;
       for (int j = 0; j <= t.size(); ++j) {
         if (i == 0 && j == 0) {
-          ++Q;
+          ++sQ;
           continue;
         }
-        dmatrix[i][j].clear();
+        dsmatrix[i][j].clear();
+        dtmatrix[i][j].clear();
         ++niterentry;
         /*
          * Claim 2
@@ -827,10 +844,15 @@ public class Validator {
          * P[i-1, j] + Q - P[i', j'] = 0
          * <==> s cannot be transformed to t
          */
-        int valid = Q;
-        if (i > 0) valid += dP[i - 1][j];
-        if (i > smaxsearchrange && j > tmaxsearchrange)
-          valid -= dP[i - smaxsearchrange - 1][j - tmaxsearchrange - 1];
+        int valid = sQ + tQ;
+        if (i > 0) {
+          valid += dsP[i - 1][j];
+          valid += dtP[i - 1][j];
+        }
+        if (i > smaxsearchrange && j > tmaxsearchrange) {
+          valid -= dsP[i - smaxsearchrange - 1][j - tmaxsearchrange - 1];
+          valid -= dtP[i - smaxsearchrange - 1][j - tmaxsearchrange - 1];
+        }
         if (valid == 0) {
           ++earlystopped;
           return -1;
@@ -845,12 +867,12 @@ public class Validator {
           // Check if we can skip evaluating current entry
           short searchrange = s.getSearchRange(i - 1);
           int ip = Math.max(0, i - searchrange);
-          valid = dP[i - 1][j];
+          valid = dsP[i - 1][j];
           if (ip > 0) {
-            valid -= dP[ip - 1][j];
-            if (j > 0) valid += dP[ip - 1][j - 1];
+            valid -= dsP[ip - 1][j];
+            if (j > 0) valid += dsP[ip - 1][j - 1];
           }
-          if (j > 0) valid -= dP[i - 1][j - 1];
+          if (j > 0) valid -= dsP[i - 1][j - 1];
 
           if (valid == 0)
             s_skipped = true;
@@ -860,7 +882,7 @@ public class Validator {
               ++niterrules;
               int[] lhs = rule.getFrom();
               int[] rhs = rule.getTo();
-              HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i
+              HashSet<Submatch> prevmatches = (HashSet<Submatch>) dsmatrix[i
                   - lhs.length][j];
               if (prevmatches.isEmpty()) continue;
               for (Submatch match : prevmatches) {
@@ -869,7 +891,7 @@ public class Validator {
                     + (isSelfRule(rule) ? 0 : 1);
                 // If previous match is 'equals', simply add current rule
                 if (match.rule == null) {
-                  dmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
+                  dtmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
                   continue;
                 }
                 // Do not append additional rule if remaining string of previous
@@ -889,15 +911,16 @@ public class Validator {
                   if (sidx == rhs.length && tidx == remainRHS.length) {
                     // Exact match
                     if (i == s.size() && j == t.size()) return nextNRules;
-                    dmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
+                    dsmatrix[i][j]
+                        .add(new Submatch(null, false, 0, nextNRules));
                   }
                   // rhs is fully matched (!remainS)
                   else if (sidx == rhs.length)
-                    dmatrix[i][j]
+                    dsmatrix[i][j]
                         .add(new Submatch(match.rule, false, tidx, nextNRules));
                   // remainRHS is fully matched (remainS)
                   else
-                    dmatrix[i][j]
+                    dtmatrix[i][j]
                         .add(new Submatch(rule, true, sidx, nextNRules));
                 }
               }
@@ -911,12 +934,12 @@ public class Validator {
           // Check if we can skip evaluating current entry
           short searchrange = t.getSearchRange(j - 1);
           int jp = Math.max(0, j - searchrange);
-          valid = dP[i][j - 1];
+          valid = dtP[i][j - 1];
           if (jp > 0) {
-            valid -= dP[i][jp - 1];
-            if (i > 0) valid += dP[i - 1][jp - 1];
+            valid -= dtP[i][jp - 1];
+            if (i > 0) valid += dtP[i - 1][jp - 1];
           }
-          if (i > 0) valid -= dP[i - 1][j - 1];
+          if (i > 0) valid -= dtP[i - 1][j - 1];
           if (valid == 0)
             t_skipped = true;
           else {
@@ -925,7 +948,7 @@ public class Validator {
               ++niterrules;
               int[] lhs = rule.getFrom();
               int[] rhs = rule.getTo();
-              HashSet<Submatch> prevmatches = (HashSet<Submatch>) dmatrix[i][j
+              HashSet<Submatch> prevmatches = (HashSet<Submatch>) dtmatrix[i][j
                   - lhs.length];
               if (prevmatches.isEmpty()) continue;
               for (Submatch match : prevmatches) {
@@ -952,15 +975,16 @@ public class Validator {
                   if (tidx == rhs.length && sidx == remainRHS.length) {
                     // Exact match
                     if (i == s.size() && j == t.size()) return nextNRules;
-                    dmatrix[i][j].add(new Submatch(null, false, 0, nextNRules));
+                    dsmatrix[i][j]
+                        .add(new Submatch(null, false, 0, nextNRules));
                   }
                   // rhs is fully matched (remainS)
                   else if (tidx == rhs.length)
-                    dmatrix[i][j]
+                    dtmatrix[i][j]
                         .add(new Submatch(match.rule, true, sidx, nextNRules));
                   // remainRHS is fully matched (!remainS)
                   else
-                    dmatrix[i][j]
+                    dsmatrix[i][j]
                         .add(new Submatch(rule, false, tidx, nextNRules));
                 }
               }
@@ -968,11 +992,15 @@ public class Validator {
           }
         }
         if (s_skipped && t_skipped) ++earlyevaled;
-        if (!dmatrix[i][j].isEmpty()) ++Q;
-        if (i == 0)
-          dP[i][j] = Q;
-        else
-          dP[i][j] = dP[i - 1][j] + Q;
+        if (!dsmatrix[i][j].isEmpty()) ++sQ;
+        if (!dtmatrix[i][j].isEmpty()) ++tQ;
+        if (i == 0) {
+          dsP[i][j] = sQ;
+          dtP[i][j] = tQ;
+        } else {
+          dsP[i][j] = dsP[i - 1][j] + sQ;
+          dtP[i][j] = dtP[i - 1][j] + tQ;
+        }
       }
     }
     return -1;

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import mine.Record;
@@ -61,9 +62,9 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "D, d", "B C, x" };
     build(str1, str2, rulearray);
-    checkDSEP(24, 13, 15, 17, false, false);
+    checkDSEP(24, 18, 8, 8, false, false);
     clearStats();
-    checkDS(24, 55, 17, false);
+    checkDS(24, 55, 8, false);
   }
 
   @Test
@@ -72,22 +73,18 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
-    checkDSEP(24, 8, 24, 30, false, true);
+    checkDSEP(24, 15, 13, 15, false, true);
     clearStats();
-    checkDS(24, 60, 30, true);
+    checkDS(24, 60, 15, true);
   }
 
-  @Test
+  @Ignore
   public void testDS() {
     String str1 = "A B C D";
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B, x", "D, d" };
     build(str1, str2, rulearray);
     Validator.DP_A_MatrixwithEarlyPruning(s, t);
-    System.out.println(Validator.niterentry);
-    System.out.println(Validator.earlyevaled);
-    System.out.println(Validator.niterrules);
-    System.out.println(Validator.earlystopped);
   }
 
   /**
