@@ -40,9 +40,9 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "C, c", "B C, x" };
     build(str1, str2, rulearray);
-    checkSSEP(15, 11, 6, true, false);
+    checkSSEP(10, 7, 6, true, -1);
     clearStats();
-    checkSS(16, 28, false);
+    checkSS(16, 28, -1);
   }
 
   @Test
@@ -51,9 +51,9 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
-    checkSSEP(16, 11, 10, false, true);
+    checkSSEP(16, 11, 10, false, 3);
     clearStats();
-    checkSS(16, 32, true);
+    checkSS(16, 32, 3);
   }
 
   @Test
@@ -62,9 +62,9 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "D, d", "B C, x" };
     build(str1, str2, rulearray);
-    checkDSEP(24, 18, 8, 8, false, false);
+    checkDSEP(17, 11, 8, 8, true, -1);
     clearStats();
-    checkDS(24, 55, 8, false);
+    checkDS(24, 55, 8, -1);
   }
 
   @Test
@@ -73,9 +73,9 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
-    checkDSEP(24, 15, 13, 15, false, true);
+    checkDSEP(24, 15, 13, 15, false, 3);
     clearStats();
-    checkDS(24, 60, 15, true);
+    checkDS(24, 60, 15, 3);
   }
 
   @Ignore
@@ -96,40 +96,40 @@ public class ValidatorTest {
    * @param ep
    */
   private void checkSSEP(long evaledentry, long earlyed, long evaledrules,
-      boolean ep, boolean isSame) {
+      boolean ep, int answer) {
     int result = Validator.DP_SingleSidewithEarlyPruning(s, t);
     assertEquals(evaledentry, Validator.niterentry);
     assertEquals(earlyed, Validator.earlyevaled);
     assertEquals(evaledrules, Validator.niterrules);
     assertEquals(ep, Validator.earlystopped == 1);
-    assertEquals(isSame, result > 0);
+    assertEquals(answer, result);
   }
 
-  private void checkSS(long evaledentry, long evaledrules, boolean isSame) {
+  private void checkSS(long evaledentry, long evaledrules, int answer) {
     int result = Validator.DP_SingleSide(s, t);
     assertEquals(evaledentry, Validator.niterentry);
     assertEquals(evaledrules, Validator.niterrules);
-    assertEquals(isSame, result > 0);
+    assertEquals(answer, result);
   }
 
   private void checkDSEP(long evaledentry, long earlyed, long evaledrules,
-      long evaledmatches, boolean ep, boolean isSame) {
+      long evaledmatches, boolean ep, int answer) {
     int result = Validator.DP_A_MatrixwithEarlyPruning(s, t);
     assertEquals(evaledentry, Validator.niterentry);
     assertEquals(earlyed, Validator.earlyevaled);
     assertEquals(evaledrules, Validator.niterrules);
     assertEquals(evaledmatches, Validator.nitermatches);
     assertEquals(ep, Validator.earlystopped == 1);
-    assertEquals(isSame, result > 0);
+    assertEquals(answer, result);
   }
 
   private void checkDS(long evaledentry, long evaledrules, long evaledmatches,
-      boolean isSame) {
+      int answer) {
     int result = Validator.DP_A_Matrix(s, t);
     assertEquals(evaledentry, Validator.niterentry);
     assertEquals(evaledrules, Validator.niterrules);
     assertEquals(evaledmatches, Validator.nitermatches);
-    assertEquals(isSame, result > 0);
+    assertEquals(answer, result);
   }
 
   private void clearStats() {

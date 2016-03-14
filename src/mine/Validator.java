@@ -15,6 +15,7 @@ public class Validator {
   public static long checked      = 0;
   public static long niterrules   = 0;
   public static long nitermatches = 0;
+  public static long nitertokens  = 0;
 
   /**
    * @param difflen
@@ -581,19 +582,6 @@ public class Validator {
          */
         ++niterentry;
         matrix[i][j] = 0;
-        /*
-         * Claim 2
-         * Let i' = i - maxsearchrange and j' = j - maxinvsearchrange.
-         * P[i-1, j] + Q - P[i', j'] = 0
-         * <==> s cannot be transformed to t
-         */
-        int valid = P[i - 1][j] + Q;
-        if (i > maxsearchrange && j > maxinvsearchrange)
-          valid -= P[i - maxsearchrange - 1][j - maxinvsearchrange - 1];
-        if (valid == 0) {
-          ++earlystopped;
-          return -1;
-        }
         int jp = Math.max(0, j - invsearchrange);
         /*
          * Claim 1
@@ -605,43 +593,55 @@ public class Validator {
          * If there is no empty string in lhs/rhs of a rule,
          * <==> P[i-1, j-1] - P[i'-1, j-1] - P[i-1, j'-1] + P[i'-1, j'-1] \neq 0
          */
-        valid = P[i - 1][j - 1];
+        int valid = P[i - 1][j - 1];
         if (ip > 0) {
           valid -= P[ip - 1][j - 1];
           if (jp > 0) valid += P[ip - 1][jp - 1];
         }
         if (jp > 0) valid -= P[i - 1][jp - 1];
-        if (valid == 0) {
-          P[i][j] = P[i - 1][j] + Q;
-          ++earlyevaled;
-          continue;
-        }
+
         /*
          * compute matrix[i][j], P[i][j] and Q.
          * Note that P[i][j] = P[i-1][j] + Q + matrix[i][j].
          */
-        Rule[] rules = s.getSuffixApplicableRules(i - 1);
-        for (Rule rule : rules) {
-          ++niterrules;
-          int[] lhs = rule.getFrom();
-          int[] rhs = rule.getTo();
-          if (j - rhs.length < 0)
-            continue;
-          else if (matrix[i - lhs.length][j - rhs.length] == 0)
-            continue;
-          else if (StaticFunctions.compare(rhs, 0, t.getTokenArray(),
-              j - rhs.length, rhs.length) == 0) {
-            matrix[i][j] = matrix[i - lhs.length][j - rhs.length];
-            if (!isSelfRule(rule)) ++matrix[i][j];
-            break;
+        if (valid > 0) {
+          Rule[] rules = s.getSuffixApplicableRules(i - 1);
+          for (Rule rule : rules) {
+            ++niterrules;
+            int[] lhs = rule.getFrom();
+            int[] rhs = rule.getTo();
+            if (j - rhs.length < 0)
+              continue;
+            else if (matrix[i - lhs.length][j - rhs.length] == 0)
+              continue;
+            else if (StaticFunctions.compare(rhs, 0, t.getTokenArray(),
+                j - rhs.length, rhs.length) == 0) {
+              matrix[i][j] = matrix[i - lhs.length][j - rhs.length];
+              if (!isSelfRule(rule)) ++matrix[i][j];
+              ++Q;
+              break;
+            }
           }
-        }
-        Q += (matrix[i][j] == 0 ? 0 : 1);
+        } else
+          ++earlyevaled;
         /*
          * Q is updated. (Q = sum_{j'=1}^j M[i,j'])
          * Thus, P[i][j] = P[i-1][j] + Q.
          */
         P[i][j] = P[i - 1][j] + Q;
+        /*
+         * Claim 2
+         * Let i' = i - maxsearchrange and j' = j - maxinvsearchrange.
+         * P[i, j] - P[i', j'] = 0
+         * <==> s cannot be transformed to t
+         */
+        valid = P[i][j];
+        if (i >= maxsearchrange && j >= maxinvsearchrange)
+          valid -= P[i - maxsearchrange][j - maxinvsearchrange];
+        if (valid == 0) {
+          ++earlystopped;
+          return -1;
+        }
       }
     }
     return matrix[s.size()][t.size()] - 1;
@@ -683,6 +683,7 @@ public class Validator {
 
   public static int DP_A_Matrix(Record s, Record t) {
     ++checked;
+    if (areSameString(s, t)) return 0;
     /**
      * If temporary matrix size is not enough, enlarge the space
      */
@@ -722,6 +723,7 @@ public class Validator {
               boolean expandable = true;
               while (tidx < remainRHS.length && sidx < rhs.length
                   && expandable) {
+                ++nitertokens;
                 if (rhs[sidx] != remainRHS[tidx]) expandable = false;
                 ++sidx;
                 ++tidx;
@@ -774,6 +776,7 @@ public class Validator {
               boolean expandable = true;
               while (sidx < remainRHS.length && tidx < rhs.length
                   && expandable) {
+                ++nitertokens;
                 if (rhs[tidx] != remainRHS[sidx]) expandable = false;
                 ++sidx;
                 ++tidx;
@@ -817,8 +820,12 @@ public class Validator {
     }
   }
 
+  public static final boolean useEE = true;
+  public static final boolean useEP = false;
+
   public static int DP_A_MatrixwithEarlyPruning(Record s, Record t) {
     ++checked;
+    if (areSameString(s, t)) return 0;
     /**
      * If temporary matrix size is not enough, enlarge the space
      */
@@ -838,25 +845,6 @@ public class Validator {
         dsmatrix[i][j].clear();
         dtmatrix[i][j].clear();
         ++niterentry;
-        /*
-         * Claim 2
-         * Let i' = i - smaxsearchrange and j' = j - tmaxsearchrange.
-         * P[i-1, j] + Q - P[i', j'] = 0
-         * <==> s cannot be transformed to t
-         */
-        int valid = sQ + tQ;
-        if (i > 0) {
-          valid += dsP[i - 1][j];
-          valid += dtP[i - 1][j];
-        }
-        if (i > smaxsearchrange && j > tmaxsearchrange) {
-          valid -= dsP[i - smaxsearchrange - 1][j - tmaxsearchrange - 1];
-          valid -= dtP[i - smaxsearchrange - 1][j - tmaxsearchrange - 1];
-        }
-        if (valid == 0) {
-          ++earlystopped;
-          return -1;
-        }
 
         boolean s_skipped = i == 0;
         boolean t_skipped = j == 0;
@@ -864,15 +852,18 @@ public class Validator {
          * Applicable rules of suffixes of s[1..i]
          */
         if (i != 0) {
-          // Check if we can skip evaluating current entry
-          short searchrange = s.getSearchRange(i - 1);
-          int ip = Math.max(0, i - searchrange);
-          valid = dsP[i - 1][j];
-          if (ip > 0) {
-            valid -= dsP[ip - 1][j];
-            if (j > 0) valid += dsP[ip - 1][j - 1];
+          int valid = 1;
+          if (useEE) {
+            // Check if we can skip evaluating current entry
+            short searchrange = s.getSearchRange(i - 1);
+            int ip = Math.max(0, i - searchrange);
+            valid = dsP[i - 1][j];
+            if (ip > 0) {
+              valid -= dsP[ip - 1][j];
+              if (j > 0) valid += dsP[ip - 1][j - 1];
+            }
+            if (j > 0) valid -= dsP[i - 1][j - 1];
           }
-          if (j > 0) valid -= dsP[i - 1][j - 1];
 
           if (valid == 0)
             s_skipped = true;
@@ -903,6 +894,7 @@ public class Validator {
                 boolean expandable = true;
                 while (tidx < remainRHS.length && sidx < rhs.length
                     && expandable) {
+                  ++nitertokens;
                   if (rhs[sidx] != remainRHS[tidx]) expandable = false;
                   ++sidx;
                   ++tidx;
@@ -931,15 +923,18 @@ public class Validator {
          * Applicable rules of suffixes of t[1..j]
          */
         if (j != 0) {
-          // Check if we can skip evaluating current entry
-          short searchrange = t.getSearchRange(j - 1);
-          int jp = Math.max(0, j - searchrange);
-          valid = dtP[i][j - 1];
-          if (jp > 0) {
-            valid -= dtP[i][jp - 1];
-            if (i > 0) valid += dtP[i - 1][jp - 1];
+          int valid = 1;
+          if (useEE) {
+            // Check if we can skip evaluating current entry
+            short searchrange = t.getSearchRange(j - 1);
+            int jp = Math.max(0, j - searchrange);
+            valid = dtP[i][j - 1];
+            if (jp > 0) {
+              valid -= dtP[i][jp - 1];
+              if (i > 0) valid += dtP[i - 1][jp - 1];
+            }
+            if (i > 0) valid -= dtP[i - 1][j - 1];
           }
-          if (i > 0) valid -= dtP[i - 1][j - 1];
           if (valid == 0)
             t_skipped = true;
           else {
@@ -953,7 +948,8 @@ public class Validator {
               if (prevmatches.isEmpty()) continue;
               for (Submatch match : prevmatches) {
                 ++nitermatches;
-                int nextNRules = match.nAppliedRules + 1;
+                int nextNRules = match.nAppliedRules
+                    + (isSelfRule(rule) ? 0 : 1);
                 // If previous match is 'equals', do not apply this rule
                 // since a rule of s is always applied first.
                 if (match.rule == null)
@@ -967,6 +963,7 @@ public class Validator {
                 boolean expandable = true;
                 while (sidx < remainRHS.length && tidx < rhs.length
                     && expandable) {
+                  ++nitertokens;
                   if (rhs[tidx] != remainRHS[sidx]) expandable = false;
                   ++sidx;
                   ++tidx;
@@ -1001,6 +998,24 @@ public class Validator {
           dsP[i][j] = dsP[i - 1][j] + sQ;
           dtP[i][j] = dtP[i - 1][j] + tQ;
         }
+
+        /*
+         * Claim 2
+         * Let i' = i - smaxsearchrange and j' = j - tmaxsearchrange.
+         * dsP[i, j] - dsP[i', j] = 0
+         * and
+         * dtP[i, j] - dsP[i, j'] = 0
+         * <==> s cannot be transformed to t
+         */
+        if (useEP) {
+          int valid = dsP[i][j] + dtP[i][j];
+          if (i >= smaxsearchrange) valid -= dsP[i - smaxsearchrange][j];
+          if (j >= tmaxsearchrange) valid -= dtP[i][j - tmaxsearchrange];
+          if (valid == 0) {
+            ++earlystopped;
+            return -1;
+          }
+        }
       }
     }
     return -1;
@@ -1012,6 +1027,15 @@ public class Validator {
   private static boolean isSelfRule(Rule rule) {
     return rule.getFrom()[0] == rule.getTo()[0] && rule.getFrom().length == 1
         && rule.getTo().length == 1;
+  }
+
+  private static boolean areSameString(Record s, Record t) {
+    if (s.size() != t.size()) return false;
+    int[] si = s.tokens;
+    int[] ti = t.tokens;
+    for (int i = 0; i < s.size(); ++i)
+      if (si[i] != ti[i]) return false;
+    return true;
   }
 
   /**
