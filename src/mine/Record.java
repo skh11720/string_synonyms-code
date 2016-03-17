@@ -19,66 +19,66 @@ import tools.WYK_HashSet;
 
 public class Record
     implements Comparable<Record>, RecordInterface, RecordInterface.Expanded {
-  protected static ArrayList<String> strlist;
-  protected static RuleTrie          atm;
-  protected final int                id;
+  protected static List<String> strlist;
+  protected static RuleTrie     atm;
+  protected final int           id;
   /**
    * For fast hashing
    */
-  protected boolean                  validHashValue        = false;
-  protected int                      hashValue;
+  protected boolean             validHashValue        = false;
+  protected int                 hashValue;
 
   /**
    * Actual tokens
    */
-  protected int[]                    tokens;
+  protected int[]               tokens;
   /**
    * For DynamicMatch.
    * applicableRules[i] contains all the rules which can be applied to the
    * prefix of str[i].
    */
-  protected Rule[][]                 applicableRules       = null;
+  protected Rule[][]            applicableRules       = null;
   /**
    * For DynamicMatch.
    * applicableRules[i] contains all the rules which can be applied to the
    * suffix of str[i].
    */
-  protected Rule[][]                 suffixApplicableRules = null;
-  protected Rule_InverseTrie         applicableRulesTrie   = null;
+  protected Rule[][]            suffixApplicableRules = null;
+  protected Rule_InverseTrie    applicableRulesTrie   = null;
   /**
    * For {@link algorithm.dynamic.DynamicMatch06_C}
    */
-  protected IntegerSet[]             availableTokens       = null;
+  protected IntegerSet[]        availableTokens       = null;
   /**
    * For Length filter
    */
-  protected int[][]                  candidateLengths      = null;
-  protected static final Rule[]      EMPTY_RULE            = new Rule[0];
+  protected int[][]             candidateLengths      = null;
+  protected static final Rule[] EMPTY_RULE            = new Rule[0];
   /**
    * Estimate the number of equivalent records
    */
-  protected long[]                   estimated_equivs      = null;
+  protected long[]              estimated_equivs      = null;
   /**
    * For early pruning of one-side equivalence check.<br/>
    * Suppose that we are computing M[i,j].<br/>
    * If searchrange[i] = l, we may search M[i-l..i,*] only.
    */
-  protected short[]                  searchrange           = null;
-  protected short                    maxsearchrange        = 1;
+  protected short[]             searchrange           = null;
+  protected short               maxsearchrange        = 1;
   /**
    * For early pruning of one-side equivalence check.<br/>
    * Suppose that we are computing M[i,j].<br/>
    * If invsearchrange[i] = l, we may search M[*,j-l..j] only.
    */
-  protected short[]                  invsearchrange        = null;
-  protected short                    maxinvsearchrange     = 1;
+  protected short[]             invsearchrange        = null;
+  protected short               maxinvsearchrange     = 1;
 
   private Record() {
     id = -1;
   };
 
-  public static void setStrList(ArrayList<String> strlist) {
-    Record.strlist = strlist;
+  public static void setStrList(List<String> int2str) {
+    Record.strlist = int2str;
   }
 
   public static void setRuleTrie(RuleTrie atm) {
@@ -263,7 +263,7 @@ public class Record
     List<List<Rule>> tmplist = new ArrayList<List<Rule>>();
     for (int i = 0; i < tokens.length; ++i)
       tmplist.add(new ArrayList<Rule>());
-    for (int i = tokens.length - 1; i >= 0 ; --i) {
+    for (int i = tokens.length - 1; i >= 0; --i) {
       for (Rule rule : applicableRules[i]) {
         int suffixidx = i + rule.getFrom().length - 1;
         tmplist.get(suffixidx).add(rule);
@@ -405,6 +405,16 @@ public class Record
     return 0;
   }
 
+  /**
+   * Expand this record with default rule trie
+   */
+  public ArrayList<Record> expandAll() {
+    return expandAll(atm);
+  }
+
+  /**
+   * Expand this record with given rule trie
+   */
   public ArrayList<Record> expandAll(RuleTrie atm) {
     ArrayList<Record> rslt = new ArrayList<Record>();
     expandAll(rslt, atm, 0);
@@ -424,10 +434,8 @@ public class Record
     }
     ArrayList<Rule> rules = atm.applicableRules(tokens, idx);
     for (Rule rule : rules) {
-      if (rule.getFrom().length == 1 && rule.getTo().length == 1
-          && rule.getFrom()[0] == rule.getTo()[0])
-        continue;
-      Record new_rec = applyRule(rule, idx);
+      Record new_rec = this;
+      if (!StaticFunctions.isSelfRule(rule)) new_rec = applyRule(rule, idx);
       int new_idx = idx + rule.toSize();
       new_rec.expandAll(rslt, atm, new_idx);
     }
@@ -506,11 +514,11 @@ public class Record
   @Override
   public double similarity(RecordInterface rec) {
     if (rec.getClass() != Record.class) return 0;
-    int compare;
-    if (applicableRulesTrie == null)
-      compare = Validator.DP_A_Queue(this, (Record) rec, false);
-    else
-      compare = Validator.DP_A_Queue_useACAutomata(this, (Record) rec, true);
+    int compare = Validator.DP_A_TopdownMatrix(this, (Record) rec);
+    // if (applicableRulesTrie == null)
+    // compare = Validator.DP_A_Queue(this, (Record) rec, false);
+    // else
+    // compare = Validator.DP_A_Queue_useACAutomata(this, (Record) rec, true);
     if (compare >= 0)
       return 1;
     else
@@ -540,7 +548,7 @@ public class Record
   @Override
   public double similarity(Expanded rec) {
     if (rec.getClass() != Record.class) return 0;
-    int compare = Validator.DP_A_Queue_useACAutomata(this, (Record) rec, true);
+    int compare = Validator.DP_A_TopdownMatrix(this, (Record) rec);
     if (compare >= 0)
       return 1;
     else

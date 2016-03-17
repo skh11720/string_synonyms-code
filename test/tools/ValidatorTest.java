@@ -87,6 +87,70 @@ public class ValidatorTest {
     Validator.DP_A_MatrixwithEarlyPruning(s, t);
   }
 
+  @Test
+  public void testEqualStringTopDown1() {
+    String str1 = "A B C D";
+    String str2 = "a b c d";
+    String[] rulearray = new String[] { "A, a", "B, x", "B C, b c", "D, d" };
+    build(str1, str2, rulearray);
+    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    assert (isEqual >= 0);
+  }
+
+  @Test
+  public void testEqualStringTopDown2() {
+    String str1 = "A B C D";
+    String str2 = "a b c d";
+    String[] rulearray = new String[] { "A, a", "B C, x y", "D, w", "b, x",
+        "c d, y, w" };
+    build(str1, str2, rulearray);
+    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    assert (isEqual >= 0);
+  }
+
+  @Test
+  public void testEqualStringTopDown3() {
+    String str1 = "A B C D E F";
+    String str2 = "a b c d e";
+    String[] rulearray = new String[] { "A, ㄱ", "B C, ㄴ ㄷ", "D, ㄹ", "E F, ㅁ ㅂ",
+        "a b, ㄱ ㄴ", "c d, ㄷ ㄹ ㅁ", "e, ㅂ" };
+    build(str1, str2, rulearray);
+    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    assert (isEqual >= 0);
+  }
+
+  @Test
+  public void testNotEqualStringTopDown1() {
+    String str1 = "A B C D";
+    String str2 = "a b c d";
+    String[] rulearray = new String[] { "B, x", "B C, b c", "D, d" };
+    build(str1, str2, rulearray);
+    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    assert (isEqual < 0);
+  }
+
+  @Test
+  public void testNotEqualStringTopDown2() {
+    String str1 = "A B C D";
+    String str2 = "a b c d";
+    String[] rulearray = new String[] { "A, a", "B C, u y", "D, w", "b, x",
+        "c d, y, w" };
+    build(str1, str2, rulearray);
+    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    assert (isEqual < 0);
+  }
+
+  @Test
+  public void testNotEqualStringTopDown3() {
+    String str1 = "A B C D E F";
+    String str2 = "a b c d e f";
+    String[] rulearray = new String[] { "A, ㄱ", "B C, ㄴ ㄷ", "D, ㄹ", "E F, ㅁ ㅂ",
+        "a b, ㄱ ㄴ", "c d, ㄷ ㄹ ㅁ", "e, ㅂ" };
+    build(str1, str2, rulearray);
+    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    assert (isEqual < 0);
+  }
+
   /**
    * Check if the number of evaluations / early-evaluated are matched and
    * procedure is early-pruned

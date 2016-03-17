@@ -1,5 +1,7 @@
 package mine;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -520,7 +522,7 @@ public class Validator {
           else if (StaticFunctions.compare(rhs, 0, t.getTokenArray(),
               j - rhs.length, rhs.length) == 0) {
             matrix[i][j] = matrix[i - lhs.length][j - rhs.length];
-            if (!isSelfRule(rule)) ++matrix[i][j];
+            if (!StaticFunctions.isSelfRule(rule)) ++matrix[i][j];
             break;
           }
         }
@@ -617,7 +619,7 @@ public class Validator {
             else if (StaticFunctions.compare(rhs, 0, t.getTokenArray(),
                 j - rhs.length, rhs.length) == 0) {
               matrix[i][j] = matrix[i - lhs.length][j - rhs.length];
-              if (!isSelfRule(rule)) ++matrix[i][j];
+              if (!StaticFunctions.isSelfRule(rule)) ++matrix[i][j];
               ++Q;
               break;
             }
@@ -708,7 +710,8 @@ public class Validator {
             if (prevmatches.isEmpty()) continue;
             for (Submatch match : prevmatches) {
               ++nitermatches;
-              int nextNRules = match.nAppliedRules + (isSelfRule(rule) ? 0 : 1);
+              int nextNRules = match.nAppliedRules
+                  + (StaticFunctions.isSelfRule(rule) ? 0 : 1);
               // If previous match is 'equals', simply add current rule
               if (match.rule == null) {
                 dtmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
@@ -879,7 +882,7 @@ public class Validator {
               for (Submatch match : prevmatches) {
                 ++nitermatches;
                 int nextNRules = match.nAppliedRules
-                    + (isSelfRule(rule) ? 0 : 1);
+                    + (StaticFunctions.isSelfRule(rule) ? 0 : 1);
                 // If previous match is 'equals', simply add current rule
                 if (match.rule == null) {
                   dtmatrix[i][j].add(new Submatch(rule, true, 0, nextNRules));
@@ -949,7 +952,7 @@ public class Validator {
               for (Submatch match : prevmatches) {
                 ++nitermatches;
                 int nextNRules = match.nAppliedRules
-                    + (isSelfRule(rule) ? 0 : 1);
+                    + (StaticFunctions.isSelfRule(rule) ? 0 : 1);
                 // If previous match is 'equals', do not apply this rule
                 // since a rule of s is always applied first.
                 if (match.rule == null)
@@ -1024,11 +1027,6 @@ public class Validator {
   private static Submatch EQUALMATCH = new Validator.Submatch(null, false, 0,
       0);
 
-  private static boolean isSelfRule(Rule rule) {
-    return rule.getFrom()[0] == rule.getTo()[0] && rule.getFrom().length == 1
-        && rule.getTo().length == 1;
-  }
-
   private static boolean areSameString(Record s, Record t) {
     if (s.size() != t.size()) return false;
     int[] si = s.tokens;
@@ -1038,8 +1036,256 @@ public class Validator {
     return true;
   }
 
+  private static final RecordComparator record_comparator = new RecordComparator();
+
+  public static int NaiveDoubleSide(Record s, Record t) {
+    List<Record> list_s = s.expandAll();
+    return NaiveDoubleSide(list_s, t);
+  }
+
+  public static int NaiveDoubleSide(List<Record> list_s, Record t) {
+    List<Record> list_t = t.expandAll();
+    Collections.sort(list_s, record_comparator);
+    Collections.sort(list_t, record_comparator);
+    int idx_s = 0, idx_t = 0;
+    Record es = list_s.get(0);
+    Record et = list_t.get(0);
+    while (true) {
+      int c = record_comparator.compare(es, et);
+      // Do not how many rules are applied
+      if (c == 0)
+        return 1;
+      else if (c > 0) {
+        if (++idx_t == list_t.size()) break;
+        assert (idx_t < list_t.size());
+        et = list_t.get(idx_t);
+      } else {
+        assert (c < 0);
+        if (++idx_s == list_s.size()) break;
+        assert (idx_s < list_s.size());
+        es = list_s.get(idx_s);
+      }
+    }
+    assert (idx_s == list_s.size() || idx_t == list_t.size());
+    return -1;
+  }
+
   /**
-   * Represents a remaining substring rule.rhs[idx..|rule.rhs|]
+   * Temporary matrix to save match result of doubleside equivalence check.</br>
+   * dsmatrix[i][j] stores all sub-matches for s[1..i]=>x1,
+   * t[1..j]=>x2 where x1 is sub/superstring of x2 and |x1|-|x2|<=0 </br>
+   * Every rule applied to s must use this matrix to retrieve previous
+   * matches.</br>
+   * This matrix will be used to equivalence check with top-down manner.
+   */
+  @SuppressWarnings({ "unchecked" })
+  private static HashMap<Submatch, Boolean>[][] Mx = new HashMap[1][0];
+  /**
+   * Temporary matrix to save match result of doubleside equivalence check.</br>
+   * dtmatrix[i][j] stores all sub-matches for s[1..i]=>x1,
+   * t[1..j]=>x2 where x1 is sub/superstring of x2 and |x1|-|x2|>0
+   * Every rule applied to t must use this matrix to retrieve previous
+   * matches.</br>
+   * This matrix will be used to equivalence check with top-down manner.
+   */
+  @SuppressWarnings("unchecked")
+  private static HashMap<Submatch, Boolean>[][] My = new HashMap[1][0];
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private static void enlargeDSTDMatrix(int slen, int tlen) {
+    if (slen >= Mx.length || tlen >= Mx[0].length) {
+      int rows = Math.max(slen + 1, Mx.length);
+      int cols = Math.max(tlen + 1, Mx[0].length);
+      Mx = new HashMap[rows][cols];
+      My = new HashMap[rows][cols];
+      for (int i = 0; i < Mx.length; ++i)
+        for (int j = 0; j < Mx[0].length; ++j) {
+          Mx[i][j] = new HashMap();
+          My[i][j] = new HashMap();
+        }
+      Mx[0][0].put(EQUALMATCH, true);
+    }
+  }
+
+  public static int DP_A_TopdownMatrix(Record x, Record y) {
+    ++checked;
+    if (areSameString(x, y)) return 0;
+    /**
+     * If temporary matrix size is not enough, enlarge the space
+     */
+    enlargeDSTDMatrix(x.size(), y.size());
+    clearMatrix(x, y);
+    boolean isEqual = getMyEqual(x, y, x.size(), y.size());
+    if (isEqual)
+      return 1;
+    else
+      return -1;
+  }
+
+  private static void clearMatrix(Record x, Record y) {
+    for (int i = 1; i <= x.size(); ++i)
+      for (int j = 1; j <= y.size(); ++j) {
+        Mx[i][j].clear();
+        My[i][j].clear();
+      }
+  }
+
+  /**
+   * Get the value of M_x[i][j][remain].<br/>
+   * If the value is not computed, compute and then return the value.
+   */
+  private static boolean getMx(Record x, Record y, int i, int j,
+      Submatch remain) {
+    // If this value is already computed, simply return the computed value.
+    Boolean rslt = Mx[i][j].get(remain);
+    if (rslt != null) return rslt;
+    // Check every rule which is applicable to a suffix of x[1..i]
+    Rule[] rules = x.getSuffixApplicableRules(i);
+    int[] str = remain.rule.getTo();
+    for (Rule rule : rules) {
+      int[] rhs = rule.getTo();
+      int lhslength = rule.getFrom().length;
+      int rhsidx = rhs.length - 1;
+      int remainidx = remain.idx - 1;
+      // Check if one is a suffix of another
+      boolean isSuffix = true;
+      while (isSuffix && rhsidx >= 0 && remainidx >= 0) {
+        if (rhs[rhsidx] != str[remainidx]) isSuffix = false;
+        --rhsidx;
+        --remainidx;
+      }
+      // If r.rhs is not a suffix of remain (or vice versa), skip using this
+      // rule
+      if (!isSuffix) continue;
+      boolean prevM = false;
+      // r.rhs is shorter than remain
+      if (rhs.length < remain.idx) {
+        assert (remainidx == -1);
+        assert (rhsidx >= 0);
+        Submatch prevmatch = new Submatch(remain);
+        prevmatch.idx -= rhs.length;
+        // Retrieve Mx[i-|r.lhs|][j][remain - r.rhs]
+        prevM = getMx(x, y, i - lhslength, j, prevmatch);
+      }
+      // remain is shorter than r.rhs
+      else if (rhs.length > remain.idx) {
+        assert (remainidx >= 0);
+        assert (rhsidx == -1);
+        Submatch prevmatch = new Submatch(rule, false, rhs.length - remain.idx,
+            0);
+        // Retrieve My[i-|r.lhs|][j][remain - r.rhs]
+        prevM = getMy(x, y, i - lhslength, j, prevmatch);
+      }
+      // r.rhs == remain
+      else {
+        assert (remainidx == -1);
+        assert (rhsidx == -1);
+        prevM = getMyEqual(x, y, i - lhslength, j);
+      }
+      // If there exists a valid match, return true
+      if (prevM) {
+        Mx[i][j].put(remain, true);
+        return true;
+      }
+    }
+    // If there is no match, return false
+    Mx[i][j].put(remain, false);
+    return false;
+  }
+
+  /**
+   * Get the value of M_y[i][j][remain].<br/>
+   * If the value is not computed, compute and then return the value.
+   */
+  private static boolean getMy(Record x, Record y, int i, int j,
+      Submatch remain) {
+    // If this value is already computed, simply return the computed value.
+    Boolean rslt = My[i][j].get(remain);
+    if (rslt != null) return rslt;
+    // Check every xule which is applicable to a suffix of y[1..j]
+    Rule[] rules = y.getSuffixApplicableRules(j);
+    int[] str = remain.rule.getTo();
+    for (Rule rule : rules) {
+      int[] rhs = rule.getTo();
+      int lhslength = rule.getFrom().length;
+      int rhsidx = rhs.length - 1;
+      int remainidx = remain.idx - 1;
+      // Check if one is a suffix of another
+      boolean isSuffix = true;
+      while (isSuffix && rhsidx >= 0 && remainidx >= 0) {
+        if (rhs[rhsidx] != str[remainidx]) isSuffix = false;
+        --rhsidx;
+        --remainidx;
+      }
+      // If r.rhs is not a suffix of remain (or vice versa), skip using this
+      // rule
+      if (!isSuffix) continue;
+      boolean prevM = false;
+      // r.rhs is shorter than remain
+      if (rhs.length < remain.idx) {
+        assert (remainidx == -1);
+        assert (rhsidx >= 0);
+        Submatch prevmatch = new Submatch(remain);
+        prevmatch.idx -= rhs.length;
+        // Retrieve My[i][j-|r.lhs|][remain - r.rhs]
+        prevM = getMy(x, y, i, j - lhslength, prevmatch);
+      }
+      // remain is shorter than r.rhs
+      else if (rhs.length > remain.idx) {
+        assert (remainidx >= 0);
+        assert (rhsidx == -1);
+        Submatch prevmatch = new Submatch(rule, false, rhs.length - remain.idx,
+            0);
+        // Retrieve Mx[i][j-|r.lhs|][remain - r.rhs]
+        prevM = getMx(x, y, i, j - lhslength, prevmatch);
+      }
+      // r.rhs == remain
+      else {
+        assert (remainidx == -1);
+        assert (rhsidx == -1);
+        prevM = getMyEqual(x, y, i, j - lhslength);
+      }
+      // If there exists a valid match, return true
+      if (prevM) {
+        My[i][j].put(remain, true);
+        return true;
+      }
+    }
+    // If there is no match, return false
+    My[i][j].put(remain, false);
+    return false;
+  }
+
+  /**
+   * Get the value of M_x[i][j][""].<br/>
+   * If the value is not computed, compute and then return the value.
+   */
+  private static boolean getMyEqual(Record x, Record y, int i, int j) {
+    // If this value is already computed, simply return the computed value.
+    Boolean rslt = My[i][j].get(EQUALMATCH);
+    if (rslt != null) return rslt;
+    // Check every xule which is applicable to a suffix of y[1..j]
+    Rule[] rules = y.getSuffixApplicableRules(j);
+    for (Rule rule : rules) {
+      boolean prevM = false;
+      Submatch prevmatch = new Submatch(rule, false, rule.getTo().length, 0);
+      prevM = getMx(x, y, i, j - rule.getFrom().length, prevmatch);
+      // If there exists a valid match, return true
+      if (prevM) {
+        My[i][j].put(EQUALMATCH, true);
+        return true;
+      }
+    }
+    // If there is no match, return false
+    My[i][j].put(EQUALMATCH, false);
+    return false;
+  }
+
+  /**
+   * Represents a remaining substring rule.rhs[idx..|rule.rhs|] for DP_A_Matrix.
+   * <br/>
+   * Represents a remaining substring rule.rhs[1..idx] for DP_A_TopdownMatrix.
+   * In DP_A_TopdownMatrix, we do not use remainS and nAppliedRules.
    */
   private static class Submatch {
     Rule    rule;
@@ -1052,6 +1298,13 @@ public class Validator {
       this.remainS = remainS;
       this.idx = (short) idx;
       this.nAppliedRules = (short) nAppliedRules;
+    }
+
+    Submatch(Submatch o) {
+      rule = o.rule;
+      remainS = o.remainS;
+      idx = o.idx;
+      nAppliedRules = o.nAppliedRules;
     }
 
     @Override
