@@ -1,6 +1,7 @@
 package tools;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,7 +95,7 @@ public class ValidatorTest {
     String[] rulearray = new String[] { "A, a", "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
     int isEqual = Validator.DP_A_TopdownMatrix(s, t);
-    assert (isEqual >= 0);
+    assertTrue(isEqual >= 0);
   }
 
   @Test
@@ -102,10 +103,10 @@ public class ValidatorTest {
     String str1 = "A B C D";
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B C, x y", "D, w", "b, x",
-        "c d, y, w" };
+        "c d, y w" };
     build(str1, str2, rulearray);
     int isEqual = Validator.DP_A_TopdownMatrix(s, t);
-    assert (isEqual >= 0);
+    assertTrue(isEqual >= 0);
   }
 
   @Test
@@ -116,7 +117,7 @@ public class ValidatorTest {
         "a b, ㄱ ㄴ", "c d, ㄷ ㄹ ㅁ", "e, ㅂ" };
     build(str1, str2, rulearray);
     int isEqual = Validator.DP_A_TopdownMatrix(s, t);
-    assert (isEqual >= 0);
+    assertTrue(isEqual >= 0);
   }
 
   @Test
@@ -126,7 +127,7 @@ public class ValidatorTest {
     String[] rulearray = new String[] { "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
     int isEqual = Validator.DP_A_TopdownMatrix(s, t);
-    assert (isEqual < 0);
+    assertTrue(isEqual < 0);
   }
 
   @Test
@@ -137,7 +138,7 @@ public class ValidatorTest {
         "c d, y, w" };
     build(str1, str2, rulearray);
     int isEqual = Validator.DP_A_TopdownMatrix(s, t);
-    assert (isEqual < 0);
+    assertTrue(isEqual < 0);
   }
 
   @Test
@@ -148,7 +149,7 @@ public class ValidatorTest {
         "a b, ㄱ ㄴ", "c d, ㄷ ㄹ ㅁ", "e, ㅂ" };
     build(str1, str2, rulearray);
     int isEqual = Validator.DP_A_TopdownMatrix(s, t);
-    assert (isEqual < 0);
+    assertTrue(isEqual < 0);
   }
 
   /**
