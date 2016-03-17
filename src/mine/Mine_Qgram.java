@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import tools.Algorithm;
+import tools.IntegerPair;
 import tools.IntegerSet;
 import tools.Rule;
 import tools.Rule_ACAutomata;

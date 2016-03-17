@@ -1,10 +1,10 @@
-package mine;
+package tools;
 
 public class IntegerPair {
-  int i1;
-  int i2;
+  public int i1;
+  public int i2;
 
-  IntegerPair(int i1, int i2) {
+  public IntegerPair(int i1, int i2) {
     this.i1 = i1;
     this.i2 = i2;
   }

@@ -70,6 +70,21 @@ public class StaticFunctions {
   }
 
   /**
+   * Check if a given pattern is a suffix of given string
+   *
+   * @param str
+   *          The string
+   * @param pattern
+   *          The pattern
+   */
+  public static boolean isSuffix(int[] str, int[] pattern) {
+    if (str.length < pattern.length) return false;
+    for (int i = 1; i <= pattern.length; ++i)
+      if (str[str.length - i] != pattern[pattern.length - i]) return false;
+    return true;
+  }
+
+  /**
    * Check if two intervals overlap or not
    */
   public static boolean overlap(int[] i1, int[] i2) {
@@ -93,6 +108,25 @@ public class StaticFunctions {
   public static int[] copyIntegerArray(int[] src, int from) {
     int[] rslt = new int[src.length - from];
     for (int i = from; i < src.length; ++i)
+      rslt[i - from] = src[i];
+    return rslt;
+  }
+
+  /**
+   * Copy a given string starts from given 'from' value
+   *
+   * @param src
+   *          The source string
+   * @param from
+   *          The starting index (inclusive)
+   * @param to
+   *          The last index (exclusive)
+   */
+  public static int[] copyIntegerArray(int[] src, int from, int to) {
+    assert (to < src.length);
+    assert (from <= to);
+    int[] rslt = new int[to - from];
+    for (int i = from; i < to; ++i)
       rslt[i - from] = src[i];
     return rslt;
   }
@@ -273,4 +307,10 @@ public class StaticFunctions {
     }
     return rslt;
   }
+
+  public static boolean isSelfRule(Rule rule) {
+    return rule.getFrom()[0] == rule.getTo()[0] && rule.getFrom().length == 1
+        && rule.getTo().length == 1;
+  }
+
 }

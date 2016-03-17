@@ -17,7 +17,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import tools.Algorithm;
+import tools.IntIntRecordTriple;
 import tools.IntegerMap;
+import tools.IntegerPair;
 import tools.IntegerSet;
 import tools.Rule;
 import tools.Rule_ACAutomata;
@@ -25,21 +27,28 @@ import tools.StaticFunctions;
 import tools.WYK_HashSet;
 
 public class JoinDNoIntervalTree extends Algorithm {
-  static boolean                               skipChecking = false;
-  static boolean                               useAutomata  = true;
-  static boolean                               compact      = false;
-  public static int                            a            = 3;
-  ArrayList<Record>                            tableR;
-  ArrayList<Record>                            tableS;
-  ArrayList<Rule>                              rulelist;
-  RecordIDComparator                           idComparator;
+  static boolean                                       skipChecking = false;
+  static boolean                                       useAutomata  = true;
+  static boolean                                       compact      = false;
+  public static int                                    a            = 3;
+
+  static boolean                                       earlyprune   = false;
+  static boolean                                       useMatrix    = false;
+  static boolean                                       useTDMatrix  = false;
+  static boolean                                       naiveCheck   = false;
+  static int                                           naiveThreshold;
+
+  ArrayList<Record>                                    tableR;
+  ArrayList<Record>                                    tableS;
+  ArrayList<Rule>                                      rulelist;
+  RecordIDComparator                                   idComparator;
 
   /**
    * Key: token<br/>
    * Value IntervalTree Key: length of record (min, max)<br/>
    * Value IntervalTree Value: record
    */
-  ArrayList<IntegerMap<ArrayList<IndexEntry>>> idx;
+  ArrayList<IntegerMap<ArrayList<IntIntRecordTriple>>> idx;
 
   protected JoinDNoIntervalTree(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -127,22 +136,22 @@ public class JoinDNoIntervalTree extends Algorithm {
     long elements = 0;
     // Build an index
 
-    idx = new ArrayList<IntegerMap<ArrayList<IndexEntry>>>();
+    idx = new ArrayList<IntegerMap<ArrayList<IntIntRecordTriple>>>();
     for (int i = 0; i < a; ++i)
-      idx.add(new IntegerMap<ArrayList<IndexEntry>>());
+      idx.add(new IntegerMap<ArrayList<IntIntRecordTriple>>());
     for (Record rec : tableR) {
       IntegerSet[] availableTokens = rec.getAvailableTokens();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int boundary = Math.min(range[1], a);
       for (int i = 0; i < boundary; ++i) {
-        IntegerMap<ArrayList<IndexEntry>> map = idx.get(i);
+        IntegerMap<ArrayList<IntIntRecordTriple>> map = idx.get(i);
         for (int token : availableTokens[i]) {
-          ArrayList<IndexEntry> list = map.get(token);
+          ArrayList<IntIntRecordTriple> list = map.get(token);
           if (list == null) {
-            list = new ArrayList<IndexEntry>();
+            list = new ArrayList<IntIntRecordTriple>();
             map.put(token, list);
           }
-          list.add(new IndexEntry(range[0], range[1], rec));
+          list.add(new IntIntRecordTriple(range[0], range[1], rec));
         }
         elements += availableTokens[i].size();
       }
@@ -150,14 +159,14 @@ public class JoinDNoIntervalTree extends Algorithm {
     System.out.println("Idx size : " + elements);
 
     for (int i = 0; i < a; ++i) {
-      IntegerMap<ArrayList<IndexEntry>> ithidx = idx.get(i);
+      IntegerMap<ArrayList<IntIntRecordTriple>> ithidx = idx.get(i);
       System.out.println(i + "th iIdx key-value pairs: " + ithidx.size());
       // Statistics
       int sum = 0;
       int singlelistsize = 0;
       long count = 0;
       long sqsum = 0;
-      for (ArrayList<IndexEntry> list : ithidx.values()) {
+      for (ArrayList<IntIntRecordTriple> list : ithidx.values()) {
         sqsum += list.size() * list.size();
         if (list.size() == 1) {
           ++singlelistsize;
@@ -193,9 +202,9 @@ public class JoinDNoIntervalTree extends Algorithm {
       }
       for (int i = 0; i < boundary; ++i) {
         List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
-        IntegerMap<ArrayList<IndexEntry>> map = idx.get(i);
+        IntegerMap<ArrayList<IntIntRecordTriple>> map = idx.get(i);
         for (int token : availableTokens[i]) {
-          ArrayList<IndexEntry> tree = map.get(token);
+          ArrayList<IntIntRecordTriple> tree = map.get(token);
           if (tree == null) {
             ++count_empty[i];
             continue;
@@ -203,7 +212,7 @@ public class JoinDNoIntervalTree extends Algorithm {
           cand_sum[i] += tree.size();
           ++count_cand[i];
           List<Record> list = new ArrayList<Record>();
-          for (IndexEntry e : tree)
+          for (IntIntRecordTriple e : tree)
             if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
               list.add(e.rec);
           ithCandidates.add(list);
@@ -215,8 +224,33 @@ public class JoinDNoIntervalTree extends Algorithm {
       count += candidates.size();
 
       if (skipChecking) continue;
+      List<Record> expandedS = naiveCheck
+          && recS.getEstNumRecords() < naiveThreshold ? recS.expandAll() : null;
       for (Record recR : candidates) {
         int compare = -1;
+        // Use naive method
+        if (naiveCheck) {
+          if (recR.getEstNumRecords() < naiveThreshold
+              && recS.getEstNumRecords() < naiveThreshold) {
+            assert (expandedS != null);
+            assert (expandedS.size() > 0);
+            compare = Validator.NaiveDoubleSide(expandedS, recR);
+          }
+          // If cannot expand every record, simply use DP_A_Matrix
+          else
+            compare = Validator.DP_A_MatrixwithEarlyPruning(recR, recS);
+        }
+        // Use Top-down matrix
+        else if (useTDMatrix)
+          compare = Validator.DP_A_TopdownMatrix(recR, recS);
+        // Use matrix
+        else if (useMatrix) {
+          if (earlyprune)
+            compare = Validator.DP_A_MatrixwithEarlyPruning(recR, recS);
+          else
+            compare = Validator.DP_A_Matrix(recR, recS);
+        }
+        // Utilize pre-built per-record automata
         if (useAutomata)
           compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
         else
@@ -308,6 +342,13 @@ public class JoinDNoIntervalTree extends Algorithm {
     skipChecking = cmd.hasOption("skipequiv");
     compact = cmd.hasOption("compact");
     if (compact) useAutomata = false;
+    earlyprune = cmd.hasOption("earlyprune");
+    useMatrix = cmd.hasOption("matrix");
+    useTDMatrix = cmd.hasOption("tdmatrix");
+    if (cmd.hasOption("naivecheck")) {
+      naiveCheck = true;
+      naiveThreshold = Integer.parseInt(cmd.getOptionValue("naivecheck"));
+    }
     return cmd.getArgs();
   }
 
@@ -317,6 +358,13 @@ public class JoinDNoIntervalTree extends Algorithm {
         "Do not use automata to check equivalency");
     options.addOption("skipequiv", false, "Skip equivalency check");
     options.addOption("compact", false, "Use memory-compact version");
+    options.addOption("earlyprune", false, "Use early pruning strategies");
+    options.addOption("matrix", false, "Use matrix in equivalence check");
+    options.addOption("tdmatrix", false,
+        "Use Top-down matrix in equivalence check");
+    options.addOption("naivecheck", true,
+        "<N> Check string equivalence by expanding every strings"
+            + "which have less than N expanded records");
     return options;
   }
 

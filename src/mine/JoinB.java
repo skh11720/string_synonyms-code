@@ -12,6 +12,7 @@ import java.util.List;
 
 import tools.Algorithm;
 import tools.IntegerMap;
+import tools.IntegerPair;
 import tools.IntegerSet;
 import tools.Rule;
 import tools.Rule_ACAutomata;

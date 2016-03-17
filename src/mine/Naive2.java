@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import tools.Algorithm;
+import tools.IntegerPair;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -31,7 +32,7 @@ public class Naive2 extends Algorithm {
   protected Naive2(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = 1000000;
+    int size = -1;
 
     readRules(rulefile);
     Record.setStrList(strlist);
@@ -79,7 +80,7 @@ public class Naive2 extends Algorithm {
       recS.preprocessRules(automata, false);
       recS.preprocessEstimatedRecords();
       long est = recS.getEstNumRecords();
-      if (est >= threshold) continue;
+      if (est > threshold) continue;
       ArrayList<Record> expanded = recS.expandAll(ruletrie);
       for (Record exp : expanded) {
         ArrayList<Record> double_expanded = exp.expandAll(ruletrie);

@@ -17,7 +17,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import tools.Algorithm;
+import tools.IntIntRecordTriple;
 import tools.IntegerMap;
+import tools.IntegerPair;
 import tools.IntegerSet;
 import tools.Rule;
 import tools.Rule_ACAutomata;
@@ -38,7 +40,7 @@ public class JoinBNoIntervalTree extends Algorithm {
    * Value IntervalTree Key: length of record (min, max)<br/>
    * Value IntervalTree Value: record
    */
-  IntegerMap<ArrayList<IndexEntry>> idx;
+  IntegerMap<ArrayList<IntIntRecordTriple>> idx;
 
   protected JoinBNoIntervalTree(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -124,19 +126,19 @@ public class JoinBNoIntervalTree extends Algorithm {
     long elements = 0;
     // Build an index
 
-    idx = new IntegerMap<ArrayList<IndexEntry>>();
+    idx = new IntegerMap<ArrayList<IntIntRecordTriple>>();
     for (Record rec : tableR) {
       // All available tokens at the first position
       IntegerSet[] availableTokens = rec.getAvailableTokens();
       // All available equivalent string lengths
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       for (int token : availableTokens[0]) {
-        ArrayList<IndexEntry> list = idx.get(token);
+        ArrayList<IntIntRecordTriple> list = idx.get(token);
         if (list == null) {
-          list = new ArrayList<IndexEntry>();
+          list = new ArrayList<IntIntRecordTriple>();
           idx.put(token, list);
         }
-        list.add(new IndexEntry(range[0], range[1], rec));
+        list.add(new IntIntRecordTriple(range[0], range[1], rec));
       }
       // Number of replicas of current record
       elements += availableTokens[0].size();
@@ -148,7 +150,7 @@ public class JoinBNoIntervalTree extends Algorithm {
     int sum = 0;
     int singlelistsize = 0;
     long count = 0;
-    for (ArrayList<IndexEntry> list : idx.values()) {
+    for (ArrayList<IntIntRecordTriple> list : idx.values()) {
       if (list.size() == 1) {
         ++singlelistsize;
         continue;
@@ -178,11 +180,11 @@ public class JoinBNoIntervalTree extends Algorithm {
       sum += asdf;
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       for (int token : availableTokens[0]) {
-        ArrayList<IndexEntry> tree = idx.get(token);
+        ArrayList<IntIntRecordTriple> tree = idx.get(token);
 
         if (tree == null) continue;
         List<Record> list = new ArrayList<Record>();
-        for (IndexEntry e : tree)
+        for (IntIntRecordTriple e : tree)
           if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
             list.add(e.rec);
         set_union_setsize_sum += list.size();

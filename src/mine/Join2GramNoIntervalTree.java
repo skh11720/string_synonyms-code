@@ -17,6 +17,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import tools.Algorithm;
+import tools.IntIntRecordTriple;
+import tools.IntegerPair;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
@@ -39,7 +41,7 @@ public class Join2GramNoIntervalTree extends Algorithm {
    * Key: 2gram<br/>
    * Value: (min, max, record) triple
    */
-  WYK_HashMap<Long, List<IndexEntry>> idx;
+  WYK_HashMap<Long, List<IntIntRecordTriple>> idx;
 
   protected Join2GramNoIntervalTree(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -130,16 +132,16 @@ public class Join2GramNoIntervalTree extends Algorithm {
   private void buildIndex() {
     long elements = 0;
 
-    idx = new WYK_HashMap<Long, List<IndexEntry>>();
+    idx = new WYK_HashMap<Long, List<IntIntRecordTriple>>();
     for (Record rec : tableR) {
       Set<Long> twoGrams = rec.getFirstRule2Grams();
       for (Long twoGram : twoGrams) {
-        List<IndexEntry> list = idx.get(twoGram);
+        List<IntIntRecordTriple> list = idx.get(twoGram);
         if (list == null) {
-          list = new ArrayList<IndexEntry>();
+          list = new ArrayList<IntIntRecordTriple>();
           idx.put(twoGram, list);
         }
-        list.add(new IndexEntry(rec.getMinLength(), rec.getMaxLength(), rec));
+        list.add(new IntIntRecordTriple(rec.getMinLength(), rec.getMaxLength(), rec));
       }
       elements += twoGrams.size();
     }
@@ -148,7 +150,7 @@ public class Join2GramNoIntervalTree extends Algorithm {
     ///// Statistics
     int sum = 0;
     long count = 0;
-    for (List<IndexEntry> list : idx.values()) {
+    for (List<IntIntRecordTriple> list : idx.values()) {
       if (list.size() == 1) continue;
       sum++;
       count += list.size();
@@ -166,11 +168,11 @@ public class Join2GramNoIntervalTree extends Algorithm {
       Set<Long> twoGrams = recS.getFirstRule2Grams();
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
       for (Long twoGram : twoGrams) {
-        List<IndexEntry> tree = idx.get(twoGram);
+        List<IntIntRecordTriple> tree = idx.get(twoGram);
 
         if (tree == null) continue;
         List<Record> list = new ArrayList<Record>();
-        for (IndexEntry e : tree)
+        for (IntIntRecordTriple e : tree)
           if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
             list.add(e.rec);
         candidatesList.add(list);

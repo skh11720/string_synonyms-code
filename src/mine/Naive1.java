@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import tools.Algorithm;
+import tools.IntegerPair;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -35,7 +36,7 @@ public class Naive1 extends Algorithm {
   protected Naive1(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = 1000000;
+    int size = -1;
 
     readRules(rulefile);
     Record.setStrList(strlist);
@@ -47,21 +48,31 @@ public class Naive1 extends Algorithm {
 
   private void Init() {
     rec2idx = new HashMap<Record, ArrayList<Integer>>();
+    int count = 0;
     for (int i = 0; i < tableR.size(); ++i) {
       Record recR = tableS.get(i);
       recR.preprocessRules(automata, false);
       recR.preprocessEstimatedRecords();
       long est = recR.getEstNumRecords();
-      if (est >= threshold) continue;
+      if (est > threshold) continue;
       List<Record> expanded = recR.expandAll(ruletrie);
+      assert (expanded.size() <= threshold);
       for (Record exp : expanded) {
         if (!rec2idx.containsKey(exp))
           rec2idx.put(exp, new ArrayList<Integer>(5));
         ArrayList<Integer> list = rec2idx.get(exp);
+        assert (list != null);
+        // If current list already contains current record, skip adding
         if (!list.isEmpty() && list.get(list.size() - 1) == i) continue;
         list.add(i);
       }
+      ++count;
     }
+    long idxsize = 0;
+    for (List<Integer> list : rec2idx.values())
+      idxsize += list.size();
+    System.out.println(count + " records are indexed");
+    System.out.println("Total index size: " + idxsize);
   }
 
   private void readRules(String Rulefile) throws IOException {
@@ -106,7 +117,7 @@ public class Naive1 extends Algorithm {
       recS.preprocessRules(automata, false);
       recS.preprocessEstimatedRecords();
       long est = recS.getEstNumRecords();
-      if (est >= threshold) continue;
+      if (est > threshold) continue;
       ArrayList<Record> expanded = recS.expandAll(ruletrie);
       ArrayList<List<Integer>> candidates = new ArrayList<List<Integer>>();
       for (Record exp : expanded) {
