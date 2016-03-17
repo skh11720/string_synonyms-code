@@ -97,12 +97,22 @@ public class SI_Join_Modified extends Algorithm {
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess est records: " + time);
 
+    currentTime = System.currentTimeMillis();
+    for (Record rec : tableR) {
+      rec.preprocessSearchRanges();
+      rec.preprocessSuffixApplicableRules();
+    }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess for early pruning: " + time);
+
     // Preprocess each records in S
     for (Record rec : tableS) {
       rec.preprocessRules(automata, false);
       rec.preprocessLengths();
       rec.preprocessAvailableTokens(1);
       rec.preprocessEstimatedRecords();
+      rec.preprocessSearchRanges();
+      rec.preprocessSuffixApplicableRules();
     }
   }
 

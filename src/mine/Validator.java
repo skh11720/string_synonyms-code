@@ -1140,7 +1140,10 @@ public class Validator {
     Boolean rslt = Mx[i][j].get(remain);
     if (rslt != null) return rslt;
     // Check every rule which is applicable to a suffix of x[1..i]
-    Rule[] rules = x.getSuffixApplicableRules(i);
+    if (i == 0) return false;
+    Rule[] rules = x.getSuffixApplicableRules(i - 1);
+    assert (rules != null);
+    assert (rules.length != 0);
     int[] str = remain.rule.getTo();
     for (Rule rule : rules) {
       int[] rhs = rule.getTo();
@@ -1202,8 +1205,11 @@ public class Validator {
     // If this value is already computed, simply return the computed value.
     Boolean rslt = My[i][j].get(remain);
     if (rslt != null) return rslt;
-    // Check every xule which is applicable to a suffix of y[1..j]
-    Rule[] rules = y.getSuffixApplicableRules(j);
+    // Check every rule which is applicable to a suffix of y[1..j]
+    if (j == 0) return false;
+    Rule[] rules = y.getSuffixApplicableRules(j - 1);
+    assert (rules != null);
+    assert (rules.length != 0);
     int[] str = remain.rule.getTo();
     for (Rule rule : rules) {
       int[] rhs = rule.getTo();
@@ -1265,7 +1271,10 @@ public class Validator {
     Boolean rslt = My[i][j].get(EQUALMATCH);
     if (rslt != null) return rslt;
     // Check every xule which is applicable to a suffix of y[1..j]
-    Rule[] rules = y.getSuffixApplicableRules(j);
+    if (j == 0) return i == 0;
+    Rule[] rules = y.getSuffixApplicableRules(j - 1);
+    assert (rules != null);
+    assert (rules.length != 0);
     for (Rule rule : rules) {
       boolean prevM = false;
       Submatch prevmatch = new Submatch(rule, false, rule.getTo().length, 0);

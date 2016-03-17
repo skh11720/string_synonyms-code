@@ -123,12 +123,22 @@ public class JoinDNoIntervalTree extends Algorithm {
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess est records: " + time);
 
+    currentTime = System.currentTimeMillis();
+    for (Record rec : tableR) {
+      rec.preprocessSearchRanges();
+      rec.preprocessSuffixApplicableRules();
+    }
+    time = System.currentTimeMillis() - currentTime;
+    System.out.println("Preprocess for early pruning: " + time);
+
     // Preprocess each records in S
     for (Record rec : tableS) {
       rec.preprocessRules(automata, true);
       rec.preprocessLengths();
       if (!compact) rec.preprocessAvailableTokens(a);
       rec.preprocessEstimatedRecords();
+      rec.preprocessSearchRanges();
+      rec.preprocessSuffixApplicableRules();
     }
   }
 
