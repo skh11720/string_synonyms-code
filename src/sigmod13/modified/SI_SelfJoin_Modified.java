@@ -1,19 +1,14 @@
 package sigmod13.modified;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import mine.Record;
 import sigmod13.SI_Tree;
 import tools.Algorithm;
 import tools.Pair;
-import tools.Rule;
 
 public class SI_SelfJoin_Modified extends Algorithm {
-  ArrayList<Record> table;
-  ArrayList<Rule>   rulelist;
-
   public SI_SelfJoin_Modified(String DBR_file, String rulefile)
       throws IOException {
     super(rulefile, DBR_file, DBR_file);
@@ -21,7 +16,7 @@ public class SI_SelfJoin_Modified extends Algorithm {
 
   protected void preprocess() {
     long currentTime = System.currentTimeMillis();
-    for (Record rec : table) {
+    for (Record rec : tableR) {
       rec.preprocessAvailableTokens(1);
     }
     long time = System.currentTimeMillis() - currentTime;
@@ -37,7 +32,7 @@ public class SI_SelfJoin_Modified extends Algorithm {
 
     long startTime = System.currentTimeMillis();
 
-    SI_Tree<Record> tree = new SI_Tree<Record>(threshold, null, table);
+    SI_Tree<Record> tree = new SI_Tree<Record>(threshold, null, tableR);
     System.out.println("Node size : " + (tree.FEsize + tree.LEsize));
     System.out.println("Sig size : " + tree.sigsize);
 

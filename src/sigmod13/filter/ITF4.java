@@ -1,7 +1,7 @@
 package sigmod13.filter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import sigmod13.SIRecord;
 import sigmod13.SIRecordExpanded;
@@ -11,12 +11,12 @@ import tools.Rule;
 public class ITF4 extends ITF_Filter {
   private IntegerMap<Long> tfs;
 
-  public ITF4(ArrayList<SIRecord> records, ArrayList<Rule> rules) {
-    super(records, rules);
+  public ITF4(List<SIRecord> tableR, List<Rule> rulelist) {
+    super(tableR, rulelist);
     tfs = new IntegerMap<Long>();
 
     // Generate all the possible expanded sets
-    for (SIRecord rec : records) {
+    for (SIRecord rec : tableR) {
       HashSet<SIRecordExpanded> expanded = rec.generateAll();
       // Add tf for original tokens
       for (int token : rec.getTokens()) {

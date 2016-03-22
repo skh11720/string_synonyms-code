@@ -319,10 +319,10 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
    * Note that this method should be used if threshold == 1
    */
   @SuppressWarnings("unchecked")
-  public HashSet<Pair<T>> naivejoin(ArrayList<T> records, boolean is_selfjoin) {
+  public HashSet<Pair<T>> naivejoin(List<T> tableS, boolean is_selfjoin) {
     HashSet<Pair<T>> results = new HashSet<Pair<T>>();
     long count = 0;
-    for (T rec : records) {
+    for (T rec : tableS) {
       int id1 = rec.getID();
       Set<T.Expanded> expanded = (Set<T.Expanded>) rec.generateAll();
       for (T.Expanded exp : expanded) {

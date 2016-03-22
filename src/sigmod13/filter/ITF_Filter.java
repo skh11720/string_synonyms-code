@@ -1,7 +1,7 @@
 package sigmod13.filter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.PriorityQueue;
 
 import sigmod13.SIRecord;
@@ -9,7 +9,7 @@ import sigmod13.SIRecordExpanded;
 import tools.Rule;
 
 public abstract class ITF_Filter {
-  public ITF_Filter(ArrayList<SIRecord> records, ArrayList<Rule> rules) {
+  public ITF_Filter(List<SIRecord> tableR, List<Rule> rulelist) {
   };
 
   /**

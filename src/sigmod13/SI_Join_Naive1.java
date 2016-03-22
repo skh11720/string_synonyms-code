@@ -1,7 +1,6 @@
 package sigmod13;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import sigmod13.filter.ITF1;
@@ -9,18 +8,12 @@ import sigmod13.filter.ITF2;
 import sigmod13.filter.ITF3;
 import sigmod13.filter.ITF4;
 import sigmod13.filter.ITF_Filter;
-import tools.Algorithm;
 import tools.Pair;
-import tools.Rule;
 
 /**
  * Naive algorithm which build index for only one side
  */
-public class SI_Join_Naive1 extends Algorithm {
-  ArrayList<SIRecord> tableR;
-  ArrayList<SIRecord> tableS;
-  ArrayList<Rule>     rulelist;
-
+public class SI_Join_Naive1 extends SIAlgorithm {
   public SI_Join_Naive1(String DBR_file, String DBS_file, String rulefile)
       throws IOException {
     super(rulefile, DBR_file, DBS_file);

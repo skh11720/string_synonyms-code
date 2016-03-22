@@ -1,9 +1,9 @@
 package sigmod13;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -22,7 +22,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
   /**
    * Create a record and preprocess applicable rules
    */
-  public SIRecord(int id, String str, HashMap<String, Integer> str2int,
+  public SIRecord(int id, String str, Map<String, Integer> str2int,
       Rule_ACAutomata automata) {
     this.id = id;
     String[] pstr = str.split("( |\t)+");

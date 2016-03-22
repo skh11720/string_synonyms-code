@@ -1,7 +1,6 @@
 package sigmod13;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,23 +10,18 @@ import sigmod13.filter.ITF2;
 import sigmod13.filter.ITF3;
 import sigmod13.filter.ITF4;
 import sigmod13.filter.ITF_Filter;
-import tools.Algorithm;
 import tools.IntegerMap;
 import tools.Pair;
-import tools.Rule;
 
 /**
  * SI-Join algorithm which does not miss answer.
  * Generate all expanded records and map them to the original record.
  */
-public class SI_Join_Naive2 extends Algorithm {
-  IntegerMap<HashSet<SIRecordExpanded>>        idxR;
-  IntegerMap<HashSet<SIRecordExpanded>>        idxS;
-  HashMap<SIRecordExpanded, HashSet<SIRecord>> mapR;
-  HashMap<SIRecordExpanded, HashSet<SIRecord>> mapS;
-  ArrayList<SIRecord>                          tableR;
-  ArrayList<SIRecord>                          tableS;
-  ArrayList<Rule>                              rulelist;
+public class SI_Join_Naive2 extends SIAlgorithm {
+  Map<Integer, HashSet<SIRecordExpanded>>  idxR;
+  Map<Integer, HashSet<SIRecordExpanded>>  idxS;
+  Map<SIRecordExpanded, HashSet<SIRecord>> mapR;
+  Map<SIRecordExpanded, HashSet<SIRecord>> mapS;
 
   public SI_Join_Naive2(String DBR_file, String DBS_file, String rulefile)
       throws IOException {

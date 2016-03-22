@@ -1,7 +1,6 @@
 package sigmod13;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import sigmod13.filter.ITF1;
@@ -9,13 +8,9 @@ import sigmod13.filter.ITF2;
 import sigmod13.filter.ITF3;
 import sigmod13.filter.ITF4;
 import sigmod13.filter.ITF_Filter;
-import tools.Algorithm;
 import tools.Pair;
-import tools.Rule;
 
-public class SI_SelfJoin_Naive extends Algorithm {
-  ArrayList<SIRecord> table;
-  ArrayList<Rule>     rulelist;
+public class SI_SelfJoin_Naive extends SIAlgorithm {
 
   public SI_SelfJoin_Naive(String DBR_file, String rulefile)
       throws IOException {
@@ -33,20 +28,20 @@ public class SI_SelfJoin_Naive extends Algorithm {
 
     switch (filterType) {
       case 1:
-        filter = new ITF1(table, rulelist);
+        filter = new ITF1(tableR, rulelist);
         break;
       case 2:
-        filter = new ITF2(table, rulelist);
+        filter = new ITF2(tableR, rulelist);
         break;
       case 3:
-        filter = new ITF3(table, rulelist);
+        filter = new ITF3(tableR, rulelist);
         break;
       case 4:
-        filter = new ITF4(table, rulelist);
+        filter = new ITF4(tableR, rulelist);
         break;
       default:
     }
-    SI_Tree<SIRecord> tree = new SI_Tree<SIRecord>(threshold, filter, table);
+    SI_Tree<SIRecord> tree = new SI_Tree<SIRecord>(threshold, filter, tableR);
     System.out.println("Node size : " + (tree.FEsize + tree.LEsize));
     System.out.println("Sig size : " + tree.sigsize);
 
@@ -61,7 +56,7 @@ public class SI_SelfJoin_Naive extends Algorithm {
   public void naiveselfjoin(SI_Tree<SIRecord> treeR, double threshold) {
     long startTime = System.currentTimeMillis();
 
-    HashSet<Pair<SIRecord>> candidates = treeR.naivejoin(table, true);
+    HashSet<Pair<SIRecord>> candidates = treeR.naivejoin(tableR, true);
     // long counter = treeR.join(treeS, threshold);
     System.out.print("Retrieveing candidates finished");
 

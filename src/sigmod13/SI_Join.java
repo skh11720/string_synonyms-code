@@ -1,7 +1,6 @@
 package sigmod13;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import sigmod13.filter.ITF1;
@@ -9,14 +8,9 @@ import sigmod13.filter.ITF2;
 import sigmod13.filter.ITF3;
 import sigmod13.filter.ITF4;
 import sigmod13.filter.ITF_Filter;
-import tools.Algorithm;
 import tools.Pair;
-import tools.Rule;
 
-public class SI_Join extends Algorithm {
-  ArrayList<SIRecord> tableR;
-  ArrayList<SIRecord> tableS;
-  ArrayList<Rule>     rulelist;
+public class SI_Join extends SIAlgorithm {
 
   public SI_Join(String DBR_file, String DBS_file, String rulefile)
       throws IOException {

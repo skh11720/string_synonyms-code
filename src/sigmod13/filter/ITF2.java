@@ -1,6 +1,6 @@
 package sigmod13.filter;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import sigmod13.SIRecord;
 import tools.IntegerMap;
@@ -10,12 +10,12 @@ public class ITF2 extends ITF_Filter {
   private IntegerMap<Long> tf_Record;
   private IntegerMap<Long> tf_Rule;
 
-  public ITF2(ArrayList<SIRecord> records, ArrayList<Rule> rules) {
-    super(records, rules);
+  public ITF2(List<SIRecord> tableR, List<Rule> rulelist) {
+    super(tableR, rulelist);
     tf_Record = new IntegerMap<Long>();
     tf_Rule = new IntegerMap<Long>();
 
-    for (SIRecord rec : records) {
+    for (SIRecord rec : tableR) {
       for (int token : rec.getTokens()) {
         Long freq = tf_Record.get(token);
         if (freq == null)
@@ -26,7 +26,7 @@ public class ITF2 extends ITF_Filter {
       }
     }
 
-    for (Rule rule : rules) {
+    for (Rule rule : rulelist) {
       for (int token : rule.getFrom()) {
         Long freq = tf_Rule.get(token);
         if (freq == null)
