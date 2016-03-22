@@ -57,21 +57,6 @@ public class HybridA2 extends Algorithm {
     Record.setRuleTrie(ruletrie);
   }
 
-  protected void preprocess() {
-    super.preprocess(useAutomata);
-    if (!compact) {
-      long currentTime = System.currentTimeMillis();
-      for (Record rec : tableR) {
-        rec.preprocessAvailableTokens(maxIndex);
-      }
-      for (Record rec : tableS) {
-        rec.preprocessAvailableTokens(maxIndex);
-      }
-      long time = System.currentTimeMillis() - currentTime;
-      System.out.println("Preprocess tokens: " + time);
-    }
-  }
-
   private void buildIndex() {
     long elements = 0;
     long predictCount = 0;
@@ -356,7 +341,7 @@ public class HybridA2 extends Algorithm {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    preprocess();
+    preprocess(compact, maxIndex, useAutomata);
     System.out.print("Preprocess finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
@@ -418,5 +403,6 @@ public class HybridA2 extends Algorithm {
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
+    Validator.printStats();
   }
 }

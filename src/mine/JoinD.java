@@ -1,8 +1,6 @@
 package mine;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,19 +12,20 @@ import tools.Algorithm;
 import tools.IntegerMap;
 import tools.IntegerPair;
 import tools.IntegerSet;
-import tools.Rule;
+import tools.Parameters;
 import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
 import tools.WYK_HashSet;
+import validator.Validator;
 
 public class JoinD extends Algorithm {
-  boolean                                                skipChecking = false;
-  public static int                                      a            = 3;
-  ArrayList<Record>                                      tableR;
-  ArrayList<Record>                                      tableS;
-  ArrayList<Rule>                                        rulelist;
+  static boolean                                         useAutomata  = true;
+  static boolean                                         skipChecking = false;
+  static boolean                                         compact      = false;
+  static String                                          outputfile;
   RecordIDComparator                                     idComparator;
-
+  static int                                             maxIndex     = 3;
+  static Validator                                       checker;
   /**
    * Key: token<br/>
    * Value IntervalTree Key: length of record (min, max)<br/>
@@ -37,40 +36,7 @@ public class JoinD extends Algorithm {
   protected JoinD(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = 1000000;
-
-    readRules(rulefile);
-    Record.setStrList(strlist);
-    tableR = readRecords(Rfile, size);
-    tableS = readRecords(Sfile, size);
     idComparator = new RecordIDComparator();
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-
-    // Add Self rule
-    for (int token : str2int.values())
-      rulelist.add(new Rule(token, token));
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
   }
 
   private void preprocess() {
@@ -93,7 +59,7 @@ public class JoinD extends Algorithm {
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
-      rec.preprocessAvailableTokens(a);
+      rec.preprocessAvailableTokens(maxIndex);
     }
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess available tokens: " + time);
@@ -109,7 +75,7 @@ public class JoinD extends Algorithm {
     for (Record rec : tableS) {
       rec.preprocessRules(automata, true);
       rec.preprocessLengths();
-      rec.preprocessAvailableTokens(a);
+      rec.preprocessAvailableTokens(maxIndex);
       rec.preprocessEstimatedRecords();
     }
   }
@@ -119,12 +85,12 @@ public class JoinD extends Algorithm {
     // Build an index
 
     idx = new ArrayList<IntegerMap<IntervalTreeRW<Integer, Record>>>();
-    for (int i = 0; i < a; ++i)
+    for (int i = 0; i < maxIndex; ++i)
       idx.add(new IntegerMap<IntervalTreeRW<Integer, Record>>());
     for (Record rec : tableR) {
       IntegerSet[] availableTokens = rec.getAvailableTokens();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
-      int boundary = Math.min(range[1], a);
+      int boundary = Math.min(range[1], maxIndex);
       for (int i = 0; i < boundary; ++i) {
         IntegerMap<IntervalTreeRW<Integer, Record>> map = idx.get(i);
         for (int token : availableTokens[i]) {
@@ -162,7 +128,7 @@ public class JoinD extends Algorithm {
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
       IntegerSet[] availableTokens = recS.getAvailableTokens();
       int[] range = recS.getCandidateLengths(recS.size() - 1);
-      int boundary = Math.min(range[0], a);
+      int boundary = Math.min(range[0], maxIndex);
       for (int i = 0; i < boundary; ++i) {
         List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
         IntegerMap<IntervalTreeRW<Integer, Record>> map = idx.get(i);
@@ -179,9 +145,9 @@ public class JoinD extends Algorithm {
           idComparator);
       count += candidates.size();
 
-      if(skipChecking) continue;
+      if (skipChecking) continue;
       for (Record recR : candidates) {
-        int compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+        int compare = checker.isEqual(recR, recS);
         if (compare >= 0) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
       }
 
@@ -220,8 +186,6 @@ public class JoinD extends Algorithm {
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
-    System.out.println("Comparisons: " + Validator.checked);
-    System.out.println("Filtered: " + Validator.filtered);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
@@ -243,25 +207,24 @@ public class JoinD extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 4 && args.length != 5) {
-      printUsage();
-      return;
-    }
-    String Rfile = args[0];
-    String Sfile = args[1];
-    String Rulefile = args[2];
-    JoinD.a = Integer.parseInt(args[3]);
-    boolean skipChecking = args.length == 5;
+    Parameters params = Parameters.parseArgs(args);
+    String Rfile = params.getInputX();
+    String Sfile = params.getInputY();
+    String Rulefile = params.getInputRules();
+    outputfile = params.getOutput();
+
+    // Setup parameters
+    useAutomata = params.isUseACAutomata();
+    skipChecking = params.isSkipChecking();
+    compact = params.isCompact();
+    checker = params.getValidator();
 
     long startTime = System.currentTimeMillis();
     JoinD inst = new JoinD(Rulefile, Rfile, Sfile);
-    inst.skipChecking = skipChecking;
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
-  }
 
-  private static void printUsage() {
-    System.out.println("Usage : <R file> <S file> <Rule file> <a>");
+    Validator.printStats();
   }
 }

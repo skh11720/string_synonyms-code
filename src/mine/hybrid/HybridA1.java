@@ -68,21 +68,6 @@ public class HybridA1 extends Algorithm {
     ruletrie = new RuleTrie(rulelist);
   }
 
-  private void preprocess() {
-    super.preprocess(useAutomata);
-    if (!compact) {
-      long currentTime = System.currentTimeMillis();
-      for (Record rec : tableR) {
-        rec.preprocessAvailableTokens(maxIndex);
-      }
-      for (Record rec : tableS) {
-        rec.preprocessAvailableTokens(maxIndex);
-      }
-      long time = System.currentTimeMillis() - currentTime;
-      System.out.println("Preprocess tokens: " + time);
-    }
-  }
-
   private void buildIndex() {
     long elements = 0;
     long predictCount = 0;
@@ -429,7 +414,7 @@ public class HybridA1 extends Algorithm {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    preprocess();
+    preprocess(compact, maxIndex, useAutomata);
     System.out.print("Preprocess finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
@@ -449,13 +434,6 @@ public class HybridA1 extends Algorithm {
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
-    System.out.println("Comparisons: " + Validator.checked);
-    System.out.println("Total iter entries: " + Validator.niterentry);
-    System.out.println("Total iter rules: " + Validator.niterrules);
-    System.out.println("Total iter matches: " + Validator.nitermatches);
-    System.out.println("Total iter tokens: " + Validator.nitertokens);
-    System.out.println("Early evaled: " + Validator.earlyevaled);
-    System.out.println("Early stopped: " + Validator.earlystopped);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
@@ -491,5 +469,6 @@ public class HybridA1 extends Algorithm {
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
+    Validator.printStats();
   }
 }

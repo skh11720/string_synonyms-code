@@ -65,16 +65,21 @@ public class Algorithm {
    * 3) number of 1-expanded records</br>
    * 4) search ranges</br>
    */
-  protected void preprocess(boolean computeAutomataPerRecord) {
+  protected void preprocess(boolean compact, int maxIndex,
+      boolean computeAutomataPerRecord) {
     Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
 
     long currentTime = System.currentTimeMillis();
+    long applicableRules = 0;
     // Preprocess each records in R
     for (Record rec : tableR) {
       rec.preprocessRules(automata, computeAutomataPerRecord);
+      applicableRules += rec.getNumApplicableRules();
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
+    System.out.println(
+        "Avg applicable rules : " + applicableRules + "/" + tableR.size());
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
@@ -90,6 +95,15 @@ public class Algorithm {
     time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess est records: " + time);
 
+    if (!compact) {
+      currentTime = System.currentTimeMillis();
+      for (Record rec : tableR) {
+        rec.preprocessAvailableTokens(maxIndex);
+      }
+      time = System.currentTimeMillis() - currentTime;
+      System.out.println("Preprocess tokens: " + time);
+    }
+
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
       rec.preprocessSearchRanges();
@@ -103,6 +117,7 @@ public class Algorithm {
       rec.preprocessRules(automata, computeAutomataPerRecord);
       rec.preprocessLengths();
       rec.preprocessEstimatedRecords();
+      if (!compact) rec.preprocessAvailableTokens(maxIndex);
       rec.preprocessSearchRanges();
       rec.preprocessSuffixApplicableRules();
     }

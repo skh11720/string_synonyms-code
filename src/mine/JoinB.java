@@ -1,8 +1,6 @@
 package mine;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,17 +12,20 @@ import tools.Algorithm;
 import tools.IntegerMap;
 import tools.IntegerPair;
 import tools.IntegerSet;
-import tools.Rule;
-import tools.Rule_ACAutomata;
+import tools.Parameters;
 import tools.StaticFunctions;
 import tools.WYK_HashSet;
+import validator.Validator;
 
 public class JoinB extends Algorithm {
-  boolean                                     skipChecking = false;
-  ArrayList<Record>                           tableR;
-  ArrayList<Record>                           tableS;
-  ArrayList<Rule>                             rulelist;
+  static boolean                              useAutomata  = true;
+  static boolean                              skipChecking = false;
+  static boolean                              compact      = false;
+  static String                               outputfile;
+
   RecordIDComparator                          idComparator;
+
+  static Validator                            checker;
 
   /**
    * Key: token<br/>
@@ -36,81 +37,7 @@ public class JoinB extends Algorithm {
   protected JoinB(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = 1000000;
-
-    readRules(rulefile);
-    Record.setStrList(strlist);
-    tableR = readRecords(Rfile, size);
-    tableS = readRecords(Sfile, size);
     idComparator = new RecordIDComparator();
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-
-    // Add Self rule
-    for (int token : str2int.values())
-      rulelist.add(new Rule(token, token));
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
-  }
-
-  private void preprocess() {
-    Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
-
-    long currentTime = System.currentTimeMillis();
-    // Preprocess each records in R
-    for (Record rec : tableR) {
-      rec.preprocessRules(automata, true);
-    }
-    long time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessLengths();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess lengths: " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessAvailableTokens(1);
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess available tokens: " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessEstimatedRecords();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess est records: " + time);
-
-    // Preprocess each records in S
-    for (Record rec : tableS) {
-      rec.preprocessRules(automata, true);
-      rec.preprocessLengths();
-      rec.preprocessAvailableTokens(1);
-      rec.preprocessEstimatedRecords();
-    }
   }
 
   private void buildIndex() {
@@ -165,9 +92,9 @@ public class JoinB extends Algorithm {
       List<Record> candidates = StaticFunctions.union(candidatesList,
           idComparator);
 
-      if(skipChecking) continue;
+      if (skipChecking) continue;
       for (Record recR : candidates) {
-        int compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
+        int compare = checker.isEqual(recR, recS);
         if (compare >= 0) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
       }
     }
@@ -190,7 +117,7 @@ public class JoinB extends Algorithm {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    preprocess();
+    preprocess(compact, 1, useAutomata);
     System.out.print("Preprocess finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
@@ -204,11 +131,9 @@ public class JoinB extends Algorithm {
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
-    System.out.println("Comparisons: " + Validator.checked);
-    System.out.println("Filtered: " + Validator.filtered);
 
     try {
-      BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
+      BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
       HashMap<Integer, ArrayList<Record>> tmp = new HashMap<Integer, ArrayList<Record>>();
       for (IntegerPair ip : rslt) {
         if (!tmp.containsKey(ip.i1)) tmp.put(ip.i1, new ArrayList<Record>());
@@ -227,24 +152,24 @@ public class JoinB extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 3 && args.length != 4) {
-      printUsage();
-      return;
-    }
-    String Rfile = args[0];
-    String Sfile = args[1];
-    String Rulefile = args[2];
-    boolean skipChecking = args.length == 4;
+    Parameters params = Parameters.parseArgs(args);
+    String Rfile = params.getInputX();
+    String Sfile = params.getInputY();
+    String Rulefile = params.getInputRules();
+    outputfile = params.getOutput();
+
+    // Setup parameters
+    useAutomata = params.isUseACAutomata();
+    skipChecking = params.isSkipChecking();
+    compact = params.isCompact();
+    checker = params.getValidator();
 
     long startTime = System.currentTimeMillis();
     JoinB inst = new JoinB(Rulefile, Rfile, Sfile);
-    inst.skipChecking = skipChecking;
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
-  }
-
-  private static void printUsage() {
-    System.out.println("Usage : <R file> <S file> <Rule file>");
+    
+    Validator.printStats();
   }
 }

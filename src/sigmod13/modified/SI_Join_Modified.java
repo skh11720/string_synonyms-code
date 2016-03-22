@@ -24,7 +24,7 @@ public class SI_Join_Modified extends Algorithm {
   }
 
   public void run() throws IOException {
-    preprocess(false);
+    preprocess(true, 0, false);
     // BufferedReader br = new BufferedReader(new
     // InputStreamReader(System.in));
     // br.readLine();

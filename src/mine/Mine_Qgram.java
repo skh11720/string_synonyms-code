@@ -1,8 +1,6 @@
 package mine;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,73 +8,27 @@ import java.util.ArrayList;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.IntegerSet;
-import tools.Rule;
-import tools.Rule_ACAutomata;
+import tools.Parameters;
+import tools.RuleTrie;
 import tools.WYK_HashMap;
 import tools.WYK_HashSet;
+import validator.Validator;
 
 public class Mine_Qgram extends Algorithm {
-  ArrayList<Record>                        tableR;
-  ArrayList<Record>                        tableS;
-  ArrayList<Rule>                          rulelist;
-
   WYK_HashMap<IndexKey, ArrayList<Record>> idx;
+  static boolean                           useAutomata  = true;
+  static boolean                           skipChecking = false;
+  static int                               maxIndex     = Integer.MAX_VALUE;
+  static boolean                           compact      = false;
+  static boolean                           singleside   = false;
+  RecordIDComparator                       idComparator;
+  RuleTrie                                 ruletrie;
+  static String                            outputfile;
+  static Validator                         checker;
 
   protected Mine_Qgram(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = 100000;
-
-    readRules(rulefile);
-    Record.setStrList(strlist);
-    tableR = readRecords(Rfile, size);
-    tableS = readRecords(Sfile, size);
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-
-    // Add Self rule
-    for (int token : str2int.values())
-      rulelist.add(new Rule(token, token));
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
-  }
-
-  private void preprocess() {
-    Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
-    // Preprocess each records in R
-    for (Record rec : tableR) {
-      rec.preprocessRules(automata, true);
-      rec.preprocessLengths();
-      rec.preprocessAvailableTokens(Integer.MAX_VALUE);
-      rec.preprocessEstimatedRecords();
-    }
-
-    // Preprocess each records in S
-    for (Record rec : tableS) {
-      rec.preprocessRules(automata, true);
-      rec.preprocessLengths();
-      rec.preprocessAvailableTokens(Integer.MAX_VALUE);
-      rec.preprocessEstimatedRecords();
-    }
   }
 
   private void buildIndex() {
@@ -178,8 +130,9 @@ public class Mine_Qgram extends Algorithm {
 
           if (candidates == null) continue;
           for (Record recR : candidates) {
-            int compare = Validator.DP_A_Queue(recR, recS, true);
-            if (compare >= 0) rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+            int compare = checker.isEqual(recR, recS);
+            if (compare >= 0)
+              rslt.add(new IntegerPair(recR.getID(), recS.getID()));
           }
         }
       } else {
@@ -191,7 +144,7 @@ public class Mine_Qgram extends Algorithm {
 
               if (candidates == null) continue;
               for (Record recR : candidates) {
-                int compare = Validator.DP_A_Queue(recR, recS, true);
+                int compare = checker.isEqual(recR, recS);
                 if (compare >= 0)
                   rslt.add(new IntegerPair(recR.getID(), recS.getID()));
               }
@@ -206,7 +159,7 @@ public class Mine_Qgram extends Algorithm {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    preprocess();
+    preprocess(compact, Integer.MAX_VALUE, useAutomata);
     System.out.print("Preprocess finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
@@ -235,23 +188,25 @@ public class Mine_Qgram extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 3) {
-      printUsage();
-      return;
-    }
-    String Rfile = args[0];
-    String Sfile = args[1];
-    String Rulefile = args[2];
+    Parameters params = Parameters.parseArgs(args);
+    String Rfile = params.getInputX();
+    String Sfile = params.getInputY();
+    String Rulefile = params.getInputRules();
+    outputfile = params.getOutput();
+
+    // Setup parameters
+    useAutomata = params.isUseACAutomata();
+    skipChecking = params.isSkipChecking();
+    compact = params.isCompact();
+    checker = params.getValidator();
 
     long startTime = System.currentTimeMillis();
     Mine_Qgram inst = new Mine_Qgram(Rulefile, Rfile, Sfile);
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
-  }
-
-  private static void printUsage() {
-    System.out.println("Usage : <R file> <S file> <Rule file>");
+    
+    Validator.printStats();
   }
 }
 

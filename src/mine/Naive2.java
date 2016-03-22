@@ -1,8 +1,6 @@
 package mine;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,19 +9,15 @@ import java.util.List;
 
 import tools.Algorithm;
 import tools.IntegerPair;
-import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
 import tools.WYK_HashSet;
 
 public class Naive2 extends Algorithm {
-  ArrayList<Record>        tableR;
   /**
    * Map each record to its own index
    */
   HashMap<Record, Integer> rec2idx;
-  ArrayList<Record>        tableS;
-  ArrayList<Rule>          rulelist;
   Rule_ACAutomata          automata;
   RuleTrie                 ruletrie;
 
@@ -32,42 +26,9 @@ public class Naive2 extends Algorithm {
   protected Naive2(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = -1;
-
-    readRules(rulefile);
-    Record.setStrList(strlist);
-    tableR = readRecords(Rfile, size);
-    tableS = readRecords(Sfile, size);
     rec2idx = new HashMap<Record, Integer>();
     for (int i = 0; i < tableR.size(); ++i)
       rec2idx.put(tableR.get(i), i);
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-
-    // Add Self rule
-    for (int token : str2int.values())
-      rulelist.add(new Rule(token, token));
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
   }
 
   private List<IntegerPair> join() {

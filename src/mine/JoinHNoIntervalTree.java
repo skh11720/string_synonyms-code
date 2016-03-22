@@ -1,30 +1,22 @@
 package mine;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-
 import tools.Algorithm;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
 import tools.IntegerSet;
+import tools.Parameters;
 import tools.Rule;
 import tools.RuleTrie;
-import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
 import tools.WYK_HashSet;
+import validator.Validator;
 
 public class JoinHNoIntervalTree extends Algorithm {
   static boolean                                     useAutomata  = true;
@@ -32,20 +24,13 @@ public class JoinHNoIntervalTree extends Algorithm {
   static int                                         maxIndex     = Integer.MAX_VALUE;
   static boolean                                     compact      = false;
   static boolean                                     singleside   = false;
-  static boolean                                     earlyprune   = false;
-  static boolean                                     useMatrix    = false;
-  static boolean                                     useTDMatrix  = false;
-  static boolean                                     naiveCheck   = false;
-  static int                                         naiveThreshold;
 
-  ArrayList<Record>                                  tableR;
-  ArrayList<Record>                                  tableS;
-  ArrayList<Rule>                                    rulelist;
   RecordIDComparator                                 idComparator;
   RuleTrie                                           ruletrie;
 
   static String                                      outputfile;
 
+  static Validator                                   checker;
   /**
    * Key: (token, index) pair<br/>
    * Value: (min, max, record) triple
@@ -64,90 +49,6 @@ public class JoinHNoIntervalTree extends Algorithm {
     idComparator = new RecordIDComparator();
     ruletrie = new RuleTrie(rulelist);
     Record.setRuleTrie(ruletrie);
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-
-    // Add Self rule
-    for (int token : str2int.values())
-      rulelist.add(new Rule(token, token));
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
-  }
-
-  private void preprocess() {
-    Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
-
-    long currentTime = System.currentTimeMillis();
-    // Preprocess each records in R
-    long applicableRules = 0;
-    for (Record rec : tableR) {
-      rec.preprocessRules(automata, useAutomata);
-      applicableRules += rec.getNumApplicableRules();
-    }
-    long time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
-    System.out.println(
-        "Avg applicable rules : " + applicableRules + "/" + tableR.size());
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessLengths();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess lengths: " + time);
-
-    if (!compact) {
-      currentTime = System.currentTimeMillis();
-      for (Record rec : tableR) {
-        rec.preprocessAvailableTokens(maxIndex);
-      }
-      time = System.currentTimeMillis() - currentTime;
-      System.out.println("Preprocess tokens: " + time);
-    }
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessEstimatedRecords();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess est records: " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessSearchRanges();
-      rec.preprocessSuffixApplicableRules();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess for early pruning: " + time);
-
-    // Preprocess each records in S
-    for (Record rec : tableS) {
-      rec.preprocessRules(automata, useAutomata);
-      rec.preprocessLengths();
-      if (!compact) rec.preprocessAvailableTokens(maxIndex);
-      rec.preprocessEstimatedRecords();
-      rec.preprocessSearchRanges();
-      rec.preprocessSuffixApplicableRules();
-    }
   }
 
   private void buildIndex() {
@@ -244,39 +145,8 @@ public class JoinHNoIntervalTree extends Algorithm {
         List<Record> candidates = StaticFunctions.union(candidatesList,
             idComparator);
         if (skipChecking) continue;
-        List<Record> expandedS = naiveCheck
-            && recS.getEstNumRecords() < naiveThreshold ? recS.expandAll()
-                : null;
         for (Record recR : candidates) {
-          int compare = -1;
-          // Use naive method
-          if (naiveCheck) {
-            if (recR.getEstNumRecords() < naiveThreshold
-                && recS.getEstNumRecords() < naiveThreshold) {
-              assert (expandedS != null);
-              assert (expandedS.size() > 0);
-              compare = Validator.NaiveDoubleSide(expandedS, recR);
-            }
-            // If cannot expand every record, simply use DP_A_Matrix
-            else
-              compare = Validator.DP_A_MatrixwithEarlyPruning(recR, recS);
-          }
-          // Use Top-down matrix
-          else if (useTDMatrix)
-            compare = Validator.DP_A_TopdownMatrix(recR, recS);
-          // Use matrix
-          else if (useMatrix) {
-            if (earlyprune)
-              compare = Validator.DP_A_MatrixwithEarlyPruning(recR, recS);
-            else
-              compare = Validator.DP_A_Matrix(recR, recS);
-          }
-          // Utilize pre-built per-record automata
-          else if (useAutomata)
-            compare = Validator.DP_A_Queue_useACAutomata(recR, recS, true);
-          // Do not utilize any extra resource except list of applicable rules
-          else
-            compare = Validator.DP_A_Queue(recR, recS, true);
+          int compare = checker.isEqual(recR, recS);
           if (compare >= 0) {
             rslt.add(new IntegerPair(recR.getID(), recS.getID()));
             appliedRules_sum += compare;
@@ -376,11 +246,7 @@ public class JoinHNoIntervalTree extends Algorithm {
             candidatesList.add(e.rec);
         if (skipChecking) continue;
         for (Record recR : candidatesList) {
-          int compare = -1;
-          if (earlyprune)
-            compare = Validator.DP_SingleSidewithEarlyPruning(recR, recS);
-          else
-            compare = Validator.DP_SingleSide(recR, recS);
+          int compare = checker.isEqual(recR, recS);
           if (compare >= 0) {
             rslt.add(new IntegerPair(recR.getID(), recS.getID()));
             appliedRules_sum += compare;
@@ -436,7 +302,7 @@ public class JoinHNoIntervalTree extends Algorithm {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    preprocess();
+    preprocess(compact, maxIndex, useAutomata);
     System.out.print("Preprocess finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
@@ -456,13 +322,6 @@ public class JoinHNoIntervalTree extends Algorithm {
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
-    System.out.println("Comparisons: " + Validator.checked);
-    System.out.println("Total iter entries: " + Validator.niterentry);
-    System.out.println("Total iter rules: " + Validator.niterrules);
-    System.out.println("Total iter matches: " + Validator.nitermatches);
-    System.out.println("Total iter tokens: " + Validator.nitertokens);
-    System.out.println("Early evaled: " + Validator.earlyevaled);
-    System.out.println("Early stopped: " + Validator.earlystopped);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
@@ -478,71 +337,24 @@ public class JoinHNoIntervalTree extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    String[] remainingArgs = parse(args);
-    if (remainingArgs.length != 4) {
-      printUsage();
-      return;
-    }
-    String Rfile = remainingArgs[0];
-    String Sfile = remainingArgs[1];
-    String Rulefile = remainingArgs[2];
-    outputfile = remainingArgs[3];
+    Parameters params = Parameters.parseArgs(args);
+    String Rfile = params.getInputX();
+    String Sfile = params.getInputY();
+    String Rulefile = params.getInputRules();
+    outputfile = params.getOutput();
+
+    // Setup parameters
+    useAutomata = params.isUseACAutomata();
+    skipChecking = params.isSkipChecking();
+    compact = params.isCompact();
+    checker = params.getValidator();
 
     long startTime = System.currentTimeMillis();
     JoinHNoIntervalTree inst = new JoinHNoIntervalTree(Rulefile, Rfile, Sfile);
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
-  }
 
-  private static String[] parse(String[] args) {
-    Options options = buildOptions();
-    CommandLineParser parser = new DefaultParser();
-    CommandLine cmd = null;
-    try {
-      cmd = parser.parse(options, args);
-    } catch (ParseException e) {
-      HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("JoinH", options, true);
-      System.exit(1);
-    }
-    useAutomata = !cmd.hasOption("noautomata");
-    skipChecking = cmd.hasOption("skipequiv");
-    compact = cmd.hasOption("compact");
-    if (compact) useAutomata = false;
-    singleside = cmd.hasOption("singleside");
-    if (cmd.hasOption("n"))
-      maxIndex = Integer.parseInt(cmd.getOptionValue("n"));
-    earlyprune = cmd.hasOption("earlyprune");
-    useMatrix = cmd.hasOption("matrix");
-    useTDMatrix = cmd.hasOption("tdmatrix");
-    if (cmd.hasOption("naivecheck")) {
-      naiveCheck = true;
-      naiveThreshold = Integer.parseInt(cmd.getOptionValue("naivecheck"));
-    }
-    return cmd.getArgs();
-  }
-
-  private static Options buildOptions() {
-    Options options = new Options();
-    options.addOption("n", true, "Maximum index to find minimum point");
-    options.addOption("noautomata", false,
-        "Do not use automata to check equivalency");
-    options.addOption("skipequiv", false, "Skip equivalency check");
-    options.addOption("compact", false, "Use memory-compact version");
-    options.addOption("singleside", false,
-        "Use single-side equiv check algorithm");
-    options.addOption("earlyprune", false, "Use early pruning strategies");
-    options.addOption("matrix", false, "Use matrix in equivalence check");
-    options.addOption("tdmatrix", false,
-        "Use Top-down matrix in equivalence check");
-    options.addOption("naivecheck", true,
-        "<N> Check string equivalence by expanding every strings"
-            + "which have less than N expanded records");
-    return options;
-  }
-
-  private static void printUsage() {
-    System.out.println("Usage : <R file> <S file> <Rule file>");
+    Validator.printStats();
   }
 }

@@ -22,4 +22,15 @@ public abstract class Validator {
       if (si[i] != ti[i]) return false;
     return true;
   }
+
+  public static void printStats() {
+    System.out.println("Comparisons: " + Validator.checked);
+    System.out.println("Total iter entries: " + Validator.niterentry);
+    System.out.println("Total iter rules: " + Validator.niterrules);
+    System.out.println("Total iter matches: " + Validator.nitermatches);
+    System.out.println("Total iter tokens: " + Validator.nitertokens);
+    System.out.println("Early evaled: " + Validator.earlyevaled);
+    System.out.println("Early stopped: " + Validator.earlystopped);
+    System.out.println("Length filtered: " + Validator.filtered);
+  }
 }

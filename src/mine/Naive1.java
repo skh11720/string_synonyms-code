@@ -1,8 +1,6 @@
 package mine;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +10,6 @@ import java.util.List;
 
 import tools.Algorithm;
 import tools.IntegerPair;
-import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
@@ -21,13 +18,10 @@ import tools.StaticFunctions;
  * Expand from both sides
  */
 public class Naive1 extends Algorithm {
-  ArrayList<Record>                   tableR;
   /**
    * Store the original index from expanded string
    */
   HashMap<Record, ArrayList<Integer>> rec2idx;
-  ArrayList<Record>                   tableS;
-  ArrayList<Rule>                     rulelist;
   Rule_ACAutomata                     automata;
   RuleTrie                            ruletrie;
 
@@ -36,12 +30,6 @@ public class Naive1 extends Algorithm {
   protected Naive1(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = -1;
-
-    readRules(rulefile);
-    Record.setStrList(strlist);
-    tableR = readRecords(Rfile, size);
-    tableS = readRecords(Sfile, size);
     automata = new Rule_ACAutomata(rulelist);
     ruletrie = new RuleTrie(rulelist);
   }
@@ -73,33 +61,6 @@ public class Naive1 extends Algorithm {
       idxsize += list.size();
     System.out.println(count + " records are indexed");
     System.out.println("Total index size: " + idxsize);
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-
-    // Add Self rule
-    for (int token : str2int.values())
-      rulelist.add(new Rule(token, token));
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
   }
 
   private class IntegerComparator implements Comparator<Integer> {
