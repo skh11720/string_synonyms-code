@@ -1,8 +1,6 @@
 package mine.hybrid;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +17,6 @@ import tools.IntegerSet;
 import tools.Parameters;
 import tools.Rule;
 import tools.RuleTrie;
-import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
 import tools.WYK_HashSet;
@@ -70,98 +67,22 @@ public class HybridA1 extends Algorithm {
   protected HybridA1(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = -1;
-
-    readRules(rulefile);
-    Record.setStrList(strlist);
-    tableR = readRecords(Rfile, size);
-    tableS = readRecords(Sfile, size);
     idComparator = new RecordIDComparator();
     ruletrie = new RuleTrie(rulelist);
-    Record.setRuleTrie(ruletrie);
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-
-    // Add Self rule
-    for (int token : str2int.values())
-      rulelist.add(new Rule(token, token));
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
   }
 
   private void preprocess() {
-    Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
-
-    long currentTime = System.currentTimeMillis();
-    // Preprocess each records in R
-    long applicableRules = 0;
-    for (Record rec : tableR) {
-      rec.preprocessRules(automata, useAutomata);
-      applicableRules += rec.getNumApplicableRules();
-    }
-    long time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
-    System.out.println(
-        "Avg applicable rules : " + applicableRules + "/" + tableR.size());
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessLengths();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess lengths: " + time);
-
+    super.preprocess(useAutomata);
     if (!compact) {
-      currentTime = System.currentTimeMillis();
+      long currentTime = System.currentTimeMillis();
       for (Record rec : tableR) {
         rec.preprocessAvailableTokens(maxIndex);
       }
-      time = System.currentTimeMillis() - currentTime;
+      for (Record rec : tableS) {
+        rec.preprocessAvailableTokens(maxIndex);
+      }
+      long time = System.currentTimeMillis() - currentTime;
       System.out.println("Preprocess tokens: " + time);
-    }
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessEstimatedRecords();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess est records: " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessSearchRanges();
-      rec.preprocessSuffixApplicableRules();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess for early pruning: " + time);
-
-    // Preprocess each records in S
-    for (Record rec : tableS) {
-      rec.preprocessRules(automata, useAutomata);
-      rec.preprocessLengths();
-      if (!compact) rec.preprocessAvailableTokens(maxIndex);
-      rec.preprocessEstimatedRecords();
-      rec.preprocessSearchRanges();
-      rec.preprocessSuffixApplicableRules();
     }
   }
 

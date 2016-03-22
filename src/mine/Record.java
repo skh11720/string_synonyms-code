@@ -16,62 +16,66 @@ import tools.Rule_ACAutomata;
 import tools.Rule_InverseTrie;
 import tools.StaticFunctions;
 import tools.WYK_HashSet;
+import validator.DefaultValidator;
+import validator.Validator;
 
 public class Record
     implements Comparable<Record>, RecordInterface, RecordInterface.Expanded {
-  protected static List<String> strlist;
-  protected static RuleTrie     atm;
-  protected final int           id;
+  protected static List<String>    strlist;
+  protected static RuleTrie        atm;
+  protected final int              id;
   /**
    * For fast hashing
    */
-  protected boolean             validHashValue        = false;
-  protected int                 hashValue;
+  protected boolean                validHashValue        = false;
+  protected int                    hashValue;
 
   /**
    * Actual tokens
    */
-  protected int[]               tokens;
+  protected int[]                  tokens;
   /**
    * For DynamicMatch.
    * applicableRules[i] contains all the rules which can be applied to the
    * prefix of str[i].
    */
-  protected Rule[][]            applicableRules       = null;
+  protected Rule[][]               applicableRules       = null;
   /**
    * For DynamicMatch.
    * applicableRules[i] contains all the rules which can be applied to the
    * suffix of str[i].
    */
-  protected Rule[][]            suffixApplicableRules = null;
-  protected Rule_InverseTrie    applicableRulesTrie   = null;
+  protected Rule[][]               suffixApplicableRules = null;
+  protected Rule_InverseTrie       applicableRulesTrie   = null;
   /**
    * For {@link algorithm.dynamic.DynamicMatch06_C}
    */
-  protected IntegerSet[]        availableTokens       = null;
+  protected IntegerSet[]           availableTokens       = null;
   /**
    * For Length filter
    */
-  protected int[][]             candidateLengths      = null;
-  protected static final Rule[] EMPTY_RULE            = new Rule[0];
+  protected int[][]                candidateLengths      = null;
+  protected static final Rule[]    EMPTY_RULE            = new Rule[0];
   /**
    * Estimate the number of equivalent records
    */
-  protected long[]              estimated_equivs      = null;
+  protected long[]                 estimated_equivs      = null;
   /**
    * For early pruning of one-side equivalence check.<br/>
    * Suppose that we are computing M[i,j].<br/>
    * If searchrange[i] = l, we may search M[i-l..i,*] only.
    */
-  protected short[]             searchrange           = null;
-  protected short               maxsearchrange        = 1;
+  protected short[]                searchrange           = null;
+  protected short                  maxsearchrange        = 1;
   /**
    * For early pruning of one-side equivalence check.<br/>
    * Suppose that we are computing M[i,j].<br/>
    * If invsearchrange[i] = l, we may search M[*,j-l..j] only.
    */
-  protected short[]             invsearchrange        = null;
-  protected short               maxinvsearchrange     = 1;
+  protected short[]                invsearchrange        = null;
+  protected short                  maxinvsearchrange     = 1;
+
+  protected static final Validator checker               = new DefaultValidator();
 
   private Record() {
     id = -1;
@@ -465,10 +469,10 @@ public class Record
     return rslt;
   }
 
-  public String toString(ArrayList<String> strlist) {
+  public String toString(List<String> strlist2) {
     String rslt = "";
     for (int token : tokens) {
-      rslt += strlist.get(token) + " ";
+      rslt += strlist2.get(token) + " ";
     }
     return rslt;
   }
@@ -514,11 +518,7 @@ public class Record
   @Override
   public double similarity(RecordInterface rec) {
     if (rec.getClass() != Record.class) return 0;
-    int compare = Validator.DP_A_MatrixwithEarlyPruning(this, (Record) rec);
-    // if (applicableRulesTrie == null)
-    // compare = Validator.DP_A_Queue(this, (Record) rec, false);
-    // else
-    // compare = Validator.DP_A_Queue_useACAutomata(this, (Record) rec, true);
+    int compare = checker.isEqual(this, (Record) rec);
     if (compare >= 0)
       return 1;
     else
@@ -548,7 +548,7 @@ public class Record
   @Override
   public double similarity(Expanded rec) {
     if (rec.getClass() != Record.class) return 0;
-    int compare = Validator.DP_A_MatrixwithEarlyPruning(this, (Record) rec);
+    int compare = checker.isEqual(this, (Record) rec);
     if (compare >= 0)
       return 1;
     else

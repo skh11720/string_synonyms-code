@@ -1,7 +1,5 @@
 package sigmod13.modified;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,7 +9,6 @@ import sigmod13.SI_Tree;
 import tools.Algorithm;
 import tools.Pair;
 import tools.Rule;
-import tools.Rule_ACAutomata;
 
 public class SI_SelfJoin_Modified extends Algorithm {
   ArrayList<Record> table;
@@ -20,65 +17,15 @@ public class SI_SelfJoin_Modified extends Algorithm {
   public SI_SelfJoin_Modified(String DBR_file, String rulefile)
       throws IOException {
     super(rulefile, DBR_file, DBR_file);
-    int size = -1;
-    readRules(rulefile);
-    table = readRecords(DBR_file, size);
   }
 
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
-  }
-
-  private void preprocess() {
-    Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
-
+  protected void preprocess() {
     long currentTime = System.currentTimeMillis();
-    // Preprocess each records in R
-    for (Record rec : table) {
-      rec.preprocessRules(automata, false);
-    }
-    long time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : table) {
-      rec.preprocessLengths();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess lengths: " + time);
-
-    currentTime = System.currentTimeMillis();
     for (Record rec : table) {
       rec.preprocessAvailableTokens(1);
     }
-    time = System.currentTimeMillis() - currentTime;
+    long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess available tokens: " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : table) {
-      rec.preprocessEstimatedRecords();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess est records: " + time);
   }
 
   public void run(double threshold, int filterType) throws IOException {

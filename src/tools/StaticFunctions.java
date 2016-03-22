@@ -312,5 +312,4 @@ public class StaticFunctions {
     return rule.getFrom()[0] == rule.getTo()[0] && rule.getFrom().length == 1
         && rule.getTo().length == 1;
   }
-
 }

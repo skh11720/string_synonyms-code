@@ -69,9 +69,9 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
     };
   }
 
-  public SI_Tree(double theta, ITF_Filter filter, ArrayList<T> records) {
+  public SI_Tree(double theta, ITF_Filter filter, List<T> tableR) {
     this(theta, filter);
-    for (T rec : records)
+    for (T rec : tableR)
       add(rec);
   }
 
@@ -213,8 +213,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
             ++set_union_count;
             set_union_sum += candidates.size();
             // results.addAll(union_candidates);
-            if(skipEquiCheck)
-              continue;
+            if (skipEquiCheck) continue;
             for (Pair<T> p : union_candidates) {
               T rec1 = p.rec1;
               T rec2 = p.rec2;

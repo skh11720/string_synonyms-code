@@ -1,11 +1,8 @@
 package sigmod13.modified;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -19,105 +16,15 @@ import mine.Record;
 import sigmod13.SI_Tree;
 import tools.Algorithm;
 import tools.Pair;
-import tools.Rule;
-import tools.Rule_ACAutomata;
 
 public class SI_Join_Modified extends Algorithm {
-  static boolean    compact = true;
-  ArrayList<Record> tableR;
-  ArrayList<Record> tableS;
-  ArrayList<Rule>   rulelist;
-
   public SI_Join_Modified(String DBR_file, String DBS_file, String rulefile)
       throws IOException {
     super(rulefile, DBR_file, DBS_file);
-    int size = 1000000;
-    readRules(rulefile);
-    Record.setStrList(strlist);
-    tableR = readRecords(DBR_file, size);
-    tableS = readRecords(DBS_file, size);
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-
-    // Add Self rule
-    for (int token : str2int.values())
-      rulelist.add(new Rule(token, token));
-  }
-
-  private ArrayList<Record> readRecords(String DBfile, int num)
-      throws IOException {
-    ArrayList<Record> rslt = new ArrayList<Record>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new Record(rslt.size(), line, str2int));
-      --num;
-    }
-    br.close();
-    return rslt;
-  }
-
-  private void preprocess() {
-    Rule_ACAutomata automata = new Rule_ACAutomata(rulelist);
-
-    long currentTime = System.currentTimeMillis();
-    // Preprocess each records in R
-    for (Record rec : tableR) {
-      rec.preprocessRules(automata, false);
-    }
-    long time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess rules : " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessLengths();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess lengths: " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessAvailableTokens(1);
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess tokens: " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessEstimatedRecords();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess est records: " + time);
-
-    currentTime = System.currentTimeMillis();
-    for (Record rec : tableR) {
-      rec.preprocessSearchRanges();
-      rec.preprocessSuffixApplicableRules();
-    }
-    time = System.currentTimeMillis() - currentTime;
-    System.out.println("Preprocess for early pruning: " + time);
-
-    // Preprocess each records in S
-    for (Record rec : tableS) {
-      rec.preprocessRules(automata, false);
-      rec.preprocessLengths();
-      rec.preprocessAvailableTokens(1);
-      rec.preprocessEstimatedRecords();
-      rec.preprocessSearchRanges();
-      rec.preprocessSuffixApplicableRules();
-    }
   }
 
   public void run() throws IOException {
-    preprocess();
+    preprocess(false);
     // BufferedReader br = new BufferedReader(new
     // InputStreamReader(System.in));
     // br.readLine();
@@ -201,7 +108,7 @@ public class SI_Join_Modified extends Algorithm {
       cmd = parser.parse(options, args);
     } catch (ParseException e) {
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("JoinH", options, true);
+      formatter.printHelp("SI_Join_Modified", options, true);
       System.exit(1);
     }
     SI_Tree.skipEquiCheck = cmd.hasOption("skipequiv");

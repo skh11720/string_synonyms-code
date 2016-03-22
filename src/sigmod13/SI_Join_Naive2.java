@@ -1,7 +1,5 @@
 package sigmod13;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +15,6 @@ import tools.Algorithm;
 import tools.IntegerMap;
 import tools.Pair;
 import tools.Rule;
-import tools.Rule_ACAutomata;
 
 /**
  * SI-Join algorithm which does not miss answer.
@@ -35,34 +32,6 @@ public class SI_Join_Naive2 extends Algorithm {
   public SI_Join_Naive2(String DBR_file, String DBS_file, String rulefile)
       throws IOException {
     super(rulefile, DBR_file, DBS_file);
-    int size = -1;
-    readRules(rulefile);
-    tableR = readRecords(DBR_file, size);
-    tableS = readRecords(DBS_file, size);
-  }
-
-  private void readRules(String Rulefile) throws IOException {
-    rulelist = new ArrayList<Rule>();
-    BufferedReader br = new BufferedReader(new FileReader(Rulefile));
-    String line;
-    while ((line = br.readLine()) != null) {
-      rulelist.add(new Rule(line, str2int));
-    }
-    br.close();
-  }
-
-  private ArrayList<SIRecord> readRecords(String DBfile, int num)
-      throws IOException {
-    Rule_ACAutomata ruleAC = new Rule_ACAutomata(rulelist);
-    ArrayList<SIRecord> rslt = new ArrayList<SIRecord>();
-    BufferedReader br = new BufferedReader(new FileReader(DBfile));
-    String line;
-    while ((line = br.readLine()) != null && num != 0) {
-      rslt.add(new SIRecord(rslt.size(), line, str2int, ruleAC));
-      --num;
-    }
-    br.close();
-    return rslt;
   }
 
   private void buildMap() {
@@ -111,8 +80,8 @@ public class SI_Join_Naive2 extends Algorithm {
     idxR = new IntegerMap<HashSet<SIRecordExpanded>>();
     idxS = new IntegerMap<HashSet<SIRecordExpanded>>();
     for (SIRecordExpanded exp : mapR.keySet()) {
-      int prefix_size = exp.size()
-          - (int) Math.ceil(threshold * exp.size()) + 1;
+      int prefix_size = exp.size() - (int) Math.ceil(threshold * exp.size())
+          + 1;
       HashSet<Integer> sigset = filterR.filter(exp, prefix_size);
       for (Integer sig : sigset) {
         if (!idxR.containsKey(sig))
@@ -121,8 +90,8 @@ public class SI_Join_Naive2 extends Algorithm {
       }
     }
     for (SIRecordExpanded exp : mapS.keySet()) {
-      int prefix_size = exp.size()
-          - (int) Math.ceil(threshold * exp.size()) + 1;
+      int prefix_size = exp.size() - (int) Math.ceil(threshold * exp.size())
+          + 1;
       HashSet<Integer> sigset = filterS.filter(exp, prefix_size);
       for (Integer sig : sigset) {
         if (!idxS.containsKey(sig))
