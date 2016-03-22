@@ -36,9 +36,6 @@ public class HybridA2 extends Algorithm {
   static boolean                                     singleside;
   static Validator                                   checker;
 
-  ArrayList<Record>                                  tableR;
-  ArrayList<Record>                                  tableS;
-  ArrayList<Rule>                                    rulelist;
   RecordIDComparator                                 idComparator;
   RuleTrie                                           ruletrie;
 
