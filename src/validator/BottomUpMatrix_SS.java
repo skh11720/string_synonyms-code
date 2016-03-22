@@ -16,8 +16,6 @@ public class BottomUpMatrix_SS extends Validator {
    * Temporary matrix to save sum of matrix values
    */
   private static int[][] P            = new int[1][0];
-  public static long     earlyevaled  = 0;
-  public static long     earlystopped = 0;
 
   public BottomUpMatrix_SS(boolean useEE, boolean useEP) {
     this.useEE = useEE;

@@ -10,26 +10,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-
 import mine.Record;
 import mine.RecordIDComparator;
-import mine.Validator;
 import tools.Algorithm;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
 import tools.IntegerSet;
+import tools.Parameters;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
 import tools.WYK_HashSet;
+import validator.Validator;
 
 /**
  * Given threshold, if a record has more than 'threshold' 1-expandable strings,
@@ -42,13 +36,9 @@ public class HybridA1 extends Algorithm {
   static boolean                                     skipChecking = false;
   static int                                         maxIndex     = Integer.MAX_VALUE;
   static boolean                                     compact      = false;
-  static boolean                                     singleside   = false;
-  static boolean                                     earlyprune   = false;
-  static boolean                                     useMatrix    = false;
-  static boolean                                     useTDMatrix  = false;
-  static boolean                                     naiveCheck   = false;
-  static int                                         naiveThreshold;
   static int                                         joinThreshold;
+  static boolean                                     singleside;
+  static Validator                                   checker;
 
   ArrayList<Record>                                  tableR;
   ArrayList<Record>                                  tableS;
@@ -357,38 +347,8 @@ public class HybridA1 extends Algorithm {
       List<Record> candidates = StaticFunctions.union(candidatesList,
           idComparator);
       if (skipChecking) continue;
-      List<Record> expandedS = naiveCheck
-          && s.getEstNumRecords() < naiveThreshold ? s.expandAll() : null;
       for (Record recR : candidates) {
-        int compare = -1;
-        // Use naive method
-        if (naiveCheck) {
-          if (recR.getEstNumRecords() < naiveThreshold
-              && s.getEstNumRecords() < naiveThreshold) {
-            assert (expandedS != null);
-            assert (expandedS.size() > 0);
-            compare = Validator.NaiveDoubleSide(expandedS, recR);
-          }
-          // If cannot expand every record, simply use DP_A_Matrix
-          else
-            compare = Validator.DP_A_MatrixwithEarlyPruning(recR, s);
-        }
-        // Use Top-down matrix
-        else if (useTDMatrix)
-          compare = Validator.DP_A_TopdownMatrix(recR, s);
-        // Use matrix
-        else if (useMatrix) {
-          if (earlyprune)
-            compare = Validator.DP_A_MatrixwithEarlyPruning(recR, s);
-          else
-            compare = Validator.DP_A_Matrix(recR, s);
-        }
-        // Utilize pre-built per-record automata
-        else if (useAutomata)
-          compare = Validator.DP_A_Queue_useACAutomata(recR, s, true);
-        // Do not utilize any extra resource except list of applicable rules
-        else
-          compare = Validator.DP_A_Queue(recR, s, true);
+        int compare = checker.isEqual(recR, s);
         if (compare >= 0) {
           rslt.add(new IntegerPair(recR.getID(), s.getID()));
           appliedRules_sum += compare;
@@ -495,11 +455,7 @@ public class HybridA1 extends Algorithm {
             candidatesList.add(e.rec);
         if (skipChecking) continue;
         for (Record recR : candidatesList) {
-          int compare = -1;
-          if (earlyprune)
-            compare = Validator.DP_SingleSidewithEarlyPruning(recR, recS);
-          else
-            compare = Validator.DP_SingleSide(recR, recS);
+          int compare = checker.isEqual(recR, recS);
           if (compare >= 0) {
             rslt.add(new IntegerPair(recR.getID(), recS.getID()));
             appliedRules_sum += compare;
@@ -597,73 +553,25 @@ public class HybridA1 extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    String[] remainingArgs = parse(args);
-    if (remainingArgs.length != 5) {
-      printUsage();
-      return;
-    }
-    String Rfile = remainingArgs[0];
-    String Sfile = remainingArgs[1];
-    String Rulefile = remainingArgs[2];
-    joinThreshold = Integer.parseInt(remainingArgs[3]);
-    outputfile = remainingArgs[4];
+    Parameters params = Parameters.parseArgs(args);
+    String Rfile = params.getInputX();
+    String Sfile = params.getInputY();
+    String Rulefile = params.getInputRules();
+    outputfile = params.getOutput();
+
+    // Setup parameters
+    useAutomata = params.isUseACAutomata();
+    skipChecking = params.isSkipChecking();
+    maxIndex = params.getMaxIndex();
+    compact = params.isCompact();
+    joinThreshold = params.getJoinThreshold();
+    singleside = params.isSingleside();
+    checker = params.getValidator();
 
     long startTime = System.currentTimeMillis();
     HybridA1 inst = new HybridA1(Rulefile, Rfile, Sfile);
     System.out.print("Constructor finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     inst.run();
-  }
-
-  private static String[] parse(String[] args) {
-    Options options = buildOptions();
-    CommandLineParser parser = new DefaultParser();
-    CommandLine cmd = null;
-    try {
-      cmd = parser.parse(options, args);
-    } catch (ParseException e) {
-      HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("JoinH", options, true);
-      System.exit(1);
-    }
-    useAutomata = !cmd.hasOption("noautomata");
-    skipChecking = cmd.hasOption("skipequiv");
-    compact = cmd.hasOption("compact");
-    if (compact) useAutomata = false;
-    singleside = cmd.hasOption("singleside");
-    if (cmd.hasOption("n"))
-      maxIndex = Integer.parseInt(cmd.getOptionValue("n"));
-    earlyprune = cmd.hasOption("earlyprune");
-    useMatrix = cmd.hasOption("matrix");
-    useTDMatrix = cmd.hasOption("tdmatrix");
-    if (cmd.hasOption("naivecheck")) {
-      naiveCheck = true;
-      naiveThreshold = Integer.parseInt(cmd.getOptionValue("naivecheck"));
-    }
-    return cmd.getArgs();
-  }
-
-  private static Options buildOptions() {
-    Options options = new Options();
-    options.addOption("n", true, "Maximum index to find minimum point");
-    options.addOption("noautomata", false,
-        "Do not use automata to check equivalency");
-    options.addOption("skipequiv", false, "Skip equivalency check");
-    options.addOption("compact", false, "Use memory-compact version");
-    options.addOption("singleside", false,
-        "Use single-side equiv check algorithm");
-    options.addOption("earlyprune", false, "Use early pruning strategies");
-    options.addOption("matrix", false, "Use matrix in equivalence check");
-    options.addOption("tdmatrix", false,
-        "Use Top-down matrix in equivalence check");
-    options.addOption("naivecheck", true,
-        "<N> Check string equivalence by expanding every strings"
-            + "which have less than N expanded records");
-    return options;
-  }
-
-  private static void printUsage() {
-    System.out.println(
-        "Usage : <R file> <S file> <Rule file> <join threhsold> <output file>");
   }
 }

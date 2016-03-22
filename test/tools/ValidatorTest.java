@@ -14,7 +14,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import mine.Record;
-import mine.Validator;
+import validator.BottomUpMatrix_DS;
+import validator.BottomUpMatrix_SS;
+import validator.TopDownMatrix_DS;
+import validator.Validator;
 
 public class ValidatorTest {
   private static Map<String, Integer> str2int;
@@ -85,7 +88,8 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B, x", "D, d" };
     build(str1, str2, rulearray);
-    Validator.DP_A_MatrixwithEarlyPruning(s, t);
+    Validator checker = new BottomUpMatrix_DS(true, true);
+    checker.isEqual(s, t);
   }
 
   @Test
@@ -94,7 +98,8 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
-    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    Validator checker = new TopDownMatrix_DS();
+    int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual >= 0);
   }
 
@@ -105,7 +110,8 @@ public class ValidatorTest {
     String[] rulearray = new String[] { "A, a", "B C, x y", "D, w", "b, x",
         "c d, y w" };
     build(str1, str2, rulearray);
-    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    Validator checker = new TopDownMatrix_DS();
+    int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual >= 0);
   }
 
@@ -116,7 +122,8 @@ public class ValidatorTest {
     String[] rulearray = new String[] { "A, ㄱ", "B C, ㄴ ㄷ", "D, ㄹ", "E F, ㅁ ㅂ",
         "a b, ㄱ ㄴ", "c d, ㄷ ㄹ ㅁ", "e, ㅂ" };
     build(str1, str2, rulearray);
-    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    Validator checker = new TopDownMatrix_DS();
+    int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual >= 0);
   }
 
@@ -126,7 +133,8 @@ public class ValidatorTest {
     String str2 = "a b c d";
     String[] rulearray = new String[] { "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
-    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    Validator checker = new TopDownMatrix_DS();
+    int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual < 0);
   }
 
@@ -137,7 +145,8 @@ public class ValidatorTest {
     String[] rulearray = new String[] { "A, a", "B C, u y", "D, w", "b, x",
         "c d, y, w" };
     build(str1, str2, rulearray);
-    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    Validator checker = new TopDownMatrix_DS();
+    int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual < 0);
   }
 
@@ -148,7 +157,8 @@ public class ValidatorTest {
     String[] rulearray = new String[] { "A, ㄱ", "B C, ㄴ ㄷ", "D, ㄹ", "E F, ㅁ ㅂ",
         "a b, ㄱ ㄴ", "c d, ㄷ ㄹ ㅁ", "e, ㅂ" };
     build(str1, str2, rulearray);
-    int isEqual = Validator.DP_A_TopdownMatrix(s, t);
+    Validator checker = new TopDownMatrix_DS();
+    int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual < 0);
   }
 
@@ -162,7 +172,8 @@ public class ValidatorTest {
    */
   private void checkSSEP(long evaledentry, long earlyed, long evaledrules,
       boolean ep, int answer) {
-    int result = Validator.DP_SingleSidewithEarlyPruning(s, t);
+    Validator checker = new BottomUpMatrix_SS(true, true);
+    int result = checker.isEqual(s, t);
     assertEquals(evaledentry, Validator.niterentry);
     assertEquals(earlyed, Validator.earlyevaled);
     assertEquals(evaledrules, Validator.niterrules);
@@ -171,7 +182,8 @@ public class ValidatorTest {
   }
 
   private void checkSS(long evaledentry, long evaledrules, int answer) {
-    int result = Validator.DP_SingleSide(s, t);
+    Validator checker = new BottomUpMatrix_SS(false, false);
+    int result = checker.isEqual(s, t);
     assertEquals(evaledentry, Validator.niterentry);
     assertEquals(evaledrules, Validator.niterrules);
     assertEquals(answer, result);
@@ -179,7 +191,8 @@ public class ValidatorTest {
 
   private void checkDSEP(long evaledentry, long earlyed, long evaledrules,
       long evaledmatches, boolean ep, int answer) {
-    int result = Validator.DP_A_MatrixwithEarlyPruning(s, t);
+    Validator checker = new BottomUpMatrix_DS(true, true);
+    int result = checker.isEqual(s, t);
     assertEquals(evaledentry, Validator.niterentry);
     assertEquals(earlyed, Validator.earlyevaled);
     assertEquals(evaledrules, Validator.niterrules);
@@ -190,7 +203,8 @@ public class ValidatorTest {
 
   private void checkDS(long evaledentry, long evaledrules, long evaledmatches,
       int answer) {
-    int result = Validator.DP_A_Matrix(s, t);
+    Validator checker = new BottomUpMatrix_DS(false, false);
+    int result = checker.isEqual(s, t);
     assertEquals(evaledentry, Validator.niterentry);
     assertEquals(evaledrules, Validator.niterrules);
     assertEquals(evaledmatches, Validator.nitermatches);
