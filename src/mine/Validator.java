@@ -1103,7 +1103,7 @@ public class Validator {
           Mx[i][j] = new HashMap();
           My[i][j] = new HashMap();
         }
-      Mx[0][0].put(EQUALMATCH, true);
+      My[0][0].put(EQUALMATCH, true);
     }
   }
 
@@ -1115,6 +1115,7 @@ public class Validator {
      */
     enlargeDSTDMatrix(x.size(), y.size());
     clearMatrix(x, y);
+    assert (My[0][0].size() == 1);
     boolean isEqual = getMyEqual(x, y, x.size(), y.size());
     if (isEqual)
       return 1;
@@ -1123,9 +1124,10 @@ public class Validator {
   }
 
   private static void clearMatrix(Record x, Record y) {
-    for (int i = 1; i <= x.size(); ++i)
-      for (int j = 1; j <= y.size(); ++j) {
+    for (int i = 0; i <= x.size(); ++i)
+      for (int j = 0; j <= y.size(); ++j) {
         Mx[i][j].clear();
+        if (i == 0 && j == 0) continue;
         My[i][j].clear();
       }
   }
@@ -1140,12 +1142,15 @@ public class Validator {
     Boolean rslt = Mx[i][j].get(remain);
     if (rslt != null) return rslt;
     // Check every rule which is applicable to a suffix of x[1..i]
+    ++niterentry;
     if (i == 0) return false;
     Rule[] rules = x.getSuffixApplicableRules(i - 1);
     assert (rules != null);
     assert (rules.length != 0);
     int[] str = remain.rule.getTo();
-    for (Rule rule : rules) {
+    for (int ridx = 0; ridx < rules.length; ++ridx) {
+      Rule rule = rules[ridx];
+      ++niterrules;
       int[] rhs = rule.getTo();
       int lhslength = rule.getFrom().length;
       int rhsidx = rhs.length - 1;
@@ -1163,8 +1168,8 @@ public class Validator {
       boolean prevM = false;
       // r.rhs is shorter than remain
       if (rhs.length < remain.idx) {
-        assert (remainidx == -1);
-        assert (rhsidx >= 0);
+        assert (remainidx >= 0);
+        assert (rhsidx == -1);
         Submatch prevmatch = new Submatch(remain);
         prevmatch.idx -= rhs.length;
         // Retrieve Mx[i-|r.lhs|][j][remain - r.rhs]
@@ -1172,8 +1177,8 @@ public class Validator {
       }
       // remain is shorter than r.rhs
       else if (rhs.length > remain.idx) {
-        assert (remainidx >= 0);
-        assert (rhsidx == -1);
+        assert (remainidx == -1);
+        assert (rhsidx >= 0);
         Submatch prevmatch = new Submatch(rule, false, rhs.length - remain.idx,
             0);
         // Retrieve My[i-|r.lhs|][j][remain - r.rhs]
@@ -1206,12 +1211,15 @@ public class Validator {
     Boolean rslt = My[i][j].get(remain);
     if (rslt != null) return rslt;
     // Check every rule which is applicable to a suffix of y[1..j]
+    ++niterentry;
     if (j == 0) return false;
     Rule[] rules = y.getSuffixApplicableRules(j - 1);
     assert (rules != null);
     assert (rules.length != 0);
     int[] str = remain.rule.getTo();
-    for (Rule rule : rules) {
+    for (int ridx = 0; ridx < rules.length; ++ridx) {
+      Rule rule = rules[ridx];
+      ++niterrules;
       int[] rhs = rule.getTo();
       int lhslength = rule.getFrom().length;
       int rhsidx = rhs.length - 1;
@@ -1229,8 +1237,8 @@ public class Validator {
       boolean prevM = false;
       // r.rhs is shorter than remain
       if (rhs.length < remain.idx) {
-        assert (remainidx == -1);
-        assert (rhsidx >= 0);
+        assert (remainidx >= 0);
+        assert (rhsidx == -1);
         Submatch prevmatch = new Submatch(remain);
         prevmatch.idx -= rhs.length;
         // Retrieve My[i][j-|r.lhs|][remain - r.rhs]
@@ -1238,8 +1246,8 @@ public class Validator {
       }
       // remain is shorter than r.rhs
       else if (rhs.length > remain.idx) {
-        assert (remainidx >= 0);
-        assert (rhsidx == -1);
+        assert (remainidx == -1);
+        assert (rhsidx >= 0);
         Submatch prevmatch = new Submatch(rule, false, rhs.length - remain.idx,
             0);
         // Retrieve Mx[i][j-|r.lhs|][remain - r.rhs]
@@ -1271,11 +1279,14 @@ public class Validator {
     Boolean rslt = My[i][j].get(EQUALMATCH);
     if (rslt != null) return rslt;
     // Check every xule which is applicable to a suffix of y[1..j]
+    ++niterentry;
     if (j == 0) return i == 0;
     Rule[] rules = y.getSuffixApplicableRules(j - 1);
     assert (rules != null);
     assert (rules.length != 0);
-    for (Rule rule : rules) {
+    for (int ridx = 0; ridx < rules.length; ++ridx) {
+      Rule rule = rules[ridx];
+      ++niterrules;
       boolean prevM = false;
       Submatch prevmatch = new Submatch(rule, false, rule.getTo().length, 0);
       prevM = getMx(x, y, i, j - rule.getFrom().length, prevmatch);

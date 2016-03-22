@@ -94,11 +94,15 @@ public class JoinDNoIntervalTree extends Algorithm {
 
     long currentTime = System.currentTimeMillis();
     // Preprocess each records in R
+    long applicableRules = 0;
     for (Record rec : tableR) {
       rec.preprocessRules(automata, useAutomata);
+      applicableRules += rec.getNumApplicableRules();
     }
     long time = System.currentTimeMillis() - currentTime;
     System.out.println("Preprocess rules : " + time);
+    System.out.println(
+        "Avg applicable rules : " + applicableRules + "/" + tableR.size());
 
     currentTime = System.currentTimeMillis();
     for (Record rec : tableR) {
@@ -133,7 +137,7 @@ public class JoinDNoIntervalTree extends Algorithm {
 
     // Preprocess each records in S
     for (Record rec : tableS) {
-      rec.preprocessRules(automata, true);
+      rec.preprocessRules(automata, useAutomata);
       rec.preprocessLengths();
       if (!compact) rec.preprocessAvailableTokens(a);
       rec.preprocessEstimatedRecords();

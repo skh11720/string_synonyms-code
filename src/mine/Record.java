@@ -514,7 +514,7 @@ public class Record
   @Override
   public double similarity(RecordInterface rec) {
     if (rec.getClass() != Record.class) return 0;
-    int compare = Validator.DP_A_TopdownMatrix(this, (Record) rec);
+    int compare = Validator.DP_A_MatrixwithEarlyPruning(this, (Record) rec);
     // if (applicableRulesTrie == null)
     // compare = Validator.DP_A_Queue(this, (Record) rec, false);
     // else
@@ -548,7 +548,7 @@ public class Record
   @Override
   public double similarity(Expanded rec) {
     if (rec.getClass() != Record.class) return 0;
-    int compare = Validator.DP_A_TopdownMatrix(this, (Record) rec);
+    int compare = Validator.DP_A_MatrixwithEarlyPruning(this, (Record) rec);
     if (compare >= 0)
       return 1;
     else
