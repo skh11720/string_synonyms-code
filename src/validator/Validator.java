@@ -3,14 +3,15 @@ package validator;
 import mine.Record;
 
 public abstract class Validator {
-  public static int checked;
-  public static int niterentry;
-  public static int niterrules;
-  public static int nitermatches;
-  public static int nitertokens;
-  public static int earlyevaled;
-  public static int earlystopped;
-  public static int filtered;
+  public static long checked;
+  public static long recursivecalls;
+  public static long niterentry;
+  public static long niterrules;
+  public static long nitermatches;
+  public static long nitertokens;
+  public static long earlyevaled;
+  public static long earlystopped;
+  public static long filtered;
 
   public abstract int isEqual(Record x, Record y);
 
@@ -25,6 +26,7 @@ public abstract class Validator {
 
   public static void printStats() {
     System.out.println("Comparisons: " + Validator.checked);
+    System.out.println("Total recursive calls: " + Validator.recursivecalls);
     System.out.println("Total iter entries: " + Validator.niterentry);
     System.out.println("Total iter rules: " + Validator.niterrules);
     System.out.println("Total iter matches: " + Validator.nitermatches);

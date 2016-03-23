@@ -11,15 +11,41 @@ public class TopDownMatrix_DS extends Validator {
   private static class Submatch {
     Rule rule;
     int  idx;
+    int  hash;
 
     Submatch(Rule rule, int idx) {
       this.rule = rule;
       this.idx = idx;
+      if (rule != null) {
+        int[] s = rule.getTo();
+        for (int i = 0; i < idx; ++i)
+          hash += s[i];
+        hash += idx;
+      }
     }
 
     Submatch(Submatch o) {
       this.rule = o.rule;
       this.idx = o.idx;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (o.getClass() != Submatch.class) return false;
+      Submatch os = (Submatch) o;
+      if (idx != os.idx)
+        return false;
+      else if (hash != os.hash) return false;
+      int[] s1 = rule.getTo();
+      int[] s2 = os.rule.getTo();
+      for (int i = 0; i < idx; ++i)
+        if (s1[i] != s2[i]) return false;
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return hash;
     }
   }
 
@@ -91,6 +117,7 @@ public class TopDownMatrix_DS extends Validator {
    */
   private static boolean getMx(Record x, Record y, int i, int j,
       Submatch remain) {
+    ++recursivecalls;
     // If this value is already computed, simply return the computed value.
     Boolean rslt = Mx[i][j].get(remain);
     if (rslt != null) return rslt;
@@ -159,6 +186,7 @@ public class TopDownMatrix_DS extends Validator {
    */
   private static boolean getMy(Record x, Record y, int i, int j,
       Submatch remain) {
+    ++recursivecalls;
     // If this value is already computed, simply return the computed value.
     Boolean rslt = My[i][j].get(remain);
     if (rslt != null) return rslt;
@@ -226,6 +254,7 @@ public class TopDownMatrix_DS extends Validator {
    * If the value is not computed, compute and then return the value.
    */
   private static boolean getMyEqual(Record x, Record y, int i, int j) {
+    ++recursivecalls;
     // If this value is already computed, simply return the computed value.
     Boolean rslt = My[i][j].get(EQUALMATCH);
     if (rslt != null) return rslt;

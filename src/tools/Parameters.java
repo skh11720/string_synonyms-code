@@ -7,6 +7,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import validator.BottomUpMatrixSinglePath_DS;
 import validator.BottomUpMatrix_DS;
 import validator.BottomUpMatrix_SS;
 import validator.BottomUpQueue_DS;
@@ -33,7 +34,8 @@ public class Parameters {
         "Do not use length filter strategies");
     options.addOption(Option.builder("v").argName("VALIDATOR")
         .desc("BottomUpMatrixDS: \n" + "BottomUpMatrixSS: \n"
-            + "BottomUpQueue: \n" + "TopDownMatrixDS: \n" + "Naive: ")
+            + "BottomUpQueue: \n" + "TopDownMatrixDS: \n" + "Naive: "
+            + "BottomUpMatrixSinglePathDS: \n")
         .numberOfArgs(2).build());
     options
         .addOption(
@@ -91,6 +93,9 @@ public class Parameters {
         case Naive:
           param.validator = new Naive_DS(vthreshold);
           break;
+        case BottomUpMatrixSinglePathDS:
+          param.validator = new BottomUpMatrixSinglePath_DS();
+          break;
         default:
           throw new Exception("Unknown validator name");
       }
@@ -112,7 +117,7 @@ public class Parameters {
   }
 
   private enum ValidatorName {
-    BottomUpMatrixDS, BottomUpMatrixSS, BottomUpQueueDS, TopDownMatrixDS, Naive
+    BottomUpMatrixDS, BottomUpMatrixSS, BottomUpQueueDS, TopDownMatrixDS, Naive, BottomUpMatrixSinglePathDS
   }
 
   boolean   useACAutomata   = false;
