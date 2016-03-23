@@ -16,7 +16,7 @@ import org.junit.Test;
 import mine.Record;
 import validator.BottomUpMatrix_DS;
 import validator.BottomUpMatrix_SS;
-import validator.TopDownMatrix_DS;
+import validator.TopDownHashSetSinglePath_DS;
 import validator.Validator;
 
 public class ValidatorTest {
@@ -24,6 +24,7 @@ public class ValidatorTest {
   private static List<String>         int2str;
   private static Record               s;
   private static Record               t;
+  private static Validator            checker;
 
   @BeforeClass
   public static void beforeclass() {
@@ -36,6 +37,8 @@ public class ValidatorTest {
     str2int.clear();
     int2str.clear();
     clearStats();
+    // checker = new BottomUpHashSetSinglePath_DS();
+    checker = new TopDownHashSetSinglePath_DS();
   }
 
   @Test
@@ -93,71 +96,76 @@ public class ValidatorTest {
   }
 
   @Test
-  public void testEqualStringTopDown1() {
+  public void testEqualString1() {
     String str1 = "A B C D";
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
-    Validator checker = new TopDownMatrix_DS();
     int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual >= 0);
   }
 
   @Test
-  public void testEqualStringTopDown2() {
+  public void testEqualString2() {
     String str1 = "A B C D";
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B C, x y", "D, w", "b, x",
         "c d, y w" };
     build(str1, str2, rulearray);
-    Validator checker = new TopDownMatrix_DS();
     int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual >= 0);
   }
 
   @Test
-  public void testEqualStringTopDown3() {
+  public void testEqualString3() {
     String str1 = "A B C D E F";
     String str2 = "a b c d e";
     String[] rulearray = new String[] { "A, ㄱ", "B C, ㄴ ㄷ", "D, ㄹ", "E F, ㅁ ㅂ",
         "a b, ㄱ ㄴ", "c d, ㄷ ㄹ ㅁ", "e, ㅂ" };
     build(str1, str2, rulearray);
-    Validator checker = new TopDownMatrix_DS();
     int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual >= 0);
   }
 
   @Test
-  public void testNotEqualStringTopDown1() {
+  public void testNotEqualString1() {
     String str1 = "A B C D";
     String str2 = "a b c d";
     String[] rulearray = new String[] { "B, x", "B C, b c", "D, d" };
     build(str1, str2, rulearray);
-    Validator checker = new TopDownMatrix_DS();
     int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual < 0);
   }
 
   @Test
-  public void testNotEqualStringTopDown2() {
+  public void testNotEqualString2() {
     String str1 = "A B C D";
     String str2 = "a b c d";
     String[] rulearray = new String[] { "A, a", "B C, u y", "D, w", "b, x",
         "c d, y, w" };
     build(str1, str2, rulearray);
-    Validator checker = new TopDownMatrix_DS();
     int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual < 0);
   }
 
   @Test
-  public void testNotEqualStringTopDown3() {
+  public void testNotEqualString3() {
     String str1 = "A B C D E F";
     String str2 = "a b c d e f";
     String[] rulearray = new String[] { "A, ㄱ", "B C, ㄴ ㄷ", "D, ㄹ", "E F, ㅁ ㅂ",
         "a b, ㄱ ㄴ", "c d, ㄷ ㄹ ㅁ", "e, ㅂ" };
     build(str1, str2, rulearray);
-    Validator checker = new TopDownMatrix_DS();
+    int isEqual = checker.isEqual(s, t);
+    assertTrue(isEqual < 0);
+  }
+
+  @Test
+  public void testNotEqualString4() {
+    String str1 = "A B C D";
+    String str2 = "a b c d";
+    String[] rulearray = new String[] { "A, a", "B, b", "C, x", "D, y", "c, x",
+        "b c, b x" };
+    build(str1, str2, rulearray);
     int isEqual = checker.isEqual(s, t);
     assertTrue(isEqual < 0);
   }

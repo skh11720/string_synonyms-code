@@ -7,11 +7,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import validator.BottomUpHashSetSinglePath_DS;
 import validator.BottomUpMatrixSinglePath_DS;
 import validator.BottomUpMatrix_DS;
 import validator.BottomUpMatrix_SS;
 import validator.BottomUpQueue_DS;
 import validator.Naive_DS;
+import validator.TopDownHashSetSinglePath_DS;
 import validator.TopDownMatrix_DS;
 import validator.Validator;
 
@@ -96,6 +98,12 @@ public class Parameters {
         case BottomUpMatrixSinglePathDS:
           param.validator = new BottomUpMatrixSinglePath_DS();
           break;
+        case BottomUpHashSetSinglePathDS:
+          param.validator = new BottomUpHashSetSinglePath_DS();
+          break;
+        case TopDownHashSetSinglePathDS:
+          param.validator = new TopDownHashSetSinglePath_DS();
+          break;
         default:
           throw new Exception("Unknown validator name");
       }
@@ -117,7 +125,14 @@ public class Parameters {
   }
 
   private enum ValidatorName {
-    BottomUpMatrixDS, BottomUpMatrixSS, BottomUpQueueDS, TopDownMatrixDS, Naive, BottomUpMatrixSinglePathDS
+    BottomUpMatrixDS,
+    BottomUpMatrixSS,
+    BottomUpQueueDS,
+    TopDownMatrixDS,
+    Naive,
+    BottomUpMatrixSinglePathDS,
+    BottomUpHashSetSinglePathDS,
+    TopDownHashSetSinglePathDS
   }
 
   boolean   useACAutomata   = false;
