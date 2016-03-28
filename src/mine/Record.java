@@ -686,8 +686,11 @@ public class Record
   @Override
   public Set<Integer> getSignatures(ITF_Filter filter, double theta) {
     IntegerSet sig = new IntegerSet();
-    for (int token : availableTokens[0])
-      sig.add(token);
+    if (availableTokens != null)
+      for (int token : availableTokens[0])
+        sig.add(token);
+    else
+      sig.addAll(this.getAvailableTokens()[0]);
     return sig;
   }
 
