@@ -18,13 +18,15 @@ import tools.Algorithm;
 import tools.Pair;
 
 public class SI_Join_Modified extends Algorithm {
+  private static String outputfile;
+
   public SI_Join_Modified(String DBR_file, String DBS_file, String rulefile)
       throws IOException {
     super(rulefile, DBR_file, DBS_file);
   }
 
   public void run() throws IOException {
-    preprocess(true, 0, false);
+    preprocess(false, 1, false);
     // BufferedReader br = new BufferedReader(new
     // InputStreamReader(System.in));
     // br.readLine();
@@ -62,7 +64,7 @@ public class SI_Join_Modified extends Algorithm {
     System.out.println("Similar pairs : " + candidates.size());
 
     try {
-      BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
+      BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
       for (Pair<Record> ip : candidates) {
         if (ip.rec1.getID() != ip.rec2.getID())
           bw.write(ip.rec1.toString(strlist) + "\t==\t"
@@ -81,13 +83,14 @@ public class SI_Join_Modified extends Algorithm {
    */
   public static void main(String[] args) throws IOException {
     String[] remainingArgs = parse(args);
-    if (remainingArgs.length != 3) {
+    if (remainingArgs.length != 4) {
       printUsage();
       return;
     }
     String Rfile = remainingArgs[0];
     String Sfile = remainingArgs[1];
     String Rulefile = remainingArgs[2];
+    outputfile = remainingArgs[3];
 
     long startTime = System.currentTimeMillis();
     SI_Join_Modified inst = new SI_Join_Modified(Rfile, Sfile, Rulefile);
@@ -97,7 +100,7 @@ public class SI_Join_Modified extends Algorithm {
   }
 
   private static void printUsage() {
-    System.out.println("Usage : <R file> <S file> <Rule file>");
+    System.out.println("Usage : <R file> <S file> <Rule file> <output file>");
   }
 
   private static String[] parse(String[] args) {
