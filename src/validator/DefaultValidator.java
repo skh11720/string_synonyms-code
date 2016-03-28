@@ -1,7 +1,7 @@
 package validator;
 
-public class DefaultValidator extends BottomUpQueue_DS {
+public class DefaultValidator extends TopDownHashSetSinglePath_DS {
   public DefaultValidator() {
-    super(true);
+    super();
   }
 }

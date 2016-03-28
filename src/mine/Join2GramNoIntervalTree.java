@@ -17,10 +17,7 @@ import tools.WYK_HashSet;
 import validator.Validator;
 
 /**
- * Given threshold, if a record has more than 'threshold' 1-expandable strings,
- * use an index to store them.
- * Otherwise, generate all 1-expandable strings and then use them to check
- * if two strings are equivalent.
+ * Extended JoinBNoIntervalTree
  */
 public class Join2GramNoIntervalTree extends Algorithm {
   static boolean                              useAutomata  = false;
@@ -51,7 +48,7 @@ public class Join2GramNoIntervalTree extends Algorithm {
 
     idx = new WYK_HashMap<Long, List<IntIntRecordTriple>>();
     for (Record rec : tableR) {
-      Set<Long> twoGrams = rec.getFirstRule2Grams();
+      Set<Long> twoGrams = rec.get2Grams().get(0);
       for (Long twoGram : twoGrams) {
         List<IntIntRecordTriple> list = idx.get(twoGram);
         if (list == null) {
@@ -80,10 +77,11 @@ public class Join2GramNoIntervalTree extends Algorithm {
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 
+    long comparisons = 0;
     long appliedRules_sum = 0;
     for (Record recS : tableS) {
       int[] range = recS.getCandidateLengths(recS.size() - 1);
-      Set<Long> twoGrams = recS.getFirstRule2Grams();
+      Set<Long> twoGrams = recS.get2Grams().get(0);
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
       for (Long twoGram : twoGrams) {
         List<IntIntRecordTriple> tree = idx.get(twoGram);
@@ -97,7 +95,10 @@ public class Join2GramNoIntervalTree extends Algorithm {
       }
       List<Record> candidates = StaticFunctions.union(candidatesList,
           idComparator);
-      if (skipChecking) continue;
+      if (skipChecking) {
+        comparisons += candidates.size();
+        continue;
+      }
       for (Record recR : candidates) {
         int compare = checker.isEqual(recR, recS);
         if (compare >= 0) {
@@ -108,6 +109,7 @@ public class Join2GramNoIntervalTree extends Algorithm {
     }
     System.out
         .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
+    if (skipChecking) System.out.println("Candidates : " + comparisons);
 
     return rslt;
   }
