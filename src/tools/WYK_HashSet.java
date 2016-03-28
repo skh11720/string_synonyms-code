@@ -130,7 +130,7 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
   }
 
   private int getIdx(int hash) {
-    return Math.abs(hash) % array.length;
+    return Math.abs(hash % array.length);
   }
 
   @Override

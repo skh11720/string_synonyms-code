@@ -311,20 +311,168 @@ public class Record
     return result;
   }
 
+  public long getOriginal2Gram(int idx) {
+    long twogram = tokens[idx];
+    if (idx != size() - 1)
+      twogram = (twogram << 32) + tokens[idx + 1];
+    else
+      twogram = (twogram << 32) + Integer.MAX_VALUE;
+    return twogram;
+  }
+
   /**
-   * Returns 2grams which exist in the first applicable rules
+   * Returns all available (actually, superset) 2 grams
    */
-  public Set<Long> getFirstRule2Grams() {
-    Set<Long> result = new HashSet<Long>();
-    Rule[] firstRules = applicableRules[0];
-    for (Rule rule : firstRules) {
-      int[] to = rule.getTo();
-      for (int i = 0; i < to.length - 1; ++i) {
-        long gram = ((long) to[i]) * ((long) Integer.MAX_VALUE) + to[i + 1];
-        result.add(gram);
+  public List<Set<Long>> get2Grams() {
+    /*
+     * There are two type of 2 grams:
+     * 1) two tokens are derived from different rules.
+     * 2) two tokens are generated from the same rule.
+     */
+    List<Set<Long>> twograms = new ArrayList<Set<Long>>();
+    int[] range = getCandidateLengths(size() - 1);
+    for (int i = 0; i < range[1]; ++i)
+      twograms.add(new WYK_HashSet<Long>());
+    add2GramsFromDiffRules(twograms);
+    add2GramsFromSameRule(twograms);
+    return twograms;
+  }
+
+  /**
+   * Add every 2 grams derived from different rules.
+   * Also add 2 gram which contains EOL character.
+   *
+   * @param twograms
+   *          set which stores 2 grams
+   */
+  private void add2GramsFromDiffRules(List<Set<Long>> twograms) {
+    // iterate on prefix rules: it is easier
+    for (int i = 0; i < size(); ++i) {
+      // Every rules are applicable to a prefix of str[i..*]
+      Rule[] headrules = getApplicableRules(i);
+      int[] range = null;
+      if (i == 0)
+        range = new int[] { 0, 0 };
+      else
+        range = getCandidateLengths(i - 1);
+      for (Rule headrule : headrules) {
+        // Retrieve another prefix rules
+        Rule[] tailrules = getApplicableRules(i + headrule.getFrom().length);
+        int[] headstr = headrule.getTo();
+        // The minimum index of the last token
+        int min = range[0] + headstr.length - 1;
+        int max = range[1] + headstr.length - 1;
+        // If there is no applicable rule, (== end of string reached)
+        // it adds 2 grams with EOL character.
+        if (tailrules == EMPTY_RULE) {
+          assert (i + headrule.getFrom().length == size());
+          long twogram = headstr[headstr.length - 1];
+          twogram = (twogram << 32) + Integer.MAX_VALUE;
+          for (int idx = min; idx <= max; ++idx)
+            twograms.get(idx).add(twogram);
+        } else {
+          assert (tailrules.length > 0);
+          for (Rule tailrule : tailrules) {
+            // Generate twogram
+            long twogram = headstr[headstr.length - 1];
+            twogram = (twogram << 32) + tailrule.getTo()[0];
+            assert (twogram >= 0);
+            for (int idx = min; idx <= max; ++idx)
+              twograms.get(idx).add(twogram);
+          }
+        }
       }
     }
-    return result;
+  }
+
+  /**
+   * Add every 2 grams derived from the same rule
+   *
+   * @param twograms
+   *          set which stores 2 grams
+   */
+  private void add2GramsFromSameRule(List<Set<Long>> twograms) {
+    // iterate on prefix rules: it is easier
+    for (int i = 0; i < size(); ++i) {
+      // Every rules are applicable to a prefix of str[i..*]
+      Rule[] rules = getApplicableRules(i);
+      int[] range = null;
+      if (i == 0)
+        range = new int[] { 0, 0 };
+      else
+        range = getCandidateLengths(i - 1);
+      for (Rule headrule : rules) {
+        int[] str = headrule.getTo();
+        // If this rule generates one token only, skip generating 2 grams
+        if (str.length < 2) continue;
+        for (int idx = 0; idx < str.length - 1; ++idx) {
+          // Generate twogram
+          long twogram = str[idx];
+          twogram = (twogram << 32) + str[idx + 1];
+          assert (twogram >= 0);
+          for (int jdx = range[0] + idx; jdx <= range[1] + idx; ++jdx) {
+            twograms.get(jdx).add(twogram);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Returns all available (actually, superset) 2 grams
+   * which appear in str[idx..idx+1].
+   *
+   * @param idx:
+   *          starting index of 2 grams. (starting from 0)
+   */
+  public Set<Long> get2Grams(int idx) {
+    /*
+     * There are two type of 2 grams:
+     * 1) two tokens are derived from different rules.
+     * 2) two tokens are generated from the same rule.
+     */
+    Set<Long> twograms = new WYK_HashSet<Long>();
+    add2GramsFromDiffRules(idx, twograms);
+    add2GramsFromSameRule(idx, twograms);
+    return twograms;
+  }
+
+  /**
+   * @TODO: Finish
+   *        Add every 2 grams which may appear in str[idx..idx+1] where
+   *        str[idx] and str[idx + 1] are derived from different rules
+   *
+   * @param idx
+   *          starting index of 2 grams.
+   * @param twograms
+   *          set which stores 2 grams
+   */
+  private void add2GramsFromDiffRules(int idx, Set<Long> twograms) {
+    // iterate on prefix rules: it is easier
+    for (int i = 0; i < size(); ++i) {
+      Rule[] rules = getApplicableRules(i);
+      int[] range = getCandidateLengths(i);
+      // range[0] is the minimum index of token generated by this rule.
+      // If it exceeds idx, every rule will not generate a 2-gram starting from
+      // a token within them
+      if (range[0] > idx) break;
+      for (@SuppressWarnings("unused")
+      Rule rule : rules) {
+      }
+    }
+  }
+
+  /**
+   * Add every 2 grams which may appear in str[idx..idx+1] where
+   * str[idx] and str[idx + 1] are derived from the same rule
+   *
+   * @param idx
+   *          starting index of 2 grams.
+   * @param twograms
+   *          set which stores 2 grams
+   */
+  private void add2GramsFromSameRule(int idx, Set<Long> twograms) {
+
   }
 
   public int getNumApplicableRules() {
@@ -457,6 +605,16 @@ public class Record
       rslt.tokens[idx + i] = rule.getTo()[i];
     for (int i = idx + rule.fromSize(); i < this.tokens.length; ++i)
       rslt.tokens[i + shift] = this.tokens[i];
+    return rslt;
+  }
+
+  private static final long twogramfilter = 0x100000000L;
+
+  public static String twoGram2String(long twogram) {
+    int token1 = (int) (twogram >> 32);
+    int token2 = (int) (twogram % twogramfilter);
+    String rslt = strlist.get(token1);
+    if (token2 != Integer.MAX_VALUE) rslt = rslt + " " + strlist.get(token2);
     return rslt;
   }
 

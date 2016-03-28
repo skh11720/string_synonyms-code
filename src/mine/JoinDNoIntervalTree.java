@@ -188,6 +188,7 @@ public class JoinDNoIntervalTree extends Algorithm {
     String Sfile = params.getInputY();
     String Rulefile = params.getInputRules();
     outputfile = params.getOutput();
+    maxIndex = params.getMaxIndex();
 
     // Setup parameters
     useAutomata = params.isUseACAutomata();

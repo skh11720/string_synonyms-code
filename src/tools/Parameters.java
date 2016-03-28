@@ -23,7 +23,7 @@ public class Parameters {
   static {
     Options options = new Options();
     options.addOption(
-        Option.builder("n").hasArg(false).desc("Represents an index").build());
+        Option.builder("n").hasArg(true).desc("Represents an index").build());
     options.addOption("useautomata", false,
         "Use automata to check equivalency");
     options.addOption("skipequiv", false, "Skip equivalency check");
@@ -39,12 +39,10 @@ public class Parameters {
             + "BottomUpQueue: \n" + "TopDownMatrixDS: \n" + "Naive: "
             + "BottomUpMatrixSinglePathDS: \n")
         .numberOfArgs(2).build());
-    options
-        .addOption(
-            Option.builder("joinExpandThreshold").argName("T")
-                .desc("If number of expanded record is less of equal to T,"
-                    + " use naive method (for hybrid algorithms only)")
-        .build());
+    options.addOption(Option.builder("joinExpandThreshold").argName("T")
+        .desc("If number of expanded record is less of equal to T,"
+            + " use naive method (for hybrid algorithms only)")
+        .numberOfArgs(1).build());
     argOptions = options;
   }
 
@@ -137,7 +135,7 @@ public class Parameters {
 
   boolean   useACAutomata   = false;
   boolean   skipChecking    = false;
-  int       maxIndex        = 1;
+  int       maxIndex        = Integer.MAX_VALUE;
   boolean   compact         = true;
   boolean   singleside      = false;
   boolean   earlyprune      = true;
