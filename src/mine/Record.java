@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import sigmod13.RecordInterface;
@@ -87,6 +88,11 @@ public class Record
 
   public static void setRuleTrie(RuleTrie atm) {
     Record.atm = atm;
+  }
+
+  public Record(int[] tokens) {
+    this.id = -1;
+    this.tokens = tokens;
   }
 
   public Record(int id, String str, Map<String, Integer> str2int) {
@@ -714,5 +720,22 @@ public class Record
       return 1;
     else
       return 0;
+  }
+
+  public Record randomTransform(Rule_ACAutomata atm, Random rand) {
+    List<Integer> list = new ArrayList<Integer>();
+    Rule[][] rules = atm.applicableRules(tokens, 0);
+    int idx = 0;
+    while (idx < tokens.length) {
+      int ruleidx = rand.nextInt(rules[idx].length);
+      Rule rule = rules[idx][ruleidx];
+      for (int token : rule.getTo())
+        list.add(token);
+      idx += rule.getFrom().length;
+    }
+    int[] transformed = new int[list.size()];
+    for (idx = 0; idx < list.size(); ++idx)
+      transformed[idx] = list.get(idx);
+    return new Record(transformed);
   }
 }

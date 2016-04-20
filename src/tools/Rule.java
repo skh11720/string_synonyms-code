@@ -26,6 +26,17 @@ public class Rule implements Comparable<Rule> {
     this.hash = hash;
   }
 
+  public Rule(int[] from, int[] to) {
+    int hash = 0;
+    this.from = from;
+    this.to = to;
+    for (int i = 0; i < from.length; ++i)
+      hash = 0x1f1f1f1f ^ hash + from[i];
+    for (int i = 0; i < to.length; ++i)
+      hash = 0x1f1f1f1f ^ hash + to[i];
+    this.hash = hash;
+  }
+
   public Rule(int from, int to) {
     int hash = 0;
     this.from = new int[1];

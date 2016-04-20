@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -181,6 +182,10 @@ public class Hybrid2GramA1 extends Algorithm {
 
       Map<Long, List<IntIntRecordTriple>> curr_short_idx = short_idx
           .get(minIdx);
+      if (curr_short_idx == null) {
+        curr_short_idx = new HashMap<Long, List<IntIntRecordTriple>>();
+        short_idx.put(minIdx, curr_short_idx);
+      }
       for (long twogram : available2Grams.get(minIdx)) {
         List<IntIntRecordTriple> list = curr_short_idx.get(twogram);
         if (list == null) {
