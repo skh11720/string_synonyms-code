@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -230,7 +232,8 @@ public class Hybrid2GramA1 extends Algorithm {
     System.out.println("short Rec per idx : " + ((double) count) / sum);
 
     // Build 1-expanded set for every record in R
-    setR = new WYK_HashMap<Record, List<Integer>>();
+    count = 0;
+    setR = new HashMap<Record, List<Integer>>();
     for (int i = 0; i < tableR.size(); ++i) {
       Record rec = tableR.get(i);
       assert (rec != null);
@@ -245,23 +248,55 @@ public class Hybrid2GramA1 extends Algorithm {
         if (!list.isEmpty() && list.get(list.size() - 1) == i) continue;
         list.add(i);
       }
+      ++count;
     }
+    long idxsize = 0;
+    for (List<Integer> list : setR.values())
+      idxsize += list.size();
+    System.out.println(count + " records are 1-expanded and indexed");
+    System.out.println("Total index size: " + idxsize);
   }
 
-  private WYK_HashSet<IntegerPair> join() {
-    WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
-
+  /**
+   * Although this implementation is not efficient, we did like this to measure
+   * the execution time of each part more accurate.
+   * 
+   * @return
+   */
+  private ArrayList<IntegerPair> join() {
+    ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
     long appliedRules_sum = 0;
+
+    long time1 = System.currentTimeMillis();
     for (Record s : tableS) {
       if (s.getEstNumRecords() > joinThreshold)
         appliedRules_sum += searchEquivsByDynamicIndex(s, long_idx, rslt);
-      else {
-        appliedRules_sum += searchEquivsByDynamicIndex(s, short_idx, rslt);
-        searchEquivsByNaive1Expansion(s, rslt);
-      }
     }
+    time1 = System.currentTimeMillis() - time1;
+
+    long time2 = System.currentTimeMillis();
+    for (Record s : tableS) {
+      if (s.getEstNumRecords() > joinThreshold)
+        continue;
+      else
+        appliedRules_sum += searchEquivsByDynamicIndex(s, short_idx, rslt);
+    }
+    time2 = System.currentTimeMillis() - time2;
+
+    long time3 = System.currentTimeMillis();
+    for (Record s : tableS) {
+      if (s.getEstNumRecords() > joinThreshold)
+        continue;
+      else
+        searchEquivsByNaive1Expansion(s, rslt);
+    }
+    time3 = System.currentTimeMillis() - time3;
+
     System.out
         .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
+    System.out.println("large S : " + time1);
+    System.out.println("small S + large R : " + time2);
+    System.out.println("small S + small S: " + time3);
 
     return rslt;
   }
@@ -385,7 +420,7 @@ public class Hybrid2GramA1 extends Algorithm {
 
   private int searchEquivsByDynamicIndex(Record s,
       Map<Integer, Map<Long, List<IntIntRecordTriple>>> idx,
-      Set<IntegerPair> rslt) {
+      List<IntegerPair> rslt) {
     int appliedRules_sum = 0;
     List<Set<Long>> available2Grams = s.get2Grams();
     int[] range = s.getCandidateLengths(s.size() - 1);
@@ -418,15 +453,25 @@ public class Hybrid2GramA1 extends Algorithm {
     return appliedRules_sum;
   }
 
-  private void searchEquivsByNaive1Expansion(Record s, Set<IntegerPair> rslt) {
+  private class IntegerComparator implements Comparator<Integer> {
+    @Override
+    public int compare(Integer o1, Integer o2) {
+      return o1.compareTo(o2);
+    }
+  }
+
+  private void searchEquivsByNaive1Expansion(Record s, List<IntegerPair> rslt) {
+    ArrayList<List<Integer>> candidates = new ArrayList<List<Integer>>();
     ArrayList<Record> expanded = s.expandAll(ruletrie);
     for (Record exp : expanded) {
       List<Integer> list = setR.get(exp);
       if (list == null) continue;
-      for (Integer idx : list) {
-        rslt.add(new IntegerPair(idx, s.getID()));
-      }
+      candidates.add(list);
     }
+    List<Integer> union = StaticFunctions.union(candidates,
+        new IntegerComparator());
+    for (Integer idx : union)
+      rslt.add(new IntegerPair(idx, s.getID()));
   }
 
   public void statistics() {
@@ -487,7 +532,7 @@ public class Hybrid2GramA1 extends Algorithm {
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
     startTime = System.currentTimeMillis();
-    WYK_HashSet<IntegerPair> rslt = (singleside ? joinSingleSide() : join());
+    Collection<IntegerPair> rslt = (singleside ? joinSingleSide() : join());
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());

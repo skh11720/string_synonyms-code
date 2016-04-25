@@ -89,7 +89,7 @@ public class Naive1 extends Algorithm {
       List<Integer> union = StaticFunctions.union(candidates,
           new IntegerComparator());
       for (Integer idx : union)
-        if (idx != idxS) rslt.add(new IntegerPair(idx, idxS));
+        rslt.add(new IntegerPair(idx, idxS));
     }
 
     return rslt;

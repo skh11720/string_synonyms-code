@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,8 +141,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     System.out.println("Rec per idx : " + ((double) count) / sum);
   }
 
-  private WYK_HashSet<IntegerPair> join() {
-    WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
+  private List<IntegerPair> join() {
+    List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
     long appliedRules_sum = 0;
     for (Record recS : tableS) {
@@ -355,7 +356,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
     startTime = System.currentTimeMillis();
-    WYK_HashSet<IntegerPair> rslt = (singleside ? joinSingleSide() : join());
+    Collection<IntegerPair> rslt = (singleside ? joinSingleSide() : join());
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
