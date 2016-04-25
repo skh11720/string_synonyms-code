@@ -52,6 +52,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
    * Comparator of Pair<T>
    */
   private final Comparator<Pair<T>> pairComparator;
+  private final Comparator<T>       TComparator;
 
   /**
    * Construct a SI-Tree
@@ -65,6 +66,11 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
         int cmp = Integer.compare(o1.rec1.getID(), o2.rec1.getID());
         if (cmp == 0) return Integer.compare(o1.rec2.getID(), o2.rec2.getID());
         return cmp;
+      }
+    };
+    TComparator = new Comparator<T>() {
+      public int compare(T o1, T o2) {
+        return Integer.compare(o1.getID(), o2.getID());
       }
     };
   }
@@ -133,12 +139,19 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
     return results;
   }
 
+  static final boolean verbose = true;
+
+  public List<Pair<T>> join(SI_Tree<T> o, double threshold) {
+    return joinByEnumeration(o, threshold);
+  }
+
   /**
    * Algorithm 3 in the paper <br/>
    * Almost same as {@link #getCandidates(SI_Tree, double) getCandidates}
    * function, but additionally do join to reduce memory consumption.
+   * This function computes Cartesian product of records in each signature.
    */
-  public List<Pair<T>> join(SI_Tree<T> o, double threshold) {
+  public List<Pair<T>> joinByCartesian(SI_Tree<T> o, double threshold) {
     // Line 1 : Initialize
     List<Pair<T>> results = new ArrayList<Pair<T>>();
     // Union하는 set의 평균 개수 및 동시에 union하는 set의 개수
@@ -165,6 +178,8 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 
             List<List<Pair<T>>> candidates = new ArrayList<List<Pair<T>>>();
 
+            StringBuilder builder = new StringBuilder();
+            if (verbose) builder.append("Join between: ");
             // Line 6 : Find all the overlapping signatures
             for (int sig : le_this.P.keySet()) {
               if (!le_other.P.containsKey(sig)) continue;
@@ -175,41 +190,52 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
               // Line 8 : get L_t
               ArrayList<T> Lt = le_other.P.get(sig);
 
+              if (verbose) builder.append(
+                  "Sig-" + sig + "=>" + Ls.size() + "x" + Lt.size() + " ");
+
               // if(Ls.size() != 1 && Lt.size() != 1)
               // System.out.println(Ls.size() + "*" + Lt.size());
               // count += Ls.size() * Lt.size();
 
-              // // Line 9~10 : Add candidate pair
-              for (T rec1 : Ls)
-                for (T rec2 : Lt)
-                  sig_candidates.add(new Pair<T>(rec1, rec2));
+              try {
+                // Line 9~10 : Add candidate pair
+                for (T rec1 : Ls)
+                  for (T rec2 : Lt)
+                    sig_candidates.add(new Pair<T>(rec1, rec2));
 
-              // for (T rec1 : Ls) {
-              // Set<T.Expanded> exp1 = null;
-              // if (exactAnswer) exp1 = (Set<T.Expanded>) rec1.generateAll();
-              // for (T rec2 : Lt) {
-              // Pair<T> sirp = new Pair<T>(rec1, rec2);
-              // if (evaled.contains(sirp)) ++duplicate_results;
-              // // else
-              // // evaled.add(sirp);
-              // // Similarity check
-              // double sim = 0;
-              // if (exactAnswer) {
-              // Set<T.Expanded> exp2 = (Set<T.Expanded>) rec2.generateAll();
-              // for (T.Expanded exp1R : exp1)
-              // for (T.Expanded exp2R : exp2)
-              // sim = Math.max(sim, exp1R.similarity(exp2R));
-              // } else
-              // sim = rec1.similarity(rec2);
-              // if (sim >= threshold) results.add(sirp);
-              // ++count;
-              // }
-              // Collections.sort(sig_candidates);
-              set_union_setsize_sum += sig_candidates.size();
-              candidates.add(sig_candidates);
+                // for (T rec1 : Ls) {
+                // Set<T.Expanded> exp1 = null;
+                // if (exactAnswer) exp1 = (Set<T.Expanded>) rec1.generateAll();
+                // for (T rec2 : Lt) {
+                // Pair<T> sirp = new Pair<T>(rec1, rec2);
+                // if (evaled.contains(sirp)) ++duplicate_results;
+                // // else
+                // // evaled.add(sirp);
+                // // Similarity check
+                // double sim = 0;
+                // if (exactAnswer) {
+                // Set<T.Expanded> exp2 = (Set<T.Expanded>) rec2.generateAll();
+                // for (T.Expanded exp1R : exp1)
+                // for (T.Expanded exp2R : exp2)
+                // sim = Math.max(sim, exp1R.similarity(exp2R));
+                // } else
+                // sim = rec1.similarity(rec2);
+                // if (sim >= threshold) results.add(sirp);
+                // ++count;
+                // }
+                // Collections.sort(sig_candidates);
+                set_union_setsize_sum += sig_candidates.size();
+                candidates.add(sig_candidates);
+              } catch (OutOfMemoryError e) {
+                if (verbose) System.out.println(builder.toString());
+                throw e;
+              }
             }
             List<Pair<T>> union_candidates = StaticFunctions.union(candidates,
                 pairComparator);
+            if (verbose)
+              System.out.println(" Union size:" + union_candidates.size());
+            System.out.println(builder.toString());
             ++set_union_count;
             set_union_sum += candidates.size();
             // results.addAll(union_candidates);
@@ -221,6 +247,82 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
               sim = rec1.similarity(rec2);
               if (sim >= threshold) results.add(p);
               ++count;
+            }
+          }
+        }
+      }
+    }
+    System.out.println("Comparisons : " + count);
+    System.out.println("set_union_count: " + set_union_count);
+    System.out.println("set_union_sum: " + set_union_sum);
+    System.out.println("set_union_setsize_sum: " + set_union_setsize_sum);
+    return results;
+  }
+
+  /**
+   * Algorithm 3 in the paper <br/>
+   * Almost same as {@link #getCandidates(SI_Tree, double) getCandidates}
+   * function, but additionally do join to reduce memory consumption.
+   * This function enumerate signatures for each record in R and then find
+   * overlapping records.
+   */
+  public List<Pair<T>> joinByEnumeration(SI_Tree<T> o, double threshold) {
+    // Line 1 : Initialize
+    List<Pair<T>> results = new ArrayList<Pair<T>>();
+    // Union하는 set의 평균 개수 및 동시에 union하는 set의 개수
+    long set_union_count = 0;
+    long set_union_sum = 0;
+    long set_union_setsize_sum = 0;
+    // Number of comparisions
+    long count = 0;
+
+    // Line 2 : For all the combinations of fence entries
+    for (FenceEntry fe_this : root.values()) {
+      for (FenceEntry fe_other : o.root.values()) {
+        // Line 3 : Check if this fence entry pair can generate any
+        // candidate pair
+        double cut = threshold * Math.max(fe_this.u, fe_other.u);
+        if (Math.min(fe_this.v, fe_other.v) < cut) continue;
+
+        // Line 4 : For all the combinations of leaf entries
+        for (LeafEntry le_this : fe_this.P.values()) {
+          for (LeafEntry le_other : fe_other.P.values()) {
+            // Line 5 : Check if this leaf entry pair can generate
+            // any candidate pair
+            if (Math.min(le_this.t, le_other.t) < cut) continue;
+
+            Set<T> evaluated = new HashSet<T>();
+
+            // Line 6 : For each record in R, find all the overlapping
+            // signatures
+            for (int sig : le_this.P.keySet()) {
+              if (!le_other.P.containsKey(sig)) continue;
+              // Line 7 : get L_s
+              List<T> Ls = le_this.P.get(sig);
+              for (T rec1 : Ls) {
+                // If this record is already evaluated, skip
+                if (evaluated.contains(rec1)) continue;
+                Set<Integer> signatures = rec1.getSignatures(filter, sig);
+                List<List<T>> candidates = new ArrayList<List<T>>();
+                for (int sig2 : signatures) {
+                  // Line 8 : get L_t
+                  List<T> Lt = le_other.P.get(sig2);
+                  // Line 9~10 : Add candidate pair
+                  candidates.add(Lt);
+                }
+                List<T> union_candidates = StaticFunctions.union(candidates,
+                    TComparator);
+                ++set_union_count;
+                set_union_sum += candidates.size();
+                // results.addAll(union_candidates);
+                if (skipEquiCheck) continue;
+                for (T t : union_candidates) {
+                  double sim = 0;
+                  sim = rec1.similarity(t);
+                  if (sim >= threshold) results.add(new Pair<T>(rec1, t));
+                  ++count;
+                }
+              }
             }
           }
         }
