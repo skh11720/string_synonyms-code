@@ -105,6 +105,7 @@ public class Naive1 extends Algorithm {
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
+    System.out.println("Union counter: " + StaticFunctions.counter);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));

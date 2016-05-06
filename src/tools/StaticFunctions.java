@@ -156,6 +156,8 @@ public class StaticFunctions {
       return cmp.compare(o1.rec, o2.rec);
     }
   }
+  
+  public static long counter = 0;
 
   public static <T> List<T> union(List<? extends List<T>> list,
       Comparator<T> cmp) {
@@ -167,6 +169,7 @@ public class StaticFunctions {
     PriorityQueue<RecordIntTriple<T>> pq = new PriorityQueue<RecordIntTriple<T>>(
         list.size(), ritCom);
     for (int i = 0; i < list.size(); ++i) {
+      ++counter;
       List<T> candidates = list.get(i);
       if (!candidates.isEmpty())
         pq.add(new RecordIntTriple<T>(candidates.get(0), i, 0));
@@ -174,6 +177,7 @@ public class StaticFunctions {
     List<T> candidates = new ArrayList<T>();
     T last = null;
     while (!pq.isEmpty()) {
+      ++counter;
       RecordIntTriple<T> p = pq.poll();
       if (last == null || cmp.compare(last, p.rec) != 0) {
         last = p.rec;

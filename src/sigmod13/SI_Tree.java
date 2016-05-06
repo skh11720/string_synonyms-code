@@ -139,7 +139,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
     return results;
   }
 
-  static final boolean verbose = true;
+  static final boolean verbose = false;
 
   public List<Pair<T>> join(SI_Tree<T> o, double threshold) {
     return joinByEnumeration(o, threshold);
@@ -302,13 +302,14 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
               for (T rec1 : Ls) {
                 // If this record is already evaluated, skip
                 if (evaluated.contains(rec1)) continue;
+                evaluated.add(rec1);
                 Set<Integer> signatures = rec1.getSignatures(filter, sig);
                 List<List<T>> candidates = new ArrayList<List<T>>();
                 for (int sig2 : signatures) {
                   // Line 8 : get L_t
                   List<T> Lt = le_other.P.get(sig2);
                   // Line 9~10 : Add candidate pair
-                  candidates.add(Lt);
+                  if (Lt != null && !Lt.isEmpty()) candidates.add(Lt);
                 }
                 List<T> union_candidates = StaticFunctions.union(candidates,
                     TComparator);

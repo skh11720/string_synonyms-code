@@ -242,7 +242,7 @@ public class Hybrid2GramA1 extends Algorithm {
       assert (expanded.size() <= joinThreshold);
       assert (!expanded.isEmpty());
       for (Record expR : expanded) {
-        if (!setR.containsKey(expR)) setR.put(expR, new ArrayList<Integer>());
+        if (!setR.containsKey(expR)) setR.put(expR, new ArrayList<Integer>(5));
         List<Integer> list = setR.get(expR);
         assert (list != null);
         if (!list.isEmpty() && list.get(list.size() - 1) == i) continue;
@@ -536,6 +536,7 @@ public class Hybrid2GramA1 extends Algorithm {
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
+    System.out.println("Union counter: " + StaticFunctions.counter);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));

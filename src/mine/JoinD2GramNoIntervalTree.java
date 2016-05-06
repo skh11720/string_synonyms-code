@@ -91,7 +91,7 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
 
   private WYK_HashSet<IntegerPair> join() {
     WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
-    int count = 0;
+    long count = 0;
 
     long cand_sum[] = new long[maxIndex];
     int count_cand[] = new int[maxIndex];
