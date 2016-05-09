@@ -156,7 +156,7 @@ public class StaticFunctions {
       return cmp.compare(o1.rec, o2.rec);
     }
   }
-  
+
   public static long counter = 0;
 
   public static <T> List<T> union(List<? extends List<T>> list,
@@ -193,11 +193,14 @@ public class StaticFunctions {
     return candidates;
   }
 
+  public static long inter_counter = 0;
+
   public static <T> List<T> intersection(List<? extends List<T>> list,
       Comparator<T> cmp) {
     LinkedList<T> intersection = new LinkedList<T>();
     if (list.size() == 0) return intersection;
     intersection.addAll(list.get(0));
+    inter_counter += intersection.size();
     for (int i = 1; i < list.size(); ++i) {
       List<T> src = list.get(i);
       if (src.size() == 0 || intersection.size() == 0) {
@@ -209,6 +212,7 @@ public class StaticFunctions {
       T v1 = iter1.next();
       T v2 = iter2.next();
       while (v1 != null && v2 != null) {
+        ++inter_counter;
         int compare = cmp.compare(v1, v2);
         if (compare == 0) {
           v1 = iter1.hasNext() ? iter1.next() : null;

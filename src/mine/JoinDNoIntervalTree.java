@@ -163,6 +163,9 @@ public class JoinDNoIntervalTree extends Algorithm {
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
 
+    System.out.println("Set union iters:" + StaticFunctions.counter);
+    System.out.println("Set inter iters:" + StaticFunctions.inter_counter);
+
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
       HashMap<Integer, ArrayList<Record>> tmp = new HashMap<Integer, ArrayList<Record>>();
