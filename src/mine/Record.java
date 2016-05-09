@@ -344,6 +344,83 @@ public class Record
     return twograms;
   }
 
+  public List<Set<Long>> getExact2Grams() {
+    /*
+     * There are two type of 2 grams:
+     * 1) two tokens are derived from different rules.
+     * 2) two tokens are generated from the same rule.
+     */
+    List<Set<Long>> twograms = new ArrayList<Set<Long>>();
+    int[] availrangebitmap = new int[size()];
+    for (int i = 0; i < getMaxLength(); ++i)
+      twograms.add(new WYK_HashSet<Long>());
+    // Compute exact available ranges
+    for (int i = 0; i < size(); ++i) {
+      int range = 1;
+      if (i != 0) range = availrangebitmap[i - 1];
+      // For each rule r applicable to the prefix of x[i..],
+      // range[i + r.lhs] contains range[i - 1] + r.rhs
+      for (Rule rule : getApplicableRules(i))
+        availrangebitmap[i + rule.fromSize() - 1] |= range << rule.toSize();
+    }
+
+    // By using the exact available ranges, compute the exact 2 grams
+    for (int i = 0; i < size(); ++i) {
+      int range = 0;
+      if (i != 0) range = availrangebitmap[i - 1];
+      List<Integer> availrangelist = transform(range);
+      for (Rule headrule : getApplicableRules(i)) {
+        int[] headstr = headrule.getTo();
+
+        // Add 2grams from different rules
+        Rule[] tailrules = getApplicableRules(i + headrule.fromSize());
+        if (tailrules == EMPTY_RULE) {
+          assert (i + headrule.getFrom().length == size());
+          long twogram = headstr[headstr.length - 1];
+          twogram = (twogram << 32) + Integer.MAX_VALUE;
+          for (int idx : availrangelist)
+            twograms.get(idx + headstr.length - 1).add(twogram);
+        } else {
+          assert (tailrules.length > 0);
+          for (Rule tailrule : tailrules) {
+            // Generate twogram
+            long twogram = headstr[headstr.length - 1];
+            twogram = (twogram << 32) + tailrule.getTo()[0];
+            assert (twogram >= 0);
+            for (int idx : availrangelist)
+              twograms.get(idx + headstr.length - 1).add(twogram);
+          }
+        }
+
+        // Add 2grams from the same rule
+        // If this rule generates one token only, skip generating 2 grams
+        if (headstr.length < 2) continue;
+        for (int idx = 0; idx < headstr.length - 1; ++idx) {
+          // Generate twogram
+          long twogram = headstr[idx];
+          twogram = (twogram << 32) + headstr[idx + 1];
+          assert (twogram >= 0);
+          for (int jdx : availrangelist)
+            twograms.get(jdx + idx).add(twogram);
+        }
+      }
+    }
+    return twograms;
+  }
+
+  private List<Integer> transform(int bitmap) {
+    List<Integer> list = new ArrayList<Integer>();
+    if (bitmap == 0)
+      list.add(0);
+    else {
+      for (int i = 0; i < 32; ++i) {
+        if (bitmap % 2 == 1) list.add(i);
+        bitmap /= 2;
+      }
+    }
+    return list;
+  }
+
   /**
    * Add every 2 grams derived from different rules.
    * Also add 2 gram which contains EOL character.

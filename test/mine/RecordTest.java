@@ -109,22 +109,26 @@ public class RecordTest {
     List<Set<Long>> twograms = s.get2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
-    assertEquals(3, twogramstrings.size());
+    assertEquals(4, twogramstrings.size());
     Set<String> first2grams = twogramstrings.get(0);
-    assertTrue(first2grams.size() == 4);
+    assertEquals(4, first2grams.size());
     first2grams.contains("A B");
     first2grams.contains("a B");
     first2grams.contains("A x");
     first2grams.contains("a x");
     Set<String> second2grams = twogramstrings.get(1);
-    assertTrue(second2grams.size() == 3);
+    assertEquals(3, second2grams.size());
     second2grams.contains("B C");
     second2grams.contains("B x");
     second2grams.contains("x D");
     Set<String> third2grams = twogramstrings.get(2);
-    assertTrue(third2grams.size() == 2);
+    assertEquals(3, third2grams.size());
     third2grams.contains("C D");
     third2grams.contains("x D");
+    third2grams.contains("D");
+    Set<String> fourth2grams = twogramstrings.get(3);
+    assertEquals(1, fourth2grams.size());
+    fourth2grams.contains("D");
   }
 
   @Test
@@ -135,14 +139,14 @@ public class RecordTest {
     List<Set<Long>> twograms = s.get2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
-    assertEquals(5, twogramstrings.size());
+    assertEquals(6, twogramstrings.size());
     Set<String> first2grams = twogramstrings.get(0);
-    assertTrue(first2grams.size() == 3);
+    assertEquals(3, first2grams.size());
     first2grams.contains("a a");
     first2grams.contains("A b");
     first2grams.contains("A B");
     Set<String> second2grams = twogramstrings.get(1);
-    assertTrue(second2grams.size() == 6);
+    assertEquals(6, second2grams.size());
     second2grams.contains("B C");
     second2grams.contains("a B");
     second2grams.contains("b C");
@@ -150,7 +154,7 @@ public class RecordTest {
     second2grams.contains("B c");
     second2grams.contains("b c");
     Set<String> third2grams = twogramstrings.get(2);
-    assertTrue(second2grams.size() == 6);
+    assertEquals(6, second2grams.size());
     third2grams.contains("C D");
     third2grams.contains("B C");
     third2grams.contains("b C");
@@ -158,13 +162,18 @@ public class RecordTest {
     third2grams.contains("B c");
     third2grams.contains("b c");
     Set<String> fourth2grams = twogramstrings.get(3);
-    assertTrue(fourth2grams.size() == 3);
+    assertEquals(4, fourth2grams.size());
     fourth2grams.contains("C D");
     fourth2grams.contains("X D");
     fourth2grams.contains("c X");
+    fourth2grams.contains("D");
     Set<String> fifth2grams = twogramstrings.get(4);
-    assertTrue(fifth2grams.size() == 1);
+    assertEquals(2, fifth2grams.size());
     fifth2grams.contains("X D");
+    fifth2grams.contains("D");
+    Set<String> sixth2grams = twogramstrings.get(5);
+    assertEquals(1, sixth2grams.size());
+    sixth2grams.contains("D");
   }
 
   @Test
@@ -175,31 +184,175 @@ public class RecordTest {
     List<Set<Long>> twograms = s.get2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
-    assertEquals(5, twogramstrings.size());
+    assertEquals(6, twogramstrings.size());
     Set<String> first2grams = twogramstrings.get(0);
-    assertTrue(first2grams.size() == 4);
+    assertEquals(4, first2grams.size());
     first2grams.contains("A B");
     first2grams.contains("a B");
     first2grams.contains("A b");
     first2grams.contains("a b");
     Set<String> second2grams = twogramstrings.get(1);
-    assertTrue(second2grams.size() == 3);
+    assertEquals(3, second2grams.size());
     second2grams.contains("B C");
     second2grams.contains("b x");
     second2grams.contains("B c");
     Set<String> third2grams = twogramstrings.get(2);
-    assertTrue(third2grams.size() == 3);
+    assertEquals(3, third2grams.size());
     third2grams.contains("C D");
     third2grams.contains("x y");
     third2grams.contains("c D");
     Set<String> fourth2grams = twogramstrings.get(3);
-    assertTrue(fourth2grams.size() >= 2);
+    assertEquals(5, fourth2grams.size());
     fourth2grams.contains("y C");
     fourth2grams.contains("y c");
+    fourth2grams.contains("C D");
+    fourth2grams.contains("c D");
+    fourth2grams.contains("D");
     Set<String> fifth2grams = twogramstrings.get(4);
-    assertTrue(fifth2grams.size() == 2);
+    assertEquals(3, fifth2grams.size());
     fifth2grams.contains("C D");
     fifth2grams.contains("c D");
+    fifth2grams.contains("D");
+    Set<String> sixth2grams = twogramstrings.get(5);
+    assertEquals(1, sixth2grams.size());
+    sixth2grams.contains("D");
+  }
+
+  @Test
+  public void testExact2Grams1() {
+    String str = "A B C D";
+    String[] rulearray = new String[] { "A, a", "B, b x y", "C, c" };
+    build(str, rulearray);
+    List<Set<Long>> twograms = s.getExact2Grams();
+    List<Set<String>> twogramstrings = toString(twograms);
+
+    assertEquals(6, twogramstrings.size());
+    Set<String> first2grams = twogramstrings.get(0);
+    assertEquals(4, first2grams.size());
+    first2grams.contains("A B");
+    first2grams.contains("a B");
+    first2grams.contains("A b");
+    first2grams.contains("a b");
+    Set<String> second2grams = twogramstrings.get(1);
+    assertEquals(3, second2grams.size());
+    second2grams.contains("B C");
+    second2grams.contains("b x");
+    second2grams.contains("B c");
+    Set<String> third2grams = twogramstrings.get(2);
+    assertEquals(3, third2grams.size());
+    third2grams.contains("C D");
+    third2grams.contains("x y");
+    third2grams.contains("c D");
+    Set<String> fourth2grams = twogramstrings.get(3);
+    assertEquals(3, fourth2grams.size());
+    fourth2grams.contains("y C");
+    fourth2grams.contains("y c");
+    fourth2grams.contains("D");
+    Set<String> fifth2grams = twogramstrings.get(4);
+    assertEquals(2, fifth2grams.size());
+    fifth2grams.contains("C D");
+    fifth2grams.contains("c D");
+    Set<String> sixth2grams = twogramstrings.get(5);
+    assertEquals(1, sixth2grams.size());
+    sixth2grams.contains("D");
+  }
+
+  @Test
+  public void testExact2Grams2() {
+    String str = "A B C D";
+    String[] rulearray = new String[] { "A, a a", "C, c X", "B, b" };
+    build(str, rulearray);
+    List<Set<Long>> twograms = s.get2Grams();
+    List<Set<String>> twogramstrings = toString(twograms);
+
+    assertEquals(6, twogramstrings.size());
+    Set<String> first2grams = twogramstrings.get(0);
+    assertEquals(3, first2grams.size());
+    first2grams.contains("A B");
+    first2grams.contains("A b");
+    first2grams.contains("a a");
+    Set<String> second2grams = twogramstrings.get(1);
+    assertEquals(6, second2grams.size());
+    second2grams.contains("B C");
+    second2grams.contains("B c");
+    second2grams.contains("b C");
+    second2grams.contains("b c");
+    second2grams.contains("a B");
+    second2grams.contains("a b");
+    Set<String> third2grams = twogramstrings.get(2);
+    assertEquals(6, second2grams.size());
+    third2grams.contains("C D");
+    third2grams.contains("c X");
+    third2grams.contains("B C");
+    third2grams.contains("B c");
+    third2grams.contains("b C");
+    third2grams.contains("b c");
+    Set<String> fourth2grams = twogramstrings.get(3);
+    assertEquals(4, fourth2grams.size());
+    fourth2grams.contains("D");
+    fourth2grams.contains("X D");
+    fourth2grams.contains("C D");
+    fourth2grams.contains("c X");
+    Set<String> fifth2grams = twogramstrings.get(4);
+    assertEquals(2, fifth2grams.size());
+    fifth2grams.contains("X D");
+    fifth2grams.contains("D");
+    Set<String> sixth2grams = twogramstrings.get(5);
+    assertEquals(1, sixth2grams.size());
+    sixth2grams.contains("D");
+  }
+
+  @Test
+  public void testExact2Grams3() {
+    String str = "A B C D";
+    String[] rulearray = new String[] { "A, a a w", "B C, c X", "B, b y z" };
+    build(str, rulearray);
+    List<Set<Long>> twograms = s.getExact2Grams();
+    List<Set<String>> twogramstrings = toString(twograms);
+
+    assertEquals(8, twogramstrings.size());
+    Set<String> first2grams = twogramstrings.get(0);
+    assertEquals(4, first2grams.size());
+    first2grams.contains("A B");
+    first2grams.contains("A b");
+    first2grams.contains("A c");
+    first2grams.contains("a a");
+    Set<String> second2grams = twogramstrings.get(1);
+    assertEquals(4, second2grams.size());
+    second2grams.contains("B C");
+    second2grams.contains("b y");
+    second2grams.contains("c X");
+    second2grams.contains("a w");
+    Set<String> third2grams = twogramstrings.get(2);
+    assertEquals(6, third2grams.size());
+    third2grams.contains("C D");
+    third2grams.contains("y z");
+    third2grams.contains("X D");
+    third2grams.contains("w B");
+    third2grams.contains("w b");
+    third2grams.contains("w c");
+    Set<String> fourth2grams = twogramstrings.get(3);
+    assertEquals(5, fourth2grams.size());
+    fourth2grams.contains("D");
+    fourth2grams.contains("z C");
+    fourth2grams.contains("B C");
+    fourth2grams.contains("b y");
+    fourth2grams.contains("c X");
+    Set<String> fifth2grams = twogramstrings.get(4);
+    assertEquals(3, fifth2grams.size());
+    fifth2grams.contains("C D");
+    fifth2grams.contains("y z");
+    fifth2grams.contains("X D");
+    Set<String> sixth2grams = twogramstrings.get(5);
+    assertEquals(2, sixth2grams.size());
+    sixth2grams.contains("D");
+    sixth2grams.contains("z c");
+    Set<String> seventh2grams = twogramstrings.get(6);
+    assertEquals(1, seventh2grams.size());
+    seventh2grams.contains("c D");
+    Set<String> eighth2grams = twogramstrings.get(7);
+    assertEquals(1, eighth2grams.size());
+    eighth2grams.contains("D");
   }
 
   /**
