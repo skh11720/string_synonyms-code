@@ -22,6 +22,7 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
   static boolean                            useAutomata  = true;
   static boolean                            skipChecking = false;
   static boolean                            compact      = false;
+  static boolean                            exact2grams  = false;
   static String                             outputfile;
   RecordIDComparator                        idComparator;
   static int                                maxIndex     = 3;
@@ -47,7 +48,8 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
     for (int i = 0; i < maxIndex; ++i)
       idx.add(new WYK_HashMap<Long, List<IntIntRecordTriple>>());
     for (Record rec : tableR) {
-      List<Set<Long>> available2Grams = rec.get2Grams();
+      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
+          : rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int boundary = Math.min(range[1], maxIndex);
       for (int i = 0; i < boundary; ++i) {
@@ -99,7 +101,8 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
     long[] sum = new long[maxIndex];
     for (Record recS : tableS) {
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-      List<Set<Long>> available2Grams = recS.get2Grams();
+      List<Set<Long>> available2Grams = exact2grams ? recS.getExact2Grams()
+          : recS.get2Grams();
 
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       int boundary = Math.min(range[0], maxIndex);
@@ -199,6 +202,7 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
     skipChecking = params.isSkipChecking();
     compact = params.isCompact();
     checker = params.getValidator();
+    exact2grams = params.isExact2Grams();
 
     long startTime = System.currentTimeMillis();
     JoinD2GramNoIntervalTree inst = new JoinD2GramNoIntervalTree(Rulefile,

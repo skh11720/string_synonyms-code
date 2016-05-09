@@ -27,6 +27,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
   static int                                        maxIndex     = Integer.MAX_VALUE;
   static boolean                                    compact      = false;
   static boolean                                    singleside   = false;
+  static boolean                                    exact2grams  = false;
 
   RecordIDComparator                                idComparator;
   RuleTrie                                          ruletrie;
@@ -63,7 +64,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     Map<Integer, Map<Long, Integer>> invokes = new HashMap<Integer, Map<Long, Integer>>();
     // Map<LongIntPair, Integer> invokes = new HashMap<LongIntPair, Integer>();
     for (Record rec : tableS) {
-      List<Set<Long>> available2Grams = rec.get2Grams();
+      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
+          : rec.get2Grams();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
       for (int i = 0; i < searchmax; ++i) {
         Map<Long, Integer> curridx_invokes = invokes.get(i);
@@ -84,7 +86,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
     idx = new WYK_HashMap<Integer, Map<Long, List<IntIntRecordTriple>>>();
     for (Record rec : tableR) {
-      List<Set<Long>> available2Grams = rec.get2Grams();
+      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
+          : rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int minIdx = -1;
       int minInvokes = Integer.MAX_VALUE;
@@ -146,7 +149,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
     long appliedRules_sum = 0;
     for (Record recS : tableS) {
-      List<Set<Long>> available2Grams = recS.get2Grams();
+      List<Set<Long>> available2Grams = exact2grams ? recS.getExact2Grams()
+          : recS.get2Grams();
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       int searchmax = Math.min(available2Grams.size(), maxIndex);
       for (int i = 0; i < searchmax; ++i) {
@@ -206,7 +210,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
     idx = new WYK_HashMap<Integer, Map<Long, List<IntIntRecordTriple>>>();
     for (Record rec : tableR) {
-      List<Set<Long>> available2Grams = rec.get2Grams();
+      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
+          : rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int minIdx = -1;
       int minInvokes = Integer.MAX_VALUE;
@@ -386,6 +391,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     skipChecking = params.isSkipChecking();
     compact = params.isCompact();
     checker = params.getValidator();
+    exact2grams = params.isExact2Grams();
 
     long startTime = System.currentTimeMillis();
     JoinH2GramNoIntervalTree inst = new JoinH2GramNoIntervalTree(Rulefile,

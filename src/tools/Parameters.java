@@ -39,6 +39,8 @@ public class Parameters {
             + "BottomUpQueue: \n" + "TopDownMatrixDS: \n" + "Naive: "
             + "BottomUpMatrixSinglePathDS: \n")
         .numberOfArgs(2).build());
+    options.addOption(
+        Option.builder("e2g").hasArg(false).desc("Use exact 2 grams").build());
     options.addOption(Option.builder("joinExpandThreshold").argName("T")
         .desc("If number of expanded record is less of equal to T,"
             + " use naive method (for hybrid algorithms only)")
@@ -66,6 +68,7 @@ public class Parameters {
       }
       if (cmd.hasOption("noearlyeval")) param.earlyeval = false;
       if (cmd.hasOption("noearlyprune")) param.earlyprune = false;
+      if (cmd.hasOption("e2g")) param.exact2grams = true;
       if (cmd.hasOption("nolengthfilter")) param.useLengthFilter = false;
       if (cmd.hasOption("v")) {
         vname = ValidatorName.valueOf(cmd.getOptionValue("v"));
@@ -141,6 +144,7 @@ public class Parameters {
   boolean   earlyprune      = true;
   boolean   earlyeval       = true;
   boolean   useLengthFilter = true;
+  boolean   exact2grams     = false;
   int       joinThreshold   = 100;
   Validator validator;
   String[]  remainingArgs;
@@ -180,6 +184,10 @@ public class Parameters {
 
   public boolean isUseLengthFilter() {
     return useLengthFilter;
+  }
+
+  public boolean isExact2Grams() {
+    return exact2grams;
   }
 
   public int getJoinThreshold() {

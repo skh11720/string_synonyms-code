@@ -25,6 +25,7 @@ public class Join2GramNoIntervalTree extends Algorithm {
   static int                                  maxIndex     = Integer.MAX_VALUE;
   static boolean                              compact      = false;
   static boolean                              singleside   = false;
+  static boolean                              exact2grams  = false;
   static Validator                            checker;
 
   RecordIDComparator                          idComparator;
@@ -48,7 +49,9 @@ public class Join2GramNoIntervalTree extends Algorithm {
 
     idx = new WYK_HashMap<Long, List<IntIntRecordTriple>>();
     for (Record rec : tableR) {
-      Set<Long> twoGrams = rec.get2Grams().get(0);
+      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
+          : rec.get2Grams();
+      Set<Long> twoGrams = available2Grams.get(0);
       for (Long twoGram : twoGrams) {
         List<IntIntRecordTriple> list = idx.get(twoGram);
         if (list == null) {
@@ -81,7 +84,9 @@ public class Join2GramNoIntervalTree extends Algorithm {
     long appliedRules_sum = 0;
     for (Record recS : tableS) {
       int[] range = recS.getCandidateLengths(recS.size() - 1);
-      Set<Long> twoGrams = recS.get2Grams().get(0);
+      List<Set<Long>> available2Grams = exact2grams ? recS.getExact2Grams()
+          : recS.get2Grams();
+      Set<Long> twoGrams = available2Grams.get(0);
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
       for (Long twoGram : twoGrams) {
         List<IntIntRecordTriple> tree = idx.get(twoGram);
@@ -157,6 +162,7 @@ public class Join2GramNoIntervalTree extends Algorithm {
     maxIndex = params.getMaxIndex();
     compact = params.isCompact();
     singleside = params.isSingleside();
+    exact2grams = params.isExact2Grams();
     checker = params.getValidator();
 
     long startTime = System.currentTimeMillis();
