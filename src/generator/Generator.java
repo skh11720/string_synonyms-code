@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import mine.Record;
 import tools.Rule;
@@ -69,8 +70,9 @@ public class Generator {
       int avgLhsLen = Integer.parseInt(args[2]);
       int avgRhsLen = Integer.parseInt(args[3]);
       int nRules = Integer.parseInt(args[4]);
-      Generator gen = new Generator(nTokens, 0);
-      gen.genRule(avgLhsLen, avgRhsLen, nRules, new File("rule"));
+      double skewZ = Double.parseDouble(args[5]);
+      Generator gen = new Generator(nTokens, skewZ);
+      gen.genSkewRule(avgLhsLen, avgRhsLen, nRules, new File("rule"));
     } else {
       printUsage();
     }
@@ -126,20 +128,61 @@ public class Generator {
   private Record randomString(int avgLength) {
     // 1. sample length of string
     int len = (int) Math.max(1, avgLength + random.nextGaussian());
-    int[] tokens = new int[len];
     // 2. generate random string
-    for (int t = 0; t < len; ++t) {
-      double rd = random.nextDouble();
-      int token = Arrays.binarySearch(ratio, rd);
-      if (token < 0) token = -token - 1;
-      tokens[t] = token;
-    }
+    int[] tokens = random(len);
     Record rec = new Record(tokens);
     return rec;
   }
 
+  // generate random string
+  private int[] random(int len) {
+    Set<Integer> samples = new HashSet<Integer>();
+    int[] tokens = new int[len];
+    // 2. generate random string
+    while (samples.size() < len) {
+      double rd = random.nextDouble();
+      int token = Arrays.binarySearch(ratio, rd);
+      if (token < 0) token = -token - 1;
+      if (samples.contains(token)) continue;
+      tokens[samples.size()] = token;
+      samples.add(token);
+    }
+    return tokens;
+  }
+
   // Rules: do not follow zipf distribution. Use uniform distribution
-  public void genRule(int lhsmax, int rhsmax, int nRules, File file)
+  public void genSkewRule(int lhsmax, int rhsmax, int nRules, File file)
+      throws IOException {
+    HashSet<Rule> rules = new HashSet<Rule>();
+    while (rules.size() < nRules) {
+      // 1. sample length of lhs and rhs
+      int lhslen = random.nextInt(lhsmax) + 1;
+      int rhslen = random.nextInt(rhsmax) + 1;
+      // 2. generate random lhs
+      int[] from = random(lhslen);
+      int[] to = random(rhslen);
+      if (lhslen == rhslen) {
+        boolean equals = true;
+        for (int t = 0; t < lhslen; ++t)
+          if (from[t] != to[t]) equals = false;
+        if (equals) continue;
+      }
+      Rule rule = new Rule(from, to);
+      rules.add(rule);
+    }
+    BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+    for (Rule rule : rules) {
+      for (int from : rule.getFrom())
+        bw.write(from + " ");
+      bw.write(", ");
+      for (int to : rule.getTo())
+        bw.write(to + " ");
+      bw.newLine();
+    }
+    bw.close();
+  }
+
+  public void genUniformRule(int lhsmax, int rhsmax, int nRules, File file)
       throws IOException {
     HashSet<Rule> rules = new HashSet<Rule>();
     while (rules.size() < nRules) {
@@ -148,15 +191,21 @@ public class Generator {
       int rhslen = random.nextInt(rhsmax) + 1;
       int[] from = new int[lhslen];
       int[] to = new int[rhslen];
+      Set<Integer> samples = new HashSet<Integer>();
       // 2. generate random lhs
-      for (int t = 0; t < lhslen; ++t) {
+      while (samples.size() < lhslen) {
         int token = random.nextInt(int2str.size());
-        from[t] = token;
+        if (samples.contains(token)) continue;
+        from[samples.size()] = token;
+        samples.add(token);
       }
+      samples.clear();
       // 2. generate random rhs
-      for (int t = 0; t < rhslen; ++t) {
+      while (samples.size() < rhslen) {
         int token = random.nextInt(int2str.size());
-        to[t] = token;
+        if (samples.contains(token)) continue;
+        to[samples.size()] = token;
+        samples.add(token);
       }
       if (lhslen == rhslen) {
         boolean equals = true;
