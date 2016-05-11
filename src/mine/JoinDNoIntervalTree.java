@@ -163,8 +163,10 @@ public class JoinDNoIntervalTree extends Algorithm {
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
 
-    System.out.println("Set union iters:" + StaticFunctions.counter);
-    System.out.println("Set inter iters:" + StaticFunctions.inter_counter);
+    System.out.println("Set union items:" + StaticFunctions.union_item_counter);
+    System.out.println("Set union cmps:" + StaticFunctions.union_cmp_counter);
+    System.out.println("Set inter items:" + StaticFunctions.inter_item_counter);
+    System.out.println("Set inter cmps:" + StaticFunctions.inter_cmp_counter);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));

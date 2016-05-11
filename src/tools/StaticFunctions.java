@@ -157,19 +157,21 @@ public class StaticFunctions {
     }
   }
 
-  public static long counter = 0;
+  public static long union_item_counter = 0;
+  public static long union_cmp_counter  = 0;
 
   public static <T> List<T> union(List<? extends List<T>> list,
       Comparator<T> cmp) {
     if (list.size() == 0)
       return new ArrayList<T>();
     else if (list.size() == 1) return list.get(0);
+    for (List<T> l : list)
+      union_item_counter += l.size();
     // Merge candidates
     RecordIntTripleComparator<T> ritCom = new RecordIntTripleComparator<T>(cmp);
     PriorityQueue<RecordIntTriple<T>> pq = new PriorityQueue<RecordIntTriple<T>>(
         list.size(), ritCom);
     for (int i = 0; i < list.size(); ++i) {
-      ++counter;
       List<T> candidates = list.get(i);
       if (!candidates.isEmpty())
         pq.add(new RecordIntTriple<T>(candidates.get(0), i, 0));
@@ -177,7 +179,7 @@ public class StaticFunctions {
     List<T> candidates = new ArrayList<T>();
     T last = null;
     while (!pq.isEmpty()) {
-      ++counter;
+      ++union_cmp_counter;
       RecordIntTriple<T> p = pq.poll();
       if (last == null || cmp.compare(last, p.rec) != 0) {
         last = p.rec;
@@ -193,14 +195,18 @@ public class StaticFunctions {
     return candidates;
   }
 
-  public static long inter_counter = 0;
+  public static long inter_item_counter = 0;
+  public static long inter_cmp_counter  = 0;
 
   public static <T> List<T> intersection(List<? extends List<T>> list,
       Comparator<T> cmp) {
     LinkedList<T> intersection = new LinkedList<T>();
-    if (list.size() == 0) return intersection;
+    if (list.size() == 0)
+      return intersection;
+    else if (list.size() == 1) return list.get(0);
+    for (List<T> l : list)
+      inter_item_counter += l.size();
     intersection.addAll(list.get(0));
-    inter_counter += intersection.size();
     for (int i = 1; i < list.size(); ++i) {
       List<T> src = list.get(i);
       if (src.size() == 0 || intersection.size() == 0) {
@@ -212,7 +218,7 @@ public class StaticFunctions {
       T v1 = iter1.next();
       T v2 = iter2.next();
       while (v1 != null && v2 != null) {
-        ++inter_counter;
+        ++inter_cmp_counter;
         int compare = cmp.compare(v1, v2);
         if (compare == 0) {
           v1 = iter1.hasNext() ? iter1.next() : null;

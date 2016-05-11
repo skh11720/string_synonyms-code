@@ -93,6 +93,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
       int minInvokes = Integer.MAX_VALUE;
       int searchmax = Math.min(range[0], maxIndex);
       for (int i = 0; i < searchmax; ++i) {
+        if (available2Grams.get(i).isEmpty()) continue;
         int invoke = 0;
         Map<Long, Integer> curridx_invokes = invokes.get(i);
         // There is no invocation count: this is the minimum point
@@ -133,15 +134,21 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
     ///// Statistics
     int sum = 0;
+    int ones = 0;
     long count = 0;
     for (Map<Long, List<IntIntRecordTriple>> curridx : idx.values())
       for (List<IntIntRecordTriple> list : curridx.values()) {
-        if (list.size() == 1) continue;
+        if (list.size() == 1) {
+          ++ones;
+          continue;
+        }
         sum++;
         count += list.size();
       }
-    System.out.println("iIdx size : " + count);
-    System.out.println("Rec per idx : " + ((double) count) / sum);
+    System.out.println("key-value pairs(all) : " + (sum + ones));
+    System.out.println("key-value pairs(w/o 1) : " + sum);
+    System.out.println("iIdx size(w/o 1) : " + count);
+    System.out.println("Rec per idx(w/o 1) : " + ((double) count) / sum);
   }
 
   private List<IntegerPair> join() {

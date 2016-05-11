@@ -536,7 +536,7 @@ public class Hybrid2GramA1 extends Algorithm {
     System.out.print("Join finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
-    System.out.println("Union counter: " + StaticFunctions.counter);
+    System.out.println("Union counter: " + StaticFunctions.union_cmp_counter);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));

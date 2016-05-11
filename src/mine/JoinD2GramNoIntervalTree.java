@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,53 +42,64 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
   }
 
   private void buildIndex() {
-    long elements = 0;
-    // Build an index
+    try {
+      long elements = 0;
+      // Build an index
+      BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
 
-    idx = new ArrayList<Map<Long, List<IntIntRecordTriple>>>();
-    for (int i = 0; i < maxIndex; ++i)
-      idx.add(new WYK_HashMap<Long, List<IntIntRecordTriple>>());
-    for (Record rec : tableR) {
-      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
-          : rec.get2Grams();
-      int[] range = rec.getCandidateLengths(rec.size() - 1);
-      int boundary = Math.min(range[1], maxIndex);
-      for (int i = 0; i < boundary; ++i) {
-        Map<Long, List<IntIntRecordTriple>> map = idx.get(i);
-        for (long twogram : available2Grams.get(i)) {
-          List<IntIntRecordTriple> list = map.get(twogram);
-          if (list == null) {
-            list = new ArrayList<IntIntRecordTriple>();
-            map.put(twogram, list);
+      idx = new ArrayList<Map<Long, List<IntIntRecordTriple>>>();
+      for (int i = 0; i < maxIndex; ++i)
+        idx.add(new WYK_HashMap<Long, List<IntIntRecordTriple>>());
+      for (Record rec : tableR) {
+        List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
+            : rec.get2Grams();
+        List<Long> tmp = new ArrayList<Long>(available2Grams.get(0));
+        Collections.sort(tmp);
+        bw.write(rec.toString() + ":" + tmp.toString() + "\n");
+        int[] range = rec.getCandidateLengths(rec.size() - 1);
+        int boundary = Math.min(range[1], maxIndex);
+        for (int i = 0; i < boundary; ++i) {
+          Map<Long, List<IntIntRecordTriple>> map = idx.get(i);
+          for (long twogram : available2Grams.get(i)) {
+            List<IntIntRecordTriple> list = map.get(twogram);
+            if (list == null) {
+              list = new ArrayList<IntIntRecordTriple>();
+              map.put(twogram, list);
+            }
+            list.add(new IntIntRecordTriple(range[0], range[1], rec));
           }
-          list.add(new IntIntRecordTriple(range[0], range[1], rec));
+          elements += available2Grams.get(i).size();
         }
-        elements += available2Grams.get(i).size();
       }
-    }
-    System.out.println("Idx size : " + elements);
+      System.out.println("Idx size : " + elements);
+      bw.close();
 
-    for (int i = 0; i < maxIndex; ++i) {
-      Map<Long, List<IntIntRecordTriple>> ithidx = idx.get(i);
-      System.out.println(i + "th iIdx key-value pairs: " + ithidx.size());
-      // Statistics
-      int sum = 0;
-      int singlelistsize = 0;
-      long count = 0;
-      long sqsum = 0;
-      for (List<IntIntRecordTriple> list : ithidx.values()) {
-        sqsum += list.size() * list.size();
-        if (list.size() == 1) {
-          ++singlelistsize;
-          continue;
+      for (int i = 0; i < maxIndex; ++i) {
+        Map<Long, List<IntIntRecordTriple>> ithidx = idx.get(i);
+        System.out.println(i + "th iIdx key-value pairs: " + ithidx.size());
+        // Statistics
+        int sum = 0;
+        int singlelistsize = 0;
+        long count = 0;
+        long sqsum = 0;
+        for (List<IntIntRecordTriple> list : ithidx.values()) {
+          sqsum += list.size() * list.size();
+          if (list.size() == 1) {
+            ++singlelistsize;
+            continue;
+          }
+          sum++;
+          count += list.size();
         }
-        sum++;
-        count += list.size();
+        System.out.println(i + "th Single value list size : " + singlelistsize);
+        System.out.println(i + "th iIdx size(w/o 1) : " + count);
+        System.out
+            .println(i + "th Rec per idx(w/o 1) : " + ((double) count) / sum);
+        System.out.println(i + "th Sqsum : " + sqsum);
       }
-      System.out.println(i + "th Single value list size : " + singlelistsize);
-      System.out.println(i + "th iIdx size : " + count);
-      System.out.println(i + "th Rec per idx : " + ((double) count) / sum);
-      System.out.println(i + "th Sqsum : " + sqsum);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(1);
     }
   }
 
@@ -167,8 +179,10 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
     System.out.println(" " + (System.currentTimeMillis() - startTime));
     System.out.println(rslt.size());
 
-    System.out.println("Set union iters:" + StaticFunctions.counter);
-    System.out.println("Set inter iters:" + StaticFunctions.inter_counter);
+    System.out.println("Set union items:" + StaticFunctions.union_item_counter);
+    System.out.println("Set union cmps:" + StaticFunctions.union_cmp_counter);
+    System.out.println("Set inter items:" + StaticFunctions.inter_item_counter);
+    System.out.println("Set inter cmps:" + StaticFunctions.inter_cmp_counter);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
