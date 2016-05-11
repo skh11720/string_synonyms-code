@@ -22,10 +22,10 @@ public class Naive_DS extends Validator {
       return longvalidator.isEqual(x, y);
     // If there is no pre-expanded records, do expand
     if (prevx != x) {
-      expandedx = x.expandAll();
+      expandedx = x.expandAll(Record.getRuleTrie());
       Collections.sort(expandedx, cmp);
     }
-    List<Record> expandedy = y.expandAll();
+    List<Record> expandedy = y.expandAll(Record.getRuleTrie());
     Collections.sort(expandedy, cmp);
     int idxx = 0, idxy = 0;
     assert (expandedx.size() > 0);

@@ -90,6 +90,10 @@ public class Record
     Record.atm = atm;
   }
 
+  public static RuleTrie getRuleTrie() {
+    return atm;
+  }
+
   public Record(int[] tokens) {
     this.id = -1;
     this.tokens = tokens;
@@ -351,12 +355,12 @@ public class Record
      * 2) two tokens are generated from the same rule.
      */
     List<Set<Long>> twograms = new ArrayList<Set<Long>>();
-    int[] availrangebitmap = new int[size()];
+    long[] availrangebitmap = new long[size()];
     for (int i = 0; i < getMaxLength(); ++i)
       twograms.add(new WYK_HashSet<Long>());
     // Compute exact available ranges
     for (int i = 0; i < size(); ++i) {
-      int range = 1;
+      long range = 1;
       if (i != 0) range = availrangebitmap[i - 1];
       // For each rule r applicable to the prefix of x[i..],
       // range[i + r.lhs] contains range[i - 1] + r.rhs
@@ -366,7 +370,7 @@ public class Record
 
     // By using the exact available ranges, compute the exact 2 grams
     for (int i = 0; i < size(); ++i) {
-      int range = 0;
+      long range = 1;
       if (i != 0) range = availrangebitmap[i - 1];
       List<Integer> availrangelist = transform(range);
       for (Rule headrule : getApplicableRules(i)) {
@@ -379,7 +383,8 @@ public class Record
           long twogram = headstr[headstr.length - 1];
           twogram = (twogram << 32) + Integer.MAX_VALUE;
           for (int idx : availrangelist)
-            twograms.get(idx + headstr.length - 1).add(twogram);
+            if (idx + headstr.length < 64)
+              twograms.get(idx + headstr.length - 1).add(twogram);
         } else {
           assert (tailrules.length > 0);
           for (Rule tailrule : tailrules) {
@@ -388,32 +393,32 @@ public class Record
             twogram = (twogram << 32) + tailrule.getTo()[0];
             assert (twogram >= 0);
             for (int idx : availrangelist)
-              twograms.get(idx + headstr.length - 1).add(twogram);
+              if (idx + headstr.length < 64)
+                twograms.get(idx + headstr.length - 1).add(twogram);
           }
         }
 
         // Add 2grams from the same rule
         // If this rule generates one token only, skip generating 2 grams
         if (headstr.length < 2) continue;
-        for (int idx = 0; idx < headstr.length - 1; ++idx) {
+        for (int idx = 0; idx < headstr.length - 1 && idx < 64; ++idx) {
           // Generate twogram
           long twogram = headstr[idx];
           twogram = (twogram << 32) + headstr[idx + 1];
           assert (twogram >= 0);
           for (int jdx : availrangelist)
-            twograms.get(jdx + idx).add(twogram);
+            if (jdx + idx < 64) twograms.get(jdx + idx).add(twogram);
         }
       }
     }
     return twograms;
   }
 
-  private List<Integer> transform(int bitmap) {
+  private List<Integer> transform(long bitmap) {
+    bitmap &= 0x7fffffffffffffffL;
     List<Integer> list = new ArrayList<Integer>();
-    if (bitmap == 0)
-      list.add(0);
-    else {
-      for (int i = 0; i < 32; ++i) {
+    if (bitmap > 0) {
+      for (int i = 0; i < 64; ++i) {
         if (bitmap % 2 == 1) list.add(i);
         bitmap /= 2;
       }
@@ -619,6 +624,25 @@ public class Record
     return estimated_equivs[estimated_equivs.length - 1];
   }
 
+  public long getEstExpandCost() {
+    // cost[i] : expand cost for x[1..i].
+    long[] costs = new long[size() + 1];
+    for (int i = 1; i <= size(); ++i) {
+      Rule[] rules = getSuffixApplicableRules(i - 1);
+      for (Rule rule : rules) {
+        if (StaticFunctions.isSelfRule(rule)) continue;
+        int deltalen = rule.getTo().length - rule.getFrom().length;
+        int previdx = i - rule.getFrom().length - 1;
+        long equivs = previdx >= 0 ? estimated_equivs[previdx] : 1;
+        long newcost = costs[i - rule.getFrom().length]
+            + deltalen * (equivs - 1) + size() + deltalen;
+        costs[i] += newcost;
+      }
+      costs[i] += costs[i - 1];
+    }
+    return costs[size()];
+  }
+
   public int getID() {
     return id;
   }
@@ -641,10 +665,27 @@ public class Record
   }
 
   /**
-   * Expand this record with default rule trie
+   * Expand this record with preprocessed rules
    */
+  @Deprecated
   public ArrayList<Record> expandAll() {
-    return expandAll(atm);
+    ArrayList<Record> rslt = new ArrayList<Record>();
+    expandAll(rslt, 0);
+    return rslt;
+  }
+
+  private void expandAll(ArrayList<Record> rslt, int idx) {
+    if (idx == tokens.length) {
+      rslt.add(this);
+      return;
+    }
+    Rule[] rules = applicableRules[idx];
+    for (Rule rule : rules) {
+      Record new_rec = this;
+      if (!StaticFunctions.isSelfRule(rule)) new_rec = applyRule(rule, idx);
+      int new_idx = idx + rule.toSize();
+      new_rec.expandAll(rslt, new_idx);
+    }
   }
 
   /**

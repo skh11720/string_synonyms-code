@@ -42,7 +42,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A, a", "C, c", "B C, x" };
     build(str, rulearray);
-    List<Record> expanded = s.expandAll();
+    List<Record> expanded = s.expandAll(Record.getRuleTrie());
     Set<String> set = new HashSet<String>();
     for (Record exp : expanded)
       set.add(exp.toString());
@@ -60,7 +60,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A, a", "C, c", "B, b" };
     build(str, rulearray);
-    List<Record> expanded = s.expandAll();
+    List<Record> expanded = s.expandAll(Record.getRuleTrie());
     Set<String> set = new HashSet<String>();
     for (Record exp : expanded)
       set.add(exp.toString());
@@ -80,7 +80,7 @@ public class RecordTest {
     String str = "anchor chain";
     String[] rulearray = new String[] { "anchor, keystone", "anchor, lime" };
     build(str, rulearray);
-    List<Record> expanded = s.expandAll();
+    List<Record> expanded = s.expandAll(Record.getRuleTrie());
     Set<String> set = new HashSet<String>();
     for (Record exp : expanded)
       set.add(exp.toString());
@@ -88,6 +88,33 @@ public class RecordTest {
     assertTrue(set.contains("anchor chain "));
     assertTrue(set.contains("keystone chain "));
     assertTrue(set.contains("lime chain "));
+  }
+
+  @Test
+  public void testExpandCost() {
+    String str = "A B C D";
+    String[] rulearray = new String[] { "A, a", "C, c", "B C, x" };
+    build(str, rulearray);
+    long cost = s.getEstExpandCost();
+    assertEquals(18, cost);
+  }
+
+  @Test
+  public void testExpandCost2() {
+    String str = "A B C D";
+    String[] rulearray = new String[] { "A, a", "C, c", "B, b" };
+    build(str, rulearray);
+    long cost = s.getEstExpandCost();
+    assertEquals(28, cost);
+  }
+
+  @Test
+  public void testExpandCost3() {
+    String str = "A B C D";
+    String[] rulearray = new String[] { "A, a a w", "B C, c X", "B, b y z" };
+    build(str, rulearray);
+    long cost = s.getEstExpandCost();
+    assertEquals(30, cost);
   }
 
   private static List<Set<String>> toString(List<Set<Long>> twograms) {
@@ -355,6 +382,39 @@ public class RecordTest {
     eighth2grams.contains("D");
   }
 
+  @Test
+  public void testExact2Grams4() {
+    String str = "A B C D";
+    String[] rulearray = new String[] { "A B C, a", "D, b z" };
+    build(str, rulearray);
+    List<Set<Long>> twograms = s.getExact2Grams();
+    List<Set<String>> twogramstrings = toString(twograms);
+
+    assertEquals(5, twogramstrings.size());
+    Set<String> first2grams = twogramstrings.get(0);
+    assertEquals(3, first2grams.size());
+    first2grams.contains("A b");
+    first2grams.contains("a b");
+    first2grams.contains("a D");
+    Set<String> second2grams = twogramstrings.get(1);
+    assertEquals(3, second2grams.size());
+    second2grams.contains("B C");
+    second2grams.contains("D");
+    second2grams.contains("b z");
+    Set<String> third2grams = twogramstrings.get(2);
+    assertEquals(3, third2grams.size());
+    third2grams.contains("C D");
+    third2grams.contains("C b");
+    third2grams.contains("z");
+    Set<String> fourth2grams = twogramstrings.get(3);
+    assertEquals(2, fourth2grams.size());
+    fourth2grams.contains("D");
+    fourth2grams.contains("b z");
+    Set<String> fifth2grams = twogramstrings.get(4);
+    assertEquals(1, fifth2grams.size());
+    fifth2grams.contains("z");
+  }
+
   /**
    * Build test case (generate records/strint-to-integer map and preprocess
    * records)
@@ -387,6 +447,7 @@ public class RecordTest {
     rec.preprocessLengths();
     rec.preprocessSearchRanges();
     rec.preprocessSuffixApplicableRules();
+    rec.preprocessEstimatedRecords();
   }
 
   /**
