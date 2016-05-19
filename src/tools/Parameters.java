@@ -53,7 +53,7 @@ public class Parameters {
     Parameters param = new Parameters();
     try {
       CommandLine cmd = parser.parse(argOptions, args);
-      ValidatorName vname = ValidatorName.BottomUpQueueDS;
+      ValidatorName vname = ValidatorName.TopDownHashSetSinglePathDS;
       int vthreshold = 100;
       if (cmd.hasOption("n"))
         param.maxIndex = Integer.parseInt(cmd.getOptionValue("n"));

@@ -19,6 +19,11 @@ import mine.Record;
 import tools.Rule;
 import tools.Rule_ACAutomata;
 
+/**
+ * Generate strings and ruls based on zipf distribution.
+ * The orders of tokens for both datasets are exactly the same.
+ * Manually generate equivalent strings.
+ */
 public class Generator {
   private double[]             ratio;
   private Random               random;
