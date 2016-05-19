@@ -93,19 +93,16 @@ public class JoinDNoIntervalTree extends Algorithm {
     long count = 0;
 
     long cand_sum[] = new long[maxIndex];
+    long cand_sum_afterprune[] = new long[maxIndex];
+    long cand_sum_afterunion[] = new long[maxIndex];
     int count_cand[] = new int[maxIndex];
     int count_empty[] = new int[maxIndex];
-    long[] sum = new long[maxIndex];
     for (Record recS : tableS) {
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
       IntegerSet[] availableTokens = recS.getAvailableTokens();
 
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       int boundary = Math.min(range[0], maxIndex);
-      for (int i = 0; i < boundary; ++i) {
-        int asdf = availableTokens[i].size();
-        sum[i] += asdf;
-      }
       for (int i = 0; i < boundary; ++i) {
         List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
         IntegerMap<ArrayList<IntIntRecordTriple>> map = idx.get(i);
@@ -122,8 +119,11 @@ public class JoinDNoIntervalTree extends Algorithm {
             if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
               list.add(e.rec);
           ithCandidates.add(list);
+          cand_sum_afterprune[i] += list.size();
         }
-        candidatesList.add(StaticFunctions.union(ithCandidates, idComparator));
+        List<Record> union = StaticFunctions.union(ithCandidates, idComparator);
+        candidatesList.add(union);
+        cand_sum_afterunion[i] += union.size();
       }
       List<Record> candidates = StaticFunctions.intersection(candidatesList,
           idComparator);
@@ -136,9 +136,12 @@ public class JoinDNoIntervalTree extends Algorithm {
       }
     }
     for (int i = 0; i < maxIndex; ++i) {
-      System.out.println(i + "th Key membership check : " + sum[i]);
-      System.out
-          .println("Avg candidates : " + cand_sum[i] + "/" + count_cand[i]);
+      System.out.println(
+          "Avg candidates(w/o empty) : " + cand_sum[i] + "/" + count_cand[i]);
+      System.out.println("Avg candidates(w/o empty, after prune) : "
+          + cand_sum_afterprune[i] + "/" + count_cand[i]);
+      System.out.println("Avg candidates(w/o empty, after union) : "
+          + cand_sum_afterunion[i] + "/" + count_cand[i]);
       System.out.println("Empty candidates : " + count_empty[i]);
     }
     System.out.println("comparisions : " + count);

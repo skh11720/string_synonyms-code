@@ -58,6 +58,14 @@ public class Algorithm {
     readRules(rulefile);
   }
 
+  protected Algorithm(Algorithm o) {
+    this.str2int = o.str2int;
+    this.strlist = o.strlist;
+    this.tableR = o.tableR;
+    this.tableS = o.tableS;
+    this.rulelist = o.rulelist;
+  }
+
   /**
    * Common preprocess:</br>
    * 1) find applicable rules</br>

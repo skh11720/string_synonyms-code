@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import tools.Algorithm;
@@ -22,19 +23,19 @@ import tools.WYK_HashSet;
 import validator.Validator;
 
 public class JoinH2GramNoIntervalTree extends Algorithm {
-  static boolean                                    useAutomata  = true;
-  static boolean                                    skipChecking = false;
-  static int                                        maxIndex     = Integer.MAX_VALUE;
-  static boolean                                    compact      = false;
-  static boolean                                    singleside   = false;
-  static boolean                                    exact2grams  = false;
+  public static boolean                             useAutomata  = false;
+  public static boolean                             skipChecking = false;
+  public static int                                 maxIndex     = Integer.MAX_VALUE;
+  public static boolean                             compact      = true;
+  public static boolean                             singleside   = false;
+  public static boolean                             exact2grams  = false;
 
   RecordIDComparator                                idComparator;
   RuleTrie                                          ruletrie;
 
-  static String                                     outputfile;
+  public static String                              outputfile;
 
-  static Validator                                  checker;
+  public static Validator                           checker;
   /**
    * Key: (2gram, index) pair<br/>
    * Value: (min, max, record) triple
@@ -42,15 +43,20 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
   Map<Integer, Map<Long, List<IntIntRecordTriple>>> idx;
   // Map<LongIntPair, List<IntIntRecordTriple>> idx;
 
-  protected JoinH2GramNoIntervalTree(String rulefile, String Rfile,
-      String Sfile) throws IOException {
+  public JoinH2GramNoIntervalTree(String rulefile, String Rfile, String Sfile)
+      throws IOException {
     super(rulefile, Rfile, Sfile);
-    int size = -1;
 
-    readRules(rulefile);
     Record.setStrList(strlist);
-    tableR = readRecords(Rfile, size);
-    tableS = readRecords(Sfile, size);
+    idComparator = new RecordIDComparator();
+    ruletrie = new RuleTrie(rulelist);
+    Record.setRuleTrie(ruletrie);
+  }
+
+  public JoinH2GramNoIntervalTree(Algorithm o) {
+    super(o);
+
+    Record.setStrList(strlist);
     idComparator = new RecordIDComparator();
     ruletrie = new RuleTrie(rulelist);
     Record.setRuleTrie(ruletrie);
@@ -59,6 +65,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
   private void buildIndex() {
     long elements = 0;
     long predictCount = 0;
+    long starttime = System.currentTimeMillis();
     // Build an index
     // Count Invokes per each (token, loc) pair
     Map<Integer, Map<Long, Integer>> invokes = new HashMap<Integer, Map<Long, Integer>>();
@@ -83,6 +90,10 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
         }
       }
     }
+
+    long duration = System.currentTimeMillis() - starttime;
+    System.out.println("Step 1 : " + duration);
+    starttime = System.currentTimeMillis();
 
     idx = new WYK_HashMap<Integer, Map<Long, List<IntIntRecordTriple>>>();
     for (Record rec : tableR) {
@@ -131,6 +142,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     }
     System.out.println("Predict : " + predictCount);
     System.out.println("Idx size : " + elements);
+    duration = System.currentTimeMillis() - starttime;
+    System.out.println("Step 2 : " + duration);
 
     ///// Statistics
     int sum = 0;
@@ -144,6 +157,25 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
         }
         sum++;
         count += list.size();
+      }
+    System.out.println("key-value pairs(all) : " + (sum + ones));
+    System.out.println("key-value pairs(w/o 1) : " + sum);
+    System.out.println("iIdx size(w/o 1) : " + count);
+    System.out.println("Rec per idx(w/o 1) : " + ((double) count) / sum);
+    System.out.println("2Gram retrieval: " + Record.exectime);
+
+    ///// Statistics
+    sum = 0;
+    ones = 0;
+    count = 0;
+    for (Map<Long, Integer> curridx : invokes.values())
+      for (Entry<Long, Integer> list : curridx.entrySet()) {
+        if (list.getValue() == 1) {
+          ++ones;
+          continue;
+        }
+        sum++;
+        count += list.getValue();
       }
     System.out.println("key-value pairs(all) : " + (sum + ones));
     System.out.println("key-value pairs(w/o 1) : " + sum);
@@ -367,10 +399,10 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     System.out.print("Building Index finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
 
-    startTime = System.currentTimeMillis();
+    startTime = System.nanoTime();
     Collection<IntegerPair> rslt = (singleside ? joinSingleSide() : join());
     System.out.print("Join finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    System.out.println(" " + (System.nanoTime() - startTime) + "ns");
     System.out.println(rslt.size());
 
     try {

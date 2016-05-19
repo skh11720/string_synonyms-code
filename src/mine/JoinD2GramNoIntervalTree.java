@@ -45,7 +45,6 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
     try {
       long elements = 0;
       // Build an index
-      BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
 
       idx = new ArrayList<Map<Long, List<IntIntRecordTriple>>>();
       for (int i = 0; i < maxIndex; ++i)
@@ -55,7 +54,6 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
             : rec.get2Grams();
         List<Long> tmp = new ArrayList<Long>(available2Grams.get(0));
         Collections.sort(tmp);
-        bw.write(rec.toString() + ":" + tmp.toString() + "\n");
         int[] range = rec.getCandidateLengths(rec.size() - 1);
         int boundary = Math.min(range[1], maxIndex);
         for (int i = 0; i < boundary; ++i) {
@@ -72,7 +70,6 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
         }
       }
       System.out.println("Idx size : " + elements);
-      bw.close();
 
       for (int i = 0; i < maxIndex; ++i) {
         Map<Long, List<IntIntRecordTriple>> ithidx = idx.get(i);
@@ -108,9 +105,10 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
     long count = 0;
 
     long cand_sum[] = new long[maxIndex];
+    long cand_sum_afterprune[] = new long[maxIndex];
+    long cand_sum_afterunion[] = new long[maxIndex];
     int count_cand[] = new int[maxIndex];
     int count_empty[] = new int[maxIndex];
-    long[] sum = new long[maxIndex];
     for (Record recS : tableS) {
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
       List<Set<Long>> available2Grams = exact2grams ? recS.getExact2Grams()
@@ -118,10 +116,6 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
 
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       int boundary = Math.min(range[0], maxIndex);
-      for (int i = 0; i < boundary; ++i) {
-        long asdf = available2Grams.get(i).size();
-        sum[i] += asdf;
-      }
       for (int i = 0; i < boundary; ++i) {
         List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
         Map<Long, List<IntIntRecordTriple>> map = idx.get(i);
@@ -138,8 +132,11 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
             if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
               list.add(e.rec);
           ithCandidates.add(list);
+          cand_sum_afterprune[i] += list.size();
         }
-        candidatesList.add(StaticFunctions.union(ithCandidates, idComparator));
+        List<Record> union = StaticFunctions.union(ithCandidates, idComparator);
+        candidatesList.add(union);
+        cand_sum_afterunion[i] += union.size();
       }
       List<Record> candidates = StaticFunctions.intersection(candidatesList,
           idComparator);
@@ -152,9 +149,12 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
       }
     }
     for (int i = 0; i < maxIndex; ++i) {
-      System.out.println(i + "th Key membership check : " + sum[i]);
-      System.out
-          .println("Avg candidates : " + cand_sum[i] + "/" + count_cand[i]);
+      System.out.println(
+          "Avg candidates(w/o empty) : " + cand_sum[i] + "/" + count_cand[i]);
+      System.out.println("Avg candidates(w/o empty, after prune) : "
+          + cand_sum_afterprune[i] + "/" + count_cand[i]);
+      System.out.println("Avg candidates(w/o empty, after union) : "
+          + cand_sum_afterunion[i] + "/" + count_cand[i]);
       System.out.println("Empty candidates : " + count_empty[i]);
     }
     System.out.println("comparisions : " + count);

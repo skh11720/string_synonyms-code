@@ -329,11 +329,14 @@ public class Record
       twogram = (twogram << 32) + Integer.MAX_VALUE;
     return twogram;
   }
+  
+  public static long exectime = 0;
 
   /**
    * Returns all available (actually, superset) 2 grams
    */
   public List<Set<Long>> get2Grams() {
+    long start = System.nanoTime();
     /*
      * There are two type of 2 grams:
      * 1) two tokens are derived from different rules.
@@ -345,6 +348,7 @@ public class Record
       twograms.add(new WYK_HashSet<Long>());
     add2GramsFromDiffRules(twograms);
     add2GramsFromSameRule(twograms);
+    exectime += System.nanoTime() - start;
     return twograms;
   }
 
