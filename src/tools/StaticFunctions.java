@@ -179,8 +179,8 @@ public class StaticFunctions {
     List<T> candidates = new ArrayList<T>();
     T last = null;
     while (!pq.isEmpty()) {
-      ++union_cmp_counter;
       RecordIntTriple<T> p = pq.poll();
+      if (last != null) ++union_cmp_counter;
       if (last == null || cmp.compare(last, p.rec) != 0) {
         last = p.rec;
         candidates.add(p.rec);
@@ -218,8 +218,8 @@ public class StaticFunctions {
       T v1 = iter1.next();
       T v2 = iter2.next();
       while (v1 != null && v2 != null) {
-        ++inter_cmp_counter;
         int compare = cmp.compare(v1, v2);
+        ++inter_cmp_counter;
         if (compare == 0) {
           v1 = iter1.hasNext() ? iter1.next() : null;
           v2 = iter2.hasNext() ? iter2.next() : null;
@@ -229,9 +229,12 @@ public class StaticFunctions {
         } else
           v2 = iter2.hasNext() ? iter2.next() : null;
       }
-      if (v2 == null) while (iter1.hasNext()) {
+      if (v1 != null && v2 == null) while (true) {
         iter1.remove();
-        iter1.next();
+        if (iter1.hasNext())
+          iter1.next();
+        else
+          break;
       }
     }
     return intersection;
@@ -242,6 +245,8 @@ public class StaticFunctions {
     if (list.size() == 0)
       return new ArrayList<T>();
     else if (list.size() == 1) return list.get(0);
+    for (List<T> l : list)
+      inter_item_counter += l.size();
     RecordIntTripleComparator<T> ritCom = new RecordIntTripleComparator<T>(cmp);
     PriorityQueue<RecordIntTriple<T>> pq = new PriorityQueue<RecordIntTriple<T>>(
         list.size(), ritCom);
@@ -255,9 +260,11 @@ public class StaticFunctions {
     int count = 0;
     while (!pq.isEmpty()) {
       RecordIntTriple<T> p = pq.poll();
+      if (last != null) ++inter_cmp_counter;
       if (last == null || cmp.compare(last, p.rec) != 0) {
         last = p.rec;
         count = 1;
+        if (pq.size() != list.size() - 1) break;
       } else if (++count == list.size()) candidates.add(last);
       List<T> origin = list.get(p.i1);
       ++p.i2;
