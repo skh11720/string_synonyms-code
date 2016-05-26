@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import tools.IntegerPair;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -117,11 +118,11 @@ public class RecordTest {
     assertEquals(30, cost);
   }
 
-  private static List<Set<String>> toString(List<Set<Long>> twograms) {
+  private static List<Set<String>> toString(List<Set<IntegerPair>> twograms) {
     List<Set<String>> twogramstrings = new ArrayList<Set<String>>();
     for (int i = 0; i < twograms.size(); ++i) {
       Set<String> twogramstri = new HashSet<String>();
-      for (Long twogram : twograms.get(i))
+      for (IntegerPair twogram : twograms.get(i))
         twogramstri.add(Record.twoGram2String(twogram));
       twogramstrings.add(twogramstri);
     }
@@ -133,7 +134,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A, a", "C, c", "B C, x" };
     build(str, rulearray);
-    List<Set<Long>> twograms = s.get2Grams();
+    List<Set<IntegerPair>> twograms = s.get2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
     assertEquals(4, twogramstrings.size());
@@ -163,7 +164,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A, a a", "C, c X", "B, b" };
     build(str, rulearray);
-    List<Set<Long>> twograms = s.get2Grams();
+    List<Set<IntegerPair>> twograms = s.get2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
     assertEquals(6, twogramstrings.size());
@@ -208,7 +209,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A, a", "B, b x y", "C, c" };
     build(str, rulearray);
-    List<Set<Long>> twograms = s.get2Grams();
+    List<Set<IntegerPair>> twograms = s.get2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
     assertEquals(6, twogramstrings.size());
@@ -250,7 +251,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A, a", "B, b x y", "C, c" };
     build(str, rulearray);
-    List<Set<Long>> twograms = s.getExact2Grams();
+    List<Set<IntegerPair>> twograms = s.getExact2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
     assertEquals(6, twogramstrings.size());
@@ -289,7 +290,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A, a a", "C, c X", "B, b" };
     build(str, rulearray);
-    List<Set<Long>> twograms = s.get2Grams();
+    List<Set<IntegerPair>> twograms = s.get2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
     assertEquals(6, twogramstrings.size());
@@ -334,7 +335,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A, a a w", "B C, c X", "B, b y z" };
     build(str, rulearray);
-    List<Set<Long>> twograms = s.getExact2Grams();
+    List<Set<IntegerPair>> twograms = s.getExact2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
     assertEquals(8, twogramstrings.size());
@@ -387,7 +388,7 @@ public class RecordTest {
     String str = "A B C D";
     String[] rulearray = new String[] { "A B C, a", "D, b z" };
     build(str, rulearray);
-    List<Set<Long>> twograms = s.getExact2Grams();
+    List<Set<IntegerPair>> twograms = s.getExact2Grams();
     List<Set<String>> twogramstrings = toString(twograms);
 
     assertEquals(5, twogramstrings.size());

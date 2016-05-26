@@ -19,19 +19,19 @@ import tools.WYK_HashMap;
 import validator.Validator;
 
 public class JoinH2GramSITree extends Algorithm {
-  static boolean                    useAutomata  = true;
-  static boolean                    skipChecking = false;
-  static int                        maxIndex     = Integer.MAX_VALUE;
-  static boolean                    compact      = false;
-  static boolean                    exact2grams  = false;
+  static boolean                           useAutomata  = true;
+  static boolean                           skipChecking = false;
+  static int                               maxIndex     = Integer.MAX_VALUE;
+  static boolean                           compact      = false;
+  static boolean                           exact2grams  = false;
 
-  RecordIDComparator                idComparator;
-  RuleTrie                          ruletrie;
+  RecordIDComparator                       idComparator;
+  RuleTrie                                 ruletrie;
 
-  static String                     outputfile;
+  static String                            outputfile;
 
-  static Validator                  checker;
-  Map<Integer, SI_Tree_JoinH<Long>> idx;
+  static Validator                         checker;
+  Map<Integer, SI_Tree_JoinH<IntegerPair>> idx;
 
   protected JoinH2GramSITree(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -52,19 +52,19 @@ public class JoinH2GramSITree extends Algorithm {
     long predictCount = 0;
     // Build an index
     // Count Invokes per each (token, loc) pair
-    Map<Integer, Map<Long, Integer>> invokes = new HashMap<Integer, Map<Long, Integer>>();
+    Map<Integer, Map<IntegerPair, Integer>> invokes = new HashMap<Integer, Map<IntegerPair, Integer>>();
     // Map<LongIntPair, Integer> invokes = new HashMap<LongIntPair, Integer>();
     for (Record rec : tableS) {
-      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
-          : rec.get2Grams();
+      List<Set<IntegerPair>> available2Grams = exact2grams
+          ? rec.getExact2Grams() : rec.get2Grams();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
       for (int i = 0; i < searchmax; ++i) {
-        Map<Long, Integer> curridx_invokes = invokes.get(i);
+        Map<IntegerPair, Integer> curridx_invokes = invokes.get(i);
         if (curridx_invokes == null) {
-          curridx_invokes = new WYK_HashMap<Long, Integer>();
+          curridx_invokes = new WYK_HashMap<IntegerPair, Integer>();
           invokes.put(i, curridx_invokes);
         }
-        for (long twogram : available2Grams.get(i)) {
+        for (IntegerPair twogram : available2Grams.get(i)) {
           Integer count = curridx_invokes.get(twogram);
           if (count == null)
             count = 1;
@@ -75,10 +75,10 @@ public class JoinH2GramSITree extends Algorithm {
       }
     }
 
-    idx = new WYK_HashMap<Integer, SI_Tree_JoinH<Long>>();
+    idx = new WYK_HashMap<Integer, SI_Tree_JoinH<IntegerPair>>();
     for (Record rec : tableR) {
-      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
-          : rec.get2Grams();
+      List<Set<IntegerPair>> available2Grams = exact2grams
+          ? rec.getExact2Grams() : rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int minIdx = -1;
       int minInvokes = Integer.MAX_VALUE;
@@ -86,14 +86,14 @@ public class JoinH2GramSITree extends Algorithm {
       for (int i = 0; i < searchmax; ++i) {
         if (available2Grams.get(i).isEmpty()) continue;
         int invoke = 0;
-        Map<Long, Integer> curridx_invokes = invokes.get(i);
+        Map<IntegerPair, Integer> curridx_invokes = invokes.get(i);
         // There is no invocation count: this is the minimum point
         if (curridx_invokes == null) {
           minIdx = i;
           minInvokes = 0;
           break;
         }
-        for (long twogram : available2Grams.get(i)) {
+        for (IntegerPair twogram : available2Grams.get(i)) {
           Integer count = curridx_invokes.get(twogram);
           if (count != null) invoke += count;
         }
@@ -105,9 +105,9 @@ public class JoinH2GramSITree extends Algorithm {
 
       predictCount += minInvokes;
 
-      SI_Tree_JoinH<Long> curridx = idx.get(minIdx);
+      SI_Tree_JoinH<IntegerPair> curridx = idx.get(minIdx);
       if (curridx == null) {
-        curridx = new SI_Tree_JoinH<Long>(checker);
+        curridx = new SI_Tree_JoinH<IntegerPair>(checker);
         idx.put(minIdx, curridx);
       }
       curridx.add(rec, available2Grams.get(minIdx));
@@ -122,11 +122,11 @@ public class JoinH2GramSITree extends Algorithm {
 
     long appliedRules_sum = 0;
     for (Record recS : tableS) {
-      List<Set<Long>> available2Grams = exact2grams ? recS.getExact2Grams()
-          : recS.get2Grams();
+      List<Set<IntegerPair>> available2Grams = exact2grams
+          ? recS.getExact2Grams() : recS.get2Grams();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
       for (int i = 0; i < searchmax; ++i) {
-        SI_Tree_JoinH<Long> curridx = idx.get(i);
+        SI_Tree_JoinH<IntegerPair> curridx = idx.get(i);
         if (curridx == null) continue;
         List<Record> search = curridx.search(recS, available2Grams.get(i),
             skipChecking);

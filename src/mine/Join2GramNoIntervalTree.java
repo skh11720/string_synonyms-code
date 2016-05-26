@@ -20,23 +20,23 @@ import validator.Validator;
  * Extended JoinBNoIntervalTree
  */
 public class Join2GramNoIntervalTree extends Algorithm {
-  static boolean                              useAutomata  = false;
-  static boolean                              skipChecking = false;
-  static int                                  maxIndex     = Integer.MAX_VALUE;
-  static boolean                              compact      = false;
-  static boolean                              singleside   = false;
-  static boolean                              exact2grams  = false;
-  static Validator                            checker;
+  static boolean                                     useAutomata  = false;
+  static boolean                                     skipChecking = false;
+  static int                                         maxIndex     = Integer.MAX_VALUE;
+  static boolean                                     compact      = false;
+  static boolean                                     singleside   = false;
+  static boolean                                     exact2grams  = false;
+  static Validator                                   checker;
 
-  RecordIDComparator                          idComparator;
+  RecordIDComparator                                 idComparator;
 
-  static String                               outputfile;
+  static String                                      outputfile;
 
   /**
    * Key: 2gram<br/>
    * Value: (min, max, record) triple
    */
-  WYK_HashMap<Long, List<IntIntRecordTriple>> idx;
+  WYK_HashMap<IntegerPair, List<IntIntRecordTriple>> idx;
 
   protected Join2GramNoIntervalTree(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -47,12 +47,12 @@ public class Join2GramNoIntervalTree extends Algorithm {
   private void buildIndex() {
     long elements = 0;
 
-    idx = new WYK_HashMap<Long, List<IntIntRecordTriple>>();
+    idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
     for (Record rec : tableR) {
-      List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
-          : rec.get2Grams();
-      Set<Long> twoGrams = available2Grams.get(0);
-      for (Long twoGram : twoGrams) {
+      List<Set<IntegerPair>> available2Grams = exact2grams
+          ? rec.getExact2Grams() : rec.get2Grams();
+      Set<IntegerPair> twoGrams = available2Grams.get(0);
+      for (IntegerPair twoGram : twoGrams) {
         List<IntIntRecordTriple> list = idx.get(twoGram);
         if (list == null) {
           list = new ArrayList<IntIntRecordTriple>();
@@ -84,11 +84,11 @@ public class Join2GramNoIntervalTree extends Algorithm {
     long appliedRules_sum = 0;
     for (Record recS : tableS) {
       int[] range = recS.getCandidateLengths(recS.size() - 1);
-      List<Set<Long>> available2Grams = exact2grams ? recS.getExact2Grams()
-          : recS.get2Grams();
-      Set<Long> twoGrams = available2Grams.get(0);
+      List<Set<IntegerPair>> available2Grams = exact2grams
+          ? recS.getExact2Grams() : recS.get2Grams();
+      Set<IntegerPair> twoGrams = available2Grams.get(0);
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-      for (Long twoGram : twoGrams) {
+      for (IntegerPair twoGram : twoGrams) {
         List<IntIntRecordTriple> tree = idx.get(twoGram);
 
         if (tree == null) continue;

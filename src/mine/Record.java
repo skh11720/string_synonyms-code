@@ -10,6 +10,7 @@ import java.util.Set;
 
 import sigmod13.RecordInterface;
 import sigmod13.filter.ITF_Filter;
+import tools.IntegerPair;
 import tools.IntegerSet;
 import tools.Rule;
 import tools.RuleTrie;
@@ -321,47 +322,46 @@ public class Record
     return result;
   }
 
-  public long getOriginal2Gram(int idx) {
-    long twogram = tokens[idx];
+  public IntegerPair getOriginal2Gram(int idx) {
+    int token = tokens[idx];
     if (idx != size() - 1)
-      twogram = (twogram << 32) + tokens[idx + 1];
+      return new IntegerPair(token, tokens[idx + 1]);
     else
-      twogram = (twogram << 32) + Integer.MAX_VALUE;
-    return twogram;
+      return new IntegerPair(token, Integer.MAX_VALUE);
   }
-  
+
   public static long exectime = 0;
 
   /**
    * Returns all available (actually, superset) 2 grams
    */
-  public List<Set<Long>> get2Grams() {
+  public List<Set<IntegerPair>> get2Grams() {
     long start = System.nanoTime();
     /*
      * There are two type of 2 grams:
      * 1) two tokens are derived from different rules.
      * 2) two tokens are generated from the same rule.
      */
-    List<Set<Long>> twograms = new ArrayList<Set<Long>>();
+    List<Set<IntegerPair>> twograms = new ArrayList<Set<IntegerPair>>();
     int[] range = getCandidateLengths(size() - 1);
     for (int i = 0; i < range[1]; ++i)
-      twograms.add(new WYK_HashSet<Long>());
+      twograms.add(new WYK_HashSet<IntegerPair>());
     add2GramsFromDiffRules(twograms);
     add2GramsFromSameRule(twograms);
     exectime += System.nanoTime() - start;
     return twograms;
   }
 
-  public List<Set<Long>> getExact2Grams() {
+  public List<Set<IntegerPair>> getExact2Grams() {
     /*
      * There are two type of 2 grams:
      * 1) two tokens are derived from different rules.
      * 2) two tokens are generated from the same rule.
      */
-    List<Set<Long>> twograms = new ArrayList<Set<Long>>();
+    List<Set<IntegerPair>> twograms = new ArrayList<Set<IntegerPair>>();
     long[] availrangebitmap = new long[size()];
     for (int i = 0; i < getMaxLength(); ++i)
-      twograms.add(new WYK_HashSet<Long>());
+      twograms.add(new WYK_HashSet<IntegerPair>());
     // Compute exact available ranges
     for (int i = 0; i < size(); ++i) {
       long range = 1;
@@ -384,8 +384,8 @@ public class Record
         Rule[] tailrules = getApplicableRules(i + headrule.fromSize());
         if (tailrules == EMPTY_RULE) {
           assert (i + headrule.getFrom().length == size());
-          long twogram = headstr[headstr.length - 1];
-          twogram = (twogram << 32) + Integer.MAX_VALUE;
+          IntegerPair twogram = new IntegerPair(headstr[headstr.length - 1],
+              Integer.MAX_VALUE);
           for (int idx : availrangelist)
             if (idx + headstr.length < 64)
               twograms.get(idx + headstr.length - 1).add(twogram);
@@ -393,9 +393,8 @@ public class Record
           assert (tailrules.length > 0);
           for (Rule tailrule : tailrules) {
             // Generate twogram
-            long twogram = headstr[headstr.length - 1];
-            twogram = (twogram << 32) + tailrule.getTo()[0];
-            assert (twogram >= 0);
+            IntegerPair twogram = new IntegerPair(headstr[headstr.length - 1],
+                tailrule.getTo()[0]);
             for (int idx : availrangelist)
               if (idx + headstr.length < 64)
                 twograms.get(idx + headstr.length - 1).add(twogram);
@@ -407,9 +406,7 @@ public class Record
         if (headstr.length < 2) continue;
         for (int idx = 0; idx < headstr.length - 1 && idx < 64; ++idx) {
           // Generate twogram
-          long twogram = headstr[idx];
-          twogram = (twogram << 32) + headstr[idx + 1];
-          assert (twogram >= 0);
+          IntegerPair twogram = new IntegerPair(headstr[idx], headstr[idx + 1]);
           for (int jdx : availrangelist)
             if (jdx + idx < 64) twograms.get(jdx + idx).add(twogram);
         }
@@ -437,7 +434,7 @@ public class Record
    * @param twograms
    *          set which stores 2 grams
    */
-  private void add2GramsFromDiffRules(List<Set<Long>> twograms) {
+  private void add2GramsFromDiffRules(List<Set<IntegerPair>> twograms) {
     // iterate on prefix rules: it is easier
     for (int i = 0; i < size(); ++i) {
       // Every rules are applicable to a prefix of str[i..*]
@@ -458,17 +455,16 @@ public class Record
         // it adds 2 grams with EOL character.
         if (tailrules == EMPTY_RULE) {
           assert (i + headrule.getFrom().length == size());
-          long twogram = headstr[headstr.length - 1];
-          twogram = (twogram << 32) + Integer.MAX_VALUE;
+          IntegerPair twogram = new IntegerPair(headstr[headstr.length - 1],
+              Integer.MAX_VALUE);
           for (int idx = min; idx <= max; ++idx)
             twograms.get(idx).add(twogram);
         } else {
           assert (tailrules.length > 0);
           for (Rule tailrule : tailrules) {
             // Generate twogram
-            long twogram = headstr[headstr.length - 1];
-            twogram = (twogram << 32) + tailrule.getTo()[0];
-            assert (twogram >= 0);
+            IntegerPair twogram = new IntegerPair(headstr[headstr.length - 1],
+                tailrule.getTo()[0]);
             for (int idx = min; idx <= max; ++idx)
               twograms.get(idx).add(twogram);
           }
@@ -483,7 +479,7 @@ public class Record
    * @param twograms
    *          set which stores 2 grams
    */
-  private void add2GramsFromSameRule(List<Set<Long>> twograms) {
+  private void add2GramsFromSameRule(List<Set<IntegerPair>> twograms) {
     // iterate on prefix rules: it is easier
     for (int i = 0; i < size(); ++i) {
       // Every rules are applicable to a prefix of str[i..*]
@@ -499,9 +495,7 @@ public class Record
         if (str.length < 2) continue;
         for (int idx = 0; idx < str.length - 1; ++idx) {
           // Generate twogram
-          long twogram = str[idx];
-          twogram = (twogram << 32) + str[idx + 1];
-          assert (twogram >= 0);
+          IntegerPair twogram = new IntegerPair(str[idx], str[idx + 1]);
           for (int jdx = range[0] + idx; jdx <= range[1] + idx; ++jdx) {
             twograms.get(jdx).add(twogram);
           }
@@ -517,13 +511,13 @@ public class Record
    * @param idx:
    *          starting index of 2 grams. (starting from 0)
    */
-  public Set<Long> get2Grams(int idx) {
+  public Set<IntegerPair> get2Grams(int idx) {
     /*
      * There are two type of 2 grams:
      * 1) two tokens are derived from different rules.
      * 2) two tokens are generated from the same rule.
      */
-    Set<Long> twograms = new WYK_HashSet<Long>();
+    Set<IntegerPair> twograms = new WYK_HashSet<IntegerPair>();
     add2GramsFromDiffRules(idx, twograms);
     add2GramsFromSameRule(idx, twograms);
     return twograms;
@@ -539,7 +533,7 @@ public class Record
    * @param twograms
    *          set which stores 2 grams
    */
-  private void add2GramsFromDiffRules(int idx, Set<Long> twograms) {
+  private void add2GramsFromDiffRules(int idx, Set<IntegerPair> twograms) {
     // iterate on prefix rules: it is easier
     for (int i = 0; i < size(); ++i) {
       Rule[] rules = getApplicableRules(i);
@@ -563,7 +557,7 @@ public class Record
    * @param twograms
    *          set which stores 2 grams
    */
-  private void add2GramsFromSameRule(int idx, Set<Long> twograms) {
+  private void add2GramsFromSameRule(int idx, Set<IntegerPair> twograms) {
 
   }
 
@@ -736,11 +730,9 @@ public class Record
     return rslt;
   }
 
-  private static final long twogramfilter = 0x100000000L;
-
-  public static String twoGram2String(long twogram) {
-    int token1 = (int) (twogram >> 32);
-    int token2 = (int) (twogram % twogramfilter);
+  public static String twoGram2String(IntegerPair twogram) {
+    int token1 = twogram.i1;
+    int token2 = twogram.i2;
     String rslt = strlist.get(token1);
     if (token2 != Integer.MAX_VALUE) rslt = rslt + " " + strlist.get(token2);
     return rslt;

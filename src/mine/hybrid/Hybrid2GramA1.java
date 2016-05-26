@@ -31,18 +31,18 @@ import validator.Validator;
  * if two strings are equivalent.
  */
 public class Hybrid2GramA1 extends Algorithm {
-  static boolean                                    useAutomata  = true;
-  static boolean                                    skipChecking = false;
-  static int                                        maxIndex     = Integer.MAX_VALUE;
-  static boolean                                    compact      = false;
-  static int                                        joinThreshold;
-  static boolean                                    singleside;
-  static Validator                                  checker;
+  static boolean                                           useAutomata  = true;
+  static boolean                                           skipChecking = false;
+  static int                                               maxIndex     = Integer.MAX_VALUE;
+  static boolean                                           compact      = false;
+  static int                                               joinThreshold;
+  static boolean                                           singleside;
+  static Validator                                         checker;
 
-  RecordIDComparator                                idComparator;
-  RuleTrie                                          ruletrie;
+  RecordIDComparator                                       idComparator;
+  RuleTrie                                                 ruletrie;
 
-  static String                                     outputfile;
+  static String                                            outputfile;
 
   /**
    * Key: (token, index) pair<br/>
@@ -52,16 +52,16 @@ public class Hybrid2GramA1 extends Algorithm {
    * Index of the records in R for the strings in S which has less or equal to
    * 'threshold' 1-expandable strings
    */
-  Map<Integer, Map<Long, List<IntIntRecordTriple>>> short_idx;
+  Map<Integer, Map<IntegerPair, List<IntIntRecordTriple>>> short_idx;
   /**
    * Index of the records in R for the strings in S which has more than
    * 'threshold' 1-expandable strings
    */
-  Map<Integer, Map<Long, List<IntIntRecordTriple>>> long_idx;
+  Map<Integer, Map<IntegerPair, List<IntIntRecordTriple>>> long_idx;
   /**
    * List of 1-expandable strings
    */
-  Map<Record, List<Integer>>                        setR;
+  Map<Record, List<Integer>>                               setR;
 
   protected Hybrid2GramA1(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -77,23 +77,23 @@ public class Hybrid2GramA1 extends Algorithm {
     long shortpredictCount = 0;
     // Build an index
     // Count Invokes per each (token, loc) pair
-    Map<Integer, Map<Long, Integer>> long_invokes = new WYK_HashMap<Integer, Map<Long, Integer>>();
-    Map<Integer, Map<Long, Integer>> short_invokes = new WYK_HashMap<Integer, Map<Long, Integer>>();
+    Map<Integer, Map<IntegerPair, Integer>> long_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Integer>>();
+    Map<Integer, Map<IntegerPair, Integer>> short_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Integer>>();
     for (Record rec : tableS) {
-      List<Set<Long>> available2Grams = rec.get2Grams();
+      List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
-      boolean isLongRecord = rec.getEstNumRecords() > joinThreshold;
+      boolean isIntegerPairRecord = rec.getEstNumRecords() > joinThreshold;
       for (int i = 0; i < searchmax; ++i) {
-        Map<Long, Integer> curr_long_invokes = long_invokes.get(i);
-        Map<Long, Integer> curr_short_invokes = short_invokes.get(i);
+        Map<IntegerPair, Integer> curr_long_invokes = long_invokes.get(i);
+        Map<IntegerPair, Integer> curr_short_invokes = short_invokes.get(i);
         if (curr_long_invokes == null) {
-          curr_long_invokes = new WYK_HashMap<Long, Integer>();
-          curr_short_invokes = new WYK_HashMap<Long, Integer>();
+          curr_long_invokes = new WYK_HashMap<IntegerPair, Integer>();
+          curr_short_invokes = new WYK_HashMap<IntegerPair, Integer>();
           long_invokes.put(i, curr_long_invokes);
           short_invokes.put(i, curr_short_invokes);
         }
-        for (long twogram : available2Grams.get(i)) {
-          if (isLongRecord) {
+        for (IntegerPair twogram : available2Grams.get(i)) {
+          if (isIntegerPairRecord) {
             Integer count = curr_long_invokes.get(twogram);
             if (count == null)
               count = 1;
@@ -114,24 +114,24 @@ public class Hybrid2GramA1 extends Algorithm {
 
     // Build an index for the strings in S which has more than 'threshold'
     // 1-expandable strings
-    long_idx = new WYK_HashMap<Integer, Map<Long, List<IntIntRecordTriple>>>();
-    short_idx = new WYK_HashMap<Integer, Map<Long, List<IntIntRecordTriple>>>();
+    long_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
+    short_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
 
     for (Record rec : tableR) {
-      List<Set<Long>> available2Grams = rec.get2Grams();
+      List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int minIdx = -1;
       int minInvokes = Integer.MAX_VALUE;
       int searchmax = Math.min(range[0], maxIndex);
       for (int i = 0; i < searchmax; ++i) {
-        Map<Long, Integer> curr_long_invokes = long_invokes.get(i);
+        Map<IntegerPair, Integer> curr_long_invokes = long_invokes.get(i);
         if (curr_long_invokes == null) {
           minIdx = i;
           minInvokes = 0;
           break;
         }
         int invoke = 0;
-        for (long twogram : available2Grams.get(i)) {
+        for (IntegerPair twogram : available2Grams.get(i)) {
           Integer count = curr_long_invokes.get(twogram);
           if (count != null) invoke += count;
         }
@@ -142,12 +142,13 @@ public class Hybrid2GramA1 extends Algorithm {
       }
       longpredictCount += minInvokes;
 
-      Map<Long, List<IntIntRecordTriple>> curr_long_idx = long_idx.get(minIdx);
+      Map<IntegerPair, List<IntIntRecordTriple>> curr_long_idx = long_idx
+          .get(minIdx);
       if (curr_long_idx == null) {
-        curr_long_idx = new WYK_HashMap<Long, List<IntIntRecordTriple>>();
+        curr_long_idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
         long_idx.put(minIdx, curr_long_idx);
       }
-      for (long twogram : available2Grams.get(minIdx)) {
+      for (IntegerPair twogram : available2Grams.get(minIdx)) {
         List<IntIntRecordTriple> list = curr_long_idx.get(twogram);
         if (list == null) {
           list = new ArrayList<IntIntRecordTriple>();
@@ -164,14 +165,14 @@ public class Hybrid2GramA1 extends Algorithm {
       minIdx = -1;
       minInvokes = Integer.MAX_VALUE;
       for (int i = 0; i < searchmax; ++i) {
-        Map<Long, Integer> curr_short_invokes = short_invokes.get(i);
+        Map<IntegerPair, Integer> curr_short_invokes = short_invokes.get(i);
         if (curr_short_invokes == null) {
           minIdx = i;
           minInvokes = 0;
           break;
         }
         int invoke = 0;
-        for (long twogram : available2Grams.get(i)) {
+        for (IntegerPair twogram : available2Grams.get(i)) {
           Integer count = curr_short_invokes.get(twogram);
           if (count != null) invoke += count;
         }
@@ -182,13 +183,13 @@ public class Hybrid2GramA1 extends Algorithm {
       }
       shortpredictCount += minInvokes;
 
-      Map<Long, List<IntIntRecordTriple>> curr_short_idx = short_idx
+      Map<IntegerPair, List<IntIntRecordTriple>> curr_short_idx = short_idx
           .get(minIdx);
       if (curr_short_idx == null) {
-        curr_short_idx = new HashMap<Long, List<IntIntRecordTriple>>();
+        curr_short_idx = new HashMap<IntegerPair, List<IntIntRecordTriple>>();
         short_idx.put(minIdx, curr_short_idx);
       }
-      for (long twogram : available2Grams.get(minIdx)) {
+      for (IntegerPair twogram : available2Grams.get(minIdx)) {
         List<IntIntRecordTriple> list = curr_short_idx.get(twogram);
         if (list == null) {
           list = new ArrayList<IntIntRecordTriple>();
@@ -198,15 +199,15 @@ public class Hybrid2GramA1 extends Algorithm {
       }
       shortelements += available2Grams.get(minIdx).size();
     }
-    System.out.println("Long predict : " + longpredictCount);
-    System.out.println("Long idx size : " + longelements);
+    System.out.println("IntegerPair predict : " + longpredictCount);
+    System.out.println("IntegerPair idx size : " + longelements);
     System.out.println("Short predict : " + shortpredictCount);
     System.out.println("Short idx size : " + shortelements);
 
     ///// Statistics
     int sum = 0;
     long count = 0;
-    for (Map<Long, List<IntIntRecordTriple>> curr_long_idx : long_idx
+    for (Map<IntegerPair, List<IntIntRecordTriple>> curr_long_idx : long_idx
         .values()) {
       for (List<IntIntRecordTriple> list : curr_long_idx.values()) {
         if (list.size() == 1) continue;
@@ -220,7 +221,7 @@ public class Hybrid2GramA1 extends Algorithm {
     ///// Statistics
     sum = 0;
     count = 0;
-    for (Map<Long, List<IntIntRecordTriple>> curr_short_idx : short_idx
+    for (Map<IntegerPair, List<IntIntRecordTriple>> curr_short_idx : short_idx
         .values()) {
       for (List<IntIntRecordTriple> list : curr_short_idx.values()) {
         if (list.size() == 1) continue;
@@ -306,15 +307,15 @@ public class Hybrid2GramA1 extends Algorithm {
     long predictCount = 0;
     // Build an index
     // Count Invokes per each (twogram, loc) pair
-    Map<Integer, Map<Long, Integer>> invokes = new WYK_HashMap<Integer, Map<Long, Integer>>();
+    Map<Integer, Map<IntegerPair, Integer>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, Integer>>();
     for (Record rec : tableS) {
       for (int i = 0; i < rec.size(); ++i) {
-        Map<Long, Integer> curridx_invokes = invokes.get(i);
+        Map<IntegerPair, Integer> curridx_invokes = invokes.get(i);
         if (curridx_invokes == null) {
-          curridx_invokes = new WYK_HashMap<Long, Integer>();
+          curridx_invokes = new WYK_HashMap<IntegerPair, Integer>();
           invokes.put(i, curridx_invokes);
         }
-        long twogram = rec.getOriginal2Gram(i);
+        IntegerPair twogram = rec.getOriginal2Gram(i);
         Integer count = curridx_invokes.get(twogram);
         if (count == null)
           count = 1;
@@ -324,23 +325,23 @@ public class Hybrid2GramA1 extends Algorithm {
       }
     }
 
-    long_idx = new WYK_HashMap<Integer, Map<Long, List<IntIntRecordTriple>>>();
+    long_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
     for (Record rec : tableR) {
-      List<Set<Long>> available2Grams = rec.get2Grams();
+      List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int minIdx = -1;
       int minInvokes = Integer.MAX_VALUE;
       int searchmax = Math.min(range[0], maxIndex);
       for (int i = 0; i < searchmax; ++i) {
         int invoke = 0;
-        Map<Long, Integer> curridx_invokes = invokes.get(i);
+        Map<IntegerPair, Integer> curridx_invokes = invokes.get(i);
         // There is no invocation count: this is the minimum point
         if (curridx_invokes == null) {
           minIdx = i;
           minInvokes = 0;
           break;
         }
-        for (long twogram : available2Grams.get(i)) {
+        for (IntegerPair twogram : available2Grams.get(i)) {
           Integer count = curridx_invokes.get(twogram);
           if (count != null) invoke += count;
         }
@@ -352,12 +353,12 @@ public class Hybrid2GramA1 extends Algorithm {
 
       predictCount += minInvokes;
 
-      Map<Long, List<IntIntRecordTriple>> curridx = long_idx.get(minIdx);
+      Map<IntegerPair, List<IntIntRecordTriple>> curridx = long_idx.get(minIdx);
       if (curridx == null) {
-        curridx = new WYK_HashMap<Long, List<IntIntRecordTriple>>();
+        curridx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
         long_idx.put(minIdx, curridx);
       }
-      for (long twogram : available2Grams.get(minIdx)) {
+      for (IntegerPair twogram : available2Grams.get(minIdx)) {
         List<IntIntRecordTriple> list = curridx.get(twogram);
         if (list == null) {
           list = new ArrayList<IntIntRecordTriple>();
@@ -373,7 +374,8 @@ public class Hybrid2GramA1 extends Algorithm {
     ///// Statistics
     int sum = 0;
     long count = 0;
-    for (Map<Long, List<IntIntRecordTriple>> curridx : long_idx.values()) {
+    for (Map<IntegerPair, List<IntIntRecordTriple>> curridx : long_idx
+        .values()) {
       for (List<IntIntRecordTriple> list : curridx.values()) {
         if (list.size() == 1) continue;
         sum++;
@@ -392,9 +394,9 @@ public class Hybrid2GramA1 extends Algorithm {
       int minlength = recS.getMinLength();
       int maxlength = recS.getMaxLength();
       for (int i = 0; i < recS.size(); ++i) {
-        Map<Long, List<IntIntRecordTriple>> curridx = long_idx.get(i);
+        Map<IntegerPair, List<IntIntRecordTriple>> curridx = long_idx.get(i);
         if (curridx == null) continue;
-        long twogram = recS.getOriginal2Gram(i);
+        IntegerPair twogram = recS.getOriginal2Gram(i);
         List<Record> candidatesList = new ArrayList<Record>();
         List<IntIntRecordTriple> tree = curridx.get(twogram);
 
@@ -419,17 +421,17 @@ public class Hybrid2GramA1 extends Algorithm {
   }
 
   private int searchEquivsByDynamicIndex(Record s,
-      Map<Integer, Map<Long, List<IntIntRecordTriple>>> idx,
+      Map<Integer, Map<IntegerPair, List<IntIntRecordTriple>>> idx,
       List<IntegerPair> rslt) {
     int appliedRules_sum = 0;
-    List<Set<Long>> available2Grams = s.get2Grams();
+    List<Set<IntegerPair>> available2Grams = s.get2Grams();
     int[] range = s.getCandidateLengths(s.size() - 1);
     int searchmax = Math.min(available2Grams.size(), maxIndex);
     for (int i = 0; i < searchmax; ++i) {
-      Map<Long, List<IntIntRecordTriple>> curr_idx = idx.get(i);
+      Map<IntegerPair, List<IntIntRecordTriple>> curr_idx = idx.get(i);
       if (curr_idx == null) continue;
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-      for (long twogram : available2Grams.get(i)) {
+      for (IntegerPair twogram : available2Grams.get(i)) {
         List<IntIntRecordTriple> tree = curr_idx.get(twogram);
 
         if (tree == null) continue;

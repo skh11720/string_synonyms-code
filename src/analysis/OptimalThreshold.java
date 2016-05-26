@@ -10,6 +10,7 @@ import java.util.Set;
 import mine.JoinH2GramNoIntervalTree;
 import mine.Record;
 import tools.Algorithm;
+import tools.IntegerPair;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
 import validator.TopDownHashSetSinglePath_DS;
@@ -41,8 +42,7 @@ public class OptimalThreshold extends Algorithm {
     else if (args[2].compareTo("-e") == 0) {
       double ratio = Double.parseDouble(args[3]);
       inst.estimate(ratio);
-    }
-    else {
+    } else {
       printUsage();
       System.exit(0);
     }
@@ -175,19 +175,19 @@ public class OptimalThreshold extends Algorithm {
       if (rec.getEstNumRecords() <= 1E4) expandcandidates.add(rec);
     }
     long starttime = System.nanoTime();
-    Map<Integer, Map<Long, Integer>> counter = new HashMap<Integer, Map<Long, Integer>>();
+    Map<Integer, Map<IntegerPair, Integer>> counter = new HashMap<Integer, Map<IntegerPair, Integer>>();
     for (Record rec : expandcandidates) {
-      List<Set<Long>> twograms = rec.get2Grams();
+      List<Set<IntegerPair>> twograms = rec.get2Grams();
       for (int i = 0; i < twograms.size(); ++i) {
-        Set<Long> twograms_i = twograms.get(i);
-        Map<Long, Integer> counter_i = counter.get(i);
+        Set<IntegerPair> twograms_i = twograms.get(i);
+        Map<IntegerPair, Integer> counter_i = counter.get(i);
         if (counter_i == null) {
-          counter_i = new HashMap<Long, Integer>();
+          counter_i = new HashMap<IntegerPair, Integer>();
           counter.put(i, counter_i);
         }
         candsum += twograms_i.size();
         if (i < rec.getMinLength()) candsummin += twograms_i.size();
-        for (Long twogram : twograms_i) {
+        for (IntegerPair twogram : twograms_i) {
           Integer c = counter_i.get(twogram);
           if (c == null)
             counter_i.put(twogram, 1);
@@ -246,7 +246,7 @@ public class OptimalThreshold extends Algorithm {
 
     System.out.println("Orig build Idx time : " + inst.buildIndexTime);
     System.out.println("Orig join time : " + inst.joinTime);
-    
+
     this.measureBeta();
     this.measureGamma();
   }

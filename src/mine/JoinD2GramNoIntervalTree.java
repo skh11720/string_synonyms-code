@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,20 +19,20 @@ import tools.WYK_HashSet;
 import validator.Validator;
 
 public class JoinD2GramNoIntervalTree extends Algorithm {
-  static boolean                            useAutomata  = true;
-  static boolean                            skipChecking = false;
-  static boolean                            compact      = false;
-  static boolean                            exact2grams  = false;
-  static String                             outputfile;
-  RecordIDComparator                        idComparator;
-  static int                                maxIndex     = 3;
-  static Validator                          checker;
+  static boolean                                   useAutomata  = true;
+  static boolean                                   skipChecking = false;
+  static boolean                                   compact      = false;
+  static boolean                                   exact2grams  = false;
+  static String                                    outputfile;
+  RecordIDComparator                               idComparator;
+  static int                                       maxIndex     = 3;
+  static Validator                                 checker;
   /**
    * Key: twogram<br/>
    * Value IntervalTree Key: length of record (min, max)<br/>
    * Value IntervalTree Value: record
    */
-  List<Map<Long, List<IntIntRecordTriple>>> idx;
+  List<Map<IntegerPair, List<IntIntRecordTriple>>> idx;
 
   protected JoinD2GramNoIntervalTree(String rulefile, String Rfile,
       String Sfile) throws IOException {
@@ -46,19 +45,17 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
       long elements = 0;
       // Build an index
 
-      idx = new ArrayList<Map<Long, List<IntIntRecordTriple>>>();
+      idx = new ArrayList<Map<IntegerPair, List<IntIntRecordTriple>>>();
       for (int i = 0; i < maxIndex; ++i)
-        idx.add(new WYK_HashMap<Long, List<IntIntRecordTriple>>());
+        idx.add(new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>());
       for (Record rec : tableR) {
-        List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
-            : rec.get2Grams();
-        List<Long> tmp = new ArrayList<Long>(available2Grams.get(0));
-        Collections.sort(tmp);
+        List<Set<IntegerPair>> available2Grams = exact2grams
+            ? rec.getExact2Grams() : rec.get2Grams();
         int[] range = rec.getCandidateLengths(rec.size() - 1);
         int boundary = Math.min(range[1], maxIndex);
         for (int i = 0; i < boundary; ++i) {
-          Map<Long, List<IntIntRecordTriple>> map = idx.get(i);
-          for (long twogram : available2Grams.get(i)) {
+          Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get(i);
+          for (IntegerPair twogram : available2Grams.get(i)) {
             List<IntIntRecordTriple> list = map.get(twogram);
             if (list == null) {
               list = new ArrayList<IntIntRecordTriple>();
@@ -72,7 +69,7 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
       System.out.println("Idx size : " + elements);
 
       for (int i = 0; i < maxIndex; ++i) {
-        Map<Long, List<IntIntRecordTriple>> ithidx = idx.get(i);
+        Map<IntegerPair, List<IntIntRecordTriple>> ithidx = idx.get(i);
         System.out.println(i + "th iIdx key-value pairs: " + ithidx.size());
         // Statistics
         int sum = 0;
@@ -111,15 +108,15 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
     int count_empty[] = new int[maxIndex];
     for (Record recS : tableS) {
       List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-      List<Set<Long>> available2Grams = exact2grams ? recS.getExact2Grams()
-          : recS.get2Grams();
+      List<Set<IntegerPair>> available2Grams = exact2grams
+          ? recS.getExact2Grams() : recS.get2Grams();
 
       int[] range = recS.getCandidateLengths(recS.size() - 1);
       int boundary = Math.min(range[0], maxIndex);
       for (int i = 0; i < boundary; ++i) {
         List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
-        Map<Long, List<IntIntRecordTriple>> map = idx.get(i);
-        for (long twogram : available2Grams.get(i)) {
+        Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get(i);
+        for (IntegerPair twogram : available2Grams.get(i)) {
           List<IntIntRecordTriple> tree = map.get(twogram);
           if (tree == null) {
             ++count_empty[i];
