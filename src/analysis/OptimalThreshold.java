@@ -28,10 +28,6 @@ public class OptimalThreshold extends Algorithm {
   }
 
   public static void main(String[] args) throws IOException {
-    if (args.length != 3) {
-      printUsage();
-      System.exit(0);
-    }
     OptimalThreshold inst = new OptimalThreshold(args[1], args[0], args[0]);
     System.out.println("Start");
     if (args[2].compareTo("-a") == 0)
@@ -42,6 +38,10 @@ public class OptimalThreshold extends Algorithm {
       inst.measureGamma();
     else if (args[2].compareTo("-d") == 0)
       inst.measureDelta();
+    else if (args[2].compareTo("-e") == 0) {
+      double ratio = Double.parseDouble(args[3]);
+      inst.estimate(ratio);
+    }
     else {
       printUsage();
       System.exit(0);
@@ -221,5 +221,33 @@ public class OptimalThreshold extends Algorithm {
     System.out.println("Total " + Validator.checked + " pairs checked");
     System.out.println("Exec time " + (duration2 - duration) + " ns");
     System.out.println("Estimated delta = " + delta);
+  }
+
+  private void estimate(double sampleratio) {
+    List<Record> tableR = new ArrayList<Record>();
+    List<Record> tableS = new ArrayList<Record>();
+    List<Record> tmpR = this.tableR;
+    List<Record> tmpS = this.tableS;
+    for (Record r : this.tableR)
+      if (Math.random() < sampleratio) tableR.add(r);
+    for (Record s : this.tableS)
+      if (Math.random() < sampleratio) tableS.add(s);
+    this.tableR = tableR;
+    this.tableS = tableR;
+
+    JoinH2GramNoIntervalTree inst = new JoinH2GramNoIntervalTree(this);
+    JoinH2GramNoIntervalTree.checker = new TopDownHashSetSinglePath_DS();
+    JoinH2GramNoIntervalTree.outputfile = "null";
+    try {
+      inst.run();
+    } catch (Exception e) {
+    }
+    Validator.printStats();
+
+    System.out.println("Orig build Idx time : " + inst.buildIndexTime);
+    System.out.println("Orig join time : " + inst.joinTime);
+    
+    this.measureBeta();
+    this.measureGamma();
   }
 }

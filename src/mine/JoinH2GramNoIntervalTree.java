@@ -1,11 +1,12 @@
 package mine;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +44,9 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
   Map<Integer, Map<Long, List<IntIntRecordTriple>>> idx;
   // Map<LongIntPair, List<IntIntRecordTriple>> idx;
 
+  public long                                       buildIndexTime;
+  public long                                       joinTime;
+
   public JoinH2GramNoIntervalTree(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
@@ -62,13 +66,13 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     Record.setRuleTrie(ruletrie);
   }
 
-  private void buildIndex() {
+  private void buildIndex() throws IOException {
     long elements = 0;
     long predictCount = 0;
     long starttime = System.currentTimeMillis();
     // Build an index
     // Count Invokes per each (token, loc) pair
-    Map<Integer, Map<Long, Integer>> invokes = new HashMap<Integer, Map<Long, Integer>>();
+    Map<Integer, Map<Long, Integer>> invokes = new WYK_HashMap<Integer, Map<Long, Integer>>();
     // Map<LongIntPair, Integer> invokes = new HashMap<LongIntPair, Integer>();
     for (Record rec : tableS) {
       List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
@@ -96,6 +100,10 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     starttime = System.currentTimeMillis();
 
     idx = new WYK_HashMap<Integer, Map<Long, List<IntIntRecordTriple>>>();
+    // idx = new HashMap<Integer, Map<Long, List<IntIntRecordTriple>>>();
+
+    // BufferedOutputStream bw = new BufferedOutputStream(
+    // new FileOutputStream("asdf"));
     for (Record rec : tableR) {
       List<Set<Long>> available2Grams = exact2grams ? rec.getExact2Grams()
           : rec.get2Grams();
@@ -127,29 +135,36 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
       Map<Long, List<IntIntRecordTriple>> curridx = idx.get(minIdx);
       if (curridx == null) {
-        curridx = new WYK_HashMap<Long, List<IntIntRecordTriple>>();
+        curridx = new WYK_HashMap<Long, List<IntIntRecordTriple>>(1000000);
+        // curridx = new HashMap<Long, List<IntIntRecordTriple>>();
         idx.put(minIdx, curridx);
       }
       for (long twogram : available2Grams.get(minIdx)) {
-        List<IntIntRecordTriple> list = curridx.get(twogram);
-        if (list == null) {
-          list = new ArrayList<IntIntRecordTriple>();
-          curridx.put(twogram, list);
+        // write2File(bw, minIdx, twogram, rec.getID());
+        if (true) {
+          List<IntIntRecordTriple> list = curridx.get(twogram);
+          if (list == null) {
+            list = new ArrayList<IntIntRecordTriple>();
+            curridx.put(twogram, list);
+          }
+          list.add(new IntIntRecordTriple(range[0], range[1], rec));
         }
-        list.add(new IntIntRecordTriple(range[0], range[1], rec));
       }
       elements += available2Grams.get(minIdx).size();
     }
+    // bw.close();
     System.out.println("Predict : " + predictCount);
     System.out.println("Idx size : " + elements);
     duration = System.currentTimeMillis() - starttime;
     System.out.println("Step 2 : " + duration);
 
-    ///// Statistics
     int sum = 0;
     int ones = 0;
     long count = 0;
-    for (Map<Long, List<IntIntRecordTriple>> curridx : idx.values())
+    ///// Statistics
+    for (Map<Long, List<IntIntRecordTriple>> curridx : idx.values()) {
+      WYK_HashMap<Long, List<IntIntRecordTriple>> tmp = (WYK_HashMap<Long, List<IntIntRecordTriple>>) curridx;
+      if (sum == 0) tmp.printStat();
       for (List<IntIntRecordTriple> list : curridx.values()) {
         if (list.size() == 1) {
           ++ones;
@@ -158,17 +173,22 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
         sum++;
         count += list.size();
       }
+    }
     System.out.println("key-value pairs(all) : " + (sum + ones));
+    System.out.println("iIdx size(all) : " + (count + ones));
+    System.out.println(
+        "Rec per idx(all) : " + ((double) (count + ones)) / (sum + ones));
     System.out.println("key-value pairs(w/o 1) : " + sum);
     System.out.println("iIdx size(w/o 1) : " + count);
     System.out.println("Rec per idx(w/o 1) : " + ((double) count) / sum);
     System.out.println("2Gram retrieval: " + Record.exectime);
-
     ///// Statistics
     sum = 0;
     ones = 0;
     count = 0;
-    for (Map<Long, Integer> curridx : invokes.values())
+    for (Map<Long, Integer> curridx : invokes.values()) {
+      WYK_HashMap<Long, Integer> tmp = (WYK_HashMap<Long, Integer>) curridx;
+      if (sum == 0) tmp.printStat();
       for (Entry<Long, Integer> list : curridx.entrySet()) {
         if (list.getValue() == 1) {
           ++ones;
@@ -177,10 +197,25 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
         sum++;
         count += list.getValue();
       }
+    }
     System.out.println("key-value pairs(all) : " + (sum + ones));
+    System.out.println("iIdx size(all) : " + (count + ones));
+    System.out.println(
+        "Rec per idx(all) : " + ((double) (count + ones)) / (sum + ones));
     System.out.println("key-value pairs(w/o 1) : " + sum);
     System.out.println("iIdx size(w/o 1) : " + count);
     System.out.println("Rec per idx(w/o 1) : " + ((double) count) / sum);
+  }
+
+  static ByteBuffer buffer = ByteBuffer.allocate(16);
+
+  private static void write2File(BufferedOutputStream bos, int idx,
+      long twogram, int id) throws IOException {
+    buffer.clear();
+    buffer.putInt(idx);
+    buffer.putLong(twogram);
+    buffer.putInt(id);
+    bos.write(buffer.array());
   }
 
   private List<IntegerPair> join() {
@@ -383,33 +418,40 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
   }
 
   public void run() {
-    long startTime = System.currentTimeMillis();
+    long startTime = System.nanoTime();
     preprocess(compact, maxIndex, useAutomata);
     System.out.print("Preprocess finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    System.out.println(" " + (System.nanoTime() - startTime));
 
     // Retrieve statistics
     statistics();
 
-    startTime = System.currentTimeMillis();
+    startTime = System.nanoTime();
     if (singleside)
       buildIndexSingleSide();
     else
-      buildIndex();
-    System.out.print("Building Index finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+      try {
+        buildIndex();
+      } catch (Exception e) {
+        e.printStackTrace();
+        System.exit(0);
+      }
+    buildIndexTime = System.nanoTime() - startTime;
+    System.out.println("Building Index finished " + buildIndexTime);
 
     startTime = System.nanoTime();
     Collection<IntegerPair> rslt = (singleside ? joinSingleSide() : join());
-    System.out.print("Join finished");
-    System.out.println(" " + (System.nanoTime() - startTime) + "ns");
+    joinTime = System.nanoTime() - startTime;
+    System.out.println("Join finished " + joinTime + " ns");
     System.out.println(rslt.size());
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
       for (IntegerPair ip : rslt) {
-        if (ip.i1 != ip.i2) bw.write(tableR.get(ip.i1).toString(strlist)
-            + "\t==\t" + tableR.get(ip.i2).toString(strlist) + "\n");
+        Record r = tableR.get(ip.i1);
+        Record s = tableS.get(ip.i2);
+        if (!r.equals(s)) bw.write(tableR.get(ip.i1).toString(strlist)
+            + "\t==\t" + tableS.get(ip.i2).toString(strlist) + "\n");
       }
       bw.close();
     } catch (IOException e) {

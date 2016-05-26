@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import mine.Record;
 
@@ -49,6 +51,13 @@ public class Algorithm {
         getID(str);
     }
     br.close();
+
+    // Shuffle tokens
+    Collections.shuffle(strlist, new Random(0));
+    for (int i = 0; i < strlist.size(); ++i) {
+      String str = strlist.get(i);
+      str2int.put(str, i);
+    }
 
     // Read records
     int size = -1;

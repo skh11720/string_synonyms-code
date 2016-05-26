@@ -16,10 +16,15 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
   private int     size;
   private double  factor;
   private int     nextExpandSize;
+  // private static final long bigprime = 32416190071L;
 
   public WYK_HashMap() {
+    this(10);
+  }
+
+  public WYK_HashMap(int initialCapacity) {
     factor = 0.5;
-    clear();
+    clear(initialCapacity);
   }
 
   @SuppressWarnings("unchecked")
@@ -50,10 +55,12 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 
   @SuppressWarnings("unchecked")
   public V get(Object o) {
+    ++count2;
     K key = (K) o;
     int hash = key.hashCode();
     Entry curr = array[getIdx(hash)];
     while (curr != null) {
+      ++count;
       if (curr.hash == hash && curr.key.equals(key)) return curr.value;
       curr = curr.next;
     }
@@ -106,6 +113,47 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
   }
 
   /**
+   * Print <br/>
+   * 1) Collision ratio (except empty entry)
+   * 2) Avg chain length (except empty entry)
+   */
+  public void printStat() {
+    int collisionCounter = 0;
+    int nonemptyCounter = 0;
+    int maxchainlength = 0;
+    int maxidx = -1;
+    for (int idx = 0; idx < array.length; ++idx) {
+      Entry e = array[idx];
+      if (e == null) continue;
+      ++nonemptyCounter;
+      if (e.next != null) ++collisionCounter;
+      Entry curr = e;
+      int chainlength = 0;
+      while (curr != null) {
+        curr = curr.next;
+        ++chainlength;
+      }
+      if (maxchainlength < chainlength) {
+        maxchainlength = chainlength;
+        maxidx = idx;
+      }
+    }
+    double ratio1 = (double) collisionCounter / nonemptyCounter;
+    double ratio2 = (double) size() / nonemptyCounter;
+    double ratio3 = (double) nonemptyCounter / array.length;
+    System.out.println("Collision ratio w/o empty : " + ratio1);
+    System.out.println("avg chain length w/o empty : " + ratio2);
+    System.out.println("max chain length : " + maxchainlength);
+    System.out.println("max chain length entry : " + maxidx);
+    System.out.println("occupied cell ratio : " + ratio3);
+    System.out.println("Iters in get() : " + count);
+    System.out.println("Invocation of get() : " + count2);
+  }
+
+  private long count  = 0;
+  private long count2 = 0;
+
+  /**
    * Expand the array with the given size
    * 
    * @param nextSize
@@ -130,10 +178,15 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
     }
   }
 
+  static final long a = 1;// 8831;
+  static final long b = 0;//623;
+
   private int getIdx(int hash) {
+    // long tmp = (hash * a + b) % bigprime;
+    // return (int) Math.abs(tmp % array.length);
     return Math.abs(hash % array.length);
   }
-  
+
   @Override
   public String toString() {
     EntryIterator it = new EntryIterator();
@@ -298,10 +351,14 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public void clear() {
-    array = (Entry[]) Array.newInstance(Entry.class, 10);
+    clear(10);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void clear(int initialCapacity) {
+    array = (Entry[]) Array.newInstance(Entry.class, initialCapacity);
     size = 0;
     nextExpandSize = (int) (array.length * factor);
   }
