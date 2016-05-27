@@ -31,6 +31,7 @@ public class Record
    */
   protected boolean                validHashValue        = false;
   protected int                    hashValue;
+  private static final int         bigprime              = 1645333507;
 
   /**
    * Actual tokens
@@ -758,9 +759,13 @@ public class Record
   @Override
   public int hashCode() {
     if (!validHashValue) {
-      hashValue = 0;
-      for (int token : tokens)
-        hashValue = 0x1f1f1f1f ^ hashValue + token;
+      long tmp = 0;
+      for (int token : tokens) {
+        tmp = (tmp << 32) + token;
+        tmp = tmp % bigprime;
+      }
+      hashValue = (int) (tmp % Integer.MAX_VALUE);
+      validHashValue = true;
     }
     return hashValue;
   }

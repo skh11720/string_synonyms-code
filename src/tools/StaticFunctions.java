@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import mine.Record;
 
@@ -34,6 +35,8 @@ public class StaticFunctions {
     return 0;
   }
 
+  public static long compare_cmp_counter = 0;
+
   /**
    * Compare two integer arrays
    */
@@ -44,6 +47,7 @@ public class StaticFunctions {
     while (idx < str1.length && idx < str2.length
         && (lastcmp = Integer.compare(str1[idx], str2[idx])) == 0)
       ++idx;
+    compare_cmp_counter += (idx + 1);
     if (lastcmp != 0)
       return lastcmp;
     else if (str1.length == str2.length)
@@ -193,6 +197,20 @@ public class StaticFunctions {
       }
     }
     return candidates;
+  }
+
+  public static <T> List<T> union(List<? extends List<T>> list) {
+    if (list.size() == 0)
+      return new ArrayList<T>();
+    else if (list.size() == 1) return list.get(0);
+    Set<T> set = new WYK_HashSet<T>();
+    for (List<T> l : list)
+      union_item_counter += l.size();
+    for (List<T> currlist : list) {
+      set.addAll(currlist);
+    }
+    List<T> union = new ArrayList<T>(set);
+    return union;
   }
 
   public static long inter_item_counter = 0;

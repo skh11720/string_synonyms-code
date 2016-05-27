@@ -42,7 +42,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
    * Value: (min, max, record) triple
    */
   Map<Integer, Map<IntegerPair, List<IntIntRecordTriple>>> idx;
-  // Map<IntegerPairIntPair, List<IntIntRecordTriple>> idx;
+  // Map<LongIntPair, List<IntIntRecordTriple>> idx;
 
   public long                                              buildIndexTime;
   public long                                              joinTime;
@@ -73,8 +73,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     // Build an index
     // Count Invokes per each (token, loc) pair
     Map<Integer, Map<IntegerPair, Integer>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, Integer>>();
-    // Map<IntegerPairIntPair, Integer> invokes = new
-    // HashMap<IntegerPairIntPair, Integer>();
+    // Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair,
+    // Integer>();
     for (Record rec : tableS) {
       List<Set<IntegerPair>> available2Grams = exact2grams
           ? rec.getExact2Grams() : rec.get2Grams();
@@ -211,6 +211,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
   static ByteBuffer buffer = ByteBuffer.allocate(16);
 
+  @SuppressWarnings("unused")
   private static void write2File(BufferedOutputStream bos, int idx,
       IntegerPair twogram, int id) throws IOException {
     buffer.clear();

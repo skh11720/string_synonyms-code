@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import mine.JoinH2GramNoIntervalTree;
+import mine.Naive1;
 import mine.Record;
 import tools.Algorithm;
 import tools.IntegerPair;
@@ -41,7 +42,13 @@ public class OptimalThreshold extends Algorithm {
       inst.measureDelta();
     else if (args[2].compareTo("-e") == 0) {
       double ratio = Double.parseDouble(args[3]);
-      inst.estimate(ratio);
+      boolean skipequiv = args.length == 5;
+      inst.estimateJoinMH(ratio, skipequiv);
+    } else if (args[2].compareTo("-f") == 0) {
+      double ratio = Double.parseDouble(args[3]);
+      int threshold = Integer.parseInt(args[4]);
+      boolean skipequiv = args.length == 6;
+      inst.estimateNaive(ratio, threshold, skipequiv);
     } else {
       printUsage();
       System.exit(0);
@@ -223,11 +230,9 @@ public class OptimalThreshold extends Algorithm {
     System.out.println("Estimated delta = " + delta);
   }
 
-  private void estimate(double sampleratio) {
+  private void estimateJoinMH(double sampleratio, boolean skipequiv) {
     List<Record> tableR = new ArrayList<Record>();
     List<Record> tableS = new ArrayList<Record>();
-    List<Record> tmpR = this.tableR;
-    List<Record> tmpS = this.tableS;
     for (Record r : this.tableR)
       if (Math.random() < sampleratio) tableR.add(r);
     for (Record s : this.tableS)
@@ -236,6 +241,7 @@ public class OptimalThreshold extends Algorithm {
     this.tableS = tableR;
 
     JoinH2GramNoIntervalTree inst = new JoinH2GramNoIntervalTree(this);
+    JoinH2GramNoIntervalTree.skipChecking = skipequiv;
     JoinH2GramNoIntervalTree.checker = new TopDownHashSetSinglePath_DS();
     JoinH2GramNoIntervalTree.outputfile = "null";
     try {
@@ -246,8 +252,32 @@ public class OptimalThreshold extends Algorithm {
 
     System.out.println("Orig build Idx time : " + inst.buildIndexTime);
     System.out.println("Orig join time : " + inst.joinTime);
+  }
 
-    this.measureBeta();
-    this.measureGamma();
+  private void estimateNaive(double sampleratio, int threshold,
+      boolean skipequiv) {
+    List<Record> tableR = new ArrayList<Record>();
+    List<Record> tableS = new ArrayList<Record>();
+    for (Record r : this.tableR)
+      if (Math.random() < sampleratio) tableR.add(r);
+    for (Record s : this.tableS)
+      if (Math.random() < sampleratio) tableS.add(s);
+    this.tableR = tableR;
+    this.tableS = tableR;
+
+    Naive1 inst = new Naive1(this);
+    Naive1.threshold = threshold;
+    Naive1.skipequiv = skipequiv;
+    try {
+      inst.run();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    Validator.printStats();
+
+    System.out.println("Orig build Idx time : " + inst.buildIndexTime);
+    System.out.println("Orig join time : " + inst.joinTime);
+
+    measureAlpha();
   }
 }

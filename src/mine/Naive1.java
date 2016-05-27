@@ -5,14 +5,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
 import tools.StaticFunctions;
+import tools.WYK_HashMap;
 
 /**
  * Expand from both sides
@@ -21,11 +22,15 @@ public class Naive1 extends Algorithm {
   /**
    * Store the original index from expanded string
    */
-  HashMap<Record, ArrayList<Integer>> rec2idx;
-  Rule_ACAutomata                     automata;
-  RuleTrie                            ruletrie;
+  Map<Record, ArrayList<Integer>> rec2idx;
+  Rule_ACAutomata                 automata;
+  RuleTrie                        ruletrie;
 
-  static int                          threshold = 1000;
+  public static int               threshold = Integer.MAX_VALUE;
+  public static boolean           skipequiv = false;
+
+  public long                     buildIndexTime;
+  public long                     joinTime;
 
   protected Naive1(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -34,22 +39,38 @@ public class Naive1 extends Algorithm {
     ruletrie = new RuleTrie(rulelist);
   }
 
-  private void Init() {
-    rec2idx = new HashMap<Record, ArrayList<Integer>>();
+  public Naive1(Algorithm o) {
+    super(o);
+    automata = new Rule_ACAutomata(rulelist);
+    ruletrie = new RuleTrie(rulelist);
+  }
+
+  private void preprocess() {
+    for (Record r : tableR) {
+      r.preprocessRules(automata, false);
+      r.preprocessEstimatedRecords();
+    }
+    for (Record s : tableS) {
+      s.preprocessRules(automata, false);
+      s.preprocessEstimatedRecords();
+    }
+    rec2idx = new WYK_HashMap<Record, ArrayList<Integer>>(1000000);
+  }
+
+  private void buildIndex() {
     int count = 0;
     for (int i = 0; i < tableR.size(); ++i) {
-      Record recR = tableS.get(i);
-      recR.preprocessRules(automata, false);
-      recR.preprocessEstimatedRecords();
+      Record recR = tableR.get(i);
       long est = recR.getEstNumRecords();
       if (est > threshold) continue;
       List<Record> expanded = recR.expandAll(ruletrie);
       assert (expanded.size() <= threshold);
       for (Record exp : expanded) {
-        if (!rec2idx.containsKey(exp))
-          rec2idx.put(exp, new ArrayList<Integer>(5));
         ArrayList<Integer> list = rec2idx.get(exp);
-        assert (list != null);
+        if (list == null) {
+          list = new ArrayList<Integer>(5);
+          rec2idx.put(exp, list);
+        }
         // If current list already contains current record, skip adding
         if (!list.isEmpty() && list.get(list.size() - 1) == i) continue;
         list.add(i);
@@ -61,6 +82,7 @@ public class Naive1 extends Algorithm {
       idxsize += list.size();
     System.out.println(count + " records are indexed");
     System.out.println("Total index size: " + idxsize);
+    ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
   }
 
   private class IntegerComparator implements Comparator<Integer> {
@@ -71,53 +93,63 @@ public class Naive1 extends Algorithm {
   }
 
   private List<IntegerPair> join() {
-    ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+    List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
     for (int idxS = 0; idxS < tableS.size(); ++idxS) {
       Record recS = tableS.get(idxS);
-      recS.preprocessRules(automata, false);
-      recS.preprocessEstimatedRecords();
       long est = recS.getEstNumRecords();
       if (est > threshold) continue;
-      ArrayList<Record> expanded = recS.expandAll(ruletrie);
-      ArrayList<List<Integer>> candidates = new ArrayList<List<Integer>>();
+      List<Record> expanded = recS.expandAll(ruletrie);
+      List<List<Integer>> candidates = new ArrayList<List<Integer>>(
+          expanded.size() * 2);
       for (Record exp : expanded) {
-        if (!rec2idx.containsKey(exp)) continue;
-        ArrayList<Integer> overlapidx = rec2idx.get(exp);
+        List<Integer> overlapidx = rec2idx.get(exp);
+        if (overlapidx == null) continue;
         candidates.add(overlapidx);
       }
-      List<Integer> union = StaticFunctions.union(candidates,
-          new IntegerComparator());
-      for (Integer idx : union)
-        rslt.add(new IntegerPair(idx, idxS));
+      if (!skipequiv) {
+        List<Integer> union = StaticFunctions.union(candidates,
+            new IntegerComparator());
+        for (Integer idx : union)
+          rslt.add(new IntegerPair(idx, idxS));
+      }
     }
 
     return rslt;
   }
 
   public void run() {
-    long startTime = System.currentTimeMillis();
-    Init();
-    System.out.print("Building Index finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
-    startTime = System.currentTimeMillis();
+    long startTime = System.nanoTime();
+    preprocess();
+    buildIndexTime = System.nanoTime() - startTime;
+    System.out.println("Preprocess finished " + buildIndexTime);
+    startTime = System.nanoTime();
+    buildIndex();
+    buildIndexTime = System.nanoTime() - startTime;
+    System.out.println("Building Index finished " + buildIndexTime);
+    startTime = System.nanoTime();
     List<IntegerPair> rslt = join();
-    System.out.print("Join finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    joinTime = System.nanoTime() - startTime;
+    System.out.println("Join finished " + joinTime + " ns");
     System.out.println(rslt.size());
     System.out.println("Union counter: " + StaticFunctions.union_cmp_counter);
+    System.out
+        .println("Equals counter: " + StaticFunctions.compare_cmp_counter);
 
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
       for (IntegerPair ip : rslt) {
-        if (ip.i1 != ip.i2) bw.write(tableR.get(ip.i1).toString(strlist)
-            + "\t==\t" + tableR.get(ip.i2).toString(strlist) + "\n");
+        Record r = tableR.get(ip.i1);
+        Record s = tableS.get(ip.i2);
+        if (!r.equals(s)) bw.write(tableR.get(ip.i1).toString(strlist)
+            + "\t==\t" + tableS.get(ip.i2).toString(strlist) + "\n");
       }
       bw.close();
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
   }
 
   public static void main(String[] args) throws IOException {
