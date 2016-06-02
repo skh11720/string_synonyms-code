@@ -1,12 +1,16 @@
 package analysis;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import tools.IntegerPair;
 import tools.WYK_HashMap;
 
 public class BuildIndexFromFile {
@@ -21,13 +25,13 @@ public class BuildIndexFromFile {
     }
     bis.close();
     long starttime = System.currentTimeMillis();
-    WYK_HashMap<Integer, WYK_HashMap<Long, List<Integer>>> idx = new WYK_HashMap<Integer, WYK_HashMap<Long, List<Integer>>>(
+    WYK_HashMap<Integer, WYK_HashMap<IntegerPair, List<Integer>>> idx = new WYK_HashMap<Integer, WYK_HashMap<IntegerPair, List<Integer>>>(
         20);
     for (int c = 0; c < list.size(); ++c) {
       Triple t = list.get(c);
-      WYK_HashMap<Long, List<Integer>> localidx = idx.get(t.idx);
+      WYK_HashMap<IntegerPair, List<Integer>> localidx = idx.get(t.idx);
       if (localidx == null) {
-        localidx = new WYK_HashMap<Long, List<Integer>>();
+        localidx = new WYK_HashMap<IntegerPair, List<Integer>>();
         idx.put(t.idx, localidx);
       }
       List<Integer> locallist = localidx.get(t.twogram);
@@ -39,7 +43,7 @@ public class BuildIndexFromFile {
     }
     long duration = System.currentTimeMillis() - starttime;
     System.out.println(duration);
-    for(WYK_HashMap<Long, List<Integer>> localidx : idx.values())
+    for (WYK_HashMap<IntegerPair, List<Integer>> localidx : idx.values())
       localidx.printStat();
 
     // int sum = 0;
@@ -60,30 +64,46 @@ public class BuildIndexFromFile {
     // System.out.println("iIdx size(w/o 1) : " + count);
     // System.out.println("Rec per idx(w/o 1) : " + ((double) count) / sum);
     // System.out.println("2Gram retrieval: " + Record.exectime);
+
+    BufferedWriter bw = new BufferedWriter(new FileWriter("stat"));
+    for (Map<IntegerPair, List<Integer>> map : idx.values()) {
+      for (List<Integer> local_list : map.values()) {
+        bw.write(local_list.size() + "\n");
+      }
+    }
+    bw.close();
   }
 
-  static byte[]     intbuffer  = new byte[4];
-  static byte[]     longbuffer = new byte[8];
-  static ByteBuffer intwrap    = ByteBuffer.wrap(intbuffer);
-  static ByteBuffer longwrap   = ByteBuffer.wrap(longbuffer);
+  static byte[]     intbuffer = new byte[4];
+  static ByteBuffer intwrap   = ByteBuffer.wrap(intbuffer);
 
   private static class Triple {
-    int  idx;
-    long twogram;
-    int  id;
+    int         idx;
+    IntegerPair twogram;
+    int         id;
 
     static Triple read(BufferedInputStream bis) throws IOException {
       Triple inst = new Triple();
+
       intwrap.clear();
       int code = bis.read(intbuffer, 0, 4);
       if (code == -1) return null;
       inst.idx = intwrap.getInt();
-      longwrap.clear();
-      bis.read(longbuffer, 0, 8);
-      inst.twogram = longwrap.getLong();
+
+      inst.twogram = new IntegerPair(0, 0);
+
+      intwrap.clear();
+      bis.read(intbuffer, 0, 4);
+      inst.twogram.i1 = intwrap.getInt();
+
+      intwrap.clear();
+      bis.read(intbuffer, 0, 4);
+      inst.twogram.i2 = intwrap.getInt();
+
       intwrap.clear();
       bis.read(intbuffer, 0, 4);
       inst.id = intwrap.getInt();
+
       return inst;
     }
   }
