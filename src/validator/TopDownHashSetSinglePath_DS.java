@@ -45,7 +45,7 @@ public class TopDownHashSetSinglePath_DS extends Validator {
       tmp %= bigprime;
       if (rule != null) {
         int[] s = rule.getTo();
-        for (int k = idx; k < s.length; ++k) {
+        for (int k = 0; k < idx; ++k) {
           tmp = (tmp << 32) + s[k];
           tmp %= bigprime;
         }
