@@ -14,6 +14,7 @@ import validator.BottomUpMatrix_SS;
 import validator.BottomUpQueue_DS;
 import validator.Naive_DS;
 import validator.TopDownHashSetSinglePath_DS;
+import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.TopDownMatrix_DS;
 import validator.Validator;
 
@@ -105,6 +106,9 @@ public class Parameters {
         case TopDownHashSetSinglePathDS:
           param.validator = new TopDownHashSetSinglePath_DS();
           break;
+        case TopDownHashSetSinglePathDSSharedPrefix:
+          param.validator = new TopDownHashSetSinglePath_DS_SharedPrefix();
+          break;
         default:
           throw new Exception("Unknown validator name");
       }
@@ -133,7 +137,8 @@ public class Parameters {
     Naive,
     BottomUpMatrixSinglePathDS,
     BottomUpHashSetSinglePathDS,
-    TopDownHashSetSinglePathDS
+    TopDownHashSetSinglePathDS,
+    TopDownHashSetSinglePathDSSharedPrefix
   }
 
   boolean   useACAutomata   = false;

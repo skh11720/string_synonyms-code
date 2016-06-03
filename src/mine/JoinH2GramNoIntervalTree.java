@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,7 @@ import tools.RuleTrie;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
 import tools.WYK_HashSet;
+import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
 
 public class JoinH2GramNoIntervalTree extends Algorithm {
@@ -248,6 +250,10 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
         List<Record> candidates = StaticFunctions.union(candidatesList,
             idComparator);
         if (skipChecking) continue;
+        // Sort records to utilize similar prefixes
+        Collections.sort(candidates);
+        Collections.reverse(candidates);
+        computePrefixCount(candidates);
         for (Record recR : candidates) {
           int compare = checker.isEqual(recR, recS);
           if (compare >= 0) {
@@ -259,8 +265,25 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     }
     System.out
         .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
+    System.out.println("Prefix freq : " + freq);
+    System.out.println("Prefix sumlength : " + sumlength);
 
     return rslt;
+  }
+
+  private long freq      = 0;
+  private long sumlength = 0;
+
+  private void computePrefixCount(List<Record> list) {
+    int[] prevTokens = new int[0];
+    for (Record r : list) {
+      int[] tokens = r.getTokenArray();
+      int bound = Math.min(prevTokens.length, tokens.length);
+      for (int i = 0; i < bound; ++i)
+        if (tokens[i] == prevTokens[i]) ++freq;
+      sumlength += tokens.length;
+      prevTokens = tokens;
+    }
   }
 
   private void buildIndexSingleSide() {
@@ -421,6 +444,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     System.out.println("Maximum rhs length: " + maxrhslength);
   }
 
+  @SuppressWarnings("static-access")
   public void run() {
     long startTime = System.nanoTime();
     preprocess(compact, maxIndex, useAutomata);
@@ -461,6 +485,12 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    }
+
+    if (checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
+      TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
+      System.out.println("Prev entry count : " + tmp.prevEntryCount);
+      System.out.println("Effective prev entry count : " + tmp.effectivePrevEntryCount);
     }
   }
 

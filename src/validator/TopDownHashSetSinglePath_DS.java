@@ -16,31 +16,43 @@ public class TopDownHashSetSinglePath_DS extends Validator {
     /**
      * Index of x
      */
-    final int  i;
+    final int                i;
     /**
      * Index of y
      */
-    final int  j;
+    final int                j;
     /**
      * Represents a substring rule.rhs[idx..*]
      */
-    final Rule rule;
-    final int  idx;
-    final int  hash;
+    final Rule               rule;
+    final int                idx;
+    final int                hash;
+
+    private static final int bigprime = 1645333507;
 
     Submatch(int i, int j, Rule rule, int idx) {
+      // Set values
       this.i = i;
       this.j = j;
       this.rule = rule;
       this.idx = idx;
-      int hash = i + j;
+
+      // Compute hash value
+      long tmp = 0;
+      tmp = ((long) i) << 32 + j;
+      tmp %= bigprime;
+      tmp = (tmp << 32) + idx;
+      tmp %= bigprime;
       if (rule != null) {
         int[] s = rule.getTo();
-        for (int k = idx; k < s.length; ++k)
-          hash += s[k];
-        hash += idx;
+        for (int k = idx; k < s.length; ++k) {
+          tmp = (tmp << 32) + s[k];
+          tmp %= bigprime;
+        }
       }
-      this.hash = hash;
+
+      // Set hash value
+      this.hash = (int) (tmp % Integer.MAX_VALUE);
     }
 
     @Override
