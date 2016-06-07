@@ -46,6 +46,8 @@ public class Parameters {
         .desc("If number of expanded record is less of equal to T,"
             + " use naive method (for hybrid algorithms only)")
         .numberOfArgs(1).build());
+    options.addOption(
+        Option.builder("s").hasArg(true).desc("Sampling ratio").build());
     argOptions = options;
   }
 
@@ -78,6 +80,8 @@ public class Parameters {
       }
       if (cmd.hasOption("joinExpandThreshold")) param.joinThreshold = Integer
           .parseInt(cmd.getOptionValue("joinExpandThreshold"));
+      if (cmd.hasOption("s"))
+        param.sampleratio = Double.parseDouble(cmd.getOptionValue("s"));
       // Wrap up
       switch (vname) {
         case BottomUpMatrixDS:
@@ -151,6 +155,7 @@ public class Parameters {
   boolean   useLengthFilter = true;
   boolean   exact2grams     = false;
   int       joinThreshold   = 100;
+  double    sampleratio     = 0.01;
   Validator validator;
   String[]  remainingArgs;
 
@@ -221,5 +226,9 @@ public class Parameters {
 
   public String getOutput() {
     return output;
+  }
+
+  public double getSampleRatio() {
+    return sampleratio;
   }
 }

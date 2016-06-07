@@ -25,7 +25,7 @@ public class Record
     implements Comparable<Record>, RecordInterface, RecordInterface.Expanded {
   protected static List<String>    strlist;
   protected static RuleTrie        atm;
-  protected final int              id;
+  protected int                    id;
   /**
    * For fast hashing
    */
@@ -644,6 +644,10 @@ public class Record
 
   public int getID() {
     return id;
+  }
+
+  public void setID(int id) {
+    this.id = id;
   }
 
   public int size() {

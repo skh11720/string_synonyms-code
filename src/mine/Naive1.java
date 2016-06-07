@@ -31,6 +31,8 @@ public class Naive1 extends Algorithm {
 
   public long                     buildIndexTime;
   public long                     joinTime;
+  public double                   alpha;
+  public double                   beta;
 
   protected Naive1(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -54,10 +56,12 @@ public class Naive1 extends Algorithm {
       s.preprocessRules(automata, false);
       s.preprocessEstimatedRecords();
     }
-    rec2idx = new WYK_HashMap<Record, ArrayList<Integer>>(1000000);
   }
 
   private void buildIndex() {
+    rec2idx = new WYK_HashMap<Record, ArrayList<Integer>>(1000000);
+    long starttime = System.nanoTime();
+    long totalExpSize = 0;
     int count = 0;
     for (int i = 0; i < tableR.size(); ++i) {
       Record recR = tableR.get(i);
@@ -65,6 +69,7 @@ public class Naive1 extends Algorithm {
       if (est > threshold) continue;
       List<Record> expanded = recR.expandAll(ruletrie);
       assert (expanded.size() <= threshold);
+      totalExpSize += expanded.size();
       for (Record exp : expanded) {
         ArrayList<Integer> list = rec2idx.get(exp);
         if (list == null) {
@@ -82,7 +87,9 @@ public class Naive1 extends Algorithm {
       idxsize += list.size();
     System.out.println(count + " records are indexed");
     System.out.println("Total index size: " + idxsize);
-    ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
+    // ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
+    long duration = System.nanoTime() - starttime;
+    alpha = ((double) duration) / totalExpSize;
   }
 
   private class IntegerComparator implements Comparator<Integer> {
@@ -94,12 +101,15 @@ public class Naive1 extends Algorithm {
 
   private List<IntegerPair> join() {
     List<IntegerPair> rslt = new ArrayList<IntegerPair>();
+    long starttime = System.nanoTime();
+    long totalExpSize = 0;
 
     for (int idxS = 0; idxS < tableS.size(); ++idxS) {
       Record recS = tableS.get(idxS);
       long est = recS.getEstNumRecords();
       if (est > threshold) continue;
       List<Record> expanded = recS.expandAll(ruletrie);
+      totalExpSize += expanded.size();
       List<List<Integer>> candidates = new ArrayList<List<Integer>>(
           expanded.size() * 2);
       for (Record exp : expanded) {
@@ -115,6 +125,9 @@ public class Naive1 extends Algorithm {
       }
     }
 
+    long duration = System.nanoTime() - starttime;
+    beta = ((double) duration) / totalExpSize;
+
     return rslt;
   }
 
@@ -123,7 +136,12 @@ public class Naive1 extends Algorithm {
     preprocess();
     buildIndexTime = System.nanoTime() - startTime;
     System.out.println("Preprocess finished " + buildIndexTime);
-    startTime = System.nanoTime();
+
+    runWithoutPreprocess();
+  }
+
+  public void runWithoutPreprocess() {
+    long startTime = System.nanoTime();
     buildIndex();
     buildIndexTime = System.nanoTime() - startTime;
     System.out.println("Building Index finished " + buildIndexTime);
@@ -149,7 +167,7 @@ public class Naive1 extends Algorithm {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
+    // ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
   }
 
   public static void main(String[] args) throws IOException {
