@@ -33,6 +33,7 @@ import validator.Validator;
  * use an index to store them.
  * Otherwise, generate all 1-expandable strings and then use them to check
  * if two strings are equivalent.
+ * Use a basic model.
  */
 public class Hybrid2GramWithOptTheta extends Algorithm {
   static boolean                                           useAutomata  = true;

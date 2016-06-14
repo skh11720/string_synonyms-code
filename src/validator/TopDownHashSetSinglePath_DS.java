@@ -1,6 +1,7 @@
 package validator;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import mine.Record;
 import tools.Rule;
@@ -87,12 +88,14 @@ public class TopDownHashSetSinglePath_DS extends Validator {
    * Temporary matrix to save match result of doubleside equivalence check.</br>
    * Mx[i][j] stores all sub-matches for x[1..i]=>z + str and y[1..j]=>z </br>
    */
-  private static HashMap<Submatch, Boolean> Mx = new HashMap<Submatch, Boolean>();
+  private static Map<Submatch, Boolean> Mx = new HashMap<Submatch, Boolean>(
+      1000);
   /**
    * Temporary matrix to save match result of doubleside equivalence check.</br>
    * My[i][j] stores all sub-matches for x[1..i]=>z and y[1..j]=>z + str</br>
    */
-  private static HashMap<Submatch, Boolean> My = new HashMap<Submatch, Boolean>();
+  private static Map<Submatch, Boolean> My = new HashMap<Submatch, Boolean>(
+      1000);
 
   public int isEqual(Record x, Record y) {
     ++checked;

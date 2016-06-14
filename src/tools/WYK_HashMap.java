@@ -3,6 +3,7 @@ package tools;
 import java.lang.reflect.Array;
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -16,7 +17,6 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
   private int     size;
   private double  factor;
   private int     nextExpandSize;
-  // private static final long bigprime = 32416190071L;
 
   public WYK_HashMap() {
     this(10);
@@ -178,12 +178,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
     }
   }
 
-  static final long a = 1;// 8831;
-  static final long b = 0;//623;
-
   private int getIdx(int hash) {
-    // long tmp = (hash * a + b) % bigprime;
-    // return (int) Math.abs(tmp % array.length);
     return Math.abs(hash % array.length);
   }
 
@@ -353,7 +348,8 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 
   @Override
   public void clear() {
-    clear(10);
+    Arrays.fill(array, null);
+    size = 0;
   }
 
   @SuppressWarnings("unchecked")
