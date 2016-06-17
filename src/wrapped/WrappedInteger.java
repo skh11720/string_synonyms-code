@@ -1,9 +1,11 @@
 package wrapped;
 
 public class WrappedInteger implements Comparable<WrappedInteger> {
-  private int i;
+  public static long count = 0;
+  private int        i;
 
   public WrappedInteger(int i) {
+    ++count;
     this.i = i;
   }
 

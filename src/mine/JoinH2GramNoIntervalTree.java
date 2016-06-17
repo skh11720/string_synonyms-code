@@ -49,6 +49,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
   public long                                              buildIndexTime;
   public long                                              buildIndexTime1;
   public long                                              buildIndexTime2;
+  public long                                              candExtractTime;
   public long                                              joinTime;
 
   public double                                            gamma;
@@ -239,64 +240,92 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
   }
 
   private List<IntegerPair> join() {
-    List<IntegerPair> rslt = new ArrayList<IntegerPair>();
-    long starttime = System.nanoTime();
-    long totalSigCount = 0;
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
 
-    long appliedRules_sum = 0;
-    for (Record recS : tableS) {
-      List<Set<IntegerPair>> available2Grams = exact2grams
-          ? recS.getExact2Grams() : recS.get2Grams();
-      for (Set<IntegerPair> set : available2Grams)
-        totalSigCount += set.size();
-      int[] range = recS.getCandidateLengths(recS.size() - 1);
-      int searchmax = Math.min(available2Grams.size(), maxIndex);
-      for (int i = 0; i < searchmax; ++i) {
-        Map<IntegerPair, List<IntIntRecordTriple>> curridx = idx.get(i);
-        if (curridx == null) continue;
-        List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-        for (IntegerPair twogram : available2Grams.get(i)) {
-          List<IntIntRecordTriple> tree = curridx.get(twogram);
+      List<IntegerPair> rslt = new ArrayList<IntegerPair>();
+      long starttime = System.nanoTime() - Record.exectime;
+      // long totalSigCount = 0;
 
-          if (tree == null) continue;
-          List<Record> list = new ArrayList<Record>();
-          for (IntIntRecordTriple e : tree)
-            if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
-              list.add(e.rec);
-          candidatesList.add(list);
-        }
-        List<Record> candidates = StaticFunctions.union(candidatesList,
-            idComparator);
-        if (skipChecking)
-          continue;
-        else if (checker
-            .getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
-          // Sort records to utilize similar prefixes
-          Collections.sort(candidates);
-          Collections.reverse(candidates);
-          computePrefixCount(candidates);
-        }
-        for (Record recR : candidates) {
-          int compare = checker.isEqual(recR, recS);
-          if (compare >= 0) {
-            rslt.add(new IntegerPair(recR.getID(), recS.getID()));
-            appliedRules_sum += compare;
+      long appliedRules_sum = 0;
+      long count = 0;
+      for (Record recS : tableS) {
+        List<Set<IntegerPair>> available2Grams = exact2grams
+            ? recS.getExact2Grams() : recS.get2Grams();
+        // for (Set<IntegerPair> set : available2Grams)
+        // totalSigCount += set.size();
+        int[] range = recS.getCandidateLengths(recS.size() - 1);
+        int searchmax = Math.min(available2Grams.size(), maxIndex);
+        for (int i = 0; i < searchmax; ++i) {
+          Map<IntegerPair, List<IntIntRecordTriple>> curridx = idx.get(i);
+          if (curridx == null) continue;
+          List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+          for (IntegerPair twogram : available2Grams.get(i)) {
+            List<IntIntRecordTriple> tree = curridx.get(twogram);
+
+            if (tree == null) continue;
+            List<Record> list = new ArrayList<Record>();
+            for (IntIntRecordTriple e : tree)
+              if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
+                list.add(e.rec);
+            candidatesList.add(list);
+            count += list.size();
+          }
+          List<Record> candidates = StaticFunctions.union(candidatesList,
+              idComparator);
+          if (skipChecking)
+            continue;
+          else if (checker
+              .getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
+            // Sort records to utilize similar prefixes
+            Collections.sort(candidates);
+            Collections.reverse(candidates);
+            computePrefixCount(candidates);
+          }
+
+          for (Record recR : candidates) {
+            long ruleiters = Validator.niterrules;
+            long reccalls = Validator.recursivecalls;
+            long entryiters = Validator.niterentry;
+            long st = System.nanoTime();
+            int compare = checker.isEqual(recR, recS);
+            long duration = System.nanoTime() - st;
+            ruleiters = Validator.niterrules - ruleiters;
+            reccalls = Validator.recursivecalls - reccalls;
+            entryiters = Validator.niterentry - entryiters;
+            bw.write(duration + "\t" + compare + "\t" + recR.size() + "\t"
+                + recR.getRuleCount() + "\t" + recR.getFirstRuleCount() + "\t"
+                + recS.size() + "\t" + recS.getRuleCount() + "\t"
+                + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls
+                + "\t" + entryiters + "\n");
+            joinTime += duration;
+            if (compare >= 0) {
+              rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+              appliedRules_sum += compare;
+            }
           }
         }
       }
-    }
-    System.out
-        .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
-    if (checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
-      System.out.println("Prefix freq : " + freq);
-      System.out.println("Prefix sumlength : " + sumlength);
-    }
-    long duration = System.nanoTime() - starttime;
-    double weight = totalSigCount * tableR.size();
-    System.out.println("Est weight : " + weight);
-    epsilon = ((double) duration) / weight;
+      System.out.println(
+          "Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
+      if (checker
+          .getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
+        System.out.println("Prefix freq : " + freq);
+        System.out.println("Prefix sumlength : " + sumlength);
+      }
+      candExtractTime = System.nanoTime() - Record.exectime - starttime
+          - joinTime;
+      double weight = count;
+      System.out.println("Est weight : " + weight);
+      System.out.println("Cand extract time : " + candExtractTime);
+      System.out.println("Join time : " + joinTime);
+      epsilon = ((double) joinTime) / weight;
+      bw.close();
 
-    return rslt;
+      return rslt;
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   private long freq      = 0;

@@ -642,6 +642,17 @@ public class Record
     return costs[size()];
   }
 
+  public int getRuleCount() {
+    int count = 0;
+    for (Rule[] rules : applicableRules)
+      count += rules.length;
+    return count;
+  }
+
+  public int getFirstRuleCount() {
+    return suffixApplicableRules[size() - 1].length;
+  }
+
   public int getID() {
     return id;
   }
