@@ -209,6 +209,15 @@ public class Hybrid2GramA1 extends Algorithm {
     }
   }
 
+  private void clearJoinMinIndex() {
+    for (Map<IntegerPair, List<Record>> map : SL_TH_idx.values())
+      map.clear();
+    SL_TH_idx.clear();
+    for (Map<IntegerPair, List<Record>> map : SH_T_idx.values())
+      map.clear();
+    SH_T_idx.clear();
+  }
+
   private void buildNaiveIndex() {
     // Build 1-expanded set for every record in R
     int count = 0;
@@ -236,11 +245,6 @@ public class Hybrid2GramA1 extends Algorithm {
     System.out.println("Total index size: " + idxsize);
   }
 
-  private void buildIndex() {
-    buildJoinMinIndex();
-    buildNaiveIndex();
-  }
-
   /**
    * Although this implementation is not efficient, we did like this to measure
    * the execution time of each part more accurate.
@@ -250,6 +254,11 @@ public class Hybrid2GramA1 extends Algorithm {
   private ArrayList<IntegerPair> join() {
     ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
     long appliedRules_sum = 0;
+
+    long startTime = System.currentTimeMillis();
+    buildJoinMinIndex();
+    System.out.print("Building JoinMin Index finished");
+    System.out.println(" " + (System.currentTimeMillis() - startTime));
 
     long time1 = System.currentTimeMillis();
     for (Record s : tableS) {
@@ -263,6 +272,13 @@ public class Hybrid2GramA1 extends Algorithm {
         appliedRules_sum += searchEquivsByDynamicIndex(s, SL_TH_idx, rslt);
     }
     time2 = System.currentTimeMillis() - time2;
+
+    clearJoinMinIndex();
+
+    startTime = System.currentTimeMillis();
+    buildNaiveIndex();
+    System.out.print("Building JoinMin Index finished");
+    System.out.println(" " + (System.currentTimeMillis() - startTime));
 
     long time3 = System.currentTimeMillis();
     for (Record s : tableS) {
@@ -387,11 +403,6 @@ public class Hybrid2GramA1 extends Algorithm {
 
     // Retrieve statistics
     statistics();
-
-    startTime = System.currentTimeMillis();
-    buildIndex();
-    System.out.print("Building Index finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
 
     startTime = System.currentTimeMillis();
     Collection<IntegerPair> rslt = join();

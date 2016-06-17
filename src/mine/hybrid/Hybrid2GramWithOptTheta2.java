@@ -461,10 +461,21 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
     Collections.sort(tableS, cmp);
 
     // Reassign ID
-    for (int i = 0; i < tableR.size(); ++i)
-      tableR.get(i).setID(i);
-    for (int i = 0; i < tableS.size(); ++i)
-      tableS.get(i).setID(i);
+    long maxSEstNumRecords = 0;
+    long maxTEstNumRecords = 0;
+    for (int i = 0; i < tableR.size(); ++i) {
+      Record s = tableR.get(i);
+      s.setID(i);
+      maxSEstNumRecords = Math.max(maxSEstNumRecords, s.getEstNumRecords());
+    }
+    for (int i = 0; i < tableS.size(); ++i) {
+      Record t = tableS.get(i);
+      t.setID(i);
+      maxTEstNumRecords = Math.max(maxTEstNumRecords, t.getEstNumRecords());
+    }
+
+    System.out.println("Max S expanded size : " + maxSEstNumRecords);
+    System.out.println("Max T expanded size : " + maxTEstNumRecords);
   }
 
   public void run(double sampleratio) {
