@@ -317,16 +317,13 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 
     long time1 = System.currentTimeMillis();
     for (Record s : tableS) {
-      if (s.getEstNumRecords() > joinThreshold)
-        appliedRules_sum += searchEquivsByDynamicIndex(s, SH_T_idx, rslt);
+      appliedRules_sum += searchEquivsByDynamicIndex(s, SH_T_idx, rslt);
     }
     time1 = System.currentTimeMillis() - time1;
 
     long time2 = System.currentTimeMillis();
     for (Record s : tableS) {
       if (s.getEstNumRecords() > joinThreshold)
-        continue;
-      else
         appliedRules_sum += searchEquivsByDynamicIndex(s, SL_TH_idx, rslt);
     }
     time2 = System.currentTimeMillis() - time2;

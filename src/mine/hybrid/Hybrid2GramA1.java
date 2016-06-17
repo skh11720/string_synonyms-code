@@ -253,16 +253,13 @@ public class Hybrid2GramA1 extends Algorithm {
 
     long time1 = System.currentTimeMillis();
     for (Record s : tableS) {
-      if (s.getEstNumRecords() > joinThreshold)
-        appliedRules_sum += searchEquivsByDynamicIndex(s, SH_T_idx, rslt);
+      appliedRules_sum += searchEquivsByDynamicIndex(s, SH_T_idx, rslt);
     }
     time1 = System.currentTimeMillis() - time1;
 
     long time2 = System.currentTimeMillis();
     for (Record s : tableS) {
       if (s.getEstNumRecords() > joinThreshold)
-        continue;
-      else
         appliedRules_sum += searchEquivsByDynamicIndex(s, SL_TH_idx, rslt);
     }
     time2 = System.currentTimeMillis() - time2;
@@ -278,9 +275,9 @@ public class Hybrid2GramA1 extends Algorithm {
 
     System.out
         .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
-    System.out.println("large S : " + time1);
-    System.out.println("small S + large R : " + time2);
-    System.out.println("small S + small S: " + time3);
+    System.out.println("SH_T : " + time1);
+    System.out.println("SL_TH : " + time2);
+    System.out.println("SL_TL : " + time3);
 
     return rslt;
   }
