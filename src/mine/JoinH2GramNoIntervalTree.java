@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import tools.Algorithm;
-import tools.IntIntRecordTriple;
 import tools.IntegerPair;
 import tools.Parameters;
 import tools.Rule;
@@ -24,37 +23,41 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
+import wrapped.WrappedInteger;
 
 public class JoinH2GramNoIntervalTree extends Algorithm {
-  public static boolean                                    useAutomata  = false;
-  public static boolean                                    skipChecking = false;
-  public static int                                        maxIndex     = Integer.MAX_VALUE;
-  public static boolean                                    compact      = true;
-  public static boolean                                    singleside   = false;
-  public static boolean                                    exact2grams  = false;
+  public static boolean                        useAutomata  = false;
+  public static boolean                        skipChecking = false;
+  public static int                            maxIndex     = Integer.MAX_VALUE;
+  public static boolean                        compact      = true;
+  public static boolean                        singleside   = false;
+  public static boolean                        exact2grams  = false;
 
-  RecordIDComparator                                       idComparator;
-  RuleTrie                                                 ruletrie;
+  RecordIDComparator                           idComparator;
+  RuleTrie                                     ruletrie;
 
-  public static String                                     outputfile;
+  public static String                         outputfile;
 
-  public static Validator                                  checker;
+  public static Validator                      checker;
   /**
    * Key: (2gram, index) pair<br/>
    * Value: (min, max, record) triple
    */
-  Map<Integer, Map<IntegerPair, List<IntIntRecordTriple>>> idx;
-  // Map<LongIntPair, List<IntIntRecordTriple>> idx;
+  Map<Integer, Map<IntegerPair, List<Record>>> idx;
+  // Map<LongIntPair, List<Record>> idx;
 
-  public long                                              buildIndexTime;
-  public long                                              buildIndexTime1;
-  public long                                              buildIndexTime2;
-  public long                                              candExtractTime;
-  public long                                              joinTime;
+  public long                                  buildIndexTime;
+  public long                                  buildIndexTime1;
+  public long                                  buildIndexTime2;
+  public long                                  candExtractTime;
+  public long                                  joinTime;
 
-  public double                                            gamma;
-  public double                                            delta;
-  public double                                            epsilon;
+  public double                                gamma;
+  public double                                delta;
+  public double                                epsilon;
+
+  private static final WrappedInteger          ONE          = new WrappedInteger(
+      1);
 
   public JoinH2GramNoIntervalTree(String rulefile, String Rfile, String Sfile)
       throws IOException {
@@ -82,7 +85,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     long totalSigCount = 0;
     // Build an index
     // Count Invokes per each (token, loc) pair
-    Map<Integer, Map<IntegerPair, Integer>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, Integer>>();
+    Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
     // Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair,
     // Integer>();
     for (Record rec : tableS) {
@@ -92,18 +95,20 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
         totalSigCount += set.size();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
       for (int i = 0; i < searchmax; ++i) {
-        Map<IntegerPair, Integer> curridx_invokes = invokes.get(i);
+        Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get(i);
         if (curridx_invokes == null) {
-          curridx_invokes = new WYK_HashMap<IntegerPair, Integer>();
+          curridx_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
           invokes.put(i, curridx_invokes);
         }
         for (IntegerPair twogram : available2Grams.get(i)) {
-          Integer count = curridx_invokes.get(twogram);
-          if (count == null)
-            count = 1;
-          else
-            count += 1;
-          curridx_invokes.put(twogram, count);
+          WrappedInteger count = curridx_invokes.get(twogram);
+          if (count == null) {
+            curridx_invokes.put(twogram, ONE);
+          } else if (count == ONE) {
+            count = new WrappedInteger(2);
+            curridx_invokes.put(twogram, count);
+          } else
+            count.increment();
         }
       }
     }
@@ -114,8 +119,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     starttime = System.nanoTime();
 
     totalSigCount = 0;
-    idx = new WYK_HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
-    // idx = new HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
+    idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
+    // idx = new HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
     // BufferedOutputStream bw = new BufferedOutputStream(
     // new FileOutputStream("asdf"));
@@ -131,7 +136,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
       for (int i = 0; i < searchmax; ++i) {
         if (available2Grams.get(i).isEmpty()) continue;
         int invoke = 0;
-        Map<IntegerPair, Integer> curridx_invokes = invokes.get(i);
+        Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get(i);
         // There is no invocation count: this is the minimum point
         if (curridx_invokes == null) {
           minIdx = i;
@@ -139,8 +144,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
           break;
         }
         for (IntegerPair twogram : available2Grams.get(i)) {
-          Integer count = curridx_invokes.get(twogram);
-          if (count != null) invoke += count;
+          WrappedInteger count = curridx_invokes.get(twogram);
+          if (count != null) invoke += count.get();
         }
         if (invoke < minInvokes) {
           minIdx = i;
@@ -150,22 +155,21 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
       predictCount += minInvokes;
 
-      Map<IntegerPair, List<IntIntRecordTriple>> curridx = idx.get(minIdx);
+      Map<IntegerPair, List<Record>> curridx = idx.get(minIdx);
       if (curridx == null) {
-        curridx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>(
-            1000000);
-        // curridx = new HashMap<IntegerPair, List<IntIntRecordTriple>>();
+        curridx = new WYK_HashMap<IntegerPair, List<Record>>(1000000);
+        // curridx = new HashMap<IntegerPair, List<Record>>();
         idx.put(minIdx, curridx);
       }
       for (IntegerPair twogram : available2Grams.get(minIdx)) {
         // write2File(bw, minIdx, twogram, rec.getID());
         if (true) {
-          List<IntIntRecordTriple> list = curridx.get(twogram);
+          List<Record> list = curridx.get(twogram);
           if (list == null) {
-            list = new ArrayList<IntIntRecordTriple>();
+            list = new ArrayList<Record>();
             curridx.put(twogram, list);
           }
-          list.add(new IntIntRecordTriple(range[0], range[1], rec));
+          list.add(rec);
         }
       }
       elements += available2Grams.get(minIdx).size();
@@ -181,10 +185,10 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     int ones = 0;
     long count = 0;
     ///// Statistics
-    for (Map<IntegerPair, List<IntIntRecordTriple>> curridx : idx.values()) {
-      WYK_HashMap<IntegerPair, List<IntIntRecordTriple>> tmp = (WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>) curridx;
+    for (Map<IntegerPair, List<Record>> curridx : idx.values()) {
+      WYK_HashMap<IntegerPair, List<Record>> tmp = (WYK_HashMap<IntegerPair, List<Record>>) curridx;
       if (sum == 0) tmp.printStat();
-      for (List<IntIntRecordTriple> list : curridx.values()) {
+      for (List<Record> list : curridx.values()) {
         if (list.size() == 1) {
           ++ones;
           continue;
@@ -205,16 +209,16 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     sum = 0;
     ones = 0;
     count = 0;
-    for (Map<IntegerPair, Integer> curridx : invokes.values()) {
-      WYK_HashMap<IntegerPair, Integer> tmp = (WYK_HashMap<IntegerPair, Integer>) curridx;
+    for (Map<IntegerPair, WrappedInteger> curridx : invokes.values()) {
+      WYK_HashMap<IntegerPair, WrappedInteger> tmp = (WYK_HashMap<IntegerPair, WrappedInteger>) curridx;
       if (sum == 0) tmp.printStat();
-      for (Entry<IntegerPair, Integer> list : curridx.entrySet()) {
-        if (list.getValue() == 1) {
+      for (Entry<IntegerPair, WrappedInteger> list : curridx.entrySet()) {
+        if (list.getValue().get() == 1) {
           ++ones;
           continue;
         }
         sum++;
-        count += list.getValue();
+        count += list.getValue().get();
       }
     }
     System.out.println("key-value pairs(all) : " + (sum + ones));
@@ -257,17 +261,18 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
         int[] range = recS.getCandidateLengths(recS.size() - 1);
         int searchmax = Math.min(available2Grams.size(), maxIndex);
         for (int i = 0; i < searchmax; ++i) {
-          Map<IntegerPair, List<IntIntRecordTriple>> curridx = idx.get(i);
+          Map<IntegerPair, List<Record>> curridx = idx.get(i);
           if (curridx == null) continue;
           List<List<Record>> candidatesList = new ArrayList<List<Record>>();
           for (IntegerPair twogram : available2Grams.get(i)) {
-            List<IntIntRecordTriple> tree = curridx.get(twogram);
+            List<Record> tree = curridx.get(twogram);
 
             if (tree == null) continue;
             List<Record> list = new ArrayList<Record>();
-            for (IntIntRecordTriple e : tree)
-              if (StaticFunctions.overlap(e.min, e.max, range[0], range[1]))
-                list.add(e.rec);
+            for (Record e : tree)
+              if (StaticFunctions.overlap(e.getMinLength(), e.getMaxLength(),
+                  range[0], range[1]))
+                list.add(e);
             candidatesList.add(list);
             count += list.size();
           }
@@ -366,7 +371,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
       }
     }
 
-    idx = new WYK_HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
+    idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
     for (Record rec : tableR) {
       List<Set<IntegerPair>> available2Grams = exact2grams
           ? rec.getExact2Grams() : rec.get2Grams();
@@ -395,18 +400,18 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
       predictCount += minInvokes;
 
-      Map<IntegerPair, List<IntIntRecordTriple>> curridx = idx.get(minIdx);
+      Map<IntegerPair, List<Record>> curridx = idx.get(minIdx);
       if (curridx == null) {
-        curridx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
+        curridx = new WYK_HashMap<IntegerPair, List<Record>>();
         idx.put(minIdx, curridx);
       }
       for (IntegerPair twogram : available2Grams.get(minIdx)) {
-        List<IntIntRecordTriple> list = curridx.get(twogram);
+        List<Record> list = curridx.get(twogram);
         if (list == null) {
-          list = new ArrayList<IntIntRecordTriple>();
+          list = new ArrayList<Record>();
           curridx.put(twogram, list);
         }
-        list.add(new IntIntRecordTriple(range[0], range[1], rec));
+        list.add(rec);
       }
       elements += available2Grams.get(minIdx).size();
     }
@@ -416,8 +421,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
     ///// Statistics
     int sum = 0;
     long count = 0;
-    for (Map<IntegerPair, List<IntIntRecordTriple>> curridx : idx.values()) {
-      for (List<IntIntRecordTriple> list : curridx.values()) {
+    for (Map<IntegerPair, List<Record>> curridx : idx.values()) {
+      for (List<Record> list : curridx.values()) {
         if (list.size() == 1) continue;
         sum++;
         count += list.size();
@@ -435,16 +440,17 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
       int minlength = recS.getMinLength();
       int maxlength = recS.getMaxLength();
       for (int i = 0; i < recS.size(); ++i) {
-        Map<IntegerPair, List<IntIntRecordTriple>> curridx = idx.get(i);
+        Map<IntegerPair, List<Record>> curridx = idx.get(i);
         if (curridx == null) continue;
         IntegerPair twogram = recS.getOriginal2Gram(i);
         List<Record> candidatesList = new ArrayList<Record>();
-        List<IntIntRecordTriple> tree = curridx.get(twogram);
+        List<Record> tree = curridx.get(twogram);
 
         if (tree == null) continue;
-        for (IntIntRecordTriple e : tree)
-          if (StaticFunctions.overlap(e.min, e.max, minlength, maxlength))
-            candidatesList.add(e.rec);
+        for (Record e : tree)
+          if (StaticFunctions.overlap(e.getMinLength(), e.getMaxLength(),
+              minlength, maxlength))
+            candidatesList.add(e);
         if (skipChecking) continue;
         for (Record recR : candidatesList) {
           int compare = checker.isEqual(recR, recS);

@@ -38,10 +38,10 @@ import wrapped.WrappedInteger;
  * index in order to find the best execution time.
  */
 public class Hybrid2GramWithOptTheta2 extends Algorithm {
-  static boolean                                 useAutomata   = true;
-  static boolean                                 skipChecking  = false;
-  static int                                     maxIndex      = Integer.MAX_VALUE;
-  static boolean                                 compact       = false;
+  static boolean                                 useAutomata        = true;
+  static boolean                                 skipChecking       = false;
+  static int                                     maxIndex           = Integer.MAX_VALUE;
+  static boolean                                 compact            = false;
   static boolean                                 singleside;
   static Validator                               checker;
 
@@ -50,7 +50,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 
   static String                                  outputfile;
 
-  int                                            joinThreshold = 0;
+  int                                            joinThreshold      = 0;
 
   double                                         alpha;
   double                                         beta;
@@ -58,8 +58,18 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
   double                                         delta;
   double                                         epsilon;
 
-  private static final WrappedInteger            ONE           = new WrappedInteger(
+  private static final WrappedInteger            ONE                = new WrappedInteger(
       1);
+  private static final int                       RECORD_CLASS_BYTES = 64;
+
+  /*
+   * 
+   * private int intarrbytes(int len) {
+   * // Accurate bytes in 64bit machine is:
+   * // ceil(4 * len / 8) * 8 + 16
+   * return len * 4 + 16;
+   * }
+   */
 
   /**
    * Key: (token, index) pair<br/>
@@ -93,6 +103,8 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
    */
   long                                           est_SH_T_cmps;
   long                                           est_SL_TH_cmps;
+
+  long                                           memlimit_expandedS;
 
   protected Hybrid2GramWithOptTheta2(String rulefile, String Rfile,
       String Sfile) throws IOException {
@@ -240,6 +252,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
     System.out.println("Bigram retrieval : " + Record.exectime);
     System.out.println(
         (runtime.totalMemory() - runtime.freeMemory()) / 1048576 + "MB used");
+    memlimit_expandedS = (long) (runtime.freeMemory() * 0.8);
 
     System.out.println("SH_T predict : " + est_SH_T_cmps);
     System.out.println("SH_T idx size : " + SH_T_elements);
@@ -252,6 +265,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
     }
   }
 
+  @SuppressWarnings("unused")
   private void checkLongestIndex() {
     Comparator<Entry<IntegerPair, WrappedInteger>> cmp = new Comparator<Entry<IntegerPair, WrappedInteger>>() {
       @Override
@@ -585,6 +599,10 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
     int best_theta = 0;
     long best_esttime = Long.MAX_VALUE;
     long[] best_esttimes = null;
+
+    // Memory cost for storing expanded tableR
+    long memcost = 0;
+
     // Indicates the minimum indices which have more that 'theta' expanded
     // records
     int sidx = 0;
@@ -650,7 +668,22 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
           next_theta = Math.min(next_theta, expSize);
           break;
         }
+        long expmemsize = s.getEstExpandCost();
         currSLExpSize += expSize;
+        // Size for the integer arrays
+        memcost += 4 * expmemsize + 16 * expSize;
+        // Size for the Record instance
+        memcost += RECORD_CLASS_BYTES * expSize;
+        // Pointers in the inverted index
+        memcost += 8 * expSize;
+        // Pointers in the Hashmap (in worst case)
+        // Our hashmap filling ratio is 0.5: 24 / 0.5 = 48
+        memcost += 48 * expSize;
+        if (memcost > memlimit_expandedS) {
+          next_theta = Math.min(next_theta, expSize);
+          break;
+        }
+
         // Count the reduced invocation counts
         List<Set<IntegerPair>> twograms = s.get2Grams();
         int SH_T_min_invokes = Integer.MAX_VALUE;
@@ -695,6 +728,10 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
           set.clear();
         twograms.clear();
       }
+      if (memcost > memlimit_expandedS) {
+        System.out.println("Memory budget exceeds at " + theta);
+        break;
+      }
 
       long[] esttimes = new long[4];
       esttimes[0] = (long) (alpha * currSLExpSize);
@@ -711,6 +748,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
           || theta == 1000 || theta == 3000) {
         System.out.println("T=" + theta + " : " + esttime);
         System.out.println(Arrays.toString(esttimes));
+        System.out.println("Mem : " + memcost + " / " + memlimit_expandedS);
       }
       theta = next_theta;
     }
