@@ -17,12 +17,12 @@ import mine.RecordIDComparator;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Parameters;
+import tools.RandHash;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
 import validator.Validator;
-import wrapped.WrappedInteger;
 
 /**
  * Given threshold, if a record has more than 'threshold' 1-expandable strings,
@@ -32,10 +32,10 @@ import wrapped.WrappedInteger;
  * Join (SH x TL), (S x TH) and (SL x TL)
  */
 public class Hybrid2GramA1_2 extends Algorithm {
-  static boolean                               useAutomata  = true;
-  static boolean                               skipChecking = false;
-  static int                                   maxIndex     = Integer.MAX_VALUE;
-  static boolean                               compact      = false;
+  static boolean                               useAutomata    = true;
+  static boolean                               skipChecking   = false;
+  static int                                   maxIndex       = Integer.MAX_VALUE;
+  static boolean                               compact        = false;
   static int                                   joinThreshold;
   static boolean                               singleside;
   static Validator                             checker;
@@ -63,14 +63,19 @@ public class Hybrid2GramA1_2 extends Algorithm {
    * List of 1-expandable strings
    */
   Map<Record, List<Integer>>                   setR;
-  private static final WrappedInteger          ONE          = new WrappedInteger(
-      1);
+
+  public static double                         dirsampleratio = 0.01;
+  public static int                            mhsize         = 30;
+  RandHash[]                                   rhfunc;
 
   protected Hybrid2GramA1_2(String rulefile, String Rfile, String Sfile)
       throws IOException {
     super(rulefile, Rfile, Sfile);
     idComparator = new RecordIDComparator();
     ruletrie = new RuleTrie(rulelist);
+    rhfunc = new RandHash[mhsize];
+    for (int i = 0; i < mhsize; ++i)
+      rhfunc[i] = new RandHash();
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -80,10 +85,12 @@ public class Hybrid2GramA1_2 extends Algorithm {
 
     long SH_TL_elements = 0;
     long S_TH_elements = 0;
+    long est_invokes = 0;
+    double est_unions = 0;
     // Build an index
     // Count Invokes per each (token, loc) pair
-    Map<Integer, Map<IntegerPair, WrappedInteger>> SH_TL_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
-    Map<Integer, Map<IntegerPair, WrappedInteger>> S_TH_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
+    Map<Integer, Map<IntegerPair, Directory>> SH_TL_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+    Map<Integer, Map<IntegerPair, Directory>> S_TH_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
 
     SH_TL_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
     S_TH_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
@@ -94,28 +101,28 @@ public class Hybrid2GramA1_2 extends Algorithm {
       int searchmax = Math.min(available2Grams.size(), maxIndex);
       boolean is_TH_Record = rec.getEstNumRecords() > joinThreshold;
       for (int i = 0; i < searchmax; ++i) {
-        Map<IntegerPair, WrappedInteger> curr_invokes;
+        Map<IntegerPair, Directory> curr_invokes;
         if (is_TH_Record) {
           curr_invokes = S_TH_invokes.get(i);
           if (curr_invokes == null) {
-            curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
+            curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
             S_TH_invokes.put(i, curr_invokes);
           }
         } else {
           curr_invokes = SH_TL_invokes.get(i);
           if (curr_invokes == null) {
-            curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
+            curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
             SH_TL_invokes.put(i, curr_invokes);
           }
         }
         for (IntegerPair twogram : available2Grams.get(i)) {
-          WrappedInteger count = curr_invokes.get(twogram);
-          if (count == null)
-            curr_invokes.put(twogram, ONE);
-          else if (count == ONE)
-            curr_invokes.put(twogram, new WrappedInteger(2));
-          else
-            count.increment();
+          if (Math.random() > dirsampleratio) continue;
+          Directory count = curr_invokes.get(twogram);
+          if (count == null) {
+            count = new Directory();
+            curr_invokes.put(twogram, count);
+          }
+          count.add(rec);
         }
       }
     }
@@ -125,18 +132,11 @@ public class Hybrid2GramA1_2 extends Algorithm {
     System.out.println(
         (runtime.totalMemory() - runtime.freeMemory()) / 1048576 + "MB used");
 
-    // Build an index for the strings in S which has more than 'threshold'
-    // 1-expandable strings
-    // SH_T_idx = new WYK_HashMap<Integer, Map<IntegerPair,
-    // List<IntIntRecordTriple>>>();
-    // SL_TH_idx = new WYK_HashMap<Integer, Map<IntegerPair,
-    // List<IntIntRecordTriple>>>();
-
-    // Actually, tableS
-
     final Map[] invokes = { S_TH_invokes, SH_TL_invokes };
     final Map[] indices = { S_TH_idx, SH_TL_idx };
 
+    // Actually, tableS
+    int[] union_sig = new int[mhsize];
     for (Record rec : tableR) {
       List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
@@ -149,30 +149,63 @@ public class Hybrid2GramA1_2 extends Algorithm {
           continue;
         else if (invokes[mapidx].size() == 0) continue;
 
+        // Find the best location with the least number of candidates
         int minIdx = -1;
         int minInvokes = Integer.MAX_VALUE;
-        int[] invokearr = new int[searchmax];
+        double minUnion = Integer.MAX_VALUE;
+        double[] unionarr = new double[searchmax];
 
         for (int i = 0; i < searchmax; ++i) {
-          Map<IntegerPair, WrappedInteger> curr_invokes = (Map<IntegerPair, WrappedInteger>) invokes[mapidx]
+          // prepare for the union signature
+          for (int j = 0; j < mhsize; ++j)
+            union_sig[j] = Integer.MAX_VALUE;
+          int maxsize = 0;
+          Directory maxsizedir = null;
+
+          // Find every directory with the bigrams which this record can
+          // generate
+          Map<IntegerPair, Directory> curr_invokes = (Map<IntegerPair, Directory>) invokes[mapidx]
               .get(i);
           if (curr_invokes == null) {
             minIdx = i;
             minInvokes = 0;
+            minUnion = 0;
             break;
           }
           int invoke = 0;
           for (IntegerPair twogram : available2Grams.get(i)) {
-            WrappedInteger count = curr_invokes.get(twogram);
-            if (count != null) invoke += count.get();
+            Directory dir = curr_invokes.get(twogram);
+            if (dir == null)
+              continue;
+            else if (dir.count > maxsize) {
+              maxsize = dir.count;
+              maxsizedir = dir;
+            }
+            for (int j = 0; j < mhsize; ++j)
+              union_sig[j] = Math.min(union_sig[j], dir.minhash[j]);
+            invoke += dir.count;
           }
-          if (invoke < minInvokes) {
+
+          // Compute the estimated union size
+          int inter = 0;
+          double union = 0;
+          if (maxsizedir != null) {
+            assert (maxsize != 0);
+            for (int j = 0; j < mhsize; ++j)
+              if (union_sig[j] == maxsizedir.minhash[j]) ++inter;
+            union = ((double) maxsizedir.count * mhsize) / inter;
+          }
+          unionarr[i] = union;
+
+          // Update minUnion
+          if (union < minUnion) {
             minIdx = i;
             minInvokes = invoke;
+            minUnion = union;
           }
-          invokearr[i] = invoke;
         }
 
+        // Add record to index
         Map<IntegerPair, List<Record>> curr_idx = (Map<IntegerPair, List<Record>>) indices[mapidx]
             .get(minIdx);
         if (curr_idx == null) {
@@ -192,6 +225,9 @@ public class Hybrid2GramA1_2 extends Algorithm {
           S_TH_elements += elements;
         else
           SH_TL_elements += elements;
+
+        est_unions += minUnion;
+        est_invokes += minInvokes;
       }
     }
     System.out.println("Bigram retrieval : " + Record.exectime);
@@ -200,7 +236,8 @@ public class Hybrid2GramA1_2 extends Algorithm {
 
     System.out.println("SH_TL idx size : " + SH_TL_elements);
     System.out.println("S_TH idx size : " + S_TH_elements);
-    System.out.println(WrappedInteger.count + " Wrapped Integers");
+    System.out.println("Est invokes : " + est_invokes / dirsampleratio);
+    System.out.println("Est unions : " + est_unions / dirsampleratio);
     for (Entry<Integer, Map<IntegerPair, List<Record>>> e : SH_TL_idx
         .entrySet()) {
       System.out.println(e.getKey() + " : " + e.getValue().size());
@@ -271,6 +308,8 @@ public class Hybrid2GramA1_2 extends Algorithm {
         time2 += System.currentTimeMillis() - time;
       }
     }
+    System.out.print("JoinMin part finished");
+    System.out.print(Validator.checked + " cmps");
 
     clearJoinMinIndex();
 
@@ -337,6 +376,36 @@ public class Hybrid2GramA1_2 extends Algorithm {
     @Override
     public int compare(Integer o1, Integer o2) {
       return o1.compareTo(o2);
+    }
+  }
+
+  /*
+   * 
+   * private int intarrbytes(int len) {
+   * // Accurate bytes in 64bit machine is:
+   * // ceil(4 * len / 8) * 8 + 16
+   * return len * 4 + 16;
+   * }
+   */
+
+  class Directory {
+    int   count;
+    int[] minhash;
+
+    Directory() {
+      count = 0;
+      minhash = new int[mhsize];
+      for (int i = 0; i < mhsize; ++i)
+        minhash[i] = Integer.MAX_VALUE;
+    }
+
+    // Add a record
+    void add(Record rec) {
+      ++count;
+      for (int i = 0; i < mhsize; ++i) {
+        int hash = rhfunc[i].get(rec.getID());
+        minhash[i] = Math.min(minhash[i], hash);
+      }
     }
   }
 
