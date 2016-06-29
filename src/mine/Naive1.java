@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class Naive1 extends Algorithm {
   Rule_ACAutomata                 automata;
   RuleTrie                        ruletrie;
 
-  public static int               threshold = Integer.MAX_VALUE;
+  public static long              threshold = Long.MAX_VALUE;
   public static boolean           skipequiv = false;
 
   public long                     buildIndexTime;
@@ -137,10 +138,20 @@ public class Naive1 extends Algorithm {
     buildIndexTime = System.nanoTime() - startTime;
     System.out.println("Preprocess finished " + buildIndexTime);
 
-    runWithoutPreprocess();
+    List<RecordPair> list = runWithoutPreprocess();
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
+      for (RecordPair rp : list) {
+        Record s = rp.record1;
+        Record t = rp.record2;
+        if (!s.equals(t)) bw.write(s.toString() + " == " + t.toString() + "\n");
+      }
+      bw.close();
+    } catch (IOException e) {
+    }
   }
 
-  public void runWithoutPreprocess() {
+  public List<RecordPair> runWithoutPreprocess() {
     long startTime = System.nanoTime();
     buildIndex();
     buildIndexTime = System.nanoTime() - startTime;
@@ -154,20 +165,19 @@ public class Naive1 extends Algorithm {
     System.out
         .println("Equals counter: " + StaticFunctions.compare_cmp_counter);
 
-    try {
-      BufferedWriter bw = new BufferedWriter(new FileWriter("rslt.txt"));
-      for (IntegerPair ip : rslt) {
-        Record r = tableR.get(ip.i1);
-        Record s = tableS.get(ip.i2);
-        if (!r.equals(s)) bw.write(tableR.get(ip.i1).toString(strlist)
-            + "\t==\t" + tableS.get(ip.i2).toString(strlist) + "\n");
-      }
-      bw.close();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    List<RecordPair> rlist = new ArrayList<RecordPair>();
+    for (IntegerPair ip : rslt) {
+      Record r = tableR.get(ip.i1);
+      Record s = tableS.get(ip.i2);
+      rlist.add(new RecordPair(r, s));
     }
-    // ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
+    Collections.sort(rlist);
+    return rlist;
+  }
+
+  public void clearIndex() {
+    if (rec2idx != null) rec2idx.clear();
+    rec2idx = null;
   }
 
   public static void main(String[] args) throws IOException {

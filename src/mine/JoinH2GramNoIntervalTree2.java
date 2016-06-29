@@ -28,6 +28,7 @@ import validator.Validator;
 /**
  * Same as JoinH2GramNoIntervalTree2, but utilizes minhash to estimate the set
  * union size while building an index
+ * Assumption: records are sorted with their IDs.
  */
 public class JoinH2GramNoIntervalTree2 extends Algorithm {
   public static boolean                        useAutomata    = false;
@@ -204,7 +205,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
           minInvokes = invoke;
         }
       }
-
+      assert (minIdx >= 0);
       predictCount += minInvokes;
 
       Map<IntegerPair, List<Record>> curridx = idx.get(minIdx);
@@ -382,6 +383,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 
       return rslt;
     } catch (Exception e) {
+      e.printStackTrace();
       return null;
     }
   }
@@ -566,11 +568,20 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
     System.out.print("Preprocess finished");
     System.out.println(" " + (System.nanoTime() - startTime));
 
-    runWithoutPreprocess();
+    List<RecordPair> list = runWithoutPreprocess();
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
+      for (RecordPair rp : list) {
+        Record s = rp.record1;
+        Record t = rp.record2;
+        if (!s.equals(t)) bw.write(s.toString() + " == " + t.toString() + "\n");
+      }
+      bw.close();
+    } catch (IOException e) {
+    }
   }
 
-  @SuppressWarnings("static-access")
-  public void runWithoutPreprocess() {
+  public List<RecordPair> runWithoutPreprocess() {
     // Retrieve statistics
     statistics();
 
@@ -593,25 +604,25 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
     System.out.println("Join finished " + joinTime + " ns");
     System.out.println(rslt.size());
 
-    try {
-      BufferedWriter bw = new BufferedWriter(new FileWriter(outputfile));
-      for (IntegerPair ip : rslt) {
-        Record r = tableR.get(ip.i1);
-        Record s = tableS.get(ip.i2);
-        if (!r.equals(s)) bw.write(tableR.get(ip.i1).toString(strlist)
-            + "\t==\t" + tableS.get(ip.i2).toString(strlist) + "\n");
-      }
-      bw.close();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    Map<Integer, Record> tableRmap = new WYK_HashMap<Integer, Record>();
+    Map<Integer, Record> tableSmap = new WYK_HashMap<Integer, Record>();
+    for (Record r : tableR)
+      tableRmap.put(r.getID(), r);
+    for (Record s : tableS)
+      tableSmap.put(s.getID(), s);
+    List<RecordPair> rlist = new ArrayList<RecordPair>();
+    for (IntegerPair ip : rslt) {
+      Record r = tableRmap.get(ip.i1);
+      Record s = tableSmap.get(ip.i2);
+      rlist.add(new RecordPair(r, s));
     }
-    if (checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
-      TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
-      System.out.println("Prev entry count : " + tmp.prevEntryCount);
-      System.out.println(
-          "Effective prev entry count : " + tmp.effectivePrevEntryCount);
-    }
+    Collections.sort(rlist);
+    return rlist;
+  }
+
+  public void clearIndex() {
+    if (idx != null) idx.clear();
+    idx = null;
   }
 
   public static void main(String[] args) throws IOException {

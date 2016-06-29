@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import mine.JoinH2GramNoIntervalTree2;
 import mine.Naive1;
 import mine.Record;
 import mine.RecordIDComparator;
+import mine.RecordPair;
 import tools.Algorithm;
 import tools.Parameters;
 import tools.Rule;
@@ -201,14 +204,14 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
     // Compute the maximum theta
     estNaiveExecTime();
     // checkLongestIndex();
-    System.out.print("Building Index finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    System.out.print("estNaiveExecTime finished");
+    System.out.println(" " + (System.currentTimeMillis() - startTime) + "ms");
 
     // Modify index to get optimal theta
     startTime = System.currentTimeMillis();
     findTheta(sampleratio);
     System.out.print("Estimation finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    System.out.println(" " + (System.currentTimeMillis() - startTime) + "ms");
   }
 
   private void findTheta(double sampleratio) {
@@ -217,54 +220,71 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
     // exclusive
     long maxtheta = this.maxtheta + 1;
     // inclusive
-    long mintheta = 0;
+    long mintheta = 1;
 
-    List<Record> sampleS = new ArrayList<Record>();
-    List<Record> sampleT = new ArrayList<Record>();
-    for (Record s : tableR)
-      if (Math.random() < sampleratio) sampleS.add(s);
-    for (Record t : tableS)
-      if (Math.random() < sampleratio) sampleT.add(t);
-    tableR.clear();
-    tableS.clear();
+    final int trials = 1;
 
-    Naive1 naiveinst = new Naive1(this);
-    JoinH2GramNoIntervalTree2 joinmininst = new JoinH2GramNoIntervalTree2(this);
+    List<Record> oS = tableR;
+    // List<Record> oT = tableS;
+    tableR = new ArrayList<Record>();
+    tableS = tableR;
+    // tableS = new ArrayList<Record>();
+    Runtime rt = Runtime.getRuntime();
 
-    long prevtheta = 0;
     while (mintheta < maxtheta - 1) {
       long currtheta = (maxtheta + mintheta) / 2;
       // Self join
-      updateList(sampleS, sampleS, tableR, tableS, prevtheta, currtheta);
+      sampleList(oS, tableR, currtheta, sampleratio);
+      // sampleList(oT, tableS, currtheta, sampleratio);
+      /*
+       * try {
+       * StaticFunctions.write2file(tableR, "sample1");
+       * StaticFunctions.write2file(tableS, "sample2");
+       * } catch (Exception e) {
+       * }
+       */
 
       long naivetime = Long.MAX_VALUE;
-      for (int i = 0; i < 2; ++i) {
-        try {
-          naiveinst.runWithoutPreprocess();
-        } catch (Exception e) {
-        }
+      long joinmintime = Long.MAX_VALUE;
+      for (int i = 0; i < trials; ++i) {
+        System.out.println("Free mem : " + rt.freeMemory());
+        // Do naive join
+        Naive1 naiveinst = new Naive1(this);
+        List<RecordPair> naive = naiveinst.runWithoutPreprocess();
         naivetime = Math.min(naivetime,
             naiveinst.buildIndexTime + naiveinst.joinTime);
-      }
+        naiveinst.clearIndex();
 
-      long joinmintime = Long.MAX_VALUE;
-      for (int i = 0; i < 2; ++i) {
-        try {
-          joinmininst.runWithoutPreprocess();
-        } catch (Exception e) {
-        }
+        // Do JoinMin
+        JoinH2GramNoIntervalTree2 joinmininst = new JoinH2GramNoIntervalTree2(
+            this);
+        JoinH2GramNoIntervalTree2.checker = checker;
+        List<RecordPair> joinmin = joinmininst.runWithoutPreprocess();
         joinmintime = Math.min(joinmintime,
             joinmininst.buildIndexTime + joinmininst.joinTime);
+        joinmininst.clearIndex();
+
+        // Compare two results
+        assert (naive.size() == joinmin.size());
+        for (int j = 0; j < naive.size(); ++j) {
+          RecordPair rp1 = naive.get(j);
+          RecordPair rp2 = joinmin.get(j);
+          if (rp1.record1 != rp2.record1 || rp1.record2 != rp2.record2) {
+            System.out.println("Error(2) : Two results do not match");
+            System.out.println("Naive : " + rp1.record1 + " == " + rp1.record2);
+            System.out
+                .println("JoinMin : " + rp2.record1 + " == " + rp2.record2);
+            System.exit(1);
+          }
+        }
       }
 
-      System.out.println(
-          "theta = " + currtheta + " : " + naivetime + " / " + joinmintime);
-
+      System.out.println("theta = " + currtheta + " : N " + naivetime + " / JM "
+          + joinmintime);
       if (joinmintime > naivetime)
         mintheta = currtheta;
       else
         maxtheta = currtheta;
-      prevtheta = currtheta;
     }
     System.out.println("Final theta : " + mintheta);
     long duration = System.nanoTime() - starttime;
@@ -272,37 +292,43 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
   }
 
   /**
+   * Find the maximum index which expands less or equal to 'theta' records.
+   */
+  private int findMaxIdx(List<Record> list, long theta) {
+    int min = 0;
+    int max = list.size();
+    while (min < max - 1) {
+      int curr = (max + min) / 2;
+      Record rec = list.get(curr);
+      if (rec.getEstNumRecords() > theta)
+        max = curr;
+      else
+        min = curr;
+    }
+    return min;
+  }
+
+  /**
    * Update sS and sT using oS and oT. Maximum number of expanded records in oS
    * and oT are changed from 'from' to 'to'.
    */
-  private void updateList(List<Record> oS, List<Record> oT, List<Record> sS,
-      List<Record> sT, long from, long to) {
-    // New records must be added
-    if (from < to) {
-      for (int i = sS.size(); i < oS.size(); ++i) {
-        Record s = oS.get(i);
-        if (s.getEstNumRecords() > to) break;
-        sS.add(s);
-      }
-      for (int i = sT.size(); i < oT.size(); ++i) {
-        Record t = oT.get(i);
-        if (t.getEstNumRecords() > to) break;
-        sT.add(t);
-      }
+  private void sampleList(List<Record> oS, List<Record> sS, long theta,
+      double sampleratio) {
+    sS.clear();
+    Set<Integer> sample = new HashSet<Integer>();
+    int sidx = findMaxIdx(oS, theta);
+    int size = (int) (sidx * sampleratio);
+    while (sample.size() < size) {
+      int rnd = (int) (Math.random() * sidx);
+      sample.add(rnd);
     }
-    // Records must be removed
-    else {
-      for (int i = sS.size() - 1; i >= 0; --i) {
-        Record s = sS.get(i);
-        if (s.getEstNumRecords() <= to) break;
-        sS.remove(i);
-      }
-      for (int i = sT.size() - 1; i >= 0; --i) {
-        Record s = sT.get(i);
-        if (s.getEstNumRecords() <= to) break;
-        sT.remove(i);
-      }
+    for (Integer idx : sample) {
+      Record rec = oS.get(idx);
+      assert (rec.getEstNumRecords() <= theta);
+      sS.add(oS.get(idx));
     }
+    final Comparator<Record> comp = new RecordIDComparator();
+    Collections.sort(sS, comp);
   }
 
   public static void main(String[] args) throws IOException {
