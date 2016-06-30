@@ -67,9 +67,9 @@ public class Naive1 extends Algorithm {
     for (int i = 0; i < tableR.size(); ++i) {
       Record recR = tableR.get(i);
       long est = recR.getEstNumRecords();
-      if (est > threshold) continue;
+      if (threshold != -1 && est > threshold) continue;
       List<Record> expanded = recR.expandAll(ruletrie);
-      assert (expanded.size() <= threshold);
+      assert (threshold == -1 || expanded.size() <= threshold);
       totalExpSize += expanded.size();
       for (Record exp : expanded) {
         ArrayList<Integer> list = rec2idx.get(exp);
@@ -108,7 +108,7 @@ public class Naive1 extends Algorithm {
     for (int idxS = 0; idxS < tableS.size(); ++idxS) {
       Record recS = tableS.get(idxS);
       long est = recS.getEstNumRecords();
-      if (est > threshold) continue;
+      if (threshold != -1 && est > threshold) continue;
       List<Record> expanded = recS.expandAll(ruletrie);
       totalExpSize += expanded.size();
       List<List<Integer>> candidates = new ArrayList<List<Integer>>(
@@ -188,7 +188,7 @@ public class Naive1 extends Algorithm {
     String Rfile = args[0];
     String Sfile = args[1];
     String Rulefile = args[2];
-    Naive1.threshold = Integer.valueOf(args[3]);
+    Naive1.threshold = Long.valueOf(args[3]);
 
     long startTime = System.currentTimeMillis();
     Naive1 inst = new Naive1(Rulefile, Rfile, Sfile);
