@@ -141,6 +141,7 @@ public class Hybrid2GramA1_2 extends Algorithm {
       List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int searchmax = Math.min(range[0], maxIndex);
+      assert (searchmax >= 0);
       boolean is_SH_record = rec.getEstNumRecords() > joinThreshold;
 
       for (int mapidx = 0; mapidx < 2; ++mapidx) {
@@ -193,7 +194,10 @@ public class Hybrid2GramA1_2 extends Algorithm {
             assert (maxsize != 0);
             for (int j = 0; j < mhsize; ++j)
               if (union_sig[j] == maxsizedir.minhash[j]) ++inter;
-            union = ((double) maxsizedir.count * mhsize) / inter;
+            if (inter == 0)
+              union = Math.min(invoke, tableS.size());
+            else
+              union = ((double) maxsizedir.count * mhsize) / inter;
           }
           unionarr[i] = union;
 
@@ -205,6 +209,11 @@ public class Hybrid2GramA1_2 extends Algorithm {
           }
         }
 
+        if (minIdx < 0) {
+          System.out.println("Error : minIdx < 0 at " + rec.toString());
+          System.exit(1);
+        }
+        assert (minIdx >= 0);
         // Add record to index
         Map<IntegerPair, List<Record>> curr_idx = (Map<IntegerPair, List<Record>>) indices[mapidx]
             .get(minIdx);
@@ -308,8 +317,8 @@ public class Hybrid2GramA1_2 extends Algorithm {
         time2 += System.currentTimeMillis() - time;
       }
     }
-    System.out.print("JoinMin part finished");
-    System.out.print(Validator.checked + " cmps");
+    System.out.println("JoinMin part finished");
+    System.out.println(Validator.checked + " cmps");
 
     clearJoinMinIndex();
 

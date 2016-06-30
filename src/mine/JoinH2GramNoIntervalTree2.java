@@ -163,7 +163,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
         totalSigCount += set.size();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int minIdx = -1;
-      double minInvokes = Double.POSITIVE_INFINITY;
+      double minUnion = Double.POSITIVE_INFINITY;
       int searchmax = Math.min(range[0], maxIndex);
       for (int i = 0; i < searchmax; ++i) {
         if (available2Grams.get(i).isEmpty()) continue;
@@ -171,13 +171,14 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
         // There is no invocation count: this is the minimum point
         if (curridx_invokes == null) {
           minIdx = i;
-          minInvokes = 0;
+          minUnion = 0;
           break;
         }
 
         // prepare for the union signature
         for (int j = 0; j < mhsize; ++j)
           union_sig[j] = Integer.MAX_VALUE;
+        int invoke = 0;
         int maxsize = 0;
         Directory maxsizedir = null;
 
@@ -191,22 +192,30 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
           }
           for (int j = 0; j < mhsize; ++j)
             union_sig[j] = Math.min(union_sig[j], dir.minhash[j]);
+          invoke += dir.count;
         }
         int inter = 0;
-        double invoke = 0;
+        double union = 0;
         if (maxsizedir != null) {
           assert (maxsize != 0);
           for (int j = 0; j < mhsize; ++j)
             if (union_sig[j] == maxsizedir.minhash[j]) ++inter;
-          invoke = ((double) maxsizedir.count * mhsize) / inter;
+          if (inter == 0)
+            union = Math.min(invoke, tableS.size());
+          else
+            union = ((double) maxsizedir.count * mhsize) / inter;
         }
-        if (invoke < minInvokes) {
+        if (union < minUnion) {
           minIdx = i;
-          minInvokes = invoke;
+          minUnion = union;
         }
       }
+      if (minIdx < 0) {
+        System.out.println("Error : minIdx < 0 at " + rec.toString());
+        System.exit(1);
+      }
       assert (minIdx >= 0);
-      predictCount += minInvokes;
+      predictCount += minUnion;
 
       Map<IntegerPair, List<Record>> curridx = idx.get(minIdx);
       if (curridx == null) {
