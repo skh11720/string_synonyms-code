@@ -49,16 +49,7 @@ public class Hybrid2GramA1_2 extends Algorithm {
    * Key: (token, index) pair<br/>
    * Value: (min, max, record) triple
    */
-  /**
-   * Index of the records in R for the strings in S which has less or equal to
-   * 'threshold' 1-expandable strings
-   */
-  Map<Integer, Map<IntegerPair, List<Record>>> SH_TL_idx;
-  /**
-   * Index of the records in R for the strings in S which has more than
-   * 'threshold' 1-expandable strings
-   */
-  Map<Integer, Map<IntegerPair, List<Record>>> S_TH_idx;
+  Map<Integer, Map<IntegerPair, List<Record>>> idx;
   /**
    * List of 1-expandable strings
    */
@@ -78,41 +69,47 @@ public class Hybrid2GramA1_2 extends Algorithm {
       rhfunc[i] = new RandHash();
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private void buildJoinMinIndex() {
+  private enum JoinRange {
+    SL_TL, SH_TL, S_TH
+  }
+
+  private void buildJoinMinIndex(JoinRange joinrange) {
+    assert (joinrange != JoinRange.SL_TL);
+    clearJoinMinIndex();
+
     // BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
     Runtime runtime = Runtime.getRuntime();
 
-    long SH_TL_elements = 0;
-    long S_TH_elements = 0;
+    long elements = 0;
     long est_invokes = 0;
     double est_unions = 0;
     // Build an index
     // Count Invokes per each (token, loc) pair
-    Map<Integer, Map<IntegerPair, Directory>> SH_TL_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
-    Map<Integer, Map<IntegerPair, Directory>> S_TH_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
-
-    SH_TL_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-    S_TH_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
+    Map<Integer, Map<IntegerPair, Directory>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+    idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
     // Actually, tableT
     for (Record rec : tableS) {
+      // If currently processing range do not match with current record, skip
+      // processing this record
+      boolean is_TH_Record = rec.getEstNumRecords() > joinThreshold;
+      if (is_TH_Record != (joinrange == JoinRange.S_TH)) continue;
+
       List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
-      boolean is_TH_Record = rec.getEstNumRecords() > joinThreshold;
       for (int i = 0; i < searchmax; ++i) {
         Map<IntegerPair, Directory> curr_invokes;
         if (is_TH_Record) {
-          curr_invokes = S_TH_invokes.get(i);
+          curr_invokes = invokes.get(i);
           if (curr_invokes == null) {
             curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
-            S_TH_invokes.put(i, curr_invokes);
+            invokes.put(i, curr_invokes);
           }
         } else {
-          curr_invokes = SH_TL_invokes.get(i);
+          curr_invokes = invokes.get(i);
           if (curr_invokes == null) {
             curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
-            SH_TL_invokes.put(i, curr_invokes);
+            invokes.put(i, curr_invokes);
           }
         }
         for (IntegerPair twogram : available2Grams.get(i)) {
@@ -132,134 +129,123 @@ public class Hybrid2GramA1_2 extends Algorithm {
     System.out.println(
         (runtime.totalMemory() - runtime.freeMemory()) / 1048576 + "MB used");
 
-    final Map[] invokes = { S_TH_invokes, SH_TL_invokes };
-    final Map[] indices = { S_TH_idx, SH_TL_idx };
+    // Prepare for the signature of set union
+    int[] union_sig = new int[mhsize];
 
     // Actually, tableS
-    int[] union_sig = new int[mhsize];
     for (Record rec : tableR) {
       List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int[] range = rec.getCandidateLengths(rec.size() - 1);
       int searchmax = Math.min(range[0], maxIndex);
       assert (searchmax >= 0);
+
+      // If currently processing range is SH_TL and the current record is not
+      // SH, skip processing this record
       boolean is_SH_record = rec.getEstNumRecords() > joinThreshold;
+      if (!is_SH_record && (joinrange == JoinRange.SH_TL)) continue;
 
-      for (int mapidx = 0; mapidx < 2; ++mapidx) {
-        // SL record : skip building the second index
-        if (mapidx == 1 && !is_SH_record)
-          continue;
-        else if (invokes[mapidx].size() == 0) continue;
+      // Find the best location with the least number of candidates
+      int minIdx = -1;
+      int minInvokes = Integer.MAX_VALUE;
+      double minUnion = Integer.MAX_VALUE;
+      double[] unionarr = new double[searchmax];
 
-        // Find the best location with the least number of candidates
-        int minIdx = -1;
-        int minInvokes = Integer.MAX_VALUE;
-        double minUnion = Integer.MAX_VALUE;
-        double[] unionarr = new double[searchmax];
+      for (int i = 0; i < searchmax; ++i) {
+        // prepare for the union signature
+        for (int j = 0; j < mhsize; ++j)
+          union_sig[j] = Integer.MAX_VALUE;
+        int maxsize = 0;
+        Directory maxsizedir = null;
 
-        for (int i = 0; i < searchmax; ++i) {
-          // prepare for the union signature
+        // Find every directory with the bigrams which this record can
+        // generate
+        Map<IntegerPair, Directory> curr_invokes = invokes.get(i);
+        if (curr_invokes == null) {
+          minIdx = i;
+          minInvokes = 0;
+          minUnion = 0;
+          break;
+        }
+        int invoke = 0;
+        for (IntegerPair twogram : available2Grams.get(i)) {
+          Directory dir = curr_invokes.get(twogram);
+          if (dir == null)
+            continue;
+          else if (dir.count > maxsize) {
+            maxsize = dir.count;
+            maxsizedir = dir;
+          }
           for (int j = 0; j < mhsize; ++j)
-            union_sig[j] = Integer.MAX_VALUE;
-          int maxsize = 0;
-          Directory maxsizedir = null;
-
-          // Find every directory with the bigrams which this record can
-          // generate
-          Map<IntegerPair, Directory> curr_invokes = (Map<IntegerPair, Directory>) invokes[mapidx]
-              .get(i);
-          if (curr_invokes == null) {
-            minIdx = i;
-            minInvokes = 0;
-            minUnion = 0;
-            break;
-          }
-          int invoke = 0;
-          for (IntegerPair twogram : available2Grams.get(i)) {
-            Directory dir = curr_invokes.get(twogram);
-            if (dir == null)
-              continue;
-            else if (dir.count > maxsize) {
-              maxsize = dir.count;
-              maxsizedir = dir;
-            }
-            for (int j = 0; j < mhsize; ++j)
-              union_sig[j] = Math.min(union_sig[j], dir.minhash[j]);
-            invoke += dir.count;
-          }
-
-          // Compute the estimated union size
-          int inter = 0;
-          double union = 0;
-          if (maxsizedir != null) {
-            assert (maxsize != 0);
-            for (int j = 0; j < mhsize; ++j)
-              if (union_sig[j] == maxsizedir.minhash[j]) ++inter;
-            if (inter == 0)
-              union = Math.min(invoke, tableS.size());
-            else
-              union = ((double) maxsizedir.count * mhsize) / inter;
-          }
-          unionarr[i] = union;
-
-          // Update minUnion
-          if (union < minUnion) {
-            minIdx = i;
-            minInvokes = invoke;
-            minUnion = union;
-          }
+            union_sig[j] = Math.min(union_sig[j], dir.minhash[j]);
+          invoke += dir.count;
         }
 
-        if (minIdx < 0) {
-          System.out.println("Error : minIdx < 0 at " + rec.toString());
-          System.exit(1);
+        // Compute the estimated union size
+        int inter = 0;
+        double union = 0;
+        if (maxsizedir != null) {
+          assert (maxsize != 0);
+          for (int j = 0; j < mhsize; ++j)
+            if (union_sig[j] == maxsizedir.minhash[j]) ++inter;
+          if (inter == 0)
+            union = Math.min(invoke, tableS.size());
+          else
+            union = ((double) maxsizedir.count * mhsize) / inter;
         }
-        assert (minIdx >= 0);
-        // Add record to index
-        Map<IntegerPair, List<Record>> curr_idx = (Map<IntegerPair, List<Record>>) indices[mapidx]
-            .get(minIdx);
-        if (curr_idx == null) {
-          curr_idx = new WYK_HashMap<IntegerPair, List<Record>>();
-          indices[mapidx].put(minIdx, curr_idx);
-        }
-        for (IntegerPair twogram : available2Grams.get(minIdx)) {
-          List<Record> list = curr_idx.get(twogram);
-          if (list == null) {
-            list = new ArrayList<Record>();
-            curr_idx.put(twogram, list);
-          }
-          list.add(rec);
-        }
-        int elements = available2Grams.get(minIdx).size();
-        if (mapidx == 1)
-          S_TH_elements += elements;
-        else
-          SH_TL_elements += elements;
+        unionarr[i] = union;
 
-        est_unions += minUnion;
-        est_invokes += minInvokes;
+        // Update minUnion
+        if (union < minUnion) {
+          minIdx = i;
+          minInvokes = invoke;
+          minUnion = union;
+        }
       }
+
+      if (minIdx < 0) {
+        System.out.println("Error : minIdx < 0 at " + rec.toString());
+        System.exit(1);
+      }
+      assert (minIdx >= 0);
+      // Add record to index
+      Map<IntegerPair, List<Record>> curr_idx = idx.get(minIdx);
+      if (curr_idx == null) {
+        curr_idx = new WYK_HashMap<IntegerPair, List<Record>>();
+        idx.put(minIdx, curr_idx);
+      }
+      for (IntegerPair twogram : available2Grams.get(minIdx)) {
+        List<Record> list = curr_idx.get(twogram);
+        if (list == null) {
+          list = new ArrayList<Record>();
+          curr_idx.put(twogram, list);
+        }
+        list.add(rec);
+      }
+      elements += available2Grams.get(minIdx).size();
+      est_unions += minUnion;
+      est_invokes += minInvokes;
     }
     System.out.println("Bigram retrieval : " + Record.exectime);
     System.out.println(
         (runtime.totalMemory() - runtime.freeMemory()) / 1048576 + "MB used");
 
-    System.out.println("SH_TL idx size : " + SH_TL_elements);
-    System.out.println("S_TH idx size : " + S_TH_elements);
+    System.out.println(joinrange.toString() + " idx size : " + elements);
     System.out.println("Est invokes : " + est_invokes / dirsampleratio);
     System.out.println("Est unions : " + est_unions / dirsampleratio);
-    for (Entry<Integer, Map<IntegerPair, List<Record>>> e : SH_TL_idx
-        .entrySet()) {
+    for (Entry<Integer, Map<IntegerPair, List<Record>>> e : idx.entrySet()) {
       System.out.println(e.getKey() + " : " + e.getValue().size());
     }
   }
 
   private void clearJoinMinIndex() {
-    for (Map<IntegerPair, List<Record>> map : S_TH_idx.values())
+    if (idx == null) return;
+    for (Map<IntegerPair, List<Record>> map : idx.values()) {
+      for (List<Record> list : map.values())
+        list.clear();
       map.clear();
-    S_TH_idx.clear();
-    for (Map<IntegerPair, List<Record>> map : SH_TL_idx.values())
-      map.clear();
-    SH_TL_idx.clear();
+    }
+    idx.clear();
+    System.gc();
   }
 
   private void buildNaiveIndex() {
@@ -299,34 +285,43 @@ public class Hybrid2GramA1_2 extends Algorithm {
     ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
     long appliedRules_sum = 0;
 
+    // S_TH
     long startTime = System.currentTimeMillis();
-    buildJoinMinIndex();
-    System.out.print("Building JoinMin Index finished");
+    buildJoinMinIndex(JoinRange.S_TH);
+    System.out.print("Building S_TH JoinMin Index finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
-    long time1 = 0;
-    long time2 = 0;
-
+    System.gc();
     for (Record s : tableS) {
       boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
-      long time = System.currentTimeMillis();
       if (is_TH_record) {
-        appliedRules_sum += searchEquivsByDynamicIndex(s, S_TH_idx, rslt);
-        time1 += System.currentTimeMillis() - time;
-      } else {
-        appliedRules_sum += searchEquivsByDynamicIndex(s, SH_TL_idx, rslt);
-        time2 += System.currentTimeMillis() - time;
+        appliedRules_sum += searchEquivsByDynamicIndex(s, idx, rslt);
       }
     }
-    System.out.println("JoinMin part finished");
+    long time1 = System.currentTimeMillis() - startTime;
+    System.out.println("S_TH JoinMin part finished");
+
+    // SH_TL
+    startTime = System.currentTimeMillis();
+    buildJoinMinIndex(JoinRange.SH_TL);
+    System.out.print("Building SH_TL JoinMin Index finished");
+    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    System.gc();
+    for (Record s : tableS) {
+      boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
+      if (!is_TH_record) {
+        appliedRules_sum += searchEquivsByDynamicIndex(s, idx, rslt);
+      }
+    }
+    long time2 = System.currentTimeMillis() - startTime;
+    System.out.println("SH_TL JoinMin part finished");
     System.out.println(Validator.checked + " cmps");
 
+    // SL_TL
     clearJoinMinIndex();
-
     startTime = System.currentTimeMillis();
     buildNaiveIndex();
     System.out.print("Building Naive Index finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime));
-
     long time3 = System.currentTimeMillis();
     for (Record s : tableS) {
       if (s.getEstNumRecords() > joinThreshold)

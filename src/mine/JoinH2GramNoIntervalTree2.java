@@ -306,95 +306,90 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
   }
 
   private List<IntegerPair> join() {
-    try {
-      // BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
+    List<IntegerPair> rslt = new ArrayList<IntegerPair>();
+    long starttime = System.nanoTime() - Record.exectime;
+    // long totalSigCount = 0;
+    long tmp = 0;
 
-      List<IntegerPair> rslt = new ArrayList<IntegerPair>();
-      long starttime = System.nanoTime() - Record.exectime;
-      // long totalSigCount = 0;
+    long appliedRules_sum = 0;
+    long unioncount = 0;
+    for (Record recS : tableS) {
+      List<Set<IntegerPair>> available2Grams = exact2grams
+          ? recS.getExact2Grams() : recS.get2Grams();
+      // for (Set<IntegerPair> set : available2Grams)
+      // totalSigCount += set.size();
+      int[] range = recS.getCandidateLengths(recS.size() - 1);
+      int searchmax = Math.min(available2Grams.size(), maxIndex);
+      for (int i = 0; i < searchmax; ++i) {
+        Map<IntegerPair, List<Record>> curridx = idx.get(i);
+        if (curridx == null) continue;
+        List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+        for (IntegerPair twogram : available2Grams.get(i)) {
+          List<Record> tree = curridx.get(twogram);
 
-      long appliedRules_sum = 0;
-      long unioncount = 0;
-      for (Record recS : tableS) {
-        List<Set<IntegerPair>> available2Grams = exact2grams
-            ? recS.getExact2Grams() : recS.get2Grams();
-        // for (Set<IntegerPair> set : available2Grams)
-        // totalSigCount += set.size();
-        int[] range = recS.getCandidateLengths(recS.size() - 1);
-        int searchmax = Math.min(available2Grams.size(), maxIndex);
-        for (int i = 0; i < searchmax; ++i) {
-          Map<IntegerPair, List<Record>> curridx = idx.get(i);
-          if (curridx == null) continue;
-          List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-          for (IntegerPair twogram : available2Grams.get(i)) {
-            List<Record> tree = curridx.get(twogram);
+          if (tree == null) continue;
+          List<Record> list = new ArrayList<Record>();
+          for (Record e : tree)
+            if (StaticFunctions.overlap(e.getMinLength(), e.getMaxLength(),
+                range[0], range[1]))
+              list.add(e);
+          candidatesList.add(list);
+          unioncount += list.size();
+        }
+        List<Record> candidates = StaticFunctions.union(candidatesList,
+            idComparator);
+        if (skipChecking)
+          continue;
+        else if (checker
+            .getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
+          // Sort records to utilize similar prefixes
+          Collections.sort(candidates);
+          Collections.reverse(candidates);
+          computePrefixCount(candidates);
+        }
 
-            if (tree == null) continue;
-            List<Record> list = new ArrayList<Record>();
-            for (Record e : tree)
-              if (StaticFunctions.overlap(e.getMinLength(), e.getMaxLength(),
-                  range[0], range[1]))
-                list.add(e);
-            candidatesList.add(list);
-            unioncount += list.size();
-          }
-          List<Record> candidates = StaticFunctions.union(candidatesList,
-              idComparator);
-          if (skipChecking)
-            continue;
-          else if (checker
-              .getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
-            // Sort records to utilize similar prefixes
-            Collections.sort(candidates);
-            Collections.reverse(candidates);
-            computePrefixCount(candidates);
-          }
-
-          for (Record recR : candidates) {
-            long ruleiters = Validator.niterrules;
-            long reccalls = Validator.recursivecalls;
-            long entryiters = Validator.niterentry;
-            long st = System.nanoTime();
-            int compare = checker.isEqual(recR, recS);
-            long duration = System.nanoTime() - st;
-            ruleiters = Validator.niterrules - ruleiters;
-            reccalls = Validator.recursivecalls - reccalls;
-            entryiters = Validator.niterentry - entryiters;
-            // bw.write(duration + "\t" + compare + "\t" + recR.size() + "\t"
-            // + recR.getRuleCount() + "\t" + recR.getFirstRuleCount() + "\t"
-            // + recS.size() + "\t" + recS.getRuleCount() + "\t"
-            // + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls
-            // + "\t" + entryiters + "\n");
-            joinTime += duration;
-            if (compare >= 0) {
-              rslt.add(new IntegerPair(recR.getID(), recS.getID()));
-              appliedRules_sum += compare;
-            }
+        for (Record recR : candidates) {
+          long ruleiters = Validator.niterrules;
+          long reccalls = Validator.recursivecalls;
+          long entryiters = Validator.niterentry;
+          long st = System.nanoTime();
+          int compare = checker.isEqual(recR, recS);
+          long duration = System.nanoTime() - st;
+          ruleiters = Validator.niterrules - ruleiters;
+          reccalls = Validator.recursivecalls - reccalls;
+          entryiters = Validator.niterentry - entryiters;
+          // bw.write(duration + "\t" + compare + "\t" + recR.size() + "\t"
+          // + recR.getRuleCount() + "\t" + recR.getFirstRuleCount() + "\t"
+          // + recS.size() + "\t" + recS.getRuleCount() + "\t"
+          // + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls
+          // + "\t" + entryiters + "\n");
+          joinTime += duration;
+          if (compare >= 0) {
+            rslt.add(new IntegerPair(recR.getID(), recS.getID()));
+            appliedRules_sum += compare;
           }
         }
       }
-      System.out.println(
-          "Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
-      if (checker
-          .getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
-        System.out.println("Prefix freq : " + freq);
-        System.out.println("Prefix sumlength : " + sumlength);
-      }
-      candExtractTime = System.nanoTime() - Record.exectime - starttime
-          - joinTime;
-      System.out.println("Cand extract time : " + candExtractTime + " / "
-          + unioncount + " union");
-      System.out.println(
-          "Join time : " + joinTime + " / " + Validator.checked + " pairs");
-      epsilon = ((double) joinTime) / Validator.checked;
-      zeta = ((double) candExtractTime) / unioncount;
-      // bw.close();
-
-      return rslt;
-    } catch (Exception e) {
-      e.printStackTrace();
-      return null;
     }
+    System.out
+        .println("Avg applied rules : " + appliedRules_sum + "/" + rslt.size());
+    if (checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class) {
+      System.out.println("Prefix freq : " + freq);
+      System.out.println("Prefix sumlength : " + sumlength);
+    }
+    candExtractTime = System.nanoTime() - Record.exectime - starttime
+        - joinTime;
+    System.out.println("Cand extract time : " + candExtractTime + " / "
+        + unioncount + " union");
+    System.out.println(
+        "Join time : " + joinTime + " / " + Validator.checked + " pairs");
+    epsilon = ((double) joinTime) / Validator.checked;
+    zeta = ((double) candExtractTime) / unioncount;
+
+    System.out
+        .println("Usertime vs Wall-clock time : " + joinTime + " / " + tmp);
+
+    return rslt;
   }
 
   private long freq      = 0;
@@ -606,6 +601,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
       }
     buildIndexTime = System.nanoTime() - startTime;
     System.out.println("Building Index finished " + buildIndexTime);
+    System.gc();
 
     startTime = System.nanoTime();
     Collection<IntegerPair> rslt = (singleside ? joinSingleSide() : join());
