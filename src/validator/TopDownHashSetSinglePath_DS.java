@@ -39,8 +39,8 @@ public class TopDownHashSetSinglePath_DS extends Validator {
       this.idx = idx;
 
       // Compute hash value
-      long tmp = 0;
-      tmp = ((long) i) << 32 + j;
+      long tmp = i;
+      tmp = (tmp << 32) + j;
       tmp %= bigprime;
       tmp = (tmp << 32) + idx;
       tmp %= bigprime;
