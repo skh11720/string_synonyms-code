@@ -466,7 +466,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     long startTime = System.currentTimeMillis();
     preprocess(compact, maxIndex, useAutomata);
     System.out.print("Preprocess finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    System.out.println(" " + (System.currentTimeMillis() - startTime) + "ms");
 
     // Retrieve statistics
     statistics();
@@ -479,13 +479,13 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     computeInvocationCounts();
     // checkLongestIndex();
     System.out.print("Building Index finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    System.out.println(" " + (System.currentTimeMillis() - startTime) + "ms");
 
     // Modify index to get optimal theta
     startTime = System.currentTimeMillis();
     findTheta();
     System.out.print("Estimation finished");
-    System.out.println(" " + (System.currentTimeMillis() - startTime));
+    System.out.println(" " + (System.currentTimeMillis() - startTime) + "ms");
     System.exit(1);
 
     startTime = System.currentTimeMillis();
@@ -520,18 +520,21 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     List<Record> tmpR = tableR;
     tableR = sampleRlist;
     List<Record> tmpS = tableS;
-    tableS = sampleRlist;
+    tableS = sampleSlist;
     sampleR = sampleRlist;
 
     System.out.println(sampleRlist.size() + " R records are sampled");
     System.out.println(sampleSlist.size() + " S records are sampled");
+    estNaiveExecTime(-1);
 
     // Infer alpha and beta
     Naive1 naiveinst = new Naive1(this);
-    Naive1.threshold = 100;
+    Naive1.threshold = (maxtheta / 2);
     naiveinst.runWithoutPreprocess();
     alpha = naiveinst.alpha;
     beta = naiveinst.beta;
+    naiveinst = null;
+    System.gc();
 
     // Infer gamma, delta and epsilon
     JoinH2GramNoIntervalTree2 joinmininst = new JoinH2GramNoIntervalTree2(this);
@@ -541,15 +544,14 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     joinmininst.compact = compact;
     joinmininst.checker = checker;
     joinmininst.outputfile = outputfile;
-    try {
-      joinmininst.runWithoutPreprocess();
-    } catch (Exception e) {
-    }
+    joinmininst.runWithoutPreprocess();
     gamma = joinmininst.gamma;
     delta = joinmininst.delta;
     epsilon = joinmininst.epsilon;
     zeta = joinmininst.zeta;
     System.out.println("Bigram computation time : " + Record.exectime);
+    joinmininst = null;
+    System.gc();
     Validator.printStats();
 
     // Restore
@@ -644,7 +646,10 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
             assert (maxsize != 0);
             for (int k = 0; k < mhsize; ++k)
               if (minhash[k] == maxsizehash[k]) ++inter;
-            candsize = ((double) maxsize * mhsize) / inter;
+            if (inter == 0)
+              candsize = Math.min(tableS.size(), unionsize);
+            else
+              candsize = ((double) maxsize * mhsize) / inter;
           }
           if (bestCandSize > candsize) {
             bestUnionSize = unionsize;

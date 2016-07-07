@@ -254,6 +254,8 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
         naivetime = Math.min(naivetime,
             naiveinst.buildIndexTime + naiveinst.joinTime);
         naiveinst.clearIndex();
+        naiveinst = null;
+        System.gc();
 
         // Do JoinMin
         JoinH2GramNoIntervalTree2 joinmininst = new JoinH2GramNoIntervalTree2(
@@ -263,6 +265,8 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
         joinmintime = Math.min(joinmintime,
             joinmininst.buildIndexTime + joinmininst.joinTime);
         joinmininst.clearIndex();
+        joinmininst = null;
+        System.gc();
 
         // Compare two results
         assert (naive.size() == joinmin.size());
