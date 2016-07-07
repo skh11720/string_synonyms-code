@@ -222,7 +222,9 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     long memcost = 0;
     for (Record s : tableR) {
       long expanded = s.getEstNumRecords();
-      if (theta >= 0) {
+      if (expanded >= Integer.MAX_VALUE)
+        break;
+      else if (theta >= 0) {
         if (expanded > theta) break;
         ++minSHidx;
         expcostS += expanded;
@@ -250,7 +252,9 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     memcost = 0;
     for (Record t : tableS) {
       long expanded = t.getEstNumRecords();
-      if (theta >= 0) {
+      if (expanded >= Integer.MAX_VALUE)
+        break;
+      else if (theta >= 0) {
         if (expanded > theta) break;
         ++minTHidx;
         expcostT += expanded;
@@ -526,6 +530,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     System.out.println(sampleRlist.size() + " R records are sampled");
     System.out.println(sampleSlist.size() + " S records are sampled");
     estNaiveExecTime(-1);
+    System.out.println("Estimated maximum theta : " + maxtheta);
 
     // Infer alpha and beta
     Naive1 naiveinst = new Naive1(this);
