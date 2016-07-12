@@ -154,7 +154,7 @@ public class Parameters {
   boolean   earlyeval       = true;
   boolean   useLengthFilter = true;
   boolean   exact2grams     = false;
-  int       joinThreshold   = 100;
+  int       joinThreshold   = Integer.MAX_VALUE;
   double    sampleratio     = 0.01;
   Validator validator;
   String[]  remainingArgs;

@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import mine.JoinH2GramNoIntervalTree2;
@@ -60,11 +62,14 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   double                                       zeta;
   public static double                         dirsampleratio        = 0.01;
 
-  public static double                         idx_count_sampleratio = 0.01;
+  public static double                         idx_count_sampleratio = 1;
   public static int                            mhsize                = 30;
   RandHash[]                                   rhfunc;
 
   private static final int                     RECORD_CLASS_BYTES    = 64;
+
+  private static final Random                  rand                  = new Random(
+      0);
 
   /*
    * private int intarrbytes(int len) {
@@ -91,9 +96,24 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
    */
   Map<Integer, Map<IntegerPair, List<Record>>> SH_TL_idx;
 
-  // Frequency counts
+  /**
+   * Frequency counts of the records in TH
+   */
   Map<Integer, Map<IntegerPair, Directory>>    TH_invokes;
+  /**
+   * Frequency counts of the records in TL
+   */
   Map<Integer, Map<IntegerPair, Directory>>    TL_invokes;
+
+  /**
+   * Inverted index of the records in TH
+   */
+  Map<Integer, List<Directory>>                inv_TH_invokes;
+  /**
+   * Inverted index of the records in TL
+   */
+  Map<Integer, List<Directory>>                inv_TL_invokes;
+
   /**
    * List of 1-expandable strings
    */
@@ -104,15 +124,13 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   long                                         est_S_TH_cmps;
   long                                         est_SH_TL_cmps;
 
-  /**
-   * Estimated cost of expanding records in S
-   */
-  long                                         expcostS;
-  /**
-   * Estimated cost of expanding records in T
-   */
-  long                                         expcostT;
   long                                         maxtheta;
+  long                                         currtheta;
+
+  long[]                                       expcostS;
+  long[]                                       expcostT;
+  long[]                                       cumulative_expcostS;
+  long[]                                       cumulative_expcostT;
 
   int                                          minSHidx;
   int                                          minTHidx;
@@ -137,7 +155,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
       minhash = new int[mhsize];
       for (int i = 0; i < mhsize; ++i)
         minhash[i] = Integer.MAX_VALUE;
-      list = new ArrayList<Record>(2);
+      list = new LinkedList<Record>();
     }
 
     // Add a record
@@ -149,9 +167,15 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
       }
     }
 
+    void add(Record rec, int[] mh) {
+      list.add(rec);
+      for (int i = 0; i < mhsize; ++i)
+        minhash[i] = Math.min(minhash[i], mh[i]);
+    }
+
     // Remove the last element with the given hash values
-    void removeLast(int[] hash) {
-      list.remove(list.size() - 1);
+    Record removeFirst(int[] hash) {
+      Record removed = list.remove(0);
       for (int i = 0; i < mhsize; ++i) {
         if (hash[i] == minhash[i]) {
           minhash[i] = Integer.MAX_VALUE;
@@ -161,54 +185,128 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
           }
         }
       }
+      return removed;
     }
   }
 
-  private void computeInvocationCounts() {
+  private void computeInvocationCounts(long theta) {
     // Build an index
     // Count Invokes per each (token, loc) pair
     TL_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
     TH_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+    inv_TL_invokes = new WYK_HashMap<Integer, List<Directory>>();
+    inv_TH_invokes = new WYK_HashMap<Integer, List<Directory>>();
     // Actually, tableT
     for (Record rec : tableS) {
-      if (Math.random() > dirsampleratio) continue;
       List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
-      // Every record is SH/TH record at the beginning
-      boolean is_TH_Record = rec.getEstNumRecords() > maxtheta;
+      boolean is_TH_Record = rec.getEstNumRecords() > theta;
+
+      Map<Integer, Map<IntegerPair, Directory>> invokes = is_TH_Record
+          ? TH_invokes : TL_invokes;
+      Map<Integer, List<Directory>> inv_invokes = is_TH_Record ? inv_TH_invokes
+          : inv_TL_invokes;
       for (int i = 0; i < searchmax; ++i) {
         Map<IntegerPair, Directory> curr_invokes = null;
-        if (is_TH_Record) {
-          curr_invokes = TH_invokes.get(i);
-          if (curr_invokes == null) {
-            curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
-            TH_invokes.put(i, curr_invokes);
-          }
-        } else {
-          curr_invokes = TL_invokes.get(i);
-          if (curr_invokes == null) {
-            curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
-            TL_invokes.put(i, curr_invokes);
-          }
+        curr_invokes = invokes.get(i);
+        if (curr_invokes == null) {
+          curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
+          invokes.put(i, curr_invokes);
         }
         for (IntegerPair twogram : available2Grams.get(i)) {
+          if (rand.nextDouble() > dirsampleratio) continue;
           Directory count = curr_invokes.get(twogram);
           if (count == null) {
             count = new Directory();
             curr_invokes.put(twogram, count);
           }
           count.add(rec);
+
+          List<Directory> curr_inv_invokes = inv_invokes.get(rec.getID());
+          if (curr_inv_invokes == null) {
+            curr_inv_invokes = new ArrayList<Directory>(3);
+            inv_invokes.put(rec.getID(), curr_inv_invokes);
+          }
+          curr_inv_invokes.add(count);
         }
       }
     }
     System.out.println("Bigram retrieval : " + Record.exectime);
+    currtheta = theta;
+  }
+
+  /**
+   * Update invocation count. prevtheta must be less than new theta.
+   * 
+   * @param prevtheta
+   * @param theta
+   */
+  private void updateInvocationCounts(long prevtheta, long theta) {
+    assert (prevtheta < theta);
+    int beginidx = findMaxIdx(expcostT, prevtheta) + 1;
+
+    // Actually, tableT
+    // Move from TH to TL
+    int[] minhash = new int[mhsize];
+    for (int tidx = beginidx; tidx < tableS.size(); ++tidx) {
+      Record rec = tableS.get(tidx);
+      long exprecs = rec.getEstNumRecords();
+      assert (exprecs == expcostT[tidx]);
+      if (rec.getEstNumRecords() > theta) break;
+      assert (exprecs <= theta);
+      List<Set<IntegerPair>> available2Grams = rec.get2Grams();
+      int searchmax = Math.min(available2Grams.size(), maxIndex);
+
+      // Compute minhash
+      for (int i = 0; i < mhsize; ++i)
+        minhash[i] = rhfunc[i].get(rec.getID());
+
+      // Remove from TH
+      List<Directory> dirlist = inv_TH_invokes.get(rec.getID());
+      if (dirlist != null) {
+        for (Directory dir : dirlist) {
+          Record removed = dir.removeFirst(minhash);
+          assert (rec == removed);
+        }
+      }
+
+      // Add to TL
+      for (int i = 0; i < searchmax; ++i) {
+        Map<IntegerPair, Directory> curr_invokes = null;
+        curr_invokes = TL_invokes.get(i);
+        if (curr_invokes == null) {
+          curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
+          TL_invokes.put(i, curr_invokes);
+        }
+        for (IntegerPair twogram : available2Grams.get(i)) {
+          if (rand.nextDouble() > dirsampleratio) continue;
+          Directory count = curr_invokes.get(twogram);
+          if (count == null) {
+            count = new Directory();
+            curr_invokes.put(twogram, count);
+          }
+          /**
+           * @TODO: WARNING : in TL, records are inserted in reverse order
+           */
+          count.add(rec, minhash);
+
+          List<Directory> curr_inv_invokes = inv_TL_invokes.get(rec.getID());
+          if (curr_inv_invokes == null) {
+            curr_inv_invokes = new ArrayList<Directory>(3);
+            inv_TL_invokes.put(rec.getID(), curr_inv_invokes);
+          }
+          curr_inv_invokes.add(count);
+        }
+      }
+    }
+    currtheta = theta;
   }
 
   /**
    * If theta == -1, find the maximum theta as well.
    * Else, use the given theta.
    */
-  private void estNaiveExecTime(int theta) {
+  private void estMaxTheta(int theta) {
     Runtime runtime = Runtime.getRuntime();
     System.out.println(
         (runtime.totalMemory() - runtime.freeMemory()) / 1048576 + "MB used");
@@ -216,9 +314,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     if (theta >= 0) maxtheta = theta;
 
     minSHidx = minTHidx = 0;
-    expcostS = expcostT = 0;
     long currexpanded = 0;
-    long currexpcost = 0;
     long memcost = 0;
     for (Record s : tableR) {
       long expanded = s.getEstNumRecords();
@@ -227,14 +323,10 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
       else if (theta >= 0) {
         if (expanded > theta) break;
         ++minSHidx;
-        expcostS += expanded;
       } else if (expanded != currexpanded) {
         minSHidx = s.getID();
         currexpanded = expanded;
-        expcostS += currexpcost;
-        currexpcost = 0;
       }
-      currexpcost += expanded;
       memcost += memcost(s.getEstExpandCost(), expanded);
       if (memcost > memlimit) break;
     }
@@ -248,7 +340,6 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     }
 
     currexpanded = 0;
-    currexpcost = 0;
     memcost = 0;
     for (Record t : tableS) {
       long expanded = t.getEstNumRecords();
@@ -257,14 +348,10 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
       else if (theta >= 0) {
         if (expanded > theta) break;
         ++minTHidx;
-        expcostT += expanded;
       } else if (expanded != currexpanded) {
         minTHidx = t.getID();
         currexpanded = expanded;
-        expcostT += currexpcost;
-        currexpcost = 0;
       }
-      currexpcost += expanded;
       memcost += memcost(t.getEstExpandCost(), expanded);
       if (memcost > memlimit) break;
     }
@@ -449,17 +536,30 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     Collections.sort(tableS, cmp);
 
     // Reassign ID
+    // Compute exp records
+    expcostS = new long[tableR.size()];
+    expcostT = new long[tableS.size()];
+    cumulative_expcostS = new long[tableR.size()];
+    cumulative_expcostT = new long[tableS.size()];
     long maxSEstNumRecords = 0;
     long maxTEstNumRecords = 0;
+    long sum = 0;
     for (int i = 0; i < tableR.size(); ++i) {
       Record s = tableR.get(i);
       s.setID(i);
-      maxSEstNumRecords = Math.max(maxSEstNumRecords, s.getEstNumRecords());
+      long est = s.getEstNumRecords();
+      expcostS[i] = est;
+      cumulative_expcostS[i] = (est > Integer.MAX_VALUE) ? -1 : (sum += est);
+      maxSEstNumRecords = Math.max(maxSEstNumRecords, est);
     }
+    sum = 0;
     for (int i = 0; i < tableS.size(); ++i) {
       Record t = tableS.get(i);
       t.setID(i);
-      maxTEstNumRecords = Math.max(maxTEstNumRecords, t.getEstNumRecords());
+      long est = t.getEstNumRecords();
+      expcostT[i] = est;
+      cumulative_expcostT[i] = (est > Integer.MAX_VALUE) ? -1 : (sum += est);
+      maxTEstNumRecords = Math.max(maxTEstNumRecords, est);
     }
 
     System.out.println("Max S expanded size : " + maxSEstNumRecords);
@@ -475,12 +575,13 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     // Retrieve statistics
     statistics();
 
+    // Compute maximum theta first
+    estMaxTheta(-1);
+
     // Estimate constants
     findConstants(sampleratio);
 
     startTime = System.currentTimeMillis();
-    estNaiveExecTime(joinThreshold);
-    computeInvocationCounts();
     // checkLongestIndex();
     System.out.print("Building Index finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime) + "ms");
@@ -518,9 +619,9 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     List<Record> sampleRlist = new ArrayList<Record>();
     List<Record> sampleSlist = new ArrayList<Record>();
     for (Record r : tableR)
-      if (Math.random() < sampleratio) sampleRlist.add(r);
+      if (rand.nextDouble() < sampleratio) sampleRlist.add(r);
     for (Record s : tableS)
-      if (Math.random() < sampleratio) sampleSlist.add(s);
+      if (rand.nextDouble() < sampleratio) sampleSlist.add(s);
     List<Record> tmpR = tableR;
     tableR = sampleRlist;
     List<Record> tmpS = tableS;
@@ -529,7 +630,6 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 
     System.out.println(sampleRlist.size() + " R records are sampled");
     System.out.println(sampleSlist.size() + " S records are sampled");
-    estNaiveExecTime(-1);
     System.out.println("Estimated maximum theta : " + maxtheta);
 
     // Infer alpha and beta
@@ -582,19 +682,40 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     // records
     int sidx = 0;
     int tidx = 0;
-    long theta = maxtheta;
+    long theta = 0;
 
-    System.out.println("Max theta : " + theta);
-    estTime();
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
+
+      System.out.println("Max theta : " + maxtheta + "\n");
+      bw.write("Max theta : " + maxtheta);
+      computeInvocationCounts(theta);
+      while (theta <= maxtheta) {
+        System.out.println("Theta = " + theta);
+        long time = estTime();
+        bw.write(theta + " : " + time + "\n");
+        long nexttheta = theta + 1;
+        updateInvocationCounts(theta, nexttheta);
+        theta = nexttheta;
+      }
+      bw.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private long estTime() {
     // Compute Naive part
+    int sidx = findMaxIdx(expcostS, currtheta);
+    int tidx = findMaxIdx(expcostT, currtheta);
     // 1) Build index
-    long naivebldidxtime = (long) (alpha * expcostS);
+    long naivebldidxtime = sidx == -1 ? 0
+        : (long) (alpha * cumulative_expcostS[sidx]);
     // 2) Access index
-    long naiveaccessidxtime = (long) (beta * expcostT);
+    long naiveaccessidxtime = tidx == -1 ? 0
+        : (long) (beta * cumulative_expcostT[tidx]);
     long naivetime = naivebldidxtime + naiveaccessidxtime;
 
     // Compute index part
@@ -603,10 +724,10 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     Map[] invokes = { TL_invokes, TH_invokes };
     int[] minhash = new int[mhsize];
     for (int i = 0; i < tableR.size(); ++i) {
-      if (Math.random() > idx_count_sampleratio) continue;
+      if (rand.nextDouble() > idx_count_sampleratio) continue;
       Record s = tableR.get(i);
-      boolean is_SH_record = i >= minSHidx;
-      assert (is_SH_record == (s.getEstNumRecords() > joinThreshold));
+      boolean is_SH_record = i > sidx;
+      assert (is_SH_record == (s.getEstNumRecords() > currtheta));
       int searchmax = Math.min(s.getMinLength(), maxIndex);
       List<Set<IntegerPair>> twograms = s.get2Grams();
 
@@ -675,6 +796,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     equivchecktime[1] /= idx_count_sampleratio * dirsampleratio;
     long STHtime = retrievetime[1] + equivchecktime[1];
     long SHTLtime = retrievetime[0] + equivchecktime[0];
+    long totaltime = naivetime + STHtime + SHTLtime;
 
     System.out.println("Naive : " + naivebldidxtime + " + " + naiveaccessidxtime
         + " = " + naivetime);
@@ -682,7 +804,27 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
         + equivchecktime[0] + " = " + SHTLtime);
     System.out.println("S x TH : " + retrievetime[1] + " + " + equivchecktime[1]
         + " = " + STHtime);
+    System.out.println("Total time: " + naivetime + " + " + SHTLtime + " + "
+        + STHtime + " = " + totaltime);
     return naivetime + STHtime + SHTLtime;
+  }
+
+  /**
+   * Find the maximum index which expands less or equal to 'theta' records.
+   */
+  private int findMaxIdx(long[] list, long theta) {
+    if (list[0] > theta) return -1;
+
+    int min = 0;
+    int max = list.length;
+    while (min < max - 1) {
+      int curr = (max + min) / 2;
+      if (list[curr] > theta)
+        max = curr;
+      else
+        min = curr;
+    }
+    return min;
   }
 
   public static void main(String[] args) throws IOException {
