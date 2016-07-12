@@ -62,11 +62,11 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   double                                       zeta;
   public static double                         dirsampleratio        = 0.01;
 
-  public static double                         idx_count_sampleratio = 1;
+  public static double                         idx_count_sampleratio = 0.01;
   public static int                            mhsize                = 30;
   RandHash[]                                   rhfunc;
 
-  private static final int                     RECORD_CLASS_BYTES    = 64;
+  private static final int                     RECORD_CLASS_BYTES    = 120;
 
   private static final Random                  rand                  = new Random(
       0);
@@ -99,20 +99,12 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   /**
    * Frequency counts of the records in TH
    */
-  Map<Integer, Map<IntegerPair, Directory>>    TH_invokes;
-  /**
-   * Frequency counts of the records in TL
-   */
-  Map<Integer, Map<IntegerPair, Directory>>    TL_invokes;
+  Map<Integer, Map<IntegerPair, Directory>>    invokes;
 
   /**
    * Inverted index of the records in TH
    */
-  Map<Integer, List<Directory>>                inv_TH_invokes;
-  /**
-   * Inverted index of the records in TL
-   */
-  Map<Integer, List<Directory>>                inv_TL_invokes;
+  Map<Integer, List<Directory>>                inv_invokes;
 
   /**
    * List of 1-expandable strings
@@ -135,7 +127,9 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   int                                          minSHidx;
   int                                          minTHidx;
 
-  List<Record>                                 sampleR;
+  List<Record>                                 sampleS;
+  List<Record>                                 sampleT;
+  long[]                                       expcostSampleT;
 
   protected Hybrid2GramWithOptTheta4(String rulefile, String Rfile,
       String Sfile) throws IOException {
@@ -148,64 +142,89 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   }
 
   class Directory {
+    /**
+     * List of records which belongs to this directory.
+     * Assumption: records are inserted with increasing order of expanded size
+     */
     List<Record> list;
-    int[]        minhash;
+    /**
+     * Number of records belongs to SL/TL
+     */
+    int          Lsize;
+    /**
+     * Minhash of records belongs to SH/TH
+     */
+    int[]        H_minhash;
+    /**
+     * Minhash of records belongs to SL/TL
+     */
+    int[]        L_minhash;
 
     Directory() {
-      minhash = new int[mhsize];
-      for (int i = 0; i < mhsize; ++i)
-        minhash[i] = Integer.MAX_VALUE;
       list = new LinkedList<Record>();
+      Lsize = 0;
+      H_minhash = new int[mhsize];
+      L_minhash = new int[mhsize];
+      for (int i = 0; i < mhsize; ++i) {
+        H_minhash[i] = Integer.MAX_VALUE;
+        L_minhash[i] = Integer.MAX_VALUE;
+      }
     }
 
     // Add a record
-    void add(Record rec) {
+    void addH(Record rec) {
       list.add(rec);
       for (int i = 0; i < mhsize; ++i) {
         int hash = rhfunc[i].get(rec.getID());
-        minhash[i] = Math.min(minhash[i], hash);
+        H_minhash[i] = Math.min(H_minhash[i], hash);
       }
     }
 
-    void add(Record rec, int[] mh) {
+    void addH(Record rec, int[] mh) {
       list.add(rec);
       for (int i = 0; i < mhsize; ++i)
-        minhash[i] = Math.min(minhash[i], mh[i]);
+        H_minhash[i] = Math.min(H_minhash[i], mh[i]);
     }
 
-    // Remove the last element with the given hash values
-    Record removeFirst(int[] hash) {
-      Record removed = list.remove(0);
+    /**
+     * Update current directory: change the first H record to L record.
+     * 
+     * @param rec
+     * @param mh
+     */
+    void moveFirstH2L(Record rec, int[] mh) {
+      assert (0 <= Lsize && Lsize < list.size());
+      Record firstH = list.get(Lsize++);
+      assert (firstH == rec);
+
+      // Update H_minhash
       for (int i = 0; i < mhsize; ++i) {
-        if (hash[i] == minhash[i]) {
-          minhash[i] = Integer.MAX_VALUE;
-          for (Record rec : list) {
-            int rechash = rhfunc[i].get(rec.getID());
-            minhash[i] = Math.min(rechash, minhash[i]);
+        if (mh[i] == H_minhash[i]) {
+          H_minhash[i] = Integer.MAX_VALUE;
+          for (int j = Lsize; j < list.size(); ++j) {
+            Record recH = list.get(j);
+            int rechash = rhfunc[i].get(recH.getID());
+            H_minhash[i] = Math.min(rechash, H_minhash[i]);
           }
         }
       }
-      return removed;
+
+      // Update L_minhash
+      for (int i = 0; i < mhsize; ++i)
+        L_minhash[i] = Math.min(L_minhash[i], mh[i]);
     }
   }
 
   private void computeInvocationCounts(long theta) {
     // Build an index
     // Count Invokes per each (token, loc) pair
-    TL_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
-    TH_invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
-    inv_TL_invokes = new WYK_HashMap<Integer, List<Directory>>();
-    inv_TH_invokes = new WYK_HashMap<Integer, List<Directory>>();
+    invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+    inv_invokes = new WYK_HashMap<Integer, List<Directory>>();
     // Actually, tableT
-    for (Record rec : tableS) {
+    for (Record rec : sampleT) {
       List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
-      boolean is_TH_Record = rec.getEstNumRecords() > theta;
 
-      Map<Integer, Map<IntegerPair, Directory>> invokes = is_TH_Record
-          ? TH_invokes : TL_invokes;
-      Map<Integer, List<Directory>> inv_invokes = is_TH_Record ? inv_TH_invokes
-          : inv_TL_invokes;
       for (int i = 0; i < searchmax; ++i) {
         Map<IntegerPair, Directory> curr_invokes = null;
         curr_invokes = invokes.get(i);
@@ -214,13 +233,12 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
           invokes.put(i, curr_invokes);
         }
         for (IntegerPair twogram : available2Grams.get(i)) {
-          if (rand.nextDouble() > dirsampleratio) continue;
           Directory count = curr_invokes.get(twogram);
           if (count == null) {
             count = new Directory();
             curr_invokes.put(twogram, count);
           }
-          count.add(rec);
+          count.addH(rec);
 
           List<Directory> curr_inv_invokes = inv_invokes.get(rec.getID());
           if (curr_inv_invokes == null) {
@@ -243,61 +261,26 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
    */
   private void updateInvocationCounts(long prevtheta, long theta) {
     assert (prevtheta < theta);
-    int beginidx = findMaxIdx(expcostT, prevtheta) + 1;
+    int beginidx = findMaxIdx(expcostSampleT, prevtheta) + 1;
 
     // Actually, tableT
     // Move from TH to TL
     int[] minhash = new int[mhsize];
-    for (int tidx = beginidx; tidx < tableS.size(); ++tidx) {
-      Record rec = tableS.get(tidx);
+    for (int tidx = beginidx; tidx < sampleT.size(); ++tidx) {
+      Record rec = sampleT.get(tidx);
       long exprecs = rec.getEstNumRecords();
-      assert (exprecs == expcostT[tidx]);
+      assert (exprecs == expcostSampleT[tidx]);
       if (rec.getEstNumRecords() > theta) break;
       assert (exprecs <= theta);
-      List<Set<IntegerPair>> available2Grams = rec.get2Grams();
-      int searchmax = Math.min(available2Grams.size(), maxIndex);
 
       // Compute minhash
       for (int i = 0; i < mhsize; ++i)
         minhash[i] = rhfunc[i].get(rec.getID());
 
-      // Remove from TH
-      List<Directory> dirlist = inv_TH_invokes.get(rec.getID());
-      if (dirlist != null) {
-        for (Directory dir : dirlist) {
-          Record removed = dir.removeFirst(minhash);
-          assert (rec == removed);
-        }
-      }
-
-      // Add to TL
-      for (int i = 0; i < searchmax; ++i) {
-        Map<IntegerPair, Directory> curr_invokes = null;
-        curr_invokes = TL_invokes.get(i);
-        if (curr_invokes == null) {
-          curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
-          TL_invokes.put(i, curr_invokes);
-        }
-        for (IntegerPair twogram : available2Grams.get(i)) {
-          if (rand.nextDouble() > dirsampleratio) continue;
-          Directory count = curr_invokes.get(twogram);
-          if (count == null) {
-            count = new Directory();
-            curr_invokes.put(twogram, count);
-          }
-          /**
-           * @TODO: WARNING : in TL, records are inserted in reverse order
-           */
-          count.add(rec, minhash);
-
-          List<Directory> curr_inv_invokes = inv_TL_invokes.get(rec.getID());
-          if (curr_inv_invokes == null) {
-            curr_inv_invokes = new ArrayList<Directory>(3);
-            inv_TL_invokes.put(rec.getID(), curr_inv_invokes);
-          }
-          curr_inv_invokes.add(count);
-        }
-      }
+      // Move current record from H to L
+      List<Directory> dirlist = inv_invokes.get(rec.getID());
+      if (dirlist != null) for (Directory dir : dirlist)
+        dir.moveFirstH2L(rec, minhash);
     }
     currtheta = theta;
   }
@@ -623,10 +606,9 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     for (Record s : tableS)
       if (rand.nextDouble() < sampleratio) sampleSlist.add(s);
     List<Record> tmpR = tableR;
-    tableR = sampleRlist;
+    tableR = sampleSlist;
     List<Record> tmpS = tableS;
     tableS = sampleSlist;
-    sampleR = sampleRlist;
 
     System.out.println(sampleRlist.size() + " R records are sampled");
     System.out.println(sampleSlist.size() + " S records are sampled");
@@ -684,6 +666,17 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     int tidx = 0;
     long theta = 0;
 
+    // Sample records
+    sampleS = new ArrayList<Record>();
+    sampleT = new ArrayList<Record>();
+    for (Record recS : tableR)
+      if (rand.nextDouble() < idx_count_sampleratio) sampleS.add(recS);
+    for (Record recT : tableS)
+      if (rand.nextDouble() < dirsampleratio) sampleT.add(recT);
+    expcostSampleT = new long[sampleT.size()];
+    for (int i = 0; i < sampleT.size(); ++i)
+      expcostSampleT[i] = sampleT.get(i).getEstNumRecords();
+
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
 
@@ -705,7 +698,6 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     }
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   private long estTime() {
     // Compute Naive part
     int sidx = findMaxIdx(expcostS, currtheta);
@@ -721,17 +713,15 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     // Compute index part
     long[] retrievetime = new long[2];
     long[] equivchecktime = new long[2];
-    Map[] invokes = { TL_invokes, TH_invokes };
     int[] minhash = new int[mhsize];
-    for (int i = 0; i < tableR.size(); ++i) {
-      if (rand.nextDouble() > idx_count_sampleratio) continue;
-      Record s = tableR.get(i);
-      boolean is_SH_record = i > sidx;
-      assert (is_SH_record == (s.getEstNumRecords() > currtheta));
+    for (Record s : sampleS) {
+      boolean is_SH_record = (s.getEstNumRecords() > currtheta);
       int searchmax = Math.min(s.getMinLength(), maxIndex);
       List<Set<IntegerPair>> twograms = s.get2Grams();
 
       // 0) Find the best position
+      // mapidx = 0 : Join with records in TL
+      // mapidx = 1 : Join with records in TH
       for (int mapidx = 0; mapidx < 2; ++mapidx) {
         if (!is_SH_record && mapidx == 0) continue;
         int bestUnionSize = Integer.MAX_VALUE;
@@ -739,13 +729,14 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
         for (int j = 0; j < searchmax; ++j) {
           // If there is no invocations on the current position,
           // this position is the best position.
-          Map<IntegerPair, Directory> curr_invokes = (Map<IntegerPair, Directory>) invokes[mapidx]
+          Map<IntegerPair, Directory> curr_invokes = (Map<IntegerPair, Directory>) invokes
               .get(j);
           if (curr_invokes == null) {
             bestUnionSize = 0;
             bestCandSize = 0;
             break;
           }
+
           int unionsize = 0;
           double candsize = 0;
           int maxsize = 0;
@@ -756,13 +747,18 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
           for (IntegerPair twogram : curr_twograms) {
             Directory dir = curr_invokes.get(twogram);
             if (dir == null) continue;
-            if (maxsize < dir.list.size()) {
-              maxsize = dir.list.size();
-              maxsizehash = dir.minhash;
+            // Join with records in TL
+            int listsize = mapidx == 0 ? dir.Lsize
+                : dir.list.size() - dir.Lsize;
+            int[] listminhash = mapidx == 0 ? dir.L_minhash : dir.H_minhash;
+            // Join with records in TH
+            if (maxsize < listsize) {
+              maxsize = listsize;
+              maxsizehash = listminhash;
             }
-            unionsize += dir.list.size();
+            unionsize += listsize;
             for (int k = 0; k < mhsize; ++k) {
-              int hash = dir.minhash[k];
+              int hash = listminhash[k];
               minhash[k] = Math.min(minhash[k], hash);
             }
           }
