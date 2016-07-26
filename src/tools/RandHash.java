@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class RandHash {
   private static final long   largePrime = 22801768001L;
-  private static final Random rand       = new Random();
+  private static final Random rand       = new Random(3);
   private final long          a;
   private final long          b;
 

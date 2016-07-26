@@ -4,10 +4,10 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -117,7 +117,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   long                                         est_SH_TL_cmps;
 
   long                                         maxtheta;
-  long                                         currtheta;
+  long[]                                       currtheta;
 
   long[]                                       expcostS;
   long[]                                       expcostT;
@@ -139,6 +139,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     rhfunc = new RandHash[mhsize];
     for (int i = 0; i < mhsize; ++i)
       rhfunc[i] = new RandHash();
+    currtheta = new long[4];
   }
 
   class Directory {
@@ -150,78 +151,90 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     /**
      * Number of records belongs to SL/TL
      */
-    int          Lsize;
+    int[]        Lsize;
     /**
      * Minhash of records belongs to SH/TH
      */
-    int[]        H_minhash;
+    int[][]      H_minhash;
     /**
      * Minhash of records belongs to SL/TL
      */
-    int[]        L_minhash;
+    int[][]      L_minhash;
 
     Directory() {
-      list = new LinkedList<Record>();
-      Lsize = 0;
-      H_minhash = new int[mhsize];
-      L_minhash = new int[mhsize];
-      for (int i = 0; i < mhsize; ++i) {
-        H_minhash[i] = Integer.MAX_VALUE;
-        L_minhash[i] = Integer.MAX_VALUE;
+      list = new ArrayList<Record>();
+      Lsize = new int[4];
+      H_minhash = new int[4][mhsize];
+      L_minhash = new int[4][mhsize];
+      for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < mhsize; ++j) {
+          H_minhash[i][j] = Integer.MAX_VALUE;
+          L_minhash[i][j] = Integer.MAX_VALUE;
+        }
       }
     }
 
     // Add a record
-    void addH(Record rec) {
+    void add(long[] theta, Record rec, long rectheta) {
+      assert (theta.length == 4);
       list.add(rec);
+      for (int i = 0; i < 4; ++i)
+        // SL/TL record
+        if (rectheta <= theta[i]) ++Lsize[i];
       for (int i = 0; i < mhsize; ++i) {
         int hash = rhfunc[i].get(rec.getID());
-        H_minhash[i] = Math.min(H_minhash[i], hash);
+        for (int j = 0; j < 4; ++j)
+          // SL/TL record
+          if (rectheta <= theta[j])
+            L_minhash[j][i] = Math.min(L_minhash[j][i], hash);
+          // SH/TH record
+          else
+            H_minhash[j][i] = Math.min(H_minhash[j][i], hash);
       }
-    }
-
-    void addH(Record rec, int[] mh) {
-      list.add(rec);
-      for (int i = 0; i < mhsize; ++i)
-        H_minhash[i] = Math.min(H_minhash[i], mh[i]);
     }
 
     /**
      * Update current directory: change the first H record to L record.
-     * 
-     * @param rec
-     * @param mh
+     * (in idx-th index)
      */
-    void moveFirstH2L(Record rec, int[] mh) {
-      assert (0 <= Lsize && Lsize < list.size());
-      Record firstH = list.get(Lsize++);
+    void moveFirstH2L(int idx, Record rec, int[] mh) {
+      if (!(0 <= Lsize[idx] && Lsize[idx] < list.size())) {
+        System.err.println("asdf");
+      }
+      assert (0 <= Lsize[idx] && Lsize[idx] < list.size());
+
+      Record firstH = list.get(Lsize[idx]++);
+      if (firstH != rec) {
+        System.err.println("asdf");
+      }
       assert (firstH == rec);
 
       // Update H_minhash
       for (int i = 0; i < mhsize; ++i) {
-        if (mh[i] == H_minhash[i]) {
-          H_minhash[i] = Integer.MAX_VALUE;
-          for (int j = Lsize; j < list.size(); ++j) {
+        if (mh[i] == H_minhash[idx][i]) {
+          H_minhash[idx][i] = Integer.MAX_VALUE;
+          for (int j = Lsize[idx]; j < list.size(); ++j) {
             Record recH = list.get(j);
             int rechash = rhfunc[i].get(recH.getID());
-            H_minhash[i] = Math.min(rechash, H_minhash[i]);
+            H_minhash[idx][i] = Math.min(rechash, H_minhash[idx][i]);
           }
         }
       }
 
       // Update L_minhash
       for (int i = 0; i < mhsize; ++i)
-        L_minhash[i] = Math.min(L_minhash[i], mh[i]);
+        L_minhash[idx][i] = Math.min(L_minhash[idx][i], mh[i]);
     }
   }
 
-  private void computeInvocationCounts(long theta) {
+  private void computeInvocationCounts(long[] theta) {
     // Build an index
     // Count Invokes per each (token, loc) pair
     invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
     inv_invokes = new WYK_HashMap<Integer, List<Directory>>();
     // Actually, tableT
     for (Record rec : sampleT) {
+      long estTheta = rec.getEstNumRecords();
       List<Set<IntegerPair>> available2Grams = rec.get2Grams();
       int searchmax = Math.min(available2Grams.size(), maxIndex);
 
@@ -238,7 +251,10 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
             count = new Directory();
             curr_invokes.put(twogram, count);
           }
-          count.addH(rec);
+          /**
+           * @TODO
+           */
+          count.add(theta, rec, estTheta);
 
           List<Directory> curr_inv_invokes = inv_invokes.get(rec.getID());
           if (curr_inv_invokes == null) {
@@ -256,10 +272,13 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   /**
    * Update invocation count. prevtheta must be less than new theta.
    * 
+   * @param idx
+   *          Index of the invocation count index to update
    * @param prevtheta
    * @param theta
    */
-  private void updateInvocationCounts(long prevtheta, long theta) {
+  private void updateInvocationCounts_IncrTheta(int idx, long prevtheta,
+      long theta) {
     assert (prevtheta < theta);
     int beginidx = findMaxIdx(expcostSampleT, prevtheta) + 1;
 
@@ -280,9 +299,22 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
       // Move current record from H to L
       List<Directory> dirlist = inv_invokes.get(rec.getID());
       if (dirlist != null) for (Directory dir : dirlist)
-        dir.moveFirstH2L(rec, minhash);
+        dir.moveFirstH2L(idx, rec, minhash);
     }
-    currtheta = theta;
+    currtheta[idx] = theta;
+  }
+
+  private void copyInvocationCounts(int fromidx, int toidx) {
+    for (Map<IntegerPair, Directory> list : invokes.values()) {
+      for (Directory dir : list.values()) {
+        dir.Lsize[toidx] = dir.Lsize[fromidx];
+        // Copy minhash values
+        for (int mh = 0; mh < mhsize; ++mh) {
+          dir.H_minhash[toidx][mh] = dir.H_minhash[fromidx][mh];
+          dir.L_minhash[toidx][mh] = dir.L_minhash[fromidx][mh];
+        }
+      }
+    }
   }
 
   /**
@@ -559,10 +591,16 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     statistics();
 
     // Compute maximum theta first
-    estMaxTheta(-1);
+    estMaxTheta(240);// -1);
 
     // Estimate constants
-    findConstants(sampleratio);
+    // findConstants(sampleratio);
+    alpha = 862;
+    beta = 881;
+    gamma = 305;
+    delta = 299;
+    epsilon = 1496;
+    zeta = 1265;
 
     startTime = System.currentTimeMillis();
     // checkLongestIndex();
@@ -654,17 +692,8 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
   }
 
   private void findTheta() {
-    // Find the best threshold
-    long starttime = System.nanoTime();
-    long best_theta = maxtheta;
-    long best_esttime = Long.MAX_VALUE;
-    long[] best_esttimes = null;
-
-    // Indicates the minimum indices which have more that 'theta' expanded
-    // records
-    int sidx = 0;
-    int tidx = 0;
-    long theta = 0;
+    long bestTheta = -1;
+    long bestExecTime = Long.MAX_VALUE;
 
     // Sample records
     sampleS = new ArrayList<Record>();
@@ -677,31 +706,170 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     for (int i = 0; i < sampleT.size(); ++i)
       expcostSampleT[i] = sampleT.get(i).getEstNumRecords();
 
+    for (int i = 0; i < 4; ++i)
+      currtheta[i] = (maxtheta * i) / 3;
+    // Compute initial invocation counts
+    computeInvocationCounts(currtheta);
+    EstTime[] list = new EstTime[4];
+    for (int i = 0; i < 4; ++i) {
+      list[i] = new EstTime();
+      list[i].l1 = currtheta[i];
+      list[i].l2 = estTime(i);
+      list[i].i = i;
+    }
+
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
 
       System.out.println("Max theta : " + maxtheta + "\n");
       bw.write("Max theta : " + maxtheta);
-      computeInvocationCounts(theta);
-      while (theta <= maxtheta) {
-        System.out.println("Theta = " + theta);
-        long time = estTime();
-        bw.write(theta + " : " + time + "\n");
-        long nexttheta = theta + 1;
-        updateInvocationCounts(theta, nexttheta);
-        theta = nexttheta;
+      // Do binary(?) search
+      while (true) {
+        Arrays.sort(list);
+        if (list[0].l1 >= list[1].l1 - 1 && list[1].l1 >= list[2].l1 - 1
+            && list[2].l1 >= list[3].l1 - 1)
+          break;
+
+        // Identify type
+        for (int i = 0; i < 4; ++i) {
+          System.out.print("Theta/time = " + list[i].l1 + "/"
+              + (list[i].l2 / 1000000) + "ms ");
+          bw.write("Theta/time = " + list[i].l1 + "/" + (list[i].l2 / 1000000)
+              + "ms ");
+        }
+        System.out.println();
+        bw.newLine();
+
+        // a < b < c < d : can prune b ~ d
+        if (list[0].l2 <= list[1].l2 && list[1].l2 <= list[2].l2
+            && list[2].l2 <= list[3].l2) {
+          // Update c
+          long theta_c = (list[0].l1 * 2 + list[1].l1) / 3;
+          copyInvocationCounts(list[0].i, list[2].i);
+          updateInvocationCounts_IncrTheta(list[2].i, list[0].l1, theta_c);
+          list[2].l1 = currtheta[list[2].i];
+          list[2].l2 = estTime(list[2].i);
+
+          // Update d
+          long theta_d = (list[0].l1 + list[1].l1 * 2) / 3;
+          copyInvocationCounts(list[2].i, list[3].i);
+          updateInvocationCounts_IncrTheta(list[3].i, list[2].l1, theta_d);
+          list[3].l1 = currtheta[list[3].i];
+          list[3].l2 = estTime(list[3].i);
+        }
+        // a > b < c < d : can prune c ~ d
+        else if (list[0].l2 > list[1].l2 && list[1].l2 <= list[2].l2
+            && list[2].l2 <= list[3].l2) {
+          // Update d
+          long theta_d = 0;
+          if (list[1].l1 - list[0].l1 < list[2].l1 - list[1].l1) {
+            // d = (b + c) / 2
+            theta_d = (list[1].l1 + list[2].l1) / 2;
+            copyInvocationCounts(list[1].i, list[3].i);
+            updateInvocationCounts_IncrTheta(list[3].i, list[1].l1, theta_d);
+          } else {
+            // d = (a + b) / 2
+            theta_d = (list[0].l1 + list[1].l1) / 2;
+            copyInvocationCounts(list[0].i, list[3].i);
+            updateInvocationCounts_IncrTheta(list[3].i, list[0].l1, theta_d);
+          }
+          list[3].l1 = currtheta[list[3].i];
+          list[3].l2 = estTime(list[3].i);
+        }
+        // a > b > c < d : can prune a ~ b
+        else if (list[0].l2 > list[1].l2 && list[1].l2 > list[2].l2
+            && list[2].l2 <= list[3].l2) {
+          // Update a
+          long theta_a = 0;
+          if (list[2].l1 - list[1].l1 < list[3].l1 - list[2].l1) {
+            // a = (c + d) / 2
+            theta_a = (list[2].l1 + list[3].l1) / 2;
+            copyInvocationCounts(list[2].i, list[0].i);
+            updateInvocationCounts_IncrTheta(list[0].i, list[2].l1, theta_a);
+          } else {
+            // a = (b + c) / 2
+            theta_a = (list[1].l1 + list[2].l1) / 2;
+            copyInvocationCounts(list[1].i, list[0].i);
+            updateInvocationCounts_IncrTheta(list[0].i, list[1].l1, theta_a);
+          }
+          list[0].l1 = currtheta[list[0].i];
+          list[0].l2 = estTime(list[0].i);
+        }
+        // a > b > c > d : can prune a ~ c
+        else if (list[0].l2 > list[1].l2 && list[1].l2 > list[2].l2
+            && list[2].l2 > list[3].l2) {
+          // Update a
+          long theta_a = (list[2].l1 * 2 + list[3].l1) / 3;
+          copyInvocationCounts(list[2].i, list[0].i);
+          updateInvocationCounts_IncrTheta(list[0].i, list[2].l1, theta_a);
+          list[0].l1 = currtheta[list[0].i];
+          list[0].l2 = estTime(list[0].i);
+
+          // Update b
+          long theta_b = (list[2].l1 + list[3].l1 * 2) / 3;
+          copyInvocationCounts(list[0].i, list[1].i);
+          updateInvocationCounts_IncrTheta(list[1].i, list[0].l1, theta_b);
+          list[1].l1 = currtheta[list[1].i];
+          list[1].l2 = estTime(list[1].i);
+        } else {
+          // Perform linear search
+          System.out.flush();
+          System.err.println("Cannot perform binary src");
+          System.err.flush();
+          for (long theta = list[0].l1; theta <= list[3].l1; ++theta) {
+            long esttime = estTime(list[0].i);
+            if (esttime < bestExecTime) {
+              bestTheta = theta;
+              bestExecTime = esttime;
+            }
+            updateInvocationCounts_IncrTheta(list[0].i, theta, theta + 1);
+          }
+          break;
+        }
       }
       bw.close();
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);
     }
+
+    // Found by linear src
+    if (bestTheta != -1) for (int i = 0; i < 4; ++i) {
+      if (bestExecTime > list[i].l2) {
+        bestTheta = list[i].l1;
+        bestExecTime = list[i].l2;
+      }
+    }
+
+    System.out.println("Best theta = " + bestTheta);
+    System.out.println("With exectime = " + bestExecTime + "ns");
   }
 
-  private long estTime() {
+  private class EstTime implements Comparable<EstTime> {
+    // Theta
+    long l1;
+    // Exec time
+    long l2;
+    // Index
+    int  i;
+
+    @Override
+    public int compareTo(EstTime o) {
+      int cmp = Long.compare(l1, o.l1);
+      if (cmp == 0) return Long.compare(l2, o.l2);
+      return cmp;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("<%d %d %d>", l1, l2, i);
+    }
+  }
+
+  private long estTime(int diridx) {
     // Compute Naive part
-    int sidx = findMaxIdx(expcostS, currtheta);
-    int tidx = findMaxIdx(expcostT, currtheta);
+    int sidx = findMaxIdx(expcostS, currtheta[diridx]);
+    int tidx = findMaxIdx(expcostT, currtheta[diridx]);
     // 1) Build index
     long naivebldidxtime = sidx == -1 ? 0
         : (long) (alpha * cumulative_expcostS[sidx]);
@@ -715,7 +883,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     long[] equivchecktime = new long[2];
     int[] minhash = new int[mhsize];
     for (Record s : sampleS) {
-      boolean is_SH_record = (s.getEstNumRecords() > currtheta);
+      boolean is_SH_record = (s.getEstNumRecords() > currtheta[diridx]);
       int searchmax = Math.min(s.getMinLength(), maxIndex);
       List<Set<IntegerPair>> twograms = s.get2Grams();
 
@@ -729,8 +897,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
         for (int j = 0; j < searchmax; ++j) {
           // If there is no invocations on the current position,
           // this position is the best position.
-          Map<IntegerPair, Directory> curr_invokes = (Map<IntegerPair, Directory>) invokes
-              .get(j);
+          Map<IntegerPair, Directory> curr_invokes = invokes.get(j);
           if (curr_invokes == null) {
             bestUnionSize = 0;
             bestCandSize = 0;
@@ -748,9 +915,10 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
             Directory dir = curr_invokes.get(twogram);
             if (dir == null) continue;
             // Join with records in TL
-            int listsize = mapidx == 0 ? dir.Lsize
-                : dir.list.size() - dir.Lsize;
-            int[] listminhash = mapidx == 0 ? dir.L_minhash : dir.H_minhash;
+            int listsize = mapidx == 0 ? dir.Lsize[diridx]
+                : dir.list.size() - dir.Lsize[diridx];
+            int[] listminhash = mapidx == 0 ? dir.L_minhash[diridx]
+                : dir.H_minhash[diridx];
             // Join with records in TH
             if (maxsize < listsize) {
               maxsize = listsize;
