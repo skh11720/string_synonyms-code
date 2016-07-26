@@ -602,8 +602,13 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 
     // Modify index to get optimal theta
     startTime = System.currentTimeMillis();
-    findTheta();
-    System.out.print("Estimation finished");
+    findThetaByBinarySrc();
+    System.out.print("Binary src Estimation finished");
+    System.out.println(" " + (System.currentTimeMillis() - startTime) + "ms");
+
+    startTime = System.currentTimeMillis();
+    findThetaByLinearSrc();
+    System.out.print("Linear src Estimation finished");
     System.out.println(" " + (System.currentTimeMillis() - startTime) + "ms");
     System.exit(1);
 
@@ -684,7 +689,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     System.out.println("Zeta : " + zeta);
   }
 
-  private void findTheta() {
+  private void findThetaByBinarySrc() {
     long bestTheta = -1;
     long bestExecTime = Long.MAX_VALUE;
 
@@ -835,6 +840,46 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
       }
     }
 
+    System.out.println("Best theta = " + bestTheta);
+    System.out.println("With exectime = " + bestExecTime + "ns");
+  }
+
+  private void findThetaByLinearSrc() {
+    long bestTheta = -1;
+    long bestExecTime = Long.MAX_VALUE;
+
+    for (int i = 0; i < 4; ++i)
+      currtheta[i] = 0;
+    // Compute initial invocation counts
+    computeInvocationCounts(currtheta);
+    EstTime[] list = new EstTime[4];
+    for (int i = 0; i < 4; ++i) {
+      list[i] = new EstTime();
+      list[i].l1 = currtheta[i];
+      list[i].l2 = estTime(i);
+      list[i].i = i;
+    }
+
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter("lin"));
+
+      System.out.println("Max theta : " + maxtheta + "\n");
+      bw.write("Max theta : " + maxtheta);
+      // Perform linear search
+      for (long theta = 0; theta <= maxtheta; ++theta) {
+        System.out.println("Theta = " + theta);
+        long esttime = estTime(list[0].i);
+        if (esttime < bestExecTime) {
+          bestTheta = theta;
+          bestExecTime = esttime;
+        }
+        updateInvocationCounts_IncrTheta(list[0].i, theta, theta + 1);
+      }
+      bw.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
     System.out.println("Best theta = " + bestTheta);
     System.out.println("With exectime = " + bestExecTime + "ns");
   }
