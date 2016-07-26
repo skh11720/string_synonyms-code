@@ -591,16 +591,10 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
     statistics();
 
     // Compute maximum theta first
-    estMaxTheta(240);// -1);
+    estMaxTheta(-1);
 
     // Estimate constants
-    // findConstants(sampleratio);
-    alpha = 862;
-    beta = 881;
-    gamma = 305;
-    delta = 299;
-    epsilon = 1496;
-    zeta = 1265;
+    findConstants(sampleratio);
 
     startTime = System.currentTimeMillis();
     // checkLongestIndex();
