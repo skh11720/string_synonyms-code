@@ -68,8 +68,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 
   private static final int                     RECORD_CLASS_BYTES    = 120;
 
-  private static final Random                  rand                  = new Random(
-      0);
+  private static final Random                  rand                  = new Random();
 
   /*
    * private int intarrbytes(int len) {
@@ -811,6 +810,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
           System.err.println("Cannot perform binary src");
           System.err.flush();
           for (long theta = list[0].l1; theta <= list[3].l1; ++theta) {
+            System.out.println("Theta = " + theta);
             long esttime = estTime(list[0].i);
             if (esttime < bestExecTime) {
               bestTheta = theta;
@@ -827,8 +827,8 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
       System.exit(1);
     }
 
-    // Found by linear src
-    if (bestTheta != -1) for (int i = 0; i < 4; ++i) {
+    // Not found by linear src
+    if (bestTheta == -1) for (int i = 0; i < 4; ++i) {
       if (bestExecTime > list[i].l2) {
         bestTheta = list[i].l1;
         bestExecTime = list[i].l2;
