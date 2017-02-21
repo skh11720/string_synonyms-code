@@ -45,7 +45,7 @@
 							</descriptors>
 							<archive>
 								<manifest>
-									<mainClass>snu.kdd.freq.freqSeqMiner.SequentialPatternMiner</mainClass>
+									<mainClass>snu.kdd.synonym.Driver</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
