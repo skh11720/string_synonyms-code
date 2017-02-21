@@ -6,7 +6,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import tools.Util;
+import snu.kdd.synonym.tools.Util;
 
 public class Driver {
 	public static CommandLine parseInput( String args[] ) {
