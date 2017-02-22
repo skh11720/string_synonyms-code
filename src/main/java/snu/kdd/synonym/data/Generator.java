@@ -84,6 +84,8 @@ public class Generator {
 			RuleInfo info = new RuleInfo();
 			info.setSynthetic( maxLhs, maxRhs, nRule, seed, nToken, skewZ );
 			info.saveToFile( storePath + "/rule_info.json" );
+
+			System.out.println( storePath );
 		}
 		else if( args[ 0 ].equals( "-d" ) ) {
 			int nToken = Integer.parseInt( args[ 1 ] );
@@ -111,6 +113,8 @@ public class Generator {
 			DataInfo info = new DataInfo();
 			info.setSynthetic( avgRecLen, nRecord, seed, nToken, skewZ, equivratio );
 			info.saveToFile( storePath + "/data_info.json" );
+
+			System.out.println( storePath );
 		}
 		else {
 			printUsage();
