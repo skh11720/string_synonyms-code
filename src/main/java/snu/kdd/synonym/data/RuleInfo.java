@@ -13,7 +13,6 @@ public class RuleInfo {
 	double zipf;
 
 	public RuleInfo() {
-
 	}
 
 	public RuleInfo( String fileName ) {

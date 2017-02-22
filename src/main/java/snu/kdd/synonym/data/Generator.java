@@ -30,20 +30,8 @@ public class Generator {
 	private Random random;
 	private Map<String, Integer> str2int;
 	private List<String> int2str;
-	private long seed;
-	private double zipf;
-	private int nTokens;
-
-	public Generator( int nDistinctTokens, double zipf ) {
-		this( nDistinctTokens, zipf, System.currentTimeMillis() );
-	}
 
 	public Generator( int nDistinctTokens, double zipf, long seed ) {
-		this.seed = seed;
-
-		this.nTokens = nDistinctTokens;
-		this.zipf = zipf;
-
 		ratio = new double[ nDistinctTokens ];
 		for( int i = 0; i < ratio.length; ++i ) {
 			ratio[ i ] = 1.0 / Math.pow( i + 1, zipf );
@@ -64,7 +52,7 @@ public class Generator {
 	private static void printUsage() {
 		System.out.println(
 				"-d <rulefile> <#tokens> <#avg length> <#records> <skewness> <equiv ratio> <random seed> <output path>: generate data with given rulefile" );
-		System.out.println( "-r <#tokens> <max lhs len> <max rhs len> <#rules>: generate rule" );
+		System.out.println( "-r <#tokens> <max lhs len> <max rhs len> <#rules> <random seed>  <output path>: generate rule" );
 		System.exit( 1 );
 	}
 
@@ -82,7 +70,7 @@ public class Generator {
 			String storePath = outputPath + "/" + nToken + "_" + maxLhs + "_" + maxRhs + "_" + nRule + "_" + skewZ + "_" + seed;
 			new File( storePath ).mkdirs();
 
-			Generator gen = new Generator( nToken, skewZ );
+			Generator gen = new Generator( nToken, skewZ, seed );
 			gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + "/rule.txt" );
 
 			RuleInfo info = new RuleInfo();
@@ -90,16 +78,31 @@ public class Generator {
 			info.saveToFile( storePath + "/rule_info.json" );
 		}
 		else if( args[ 0 ].equals( "-d" ) ) {
-			String rulefile = args[ 1 ];
-			int nTokens = Integer.parseInt( args[ 2 ] );
-			int avgRecLen = Integer.parseInt( args[ 3 ] );
-			int nRecords = Integer.parseInt( args[ 4 ] );
-			double skewZ = Double.parseDouble( args[ 5 ] );
-			double equivratio = Double.parseDouble( args[ 6 ] );
+			int nToken = Integer.parseInt( args[ 1 ] );
+			int avgRecLen = Integer.parseInt( args[ 2 ] );
+			int nRecord = Integer.parseInt( args[ 3 ] );
+			double skewZ = Double.parseDouble( args[ 4 ] );
+			double equivratio = Double.parseDouble( args[ 5 ] );
+			long seed = Long.parseLong( args[ 6 ] );
+			String outputPath = args[ 7 ];
+			String rulefile = null;
 
-			Generator gen = new Generator( nTokens, skewZ );
-			Rule_ACAutomata atm = gen.readRules( rulefile );
-			gen.genString( avgRecLen, nRecords, new File( "data" ), equivratio, atm );
+			String storePath = outputPath + "/" + nToken + "_" + avgRecLen + "_" + nRecord + "_" + skewZ + "_" + equivratio + "_"
+					+ seed;
+
+			Generator gen = new Generator( nToken, skewZ, seed );
+			Rule_ACAutomata atm = null;
+
+			// TODO: support when equivration != 0
+			if( equivratio != 0 ) {
+				rulefile = args[ 8 ];
+				atm = gen.readRules( rulefile );
+			}
+			gen.genString( avgRecLen, nRecord, storePath + "/data.txt", equivratio, atm );
+
+			DataInfo info = new DataInfo();
+			info.setSynthetic( avgRecLen, nRecord, seed, nToken, skewZ, equivratio );
+			info.saveToFile( storePath + "/data_info.json" );
 		}
 		else {
 			printUsage();
@@ -122,12 +125,14 @@ public class Generator {
 		return new Rule_ACAutomata( rulelist );
 	}
 
-	public void genString( int avgLength, int nRecords, File file, double equivratio, Rule_ACAutomata atm ) throws IOException {
+	public void genString( int avgLength, int nRecords, String fileName, double equivratio, Rule_ACAutomata atm )
+			throws IOException {
 		HashSet<Record> records = new HashSet<Record>();
 		int count = 0;
 		while( records.size() < nRecords ) {
 			if( random.nextDouble() < equivratio ) {
 				while( true ) {
+					// make sure there exists equivalent records in the data set
 					Record rec = randomString( avgLength );
 					Record equivrecord = rec.randomTransform( atm, random ).randomTransform( atm, random );
 					if( equivrecord.compareTo( rec ) != 0 ) {
@@ -143,7 +148,7 @@ public class Generator {
 				records.add( rec );
 			}
 		}
-		BufferedWriter bw = new BufferedWriter( new FileWriter( file ) );
+		BufferedWriter bw = new BufferedWriter( new FileWriter( fileName ) );
 		for( Record rec : records ) {
 			bw.write( rec.toString( int2str ) );
 			bw.newLine();
@@ -183,19 +188,22 @@ public class Generator {
 	public void genSkewRule( int lhsmax, int rhsmax, int nRules, String filename ) throws IOException {
 		HashSet<Rule> rules = new HashSet<Rule>();
 
+		// To file
+		BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
+
 		// generate rule
 		while( rules.size() < nRules ) {
 			// 1. sample length of lhs and rhs
 			int lhslen = random.nextInt( lhsmax ) + 1;
 			int rhslen = random.nextInt( rhsmax ) + 1;
 			// 2. generate random lhs
-			int[] from = random( lhslen );
-			int[] to = random( rhslen );
+			int[] lhs = random( lhslen );
+			int[] rhs = random( rhslen );
 
 			if( lhslen == rhslen ) {
 				boolean equals = true;
 				for( int t = 0; t < lhslen; ++t ) {
-					if( from[ t ] != to[ t ] ) {
+					if( lhs[ t ] != rhs[ t ] ) {
 						equals = false;
 						break;
 					}
@@ -206,22 +214,19 @@ public class Generator {
 				}
 			}
 
-			Rule rule = new Rule( from, to );
-			rules.add( rule );
-		}
+			Rule rule = new Rule( lhs, rhs );
+			boolean added = rules.add( rule );
 
-		// To file
-		BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
-		for( Rule rule : rules ) {
-			for( int from : rule.getFrom() )
-				bw.write( from + " " );
-			bw.write( ", " );
-			for( int to : rule.getTo() )
-				bw.write( to + " " );
-			bw.newLine();
+			if( added ) {
+				for( int from : rule.getFrom() )
+					bw.write( from + " " );
+				bw.write( ", " );
+				for( int to : rule.getTo() )
+					bw.write( to + " " );
+				bw.newLine();
+			}
 		}
 		bw.close();
-
 	}
 
 	public void genUniformRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {
