@@ -1,4 +1,4 @@
-package generator;
+package snu.kdd.synonym.data;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,12 +30,14 @@ public class Generator {
 	private Random random;
 	private Map<String, Integer> str2int;
 	private List<String> int2str;
+	private long seed;
 
 	public Generator( int nDistinctTokens, double zipf ) {
 		this( nDistinctTokens, zipf, System.currentTimeMillis() );
 	}
 
 	public Generator( int nDistinctTokens, double zipf, long seed ) {
+		this.seed = seed;
 		ratio = new double[ nDistinctTokens ];
 		for( int i = 0; i < ratio.length; ++i ) {
 			ratio[ i ] = 1.0 / Math.pow( i + 1, zipf );
@@ -61,25 +63,29 @@ public class Generator {
 	}
 
 	public static void main( String[] args ) throws IOException {
-		if( args[ 0 ].compareTo( "-d" ) == 0 ) {
+		// build rule first and then generate data
+		if( args[ 0 ].equals( "-r" ) ) {
+			int nTokens = Integer.parseInt( args[ 1 ] );
+			int avgLhsLen = Integer.parseInt( args[ 2 ] );
+			int avgRhsLen = Integer.parseInt( args[ 3 ] );
+			int nRules = Integer.parseInt( args[ 4 ] );
+			double skewZ = Double.parseDouble( args[ 5 ] );
+
+			Generator gen = new Generator( nTokens, skewZ );
+			gen.genSkewRule( avgLhsLen, avgRhsLen, nRules, new File( "rule" ) );
+
+		}
+		else if( args[ 0 ].equals( "-d" ) ) {
 			String rulefile = args[ 1 ];
 			int nTokens = Integer.parseInt( args[ 2 ] );
 			int avgRecLen = Integer.parseInt( args[ 3 ] );
 			int nRecords = Integer.parseInt( args[ 4 ] );
 			double skewZ = Double.parseDouble( args[ 5 ] );
 			double equivratio = Double.parseDouble( args[ 6 ] );
+
 			Generator gen = new Generator( nTokens, skewZ );
 			Rule_ACAutomata atm = gen.readRules( rulefile );
 			gen.genString( avgRecLen, nRecords, new File( "data" ), equivratio, atm );
-		}
-		else if( args[ 0 ].compareTo( "-r" ) == 0 ) {
-			int nTokens = Integer.parseInt( args[ 1 ] );
-			int avgLhsLen = Integer.parseInt( args[ 2 ] );
-			int avgRhsLen = Integer.parseInt( args[ 3 ] );
-			int nRules = Integer.parseInt( args[ 4 ] );
-			double skewZ = Double.parseDouble( args[ 5 ] );
-			Generator gen = new Generator( nTokens, skewZ );
-			gen.genSkewRule( avgLhsLen, avgRhsLen, nRules, new File( "rule" ) );
 		}
 		else {
 			printUsage();
@@ -190,6 +196,11 @@ public class Generator {
 			bw.newLine();
 		}
 		bw.close();
+
+		RuleInfo info = new RuleInfo();
+		info.setSynthetic( lhsmax, rhsmax, nRules, seed );
+		info.saveToFile( file.getName() + "_info.json" );
+
 	}
 
 	public void genUniformRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {

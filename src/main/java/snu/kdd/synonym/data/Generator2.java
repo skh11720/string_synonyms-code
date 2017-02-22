@@ -1,4 +1,4 @@
-package generator;
+package snu.kdd.synonym.data;
 
 import java.io.BufferedWriter;
 import java.io.File;
