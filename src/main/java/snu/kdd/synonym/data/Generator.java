@@ -155,7 +155,7 @@ public class Generator {
 			bw.newLine();
 		}
 		bw.close();
-		System.out.println( count );
+		System.out.println( "[genString] equiv count: " + count );
 	}
 
 	private Record randomString( int avgLength ) {
