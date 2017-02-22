@@ -89,6 +89,7 @@ public class Generator {
 
 			String storePath = outputPath + "/" + nToken + "_" + avgRecLen + "_" + nRecord + "_" + skewZ + "_" + equivratio + "_"
 					+ seed;
+			new File( storePath ).mkdirs();
 
 			Generator gen = new Generator( nToken, skewZ, seed );
 			Rule_ACAutomata atm = null;
