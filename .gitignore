@@ -7,3 +7,4 @@ JiahengLu/
 *.txt
 *.swp
 /target/
+/run/test.sh
