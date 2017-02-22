@@ -67,7 +67,7 @@ public class Generator {
 			long seed = Long.parseLong( args[ 6 ] );
 			String outputPath = args[ 7 ];
 
-			String storePath = outputPath + "/" + nToken + "_" + maxLhs + "_" + maxRhs + "_" + nRule + "_" + skewZ + "_" + seed;
+			String storePath = outputPath + "/rule/" + nToken + "_" + maxLhs + "_" + maxRhs + "_" + nRule + "_" + skewZ + "_" + seed;
 			new File( storePath ).mkdirs();
 
 			Generator gen = new Generator( nToken, skewZ, seed );
@@ -87,7 +87,7 @@ public class Generator {
 			String outputPath = args[ 7 ];
 			String rulefile = null;
 
-			String storePath = outputPath + "/" + nToken + "_" + avgRecLen + "_" + nRecord + "_" + skewZ + "_" + equivratio + "_"
+			String storePath = outputPath + "/data/" + nToken + "_" + avgRecLen + "_" + nRecord + "_" + skewZ + "_" + equivratio + "_"
 					+ seed;
 			new File( storePath ).mkdirs();
 
