@@ -20,8 +20,8 @@ import tools.Rule;
 import tools.Rule_ACAutomata;
 
 /**
- * Generate strings and ruls based on zipf distribution.
- * The orders of tokens for both datasets are exactly the same.
+ * Generate strings and rules based on zipf distribution.
+ * The orders of tokens for both data sets are exactly the same.
  * Manually generate equivalent strings.
  */
 
@@ -56,11 +56,11 @@ public class Generator {
 		System.exit( 1 );
 	}
 
-	public static String getRuleFilePath( int nToken, int maxLhs, int maxRhs, int nRule, double skewZ, long seed ) {
+	private static String getRuleFilePath( int nToken, int maxLhs, int maxRhs, int nRule, double skewZ, long seed ) {
 		return nToken + "_" + maxLhs + "_" + maxRhs + "_" + nRule + "_" + skewZ + "_" + seed;
 	}
 
-	public static String getDataFilePath( int nToken, int avgRecLen, int nRecord, double skewZ, double equivratio, long seed ) {
+	private static String getDataFilePath( int nToken, int avgRecLen, int nRecord, double skewZ, double equivratio, long seed ) {
 		return nToken + "_" + avgRecLen + "_" + nRecord + "_" + skewZ + "_" + equivratio + "_" + seed;
 	}
 
@@ -147,7 +147,7 @@ public class Generator {
 		return new Rule_ACAutomata( rulelist );
 	}
 
-	public void genString( int avgLength, int nRecords, String fileName, double equivratio, Rule_ACAutomata atm )
+	private void genString( int avgLength, int nRecords, String fileName, double equivratio, Rule_ACAutomata atm )
 			throws IOException {
 		HashSet<Record> records = new HashSet<Record>();
 		int count = 0;
@@ -251,7 +251,7 @@ public class Generator {
 		bw.close();
 	}
 
-	public void genUniformRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {
+	private void genUniformRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {
 		HashSet<Rule> rules = new HashSet<Rule>();
 		while( rules.size() < nRules ) {
 			// 1. sample length of lhs and rhs
