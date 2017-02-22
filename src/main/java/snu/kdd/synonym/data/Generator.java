@@ -66,7 +66,7 @@ public class Generator {
 
 	public static void main( String[] args ) throws IOException {
 		// build rule first and then generate data
-		if( args[ 0 ].equals( "-r" ) ) {
+		if( args[ 0 ].equals( "-r" ) || args[ 0 ].equals( "-cr" ) ) {
 			int nToken = Integer.parseInt( args[ 1 ] );
 			int maxLhs = Integer.parseInt( args[ 2 ] );
 			int maxRhs = Integer.parseInt( args[ 3 ] );
@@ -76,18 +76,24 @@ public class Generator {
 			String outputPath = args[ 7 ];
 
 			String storePath = outputPath + "/rule/" + getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewZ, seed );
-			new File( storePath ).mkdirs();
 
-			Generator gen = new Generator( nToken, skewZ, seed );
-			gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + "/rule.txt" );
+			if( args[ 0 ].equals( "-cr" ) ) {
+				System.out.println( storePath );
+			}
+			else {
+				// if args[ 0 ].equals( "-r" )
+				// generate data
+				new File( storePath ).mkdirs();
 
-			RuleInfo info = new RuleInfo();
-			info.setSynthetic( maxLhs, maxRhs, nRule, seed, nToken, skewZ );
-			info.saveToFile( storePath + "/rule_info.json" );
+				Generator gen = new Generator( nToken, skewZ, seed );
+				gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + "/rule.txt" );
 
-			System.out.println( storePath );
+				RuleInfo info = new RuleInfo();
+				info.setSynthetic( maxLhs, maxRhs, nRule, seed, nToken, skewZ );
+				info.saveToFile( storePath + "/rule_info.json" );
+			}
 		}
-		else if( args[ 0 ].equals( "-d" ) ) {
+		else if( args[ 0 ].equals( "-d" ) || args[ 0 ].equals( "-cd" ) ) {
 			int nToken = Integer.parseInt( args[ 1 ] );
 			int avgRecLen = Integer.parseInt( args[ 2 ] );
 			int nRecord = Integer.parseInt( args[ 3 ] );
@@ -98,23 +104,27 @@ public class Generator {
 			String rulefile = null;
 
 			String storePath = outputPath + "/data/" + getDataFilePath( nToken, avgRecLen, nRecord, skewZ, equivratio, seed );
-			new File( storePath ).mkdirs();
 
-			Generator gen = new Generator( nToken, skewZ, seed );
-			Rule_ACAutomata atm = null;
-
-			// TODO: support when equivration != 0
-			if( equivratio != 0 ) {
-				rulefile = args[ 8 ];
-				atm = gen.readRules( rulefile );
+			if( args[ 0 ].equals( "-cd" ) ) {
+				System.out.println( storePath );
 			}
-			gen.genString( avgRecLen, nRecord, storePath + "/data.txt", equivratio, atm );
+			else {
+				new File( storePath ).mkdirs();
 
-			DataInfo info = new DataInfo();
-			info.setSynthetic( avgRecLen, nRecord, seed, nToken, skewZ, equivratio );
-			info.saveToFile( storePath + "/data_info.json" );
+				Generator gen = new Generator( nToken, skewZ, seed );
+				Rule_ACAutomata atm = null;
 
-			System.out.println( storePath );
+				// TODO: support when equivration != 0
+				if( equivratio != 0 ) {
+					rulefile = args[ 8 ];
+					atm = gen.readRules( rulefile );
+				}
+				gen.genString( avgRecLen, nRecord, storePath + "/data.txt", equivratio, atm );
+
+				DataInfo info = new DataInfo();
+				info.setSynthetic( avgRecLen, nRecord, seed, nToken, skewZ, equivratio );
+				info.saveToFile( storePath + "/data_info.json" );
+			}
 		}
 		else {
 			printUsage();
