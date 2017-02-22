@@ -56,6 +56,14 @@ public class Generator {
 		System.exit( 1 );
 	}
 
+	public static String getRuleFilePath( int nToken, int maxLhs, int maxRhs, int nRule, double skewZ, long seed ) {
+		return nToken + "_" + maxLhs + "_" + maxRhs + "_" + nRule + "_" + skewZ + "_" + seed;
+	}
+
+	public static String getDataFilePath( int nToken, int avgRecLen, int nRecord, double skewZ, double equivratio, long seed ) {
+		return nToken + "_" + avgRecLen + "_" + nRecord + "_" + skewZ + "_" + equivratio + "_" + seed;
+	}
+
 	public static void main( String[] args ) throws IOException {
 		// build rule first and then generate data
 		if( args[ 0 ].equals( "-r" ) ) {
@@ -67,7 +75,7 @@ public class Generator {
 			long seed = Long.parseLong( args[ 6 ] );
 			String outputPath = args[ 7 ];
 
-			String storePath = outputPath + "/rule/" + nToken + "_" + maxLhs + "_" + maxRhs + "_" + nRule + "_" + skewZ + "_" + seed;
+			String storePath = outputPath + "/rule/" + getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewZ, seed );
 			new File( storePath ).mkdirs();
 
 			Generator gen = new Generator( nToken, skewZ, seed );
@@ -87,8 +95,7 @@ public class Generator {
 			String outputPath = args[ 7 ];
 			String rulefile = null;
 
-			String storePath = outputPath + "/data/" + nToken + "_" + avgRecLen + "_" + nRecord + "_" + skewZ + "_" + equivratio + "_"
-					+ seed;
+			String storePath = outputPath + "/data/" + getDataFilePath( nToken, avgRecLen, nRecord, skewZ, equivratio, seed );
 			new File( storePath ).mkdirs();
 
 			Generator gen = new Generator( nToken, skewZ, seed );
