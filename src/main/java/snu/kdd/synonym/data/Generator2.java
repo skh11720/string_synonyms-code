@@ -16,7 +16,7 @@ import mine.Record;
 import tools.Rule;
 
 /**
- * Generate strings and ruls based on zipf distribution.
+ * Generate strings and rules based on zipf distribution.
  * The orders of tokens for both datasets are different.
  * Do not generate equivalent strings manually.
  */

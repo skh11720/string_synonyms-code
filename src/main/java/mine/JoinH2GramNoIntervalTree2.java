@@ -73,8 +73,9 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		ruletrie = new RuleTrie( rulelist );
 		Record.setRuleTrie( ruletrie );
 		rhfunc = new RandHash[ mhsize ];
-		for( int i = 0; i < mhsize; ++i )
+		for( int i = 0; i < mhsize; ++i ) {
 			rhfunc[ i ] = new RandHash();
+		}
 	}
 
 	public JoinH2GramNoIntervalTree2( Algorithm o ) {
