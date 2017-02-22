@@ -46,7 +46,7 @@ public class JSONUtil {
 				bw.write( valueList.get( i ).toString() );
 				bw.write( "\"" );
 			}
-			bw.write( "s}" );
+			bw.write( "\n}" );
 		}
 		catch(
 
