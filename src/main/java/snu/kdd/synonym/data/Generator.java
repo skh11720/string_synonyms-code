@@ -63,7 +63,7 @@ public class Generator {
 
 	private static void printUsage() {
 		System.out.println(
-				"-d <rulefile> <#tokens> <#avg length> <#records> <skewness> <equiv ratio>: generate data with given rulefile" );
+				"-d <rulefile> <#tokens> <#avg length> <#records> <skewness> <equiv ratio> <random seed> <output path>: generate data with given rulefile" );
 		System.out.println( "-r <#tokens> <max lhs len> <max rhs len> <#rules>: generate rule" );
 		System.exit( 1 );
 	}
@@ -71,15 +71,23 @@ public class Generator {
 	public static void main( String[] args ) throws IOException {
 		// build rule first and then generate data
 		if( args[ 0 ].equals( "-r" ) ) {
-			int nTokens = Integer.parseInt( args[ 1 ] );
-			int avgLhsLen = Integer.parseInt( args[ 2 ] );
-			int avgRhsLen = Integer.parseInt( args[ 3 ] );
-			int nRules = Integer.parseInt( args[ 4 ] );
+			int nToken = Integer.parseInt( args[ 1 ] );
+			int maxLhs = Integer.parseInt( args[ 2 ] );
+			int maxRhs = Integer.parseInt( args[ 3 ] );
+			int nRule = Integer.parseInt( args[ 4 ] );
 			double skewZ = Double.parseDouble( args[ 5 ] );
+			long seed = Long.parseLong( args[ 6 ] );
+			String outputPath = args[ 7 ];
 
-			Generator gen = new Generator( nTokens, skewZ );
-			gen.genSkewRule( avgLhsLen, avgRhsLen, nRules, new File( "rule" ) );
+			String storePath = outputPath + "/" + nToken + "_" + maxLhs + "_" + maxRhs + "_" + nRule + "_" + skewZ + "_" + seed;
+			new File( storePath ).mkdirs();
 
+			Generator gen = new Generator( nToken, skewZ );
+			gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + "/rule.txt" );
+
+			RuleInfo info = new RuleInfo();
+			info.setSynthetic( maxLhs, maxRhs, nRule, seed, nToken, skewZ );
+			info.saveToFile( storePath + "/rule_info.json" );
 		}
 		else if( args[ 0 ].equals( "-d" ) ) {
 			String rulefile = args[ 1 ];
@@ -172,7 +180,7 @@ public class Generator {
 	}
 
 	// Rules: do not follow zipf distribution. Use uniform distribution
-	public void genSkewRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {
+	public void genSkewRule( int lhsmax, int rhsmax, int nRules, String filename ) throws IOException {
 		HashSet<Rule> rules = new HashSet<Rule>();
 
 		// generate rule
@@ -203,7 +211,7 @@ public class Generator {
 		}
 
 		// To file
-		BufferedWriter bw = new BufferedWriter( new FileWriter( file ) );
+		BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
 		for( Rule rule : rules ) {
 			for( int from : rule.getFrom() )
 				bw.write( from + " " );
@@ -214,9 +222,6 @@ public class Generator {
 		}
 		bw.close();
 
-		RuleInfo info = new RuleInfo();
-		info.setSynthetic( lhsmax, rhsmax, nRules, seed, nTokens, zipf );
-		info.saveToFile( file.getName() + "_info.json" );
 	}
 
 	public void genUniformRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {
