@@ -31,6 +31,8 @@ public class Generator {
 	private Map<String, Integer> str2int;
 	private List<String> int2str;
 	private long seed;
+	private double zipf;
+	private int nTokens;
 
 	public Generator( int nDistinctTokens, double zipf ) {
 		this( nDistinctTokens, zipf, System.currentTimeMillis() );
@@ -38,6 +40,10 @@ public class Generator {
 
 	public Generator( int nDistinctTokens, double zipf, long seed ) {
 		this.seed = seed;
+
+		this.nTokens = nDistinctTokens;
+		this.zipf = zipf;
+
 		ratio = new double[ nDistinctTokens ];
 		for( int i = 0; i < ratio.length; ++i ) {
 			ratio[ i ] = 1.0 / Math.pow( i + 1, zipf );
@@ -168,6 +174,8 @@ public class Generator {
 	// Rules: do not follow zipf distribution. Use uniform distribution
 	public void genSkewRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {
 		HashSet<Rule> rules = new HashSet<Rule>();
+
+		// generate rule
 		while( rules.size() < nRules ) {
 			// 1. sample length of lhs and rhs
 			int lhslen = random.nextInt( lhsmax ) + 1;
@@ -175,17 +183,26 @@ public class Generator {
 			// 2. generate random lhs
 			int[] from = random( lhslen );
 			int[] to = random( rhslen );
+
 			if( lhslen == rhslen ) {
 				boolean equals = true;
-				for( int t = 0; t < lhslen; ++t )
-					if( from[ t ] != to[ t ] )
+				for( int t = 0; t < lhslen; ++t ) {
+					if( from[ t ] != to[ t ] ) {
 						equals = false;
-				if( equals )
+						break;
+					}
+				}
+
+				if( equals ) {
 					continue;
+				}
 			}
+
 			Rule rule = new Rule( from, to );
 			rules.add( rule );
 		}
+
+		// To file
 		BufferedWriter bw = new BufferedWriter( new FileWriter( file ) );
 		for( Rule rule : rules ) {
 			for( int from : rule.getFrom() )
@@ -198,9 +215,8 @@ public class Generator {
 		bw.close();
 
 		RuleInfo info = new RuleInfo();
-		info.setSynthetic( lhsmax, rhsmax, nRules, seed );
+		info.setSynthetic( lhsmax, rhsmax, nRules, seed, nTokens, zipf );
 		info.saveToFile( file.getName() + "_info.json" );
-
 	}
 
 	public void genUniformRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {
