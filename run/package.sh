@@ -1,5 +1,15 @@
 #!/bin/bash
 
+if [ ! -d output ]
+then
+	mkdir output
+fi
+
+if [ ! -d logs ]
+then
+	mkdir logs
+fi
+
 git pull
 
 cd ..
