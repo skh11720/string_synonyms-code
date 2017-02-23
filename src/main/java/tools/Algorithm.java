@@ -184,6 +184,8 @@ public abstract class Algorithm {
 	}
 
 	public void printStat() {
+		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
 		stat.printResult();
+		System.out.println( "=============[" + this.getName() + " stats" + "]=============".replaceAll( ".", "=" ) );
 	}
 }

@@ -44,12 +44,12 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 	public String outputfile;
 
 	public static Validator checker;
+
 	/**
 	 * Key: (2gram, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
 	Map<Integer, Map<IntegerPair, List<Record>>> idx;
-	// Map<LongIntPair, List<Record>> idx;
 
 	public long buildIndexTime;
 	public long buildIndexTime1;
@@ -66,15 +66,6 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 	public JoinH2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
 		super( rulefile, Rfile, Sfile );
 		this.outputfile = outputFile + "/" + this.getName();
-
-		Record.setStrList( strlist );
-		idComparator = new RecordIDComparator();
-		ruletrie = new RuleTrie( rulelist );
-		Record.setRuleTrie( ruletrie );
-	}
-
-	public JoinH2GramNoIntvlTree( Algorithm o ) {
-		super( o );
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
