@@ -27,7 +27,7 @@ import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
 import wrapped.WrappedInteger;
 
-public class JoinH2Gram extends Algorithm {
+public class JoinH2GramNoIntvlTree extends Algorithm {
 	public static boolean useAutomata = false;
 	public static boolean skipChecking = false;
 	public static int maxIndex = Integer.MAX_VALUE;
@@ -60,7 +60,7 @@ public class JoinH2Gram extends Algorithm {
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinH2Gram( String rulefile, String Rfile, String Sfile ) throws IOException {
+	public JoinH2GramNoIntvlTree( String rulefile, String Rfile, String Sfile ) throws IOException {
 		super( rulefile, Rfile, Sfile );
 
 		Record.setStrList( strlist );
@@ -69,7 +69,7 @@ public class JoinH2Gram extends Algorithm {
 		Record.setRuleTrie( ruletrie );
 	}
 
-	public JoinH2Gram( Algorithm o ) {
+	public JoinH2GramNoIntvlTree( Algorithm o ) {
 		super( o );
 
 		Record.setStrList( strlist );
@@ -575,7 +575,7 @@ public class JoinH2Gram extends Algorithm {
 		exact2grams = params.isExact2Grams();
 
 		long startTime = System.currentTimeMillis();
-		JoinH2Gram inst = new JoinH2Gram( Rulefile, Rfile, Sfile );
+		JoinH2GramNoIntvlTree inst = new JoinH2GramNoIntvlTree( Rulefile, Rfile, Sfile );
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		inst.run();
@@ -590,12 +590,23 @@ public class JoinH2Gram extends Algorithm {
 
 	@Override
 	public String getName() {
-		return "JoinH2Gram";
+		return "JoinH2GramNoIntvlTree";
 	}
 
 	@Override
 	public void run( String[] args ) {
-		// TODO Auto-generated method stub
-		
+		Parameters params = Parameters.parseArgs( args );
+		outputfile = params.getOutput();
+
+		// Setup parameters
+		useAutomata = params.isUseACAutomata();
+		skipChecking = params.isSkipChecking();
+		compact = params.isCompact();
+		checker = params.getValidator();
+		exact2grams = params.isExact2Grams();
+
+		run();
+
+		Validator.printStats();
 	}
 }

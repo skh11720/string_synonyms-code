@@ -8,7 +8,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import snu.kdd.synonym.algorithm.JoinH2Gram;
+import snu.kdd.synonym.algorithm.JoinH2GramNoIntvlTree;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
 import tools.Algorithm;
@@ -23,7 +23,7 @@ public class Driver {
 		options.addOption( "verbose", false, "verbose" );
 
 		options.addOption( "baseline", false, "Baseline algorithm" );
-		options.addOption( "H2Gram", false, "JoinH2Gram algorithm" );
+		options.addOption( "H2GramNoIntvlTree", false, "JoinH2GramNoIntvlTree algorithm" );
 		options.addOption( "hybrid", false, "Hybrid algorithm" );
 
 		options.addOption( "check", false, "Check results" );
@@ -53,8 +53,8 @@ public class Driver {
 
 		Algorithm alg = null;
 
-		if( cmd.hasOption( "H2Gram" ) ) {
-			alg = new JoinH2Gram( rulePath, dataOnePath, dataTwoPath );
+		if( cmd.hasOption( "H2GramNoIntvlTree" ) ) {
+			alg = new JoinH2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath );
 		}
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
