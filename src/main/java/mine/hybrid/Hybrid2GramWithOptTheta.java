@@ -741,4 +741,22 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		inst.run( params.getSampleRatio() );
 		Validator.printStats();
 	}
+
+	@Override
+	public String getVersion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void run( String[] args ) {
+		// TODO Auto-generated method stub
+		
+	}
 }

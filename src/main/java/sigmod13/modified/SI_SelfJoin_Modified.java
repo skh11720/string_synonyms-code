@@ -92,4 +92,22 @@ public class SI_SelfJoin_Modified extends Algorithm {
 	private static void printUsage() {
 		System.out.println( "Usage : <R file> <Rule file> <Threshold> <Filter No.>" );
 	}
+
+	@Override
+	public String getVersion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void run( String[] args ) {
+		// TODO Auto-generated method stub
+		
+	}
 }

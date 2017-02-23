@@ -203,4 +203,22 @@ public class Naive1 extends Algorithm {
 	private static void printUsage() {
 		System.out.println( "Usage : <R file> <S file> <Rule file> <exp threshold>" );
 	}
+
+	@Override
+	public String getVersion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void run( String[] args ) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -482,4 +482,22 @@ public class HybridA1 extends Algorithm {
 		inst.run();
 		Validator.printStats();
 	}
+
+	@Override
+	public String getVersion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void run( String[] args ) {
+		// TODO Auto-generated method stub
+		
+	}
 }

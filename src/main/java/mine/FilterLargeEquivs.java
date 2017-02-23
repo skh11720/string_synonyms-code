@@ -31,4 +31,20 @@ public class FilterLargeEquivs extends Algorithm {
 		}
 		bw.close();
 	}
+
+	@Override
+	public String getVersion() {
+		return "1.0";
+	}
+
+	@Override
+	public String getName() {
+		return "FilterLargeEquivs";
+	}
+
+	@Override
+	public void run( String[] args ) {
+		// TODO Auto-generated method stub
+
+	}
 }

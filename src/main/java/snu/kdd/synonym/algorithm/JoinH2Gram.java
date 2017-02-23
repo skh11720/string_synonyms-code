@@ -1,4 +1,4 @@
-package mine;
+package snu.kdd.synonym.algorithm;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -13,10 +13,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import mine.Record;
+import mine.RecordIDComparator;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Parameters;
-import tools.RandHash;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
@@ -24,13 +25,9 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
+import wrapped.WrappedInteger;
 
-/**
- * Same as JoinH2GramNoIntervalTree2, but utilizes minhash to estimate the set
- * union size while building an index
- * Assumption: records are sorted with their IDs.
- */
-public class JoinH2GramNoIntervalTree2 extends Algorithm {
+public class JoinH2Gram extends Algorithm {
 	public static boolean useAutomata = false;
 	public static boolean skipChecking = false;
 	public static int maxIndex = Integer.MAX_VALUE;
@@ -49,10 +46,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 	 * Value: (min, max, record) triple
 	 */
 	Map<Integer, Map<IntegerPair, List<Record>>> idx;
-
-	public static double dirsampleratio = 0.01;
-	public static int mhsize = 30;
-	RandHash[] rhfunc;
+	// Map<LongIntPair, List<Record>> idx;
 
 	public long buildIndexTime;
 	public long buildIndexTime1;
@@ -63,51 +57,25 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 	public double gamma;
 	public double delta;
 	public double epsilon;
-	public double zeta;
 
-	public JoinH2GramNoIntervalTree2( String rulefile, String Rfile, String Sfile ) throws IOException {
+	private static final WrappedInteger ONE = new WrappedInteger( 1 );
+
+	public JoinH2Gram( String rulefile, String Rfile, String Sfile ) throws IOException {
 		super( rulefile, Rfile, Sfile );
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 		Record.setRuleTrie( ruletrie );
-		rhfunc = new RandHash[ mhsize ];
-		for( int i = 0; i < mhsize; ++i ) {
-			rhfunc[ i ] = new RandHash();
-		}
 	}
 
-	public JoinH2GramNoIntervalTree2( Algorithm o ) {
+	public JoinH2Gram( Algorithm o ) {
 		super( o );
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 		Record.setRuleTrie( ruletrie );
-		rhfunc = new RandHash[ mhsize ];
-		for( int i = 0; i < mhsize; ++i )
-			rhfunc[ i ] = new RandHash();
-	}
-
-	class Directory {
-		int count;
-		int[] minhash;
-
-		Directory() {
-			count = 0;
-			minhash = new int[ mhsize ];
-			for( int i = 0; i < mhsize; ++i )
-				minhash[ i ] = Integer.MAX_VALUE;
-		}
-
-		void add( int id ) {
-			++count;
-			for( int i = 0; i < mhsize; ++i ) {
-				int hash = rhfunc[ i ].get( id );
-				minhash[ i ] = Math.min( minhash[ i ], hash );
-			}
-		}
 	}
 
 	private void buildIndex() throws IOException {
@@ -117,7 +85,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		long totalSigCount = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		Map<Integer, Map<IntegerPair, Directory>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
 		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair,
 		// Integer>();
 		for( Record rec : tableS ) {
@@ -126,20 +94,22 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 				totalSigCount += set.size();
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, Directory> curridx_invokes = invokes.get( i );
+				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
 				if( curridx_invokes == null ) {
-					curridx_invokes = new WYK_HashMap<IntegerPair, Directory>();
+					curridx_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
 					invokes.put( i, curridx_invokes );
 				}
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					if( Math.random() > dirsampleratio )
-						continue;
-					Directory dir = curridx_invokes.get( twogram );
-					if( dir == null ) {
-						dir = new Directory();
-						curridx_invokes.put( twogram, dir );
+					WrappedInteger count = curridx_invokes.get( twogram );
+					if( count == null ) {
+						curridx_invokes.put( twogram, ONE );
 					}
-					dir.add( rec.getID() );
+					else if( count == ONE ) {
+						count = new WrappedInteger( 2 );
+						curridx_invokes.put( twogram, count );
+					}
+					else
+						count.increment();
 				}
 			}
 		}
@@ -155,72 +125,41 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 
 		// BufferedOutputStream bw = new BufferedOutputStream(
 		// new FileOutputStream("asdf"));
-		int[] union_sig = new int[ mhsize ];
 		for( Record rec : tableR ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
 				totalSigCount += set.size();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
-			double minUnion = Double.POSITIVE_INFINITY;
+			int minInvokes = Integer.MAX_VALUE;
 			int searchmax = Math.min( range[ 0 ], maxIndex );
 			for( int i = 0; i < searchmax; ++i ) {
 				if( available2Grams.get( i ).isEmpty() )
 					continue;
-				Map<IntegerPair, Directory> curridx_invokes = invokes.get( i );
+				int invoke = 0;
+				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
 				// There is no invocation count: this is the minimum point
 				if( curridx_invokes == null ) {
 					minIdx = i;
-					minUnion = 0;
+					minInvokes = 0;
 					break;
 				}
-
-				// prepare for the union signature
-				for( int j = 0; j < mhsize; ++j )
-					union_sig[ j ] = Integer.MAX_VALUE;
-				int invoke = 0;
-				int maxsize = 0;
-				Directory maxsizedir = null;
-
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					Directory dir = curridx_invokes.get( twogram );
-					if( dir == null )
-						continue;
-					else if( dir.count > maxsize ) {
-						maxsize = dir.count;
-						maxsizedir = dir;
-					}
-					for( int j = 0; j < mhsize; ++j )
-						union_sig[ j ] = Math.min( union_sig[ j ], dir.minhash[ j ] );
-					invoke += dir.count;
+					WrappedInteger count = curridx_invokes.get( twogram );
+					if( count != null )
+						invoke += count.get();
 				}
-				int inter = 0;
-				double union = 0;
-				if( maxsizedir != null ) {
-					assert ( maxsize != 0 );
-					for( int j = 0; j < mhsize; ++j )
-						if( union_sig[ j ] == maxsizedir.minhash[ j ] )
-							++inter;
-					if( inter == 0 )
-						union = Math.min( invoke, tableS.size() );
-					else
-						union = ( (double) maxsizedir.count * mhsize ) / inter;
-				}
-				if( union < minUnion ) {
+				if( invoke < minInvokes ) {
 					minIdx = i;
-					minUnion = union;
+					minInvokes = invoke;
 				}
 			}
-			if( minIdx < 0 ) {
-				System.out.println( "Error : minIdx < 0 at " + rec.toString() );
-				System.exit( 1 );
-			}
-			assert ( minIdx >= 0 );
-			predictCount += minUnion;
+
+			predictCount += minInvokes;
 
 			Map<IntegerPair, List<Record>> curridx = idx.get( minIdx );
 			if( curridx == null ) {
-				curridx = new WYK_HashMap<IntegerPair, List<Record>>();
+				curridx = new WYK_HashMap<IntegerPair, List<Record>>( 1000000 );
 				// curridx = new HashMap<IntegerPair, List<Record>>();
 				idx.put( minIdx, curridx );
 			}
@@ -272,17 +211,17 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		sum = 0;
 		ones = 0;
 		count = 0;
-		for( Map<IntegerPair, Directory> curridx : invokes.values() ) {
-			WYK_HashMap<IntegerPair, Directory> tmp = (WYK_HashMap<IntegerPair, Directory>) curridx;
+		for( Map<IntegerPair, WrappedInteger> curridx : invokes.values() ) {
+			WYK_HashMap<IntegerPair, WrappedInteger> tmp = (WYK_HashMap<IntegerPair, WrappedInteger>) curridx;
 			if( sum == 0 )
 				tmp.printStat();
-			for( Entry<IntegerPair, Directory> list : curridx.entrySet() ) {
-				if( list.getValue().count == 1 ) {
+			for( Entry<IntegerPair, WrappedInteger> list : curridx.entrySet() ) {
+				if( list.getValue().get() == 1 ) {
 					++ones;
 					continue;
 				}
 				sum++;
-				count += list.getValue().count;
+				count += list.getValue().get();
 			}
 		}
 		System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
@@ -306,83 +245,87 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 	}
 
 	private List<IntegerPair> join() {
-		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
-		long starttime = System.nanoTime() - Record.exectime;
-		// long totalSigCount = 0;
-		long tmp = 0;
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "asdf" ) );
 
-		long appliedRules_sum = 0;
-		long unioncount = 0;
-		for( Record recS : tableS ) {
-			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
-			// for (Set<IntegerPair> set : available2Grams)
-			// totalSigCount += set.size();
-			int[] range = recS.getCandidateLengths( recS.size() - 1 );
-			int searchmax = Math.min( available2Grams.size(), maxIndex );
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, List<Record>> curridx = idx.get( i );
-				if( curridx == null )
-					continue;
-				List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					List<Record> tree = curridx.get( twogram );
+			List<IntegerPair> rslt = new ArrayList<IntegerPair>();
+			long starttime = System.nanoTime() - Record.exectime;
+			// long totalSigCount = 0;
 
-					if( tree == null )
+			long appliedRules_sum = 0;
+			long count = 0;
+			for( Record recS : tableS ) {
+				List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
+				// for (Set<IntegerPair> set : available2Grams)
+				// totalSigCount += set.size();
+				int[] range = recS.getCandidateLengths( recS.size() - 1 );
+				int searchmax = Math.min( available2Grams.size(), maxIndex );
+				for( int i = 0; i < searchmax; ++i ) {
+					Map<IntegerPair, List<Record>> curridx = idx.get( i );
+					if( curridx == null )
 						continue;
-					List<Record> list = new ArrayList<Record>();
-					for( Record e : tree )
-						if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) )
-							list.add( e );
-					candidatesList.add( list );
-					unioncount += list.size();
-				}
-				List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
-				if( skipChecking )
-					continue;
-				else if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-					// Sort records to utilize similar prefixes
-					Collections.sort( candidates );
-					Collections.reverse( candidates );
-					computePrefixCount( candidates );
-				}
+					List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+					for( IntegerPair twogram : available2Grams.get( i ) ) {
+						List<Record> tree = curridx.get( twogram );
 
-				for( Record recR : candidates ) {
-					long ruleiters = Validator.niterrules;
-					long reccalls = Validator.recursivecalls;
-					long entryiters = Validator.niterentry;
-					long st = System.nanoTime();
-					int compare = checker.isEqual( recR, recS );
-					long duration = System.nanoTime() - st;
-					ruleiters = Validator.niterrules - ruleiters;
-					reccalls = Validator.recursivecalls - reccalls;
-					entryiters = Validator.niterentry - entryiters;
-					// bw.write(duration + "\t" + compare + "\t" + recR.size() + "\t"
-					// + recR.getRuleCount() + "\t" + recR.getFirstRuleCount() + "\t"
-					// + recS.size() + "\t" + recS.getRuleCount() + "\t"
-					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls
-					// + "\t" + entryiters + "\n");
-					joinTime += duration;
-					if( compare >= 0 ) {
-						rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
-						appliedRules_sum += compare;
+						if( tree == null )
+							continue;
+						List<Record> list = new ArrayList<Record>();
+						for( Record e : tree )
+							if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) )
+								list.add( e );
+						candidatesList.add( list );
+						count += list.size();
+					}
+					List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
+					if( skipChecking )
+						continue;
+					else if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
+						// Sort records to utilize similar prefixes
+						Collections.sort( candidates );
+						Collections.reverse( candidates );
+						computePrefixCount( candidates );
+					}
+
+					for( Record recR : candidates ) {
+						long ruleiters = Validator.niterrules;
+						long reccalls = Validator.recursivecalls;
+						long entryiters = Validator.niterentry;
+						long st = System.nanoTime();
+						int compare = checker.isEqual( recR, recS );
+						long duration = System.nanoTime() - st;
+						ruleiters = Validator.niterrules - ruleiters;
+						reccalls = Validator.recursivecalls - reccalls;
+						entryiters = Validator.niterentry - entryiters;
+						bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
+								+ recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
+								+ recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+						joinTime += duration;
+						if( compare >= 0 ) {
+							rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
+							appliedRules_sum += compare;
+						}
 					}
 				}
 			}
-		}
-		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-			System.out.println( "Prefix freq : " + freq );
-			System.out.println( "Prefix sumlength : " + sumlength );
-		}
-		candExtractTime = System.nanoTime() - Record.exectime - starttime - joinTime;
-		System.out.println( "Cand extract time : " + candExtractTime + " / " + unioncount + " union" );
-		System.out.println( "Join time : " + joinTime + " / " + Validator.checked + " pairs" );
-		epsilon = ( (double) joinTime ) / Validator.checked;
-		zeta = ( (double) candExtractTime ) / unioncount;
+			System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
+			if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
+				System.out.println( "Prefix freq : " + freq );
+				System.out.println( "Prefix sumlength : " + sumlength );
+			}
+			candExtractTime = System.nanoTime() - Record.exectime - starttime - joinTime;
+			double weight = count;
+			System.out.println( "Est weight : " + weight );
+			System.out.println( "Cand extract time : " + candExtractTime );
+			System.out.println( "Join time : " + joinTime );
+			epsilon = ( (double) joinTime ) / weight;
+			bw.close();
 
-		System.out.println( "Usertime vs Wall-clock time : " + joinTime + " / " + tmp );
-
-		return rslt;
+			return rslt;
+		}
+		catch( Exception e ) {
+			return null;
+		}
 	}
 
 	private long freq = 0;
@@ -567,22 +510,11 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		System.out.print( "Preprocess finished" );
 		System.out.println( " " + ( System.nanoTime() - startTime ) );
 
-		List<RecordPair> list = runWithoutPreprocess();
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
-			for( RecordPair rp : list ) {
-				Record s = rp.record1;
-				Record t = rp.record2;
-				if( !s.equals( t ) )
-					bw.write( s.toString() + " == " + t.toString() + "\n" );
-			}
-			bw.close();
-		}
-		catch( IOException e ) {
-		}
+		runWithoutPreprocess();
 	}
 
-	public List<RecordPair> runWithoutPreprocess() {
+	@SuppressWarnings( "static-access" )
+	public void runWithoutPreprocess() {
 		// Retrieve statistics
 		statistics();
 
@@ -599,7 +531,6 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 			}
 		buildIndexTime = System.nanoTime() - startTime;
 		System.out.println( "Building Index finished " + buildIndexTime );
-		System.gc();
 
 		startTime = System.nanoTime();
 		Collection<IntegerPair> rslt = ( singleside ? joinSingleSide() : join() );
@@ -607,26 +538,26 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		System.out.println( "Join finished " + joinTime + " ns" );
 		System.out.println( rslt.size() );
 
-		Map<Integer, Record> tableRmap = new WYK_HashMap<Integer, Record>();
-		Map<Integer, Record> tableSmap = new WYK_HashMap<Integer, Record>();
-		for( Record r : tableR )
-			tableRmap.put( r.getID(), r );
-		for( Record s : tableS )
-			tableSmap.put( s.getID(), s );
-		List<RecordPair> rlist = new ArrayList<RecordPair>();
-		for( IntegerPair ip : rslt ) {
-			Record r = tableRmap.get( ip.i1 );
-			Record s = tableSmap.get( ip.i2 );
-			rlist.add( new RecordPair( r, s ) );
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
+			for( IntegerPair ip : rslt ) {
+				Record r = tableR.get( ip.i1 );
+				Record s = tableS.get( ip.i2 );
+				if( !r.equals( s ) )
+					bw.write(
+							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist ) + "\n" );
+			}
+			bw.close();
 		}
-		Collections.sort( rlist );
-		return rlist;
-	}
-
-	public void clearIndex() {
-		if( idx != null )
-			idx.clear();
-		idx = null;
+		catch( IOException e ) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
+			TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
+			System.out.println( "Prev entry count : " + tmp.prevEntryCount );
+			System.out.println( "Effective prev entry count : " + tmp.effectivePrevEntryCount );
+		}
 	}
 
 	public static void main( String[] args ) throws IOException {
@@ -644,7 +575,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		exact2grams = params.isExact2Grams();
 
 		long startTime = System.currentTimeMillis();
-		JoinH2GramNoIntervalTree2 inst = new JoinH2GramNoIntervalTree2( Rulefile, Rfile, Sfile );
+		JoinH2Gram inst = new JoinH2Gram( Rulefile, Rfile, Sfile );
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		inst.run();
@@ -659,7 +590,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 
 	@Override
 	public String getName() {
-		return "JoinH2GramNoIntervalTree2";
+		return "JoinH2Gram";
 	}
 
 	@Override

@@ -10,12 +10,18 @@ import java.util.Map;
 
 import mine.Record;
 
-public class Algorithm {
+public abstract class Algorithm {
 	protected Map<String, Integer> str2int;
 	protected List<String> strlist;
 	protected List<Record> tableR;
 	protected List<Record> tableS;
 	protected List<Rule> rulelist;
+
+	public abstract String getVersion();
+
+	public abstract String getName();
+
+	public abstract void run( String[] args );
 
 	protected Algorithm( String rulefile, String Rfile, String Sfile ) throws IOException {
 		str2int = new HashMap<String, Integer>();

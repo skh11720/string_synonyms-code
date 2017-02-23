@@ -122,4 +122,22 @@ public class SI_Join_Modified extends Algorithm {
 		options.addOption( "skipequiv", false, "Skip equivalency check" );
 		return options;
 	}
+
+	@Override
+	public String getVersion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void run( String[] args ) {
+		// TODO Auto-generated method stub
+		
+	}
 }

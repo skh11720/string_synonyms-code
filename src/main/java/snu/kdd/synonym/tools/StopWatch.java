@@ -10,8 +10,14 @@ public class StopWatch {
 	private long totalTime = 0;
 	private String watchName;
 
-	public StopWatch( String name ) {
+	private StopWatch( String name ) {
 		watchName = name;
+	}
+
+	public static StopWatch getWatchStarted( String name ) {
+		StopWatch watch = new StopWatch( name );
+		watch.start();
+		return watch;
 	}
 
 	public void reset() {
