@@ -63,7 +63,7 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 
 	public JoinH2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
 		super( rulefile, Rfile, Sfile );
-		this.outputfile = outputFile;
+		this.outputfile = outputFile + this.getName();
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
