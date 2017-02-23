@@ -31,6 +31,7 @@ public class Util {
 	public static void printArgsError( CommandLine cmd ) {
 		Iterator<Option> itr = cmd.iterator();
 
+		int maxRowSize = 0;
 		int maxSize = 0;
 		while( itr.hasNext() ) {
 			Option opt = itr.next();
@@ -38,9 +39,24 @@ public class Util {
 			if( maxSize < size ) {
 				maxSize = size;
 			}
+
+			if( opt.getValue() != null ) {
+				size += opt.getValue().length() + 3;
+			}
+
+			if( maxRowSize < size ) {
+				maxRowSize = size;
+			}
 		}
-		
-		System.out.println( "===[printArgsError]===" );
+
+		for( int i = 0; i < ( maxRowSize - 10 ) / 2; i++ ) {
+			System.out.print( "=" );
+		}
+		System.out.print( "[printArgsError]" );
+		for( int i = 0; i < ( maxRowSize - 10 ) / 2; i++ ) {
+			System.out.print( "=" );
+		}
+
 		itr = cmd.iterator();
 		while( itr.hasNext() ) {
 			Option opt = itr.next();
@@ -51,7 +67,10 @@ public class Util {
 			}
 			System.err.println( " : " + opt.getValue() );
 		}
-		System.out.println( "======================" );
+		
+		for( int i = 0; i < maxRowSize; i++ ) {
+			System.out.print( "=" );
+		}
 	}
 
 }
