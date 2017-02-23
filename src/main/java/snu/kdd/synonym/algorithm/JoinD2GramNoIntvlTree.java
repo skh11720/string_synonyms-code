@@ -37,7 +37,7 @@ public class JoinD2GramNoIntvlTree extends Algorithm {
 	 */
 	List<Map<IntegerPair, List<IntIntRecordTriple>>> idx;
 
-	protected JoinD2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outFile ) throws IOException {
+	public JoinD2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outFile ) throws IOException {
 		super( rulefile, Rfile, Sfile );
 		this.outputfile = outFile + "/" + this.getName();
 		idComparator = new RecordIDComparator();
