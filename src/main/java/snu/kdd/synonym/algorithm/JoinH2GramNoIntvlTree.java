@@ -20,7 +20,6 @@ import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.Algorithm;
 import tools.IntegerPair;
-import tools.Parameters;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
@@ -31,12 +30,12 @@ import validator.Validator;
 import wrapped.WrappedInteger;
 
 public class JoinH2GramNoIntvlTree extends Algorithm {
-	public static boolean useAutomata = false;
-	public static boolean skipChecking = false;
-	public static int maxIndex = Integer.MAX_VALUE;
-	public static boolean compact = true;
-	public static boolean singleside = false;
-	public static boolean exact2grams = false;
+	public boolean useAutomata = false;
+	public boolean skipChecking = false;
+	public int maxIndex = Integer.MAX_VALUE;
+	public boolean compact = true;
+	public boolean singleside = false;
+	public boolean exact2grams = false;
 
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
@@ -503,8 +502,7 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 	public void run() {
 		long startTime = System.nanoTime();
 		preprocess( compact, maxIndex, useAutomata );
-		System.out.print( "Preprocess finished" );
-		System.out.println( " " + ( System.nanoTime() - startTime ) );
+		System.out.print( "Preprocess finished time " + ( System.nanoTime() - startTime ) );
 
 		runWithoutPreprocess();
 	}
@@ -546,7 +544,6 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 			bw.close();
 		}
 		catch( IOException e ) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
@@ -554,28 +551,6 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 			System.out.println( "Prev entry count : " + tmp.prevEntryCount );
 			System.out.println( "Effective prev entry count : " + tmp.effectivePrevEntryCount );
 		}
-	}
-
-	public static void main( String[] args ) throws IOException {
-		Parameters params = Parameters.parseArgs( args );
-		String Rfile = params.getInputX();
-		String Sfile = params.getInputY();
-		String Rulefile = params.getInputRules();
-
-		// Setup parameters
-		useAutomata = params.isUseACAutomata();
-		skipChecking = params.isSkipChecking();
-		compact = params.isCompact();
-		checker = params.getValidator();
-		exact2grams = params.isExact2Grams();
-
-		long startTime = System.currentTimeMillis();
-		JoinH2GramNoIntvlTree inst = new JoinH2GramNoIntvlTree( Rulefile, Rfile, Sfile, params.getOutput() );
-		System.out.print( "Constructor finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		inst.run();
-
-		Validator.printStats();
 	}
 
 	@Override
