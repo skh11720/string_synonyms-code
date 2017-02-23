@@ -53,7 +53,7 @@ public class Util {
 			System.out.print( "=" );
 		}
 		System.out.print( "[printArgsError]" );
-		for( int i = 0; i < ( maxRowSize - 14 ) - 1 / 2; i++ ) {
+		for( int i = 0; i < ( maxRowSize - 14 ) / 2  - 1; i++ ) {
 			System.out.print( "=" );
 		}
 		System.out.println( "=" );

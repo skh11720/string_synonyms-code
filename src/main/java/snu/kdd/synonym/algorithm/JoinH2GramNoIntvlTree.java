@@ -15,6 +15,7 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.tools.Param;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Parameters;
@@ -38,7 +39,7 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
 
-	public static String outputfile;
+	public String outputfile;
 
 	public static Validator checker;
 	/**
@@ -60,8 +61,9 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinH2GramNoIntvlTree( String rulefile, String Rfile, String Sfile ) throws IOException {
+	public JoinH2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
 		super( rulefile, Rfile, Sfile );
+		this.outputfile = outputFile;
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
@@ -83,7 +85,7 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		long predictCount = 0;
 		long starttime = System.nanoTime();
 		long totalSigCount = 0;
-		
+
 		// Build an index
 		// Count Invokes per each (token, loc) pair
 		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
@@ -566,7 +568,6 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		String Rfile = params.getInputX();
 		String Sfile = params.getInputY();
 		String Rulefile = params.getInputRules();
-		outputfile = params.getOutput();
 
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();
@@ -576,7 +577,7 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		exact2grams = params.isExact2Grams();
 
 		long startTime = System.currentTimeMillis();
-		JoinH2GramNoIntvlTree inst = new JoinH2GramNoIntvlTree( Rulefile, Rfile, Sfile );
+		JoinH2GramNoIntvlTree inst = new JoinH2GramNoIntvlTree( Rulefile, Rfile, Sfile, params.getOutput() );
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		inst.run();
@@ -596,8 +597,7 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 
 	@Override
 	public void run( String[] args ) {
-		Parameters params = Parameters.parseArgs( args );
-		outputfile = params.getOutput();
+		Param params = Param.parseArgs( args );
 
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();
@@ -606,7 +606,9 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		checker = params.getValidator();
 		exact2grams = params.isExact2Grams();
 
-		run();
+		preprocess( compact, maxIndex, useAutomata );
+
+		runWithoutPreprocess();
 
 		Validator.printStats();
 	}

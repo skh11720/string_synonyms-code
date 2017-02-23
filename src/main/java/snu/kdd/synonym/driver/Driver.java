@@ -24,6 +24,7 @@ public class Driver {
 		options.addOption( "rulePath", true, "rule path" );
 		options.addOption( "dataOnePath", true, "data one path" );
 		options.addOption( "dataTwoPath", true, "data two path" );
+		options.addOption( "outputPath", true, "output path" );
 
 		options.addOption( "verbose", false, "verbose" );
 
@@ -59,11 +60,12 @@ public class Driver {
 		String rulePath = cmd.getOptionValue( "rulePath" );
 		String dataOnePath = cmd.getOptionValue( "dataOnePath" );
 		String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
+		String outputPath = cmd.getOptionValue( "outputPath" );
 
 		Algorithm alg = null;
 
 		if( cmd.hasOption( "H2GramNoIntvlTree" ) ) {
-			alg = new JoinH2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath );
+			alg = new JoinH2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath, outputPath );
 		}
 		else {
 			HelpFormatter formatter = new HelpFormatter();
