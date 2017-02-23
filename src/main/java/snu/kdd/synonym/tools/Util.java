@@ -49,13 +49,14 @@ public class Util {
 			}
 		}
 
-		for( int i = 0; i < ( maxRowSize - 10 ) / 2; i++ ) {
+		for( int i = 0; i < ( maxRowSize - 14 ) / 2; i++ ) {
 			System.out.print( "=" );
 		}
 		System.out.print( "[printArgsError]" );
-		for( int i = 0; i < ( maxRowSize - 10 ) / 2; i++ ) {
+		for( int i = 0; i < ( maxRowSize - 14 ) - 1 / 2; i++ ) {
 			System.out.print( "=" );
 		}
+		System.out.println( "=" );
 
 		itr = cmd.iterator();
 		while( itr.hasNext() ) {
@@ -67,10 +68,11 @@ public class Util {
 			}
 			System.err.println( " : " + opt.getValue() );
 		}
-		
-		for( int i = 0; i < maxRowSize; i++ ) {
+
+		for( int i = 0; i < maxRowSize - 1; i++ ) {
 			System.out.print( "=" );
 		}
+		System.out.println( "=" );
 	}
 
 }
