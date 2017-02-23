@@ -41,13 +41,14 @@ public class Util {
 			}
 
 			if( opt.getValue() != null ) {
-				size += opt.getValue().length() + 3;
-			}
+				int valueSize = opt.getValue().length() + 3;
 
-			if( maxRowSize < size ) {
-				maxRowSize = size;
+				if( maxRowSize < valueSize ) {
+					maxRowSize = valueSize;
+				}
 			}
 		}
+		maxRowSize += maxSize + 3;
 
 		for( int i = 0; i < ( maxRowSize - 16 ) / 2; i++ ) {
 			System.out.print( "=" );

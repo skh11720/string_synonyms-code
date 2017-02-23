@@ -115,7 +115,7 @@ public class Param {
 		catch( Exception e ) {
 			e.printStackTrace( System.out );
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp( "[OPTIONS] <inputX> <inputY> <rules> <output>", argOptions, true );
+			formatter.printHelp( "[OPTIONS]", argOptions, true );
 			System.exit( 0 );
 		}
 		return param;
