@@ -67,7 +67,7 @@ public class Driver {
 		}
 		else {
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp( "[OPTIONS]", argOptions, true );
+			formatter.printHelp( "", argOptions, true );
 			System.exit( 0 );
 		}
 

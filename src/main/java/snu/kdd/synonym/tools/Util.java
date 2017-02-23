@@ -39,6 +39,8 @@ public class Util {
 				maxSize = size;
 			}
 		}
+		
+		System.out.println( "===[printArgsError]===" );
 		itr = cmd.iterator();
 		while( itr.hasNext() ) {
 			Option opt = itr.next();
@@ -49,6 +51,7 @@ public class Util {
 			}
 			System.err.println( " : " + opt.getValue() );
 		}
+		System.out.println( "======================" );
 	}
 
 }
