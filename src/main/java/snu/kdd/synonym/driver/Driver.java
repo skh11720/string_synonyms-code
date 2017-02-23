@@ -33,16 +33,18 @@ public class Driver {
 		options.addOption( "hybrid", false, "Hybrid algorithm" );
 
 		options.addOption( "check", false, "Check results" );
+		options.addOption( "additional", true, "Additional input arguments" );
 		argOptions = options;
 	}
 
 	public static CommandLine parseInput( String args[] ) {
 
 		CommandLineParser parser = new DefaultParser();
+
 		CommandLine cmd = null;
 
 		try {
-			cmd = parser.parse( argOptions, args );
+			cmd = parser.parse( argOptions, args, false );
 		}
 		catch( ParseException e ) {
 			e.printStackTrace();
@@ -76,7 +78,7 @@ public class Driver {
 		}
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
-		alg.run( cmd.getArgs(), stat );
+		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
 		totalTime.stop();
 
 		stat.add( totalTime );
