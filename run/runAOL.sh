@@ -22,9 +22,8 @@ LIBS=../target/Synonym.jar
 dir=logs
 
 time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
-	-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-	-H2GramNoIntvlTree \
-	-additional "-compact -v TopDownHashSetSinglePathDS 0"
+       -dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
+       -H2GramNoIntvlTree
 
 #echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
 #{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
