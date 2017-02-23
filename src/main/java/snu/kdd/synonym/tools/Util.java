@@ -50,14 +50,17 @@ public class Util {
 		}
 		maxRowSize += maxSize + 3;
 
-		for( int i = 0; i < ( maxRowSize - 16 ) / 2; i++ ) {
-			System.out.print( "=" );
+		StringBuilder bld = new StringBuilder();
+		int halfRowSize = ( maxRowSize - 16 ) / 2;
+		for( int i = 0; i < halfRowSize; i++ ) {
+			bld.append( "=" );
 		}
-		System.out.print( "[printArgsError]" );
-		for( int i = 0; i < ( maxRowSize - 14 ) / 2; i++ ) {
-			System.out.print( "=" );
+		bld.append( "[printArgsError]" );
+		for( int i = 0; i < halfRowSize; i++ ) {
+			bld.append( "=" );
 		}
-		System.out.println( "=" );
+		String index = bld.toString();
+		System.err.println( index );
 
 		itr = cmd.iterator();
 		while( itr.hasNext() ) {
@@ -70,10 +73,7 @@ public class Util {
 			System.err.println( " : " + opt.getValue() );
 		}
 
-		for( int i = 0; i < maxRowSize - 1; i++ ) {
-			System.out.print( "=" );
-		}
-		System.out.println( "=" );
+		System.err.println( index.replaceAll( ".", "=" ) );
 	}
 
 }
