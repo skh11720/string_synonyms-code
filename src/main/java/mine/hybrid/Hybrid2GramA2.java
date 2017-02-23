@@ -9,6 +9,7 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
@@ -425,8 +426,8 @@ public class Hybrid2GramA2 extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

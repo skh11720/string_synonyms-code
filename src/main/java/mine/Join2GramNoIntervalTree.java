@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
@@ -186,8 +187,8 @@ public class Join2GramNoIntervalTree extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

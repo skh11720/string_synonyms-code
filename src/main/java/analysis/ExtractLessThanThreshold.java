@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import mine.Record;
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -57,7 +58,7 @@ public class ExtractLessThanThreshold extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
 
 	}

@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import mine.Record;
 import sigmod13.SI_Tree;
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.Pair;
 
@@ -106,8 +107,8 @@ public class SI_SelfJoin_Modified extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

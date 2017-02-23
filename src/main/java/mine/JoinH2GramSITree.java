@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Parameters;
@@ -247,8 +248,8 @@ public class JoinH2GramSITree extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

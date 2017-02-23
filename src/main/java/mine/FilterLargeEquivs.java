@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.Rule_ACAutomata;
 
@@ -43,7 +44,7 @@ public class FilterLargeEquivs extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
 
 	}

@@ -4,27 +4,40 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mine.Record;
+import snu.kdd.synonym.tools.StatContainer;
 
 public abstract class Algorithm {
-	protected Map<String, Integer> str2int;
+	// String to integer mapping
+	protected Object2IntOpenHashMap<String> str2int;
+
+	// String list
 	protected List<String> strlist;
+
+	// Table R
 	protected List<Record> tableR;
+
+	// Table S
 	protected List<Record> tableS;
+
+	// Rule
 	protected List<Rule> rulelist;
+
+	// Stat container
+	protected StatContainer stat = null;
 
 	public abstract String getVersion();
 
 	public abstract String getName();
 
-	public abstract void run( String[] args );
+	public abstract void run( String[] args, StatContainer stat );
 
+	// Initialize rules and tables
 	protected Algorithm( String rulefile, String Rfile, String Sfile ) throws IOException {
-		str2int = new HashMap<String, Integer>();
+		str2int = new Object2IntOpenHashMap<String>();
 		strlist = new ArrayList<String>();
 		// Add empty string first
 		str2int.put( "", 0 );
@@ -78,6 +91,7 @@ public abstract class Algorithm {
 	 * 3) number of 1-expanded records</br>
 	 * 4) search ranges</br>
 	 */
+
 	protected void preprocess( boolean compact, int maxIndex, boolean computeAutomataPerRecord ) {
 		Rule_ACAutomata automata = new Rule_ACAutomata( rulelist );
 
@@ -166,6 +180,10 @@ public abstract class Algorithm {
 			str2int.put( str, strlist.size() );
 			strlist.add( str );
 		}
-		return str2int.get( str );
+		return str2int.getInt( str );
+	}
+
+	public void printStat() {
+		stat.printResult();
 	}
 }

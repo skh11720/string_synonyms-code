@@ -10,6 +10,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.algorithm.JoinH2GramNoIntvlTree;
+import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
 import tools.Algorithm;
@@ -63,6 +64,8 @@ public class Driver {
 
 		Algorithm alg = null;
 
+		StatContainer stat = new StatContainer();
+
 		if( cmd.hasOption( "H2GramNoIntvlTree" ) ) {
 			alg = new JoinH2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath, outputPath );
 		}
@@ -73,7 +76,9 @@ public class Driver {
 		}
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
-		alg.run( cmd.getArgs() );
+		alg.run( cmd.getArgs(), stat );
 		totalTime.stop();
+
+		stat.add( totalTime );
 	}
 }

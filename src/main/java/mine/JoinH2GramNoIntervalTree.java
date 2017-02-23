@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Parameters;
@@ -316,7 +317,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 			System.out.println( "Est weight : " + weight );
 			System.out.println( "Cand extract time : " + candExtractTime );
 			System.out.println( "Join time : " + joinTime );
-			epsilon = ( (double) joinTime ) / weight;
+			epsilon = ( joinTime ) / weight;
 			bw.close();
 
 			return rslt;
@@ -594,8 +595,8 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

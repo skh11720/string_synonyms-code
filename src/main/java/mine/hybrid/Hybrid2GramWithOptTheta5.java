@@ -13,6 +13,7 @@ import mine.Naive1;
 import mine.Record;
 import mine.RecordIDComparator;
 import mine.RecordPair;
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.Parameters;
 import tools.Rule;
@@ -362,8 +363,8 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

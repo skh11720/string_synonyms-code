@@ -14,6 +14,7 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Parameters;
@@ -535,8 +536,8 @@ public class Hybrid2GramA1_2 extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

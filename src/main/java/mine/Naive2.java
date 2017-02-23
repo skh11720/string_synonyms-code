@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.RuleTrie;
@@ -117,8 +118,8 @@ public class Naive2 extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

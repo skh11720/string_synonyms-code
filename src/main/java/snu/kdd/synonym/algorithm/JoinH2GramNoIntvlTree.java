@@ -16,6 +16,8 @@ import java.util.Set;
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.tools.Param;
+import snu.kdd.synonym.tools.StatContainer;
+import snu.kdd.synonym.tools.StopWatch;
 import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Parameters;
@@ -321,7 +323,7 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 			System.out.println( "Est weight : " + weight );
 			System.out.println( "Cand extract time : " + candExtractTime );
 			System.out.println( "Join time : " + joinTime );
-			epsilon = ( (double) joinTime ) / weight;
+			epsilon = ( joinTime ) / weight;
 			bw.close();
 
 			return rslt;
@@ -596,7 +598,9 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 	}
 
 	@Override
-	public void run( String[] args ) {
+	public void run( String[] args, StatContainer stat ) {
+		this.stat = stat;
+
 		Param params = Param.parseArgs( args );
 
 		// Setup parameters
@@ -606,10 +610,17 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		checker = params.getValidator();
 		exact2grams = params.isExact2Grams();
 
+		StopWatch preprocessTime = StopWatch.getWatchStarted( "preprocessing time" );
 		preprocess( compact, maxIndex, useAutomata );
+		preprocessTime.stop();
 
+		StopWatch processTime = StopWatch.getWatchStarted( "processing time" );
 		runWithoutPreprocess();
+		processTime.stop();
 
 		Validator.printStats();
+
+		stat.add( preprocessTime );
+		stat.add( processTime );
 	}
 }
