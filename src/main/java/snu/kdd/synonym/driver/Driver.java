@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -14,7 +16,10 @@ import snu.kdd.synonym.tools.Util;
 import tools.Algorithm;
 
 public class Driver {
-	public static CommandLine parseInput( String args[] ) {
+
+	private static final Options argOptions;
+
+	static {
 		Options options = new Options();
 		options.addOption( "rulePath", true, "rule path" );
 		options.addOption( "dataOnePath", true, "data one path" );
@@ -27,12 +32,16 @@ public class Driver {
 		options.addOption( "hybrid", false, "Hybrid algorithm" );
 
 		options.addOption( "check", false, "Check results" );
+		argOptions = options;
+	}
+
+	public static CommandLine parseInput( String args[] ) {
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = null;
 
 		try {
-			cmd = parser.parse( options, args );
+			cmd = parser.parse( argOptions, args );
 		}
 		catch( ParseException e ) {
 			e.printStackTrace();
@@ -55,6 +64,11 @@ public class Driver {
 
 		if( cmd.hasOption( "H2GramNoIntvlTree" ) ) {
 			alg = new JoinH2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath );
+		}
+		else {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp( "[OPTIONS]", argOptions, true );
+			System.exit( 0 );
 		}
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );

@@ -83,6 +83,7 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		long predictCount = 0;
 		long starttime = System.nanoTime();
 		long totalSigCount = 0;
+		
 		// Build an index
 		// Count Invokes per each (token, loc) pair
 		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
