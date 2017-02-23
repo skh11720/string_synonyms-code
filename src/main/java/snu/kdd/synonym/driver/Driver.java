@@ -80,5 +80,7 @@ public class Driver {
 		totalTime.stop();
 
 		stat.add( totalTime );
+
+		alg.printStat();
 	}
 }
