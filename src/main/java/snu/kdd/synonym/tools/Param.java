@@ -111,9 +111,6 @@ public class Param {
 			default:
 				throw new Exception( "Unknown validator name" );
 			}
-			String[] remainingArgs = cmd.getArgs();
-			if( remainingArgs.length != 4 )
-				throw new Exception( "Number of remaining args is not 4" );
 		}
 		catch( Exception e ) {
 			e.printStackTrace( System.out );
