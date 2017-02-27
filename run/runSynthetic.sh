@@ -6,7 +6,7 @@ rulefile=data_store/current_rule/rule.txt
 outputPath=output
 
 nTokens=1000000
-nRecords=500000
+nRecords=800000
 nRules=200000
 nTokensInRule=30000
 avgRecLen=5
@@ -28,8 +28,8 @@ time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 	-additional "-compact -v TopDownHashSetSinglePathDS 0" > $dir"/"synJoinH2GramCompactTopDownHashSet
 
 
-#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
-#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
+echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
+{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
 
 #for j in {1..1..1}; do
 #	echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0
