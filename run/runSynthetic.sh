@@ -24,7 +24,7 @@ dir=logs
 echo H2GramNoIntvlTree logging in $dir"/"synJoinH2GramCompactTopDownHashSet
 time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 	-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-	-H2GramNoIntvlTree \
+	-algorithm H2GramNoIntvlTree \
 	-additional "-compact -v TopDownHashSetSinglePathDS 0" > $dir"/"synJoinH2GramCompactTopDownHashSet
 
 
