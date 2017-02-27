@@ -1,8 +1,8 @@
 #!/bin/bash
 
-inputfile_one=data_store/aol/1M.txt
-inputfile_two=data_store/aol/1M.txt
-rulefile=data_store/wordnet/rules.noun
+inputfile_one=data_store/JiahengLu/data.txt
+inputfile_two=data_store/JiahengLu/data.txt
+rulefile=data_store/JiahengLu/rule.txt
 outputPath=output
 
 #nTokens=1000000
