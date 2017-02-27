@@ -22,7 +22,7 @@ public class JoinNaive2 extends AlgorithmTemplate {
 
 	static int threshold = 1000;
 
-	protected JoinNaive2( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
+	public JoinNaive2( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile );
 		rec2idx = new HashMap<Record, Integer>();
 		for( int i = 0; i < tableR.size(); ++i )

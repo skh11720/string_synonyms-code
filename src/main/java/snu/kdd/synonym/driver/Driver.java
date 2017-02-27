@@ -6,12 +6,14 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.JoinD2GramNoIntvlTree;
 import snu.kdd.synonym.algorithm.JoinH2GramNoIntvlTree;
+import snu.kdd.synonym.algorithm.JoinNaive2;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
@@ -29,14 +31,17 @@ public class Driver {
 
 		options.addOption( "verbose", false, "verbose" );
 
-		options.addOption( "JoinNaive", false, "Baseline algorithm" );
-		options.addOption( "H2GramNoIntvlTree", false, "JoinH2GramNoIntvlTree algorithm" );
-		options.addOption( "D2GramNoIntvlTree", false, "JoinD2GramNoIntvlTree algorithm" );
-		options.addOption( "hybrid", false, "Hybrid algorithm" );
+		options.addOption( Option.builder( "algorithm" ).argName( "Algorithm" )
+				.desc( "JoinNaive2: \n" + "H2GramNoIntvlTree: \n" + "D2GramNoIntvlTree: \n" ).build() );
 
 		options.addOption( "check", false, "Check results" );
 		options.addOption( "additional", true, "Additional input arguments" );
 		argOptions = options;
+	}
+
+	private enum AlgorithmName {
+		JoinNaive2, H2GramNoIntvlTree, D2GramNoIntvlTree
+
 	}
 
 	public static CommandLine parseInput( String args[] ) {
@@ -70,16 +75,23 @@ public class Driver {
 
 		StatContainer stat = new StatContainer();
 
-		if( cmd.hasOption( "H2GramNoIntvlTree" ) ) {
+		AlgorithmName algorithm = AlgorithmName.valueOf( cmd.getOptionValue( "v" ) );
+
+		switch( algorithm ) {
+		case JoinNaive2:
+			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath );
+			break;
+		case H2GramNoIntvlTree:
 			alg = new JoinH2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath, outputPath );
-		}
-		else if( cmd.hasOption( "D2GramNoIntvlTree" ) ) {
+			break;
+		case D2GramNoIntvlTree:
 			alg = new JoinD2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath, outputPath );
-		}
-		else {
+			break;
+		default:
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp( "[OPTIONS]", argOptions, true );
 			System.exit( 0 );
+			break;
 		}
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
