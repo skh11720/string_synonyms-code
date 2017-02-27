@@ -11,9 +11,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.algorithm.JoinHybrid;
 import snu.kdd.synonym.algorithm.JoinMH;
 import snu.kdd.synonym.algorithm.JoinMin;
 import snu.kdd.synonym.algorithm.JoinNaive2;
+import snu.kdd.synonym.algorithm.SIJoin;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
@@ -32,7 +34,7 @@ public class Driver {
 		options.addOption( "verbose", false, "verbose" );
 
 		options.addOption( Option.builder( "algorithm" ).argName( "Algorithm" ).numberOfArgs( 1 )
-				.desc( "JoinNaive2: \n" + "H2GramNoIntvlTree: \n" + "D2GramNoIntvlTree: \n" ).build() );
+				.desc( "JoinNaive2: \n" + "JoinMH: \n" + "JoinMin: \n" + "JoinHybrid: \n" + "SIJoin: \n" ).build() );
 
 		options.addOption( "check", false, "Check results" );
 		options.addOption( "additional", true, "Additional input arguments" );
@@ -40,7 +42,7 @@ public class Driver {
 	}
 
 	private enum AlgorithmName {
-		JoinNaive2, JoinMH, JoinMin
+		JoinNaive2, JoinMH, JoinMin, JoinHybrid, SIJoin
 
 	}
 
@@ -86,6 +88,12 @@ public class Driver {
 			break;
 		case JoinMin:
 			alg = new JoinMin( rulePath, dataOnePath, dataTwoPath, outputPath );
+			break;
+		case JoinHybrid:
+			alg = new JoinHybrid( rulePath, dataOnePath, dataTwoPath, outputPath );
+			break;
+		case SIJoin:
+			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
 		default:
 			HelpFormatter formatter = new HelpFormatter();
