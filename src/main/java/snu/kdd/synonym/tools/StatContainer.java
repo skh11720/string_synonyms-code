@@ -40,6 +40,23 @@ public class StatContainer {
 		// TODO
 	}
 
+	public void add( CommandLine cmd ) {
+		Iterator<Option> itr = cmd.iterator();
+
+		while( itr.hasNext() ) {
+			Option opt = itr.next();
+
+			String name = "cmd_" + opt.getOpt();
+
+			String valueName = opt.getValue();
+			if( valueName == null ) {
+				valueName = new String( "null" );
+			}
+
+			add( name, valueName );
+		}
+	}
+
 	public void addPrimary( String name, String value ) {
 		primaryNameList.add( name );
 		primaryValueList.add( value );

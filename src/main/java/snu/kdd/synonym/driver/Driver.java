@@ -94,6 +94,8 @@ public class Driver {
 			break;
 		}
 
+		stat.add( cmd );
+
 		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
 		totalTime.stop();
