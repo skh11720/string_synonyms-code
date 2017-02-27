@@ -9,12 +9,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.JoinD2GramNoIntvlTree;
 import snu.kdd.synonym.algorithm.JoinH2GramNoIntvlTree;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
-import tools.Algorithm;
 
 public class Driver {
 
@@ -29,7 +29,7 @@ public class Driver {
 
 		options.addOption( "verbose", false, "verbose" );
 
-		options.addOption( "baseline", false, "Baseline algorithm" );
+		options.addOption( "JoinNaive", false, "Baseline algorithm" );
 		options.addOption( "H2GramNoIntvlTree", false, "JoinH2GramNoIntvlTree algorithm" );
 		options.addOption( "D2GramNoIntvlTree", false, "JoinD2GramNoIntvlTree algorithm" );
 		options.addOption( "hybrid", false, "Hybrid algorithm" );
@@ -66,7 +66,7 @@ public class Driver {
 		String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
 		String outputPath = cmd.getOptionValue( "outputPath" );
 
-		Algorithm alg = null;
+		AlgorithmTemplate alg = null;
 
 		StatContainer stat = new StatContainer();
 
