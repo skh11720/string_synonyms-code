@@ -77,7 +77,6 @@ public class Hybrid2GramA1_2 extends Algorithm {
 		assert ( joinrange != JoinRange.SL_TL );
 		clearJoinMinIndex();
 
-		// BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
 		Runtime runtime = Runtime.getRuntime();
 
 		long elements = 0;

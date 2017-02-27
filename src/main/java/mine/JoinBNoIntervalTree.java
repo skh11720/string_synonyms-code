@@ -94,8 +94,8 @@ public class JoinBNoIntervalTree extends Algorithm {
 			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 
 			IntegerSet[] availableTokens = recS.getAvailableTokens();
-			int asdf = availableTokens[ 0 ].size();
-			sum += asdf;
+			int tokenSize = availableTokens[ 0 ].size();
+			sum += tokenSize;
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
 			for( int token : availableTokens[ 0 ] ) {
 				ArrayList<IntIntRecordTriple> tree = idx.get( token );

@@ -115,10 +115,7 @@ public class JoinMin extends AlgorithmTemplate {
 
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-		// idx = new HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
-		// BufferedOutputStream bw = new BufferedOutputStream(
-		// new FileOutputStream("asdf"));
 		for( Record rec : tableR ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
@@ -240,7 +237,7 @@ public class JoinMin extends AlgorithmTemplate {
 
 	private List<IntegerPair> join() {
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "asdf" ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "join.txt" ) );
 
 			List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 			long starttime = System.nanoTime() - Record.exectime;

@@ -110,7 +110,6 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 	}
 
 	private void buildJoinMinIndex() throws Exception {
-		// BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
 		Runtime runtime = Runtime.getRuntime();
 
 		long SH_T_elements = 0;

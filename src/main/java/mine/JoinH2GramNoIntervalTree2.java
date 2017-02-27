@@ -165,10 +165,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-		// idx = new HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
-		// BufferedOutputStream bw = new BufferedOutputStream(
-		// new FileOutputStream("asdf"));
 		int[] union_sig = new int[ mhsize ];
 		for( Record rec : tableR ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();

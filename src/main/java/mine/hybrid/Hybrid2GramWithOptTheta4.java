@@ -197,13 +197,13 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		 */
 		void moveFirstH2L( int idx, Record rec, int[] mh ) {
 			if( !( 0 <= Lsize[ idx ] && Lsize[ idx ] < list.size() ) ) {
-				System.err.println( "asdf" );
+				System.err.println( "[moveFirstH2L] size assertion failed" );
 			}
 			assert ( 0 <= Lsize[ idx ] && Lsize[ idx ] < list.size() );
 
 			Record firstH = list.get( Lsize[ idx ]++ );
 			if( firstH != rec ) {
-				System.err.println( "asdf" );
+				System.err.println( "[moveFirstH2L] firstH does not equal to rec" );
 			}
 			assert ( firstH == rec );
 
@@ -726,7 +726,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		}
 
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "asdf" ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "findThetaByBinarySrc.txt" ) );
 
 			System.out.println( "Max theta : " + maxtheta + "\n" );
 			bw.write( "Max theta : " + maxtheta );

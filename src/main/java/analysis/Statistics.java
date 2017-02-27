@@ -34,7 +34,7 @@ public class Statistics {
 		System.out.println( "Max freq: " + freqs.get( 0 ).i );
 		System.out.println( "Min freq: " + freqs.get( freqs.size() - 1 ).i );
 
-		BufferedWriter bw = new BufferedWriter( new FileWriter( "asdf" ) );
+		BufferedWriter bw = new BufferedWriter( new FileWriter( "statistics.txt" ) );
 		for( StringIntPair p : freqs )
 			bw.write( p.i + "\t" + p.str + "\n" );
 		bw.close();
@@ -57,6 +57,7 @@ public class Statistics {
 			this.i = i;
 		}
 
+		@Override
 		public int compareTo( StringIntPair o ) {
 			int cmp = Integer.compare( i, o.i );
 			if( cmp != 0 )

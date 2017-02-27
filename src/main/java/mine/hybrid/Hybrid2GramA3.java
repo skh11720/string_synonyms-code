@@ -71,7 +71,6 @@ public class Hybrid2GramA3 extends Algorithm {
 	}
 
 	private void buildJoinMinIndex() {
-		// BufferedWriter bw = new BufferedWriter(new FileWriter("asdf"));
 		Runtime runtime = Runtime.getRuntime();
 
 		long elements = 0;
