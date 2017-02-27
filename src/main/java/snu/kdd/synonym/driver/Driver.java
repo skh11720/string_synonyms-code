@@ -31,7 +31,7 @@ public class Driver {
 
 		options.addOption( "verbose", false, "verbose" );
 
-		options.addOption( Option.builder( "algorithm" ).argName( "Algorithm" )
+		options.addOption( Option.builder( "algorithm" ).argName( "Algorithm" ).numberOfArgs( 1 )
 				.desc( "JoinNaive2: \n" + "H2GramNoIntvlTree: \n" + "D2GramNoIntvlTree: \n" ).build() );
 
 		options.addOption( "check", false, "Check results" );
@@ -75,7 +75,7 @@ public class Driver {
 
 		StatContainer stat = new StatContainer();
 
-		AlgorithmName algorithm = AlgorithmName.valueOf( cmd.getOptionValue( "v" ) );
+		AlgorithmName algorithm = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
 		switch( algorithm ) {
 		case JoinNaive2:
