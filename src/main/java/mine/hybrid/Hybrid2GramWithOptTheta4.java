@@ -867,7 +867,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		}
 
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "lin" ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "findThetaByLinearSrc.txt" ) );
 
 			System.out.println( "Max theta : " + maxtheta + "\n" );
 			bw.write( "Max theta : " + maxtheta );
