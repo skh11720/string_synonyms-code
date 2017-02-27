@@ -11,7 +11,7 @@ ADDITIONAL="-s $sample -compact -v TopDownHashSetSinglePathDS 0"
 
 if [[ $# -ne 8 ]];
 then
-	echo 'illegal number of parameters'
+	echo 'illegal number of parameters [joinHybrid]'
 	echo 1 $1
 	echo 2 $2
 	echo 3 $3

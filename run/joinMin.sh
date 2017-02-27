@@ -9,7 +9,7 @@ project=$7
 ADDITIONAL="-compact -v TopDownHashSetSinglePathDS 0"
 if [[ $# -ne 7 ]];
 then
-	echo 'illegal number of parameters'
+	echo 'illegal number of parameters: [joinMin]'
 	echo 1 $1
 	echo 2 $2
 	echo 3 $3

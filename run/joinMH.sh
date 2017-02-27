@@ -11,15 +11,15 @@ ADDITIONAL="-n $j -compact -v TopDownHashSetSinglePathDS 0"
 
 if [[ $# -ne 8 ]];
 then
-	echo 'illegal number of parameters'
-	echo 1 $1
-	echo 2 $2
-	echo 3 $3
-	echo 4 $4
-	echo 5 $5
-	echo 6 $6
-	echo 7 $7
-	echo 8 $8
+	echo 'illegal number of parameters: [joinMH]'
+	echo inputfile_one $1
+	echo inputfile_two $2
+	echo rulefile $3
+	echo outputPath $4
+	echo logdir $5
+	echo LIBS $6
+	echo j $7
+	echo project $8
 else
 	echo JoinMH with j=$j and $ADDITIONAL logging in $logdir"/"$project\_JoinMH\_$j
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \

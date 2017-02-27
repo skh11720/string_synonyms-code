@@ -11,7 +11,7 @@ ADDITIONAL=""
 
 if [[ $# -ne 8 ]];
 then
-	echo 'illegal number of parameters'
+	echo 'illegal number of parameters: [SIJoin]'
 	echo 1 $1
 	echo 2 $2
 	echo 3 $3
@@ -19,6 +19,7 @@ then
 	echo 5 $5
 	echo 6 $6
 	echo 7 $7
+	echo 8 $8
 else
 	echo SIJoin with $ADDITIONAL logging in $logdir"/"$project\_SIJoin
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
