@@ -24,7 +24,7 @@ dir=logs
 echo H2GramNoIntvlTree logging in $dir"/"aolJoinH2GramCompactTopDownHashSet
 time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 	-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-	-algorithm H2GramNoIntvlTree \
+	-algorithm JoinMin \
 	-additional "-compact -v TopDownHashSetSinglePathDS 0" > $dir"/"aolJoinH2GramCompactTopDownHashSet
 
 echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
@@ -35,7 +35,7 @@ for j in {1..1..1}; do
 	echo D2GramNoIntvlTree logging in $dir"/"aolJoinD2GramCompactTopDownHashSet
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm D2GramNoIntvlTree \
+		-algorithm JoinMH \
 		-additional "-n $j -compact -v TopDownHashSetSinglePathDS 0" > $dir"/"aolJoinD2GramCompactTopDownHashSet
 
 	echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0
