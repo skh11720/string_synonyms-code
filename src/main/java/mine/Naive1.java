@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.IntegerPair;
@@ -43,6 +44,12 @@ public class Naive1 extends Algorithm {
 	}
 
 	public Naive1( Algorithm o ) {
+		super( o );
+		automata = new Rule_ACAutomata( rulelist );
+		ruletrie = new RuleTrie( rulelist );
+	}
+
+	public Naive1( AlgorithmTemplate o ) {
 		super( o );
 		automata = new Rule_ACAutomata( rulelist );
 		ruletrie = new RuleTrie( rulelist );

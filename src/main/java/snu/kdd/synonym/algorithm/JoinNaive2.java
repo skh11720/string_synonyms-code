@@ -30,8 +30,8 @@ public class JoinNaive2 extends AlgorithmTemplate {
 	}
 
 	private List<IntegerPair> join() {
-		automata = new Rule_ACAutomata( rulelist );
-		ruletrie = new RuleTrie( rulelist );
+		automata = new Rule_ACAutomata( getRulelist() );
+		ruletrie = new RuleTrie( getRulelist() );
 		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		for( int idxS = 0; idxS < tableS.size(); ++idxS ) {

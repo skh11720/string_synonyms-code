@@ -30,7 +30,7 @@ public abstract class AlgorithmTemplate {
 	protected List<Record> tableS;
 
 	// Rule
-	protected List<Rule> rulelist;
+	private List<Rule> rulelist;
 
 	// Stat container
 	protected StatContainer stat = null;
@@ -91,7 +91,7 @@ public abstract class AlgorithmTemplate {
 		this.strlist = o.strlist;
 		this.tableR = o.tableR;
 		this.tableS = o.tableS;
-		this.rulelist = o.rulelist;
+		this.setRulelist( o.getRulelist() );
 	}
 
 	/**
@@ -103,7 +103,7 @@ public abstract class AlgorithmTemplate {
 	 */
 
 	protected void preprocess( boolean compact, int maxIndex, boolean computeAutomataPerRecord ) {
-		Rule_ACAutomata automata = new Rule_ACAutomata( rulelist );
+		Rule_ACAutomata automata = new Rule_ACAutomata( getRulelist() );
 
 		long currentTime = System.currentTimeMillis();
 		long applicableRules = 0;
@@ -160,17 +160,17 @@ public abstract class AlgorithmTemplate {
 	}
 
 	protected void readRules( String Rulefile ) throws IOException {
-		rulelist = new ArrayList<Rule>();
+		setRulelist( new ArrayList<Rule>() );
 		BufferedReader br = new BufferedReader( new FileReader( Rulefile ) );
 		String line;
 		while( ( line = br.readLine() ) != null ) {
-			rulelist.add( new Rule( line, str2int ) );
+			getRulelist().add( new Rule( line, str2int ) );
 		}
 		br.close();
 
 		// Add Self rule
 		for( int token : str2int.values() )
-			rulelist.add( new Rule( token, token ) );
+			getRulelist().add( new Rule( token, token ) );
 	}
 
 	protected List<Record> readRecords( String DBfile, int num ) throws IOException {
@@ -214,5 +214,45 @@ public abstract class AlgorithmTemplate {
 		catch( Exception e ) {
 			e.printStackTrace();
 		}
+	}
+
+	public Object2IntOpenHashMap<String> getStr2int() {
+		return str2int;
+	}
+
+	public void setStr2int( Object2IntOpenHashMap<String> str2int ) {
+		this.str2int = str2int;
+	}
+
+	public List<String> getStrlist() {
+		return strlist;
+	}
+
+	public void setStrlist( List<String> strlist ) {
+		this.strlist = strlist;
+	}
+
+	public List<Record> getTableR() {
+		return tableR;
+	}
+
+	public void setTableR( List<Record> tableR ) {
+		this.tableR = tableR;
+	}
+
+	public List<Record> getTableS() {
+		return tableS;
+	}
+
+	public void setTableS( List<Record> tableS ) {
+		this.tableS = tableS;
+	}
+
+	public List<Rule> getRulelist() {
+		return rulelist;
+	}
+
+	public void setRulelist( List<Rule> rulelist ) {
+		this.rulelist = rulelist;
 	}
 }

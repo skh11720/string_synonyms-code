@@ -67,7 +67,7 @@ public class JoinMin extends AlgorithmTemplate {
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
-		ruletrie = new RuleTrie( rulelist );
+		ruletrie = new RuleTrie( getRulelist() );
 		Record.setRuleTrie( ruletrie );
 	}
 
@@ -481,7 +481,7 @@ public class JoinMin extends AlgorithmTemplate {
 			maxstrlength = Math.max( maxstrlength, length );
 		}
 
-		for( Rule rule : rulelist ) {
+		for( Rule rule : getRulelist() ) {
 			int length = rule.getTo().length;
 			++rules;
 			rhslengthsum += length;

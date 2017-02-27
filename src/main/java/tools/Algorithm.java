@@ -8,6 +8,7 @@ import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mine.Record;
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.tools.StatContainer;
 
 public abstract class Algorithm {
@@ -82,6 +83,14 @@ public abstract class Algorithm {
 		this.tableR = o.tableR;
 		this.tableS = o.tableS;
 		this.rulelist = o.rulelist;
+	}
+
+	protected Algorithm( AlgorithmTemplate o ) {
+		this.str2int = o.getStr2int();
+		this.strlist = o.getStrlist();
+		this.tableR = o.getTableR();
+		this.tableS = o.getTableS();
+		this.rulelist = o.getRulelist();
 	}
 
 	/**

@@ -70,7 +70,6 @@ public class SIJoin extends AlgorithmTemplate {
 			bw.close();
 		}
 		catch( IOException e ) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -125,19 +124,25 @@ public class SIJoin extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return "1.0";
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "SIJoin";
 	}
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
-		// TODO Auto-generated method stub
+		long startTime = System.currentTimeMillis();
 
+		System.out.print( "Constructor finished" );
+		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		try {
+			this.run();
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
 	}
 }

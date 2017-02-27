@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.Algorithm;
 import tools.IntegerPair;
@@ -80,6 +81,18 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 	}
 
 	public JoinH2GramNoIntervalTree2( Algorithm o ) {
+		super( o );
+
+		Record.setStrList( strlist );
+		idComparator = new RecordIDComparator();
+		ruletrie = new RuleTrie( rulelist );
+		Record.setRuleTrie( ruletrie );
+		rhfunc = new RandHash[ mhsize ];
+		for( int i = 0; i < mhsize; ++i )
+			rhfunc[ i ] = new RandHash();
+	}
+
+	public JoinH2GramNoIntervalTree2( AlgorithmTemplate o ) {
 		super( o );
 
 		Record.setStrList( strlist );

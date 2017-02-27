@@ -43,7 +43,6 @@ public class Driver {
 
 	private enum AlgorithmName {
 		JoinNaive2, JoinMH, JoinMin, JoinHybrid, SIJoin
-
 	}
 
 	public static CommandLine parseInput( String args[] ) {
