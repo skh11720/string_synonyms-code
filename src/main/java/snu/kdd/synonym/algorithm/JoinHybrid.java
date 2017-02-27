@@ -17,6 +17,7 @@ import mine.JoinH2GramNoIntervalTree2;
 import mine.Naive1;
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.IntegerPair;
 import tools.Parameters;
@@ -1072,7 +1073,7 @@ public class JoinHybrid extends AlgorithmTemplate {
 	public void run( String[] args, StatContainer stat ) {
 		this.stat = stat;
 
-		Parameters params = Parameters.parseArgs( args );
+		Param params = Param.parseArgs( args );
 
 		useAutomata = params.isUseACAutomata();
 		skipChecking = params.isSkipChecking();
