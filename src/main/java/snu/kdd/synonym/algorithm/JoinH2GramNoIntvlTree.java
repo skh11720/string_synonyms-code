@@ -18,7 +18,6 @@ import mine.RecordIDComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
-import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Rule;
 import tools.RuleTrie;
@@ -29,7 +28,7 @@ import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
 import wrapped.WrappedInteger;
 
-public class JoinH2GramNoIntvlTree extends Algorithm {
+public class JoinH2GramNoIntvlTree extends AlgorithmTemplate {
 	public boolean useAutomata = false;
 	public boolean skipChecking = false;
 	public int maxIndex = Integer.MAX_VALUE;
@@ -39,8 +38,6 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
-
-	public String outputfile;
 
 	public static Validator checker;
 
@@ -60,11 +57,13 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 	public double delta;
 	public double epsilon;
 
+	private long freq = 0;
+	private long sumlength = 0;
+
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
 	public JoinH2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
-		super( rulefile, Rfile, Sfile );
-		this.outputfile = outputFile + "/" + this.getName();
+		super( rulefile, Rfile, Sfile, outputFile );
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
@@ -323,9 +322,6 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		}
 	}
 
-	private long freq = 0;
-	private long sumlength = 0;
-
 	private void computePrefixCount( List<Record> list ) {
 		int[] prevTokens = new int[ 0 ];
 		for( Record r : list ) {
@@ -513,9 +509,10 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		statistics();
 
 		long startTime = System.nanoTime();
-		if( singleside )
+		if( singleside ) {
 			buildIndexSingleSide();
-		else
+		}
+		else {
 			try {
 				buildIndex();
 			}
@@ -523,6 +520,8 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 				e.printStackTrace();
 				System.exit( 0 );
 			}
+		}
+
 		buildIndexTime = System.nanoTime() - startTime;
 		System.out.println( "Building Index finished " + buildIndexTime );
 
@@ -532,20 +531,8 @@ public class JoinH2GramNoIntvlTree extends Algorithm {
 		System.out.println( "Join finished " + joinTime + " ns" );
 		System.out.println( rslt.size() );
 
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
-			for( IntegerPair ip : rslt ) {
-				Record r = tableR.get( ip.i1 );
-				Record s = tableS.get( ip.i2 );
-				if( !r.equals( s ) )
-					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist ) + "\n" );
-			}
-			bw.close();
-		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
+		this.writeResult( rslt );
+
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 			TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
 			System.out.println( "Prev entry count : " + tmp.prevEntryCount );

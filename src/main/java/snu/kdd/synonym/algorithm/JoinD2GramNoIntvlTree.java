@@ -13,7 +13,6 @@ import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
-import tools.Algorithm;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
 import tools.StaticFunctions;
@@ -21,12 +20,11 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 import validator.Validator;
 
-public class JoinD2GramNoIntvlTree extends Algorithm {
+public class JoinD2GramNoIntvlTree extends AlgorithmTemplate {
 	public boolean useAutomata = true;
 	public boolean skipChecking = false;
 	public boolean compact = false;
 	public boolean exact2grams = false;
-	public String outputfile;
 	RecordIDComparator idComparator;
 	public int maxIndex = 3;
 	static Validator checker;
@@ -38,8 +36,7 @@ public class JoinD2GramNoIntvlTree extends Algorithm {
 	List<Map<IntegerPair, List<IntIntRecordTriple>>> idx;
 
 	public JoinD2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outFile ) throws IOException {
-		super( rulefile, Rfile, Sfile );
-		this.outputfile = outFile + "/" + this.getName();
+		super( rulefile, Rfile, Sfile, outFile );
 		idComparator = new RecordIDComparator();
 	}
 
@@ -139,12 +136,14 @@ public class JoinD2GramNoIntvlTree extends Algorithm {
 			List<Record> candidates = StaticFunctions.intersection( candidatesList, idComparator );
 			count += candidates.size();
 
-			if( skipChecking )
+			if( skipChecking ) {
 				continue;
+			}
 			for( Record recR : candidates ) {
 				int compare = checker.isEqual( recR, recS );
-				if( compare >= 0 )
+				if( compare >= 0 ) {
 					rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
+				}
 			}
 		}
 		for( int i = 0; i < maxIndex; ++i ) {
@@ -184,14 +183,17 @@ public class JoinD2GramNoIntvlTree extends Algorithm {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			HashMap<Integer, ArrayList<Record>> tmp = new HashMap<Integer, ArrayList<Record>>();
 			for( IntegerPair ip : rslt ) {
-				if( !tmp.containsKey( ip.i1 ) )
+				if( !tmp.containsKey( ip.i1 ) ) {
 					tmp.put( ip.i1, new ArrayList<Record>() );
-				if( ip.i1 != ip.i2 )
+				}
+				if( ip.i1 != ip.i2 ) {
 					tmp.get( ip.i1 ).add( tableS.get( ip.i2 ) );
+				}
 			}
 			for( int i = 0; i < tableR.size(); ++i ) {
-				if( !tmp.containsKey( i ) || tmp.get( i ).size() == 0 )
+				if( !tmp.containsKey( i ) || tmp.get( i ).size() == 0 ) {
 					continue;
+				}
 				bw.write( tableR.get( i ).toString() + "\t" );
 				bw.write( tmp.get( i ).toString() + "\n" );
 			}
