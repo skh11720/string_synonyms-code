@@ -524,14 +524,12 @@ public class Hybrid2GramA1_2 extends Algorithm {
 
 	@Override
 	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return "1.0";
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Hybrid2GramA1_2";
 	}
 
 	@Override

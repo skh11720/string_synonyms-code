@@ -352,14 +352,12 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
 
 	@Override
 	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return "1.0";
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Hybrid2GramWithOptTheta5";
 	}
 
 	@Override

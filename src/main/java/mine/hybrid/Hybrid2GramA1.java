@@ -418,7 +418,6 @@ public class Hybrid2GramA1 extends Algorithm {
 			bw.close();
 		}
 		catch( IOException e ) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -449,14 +448,12 @@ public class Hybrid2GramA1 extends Algorithm {
 
 	@Override
 	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return "1.0";
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Hybrid2GramA1";
 	}
 
 	@Override
