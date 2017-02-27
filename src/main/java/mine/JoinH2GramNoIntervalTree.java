@@ -584,14 +584,12 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
 	@Override
 	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return "1.0";
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "JoinH2GramNoIntervalTree";
 	}
 
 	@Override

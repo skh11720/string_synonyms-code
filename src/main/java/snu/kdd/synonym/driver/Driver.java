@@ -11,8 +11,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.algorithm.JoinD2GramNoIntvlTree;
-import snu.kdd.synonym.algorithm.JoinH2GramNoIntvlTree;
+import snu.kdd.synonym.algorithm.JoinMH;
+import snu.kdd.synonym.algorithm.JoinMin;
 import snu.kdd.synonym.algorithm.JoinNaive2;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -40,7 +40,7 @@ public class Driver {
 	}
 
 	private enum AlgorithmName {
-		JoinNaive2, H2GramNoIntvlTree, D2GramNoIntvlTree
+		JoinNaive2, JoinMH, JoinMin
 
 	}
 
@@ -81,11 +81,11 @@ public class Driver {
 		case JoinNaive2:
 			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
-		case H2GramNoIntvlTree:
-			alg = new JoinH2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath, outputPath );
+		case JoinMH:
+			alg = new JoinMH( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
-		case D2GramNoIntvlTree:
-			alg = new JoinD2GramNoIntvlTree( rulePath, dataOnePath, dataTwoPath, outputPath );
+		case JoinMin:
+			alg = new JoinMin( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
 		default:
 			HelpFormatter formatter = new HelpFormatter();

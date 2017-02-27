@@ -20,7 +20,7 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 import validator.Validator;
 
-public class JoinD2GramNoIntvlTree extends AlgorithmTemplate {
+public class JoinMH extends AlgorithmTemplate {
 	public boolean useAutomata = true;
 	public boolean skipChecking = false;
 	public boolean compact = false;
@@ -35,7 +35,7 @@ public class JoinD2GramNoIntvlTree extends AlgorithmTemplate {
 	 */
 	List<Map<IntegerPair, List<IntIntRecordTriple>>> idx;
 
-	public JoinD2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outFile ) throws IOException {
+	public JoinMH( String rulefile, String Rfile, String Sfile, String outFile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outFile );
 		idComparator = new RecordIDComparator();
 	}
@@ -211,7 +211,7 @@ public class JoinD2GramNoIntvlTree extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinH2GramNoIntvlTree";
+		return "JoinMH";
 	}
 
 	@Override

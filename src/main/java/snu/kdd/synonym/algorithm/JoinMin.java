@@ -28,7 +28,7 @@ import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
 import wrapped.WrappedInteger;
 
-public class JoinH2GramNoIntvlTree extends AlgorithmTemplate {
+public class JoinMin extends AlgorithmTemplate {
 	public boolean useAutomata = false;
 	public boolean skipChecking = false;
 	public int maxIndex = Integer.MAX_VALUE;
@@ -62,7 +62,7 @@ public class JoinH2GramNoIntvlTree extends AlgorithmTemplate {
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinH2GramNoIntvlTree( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
+	public JoinMin( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputFile );
 
 		Record.setStrList( strlist );
@@ -547,7 +547,7 @@ public class JoinH2GramNoIntvlTree extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinH2GramNoIntvlTree";
+		return "JoinMin";
 	}
 
 	@Override
