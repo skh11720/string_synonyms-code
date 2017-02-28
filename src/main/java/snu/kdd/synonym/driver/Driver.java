@@ -3,6 +3,7 @@ package snu.kdd.synonym.driver;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -125,6 +126,7 @@ public class Driver {
 		bw_json.write( stat.toJson() );
 		bw_json.close();
 
+		stat.addPrimary( "#Date", new Date().toString() );
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
 		System.err.println( alg.getName() + " finished" );
