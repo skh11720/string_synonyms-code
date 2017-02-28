@@ -81,6 +81,7 @@ public class Driver {
 
 		AlgorithmName algorithm = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
+		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
 		StopWatch initializeTime = StopWatch.getWatchStarted( "Initialize Time" );
 		switch( algorithm ) {
 		case JoinNaive1:
@@ -111,7 +112,6 @@ public class Driver {
 
 		stat.add( cmd );
 
-		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
 		totalTime.stop();
 
