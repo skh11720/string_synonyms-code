@@ -4,15 +4,14 @@ LIBS=../target/Synonym.jar
 
 dir=logs
 
-SIZES=( 10 )
-#SIZES=( 10 100 1000 10000 100000 1000000 )
+SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
 
-RUN_Naive1=True
-RUN_Naive2=True
+RUN_Naive1=False
+RUN_Naive2=False
 RUN_SIJoin=True
 RUN_JoinMin=True
 RUN_JoinMH=True
-RUN_JoinHybrid=True
+RUN_JoinHybrid=False
 
 for SIZE in ${SIZES[@]};
 do

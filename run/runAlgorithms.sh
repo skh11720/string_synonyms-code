@@ -32,6 +32,11 @@ if [ ! -d 'json' ];
 then
 	mkdir json
 fi
+
+if [ ! -d 'result' ];
+then
+	mkdir result
+fi
 	
 #JoinNaive1
 if [[ $RUN_Naive1 == "True" ]];

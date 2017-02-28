@@ -11,3 +11,5 @@ JiahengLu/
 /run/data_store/
 /run/logs/
 /run/output/
+/run/result/
+/run/json/
