@@ -110,5 +110,6 @@ public class Driver {
 		stat.add( totalTime );
 
 		alg.printStat();
+		System.err.println( alg.getName() + " finished" );
 	}
 }
