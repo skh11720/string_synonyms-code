@@ -108,7 +108,7 @@ public class StatContainer {
 				System.out.print( ' ' );
 			}
 
-			System.out.print( "\t" );
+			System.out.print( "  " );
 			System.out.println( primaryValueList.get( i ) );
 		}
 	}
@@ -130,7 +130,7 @@ public class StatContainer {
 				System.out.print( ' ' );
 			}
 
-			System.out.print( "\t" );
+			System.out.print( "  " );
 			System.out.println( valueList.get( i ) );
 		}
 	}
@@ -206,13 +206,13 @@ public class StatContainer {
 				appendBlank( dataFile, primaryvalueblank[ 0 ] + 1 );
 
 				for( int i = 1; i < primaryValueList.size(); i++ ) {
-					dataFile.print( "\t" + primaryValueList.get( i ) );
+					dataFile.print( "  " + primaryValueList.get( i ) );
 					appendBlank( dataFile, primaryvalueblank[ i ] );
 				}
 			}
 			if( valueList.size() != 0 ) {
 				for( int i = 0; i < valueList.size(); i++ ) {
-					dataFile.print( "\t" + valueList.get( i ) );
+					dataFile.print( "  " + valueList.get( i ) );
 					appendBlank( dataFile, valueblank[ i ] );
 				}
 				dataFile.println( "" );
@@ -233,7 +233,7 @@ public class StatContainer {
 				legendBuilder.append( "#\"" + primaryNameList.get( i ) + "\"" );
 			}
 			else {
-				legendBuilder.append( "\t\"" + primaryNameList.get( i ) + "\"" );
+				legendBuilder.append( "  \"" + primaryNameList.get( i ) + "\"" );
 			}
 
 			appendBlank( legendBuilder, primarykeyblank[ i ] );
@@ -241,7 +241,7 @@ public class StatContainer {
 
 		for( int i = 0; i < nameList.size(); i++ ) {
 
-			legendBuilder.append( "\t\"" + nameList.get( i ) + "\"" );
+			legendBuilder.append( "  \"" + nameList.get( i ) + "\"" );
 
 			appendBlank( legendBuilder, keyblank[ i ] );
 		}
