@@ -83,6 +83,8 @@ public abstract class AlgorithmTemplate {
 		Record.setStrList( strlist );
 		tableR = readRecords( Rfile, size );
 		tableS = readRecords( Sfile, size );
+
+		System.out.println( "rulefile: " + rulefile );
 		readRules( rulefile );
 	}
 
