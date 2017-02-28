@@ -110,12 +110,12 @@ public class Driver {
 		initializeTime.stop();
 
 		stat.add( cmd );
-		stat.add( initializeTime );
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
 		totalTime.stop();
 
+		stat.add( initializeTime );
 		stat.add( totalTime );
 
 		alg.printStat();
