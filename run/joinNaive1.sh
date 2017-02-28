@@ -6,7 +6,7 @@ logdir=$5
 LIBS=$6
 project=$7
 
-ADDITIONAL=""
+ADDITIONAL="-1"
 
 ALG=JoinNaive1
 
