@@ -1,5 +1,7 @@
 package snu.kdd.synonym.driver;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
@@ -79,6 +81,7 @@ public class Driver {
 
 		AlgorithmName algorithm = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
+		StopWatch initializeTime = StopWatch.getWatchStarted( "Initialize Time" );
 		switch( algorithm ) {
 		case JoinNaive1:
 			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath );
@@ -104,8 +107,10 @@ public class Driver {
 			System.exit( 0 );
 			break;
 		}
+		initializeTime.stop();
 
 		stat.add( cmd );
+		stat.add( initializeTime );
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
@@ -114,6 +119,11 @@ public class Driver {
 		stat.add( totalTime );
 
 		alg.printStat();
+
+		BufferedWriter bw = new BufferedWriter( new FileWriter( "json/" + alg.getName() + "_"
+				+ new java.text.SimpleDateFormat( "yyyyMMdd_HHmmss_z" ).format( new java.util.Date() ) + ".txt", true ) );
+		bw.write( stat.toJson() );
+		bw.close();
 		System.err.println( alg.getName() + " finished" );
 	}
 }

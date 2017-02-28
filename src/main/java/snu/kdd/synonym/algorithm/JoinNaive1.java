@@ -12,6 +12,7 @@ import java.util.Map;
 import mine.Record;
 import mine.RecordPair;
 import snu.kdd.synonym.tools.StatContainer;
+import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -47,6 +48,35 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		super( o );
 		automata = new Rule_ACAutomata( getRulelist() );
 		ruletrie = new RuleTrie( getRulelist() );
+	}
+
+	public void run() {
+		StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess Time" );
+		preprocess();
+		preprocessTime.stop();
+		stat.add( preprocessTime );
+
+		StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
+		List<RecordPair> list = runWithoutPreprocess();
+		runTime.stop();
+		stat.add( runTime );
+
+		StopWatch writeTime = StopWatch.getWatchStarted( "Write Time" );
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( this.outputfile ) );
+			for( RecordPair rp : list ) {
+				Record s = rp.record1;
+				Record t = rp.record2;
+				if( !s.equals( t ) )
+					bw.write( s.toString() + " == " + t.toString() + "\n" );
+			}
+			bw.close();
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
+		writeTime.stop();
+		stat.add( writeTime );
 	}
 
 	private void preprocess() {
@@ -135,28 +165,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	public void run() {
-		long startTime = System.nanoTime();
-		preprocess();
-		buildIndexTime = System.nanoTime() - startTime;
-		System.out.println( "Preprocess finished " + buildIndexTime );
-
-		List<RecordPair> list = runWithoutPreprocess();
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( this.outputfile ) );
-			for( RecordPair rp : list ) {
-				Record s = rp.record1;
-				Record t = rp.record2;
-				if( !s.equals( t ) )
-					bw.write( s.toString() + " == " + t.toString() + "\n" );
-			}
-			bw.close();
-		}
-		catch( IOException e ) {
-		}
-	}
-
-	public List<RecordPair> runWithoutPreprocess() {
+	private List<RecordPair> runWithoutPreprocess() {
 		long startTime = System.nanoTime();
 		buildIndex();
 		buildIndexTime = System.nanoTime() - startTime;
@@ -185,28 +194,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		rec2idx = null;
 	}
 
-	public static void main( String[] args ) throws IOException {
-		if( args.length != 4 ) {
-			printUsage();
-			return;
-		}
-		String Rfile = args[ 0 ];
-		String Sfile = args[ 1 ];
-		String Rulefile = args[ 2 ];
-		String outputfile = args[ 3 ];
-
-		long startTime = System.currentTimeMillis();
-		JoinNaive1 inst = new JoinNaive1( Rulefile, Rfile, Sfile, outputfile );
-		inst.threshold = Long.valueOf( args[ 4 ] );
-		System.out.print( "Constructor finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		inst.run();
-	}
-
-	private static void printUsage() {
-		System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold>" );
-	}
-
 	@Override
 	public String getVersion() {
 		return "1.0";
@@ -219,8 +206,14 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
-		this.threshold = Long.valueOf( args[ 0 ] );
+		if( args.length != 1 ) {
+			System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold>" );
+		}
 		this.stat = stat;
+		this.threshold = Long.valueOf( args[ 0 ] );
+
+		stat.add( "cmd_threshold", threshold );
+
 		this.run();
 	}
 }
