@@ -9,9 +9,11 @@ project=$8
 
 ADDITIONAL="-n $j -compact -v TopDownHashSetSinglePathDS 0"
 
+ALG=JoinMH
+
 if [[ $# -ne 8 ]];
 then
-	echo 'illegal number of parameters: [joinMH]'
+	echo 'illegal number of parameters: [$ALG]'
 	echo inputfile_one $1
 	echo inputfile_two $2
 	echo rulefile $3
@@ -21,9 +23,9 @@ then
 	echo j $7
 	echo project $8
 else
-	echo JoinMH with j=$j and $ADDITIONAL logging in $logdir"/"$project\_JoinMH\_$j
+	echo $ALG with j=$j and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_$j
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm JoinMH \
-		-additional "$ADDITIONAL" > $logdir"/"$project\_JoinMH\_$j
+		-algorithm $ALG \
+		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$j
 fi

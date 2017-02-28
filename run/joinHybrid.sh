@@ -9,9 +9,11 @@ project=$8
 
 ADDITIONAL="-s $sample -compact -v TopDownHashSetSinglePathDS 0"
 
+ALG=JoinHybrid
+
 if [[ $# -ne 8 ]];
 then
-	echo 'illegal number of parameters [joinHybrid]'
+	echo 'illegal number of parameters [$ALG]'
 	echo 1 $1
 	echo 2 $2
 	echo 3 $3
@@ -21,10 +23,10 @@ then
 	echo 7 $7
 	echo 8 $8
 else
-	echo JoinHybrid with $ADDITIONAL logging in $logdir"/"$project\_JoinHybrid\_$sample
+	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG\_$sample
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm JoinHybrid \
-		-additional "$ADDITIONAL" > $logdir"/"$project\_JoinHybrid\_$sample
+		-algorithm $ALG \
+		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$sample
 fi
 

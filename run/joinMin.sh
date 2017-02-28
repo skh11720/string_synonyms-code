@@ -7,9 +7,12 @@ LIBS=$6
 project=$7
 
 ADDITIONAL="-compact -v TopDownHashSetSinglePathDS 0"
+
+ALG=JoinMin
+
 if [[ $# -ne 7 ]];
 then
-	echo 'illegal number of parameters: [joinMin]'
+	echo 'illegal number of parameters: [$ALG]'
 	echo 1 $1
 	echo 2 $2
 	echo 3 $3
@@ -18,10 +21,10 @@ then
 	echo 6 $6
 	echo 7 $7
 else
-	echo JoinMin with $ADDITIONAL logging in $logdir"/"$project\_JoinMin
+	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm JoinMin \
-		-additional "$ADDITIONAL" > $logdir"/"$project\_JoinMin
+		-algorithm $ALG \
+		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
 fi
 

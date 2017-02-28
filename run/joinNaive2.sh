@@ -8,9 +8,11 @@ project=$7
 
 ADDITIONAL=""
 
+ALG=JoinNaive2
+
 if [[ $# -ne 7 ]];
 then
-	echo 'illegal number of parameters: [SIJoin]'
+	echo 'illegal number of parameters: [$ALG]'
 	echo 1 $1
 	echo 2 $2
 	echo 3 $3
@@ -19,9 +21,9 @@ then
 	echo 6 $6
 	echo 7 $7
 else
-	echo SIJoin with $ADDITIONAL logging in $logdir"/"$project\_JoinNaive2
+	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm JoinNaive2 \
-		-additional "$ADDITIONAL" > $logdir"/"$project\_JoinNaive2
+		-algorithm $ALG \
+		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
 fi
