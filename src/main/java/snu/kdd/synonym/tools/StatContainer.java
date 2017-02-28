@@ -187,6 +187,8 @@ public class StatContainer {
 			primarykeyblank[ i ] = primaryValueList.get( i ).length() - primaryNameList.get( i ).length() - 2;
 			primaryvalueblank[ i ] = primaryNameList.get( i ).length() + 2 - primaryValueList.get( i ).length();
 		}
+		// due to #
+		primarykeyblank[ 0 ] -= 1;
 
 		final int[] keyblank = new int[ nameList.size() ];
 		final int[] valueblank = new int[ valueList.size() ];
@@ -232,7 +234,7 @@ public class StatContainer {
 		StringBuilder legendBuilder = new StringBuilder();
 		for( int i = 0; i < primaryNameList.size(); i++ ) {
 			if( i == 0 ) {
-				legendBuilder.append( "\"" + primaryNameList.get( i ) + "\"" );
+				legendBuilder.append( "#\"" + primaryNameList.get( i ) + "\"" );
 			}
 			else {
 				legendBuilder.append( "  \"" + primaryNameList.get( i ) + "\"" );
