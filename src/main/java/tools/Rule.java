@@ -17,7 +17,17 @@ public class Rule implements Comparable<Rule> {
 			from[ i ] = str2int.get( fpstr[ i ] );
 			hash = 0x1f1f1f1f ^ hash + from[ i ];
 		}
-		String[] tpstr = pstr[ 1 ].trim().split( " " );
+
+		String[] tpstr = null;
+		try {
+			tpstr = pstr[ 1 ].trim().split( " " );
+		}
+		catch( Exception e ) {
+			e.printStackTrace();
+			System.out.println( str );
+			System.exit( 1 );
+		}
+
 		to = new int[ tpstr.length ];
 		for( int i = 0; i < tpstr.length; ++i ) {
 			to[ i ] = str2int.get( tpstr[ i ] );
