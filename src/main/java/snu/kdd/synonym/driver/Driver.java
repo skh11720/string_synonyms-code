@@ -14,6 +14,7 @@ import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.JoinHybrid;
 import snu.kdd.synonym.algorithm.JoinMH;
 import snu.kdd.synonym.algorithm.JoinMin;
+import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.algorithm.JoinNaive2;
 import snu.kdd.synonym.algorithm.SIJoin;
 import snu.kdd.synonym.tools.StatContainer;
@@ -42,7 +43,7 @@ public class Driver {
 	}
 
 	private enum AlgorithmName {
-		JoinNaive2, JoinMH, JoinMin, JoinHybrid, SIJoin
+		JoinNaive1, JoinNaive2, JoinMH, JoinMin, JoinHybrid, SIJoin
 	}
 
 	public static CommandLine parseInput( String args[] ) {
@@ -79,6 +80,9 @@ public class Driver {
 		AlgorithmName algorithm = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
 		switch( algorithm ) {
+		case JoinNaive1:
+			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath );
+			break;
 		case JoinNaive2:
 			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
