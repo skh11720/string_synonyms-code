@@ -18,8 +18,6 @@ import snu.kdd.synonym.tools.StatContainer;
 import tools.Pair;
 
 public class SIJoin extends AlgorithmTemplate {
-	private static String outputfile;
-
 	public SIJoin( String rulefile, String DBR_file, String DBS_file, String outputFile ) throws IOException {
 		super( rulefile, DBR_file, DBS_file, outputFile );
 	}
@@ -62,6 +60,7 @@ public class SIJoin extends AlgorithmTemplate {
 		System.out.println( "Similar pairs : " + candidates.size() );
 
 		try {
+
 			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( Pair<Record> ip : candidates ) {
 				if( ip.rec1.getID() != ip.rec2.getID() )
@@ -87,7 +86,7 @@ public class SIJoin extends AlgorithmTemplate {
 		String Rfile = remainingArgs[ 0 ];
 		String Sfile = remainingArgs[ 1 ];
 		String Rulefile = remainingArgs[ 2 ];
-		outputfile = remainingArgs[ 3 ];
+		String outputfile = remainingArgs[ 3 ];
 
 		long startTime = System.currentTimeMillis();
 		SIJoin inst = new SIJoin( Rfile, Sfile, Rulefile, outputfile );
