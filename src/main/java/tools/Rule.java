@@ -18,15 +18,7 @@ public class Rule implements Comparable<Rule> {
 			hash = 0x1f1f1f1f ^ hash + from[ i ];
 		}
 
-		String[] tpstr = null;
-		try {
-			tpstr = pstr[ 1 ].trim().split( " " );
-		}
-		catch( Exception e ) {
-			e.printStackTrace();
-			System.out.println( str );
-			System.exit( 1 );
-		}
+		String[] tpstr = pstr[ 1 ].trim().split( " " );
 
 		to = new int[ tpstr.length ];
 		for( int i = 0; i < tpstr.length; ++i ) {
