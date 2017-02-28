@@ -28,6 +28,10 @@ echo RUN_JoinMH $RUN_JoinMH
 echo RUN_JoinHybrid $RUN_JoinHybrid
 echo "--------------------------------------"
 
+if [ ! -d 'json' ];
+then
+	mkdir json
+fi
 	
 #JoinNaive1
 if [[ $RUN_Naive1 == "True" ]];
