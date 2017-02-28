@@ -92,7 +92,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 	 * 'threshold' 1-expandable strings
 	 * (SH x T)
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> SH_TL_idx;
+	Map<Integer, Map<IntegerPair, List<Record>>> SH_TL_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
 	/**
 	 * Frequency counts of the records in TH
