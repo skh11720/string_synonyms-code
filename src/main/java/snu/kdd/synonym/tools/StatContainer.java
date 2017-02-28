@@ -51,6 +51,11 @@ public class StatContainer {
 			if( valueName == null ) {
 				valueName = new String( "null" );
 			}
+			else if( valueName.startsWith( "data_store/" ) ) {
+				valueName = valueName.replaceAll( "data_store/", "" );
+				valueName = valueName.replaceAll( "splitted/", "" );
+				valueName = valueName.replaceAll( "data.txt", "" );
+			}
 
 			add( name, valueName );
 		}
@@ -195,9 +200,6 @@ public class StatContainer {
 		if( !legend.equals( prevLegend ) ) {
 			// print legend
 			dataFile.println( legend );
-
-			System.out.println( "prevLegend : " + prevLegend );
-			System.out.println( "    legend : " + legend );
 		}
 
 		try {
@@ -230,7 +232,7 @@ public class StatContainer {
 		StringBuilder legendBuilder = new StringBuilder();
 		for( int i = 0; i < primaryNameList.size(); i++ ) {
 			if( i == 0 ) {
-				legendBuilder.append( "#\"" + primaryNameList.get( i ) + "\"" );
+				legendBuilder.append( "\"" + primaryNameList.get( i ) + "\"" );
 			}
 			else {
 				legendBuilder.append( "  \"" + primaryNameList.get( i ) + "\"" );
@@ -240,7 +242,6 @@ public class StatContainer {
 		}
 
 		for( int i = 0; i < nameList.size(); i++ ) {
-
 			legendBuilder.append( "  \"" + nameList.get( i ) + "\"" );
 
 			appendBlank( legendBuilder, keyblank[ i ] );

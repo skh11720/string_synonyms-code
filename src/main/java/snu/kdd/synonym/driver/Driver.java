@@ -126,7 +126,7 @@ public class Driver {
 		bw_json.write( stat.toJson() );
 		bw_json.close();
 
-		stat.addPrimary( "#Date", new Date().toString() );
+		stat.addPrimary( "Date", new Date().toString() );
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
 		System.err.println( alg.getName() + " finished" );
