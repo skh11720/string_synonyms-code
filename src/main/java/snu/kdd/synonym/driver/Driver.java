@@ -125,7 +125,7 @@ public class Driver {
 		bw_json.write( stat.toJson() );
 		bw_json.close();
 
-		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion(), cmd );
+		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
 		System.err.println( alg.getName() + " finished" );
 	}
