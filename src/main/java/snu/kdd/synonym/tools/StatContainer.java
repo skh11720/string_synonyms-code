@@ -195,8 +195,7 @@ public class StatContainer {
 		if( !legend.equals( prevLegend ) ) {
 			// print legend
 			dataFile.println( legend );
-		}
-		else {
+
 			System.out.println( "prevLegend : " + prevLegend );
 			System.out.println( "    legend : " + legend );
 		}
