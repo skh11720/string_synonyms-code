@@ -120,10 +120,13 @@ public class Driver {
 
 		alg.printStat();
 
-		BufferedWriter bw = new BufferedWriter( new FileWriter( "json/" + alg.getName() + "_"
+		BufferedWriter bw_json = new BufferedWriter( new FileWriter( "json/" + alg.getName() + "_"
 				+ new java.text.SimpleDateFormat( "yyyyMMdd_HHmmss_z" ).format( new java.util.Date() ) + ".txt", true ) );
-		bw.write( stat.toJson() );
-		bw.close();
+		bw_json.write( stat.toJson() );
+		bw_json.close();
+
+		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion(), cmd );
+
 		System.err.println( alg.getName() + " finished" );
 	}
 }
