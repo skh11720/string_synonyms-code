@@ -133,6 +133,8 @@ public class SIJoin extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
+		this.stat = stat;
+
 		try {
 			this.run();
 		}
