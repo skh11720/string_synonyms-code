@@ -196,6 +196,10 @@ public class StatContainer {
 			// print legend
 			dataFile.println( legend );
 		}
+		else {
+			System.out.println( "prevLegend : " + prevLegend );
+			System.out.println( "    legend : " + legend );
+		}
 
 		try {
 			if( primaryValueList.size() != 0 ) {
