@@ -12,7 +12,7 @@ LIBS=../target/Synonym.jar
 dir=logs
 
 ./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
-{ time java -Xmx8G -Xms4G -cp $LIBS igmod13.modified.SI_Join_Modified $inputfile_one $inputfile_two $rulefile rslt_sijoin.txt > $dir"/"logSIJoin; }
+{ time java -Xmx8G -Xms4G -cp $LIBS sigmod13.modified.SI_Join_Modified $inputfile_one $inputfile_two $rulefile rslt_sijoin.txt > $dir"/"logSIJoin; }
 
 ./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
 { time java -Xmx8G -Xms4G -cp $LIBS mine.Naive2 $inputfile_one $inputfile_two $rulefile rslt_naive.txt > $dir"/"logNaive2; }
