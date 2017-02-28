@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
@@ -136,7 +135,7 @@ public class StatContainer {
 		}
 	}
 
-	public void resultWriter( String filename, CommandLine cmd ) {
+	public void resultWriter( String filename ) {
 		final boolean exists = ( new File( filename ) ).exists();
 
 		String prevLegend = "";
@@ -191,37 +190,7 @@ public class StatContainer {
 			valueblank[ i ] = nameList.get( i ).length() + 2 - valueList.get( i ).length();
 		}
 
-		Iterator<Option> itr = cmd.iterator();
-		ArrayList<String> cmdKey = new ArrayList<>();
-		ArrayList<String> cmdValue = new ArrayList<>();
-		while( itr.hasNext() ) {
-			Option opt = itr.next();
-
-			String name = opt.getOpt();
-			if( name == null ) {
-				name = new String( "null" );
-			}
-
-			if( name.equals( "infile" ) || name.equals( "outfile" ) || name.equals( "queryfile" ) ) {
-				continue;
-			}
-
-			String valueName = opt.getValue();
-			if( valueName == null ) {
-				valueName = new String( "null" );
-			}
-			cmdKey.add( name );
-			cmdValue.add( valueName );
-		}
-
-		final int[] cmdKeyblank = new int[ cmdKey.size() ];
-		final int[] cmdValueblank = new int[ cmdValue.size() ];
-		for( int i = 0; i < cmdKey.size(); i++ ) {
-			cmdKeyblank[ i ] = cmdValue.get( i ).length() - cmdKey.get( i ).length() - 2;
-			cmdValueblank[ i ] = cmdKey.get( i ).length() + 2 - cmdValue.get( i ).length();
-		}
-
-		String legend = getLegend( primarykeyblank, cmdKey, cmdKeyblank, keyblank );
+		String legend = getLegend( primarykeyblank, keyblank );
 
 		if( !legend.equals( prevLegend ) ) {
 			// print legend
@@ -238,12 +207,7 @@ public class StatContainer {
 					appendBlank( dataFile, primaryvalueblank[ i ] );
 				}
 			}
-			if( cmdValue.size() != 0 ) {
-				for( int i = 0; i < cmdValue.size(); i++ ) {
-					dataFile.print( "\t" + cmdValue.get( i ) );
-					appendBlank( dataFile, cmdValueblank[ i ] );
-				}
-
+			if( valueList.size() != 0 ) {
 				for( int i = 0; i < valueList.size(); i++ ) {
 					dataFile.print( "\t" + valueList.get( i ) );
 					appendBlank( dataFile, valueblank[ i ] );
@@ -259,7 +223,7 @@ public class StatContainer {
 		}
 	}
 
-	public String getLegend( int[] primarykeyblank, ArrayList<String> cmdKey, int[] cmdKeyblank, int[] keyblank ) {
+	public String getLegend( int[] primarykeyblank, int[] keyblank ) {
 		StringBuilder legendBuilder = new StringBuilder();
 		for( int i = 0; i < primaryNameList.size(); i++ ) {
 			if( i == 0 ) {
@@ -270,13 +234,6 @@ public class StatContainer {
 			}
 
 			appendBlank( legendBuilder, primarykeyblank[ i ] );
-		}
-
-		for( int i = 0; i < cmdKey.size(); i++ ) {
-
-			legendBuilder.append( "\t\"" + cmdKey.get( i ) + "\"" );
-
-			appendBlank( legendBuilder, cmdKeyblank[ i ] );
 		}
 
 		for( int i = 0; i < nameList.size(); i++ ) {
