@@ -29,7 +29,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	Rule_ACAutomata automata;
 	RuleTrie ruletrie;
 
-	public static long threshold = Long.MAX_VALUE;
+	public long threshold = Long.MAX_VALUE;
 	public static boolean skipequiv = false;
 
 	public long buildIndexTime;
@@ -194,10 +194,10 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		String Sfile = args[ 1 ];
 		String Rulefile = args[ 2 ];
 		String outputfile = args[ 3 ];
-		JoinNaive1.threshold = Long.valueOf( args[ 4 ] );
 
 		long startTime = System.currentTimeMillis();
 		JoinNaive1 inst = new JoinNaive1( Rulefile, Rfile, Sfile, outputfile );
+		inst.threshold = Long.valueOf( args[ 4 ] );
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		inst.run();
@@ -219,6 +219,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
+		this.threshold = Long.valueOf( args[ 0 ] );
 		this.stat = stat;
 		this.run();
 	}
