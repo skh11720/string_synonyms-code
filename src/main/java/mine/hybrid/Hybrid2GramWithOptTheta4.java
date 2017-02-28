@@ -613,7 +613,6 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		findThetaByLinearSrc();
 		System.out.print( "Linear src Estimation finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) + "ms" );
-		System.exit( 1 );
 
 		startTime = System.currentTimeMillis();
 		Collection<IntegerPair> rslt = join();
