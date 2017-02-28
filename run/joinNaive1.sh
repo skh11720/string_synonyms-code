@@ -19,9 +19,9 @@ then
 	echo 6 $6
 	echo 7 $7
 else
-	echo SIJoin with "$ADDITIONAL" logging in $logdir"/"$project\_SIJoin
+	echo SIJoin with $ADDITIONAL logging in $logdir"/"$project\_JoinNaive1
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm SIJoin \
-		-additional "$ADDITIONAL" > $logdir"/"$project\_SIJoin
+		-algorithm JoinNaive1 \
+		-additional "$ADDITIONAL" > $logdir"/"$project\_JoinNaive1
 fi
