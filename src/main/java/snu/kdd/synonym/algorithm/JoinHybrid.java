@@ -86,13 +86,13 @@ public class JoinHybrid extends AlgorithmTemplate {
 	 * 'threshold' 1-expandable strings
 	 * (SL x TH)
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> S_TH_idx;
+	Map<Integer, Map<IntegerPair, List<Record>>> S_TH_idx = new WYK_HashMap<>();
 	/**
 	 * Index of the records in S for the strings in T which has more than
 	 * 'threshold' 1-expandable strings
 	 * (SH x T)
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> SH_TL_idx;
+	Map<Integer, Map<IntegerPair, List<Record>>> SH_TL_idx = new WYK_HashMap<>();
 
 	/**
 	 * Frequency counts of the records in TH
