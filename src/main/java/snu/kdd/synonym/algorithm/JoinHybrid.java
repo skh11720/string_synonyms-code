@@ -107,7 +107,7 @@ public class JoinHybrid extends AlgorithmTemplate {
 	/**
 	 * List of 1-expandable strings
 	 */
-	Map<Record, List<Integer>> setR;
+	Map<Record, List<Integer>> setR = new WYK_HashMap<>();
 	/**
 	 * Estimated number of comparisons
 	 */
