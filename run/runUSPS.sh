@@ -1,38 +1,28 @@
 #!/bin/bash
 
-project=usps
-
-inputfile_one=data_store/JiahengLu/data.txt
-inputfile_two=data_store/JiahengLu/data.txt
-rulefile=data_store/JiahengLu/rule.txt
-outputPath=output
 
 LIBS=../target/Synonym.jar
 
 dir=logs
 
-./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
+SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
 
-echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
-{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
+RUN_Naive1=False
+RUN_Naive2=False
+RUN_SIJoin=True
+RUN_JoinMin=True
+RUN_JoinMH=True
+RUN_JoinHybrid=False
 
+for SIZE in ${SIZES[@]};
+do
+	./setUSPS.sh $SIZE
 
-for j in {1..1..1}; do
-	./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $project
+	project=usps_$SIZE
+	inputfile_one=data_store/JiahengLu/splitted/$SIZE/data.txt
+	inputfile_two=data_store/JiahengLu/splitted/$SIZE/data.txt
+	rulefile=data_store/JiahengLu/rule.txt
+	outputPath=output
 
-	echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0
-	{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinD2GramCompact$j"TopDownHashSet"; }
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive1 $RUN_Naive2 $RUN_SIJoin $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybrid 
 done
-
-samplings=( 0.01 0.03 0.1 0.3 )
-
-for sampling in "${samplings[@]}"; do
-	./joinHybrid.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
-
-	echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta4 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling
-	{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta4 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logAOLHybrid2GramWithOptTheta4_$sampling; }
-#	{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA1 $inputfile_one $inputfile_two $rulefile rslt5.txt -joinExpandThreshold $threshold -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logHybrid2GramA1T\_$threshold\_CompactTopDownHashSet; }
-#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA1 $inputfile_one $inputfile_two $rulefile rslt6.txt -joinExpandThreshold 100 -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logHybrid2GramA1T100CompactTopDownHashSet; }
-#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA1 $inputfile_one $inputfile_two $rulefile rslt7.txt -joinExpandThreshold 1000 -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logHybrid2GramA1T1000CompactTopDownHashSet; }
-done
-
