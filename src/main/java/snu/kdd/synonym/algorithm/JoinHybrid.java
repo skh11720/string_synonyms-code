@@ -51,8 +51,6 @@ public class JoinHybrid extends AlgorithmTemplate {
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
 
-	static String outputfile;
-
 	int joinThreshold = -1;
 
 	double alpha;
@@ -1039,7 +1037,7 @@ public class JoinHybrid extends AlgorithmTemplate {
 		String Rfile = params.getInputX();
 		String Sfile = params.getInputY();
 		String Rulefile = params.getInputRules();
-		outputfile = params.getOutput();
+		String outputfile = params.getOutput();
 
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();
