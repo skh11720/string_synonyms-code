@@ -57,7 +57,7 @@ public class StatContainer {
 				valueName = valueName.replaceAll( "data.txt", "" );
 			}
 
-			add( name, valueName );
+			addPrimary( name, valueName );
 		}
 	}
 

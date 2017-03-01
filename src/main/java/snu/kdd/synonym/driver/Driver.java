@@ -117,7 +117,7 @@ public class Driver {
 		totalTime.stop();
 
 		stat.add( initializeTime );
-		stat.add( totalTime );
+		stat.addPrimary( totalTime );
 
 		alg.printStat();
 
