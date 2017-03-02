@@ -40,7 +40,7 @@ import validator.Validator;
  * 2) use Hybrid2GramA1_2 instead of A1
  * time.
  */
-public class JoinHybrid extends AlgorithmTemplate {
+public class JoinHybridOpt extends AlgorithmTemplate {
 	static boolean useAutomata = true;
 	static boolean skipChecking = false;
 	static int maxIndex = Integer.MAX_VALUE;
@@ -127,7 +127,7 @@ public class JoinHybrid extends AlgorithmTemplate {
 	List<Record> sampleT;
 	long[] expcostSampleT;
 
-	public JoinHybrid( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
+	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputFile );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( getRulelist() );
@@ -1048,7 +1048,7 @@ public class JoinHybrid extends AlgorithmTemplate {
 		checker = params.getValidator();
 
 		long startTime = System.currentTimeMillis();
-		JoinHybrid inst = new JoinHybrid( Rulefile, Rfile, Sfile, outputfile );
+		JoinHybridOpt inst = new JoinHybridOpt( Rulefile, Rfile, Sfile, outputfile );
 		inst.joinThreshold = params.getJoinThreshold();
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
@@ -1063,7 +1063,7 @@ public class JoinHybrid extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinHybrid";
+		return "JoinHybridOpt";
 	}
 
 	@Override
@@ -1079,10 +1079,8 @@ public class JoinHybrid extends AlgorithmTemplate {
 		singleside = params.isSingleside();
 		checker = params.getValidator();
 
-		long startTime = System.currentTimeMillis();
 		this.joinThreshold = params.getJoinThreshold();
-		System.out.print( "Constructor finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+
 		this.run( params.getSampleRatio() );
 		Validator.printStats();
 	}

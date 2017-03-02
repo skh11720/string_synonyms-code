@@ -30,7 +30,7 @@ public abstract class AlgorithmTemplate {
 	protected List<Record> tableS;
 
 	// Rule
-	private List<Rule> rulelist;
+	protected List<Rule> rulelist;
 
 	// Stat container
 	protected StatContainer stat = null;
