@@ -112,7 +112,7 @@ else
 		done
 	fi
 
-	#JoinHybridOpt
+	#JoinHybridThres
 	if [[ $RUN_JoinHybridThres == "True" ]];
 	then
 		thresholds=( 10 100 1000 )
