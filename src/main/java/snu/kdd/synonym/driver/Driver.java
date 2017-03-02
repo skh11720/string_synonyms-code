@@ -111,6 +111,7 @@ public class Driver {
 		}
 		initializeTime.stop();
 
+		stat.addPrimary( "Date", new Date().toString() );
 		stat.add( cmd );
 
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
@@ -126,7 +127,6 @@ public class Driver {
 		bw_json.write( stat.toJson() );
 		bw_json.close();
 
-		stat.addPrimary( "Date", new Date().toString() );
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
 		System.err.println( alg.getName() + " finished" );

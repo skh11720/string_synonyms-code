@@ -51,8 +51,6 @@ public class JoinHybrid extends AlgorithmTemplate {
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
 
-	static String outputfile;
-
 	int joinThreshold = -1;
 
 	double alpha;
@@ -86,13 +84,13 @@ public class JoinHybrid extends AlgorithmTemplate {
 	 * 'threshold' 1-expandable strings
 	 * (SL x TH)
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> S_TH_idx;
+	Map<Integer, Map<IntegerPair, List<Record>>> S_TH_idx = new WYK_HashMap<>();
 	/**
 	 * Index of the records in S for the strings in T which has more than
 	 * 'threshold' 1-expandable strings
 	 * (SH x T)
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> SH_TL_idx;
+	Map<Integer, Map<IntegerPair, List<Record>>> SH_TL_idx = new WYK_HashMap<>();
 
 	/**
 	 * Frequency counts of the records in TH
@@ -107,7 +105,7 @@ public class JoinHybrid extends AlgorithmTemplate {
 	/**
 	 * List of 1-expandable strings
 	 */
-	Map<Record, List<Integer>> setR;
+	Map<Record, List<Integer>> setR = new WYK_HashMap<>();
 	/**
 	 * Estimated number of comparisons
 	 */
@@ -1039,7 +1037,7 @@ public class JoinHybrid extends AlgorithmTemplate {
 		String Rfile = params.getInputX();
 		String Sfile = params.getInputY();
 		String Rulefile = params.getInputRules();
-		outputfile = params.getOutput();
+		String outputfile = params.getOutput();
 
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();
