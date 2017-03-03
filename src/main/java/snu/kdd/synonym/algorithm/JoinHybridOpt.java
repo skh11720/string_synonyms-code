@@ -439,7 +439,6 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		findTheta( Integer.MAX_VALUE );
 		System.out.print( "Estimation finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.exit( 1 );
 
 		startTime = System.currentTimeMillis();
 		Collection<IntegerPair> rslt = join();
