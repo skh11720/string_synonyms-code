@@ -88,11 +88,14 @@ public abstract class AlgorithmTemplate {
 	}
 
 	protected AlgorithmTemplate( AlgorithmTemplate o ) {
+		System.out.println( "Initialize with o " + o.getName() );
+
 		this.str2int = o.str2int;
 		this.strlist = o.strlist;
 		this.tableR = o.tableR;
 		this.tableS = o.tableS;
-		this.setRulelist( o.getRulelist() );
+		this.rulelist = o.rulelist;
+		this.outputfile = o.outputfile;
 	}
 
 	/**

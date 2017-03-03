@@ -500,7 +500,9 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 		joinmininst.checker = checker;
 		joinmininst.outputfile = outputfile;
 		try {
+			System.out.println( "Joinmininst run" );
 			joinmininst.runWithoutPreprocess();
+			System.out.println( "Joinmininst run done" );
 		}
 		catch( Exception e ) {
 		}

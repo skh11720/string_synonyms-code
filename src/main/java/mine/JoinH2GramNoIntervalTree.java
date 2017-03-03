@@ -547,9 +547,9 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 			bw.close();
 		}
 		catch( IOException e ) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 			TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
 			System.out.println( "Prev entry count : " + tmp.prevEntryCount );

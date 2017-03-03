@@ -497,9 +497,12 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		joinmininst.checker = checker;
 		joinmininst.outputfile = outputfile;
 		try {
+			System.out.println( "Joinmininst run" );
 			joinmininst.runWithoutPreprocess();
+			System.out.println( "Joinmininst run done" );
 		}
 		catch( Exception e ) {
+			e.printStackTrace();
 		}
 		gamma = joinmininst.gamma;
 		delta = joinmininst.delta;

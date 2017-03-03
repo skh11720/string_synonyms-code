@@ -278,8 +278,9 @@ public class JoinMin extends AlgorithmTemplate {
 						count += list.size();
 					}
 					List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
-					if( skipChecking )
+					if( skipChecking ) {
 						continue;
+					}
 					else if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 						// Sort records to utilize similar prefixes
 						Collections.sort( candidates );
@@ -441,13 +442,16 @@ public class JoinMin extends AlgorithmTemplate {
 				List<Record> candidatesList = new ArrayList<Record>();
 				List<Record> tree = curridx.get( twogram );
 
-				if( tree == null )
+				if( tree == null ) {
 					continue;
-				for( Record e : tree )
+				}
+				for( Record e : tree ) {
 					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), minlength, maxlength ) )
 						candidatesList.add( e );
-				if( skipChecking )
+				}
+				if( skipChecking ) {
 					continue;
+				}
 				for( Record recR : candidatesList ) {
 					int compare = checker.isEqual( recR, recS );
 					if( compare >= 0 ) {
