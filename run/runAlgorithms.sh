@@ -118,7 +118,7 @@ else
 		thresholds=( 10 100 1000 )
 		for threshold in "${thresholds[@]}"; do
 			date
-			./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
+			./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
 
 			echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -t $threshold
 			{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -t $threshold > $dir"/"logHybrid2GramA3_$threshold; }
