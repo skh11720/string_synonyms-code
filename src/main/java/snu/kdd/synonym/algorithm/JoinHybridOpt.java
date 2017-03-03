@@ -469,12 +469,16 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 		List<Record> sampleRlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
-		for( Record r : tableR )
-			if( rn.nextDouble() < sampleratio )
+		for( Record r : tableR ) {
+			if( rn.nextDouble() < sampleratio ) {
 				sampleRlist.add( r );
-		for( Record s : tableS )
-			if( rn.nextDouble() < sampleratio )
+			}
+		}
+		for( Record s : tableS ) {
+			if( rn.nextDouble() < sampleratio ) {
 				sampleSlist.add( s );
+			}
+		}
 		List<Record> tmpR = tableR;
 		tableR = sampleRlist;
 		List<Record> tmpS = tableS;

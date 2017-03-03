@@ -8,7 +8,7 @@ public class StopWatch {
 	private long timeStart;
 	private long timeEnd;
 	private long totalTime = 0;
-	private String watchName;
+	private String watchName = null;
 
 	private StopWatch( String name ) {
 		watchName = name;

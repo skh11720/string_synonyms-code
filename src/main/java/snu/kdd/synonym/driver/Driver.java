@@ -121,8 +121,8 @@ public class Driver {
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
 		totalTime.stop();
 
-		stat.add( initializeTime );
 		stat.addPrimary( totalTime );
+		stat.add( initializeTime );
 
 		alg.printStat();
 
