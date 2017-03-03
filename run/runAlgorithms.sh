@@ -106,8 +106,8 @@ else
 			date
 			./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
 
-			echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta4 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling
-			{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta4 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logHybrid2GramWithOptTheta4_$sampling; }
+			echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling
+			{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logHybrid2GramWithOptTheta3_$sampling; }
 			date
 		done
 	fi
@@ -120,8 +120,8 @@ else
 			date
 			./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
 
-			echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA1_2 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -t $threshold
-			{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA1_2 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -t $threshold > $dir"/"logHybrid2GramA1_2_$threshold; }
+			echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -t $threshold
+			{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -t $threshold > $dir"/"logHybrid2GramA3_$threshold; }
 			date
 		done
 	fi
