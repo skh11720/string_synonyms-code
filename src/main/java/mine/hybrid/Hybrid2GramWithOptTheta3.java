@@ -236,8 +236,9 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 			++count;
 		}
 		long idxsize = 0;
-		for( List<Integer> list : setR.values() )
+		for( List<Integer> list : setR.values() ) {
 			idxsize += list.size();
+		}
 		System.out.println( count + " records are 1-expanded and indexed" );
 		System.out.println( "Total index size: " + idxsize );
 	}
@@ -453,6 +454,7 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
 
 		try {
+			System.out.println( "Writing results " + rslt.size() );
 			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
@@ -463,6 +465,7 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
+			System.out.println( "Error: " + e.getMessage() );
 		}
 	}
 
@@ -509,6 +512,8 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 			System.out.println( "Joinmininst run done" );
 		}
 		catch( Exception e ) {
+			e.printStackTrace();
+			System.out.println( "[findConstants] Error: " + e.getMessage() );
 		}
 		gamma = joinmininst.gamma;
 		delta = joinmininst.delta;
