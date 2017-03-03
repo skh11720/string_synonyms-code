@@ -28,6 +28,11 @@ echo RUN_JoinMH $RUN_JoinMH
 echo RUN_JoinHybrid $RUN_JoinHybrid
 echo "--------------------------------------"
 
+if [ ! -d 'logs' ];
+then
+	mkdir logs
+fi
+
 if [ ! -d 'json' ];
 then
 	mkdir json
