@@ -21,7 +21,6 @@ import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.IntegerPair;
-import tools.Parameters;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
@@ -670,29 +669,6 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( Arrays.toString( best_esttimes ) );
 		long duration = System.nanoTime() - starttime;
 		System.out.println( "Find theta with " + duration + "ns" );
-	}
-
-	public static void main( String[] args ) throws IOException {
-		Parameters params = Parameters.parseArgs( args );
-		String Rfile = params.getInputX();
-		String Sfile = params.getInputY();
-		String Rulefile = params.getInputRules();
-		String outputfile = params.getOutput();
-
-		// Setup parameters
-		useAutomata = params.isUseACAutomata();
-		skipChecking = params.isSkipChecking();
-		maxIndex = params.getMaxIndex();
-		compact = params.isCompact();
-		singleside = params.isSingleside();
-		checker = params.getValidator();
-
-		long startTime = System.currentTimeMillis();
-		JoinHybridOpt inst = new JoinHybridOpt( Rulefile, Rfile, Sfile, outputfile );
-		System.out.print( "Constructor finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		inst.run( params.getSampleRatio() );
-		Validator.printStats();
 	}
 
 	@Override

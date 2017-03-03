@@ -1,14 +1,11 @@
 package snu.kdd.synonym.algorithm;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import mine.Record;
-import mine.RecordPair;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -43,6 +40,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		// build an ac automata / a trie from rule lists
 		automata = new Rule_ACAutomata( getRulelist() );
 		ruletrie = new RuleTrie( getRulelist() );
+
 		this.stat = stat;
 	}
 
@@ -57,37 +55,47 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	private void buildIndex() {
 		rec2idx = new WYK_HashMap<>( 1000000 );
 		final long starttime = System.nanoTime();
+
 		long totalExpSize = 0;
+		long idxsize = 0;
 		int count = 0;
+
 		for( int i = 0; i < tableR.size(); ++i ) {
 			final Record recR = tableR.get( i );
 			final long est = recR.getEstNumRecords();
+
 			if( threshold != -1 && est > threshold ) {
+				// if threshold is set (!= -1), index is built selectively for supporting hybrid algorithm
 				continue;
 			}
+
 			final List<Record> expanded = recR.expandAll( ruletrie );
+
 			assert ( threshold == -1 || expanded.size() <= threshold );
+
 			totalExpSize += expanded.size();
 			for( final Record exp : expanded ) {
 				ArrayList<Integer> list = rec2idx.get( exp );
+
 				if( list == null ) {
+					// new expression
 					list = new ArrayList<>( 5 );
 					rec2idx.put( exp, list );
 				}
-				// If current list already contains current record, skip adding
+
+				// If current list already contains current record as the last element, skip adding
 				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
 					continue;
 				}
 				list.add( i );
+				idxsize++;
 			}
 			++count;
 		}
-		long idxsize = 0;
-		for( final List<Integer> list : rec2idx.values() ) {
-			idxsize += list.size();
-		}
-		System.out.println( count + " records are indexed" );
-		System.out.println( "Total index size: " + idxsize );
+
+		stat.add( "Indexed Records", count );
+		stat.add( "Total index size", idxsize );
+
 		// ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
 		final long duration = System.nanoTime() - starttime;
 		alpha = ( (double) duration ) / totalExpSize;
@@ -172,35 +180,24 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		stat.add( preprocessTime );
 
 		final StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
-		final List<RecordPair> list = runWithoutPreprocess();
+		final List<IntegerPair> list = runWithoutPreprocess();
 		runTime.stop();
 		stat.add( runTime );
 
 		final StopWatch writeTime = StopWatch.getWatchStarted( "Write Time" );
-		try {
-			final BufferedWriter bw = new BufferedWriter( new FileWriter( this.outputfile ) );
-			for( final RecordPair rp : list ) {
-				final Record s = rp.record1;
-				final Record t = rp.record2;
-				if( !s.equals( t ) ) {
-					bw.write( s.toString() + " == " + t.toString() + "\n" );
-				}
-			}
-			bw.close();
-		}
-		catch( final IOException e ) {
-			e.printStackTrace();
-		}
+		this.writeResult( list );
 		writeTime.stop();
 		stat.add( writeTime );
 	}
 
-	public List<RecordPair> runWithoutPreprocess() {
+	public List<IntegerPair> runWithoutPreprocess() {
+		// Index building
 		StopWatch idxTime = StopWatch.getWatchStarted( "Index building time" );
 		buildIndex();
 		idxTime.stopQuiet();
 		stat.add( idxTime );
 
+		// Join
 		StopWatch joinTime = StopWatch.getWatchStarted( "Join time" );
 		final List<IntegerPair> rslt = join();
 		joinTime.stopQuiet();
@@ -210,15 +207,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		stat.add( "Union counter", StaticFunctions.union_cmp_counter );
 		stat.add( "Equals counter", StaticFunctions.compare_cmp_counter );
 
-		final List<RecordPair> rlist = new ArrayList<>();
-		for( final IntegerPair ip : rslt ) {
-			final Record r = tableR.get( ip.i1 );
-			final Record s = tableS.get( ip.i2 );
-			rlist.add( new RecordPair( r, s ) );
-		}
-
-		// Does we require to sort rlist?
-		// Collections.sort( rlist );
-		return rlist;
+		return rslt;
 	}
 }
