@@ -222,7 +222,12 @@ public class StatContainer {
 
 		if( !legend.equals( prevLegend ) ) {
 			// print legend
-			dataFile.println( legend );
+			try {
+				dataFile.println( legend );
+			}
+			catch( Exception e ) {
+				e.printStackTrace();
+			}
 		}
 
 		try {
