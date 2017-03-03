@@ -165,7 +165,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private List<RecordPair> runWithoutPreprocess() {
+	public List<RecordPair> runWithoutPreprocess() {
 		long startTime = System.nanoTime();
 		buildIndex();
 		buildIndexTime = System.nanoTime() - startTime;

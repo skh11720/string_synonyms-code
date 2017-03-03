@@ -507,11 +507,11 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 		System.out.print( "Preprocess finished" );
 		System.out.println( " " + ( System.nanoTime() - startTime ) );
 
-		runWithoutPreprocess();
+		runWithoutPreprocess( true );
 	}
 
 	@SuppressWarnings( "static-access" )
-	public void runWithoutPreprocess() {
+	public void runWithoutPreprocess( boolean writeResult ) {
 		// Retrieve statistics
 		statistics();
 
@@ -535,21 +535,24 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 		System.out.println( "Join finished " + joinTime + " ns" );
 		System.out.println( rslt.size() );
 
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
-			for( IntegerPair ip : rslt ) {
-				Record r = tableR.get( ip.i1 );
-				Record s = tableS.get( ip.i2 );
-				if( !r.equals( s ) )
-					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist ) + "\n" );
+		if( writeResult ) {
+			try {
+
+				BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
+				for( IntegerPair ip : rslt ) {
+					Record r = tableR.get( ip.i1 );
+					Record s = tableS.get( ip.i2 );
+					if( !r.equals( s ) )
+						bw.write( tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist )
+								+ "\n" );
+				}
+				bw.close();
 			}
-			bw.close();
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
 		}
-		catch( IOException e ) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 			TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
 			System.out.println( "Prev entry count : " + tmp.prevEntryCount );

@@ -1,4 +1,4 @@
-package mine.hybrid;
+package snu.kdd.synonym.algorithm;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -8,19 +8,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.PriorityQueue;
+import java.util.Random;
 import java.util.Set;
 
-import mine.JoinH2GramNoIntervalTree;
-import mine.Naive1;
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
-import tools.Algorithm;
 import tools.IntegerPair;
 import tools.Parameters;
 import tools.Rule;
@@ -35,10 +33,11 @@ import wrapped.WrappedInteger;
  * use an index to store them.
  * Otherwise, generate all 1-expandable strings and then use them to check
  * if two strings are equivalent.
+ * Utilize only one index by sorting records according to their expanded size.
  * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
  * index in order to find the best execution time.
  */
-public class Hybrid2GramWithOptTheta2 extends Algorithm {
+public class JoinHybridOpt extends AlgorithmTemplate {
 	static boolean useAutomata = true;
 	static boolean skipChecking = false;
 	static int maxIndex = Integer.MAX_VALUE;
@@ -48,8 +47,6 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
-
-	static String outputfile;
 
 	int joinThreshold = 0;
 
@@ -68,29 +65,27 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 	 * return len * 4 + 16;
 	 * } */
 
+	class Directory {
+		List<Record> list;
+		int SHsize;
+
+		Directory() {
+			list = new ArrayList<Record>();
+			SHsize = 0;
+		}
+	}
+
 	/**
 	 * Key: (token, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
 	/**
-	 * Index of the records in S for the strings in T which has less or equal to
-	 * 'threshold' 1-expandable strings
+	 * Index of the records in S
 	 * (SL x TH)
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> SL_TH_idx;
-	/**
-	 * Index of the records in S for the strings in T which has more than
-	 * 'threshold' 1-expandable strings
-	 * (SH x T)
-	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> SH_T_idx;
+	Map<Integer, Map<IntegerPair, Directory>> idx;
+	Map<Integer, Map<IntegerPair, WrappedInteger>> T_invokes;
 
-	// Frequency counts
-	Map<Integer, Map<IntegerPair, WrappedInteger>> SH_T_invokes;
-	Map<Integer, Map<IntegerPair, WrappedInteger>> SL_TH_invokes;
-	// Frequency counts
-	Map<Integer, Map<IntegerPair, WrappedInteger>> SH_T_idx_count;
-	Map<Integer, Map<IntegerPair, WrappedInteger>> SL_TH_idx_count;
 	/**
 	 * List of 1-expandable strings
 	 */
@@ -98,89 +93,54 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 	/**
 	 * Estimated number of comparisons
 	 */
-	long est_SH_T_cmps;
-	long est_SL_TH_cmps;
+	long est_cmps;
 
 	long memlimit_expandedS;
 
-	protected Hybrid2GramWithOptTheta2( String rulefile, String Rfile, String Sfile ) throws IOException {
-		super( rulefile, Rfile, Sfile );
+	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 	}
 
-	private void buildJoinMinIndex() throws Exception {
+	private void buildJoinMinIndex() {
 		Runtime runtime = Runtime.getRuntime();
 
-		long SH_T_elements = 0;
-		long SL_TH_elements = 0;
-		est_SH_T_cmps = 0;
-		est_SL_TH_cmps = 0;
+		long elements = 0;
+		est_cmps = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		SH_T_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
-		SL_TH_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
-		// Count records in each index
-		SH_T_idx_count = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
-		SL_TH_idx_count = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
+		idx = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+		T_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
 		// Actually, tableT
 		for( Record rec : tableS ) {
 			// long prev = Record.exectime;
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
-			// int sigs = 0;
-			// for (Set<IntegerPair> set : available2Grams)
-			// sigs += set.size();
-			// bw.write(rec.toString() + " : " + sigs + " sigs / "
-			// + (Record.exectime - prev) + " ns\n");
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 			// Every record is SH/TH record at the beginning
-			boolean is_TH_Record = true;// rec.getEstNumRecords() > joinThreshold
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curr_SH_T_invokes = SH_T_invokes.get( i );
-				Map<IntegerPair, WrappedInteger> curr_SL_TH_invokes = SL_TH_invokes.get( i );
-				if( curr_SH_T_invokes == null ) {
-					curr_SH_T_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
-					curr_SL_TH_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
-					SH_T_invokes.put( i, curr_SH_T_invokes );
-					SL_TH_invokes.put( i, curr_SL_TH_invokes );
+				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
+				if( curr_invokes == null ) {
+					curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
+					T_invokes.put( i, curr_invokes );
 				}
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					WrappedInteger count = curr_SH_T_invokes.get( twogram );
+					WrappedInteger count = curr_invokes.get( twogram );
 					if( count == null ) {
-						curr_SH_T_invokes.put( twogram, ONE );
+						curr_invokes.put( twogram, ONE );
 					}
 					else if( count == ONE ) {
 						count = new WrappedInteger( 2 );
-						curr_SH_T_invokes.put( twogram, count );
+						curr_invokes.put( twogram, count );
 					}
 					else
 						count.increment();
-					if( is_TH_Record ) {
-						count = curr_SL_TH_invokes.get( twogram );
-						if( count == null ) {
-							curr_SL_TH_invokes.put( twogram, ONE );
-						}
-						else if( count == ONE ) {
-							count = new WrappedInteger( 2 );
-							curr_SL_TH_invokes.put( twogram, count );
-						}
-						else
-							count.increment();
-					}
 				}
 			}
 		}
 
-		// bw.close();
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
-
-		// Build an index for the strings in S which has more than 'threshold'
-		// 1-expandable strings
-		// SH_T_idx = new WYK_HashMap<Integer, Map<IntegerPair,
-		// List<IntIntRecordTriple>>>();
-		// SL_TH_idx = new WYK_HashMap<Integer, Map<IntegerPair,
-		// List<IntIntRecordTriple>>>();
 
 		// Actually, tableS
 		for( Record rec : tableR ) {
@@ -189,14 +149,10 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
 			int searchmax = Math.min( range[ 0 ], maxIndex );
-			boolean is_SH_record = true;// rec.getEstNumRecords() > joinThreshold;
 			int[] invokearr = new int[ searchmax ];
 
-			Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = is_SH_record ? SH_T_invokes : SL_TH_invokes;
-			Map<Integer, Map<IntegerPair, WrappedInteger>> idx_count = is_SH_record ? SH_T_idx_count : SL_TH_idx_count;
-
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
+				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
 				if( curr_invokes == null ) {
 					minIdx = i;
 					minInvokes = 0;
@@ -215,102 +171,71 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 				invokearr[ i ] = invoke;
 			}
 
-			// if (minInvokes > 400) {
-			// System.out.println(rec.toString() + " : " +
-			// Arrays.toString(invokearr));
-			// }
-
-			Map<IntegerPair, WrappedInteger> curr_idx_count = idx_count.get( minIdx );
-			if( curr_idx_count == null ) {
-				curr_idx_count = new WYK_HashMap<IntegerPair, WrappedInteger>();
-				idx_count.put( minIdx, curr_idx_count );
+			Map<IntegerPair, Directory> curr_idx = idx.get( minIdx );
+			if( curr_idx == null ) {
+				curr_idx = new WYK_HashMap<IntegerPair, Directory>();
+				idx.put( minIdx, curr_idx );
 			}
 			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
-				WrappedInteger count = curr_idx_count.get( twogram );
-				if( count == null ) {
-					curr_idx_count.put( twogram, ONE );
+				Directory dir = curr_idx.get( twogram );
+				if( dir == null ) {
+					dir = new Directory();
+					curr_idx.put( twogram, dir );
 				}
-				else if( count == ONE ) {
-					count = new WrappedInteger( 2 );
-					curr_idx_count.put( twogram, count );
-				}
-				else
-					count.increment();
+				dir.list.add( rec );
 			}
-			int elements = available2Grams.get( minIdx ).size();
-			if( is_SH_record ) {
-				est_SH_T_cmps += minInvokes;
-				SH_T_elements += elements;
-			}
-			else {
-				est_SL_TH_cmps += minInvokes;
-				SL_TH_elements += elements;
-			}
+			int count = available2Grams.get( minIdx ).size();
+			est_cmps += minInvokes;
+			elements += count;
 		}
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
 
-		System.out.println( "SH_T predict : " + est_SH_T_cmps );
-		System.out.println( "SH_T idx size : " + SH_T_elements );
-		System.out.println( "SL_TH predict : " + est_SL_TH_cmps );
-		System.out.println( "SL_TH idx size : " + SL_TH_elements );
+		System.out.println( "predict : " + est_cmps );
+		System.out.println( "idx size : " + elements );
 		System.out.println( WrappedInteger.count + " Wrapped Integers" );
-		for( Entry<Integer, Map<IntegerPair, WrappedInteger>> e : SH_T_idx_count.entrySet() ) {
+		for(
+
+		Entry<Integer, Map<IntegerPair, Directory>> e : idx.entrySet() ) {
 			System.out.println( e.getKey() + " : " + e.getValue().size() );
 		}
 	}
 
-	@SuppressWarnings( "unused" )
-	private void checkLongestIndex() {
-		Comparator<Entry<IntegerPair, WrappedInteger>> cmp = new Comparator<Entry<IntegerPair, WrappedInteger>>() {
-			@Override
-			public int compare( Entry<IntegerPair, WrappedInteger> o1, Entry<IntegerPair, WrappedInteger> o2 ) {
-				return Integer.compare( o1.getValue().get(), o2.getValue().get() );
-			}
-		};
+	private void clearJoinMinIndex() {
+		for( Map<IntegerPair, Directory> map : idx.values() )
+			map.clear();
+		idx.clear();
+	}
 
-		PriorityQueue<Entry<IntegerPair, WrappedInteger>> pq = new PriorityQueue<Entry<IntegerPair, WrappedInteger>>( 10, cmp );
-		for( Map<IntegerPair, WrappedInteger> curr_idx_count : SH_T_idx_count.values() ) {
-			for( Entry<IntegerPair, WrappedInteger> e : curr_idx_count.entrySet() ) {
-				if( pq.size() < 10 )
-					pq.add( e );
-				else if( cmp.compare( pq.peek(), e ) < 0 ) {
-					pq.poll();
-					pq.add( e );
-				}
-			}
-		}
-
-		Set<IntegerPair> watch = new HashSet<IntegerPair>();
-		for( Entry<IntegerPair, WrappedInteger> e : pq ) {
-			watch.add( e.getKey() );
-			String bigram = Record.twoGram2String( e.getKey() );
-			System.out.println( bigram + ": " + e.getValue().get() );
-		}
-
-		for( Record recS : tableR ) {
-			if( !recS.toString().startsWith( "real estate" ) )
+	private void buildNaiveIndex() {
+		// Build 1-expanded set for every record in R
+		int count = 0;
+		setR = new HashMap<Record, List<Integer>>();
+		for( int i = 0; i < tableR.size(); ++i ) {
+			Record rec = tableR.get( i );
+			assert ( rec != null );
+			if( rec.getEstNumRecords() > joinThreshold )
 				continue;
-			System.out.println( recS.toString() + " :" );
-			int searchmax = recS.getMinLength();
-			Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = SH_T_invokes;
-			List<Set<IntegerPair>> twograms = recS.get2Grams();
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
-				if( curr_invokes == null ) {
-					break;
-				}
-				int invoke = 0;
-				for( IntegerPair twogram : twograms.get( i ) ) {
-					WrappedInteger count = curr_invokes.get( twogram );
-					if( count != null )
-						invoke += count.get();
-					System.out.println( i + " | " + Record.twoGram2String( twogram ) + " : " + count.get() );
-				}
-				System.out.println( i + " | sum " + invoke );
+			List<Record> expanded = rec.expandAll( ruletrie );
+			assert ( expanded.size() <= joinThreshold );
+			assert ( !expanded.isEmpty() );
+			for( Record expR : expanded ) {
+				if( !setR.containsKey( expR ) )
+					setR.put( expR, new ArrayList<Integer>( 5 ) );
+				List<Integer> list = setR.get( expR );
+				assert ( list != null );
+				if( !list.isEmpty() && list.get( list.size() - 1 ) == i )
+					continue;
+				list.add( i );
 			}
+			++count;
 		}
+		long idxsize = 0;
+		for( List<Integer> list : setR.values() )
+			idxsize += list.size();
+		System.out.println( count + " records are 1-expanded and indexed" );
+		System.out.println( "Total index size: " + idxsize );
 	}
 
 	/**
@@ -323,55 +248,60 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long appliedRules_sum = 0;
 
+		long startTime = System.currentTimeMillis();
+		buildJoinMinIndex();
+		System.out.print( "Building JoinMin Index finished" );
+		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableS ) {
-			appliedRules_sum += searchEquivsByDynamicIndex( s, SH_T_idx, rslt );
-		}
+		for( Record s : tableS )
+			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		time1 = System.currentTimeMillis() - time1;
+		clearJoinMinIndex();
+
+		startTime = System.currentTimeMillis();
+		buildNaiveIndex();
+		System.out.print( "Building Naive Index finished" );
+		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
 		long time2 = System.currentTimeMillis();
-		for( Record s : tableS ) {
-			if( s.getEstNumRecords() > joinThreshold )
-				appliedRules_sum += searchEquivsByDynamicIndex( s, SL_TH_idx, rslt );
-		}
-		time2 = System.currentTimeMillis() - time2;
-
-		long time3 = System.currentTimeMillis();
 		for( Record s : tableS ) {
 			if( s.getEstNumRecords() > joinThreshold )
 				continue;
 			else
 				searchEquivsByNaive1Expansion( s, rslt );
 		}
-		time3 = System.currentTimeMillis() - time3;
+		time2 = System.currentTimeMillis() - time2;
 
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-		System.out.println( "large S : " + time1 );
-		System.out.println( "small S + large R : " + time2 );
-		System.out.println( "small S + small S: " + time3 );
+		System.out.println( "SH_T + SL_TH : " + time1 );
+		System.out.println( "SL_TL : " + time2 );
 
 		return rslt;
 	}
 
-	private int searchEquivsByDynamicIndex( Record s, Map<Integer, Map<IntegerPair, List<Record>>> idx, List<IntegerPair> rslt ) {
+	private int searchEquivsByDynamicIndex( Record s, Map<Integer, Map<IntegerPair, Directory>> idx, List<IntegerPair> rslt ) {
+		boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
 		int appliedRules_sum = 0;
 		List<Set<IntegerPair>> available2Grams = s.get2Grams();
 		int[] range = s.getCandidateLengths( s.size() - 1 );
 		int searchmax = Math.min( available2Grams.size(), maxIndex );
 		for( int i = 0; i < searchmax; ++i ) {
-			Map<IntegerPair, List<Record>> curr_idx = idx.get( i );
+			Map<IntegerPair, Directory> curr_idx = idx.get( i );
 			if( curr_idx == null )
 				continue;
 			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 			for( IntegerPair twogram : available2Grams.get( i ) ) {
-				List<Record> tree = curr_idx.get( twogram );
+				Directory tree = curr_idx.get( twogram );
 
 				if( tree == null )
 					continue;
 				List<Record> list = new ArrayList<Record>();
-				for( Record r : tree )
+				for( int j = is_TH_record ? 0 : tree.SHsize; j < tree.list.size(); ++j ) {
+					Record r = tree.list.get( j );
 					if( StaticFunctions.overlap( r.getMinLength(), r.getMaxLength(), range[ 0 ], range[ 1 ] ) )
 						list.add( r );
+				}
 				candidatesList.add( list );
 			}
 			List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
@@ -509,7 +439,6 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		findTheta( Integer.MAX_VALUE );
 		System.out.print( "Estimation finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.exit( 1 );
 
 		startTime = System.currentTimeMillis();
 		Collection<IntegerPair> rslt = join();
@@ -535,14 +464,21 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 	@SuppressWarnings( "static-access" )
 	private void findConstants( double sampleratio ) {
 		// Sample
+		// TODO remove fixed seed 0
+		Random rn = new Random( 0 );
+
 		List<Record> sampleRlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
-		for( Record r : tableR )
-			if( Math.random() < sampleratio )
+		for( Record r : tableR ) {
+			if( rn.nextDouble() < sampleratio ) {
 				sampleRlist.add( r );
-		for( Record s : tableS )
-			if( Math.random() < sampleratio )
+			}
+		}
+		for( Record s : tableS ) {
+			if( rn.nextDouble() < sampleratio ) {
 				sampleSlist.add( s );
+			}
+		}
 		List<Record> tmpR = tableR;
 		tableR = sampleRlist;
 		List<Record> tmpS = tableS;
@@ -552,14 +488,14 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		System.out.println( sampleSlist.size() + " S records are sampled" );
 
 		// Infer alpha and beta
-		Naive1 naiveinst = new Naive1( this );
-		Naive1.threshold = 100;
+		JoinNaive1 naiveinst = new JoinNaive1( this );
+		naiveinst.threshold = 100;
 		naiveinst.runWithoutPreprocess();
 		alpha = naiveinst.alpha;
 		beta = naiveinst.beta;
 
 		// Infer gamma, delta and epsilon
-		JoinH2GramNoIntervalTree joinmininst = new JoinH2GramNoIntervalTree( this );
+		JoinMin joinmininst = new JoinMin( this );
 		joinmininst.useAutomata = useAutomata;
 		joinmininst.skipChecking = skipChecking;
 		joinmininst.maxIndex = maxIndex;
@@ -567,7 +503,9 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		joinmininst.checker = checker;
 		joinmininst.outputfile = outputfile;
 		try {
-			joinmininst.runWithoutPreprocess( true );
+			System.out.println( "Joinmininst run" );
+			joinmininst.runWithoutPreprocess( false );
+			System.out.println( "Joinmininst run done" );
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
@@ -605,6 +543,9 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		int tidx = 0;
 		long theta = Math.min( tableR.get( 0 ).getEstNumRecords(), tableS.get( 0 ).getEstNumRecords() );
 
+		// Number of bigrams generated by expanded TL records
+		Map<Integer, Map<IntegerPair, WrappedInteger>> TL_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
+
 		// Prefix sums
 		long currSLExpSize = 0;
 		long currTLExpSize = 0;
@@ -624,32 +565,30 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 				currTLExpSize += expSize;
 				List<Set<IntegerPair>> twograms = t.get2Grams();
 				for( int i = 0; i < t.getMaxLength(); ++i ) {
-					/**
-					 * Frequency count of i-th bigrams of TH records
-					 */
-					Map<IntegerPair, WrappedInteger> curr_invokes = SL_TH_invokes.get( i );
+					// Frequency count of i-th bigrams of TL records
+					Map<IntegerPair, WrappedInteger> curr_invokes = TL_invokes.get( i );
+					Map<IntegerPair, Directory> curr_idx = idx.get( i );
 					if( curr_invokes == null ) {
 						curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
-						SL_TH_invokes.put( i, curr_invokes );
+						TL_invokes.put( i, curr_invokes );
 					}
-					/**
-					 * Size of the index using i-th bigrams of SL records
-					 */
-					Map<IntegerPair, WrappedInteger> curr_idx_count = SL_TH_idx_count.get( i );
 					for( IntegerPair curr_twogram : twograms.get( i ) ) {
-						// Decrease frequency count of TH records
+						// Update TL_invokes
 						WrappedInteger count = curr_invokes.get( curr_twogram );
-						if( count == ONE )
-							curr_invokes.put( curr_twogram, null );
-						else if( count != null && count.get() > 0 )
-							count.decrement();
+						if( count == null )
+							curr_invokes.put( curr_twogram, ONE );
+						else if( count == ONE )
+							curr_invokes.put( curr_twogram, new WrappedInteger( 2 ) );
+						else
+							count.increment();
 
-						// Update est_SL_TH_cmps
-						if( curr_idx_count != null ) {
-							count = curr_idx_count.get( curr_twogram );
-							if( count != null )
-								est_SL_TH_cmps -= count.get();
-						}
+						// Update est_cmps
+						if( curr_idx == null )
+							continue;
+						Directory dir = curr_idx.get( curr_twogram );
+						if( dir == null )
+							continue;
+						est_cmps -= dir.SHsize;
 					}
 				}
 				for( Set<IntegerPair> set : twograms )
@@ -683,47 +622,30 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 
 				// Count the reduced invocation counts
 				List<Set<IntegerPair>> twograms = s.get2Grams();
-				int SH_T_min_invokes = Integer.MAX_VALUE;
-				int SL_TH_min_invokes = Integer.MAX_VALUE;
-				int SL_TH_min_index = -1;
+				int min_invokes = Integer.MAX_VALUE;
+				int min_index = -1;
+				/**
+				 * @TODO
+				 */
 				for( int i = 0; i < s.getMinLength(); ++i ) {
-					int SH_T_count = 0;
-					int SL_TH_count = 0;
+					int sum_invokes = 0;
 					for( IntegerPair curr_twogram : twograms.get( i ) ) {
-						WrappedInteger count = SH_T_invokes.get( i ).get( curr_twogram );
+						WrappedInteger count = T_invokes.get( i ).get( curr_twogram );
 						if( count != null )
-							SH_T_count += count.get();
-						count = SL_TH_invokes.get( i ).get( curr_twogram );
-						if( count != null )
-							SL_TH_count += count.get();
+							sum_invokes += count.get();
 					}
-					if( SH_T_count < SH_T_min_invokes )
-						SH_T_min_invokes = SH_T_count;
-					if( SL_TH_count < SL_TH_min_invokes ) {
-						SL_TH_min_invokes = SL_TH_count;
-						SL_TH_min_index = i;
+					if( sum_invokes < min_invokes ) {
+						min_invokes = sum_invokes;
+						min_index = i;
 					}
 				}
-				// Modify SH_T_idx
-				// Modify SL_TH_idx
-				Map<IntegerPair, WrappedInteger> curr_idx_count = SL_TH_idx_count.get( SL_TH_min_index );
-				if( curr_idx_count == null ) {
-					curr_idx_count = new WYK_HashMap<IntegerPair, WrappedInteger>();
-					SL_TH_idx_count.put( SL_TH_min_index, curr_idx_count );
+				Map<IntegerPair, Directory> curr_idx = idx.get( min_index );
+				assert ( curr_idx != null );
+				for( IntegerPair curr_twogram : twograms.get( min_index ) ) {
+					// Update index
+					Directory dir = curr_idx.get( curr_twogram );
+					++dir.SHsize;
 				}
-				for( IntegerPair curr_twogram : twograms.get( SL_TH_min_index ) ) {
-					WrappedInteger count = curr_idx_count.get( curr_twogram );
-					if( count == null )
-						curr_idx_count.put( curr_twogram, ONE );
-					else if( count == ONE ) {
-						count = new WrappedInteger( 2 );
-						curr_idx_count.put( curr_twogram, count );
-					}
-					else
-						count.increment();
-				}
-				est_SH_T_cmps -= SH_T_min_invokes;
-				est_SL_TH_cmps += SL_TH_min_invokes;
 				for( Set<IntegerPair> set : twograms )
 					set.clear();
 				twograms.clear();
@@ -736,9 +658,8 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 			long[] esttimes = new long[ 4 ];
 			esttimes[ 0 ] = (long) ( alpha * currSLExpSize );
 			esttimes[ 1 ] = (long) ( beta * currTLExpSize );
-			esttimes[ 2 ] = (long) ( epsilon * est_SH_T_cmps );
-			esttimes[ 3 ] = (long) ( epsilon * est_SL_TH_cmps );
-			long esttime = esttimes[ 0 ] + esttimes[ 1 ] + esttimes[ 2 ] + esttimes[ 3 ];
+			esttimes[ 2 ] = (long) ( epsilon * est_cmps );
+			long esttime = esttimes[ 0 ] + esttimes[ 1 ] + esttimes[ 2 ];
 			if( esttime < best_esttime ) {
 				best_theta = (int) theta;
 				best_esttime = esttime;
@@ -763,7 +684,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		String Rfile = params.getInputX();
 		String Sfile = params.getInputY();
 		String Rulefile = params.getInputRules();
-		outputfile = params.getOutput();
+		String outputfile = params.getOutput();
 
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();
@@ -774,7 +695,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		checker = params.getValidator();
 
 		long startTime = System.currentTimeMillis();
-		Hybrid2GramWithOptTheta2 inst = new Hybrid2GramWithOptTheta2( Rulefile, Rfile, Sfile );
+		JoinHybridOpt inst = new JoinHybridOpt( Rulefile, Rfile, Sfile, outputfile );
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		inst.run( params.getSampleRatio() );
@@ -788,12 +709,23 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 
 	@Override
 	public String getName() {
-		return "Hybrid2GramWithOptTheta2";
+		return "JoinHybridOpt";
 	}
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
-		// TODO Auto-generated method stub
+		this.stat = stat;
 
+		Param params = Param.parseArgs( args );
+		// Setup parameters
+		useAutomata = params.isUseACAutomata();
+		skipChecking = params.isSkipChecking();
+		maxIndex = params.getMaxIndex();
+		compact = params.isCompact();
+		singleside = params.isSingleside();
+		checker = params.getValidator();
+
+		run( params.getSampleRatio() );
+		Validator.printStats();
 	}
 }

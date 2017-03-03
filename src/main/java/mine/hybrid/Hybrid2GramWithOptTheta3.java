@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import mine.JoinH2GramNoIntervalTree;
@@ -235,8 +236,9 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 			++count;
 		}
 		long idxsize = 0;
-		for( List<Integer> list : setR.values() )
+		for( List<Integer> list : setR.values() ) {
 			idxsize += list.size();
+		}
 		System.out.println( count + " records are 1-expanded and indexed" );
 		System.out.println( "Total index size: " + idxsize );
 	}
@@ -442,7 +444,6 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 		findTheta( Integer.MAX_VALUE );
 		System.out.print( "Estimation finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.exit( 1 );
 
 		startTime = System.currentTimeMillis();
 		Collection<IntegerPair> rslt = join();
@@ -452,6 +453,7 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
 
 		try {
+			System.out.println( "Writing results " + rslt.size() );
 			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
@@ -462,19 +464,23 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
+			System.out.println( "Error: " + e.getMessage() );
 		}
 	}
 
 	@SuppressWarnings( "static-access" )
 	private void findConstants( double sampleratio ) {
 		// Sample
+		// TODO remove fixed seed 0
+		Random rn = new Random( 0 );
+
 		List<Record> sampleRlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
 		for( Record r : tableR )
-			if( Math.random() < sampleratio )
+			if( rn.nextDouble() < sampleratio )
 				sampleRlist.add( r );
 		for( Record s : tableS )
-			if( Math.random() < sampleratio )
+			if( rn.nextDouble() < sampleratio )
 				sampleSlist.add( s );
 		List<Record> tmpR = tableR;
 		tableR = sampleRlist;
@@ -500,9 +506,13 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 		joinmininst.checker = checker;
 		joinmininst.outputfile = outputfile;
 		try {
-			joinmininst.runWithoutPreprocess();
+			System.out.println( "Joinmininst run" );
+			joinmininst.runWithoutPreprocess( false );
+			System.out.println( "Joinmininst run done" );
 		}
 		catch( Exception e ) {
+			e.printStackTrace();
+			System.out.println( "[findConstants] Error: " + e.getMessage() );
 		}
 		gamma = joinmininst.gamma;
 		delta = joinmininst.delta;

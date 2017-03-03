@@ -86,7 +86,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 	 * 'threshold' 1-expandable strings
 	 * (SL x TH)
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> S_TH_idx;
+	Map<Integer, Map<IntegerPair, List<Record>>> S_TH_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 	/**
 	 * Index of the records in S for the strings in T which has more than
 	 * 'threshold' 1-expandable strings
@@ -107,7 +107,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 	/**
 	 * List of 1-expandable strings
 	 */
-	Map<Record, List<Integer>> setR;
+	Map<Record, List<Integer>> setR = new WYK_HashMap<>();
 	/**
 	 * Estimated number of comparisons
 	 */

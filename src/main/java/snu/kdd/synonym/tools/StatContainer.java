@@ -57,7 +57,7 @@ public class StatContainer {
 				valueName = valueName.replaceAll( "data.txt", "" );
 			}
 
-			add( name, valueName );
+			addPrimary( name, valueName );
 		}
 	}
 
@@ -120,11 +120,32 @@ public class StatContainer {
 
 	public void printResult() {
 		int maxKeyLength = 0;
-		for( int i = 0; i < nameList.size(); i++ ) {
-			int length = nameList.get( i ).length();
+		for( int i = 0; i < primaryNameList.size(); i++ ) {
+			int length = primaryNameList.get( i ).length();
+
 			if( maxKeyLength < length ) {
 				maxKeyLength = length;
 			}
+		}
+
+		for( int i = 0; i < nameList.size(); i++ ) {
+			int length = nameList.get( i ).length();
+
+			if( maxKeyLength < length ) {
+				maxKeyLength = length;
+			}
+		}
+
+		for( int i = 0; i < primaryNameList.size(); i++ ) {
+			int length = primaryNameList.get( i ).length();
+			System.out.print( primaryNameList.get( i ) );
+
+			for( int f = length; f < maxKeyLength; f++ ) {
+				System.out.print( ' ' );
+			}
+
+			System.out.print( "  " );
+			System.out.println( primaryValueList.get( i ) );
 		}
 
 		for( int i = 0; i < nameList.size(); i++ ) {
@@ -201,7 +222,12 @@ public class StatContainer {
 
 		if( !legend.equals( prevLegend ) ) {
 			// print legend
-			dataFile.println( legend );
+			try {
+				dataFile.println( legend );
+			}
+			catch( Exception e ) {
+				e.printStackTrace();
+			}
 		}
 
 		try {
