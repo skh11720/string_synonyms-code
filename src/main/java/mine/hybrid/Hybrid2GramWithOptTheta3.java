@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import mine.JoinH2GramNoIntervalTree;
@@ -468,13 +469,16 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 	@SuppressWarnings( "static-access" )
 	private void findConstants( double sampleratio ) {
 		// Sample
+		// TODO remove fixed seed 0
+		Random rn = new Random( 0 );
+
 		List<Record> sampleRlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
 		for( Record r : tableR )
-			if( Math.random() < sampleratio )
+			if( rn.nextDouble() < sampleratio )
 				sampleRlist.add( r );
 		for( Record s : tableS )
-			if( Math.random() < sampleratio )
+			if( rn.nextDouble() < sampleratio )
 				sampleSlist.add( s );
 		List<Record> tmpR = tableR;
 		tableR = sampleRlist;
