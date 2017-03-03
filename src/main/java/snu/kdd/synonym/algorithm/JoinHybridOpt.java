@@ -458,8 +458,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 	@SuppressWarnings( "static-access" )
 	private void findConstants( double sampleratio ) {
 		// Sample
-		// TODO remove fixed seed 0
-		Random rn = new Random( 0 );
+		Random rn = new Random();
 
 		List<Record> sampleRlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
@@ -710,7 +709,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 	public void run( String[] args, StatContainer stat ) {
 		this.stat = stat;
 
-		Param params = Param.parseArgs( args );
+		Param params = Param.parseArgs( args, stat );
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();
 		skipChecking = params.isSkipChecking();

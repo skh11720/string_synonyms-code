@@ -155,7 +155,16 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		}
 	}
 
-	public void run() {
+	@Override
+	public void run( String[] args, StatContainer stat ) {
+		if( args.length != 1 ) {
+			System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold>" );
+		}
+		this.stat = stat;
+		this.threshold = Long.valueOf( args[ 0 ] );
+
+		stat.addPrimary( "cmd_threshold", threshold );
+
 		final StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess Time" );
 		preprocess();
 		preprocessTime.stop();
@@ -183,19 +192,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		}
 		writeTime.stop();
 		stat.add( writeTime );
-	}
-
-	@Override
-	public void run( String[] args, StatContainer stat ) {
-		if( args.length != 1 ) {
-			System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold>" );
-		}
-		this.stat = stat;
-		this.threshold = Long.valueOf( args[ 0 ] );
-
-		stat.add( "cmd_threshold", threshold );
-
-		this.run();
 	}
 
 	public List<RecordPair> runWithoutPreprocess() {

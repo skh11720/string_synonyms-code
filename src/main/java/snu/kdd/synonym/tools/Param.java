@@ -43,11 +43,14 @@ public class Param {
 		argOptions = options;
 	}
 
-	public static Param parseArgs( String[] args ) {
+	public static Param parseArgs( String[] args, StatContainer stat ) {
 		CommandLineParser parser = new DefaultParser();
 		Param param = new Param();
 		try {
 			CommandLine cmd = parser.parse( argOptions, args );
+
+			stat.add( cmd );
+
 			ValidatorName vname = ValidatorName.TopDownHashSetSinglePathDS;
 			int vthreshold = 100;
 			if( cmd.hasOption( "n" ) )

@@ -566,7 +566,7 @@ public class JoinMin extends AlgorithmTemplate {
 	public void run( String[] args, StatContainer stat ) {
 		this.stat = stat;
 
-		Param params = Param.parseArgs( args );
+		Param params = Param.parseArgs( args, stat );
 
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();

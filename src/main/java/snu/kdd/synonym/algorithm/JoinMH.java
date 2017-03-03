@@ -218,7 +218,7 @@ public class JoinMH extends AlgorithmTemplate {
 	public void run( String[] args, StatContainer stat ) {
 		this.stat = stat;
 
-		Param params = Param.parseArgs( args );
+		Param params = Param.parseArgs( args, stat );
 
 		maxIndex = params.getMaxIndex();
 
