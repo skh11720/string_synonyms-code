@@ -71,6 +71,15 @@ public class JoinMin extends AlgorithmTemplate {
 		Record.setRuleTrie( ruletrie );
 	}
 
+	public JoinMin( AlgorithmTemplate o ) {
+		super( o );
+
+		Record.setStrList( strlist );
+		idComparator = new RecordIDComparator();
+		ruletrie = new RuleTrie( rulelist );
+		Record.setRuleTrie( ruletrie );
+	}
+
 	private void buildIndex() throws IOException {
 		long elements = 0;
 		long predictCount = 0;

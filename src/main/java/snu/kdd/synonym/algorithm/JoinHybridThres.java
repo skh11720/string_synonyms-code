@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -17,19 +18,19 @@ import mine.RecordIDComparator;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.IntegerPair;
 import tools.Parameters;
-import tools.RandHash;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
 import validator.Validator;
+import wrapped.WrappedInteger;
 
 /**
  * Given threshold, if a record has more than 'threshold' 1-expandable strings,
  * use an index to store them.
  * Otherwise, generate all 1-expandable strings and then use them to check
  * if two strings are equivalent.
- * Join (SH x TL), (S x TH) and (SL x TL)
+ * Utilize only one index by sorting records according to their expanded size.
  */
 public class JoinHybridThres extends AlgorithmTemplate {
 	static boolean useAutomata = true;
@@ -41,84 +42,63 @@ public class JoinHybridThres extends AlgorithmTemplate {
 	static Validator checker;
 
 	RecordIDComparator idComparator;
+	RecordIDReverseComparator idReverseComparator;
 	RuleTrie ruletrie;
 
 	/**
 	 * Key: (token, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
+	/**
+	 * Index of the records in R for the strings in S which has more than
+	 * 'threshold' 1-expandable strings
+	 */
 	Map<Integer, Map<IntegerPair, List<Record>>> idx;
 	/**
 	 * List of 1-expandable strings
 	 */
 	Map<Record, List<Integer>> setR;
+	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public static double dirsampleratio = 0.01;
-	public static int mhsize = 30;
-	RandHash[] rhfunc;
-
-	public JoinHybridThres( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
+	protected JoinHybridThres( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile );
 		idComparator = new RecordIDComparator();
+		idReverseComparator = new RecordIDReverseComparator();
 		ruletrie = new RuleTrie( rulelist );
-		rhfunc = new RandHash[ mhsize ];
-		for( int i = 0; i < mhsize; ++i )
-			rhfunc[ i ] = new RandHash();
 	}
 
-	private enum JoinRange {
-		SL_TL, SH_TL, S_TH
-	}
-
-	private void buildJoinMinIndex( JoinRange joinrange ) {
-		assert ( joinrange != JoinRange.SL_TL );
-		clearJoinMinIndex();
-
+	private void buildJoinMinIndex() {
 		Runtime runtime = Runtime.getRuntime();
 
 		long elements = 0;
-		long est_invokes = 0;
-		double est_unions = 0;
+		long SL_TH_elements = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		Map<Integer, Map<IntegerPair, Directory>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
+
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
 		// Actually, tableT
 		for( Record rec : tableS ) {
-			// If currently processing range do not match with current record, skip
-			// processing this record
-			boolean is_TH_Record = rec.getEstNumRecords() > joinThreshold;
-			if( is_TH_Record != ( joinrange == JoinRange.S_TH ) )
-				continue;
-
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, Directory> curr_invokes;
-				if( is_TH_Record ) {
-					curr_invokes = invokes.get( i );
-					if( curr_invokes == null ) {
-						curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
-						invokes.put( i, curr_invokes );
-					}
-				}
-				else {
-					curr_invokes = invokes.get( i );
-					if( curr_invokes == null ) {
-						curr_invokes = new WYK_HashMap<IntegerPair, Directory>();
-						invokes.put( i, curr_invokes );
-					}
+				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
+				if( curr_invokes == null ) {
+					curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
+					invokes.put( i, curr_invokes );
 				}
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					if( Math.random() > dirsampleratio )
-						continue;
-					Directory count = curr_invokes.get( twogram );
+					WrappedInteger count = curr_invokes.get( twogram );
 					if( count == null ) {
-						count = new Directory();
+						curr_invokes.put( twogram, ONE );
+					}
+					else if( count == ONE ) {
+						count = new WrappedInteger( 2 );
 						curr_invokes.put( twogram, count );
 					}
-					count.add( rec );
+					else
+						count.increment();
 				}
 			}
 		}
@@ -127,87 +107,35 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 
-		// Prepare for the signature of set union
-		int[] union_sig = new int[ mhsize ];
-
 		// Actually, tableS
 		for( Record rec : tableR ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
-			int searchmax = Math.min( range[ 0 ], maxIndex );
-			assert ( searchmax >= 0 );
-
-			// If currently processing range is SH_TL and the current record is not
-			// SH, skip processing this record
-			boolean is_SH_record = rec.getEstNumRecords() > joinThreshold;
-			if( !is_SH_record && ( joinrange == JoinRange.SH_TL ) )
-				continue;
-
-			// Find the best location with the least number of candidates
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
-			double minUnion = Integer.MAX_VALUE;
-			double[] unionarr = new double[ searchmax ];
+			int searchmax = Math.min( range[ 0 ], maxIndex );
+			int[] invokearr = new int[ searchmax ];
 
 			for( int i = 0; i < searchmax; ++i ) {
-				// prepare for the union signature
-				for( int j = 0; j < mhsize; ++j )
-					union_sig[ j ] = Integer.MAX_VALUE;
-				int maxsize = 0;
-				Directory maxsizedir = null;
-
-				// Find every directory with the bigrams which this record can
-				// generate
-				Map<IntegerPair, Directory> curr_invokes = invokes.get( i );
+				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
 				if( curr_invokes == null ) {
 					minIdx = i;
 					minInvokes = 0;
-					minUnion = 0;
 					break;
 				}
 				int invoke = 0;
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					Directory dir = curr_invokes.get( twogram );
-					if( dir == null )
-						continue;
-					else if( dir.count > maxsize ) {
-						maxsize = dir.count;
-						maxsizedir = dir;
-					}
-					for( int j = 0; j < mhsize; ++j )
-						union_sig[ j ] = Math.min( union_sig[ j ], dir.minhash[ j ] );
-					invoke += dir.count;
+					WrappedInteger count = curr_invokes.get( twogram );
+					if( count != null )
+						invoke += count.get();
 				}
-
-				// Compute the estimated union size
-				int inter = 0;
-				double union = 0;
-				if( maxsizedir != null ) {
-					assert ( maxsize != 0 );
-					for( int j = 0; j < mhsize; ++j )
-						if( union_sig[ j ] == maxsizedir.minhash[ j ] )
-							++inter;
-					if( inter == 0 )
-						union = Math.min( invoke, tableS.size() );
-					else
-						union = ( (double) maxsizedir.count * mhsize ) / inter;
-				}
-				unionarr[ i ] = union;
-
-				// Update minUnion
-				if( union < minUnion ) {
+				if( invoke < minInvokes ) {
 					minIdx = i;
 					minInvokes = invoke;
-					minUnion = union;
 				}
+				invokearr[ i ] = invoke;
 			}
 
-			if( minIdx < 0 ) {
-				System.out.println( "Error : minIdx < 0 at " + rec.toString() );
-				System.exit( 1 );
-			}
-			assert ( minIdx >= 0 );
-			// Add record to index
 			Map<IntegerPair, List<Record>> curr_idx = idx.get( minIdx );
 			if( curr_idx == null ) {
 				curr_idx = new WYK_HashMap<IntegerPair, List<Record>>();
@@ -222,30 +150,22 @@ public class JoinHybridThres extends AlgorithmTemplate {
 				list.add( rec );
 			}
 			elements += available2Grams.get( minIdx ).size();
-			est_unions += minUnion;
-			est_invokes += minInvokes;
 		}
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 
-		System.out.println( joinrange.toString() + " idx size : " + elements );
-		System.out.println( "Est invokes : " + est_invokes / dirsampleratio );
-		System.out.println( "Est unions : " + est_unions / dirsampleratio );
+		System.out.println( "SH_T idx size : " + elements );
+		System.out.println( "SL_TH idx size : " + SL_TH_elements );
+		System.out.println( WrappedInteger.count + " Wrapped Integers" );
 		for( Entry<Integer, Map<IntegerPair, List<Record>>> e : idx.entrySet() ) {
 			System.out.println( e.getKey() + " : " + e.getValue().size() );
 		}
 	}
 
 	private void clearJoinMinIndex() {
-		if( idx == null )
-			return;
-		for( Map<IntegerPair, List<Record>> map : idx.values() ) {
-			for( List<Record> list : map.values() )
-				list.clear();
+		for( Map<IntegerPair, List<Record>> map : idx.values() )
 			map.clear();
-		}
 		idx.clear();
-		System.gc();
 	}
 
 	private void buildNaiveIndex() {
@@ -288,61 +208,41 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long appliedRules_sum = 0;
 
-		// S_TH
 		long startTime = System.currentTimeMillis();
-		buildJoinMinIndex( JoinRange.S_TH );
-		System.out.print( "Building S_TH JoinMin Index finished" );
+		buildJoinMinIndex();
+		System.out.print( "Building JoinMin Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.gc();
-		for( Record s : tableS ) {
-			boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
-			if( is_TH_record ) {
-				appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
-			}
-		}
-		long time1 = System.currentTimeMillis() - startTime;
-		System.out.println( "S_TH JoinMin part finished" );
 
-		// SH_TL
-		startTime = System.currentTimeMillis();
-		buildJoinMinIndex( JoinRange.SH_TL );
-		System.out.print( "Building SH_TL JoinMin Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.gc();
-		for( Record s : tableS ) {
-			boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
-			if( !is_TH_record ) {
-				appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
-			}
-		}
-		long time2 = System.currentTimeMillis() - startTime;
-		System.out.println( "SH_TL JoinMin part finished" );
-		System.out.println( Validator.checked + " cmps" );
-
-		// SL_TL
+		long time1 = System.currentTimeMillis();
+		for( Record s : tableS )
+			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
+
 		startTime = System.currentTimeMillis();
 		buildNaiveIndex();
 		System.out.print( "Building Naive Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		long time3 = System.currentTimeMillis();
+
+		long time2 = System.currentTimeMillis();
 		for( Record s : tableS ) {
 			if( s.getEstNumRecords() > joinThreshold )
 				continue;
 			else
 				searchEquivsByNaive1Expansion( s, rslt );
 		}
-		time3 = System.currentTimeMillis() - time3;
+		time2 = System.currentTimeMillis() - time2;
 
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-		System.out.println( "S_TH : " + time1 );
-		System.out.println( "SH_TL : " + time2 );
-		System.out.println( "SL_TL : " + time3 );
+		System.out.println( "SH_T + SL_TH : " + time1 );
+		System.out.println( "SL_TL : " + time2 );
 
 		return rslt;
 	}
 
 	private int searchEquivsByDynamicIndex( Record s, Map<Integer, Map<IntegerPair, List<Record>>> idx, List<IntegerPair> rslt ) {
+		boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
+
 		int appliedRules_sum = 0;
 		List<Set<IntegerPair>> available2Grams = s.get2Grams();
 		int[] range = s.getCandidateLengths( s.size() - 1 );
@@ -358,12 +258,16 @@ public class JoinHybridThres extends AlgorithmTemplate {
 				if( tree == null )
 					continue;
 				List<Record> list = new ArrayList<Record>();
-				for( Record rec : tree )
-					if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) )
+				for( int j = tree.size() - 1; j >= 0; --j ) {
+					Record rec = tree.get( j );
+					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold )
+						break;
+					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) )
 						list.add( rec );
+				}
 				candidatesList.add( list );
 			}
-			List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
+			List<Record> candidates = StaticFunctions.union( candidatesList, idReverseComparator );
 			if( skipChecking )
 				continue;
 			for( Record recR : candidates ) {
@@ -377,37 +281,17 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		return appliedRules_sum;
 	}
 
+	private class RecordIDReverseComparator implements Comparator<Record> {
+		@Override
+		public int compare( Record o1, Record o2 ) {
+			return -idComparator.compare( o1, o2 );
+		}
+	}
+
 	private class IntegerComparator implements Comparator<Integer> {
 		@Override
 		public int compare( Integer o1, Integer o2 ) {
 			return o1.compareTo( o2 );
-		}
-	}
-
-	/* private int intarrbytes(int len) {
-	 * // Accurate bytes in 64bit machine is:
-	 * // ceil(4 * len / 8) * 8 + 16
-	 * return len * 4 + 16;
-	 * } */
-
-	class Directory {
-		int count;
-		int[] minhash;
-
-		Directory() {
-			count = 0;
-			minhash = new int[ mhsize ];
-			for( int i = 0; i < mhsize; ++i )
-				minhash[ i ] = Integer.MAX_VALUE;
-		}
-
-		// Add a record
-		void add( Record rec ) {
-			++count;
-			for( int i = 0; i < mhsize; ++i ) {
-				int hash = rhfunc[ i ].get( rec.getID() );
-				minhash[ i ] = Math.min( minhash[ i ], hash );
-			}
 		}
 	}
 
@@ -490,9 +374,42 @@ public class JoinHybridThres extends AlgorithmTemplate {
 			bw.close();
 		}
 		catch( IOException e ) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
+		super.preprocess( compact, maxIndex, useAutomata );
+
+		// Sort R and S with expanded sizes
+		Comparator<Record> cmp = new Comparator<Record>() {
+			@Override
+			public int compare( Record o1, Record o2 ) {
+				long est1 = o1.getEstNumRecords();
+				long est2 = o2.getEstNumRecords();
+				return Long.compare( est1, est2 );
+			}
+		};
+		Collections.sort( tableR, cmp );
+		Collections.sort( tableS, cmp );
+
+		// Reassign ID
+		long maxSEstNumRecords = 0;
+		long maxTEstNumRecords = 0;
+		for( int i = 0; i < tableR.size(); ++i ) {
+			Record s = tableR.get( i );
+			s.setID( i );
+			maxSEstNumRecords = Math.max( maxSEstNumRecords, s.getEstNumRecords() );
+		}
+		for( int i = 0; i < tableS.size(); ++i ) {
+			Record t = tableS.get( i );
+			t.setID( i );
+			maxTEstNumRecords = Math.max( maxTEstNumRecords, t.getEstNumRecords() );
+		}
+
+		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
+		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
 	}
 
 	public static void main( String[] args ) throws IOException {
@@ -526,7 +443,7 @@ public class JoinHybridThres extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinHybridThres";
+		return "Hybrid2GramA3";
 	}
 
 	@Override
@@ -543,7 +460,7 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		singleside = params.isSingleside();
 		checker = params.getValidator();
 
-		run();
+		this.run();
 		Validator.printStats();
 	}
 }
