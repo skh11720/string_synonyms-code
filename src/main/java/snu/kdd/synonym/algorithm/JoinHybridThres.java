@@ -444,7 +444,7 @@ public class JoinHybridThres extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "Hybrid2GramA3";
+		return "JoinHybridThres";
 	}
 
 	@Override
