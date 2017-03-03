@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import mine.Naive1;
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.tools.Param;
@@ -486,8 +485,8 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( sampleSlist.size() + " S records are sampled" );
 
 		// Infer alpha and beta
-		Naive1 naiveinst = new Naive1( this );
-		Naive1.threshold = 100;
+		JoinNaive1 naiveinst = new JoinNaive1( this );
+		naiveinst.threshold = 100;
 		naiveinst.runWithoutPreprocess();
 		alpha = naiveinst.alpha;
 		beta = naiveinst.beta;

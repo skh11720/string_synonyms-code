@@ -205,6 +205,7 @@ public abstract class AlgorithmTemplate {
 
 	public void writeResult( Collection<IntegerPair> rslt ) {
 		try {
+			System.out.println( "Writing results " + rslt.size() );
 			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( IntegerPair ip : rslt ) {
 				Record r = tableR.get( ip.i1 );
@@ -217,6 +218,7 @@ public abstract class AlgorithmTemplate {
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
+			System.out.println( "Error: " + e.getMessage() );
 		}
 	}
 
