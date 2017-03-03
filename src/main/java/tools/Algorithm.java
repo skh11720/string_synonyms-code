@@ -78,6 +78,8 @@ public abstract class Algorithm {
 	}
 
 	protected Algorithm( Algorithm o ) {
+		System.out.println( "Initialize with o " + o.getName() );
+
 		this.str2int = o.str2int;
 		this.strlist = o.strlist;
 		this.tableR = o.tableR;
