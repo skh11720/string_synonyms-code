@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -23,109 +22,6 @@ import tools.WYK_HashMap;
  * Expand from both sides
  */
 public class JoinNaive1 extends AlgorithmTemplate {
-	/**
-	 * Store the original index from expanded string
-	 */
-	Map<Record, ArrayList<Integer>> rec2idx;
-	Rule_ACAutomata automata;
-	RuleTrie ruletrie;
-
-	public long threshold = Long.MAX_VALUE;
-	public static boolean skipequiv = false;
-
-	public long buildIndexTime;
-	public long joinTime;
-	public double alpha;
-	public double beta;
-
-	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile );
-		automata = new Rule_ACAutomata( getRulelist() );
-		ruletrie = new RuleTrie( getRulelist() );
-	}
-
-	public JoinNaive1( AlgorithmTemplate o ) {
-		super( o );
-		automata = new Rule_ACAutomata( getRulelist() );
-		ruletrie = new RuleTrie( getRulelist() );
-	}
-
-	public void run() {
-		StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess Time" );
-		preprocess();
-		preprocessTime.stop();
-		stat.add( preprocessTime );
-
-		StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
-		List<RecordPair> list = runWithoutPreprocess();
-		runTime.stop();
-		stat.add( runTime );
-
-		StopWatch writeTime = StopWatch.getWatchStarted( "Write Time" );
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( this.outputfile ) );
-			for( RecordPair rp : list ) {
-				Record s = rp.record1;
-				Record t = rp.record2;
-				if( !s.equals( t ) )
-					bw.write( s.toString() + " == " + t.toString() + "\n" );
-			}
-			bw.close();
-		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
-		writeTime.stop();
-		stat.add( writeTime );
-	}
-
-	private void preprocess() {
-		for( Record r : tableR ) {
-			r.preprocessRules( automata, false );
-			r.preprocessEstimatedRecords();
-		}
-		for( Record s : tableS ) {
-			s.preprocessRules( automata, false );
-			s.preprocessEstimatedRecords();
-		}
-	}
-
-	private void buildIndex() {
-		rec2idx = new WYK_HashMap<Record, ArrayList<Integer>>( 1000000 );
-		long starttime = System.nanoTime();
-		long totalExpSize = 0;
-		int count = 0;
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record recR = tableR.get( i );
-			long est = recR.getEstNumRecords();
-			if( threshold != -1 && est > threshold )
-				continue;
-			List<Record> expanded = recR.expandAll( ruletrie );
-			assert ( threshold == -1 || expanded.size() <= threshold );
-			totalExpSize += expanded.size();
-			for( Record exp : expanded ) {
-				ArrayList<Integer> list = rec2idx.get( exp );
-				if( list == null ) {
-					list = new ArrayList<Integer>( 5 );
-					rec2idx.put( exp, list );
-				}
-				// If current list already contains current record, skip adding
-				if( !list.isEmpty() && list.get( list.size() - 1 ) == i )
-					continue;
-				list.add( i );
-			}
-			++count;
-		}
-		long idxsize = 0;
-		for( List<Integer> list : rec2idx.values() )
-			idxsize += list.size();
-		System.out.println( count + " records are indexed" );
-		System.out.println( "Total index size: " + idxsize );
-		// ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
-		long duration = System.nanoTime() - starttime;
-		alpha = ( (double) duration ) / totalExpSize;
-	}
-
 	private class IntegerComparator implements Comparator<Integer> {
 		@Override
 		public int compare( Integer o1, Integer o2 ) {
@@ -133,65 +29,81 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		}
 	}
 
-	private List<IntegerPair> join() {
-		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
-		long starttime = System.nanoTime();
-		long totalExpSize = 0;
+	public static boolean skipequiv = false;
+	public double alpha;
 
-		for( int idxS = 0; idxS < tableS.size(); ++idxS ) {
-			Record recS = tableS.get( idxS );
-			long est = recS.getEstNumRecords();
-			if( threshold != -1 && est > threshold )
-				continue;
-			List<Record> expanded = recS.expandAll( ruletrie );
-			totalExpSize += expanded.size();
-			List<List<Integer>> candidates = new ArrayList<List<Integer>>( expanded.size() * 2 );
-			for( Record exp : expanded ) {
-				List<Integer> overlapidx = rec2idx.get( exp );
-				if( overlapidx == null )
-					continue;
-				candidates.add( overlapidx );
-			}
-			if( !skipequiv ) {
-				List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-				for( Integer idx : union )
-					rslt.add( new IntegerPair( idx, idxS ) );
-			}
-		}
+	Rule_ACAutomata automata;
+	public double beta;
 
-		long duration = System.nanoTime() - starttime;
-		beta = ( (double) duration ) / totalExpSize;
+	/**
+	 * Store the original index from expanded string
+	 */
+	Map<Record, ArrayList<Integer>> rec2idx;
+	RuleTrie ruletrie;
 
-		return rslt;
+	public long threshold = Long.MAX_VALUE;
+
+	public JoinNaive1( AlgorithmTemplate o ) {
+		super( o );
+		automata = new Rule_ACAutomata( getRulelist() );
+		ruletrie = new RuleTrie( getRulelist() );
 	}
 
-	public List<RecordPair> runWithoutPreprocess() {
-		long startTime = System.nanoTime();
-		buildIndex();
-		buildIndexTime = System.nanoTime() - startTime;
-		System.out.println( "Building Index finished " + buildIndexTime );
-		startTime = System.nanoTime();
-		List<IntegerPair> rslt = join();
-		joinTime = System.nanoTime() - startTime;
-		System.out.println( "Join finished " + joinTime + " ns" );
-		System.out.println( rslt.size() );
-		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
-		System.out.println( "Equals counter: " + StaticFunctions.compare_cmp_counter );
+	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile );
+		automata = new Rule_ACAutomata( getRulelist() );
+		ruletrie = new RuleTrie( getRulelist() );
+	}
 
-		List<RecordPair> rlist = new ArrayList<RecordPair>();
-		for( IntegerPair ip : rslt ) {
-			Record r = tableR.get( ip.i1 );
-			Record s = tableS.get( ip.i2 );
-			rlist.add( new RecordPair( r, s ) );
+	private void buildIndex() {
+		rec2idx = new WYK_HashMap<>( 1000000 );
+		final long starttime = System.nanoTime();
+		long totalExpSize = 0;
+		int count = 0;
+		for( int i = 0; i < tableR.size(); ++i ) {
+			final Record recR = tableR.get( i );
+			final long est = recR.getEstNumRecords();
+			if( threshold != -1 && est > threshold ) {
+				continue;
+			}
+			final List<Record> expanded = recR.expandAll( ruletrie );
+			assert ( threshold == -1 || expanded.size() <= threshold );
+			totalExpSize += expanded.size();
+			for( final Record exp : expanded ) {
+				ArrayList<Integer> list = rec2idx.get( exp );
+				if( list == null ) {
+					list = new ArrayList<>( 5 );
+					rec2idx.put( exp, list );
+				}
+				// If current list already contains current record, skip adding
+				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
+					continue;
+				}
+				list.add( i );
+			}
+			++count;
 		}
-		Collections.sort( rlist );
-		return rlist;
+		long idxsize = 0;
+		for( final List<Integer> list : rec2idx.values() ) {
+			idxsize += list.size();
+		}
+		System.out.println( count + " records are indexed" );
+		System.out.println( "Total index size: " + idxsize );
+		// ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
+		final long duration = System.nanoTime() - starttime;
+		alpha = ( (double) duration ) / totalExpSize;
 	}
 
 	public void clearIndex() {
-		if( rec2idx != null )
+		if( rec2idx != null ) {
 			rec2idx.clear();
+		}
 		rec2idx = null;
+	}
+
+	@Override
+	public String getName() {
+		return "JoinNaive1";
 	}
 
 	@Override
@@ -199,9 +111,80 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		return "1.0";
 	}
 
-	@Override
-	public String getName() {
-		return "JoinNaive1";
+	private List<IntegerPair> join() {
+		final List<IntegerPair> rslt = new ArrayList<>();
+		final long starttime = System.nanoTime();
+		long totalExpSize = 0;
+
+		for( int idxS = 0; idxS < tableS.size(); ++idxS ) {
+			final Record recS = tableS.get( idxS );
+			final long est = recS.getEstNumRecords();
+			if( threshold != -1 && est > threshold ) {
+				continue;
+			}
+			final List<Record> expanded = recS.expandAll( ruletrie );
+			totalExpSize += expanded.size();
+			final List<List<Integer>> candidates = new ArrayList<>( expanded.size() * 2 );
+			for( final Record exp : expanded ) {
+				final List<Integer> overlapidx = rec2idx.get( exp );
+				if( overlapidx == null ) {
+					continue;
+				}
+				candidates.add( overlapidx );
+			}
+			if( !skipequiv ) {
+				final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
+				for( final Integer idx : union ) {
+					rslt.add( new IntegerPair( idx, idxS ) );
+				}
+			}
+		}
+
+		final long duration = System.nanoTime() - starttime;
+		beta = ( (double) duration ) / totalExpSize;
+
+		return rslt;
+	}
+
+	private void preprocess() {
+		for( final Record r : tableR ) {
+			r.preprocessRules( automata, false );
+			r.preprocessEstimatedRecords();
+		}
+		for( final Record s : tableS ) {
+			s.preprocessRules( automata, false );
+			s.preprocessEstimatedRecords();
+		}
+	}
+
+	public void run() {
+		final StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess Time" );
+		preprocess();
+		preprocessTime.stop();
+		stat.add( preprocessTime );
+
+		final StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
+		final List<RecordPair> list = runWithoutPreprocess();
+		runTime.stop();
+		stat.add( runTime );
+
+		final StopWatch writeTime = StopWatch.getWatchStarted( "Write Time" );
+		try {
+			final BufferedWriter bw = new BufferedWriter( new FileWriter( this.outputfile ) );
+			for( final RecordPair rp : list ) {
+				final Record s = rp.record1;
+				final Record t = rp.record2;
+				if( !s.equals( t ) ) {
+					bw.write( s.toString() + " == " + t.toString() + "\n" );
+				}
+			}
+			bw.close();
+		}
+		catch( final IOException e ) {
+			e.printStackTrace();
+		}
+		writeTime.stop();
+		stat.add( writeTime );
 	}
 
 	@Override
@@ -215,5 +198,32 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		stat.add( "cmd_threshold", threshold );
 
 		this.run();
+	}
+
+	public List<RecordPair> runWithoutPreprocess() {
+		StopWatch idxTime = StopWatch.getWatchStarted( "Index building time" );
+		buildIndex();
+		idxTime.stopQuiet();
+		stat.add( idxTime );
+
+		StopWatch joinTime = StopWatch.getWatchStarted( "Join time" );
+		final List<IntegerPair> rslt = join();
+		joinTime.stopQuiet();
+		stat.add( joinTime );
+
+		stat.addPrimary( "Result size", rslt.size() );
+		stat.add( "Union counter", StaticFunctions.union_cmp_counter );
+		stat.add( "Equals counter", StaticFunctions.compare_cmp_counter );
+
+		final List<RecordPair> rlist = new ArrayList<>();
+		for( final IntegerPair ip : rslt ) {
+			final Record r = tableR.get( ip.i1 );
+			final Record s = tableS.get( ip.i2 );
+			rlist.add( new RecordPair( r, s ) );
+		}
+
+		// Does we require to sort rlist?
+		// Collections.sort( rlist );
+		return rlist;
 	}
 }
