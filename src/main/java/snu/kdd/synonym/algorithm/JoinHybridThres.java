@@ -15,6 +15,7 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.IntegerPair;
@@ -286,13 +287,6 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		@Override
 		public int compare( Record o1, Record o2 ) {
 			return -idComparator.compare( o1, o2 );
-		}
-	}
-
-	private class IntegerComparator implements Comparator<Integer> {
-		@Override
-		public int compare( Integer o1, Integer o2 ) {
-			return o1.compareTo( o2 );
 		}
 	}
 

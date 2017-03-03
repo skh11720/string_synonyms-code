@@ -5,19 +5,36 @@ package snu.kdd.synonym.tools;
  */
 
 public class StopWatch {
-	private long timeStart;
+	public static StopWatch getWatchStarted( String name ) {
+		final StopWatch watch = new StopWatch( name );
+		watch.start();
+		return watch;
+	}
+
 	private long timeEnd;
+	private long timeStart;
 	private long totalTime = 0;
+
 	private String watchName = null;
 
 	private StopWatch( String name ) {
 		watchName = name;
 	}
 
-	public static StopWatch getWatchStarted( String name ) {
-		StopWatch watch = new StopWatch( name );
-		watch.start();
-		return watch;
+	public String getName() {
+		return watchName;
+	}
+
+	public long getTotalTime() {
+		return totalTime;
+	}
+
+	public void printElapsedTime() {
+		Util.printLog( watchName + " running for " + ( System.currentTimeMillis() - timeStart ) + "ms" );
+	}
+
+	public void printTotal() {
+		Util.printLog( watchName + " ran for " + totalTime + "ms" );
 	}
 
 	public void reset() {
@@ -31,6 +48,11 @@ public class StopWatch {
 		timeStart = 0;
 		timeEnd = 0;
 		totalTime = 0;
+	}
+
+	public void resetAndStart( String newName ) {
+		reset( newName );
+		start();
 	}
 
 	public void start() {
@@ -53,21 +75,5 @@ public class StopWatch {
 		}
 		timeEnd = System.currentTimeMillis();
 		totalTime += timeEnd - timeStart;
-	}
-
-	public void printElapsedTime() {
-		Util.printLog( watchName + " running for " + ( System.currentTimeMillis() - timeStart ) + "ms" );
-	}
-
-	public void printTotal() {
-		Util.printLog( watchName + " ran for " + totalTime + "ms" );
-	}
-
-	public long getTotalTime() {
-		return totalTime;
-	}
-
-	public String getName() {
-		return watchName;
 	}
 }

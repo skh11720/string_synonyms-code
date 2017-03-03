@@ -4,12 +4,12 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import mine.Record;
 import mine.RecordPair;
+import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
@@ -19,25 +19,19 @@ import tools.StaticFunctions;
 import tools.WYK_HashMap;
 
 /**
- * Expand from both sides
+ * The Naive algorithm which expands strings from both tables S and T
  */
 public class JoinNaive1 extends AlgorithmTemplate {
-	private class IntegerComparator implements Comparator<Integer> {
-		@Override
-		public int compare( Integer o1, Integer o2 ) {
-			return o1.compareTo( o2 );
-		}
-	}
-
-	public static boolean skipequiv = false;
-	public double alpha;
+	public boolean skipequiv = false;
 
 	Rule_ACAutomata automata;
+	public double alpha;
 	public double beta;
 
 	/**
 	 * Store the original index from expanded string
 	 */
+
 	Map<Record, ArrayList<Integer>> rec2idx;
 	RuleTrie ruletrie;
 
@@ -45,12 +39,16 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 	public JoinNaive1( AlgorithmTemplate o ) {
 		super( o );
+
+		// build an ac automata / a trie from rule lists
 		automata = new Rule_ACAutomata( getRulelist() );
 		ruletrie = new RuleTrie( getRulelist() );
 	}
 
 	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile );
+
+		// build an ac automata / a trie from rule lists
 		automata = new Rule_ACAutomata( getRulelist() );
 		ruletrie = new RuleTrie( getRulelist() );
 	}
