@@ -7,7 +7,7 @@ LIBS=$6
 threshold=$7
 project=$8
 
-ADDITIONAL="-t $threshold -compact -v TopDownHashSetSinglePathDS 0"
+ADDITIONAL="-joinExpandThreshold $threshold -compact -v TopDownHashSetSinglePathDS 0"
 
 ALG=JoinHybridThres
 
