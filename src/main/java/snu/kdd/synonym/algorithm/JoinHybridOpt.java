@@ -704,7 +704,18 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
-		// TODO Auto-generated method stub
+		this.stat = stat;
 
+		Parameters params = Parameters.parseArgs( args );
+		// Setup parameters
+		useAutomata = params.isUseACAutomata();
+		skipChecking = params.isSkipChecking();
+		maxIndex = params.getMaxIndex();
+		compact = params.isCompact();
+		singleside = params.isSingleside();
+		checker = params.getValidator();
+
+		run( params.getSampleRatio() );
+		Validator.printStats();
 	}
 }
