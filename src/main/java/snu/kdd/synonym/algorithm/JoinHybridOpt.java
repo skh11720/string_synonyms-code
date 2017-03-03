@@ -96,7 +96,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 	long memlimit_expandedS;
 
-	protected JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
+	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );

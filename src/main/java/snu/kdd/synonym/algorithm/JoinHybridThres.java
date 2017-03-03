@@ -60,7 +60,7 @@ public class JoinHybridThres extends AlgorithmTemplate {
 	Map<Record, List<Integer>> setR;
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	protected JoinHybridThres( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
+	public JoinHybridThres( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile );
 		idComparator = new RecordIDComparator();
 		idReverseComparator = new RecordIDReverseComparator();
