@@ -510,11 +510,11 @@ public class JoinMin extends AlgorithmTemplate {
 		preprocess( compact, maxIndex, useAutomata );
 		System.out.print( "Preprocess finished time " + ( System.nanoTime() - startTime ) );
 
-		runWithoutPreprocess();
+		runWithoutPreprocess( true );
 	}
 
 	@SuppressWarnings( "static-access" )
-	public void runWithoutPreprocess() {
+	public void runWithoutPreprocess( boolean writeResult ) {
 		// Retrieve statistics
 		statistics();
 
@@ -541,7 +541,9 @@ public class JoinMin extends AlgorithmTemplate {
 		System.out.println( "Join finished " + joinTime + " ns" );
 		System.out.println( rslt.size() );
 
-		this.writeResult( rslt );
+		if( writeResult ) {
+			this.writeResult( rslt );
+		}
 
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 			TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
@@ -578,7 +580,7 @@ public class JoinMin extends AlgorithmTemplate {
 		preprocessTime.stop();
 
 		StopWatch processTime = StopWatch.getWatchStarted( "processing time" );
-		runWithoutPreprocess();
+		runWithoutPreprocess( true );
 		processTime.stop();
 
 		Validator.printStats();
