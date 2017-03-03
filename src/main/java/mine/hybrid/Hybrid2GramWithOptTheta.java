@@ -605,9 +605,10 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		joinmininst.checker = checker;
 		joinmininst.outputfile = outputfile;
 		try {
-			joinmininst.runWithoutPreprocess();
+			joinmininst.runWithoutPreprocess( true );
 		}
 		catch( Exception e ) {
+			e.printStackTrace();
 		}
 		double gamma = joinmininst.gamma;
 		double delta = joinmininst.delta;
