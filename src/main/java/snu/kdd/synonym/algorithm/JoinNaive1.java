@@ -37,12 +37,13 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 	public long threshold = Long.MAX_VALUE;
 
-	public JoinNaive1( AlgorithmTemplate o ) {
+	public JoinNaive1( AlgorithmTemplate o, StatContainer stat ) {
 		super( o );
 
 		// build an ac automata / a trie from rule lists
 		automata = new Rule_ACAutomata( getRulelist() );
 		ruletrie = new RuleTrie( getRulelist() );
+		this.stat = stat;
 	}
 
 	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {

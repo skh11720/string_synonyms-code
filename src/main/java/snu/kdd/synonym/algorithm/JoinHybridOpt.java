@@ -481,7 +481,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( sampleSlist.size() + " S records are sampled" );
 
 		// Infer alpha and beta
-		JoinNaive1 naiveinst = new JoinNaive1( this );
+		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
 		naiveinst.threshold = 100;
 		naiveinst.runWithoutPreprocess();
 		alpha = naiveinst.alpha;
