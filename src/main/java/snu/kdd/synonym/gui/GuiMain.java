@@ -39,9 +39,11 @@ public class GuiMain extends JFrame {
 	DataInfo dataInfo = null;
 	private final JButton btnRules = new JButton( "Rules" );
 	private final JButton btnJoinNaive1 = new JButton( "JoinNaive1" );
+	private final JButton btnJoinNaive2 = new JButton( "JoinNaive2" );
 	private final JButton btnJoinMH = new JButton( "JoinMH" );
 	private final JButton btnJoinMin = new JButton( "JoinMin" );
 	private final JButton btnJoinHybridOpt = new JButton( "JoinHybridOpt" );
+	private final JButton btnJoinHybridThres = new JButton( "JoinHybridThres" );
 
 	private JTextField sampleTextField;
 	private JTextField thresTextField;
@@ -98,9 +100,11 @@ public class GuiMain extends JFrame {
 					btnTransaction.setEnabled( true );
 					btnRules.setEnabled( true );
 					btnJoinNaive1.setEnabled( true );
+					btnJoinNaive2.setEnabled( true );
 					btnJoinMH.setEnabled( true );
 					btnJoinMin.setEnabled( true );
 					btnJoinHybridOpt.setEnabled( true );
+					btnJoinHybridThres.setEnabled( true );
 				}
 			}
 			else {
@@ -127,9 +131,11 @@ public class GuiMain extends JFrame {
 					btnTransaction.setEnabled( true );
 					btnRules.setEnabled( true );
 					btnJoinNaive1.setEnabled( true );
+					btnJoinNaive2.setEnabled( true );
 					btnJoinMH.setEnabled( true );
 					btnJoinMin.setEnabled( true );
 					btnJoinHybridOpt.setEnabled( true );
+					btnJoinHybridThres.setEnabled( true );
 				}
 			}
 			else {
@@ -146,31 +152,35 @@ public class GuiMain extends JFrame {
 			}
 
 			String arg = "-dataOnePath " + dataFilePath + " -dataTwoPath " + dataFilePath + " -rulePath " + ruleFilePath
-					+ " -outputPath";
+					+ " -outputPath output";
 			String additional = null;
 
 			String command = evt.getActionCommand();
 			if( command.equals( "JoinNaive1" ) ) {
-				arg = arg + " naive1.txt -algorithm JoinNaive1 -additional";
+				arg = arg + " -algorithm JoinNaive1 -additional";
 				additional = "-1";
 			}
+			else if( command.equals( "JoinNaive2" ) ) {
+				arg = arg + " -algorithm JoinNaive2 -additional";
+				additional = "";
+			}
 			else if( command.equals( "JoinMH" ) ) {
-				arg = arg + " joinmh.txt -algorithm JoinMH -additional";
+				arg = arg + " -algorithm JoinMH -additional";
 				additional = "-n 1 -compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinMin" ) ) {
-				arg = arg + " joinmin.txt -algorithm JoinMin -additional";
+				arg = arg + " -algorithm JoinMin -additional";
 				additional = "-compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinHybridOpt" ) ) {
 				String sample = sampleTextField.getText();
-				arg = arg + " joinhybrid.txt -algorithm JoinHybridOpt -additional";
+				arg = arg + " -algorithm JoinHybridOpt -additional";
 				additional = "-compact -v TopDownHashSetSinglePathDS 0 -s " + sample;
 			}
 			else if( command.equals( "JoinHybridThres" ) ) {
 				String thres = thresTextField.getText();
-				arg = arg + " joinhybrid.txt -algorithm JoinHybridThres -additional";
-				additional = "-compact -v TopDownHashSetSinglePathDS 0 -t " + thres;
+				arg = arg + " -algorithm JoinHybridThres -additional";
+				additional = "-compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold " + thres;
 			}
 
 			System.out.println( "Args: " + arg );
@@ -221,7 +231,7 @@ public class GuiMain extends JFrame {
 		getContentPane().add( btnJoinNaive1 );
 		btnJoinMH.addActionListener( new RunAlgorithmActionListener() );
 		btnJoinMH.setEnabled( false );
-		btnJoinMH.setBounds( 139, 41, 120, 23 );
+		btnJoinMH.setBounds( 266, 41, 120, 23 );
 
 		getContentPane().add( btnJoinMH );
 
@@ -243,29 +253,29 @@ public class GuiMain extends JFrame {
 
 		btnJoinMin.addActionListener( new RunAlgorithmActionListener() );
 		btnJoinMin.setEnabled( false );
-		btnJoinMin.setBounds( 267, 41, 120, 23 );
+		btnJoinMin.setBounds( 394, 41, 120, 23 );
 		getContentPane().add( btnJoinMin );
 
-		chckbxVerbose.setBounds( 738, 41, 73, 23 );
+		chckbxVerbose.setBounds( 533, 41, 73, 23 );
 		getContentPane().add( chckbxVerbose );
 
 		sampleTextField = new JTextField();
 		sampleTextField.setText( "0.1" );
-		sampleTextField.setBounds( 585, 42, 48, 21 );
+		sampleTextField.setBounds( 338, 76, 48, 21 );
 		getContentPane().add( sampleTextField );
 		sampleTextField.setColumns( 10 );
 
 		JLabel lblMinsup = new JLabel( "Sampling" );
-		lblMinsup.setBounds( 523, 45, 58, 15 );
+		lblMinsup.setBounds( 276, 79, 58, 15 );
 		getContentPane().add( lblMinsup );
 
 		JLabel lblGap = new JLabel( "Thres" );
-		lblGap.setBounds( 645, 45, 33, 15 );
+		lblGap.setBounds( 398, 79, 33, 15 );
 		getContentPane().add( lblGap );
 
 		thresTextField = new JTextField();
 		thresTextField.setText( "3" );
-		thresTextField.setBounds( 690, 42, 48, 21 );
+		thresTextField.setBounds( 443, 76, 48, 21 );
 		getContentPane().add( thresTextField );
 		thresTextField.setColumns( 10 );
 
@@ -279,10 +289,14 @@ public class GuiMain extends JFrame {
 		btnLoadRule.setBounds( 267, 12, 120, 23 );
 		getContentPane().add( btnLoadRule );
 
-		JButton btnJoinHybridThres = new JButton( "JoinHybridThres" );
 		btnJoinHybridThres.setEnabled( false );
 		btnJoinHybridThres.setBounds( 139, 74, 120, 23 );
 		getContentPane().add( btnJoinHybridThres );
+
+		btnJoinNaive2.setEnabled( false );
+		btnJoinNaive2.setBounds( 139, 41, 120, 23 );
+		getContentPane().add( btnJoinNaive2 );
+		btnJoinHybridThres.addActionListener( new RunAlgorithmActionListener() );
 	}
 
 	public static void main( String args[] ) {
