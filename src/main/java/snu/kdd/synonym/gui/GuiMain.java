@@ -146,35 +146,38 @@ public class GuiMain extends JFrame {
 			}
 
 			String arg = "-dataOnePath " + dataFilePath + " -dataTwoPath " + dataFilePath + " -rulePath " + ruleFilePath
-					+ " -outputPath ";
+					+ " -outputPath";
+			String additional = null;
 
 			String command = evt.getActionCommand();
 			if( command.equals( "JoinNaive1" ) ) {
-				arg = arg + " naive1.txt -algorithm JoinNaive1 -additional -1";
+				arg = arg + " naive1.txt -algorithm JoinNaive1 -additional";
+				additional = "-1";
 			}
-			else if( command.equals( "JoinMH " ) ) {
-				arg = arg + " joinmh.txt -algorithm JoinMH -additional \"-n 1 -compact -v TopDownHashSetSinglePathDS 0\"";
+			else if( command.equals( "JoinMH" ) ) {
+				arg = arg + " joinmh.txt -algorithm JoinMH -additional";
+				additional = "-n 1 -compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinMin" ) ) {
-				arg = arg + " joinmin.txt -algorithm JoinMin -additional \"-compact -v TopDownHashSetSinglePathDS 0\"";
+				arg = arg + " joinmin.txt -algorithm JoinMin -additional";
+				additional = "-compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinHybridOpt" ) ) {
 				String sample = sampleTextField.getText();
-				arg = arg + " joinhybrid.txt -algorithm JoinHybridOpt -additional \"-compact -v TopDownHashSetSinglePathDS 0 -s "
-						+ sample + "\"";
+				arg = arg + " joinhybrid.txt -algorithm JoinHybridOpt -additional";
+				additional = "-compact -v TopDownHashSetSinglePathDS 0 -s " + sample;
 			}
 			else if( command.equals( "JoinHybridThres" ) ) {
 				String thres = thresTextField.getText();
-				arg = arg
-						+ " joinhybrid.txt -algorithm JoinHybridThres -additional \"-compact -v TopDownHashSetSinglePathDS 0 -t "
-						+ thres + "\"";
+				arg = arg + " joinhybrid.txt -algorithm JoinHybridThres -additional";
+				additional = "-compact -v TopDownHashSetSinglePathDS 0 -t " + thres;
 			}
 
 			System.out.println( "Args: " + arg );
 
 			boolean verbose = chckbxVerbose.isSelected();
 
-			thread = new RunAlgorithmThread( arg, verbose, logArea );
+			thread = new RunAlgorithmThread( arg, additional, verbose, logArea );
 			logArea.append( "Starting\n" );
 			thread.start();
 		}

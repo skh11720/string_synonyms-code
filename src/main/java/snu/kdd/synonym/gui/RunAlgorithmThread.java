@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.swing.JTextArea;
 
+import org.apache.commons.cli.ParseException;
+
 import snu.kdd.synonym.driver.Driver;
 
 public class RunAlgorithmThread extends Thread {
@@ -14,8 +16,15 @@ public class RunAlgorithmThread extends Thread {
 
 	JTextArea logArea;
 
-	public RunAlgorithmThread( String arg, boolean verbose, JTextArea logArea ) {
-		this.args = arg.split( " " );
+	public RunAlgorithmThread( String arg, String additional, boolean verbose, JTextArea logArea ) {
+		String[] temp = arg.split( " " );
+		this.args = new String[ temp.length + 1 ];
+
+		for( int i = 0; i < temp.length; i++ ) {
+			this.args[ i ] = temp[ i ];
+		}
+		this.args[ temp.length ] = additional;
+
 		this.verbose = verbose;
 
 		this.logArea = logArea;
@@ -25,7 +34,12 @@ public class RunAlgorithmThread extends Thread {
 	public void run() {
 		try {
 			long startTime = System.currentTimeMillis();
-			Driver.main( args );
+			try {
+				Driver.main( args );
+			}
+			catch( ParseException e ) {
+				e.printStackTrace();
+			}
 			long endTime = System.currentTimeMillis();
 			logArea.append( "Finished: " + ( endTime - startTime ) + "\n" );
 		}
