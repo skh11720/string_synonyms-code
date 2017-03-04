@@ -52,6 +52,32 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		ruletrie = new RuleTrie( getRulelist() );
 	}
 
+	@Override
+	public void run( String[] args, StatContainer stat ) {
+		if( args.length != 1 ) {
+			System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold>" );
+		}
+		this.stat = stat;
+		this.threshold = Long.valueOf( args[ 0 ] );
+
+		stat.addPrimary( "cmd_threshold", threshold );
+
+		final StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess Time" );
+		preprocess();
+		preprocessTime.stop();
+		stat.add( preprocessTime );
+
+		final StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
+		final List<IntegerPair> list = runWithoutPreprocess();
+		runTime.stop();
+		stat.add( runTime );
+
+		final StopWatch writeTime = StopWatch.getWatchStarted( "Write Time" );
+		this.writeResult( list );
+		writeTime.stop();
+		stat.add( writeTime );
+	}
+
 	private void buildIndex() {
 		rec2idx = new WYK_HashMap<>( 1000000 );
 		final long starttime = System.nanoTime();
@@ -162,32 +188,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			s.preprocessRules( automata, false );
 			s.preprocessEstimatedRecords();
 		}
-	}
-
-	@Override
-	public void run( String[] args, StatContainer stat ) {
-		if( args.length != 1 ) {
-			System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold>" );
-		}
-		this.stat = stat;
-		this.threshold = Long.valueOf( args[ 0 ] );
-
-		stat.addPrimary( "cmd_threshold", threshold );
-
-		final StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess Time" );
-		preprocess();
-		preprocessTime.stop();
-		stat.add( preprocessTime );
-
-		final StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
-		final List<IntegerPair> list = runWithoutPreprocess();
-		runTime.stop();
-		stat.add( runTime );
-
-		final StopWatch writeTime = StopWatch.getWatchStarted( "Write Time" );
-		this.writeResult( list );
-		writeTime.stop();
-		stat.add( writeTime );
 	}
 
 	public List<IntegerPair> runWithoutPreprocess() {
