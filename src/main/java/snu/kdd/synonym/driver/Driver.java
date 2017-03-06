@@ -50,25 +50,27 @@ public class Driver {
 		JoinNaive1, JoinNaive2, JoinMH, JoinMin, JoinHybridThres, JoinHybridOpt, SIJoin
 	}
 
-	public static CommandLine parseInput( String args[] ) {
+	public static CommandLine parseInput( String args[] ) throws ParseException {
 
 		CommandLineParser parser = new DefaultParser();
 
 		CommandLine cmd = null;
 
-		try {
-			cmd = parser.parse( argOptions, args, false );
-		}
-		catch( ParseException e ) {
-			e.printStackTrace();
-			System.exit( 1 );
-		}
+		cmd = parser.parse( argOptions, args, false );
 
 		return cmd;
 	}
 
-	public static void main( String args[] ) throws IOException {
-		CommandLine cmd = parseInput( args );
+	public static void main( String args[] ) throws IOException, ParseException {
+
+		CommandLine cmd = null;
+		try {
+			cmd = parseInput( args );
+		}
+		catch( ParseException e ) {
+			e.printStackTrace();
+			throw e;
+		}
 
 		Util.printArgsError( cmd );
 

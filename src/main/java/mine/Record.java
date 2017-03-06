@@ -81,7 +81,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	private Record() {
 		id = -1;
-	};
+	}
 
 	public static void setStrList( List<String> int2str ) {
 		Record.strlist = int2str;
@@ -645,6 +645,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		return suffixApplicableRules[ size() - 1 ].length;
 	}
 
+	@Override
 	public int getID() {
 		return id;
 	}
@@ -653,6 +654,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		this.id = id;
 	}
 
+	@Override
 	public int size() {
 		return tokens.length;
 	}
@@ -719,8 +721,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		ArrayList<Rule> rules = atm.applicableRules( tokens, idx );
 		for( Rule rule : rules ) {
 			Record new_rec = this;
-			if( !StaticFunctions.isSelfRule( rule ) )
+			if( !StaticFunctions.isSelfRule( rule ) ) {
 				new_rec = applyRule( rule, idx );
+			}
 			int new_idx = idx + rule.toSize();
 			new_rec.expandAll( rslt, atm, new_idx );
 		}
