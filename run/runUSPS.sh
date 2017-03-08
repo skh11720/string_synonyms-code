@@ -5,11 +5,11 @@ LIBS=../target/Synonym.jar
 
 dir=logs
 
-SIZES=( 1000 )
-#SIZES=( 1000 3000 10000 30000 100000 )
+#SIZES=( 1000 )
+SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
 
-#RUN_Naive1=True
-RUN_Naive1=False
+RUN_Naive1=True
+#RUN_Naive1=False
 
 #RUN_Naive2=True
 RUN_Naive2=False

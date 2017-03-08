@@ -34,6 +34,10 @@ if [ $# -ne 13 ];
 then
 	echo 'check number of parameters'
 else
+	if [ ! -d 'logs' ];
+	then
+		mkdir logs
+	fi
 
 	if [ ! -d 'json' ];
 	then
@@ -50,6 +54,7 @@ else
 	then
 		date
 		./joinNaive1.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
+
 		#echo java -Xmx8G -Xms4G -cp $LIBS mine.Naive1 $inputfile_one $inputfile_two $rulefile -1
 		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.Naive1 $inputfile_one $inputfile_two $rulefile -1 > $dir"/"logNaive1; }
 		date
@@ -101,8 +106,8 @@ else
 	#JoinHybridOpt
 	if [[ $RUN_JoinHybridOpt == "True" ]];
 	then
-		samplings=( 0.01 )
-		#samplings=( 0.01 0.03 0.1 0.3 )
+		#samplings=( 0.01 )
+		samplings=( 0.01 0.03 0.1 0.3 )
 		for sampling in "${samplings[@]}"; do
 			date
 			./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
