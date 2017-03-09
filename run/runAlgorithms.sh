@@ -107,7 +107,7 @@ else
 	if [[ $RUN_JoinHybridOpt == "True" ]];
 	then
 		#samplings=( 0.01 )
-		samplings=( 0.01 0.03 0.1 0.3 )
+		samplings=( 0.001 0.003 0.01 0.03 )
 		for sampling in "${samplings[@]}"; do
 			date
 			./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
