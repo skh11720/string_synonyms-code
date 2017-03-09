@@ -440,6 +440,8 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( rslt.size() );
 		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
 
+		stat.add( "rslt size", rslt.size() );
+
 		try {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( IntegerPair ip : rslt ) {
@@ -517,6 +519,12 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( "Gamma : " + gamma );
 		System.out.println( "Delta : " + delta );
 		System.out.println( "Epsilon : " + epsilon );
+
+		stat.add( "Alpha", Double.toString( alpha ) );
+		stat.add( "Beta", Double.toString( beta ) );
+		stat.add( "Gamma", Double.toString( gamma ) );
+		stat.add( "Delta", Double.toString( delta ) );
+		stat.add( "Epsilon", Double.toString( epsilon ) );
 	}
 
 	private void findTheta( int max_theta ) {
