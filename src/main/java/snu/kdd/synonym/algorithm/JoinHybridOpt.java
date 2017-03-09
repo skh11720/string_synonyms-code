@@ -489,7 +489,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		beta = naiveinst.beta;
 
 		// Infer gamma, delta and epsilon
-		JoinMin joinmininst = new JoinMin( this );
+		JoinMin joinmininst = new JoinMin( this, stat );
 		joinmininst.useAutomata = useAutomata;
 		joinmininst.skipChecking = skipChecking;
 		joinmininst.maxIndex = maxIndex;
