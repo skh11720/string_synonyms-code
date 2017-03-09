@@ -203,7 +203,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		joinTime.stopQuiet();
 		stat.add( joinTime );
 
-		stat.addPrimary( "Result size", rslt.size() );
+		stat.addPrimary( "Naive Result size", rslt.size() );
 		stat.add( "Union counter", StaticFunctions.union_cmp_counter );
 		stat.add( "Equals counter", StaticFunctions.compare_cmp_counter );
 

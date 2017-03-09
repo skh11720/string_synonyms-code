@@ -541,6 +541,8 @@ public class JoinMin extends AlgorithmTemplate {
 		System.out.println( "Join finished " + joinTime + " ns" );
 		System.out.println( rslt.size() );
 
+		stat.add( "JoinMin result", rslt.size() );
+
 		if( writeResult ) {
 			this.writeResult( rslt );
 		}
