@@ -520,11 +520,11 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( "Delta : " + delta );
 		System.out.println( "Epsilon : " + epsilon );
 
-		stat.add( "Alpha", Double.toString( alpha ) );
-		stat.add( "Beta", Double.toString( beta ) );
-		stat.add( "Gamma", Double.toString( gamma ) );
-		stat.add( "Delta", Double.toString( delta ) );
-		stat.add( "Epsilon", Double.toString( epsilon ) );
+		stat.add( "findConstant_Alpha", String.format( "%.2d", alpha ) );
+		stat.add( "findConstant_Beta", String.format( "%.2d", beta ) );
+		stat.add( "findConstant_Gamma", String.format( "%.2d", gamma ) );
+		stat.add( "findConstant_Delta", String.format( "%.2d", delta ) );
+		stat.add( "findConstant_Epsilon", String.format( "%.2d", epsilon ) );
 	}
 
 	private void findTheta( int max_theta ) {
