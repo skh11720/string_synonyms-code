@@ -17,11 +17,11 @@ RUN_Naive2=False
 #RUN_SIJoin=True
 RUN_SIJoin=False
 
-RUN_JoinMin=True
-#RUN_JoinMin=False
+#RUN_JoinMin=True
+RUN_JoinMin=False
 
-RUN_JoinMH=True
-#RUN_JoinMH=False
+#RUN_JoinMH=True
+RUN_JoinMH=False
 
 RUN_JoinHybridOpt=True
 #RUN_JoinHybridOpt=False
