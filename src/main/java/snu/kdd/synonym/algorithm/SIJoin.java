@@ -60,7 +60,6 @@ public class SIJoin extends AlgorithmTemplate {
 		System.out.println( "Similar pairs : " + candidates.size() );
 
 		try {
-
 			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( Pair<Record> ip : candidates ) {
 				if( ip.rec1.getID() != ip.rec2.getID() )

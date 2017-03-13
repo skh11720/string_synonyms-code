@@ -1,7 +1,5 @@
 package snu.kdd.synonym.algorithm;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -442,18 +440,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 		stat.add( "rslt size", rslt.size() );
 
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
-			for( IntegerPair ip : rslt ) {
-				if( ip.i1 != ip.i2 )
-					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
-			}
-			bw.close();
-		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
+		writeResult( rslt );
 	}
 
 	@SuppressWarnings( "static-access" )

@@ -120,6 +120,10 @@ public class Driver {
 		stat.addPrimary( "Date", new Date().toString() );
 		stat.add( cmd );
 
+		if( dataOnePath.equals( dataTwoPath ) ) {
+			alg.setSelfJoin( true );
+		}
+
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
 		totalTime.stop();
 

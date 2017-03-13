@@ -38,6 +38,8 @@ public abstract class AlgorithmTemplate {
 	// Table S
 	protected List<Record> tableS;
 
+	private boolean selfJoin = false;
+
 	protected AlgorithmTemplate( AlgorithmTemplate o ) {
 		System.out.println( "Initialize with o " + o.getName() );
 
@@ -270,16 +272,26 @@ public abstract class AlgorithmTemplate {
 			for( final IntegerPair ip : rslt ) {
 				final Record r = tableR.get( ip.i1 );
 				final Record s = tableS.get( ip.i2 );
-				if( !r.equals( s ) ) {
-					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist ) + "\n" );
+				if( selfJoin && r.equals( s ) ) {
+					continue;
 				}
+				bw.write( tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}
-		catch( final Exception e ) {
+		catch(
+
+		final Exception e ) {
 			e.printStackTrace();
 			System.out.println( "Error: " + e.getMessage() );
 		}
+	}
+
+	public boolean isSelfJoin() {
+		return selfJoin;
+	}
+
+	public void setSelfJoin( boolean selfJoin ) {
+		this.selfJoin = selfJoin;
 	}
 }

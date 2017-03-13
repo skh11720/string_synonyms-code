@@ -1,10 +1,7 @@
 package snu.kdd.synonym.algorithm;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -179,29 +176,7 @@ public class JoinMH extends AlgorithmTemplate {
 		System.out.println( "Set inter items:" + StaticFunctions.inter_item_counter );
 		System.out.println( "Set inter cmps:" + StaticFunctions.inter_cmp_counter );
 
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
-			HashMap<Integer, ArrayList<Record>> tmp = new HashMap<Integer, ArrayList<Record>>();
-			for( IntegerPair ip : rslt ) {
-				if( !tmp.containsKey( ip.i1 ) ) {
-					tmp.put( ip.i1, new ArrayList<Record>() );
-				}
-				if( ip.i1 != ip.i2 ) {
-					tmp.get( ip.i1 ).add( tableS.get( ip.i2 ) );
-				}
-			}
-			for( int i = 0; i < tableR.size(); ++i ) {
-				if( !tmp.containsKey( i ) || tmp.get( i ).size() == 0 ) {
-					continue;
-				}
-				bw.write( tableR.get( i ).toString() + "\t" );
-				bw.write( tmp.get( i ).toString() + "\n" );
-			}
-			bw.close();
-		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
+		writeResult( rslt );
 	}
 
 	@Override
