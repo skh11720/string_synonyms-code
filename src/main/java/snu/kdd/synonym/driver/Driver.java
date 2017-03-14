@@ -117,7 +117,7 @@ public class Driver {
 		}
 		initializeTime.stop();
 
-		stat.addPrimary( "Date", new Date().toString() );
+		stat.addPrimary( "Date", "\"" + new Date().toString() + "\"" );
 		stat.add( cmd );
 
 		if( dataOnePath.equals( dataTwoPath ) ) {

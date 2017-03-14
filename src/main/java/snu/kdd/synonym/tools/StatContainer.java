@@ -59,6 +59,7 @@ public class StatContainer {
 			else if( valueName.startsWith( "data_store/" ) ) {
 				valueName = valueName.replaceAll( "data_store/", "" );
 				valueName = valueName.replaceAll( "splitted/", "" );
+				valueName = valueName.replaceAll( "/home/kddlab/wooyekim/", "" );
 				valueName = valueName.replaceAll( "data.txt", "" );
 			}
 
