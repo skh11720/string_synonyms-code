@@ -62,8 +62,10 @@ public class SIJoin extends AlgorithmTemplate {
 		try {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( Pair<Record> ip : candidates ) {
-				if( ip.rec1.getID() != ip.rec2.getID() )
-					bw.write( ip.rec1.toString( strlist ) + "\t==\t" + ip.rec2.toString( strlist ) + "\n" );
+				if( isSelfJoin() && ip.rec1.getID() == ip.rec2.getID() ) {
+					continue;
+				}
+				bw.write( ip.rec1.toString( strlist ) + "\t==\t" + ip.rec2.toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}
