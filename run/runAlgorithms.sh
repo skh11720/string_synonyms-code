@@ -121,7 +121,7 @@ else
 	if [[ $RUN_JoinHybridOpt == "True" ]];
 	then
 		#samplings=( 0.01 0.03 )
-		samplings=( 0.0001 0.0003 0.001 0.003 )
+		samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
 		for sampling in "${samplings[@]}"; do
 			date
 			./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
@@ -138,7 +138,7 @@ else
 	#JoinHybridThres
 	if [[ $RUN_JoinHybridThres == "True" ]];
 	then
-		thresholds=( 10 100 1000 )
+		thresholds=( 3 10 30 100 300 1000 )
 		for threshold in "${thresholds[@]}"; do
 			date
 			./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
