@@ -166,17 +166,11 @@ public abstract class AlgorithmTemplate {
 
 		preprocessTime.resetAndStart( "Preprocess length time" );
 
-		if( this instanceof JoinMH_QL ) {
-			System.out.println( "Preprocessing with modified length" );
-			for( final Record rec : tableR ) {
-				rec.preprocessLengths_mod();
-			}
+		System.out.println( "Preprocessing with modified length" );
+		for( final Record rec : tableR ) {
+			rec.preprocessLengths_mod();
 		}
-		else {
-			for( final Record rec : tableR ) {
-				rec.preprocessLengths();
-			}
-		}
+
 		preprocessTime.stopQuiet();
 		stat.add( preprocessTime );
 
@@ -208,7 +202,7 @@ public abstract class AlgorithmTemplate {
 		preprocessTime.resetAndStart( "Preprocess records in S time" );
 		for( final Record rec : tableS ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
-			rec.preprocessLengths();
+			rec.preprocessLengths_mod();
 			rec.preprocessEstimatedRecords();
 			if( !compact ) {
 				rec.preprocessAvailableTokens( maxIndex );

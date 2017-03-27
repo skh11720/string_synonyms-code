@@ -191,6 +191,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	/**
 	 * preprocessRules() should be called before this method is called
 	 */
+	@Deprecated
 	public void preprocessLengths() {
 		transformedLengths = new int[ tokens.length ][ 2 ];
 		for( int i = 0; i < tokens.length; ++i ) {
