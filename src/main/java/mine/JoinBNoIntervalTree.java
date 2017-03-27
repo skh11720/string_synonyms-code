@@ -45,7 +45,7 @@ public class JoinBNoIntervalTree extends Algorithm {
 		// Build an index
 
 		idx = new IntegerMap<ArrayList<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			// All available tokens at the first position
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			// All available equivalent string lengths
@@ -168,10 +168,10 @@ public class JoinBNoIntervalTree extends Algorithm {
 				if( ip.i1 != ip.i2 )
 					tmp.get( ip.i1 ).add( tableS.get( ip.i2 ) );
 			}
-			for( int i = 0; i < tableR.size(); ++i ) {
+			for( int i = 0; i < tableT.size(); ++i ) {
 				if( !tmp.containsKey( i ) || tmp.get( i ).size() == 0 )
 					continue;
-				bw.write( tableR.get( i ).toString() + "\t" );
+				bw.write( tableT.get( i ).toString() + "\t" );
 				bw.write( tmp.get( i ).toString() + "\n" );
 			}
 			bw.close();

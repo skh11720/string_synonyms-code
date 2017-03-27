@@ -44,28 +44,28 @@ public class JoinD extends Algorithm {
 
 		long currentTime = System.currentTimeMillis();
 		// Preprocess each records in R
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessRules( automata, true );
 		}
 		long time = System.currentTimeMillis() - currentTime;
 		System.out.println( "Preprocess rules : " + time );
 
 		currentTime = System.currentTimeMillis();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessLengths();
 		}
 		time = System.currentTimeMillis() - currentTime;
 		System.out.println( "Preprocess lengths: " + time );
 
 		currentTime = System.currentTimeMillis();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessAvailableTokens( maxIndex );
 		}
 		time = System.currentTimeMillis() - currentTime;
 		System.out.println( "Preprocess available tokens: " + time );
 
 		currentTime = System.currentTimeMillis();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessEstimatedRecords();
 		}
 		time = System.currentTimeMillis() - currentTime;
@@ -87,7 +87,7 @@ public class JoinD extends Algorithm {
 		idx = new ArrayList<IntegerMap<IntervalTreeRW<Integer, Record>>>();
 		for( int i = 0; i < maxIndex; ++i )
 			idx.add( new IntegerMap<IntervalTreeRW<Integer, Record>>() );
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int boundary = Math.min( range[ 1 ], maxIndex );
@@ -198,10 +198,10 @@ public class JoinD extends Algorithm {
 				if( ip.i1 != ip.i2 )
 					tmp.get( ip.i1 ).add( tableS.get( ip.i2 ) );
 			}
-			for( int i = 0; i < tableR.size(); ++i ) {
+			for( int i = 0; i < tableT.size(); ++i ) {
 				if( !tmp.containsKey( i ) || tmp.get( i ).size() == 0 )
 					continue;
-				bw.write( tableR.get( i ).toString() + "\t" );
+				bw.write( tableT.get( i ).toString() + "\t" );
 				bw.write( tmp.get( i ).toString() + "\n" );
 			}
 			bw.close();

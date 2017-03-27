@@ -73,7 +73,7 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
 
 		long currexpanded = 0;
 		long memcost = 0;
-		for( Record s : tableR ) {
+		for( Record s : tableT ) {
 			long expanded = s.getEstNumRecords();
 			if( expanded != currexpanded )
 				currexpanded = expanded;
@@ -127,7 +127,7 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -169,14 +169,14 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
 				return Long.compare( est1, est2 );
 			}
 		};
-		Collections.sort( tableR, cmp );
+		Collections.sort( tableT, cmp );
 		Collections.sort( tableS, cmp );
 
 		// Reassign ID
 		long maxSEstNumRecords = 0;
 		long maxTEstNumRecords = 0;
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record s = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record s = tableT.get( i );
 			s.setID( i );
 			maxSEstNumRecords = Math.max( maxSEstNumRecords, s.getEstNumRecords() );
 		}
@@ -223,20 +223,20 @@ public class Hybrid2GramWithOptTheta5 extends Algorithm {
 
 		final int trials = 1;
 
-		List<Record> oS = tableR;
+		List<Record> oS = tableT;
 		// List<Record> oT = tableS;
-		tableR = new ArrayList<Record>();
-		tableS = tableR;
+		tableT = new ArrayList<Record>();
+		tableS = tableT;
 		// tableS = new ArrayList<Record>();
 		Runtime rt = Runtime.getRuntime();
 
 		while( mintheta < maxtheta - 1 ) {
 			long currtheta = ( maxtheta + mintheta ) / 2;
 			// Self join
-			sampleList( oS, tableR, currtheta, sampleratio );
+			sampleList( oS, tableT, currtheta, sampleratio );
 			// sampleList(oT, tableS, currtheta, sampleratio);
 			/* try {
-			 * StaticFunctions.write2file(tableR, "sample1");
+			 * StaticFunctions.write2file(tableT, "sample1");
 			 * StaticFunctions.write2file(tableS, "sample2");
 			 * } catch (Exception e) {
 			 * } */

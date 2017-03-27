@@ -330,7 +330,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		minSHidx = minTHidx = 0;
 		long currexpanded = 0;
 		long memcost = 0;
-		for( Record s : tableR ) {
+		for( Record s : tableT ) {
 			long expanded = s.getEstNumRecords();
 			if( expanded >= Integer.MAX_VALUE )
 				break;
@@ -352,7 +352,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 				maxtheta = currexpanded - 1;
 			else {
 				maxtheta = currexpanded;
-				minSHidx = tableR.size();
+				minSHidx = tableT.size();
 			}
 		}
 
@@ -507,7 +507,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -549,20 +549,20 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 				return Long.compare( est1, est2 );
 			}
 		};
-		Collections.sort( tableR, cmp );
+		Collections.sort( tableT, cmp );
 		Collections.sort( tableS, cmp );
 
 		// Reassign ID
 		// Compute exp records
-		expcostS = new long[ tableR.size() ];
+		expcostS = new long[ tableT.size() ];
 		expcostT = new long[ tableS.size() ];
-		cumulative_expcostS = new long[ tableR.size() ];
+		cumulative_expcostS = new long[ tableT.size() ];
 		cumulative_expcostT = new long[ tableS.size() ];
 		long maxSEstNumRecords = 0;
 		long maxTEstNumRecords = 0;
 		long sum = 0;
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record s = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record s = tableT.get( i );
 			s.setID( i );
 			long est = s.getEstNumRecords();
 			expcostS[ i ] = est;
@@ -626,7 +626,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}
@@ -640,14 +640,14 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		// Sample
 		List<Record> sampleRlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
-		for( Record r : tableR )
+		for( Record r : tableT )
 			if( rand.nextDouble() < sampleratio )
 				sampleRlist.add( r );
 		for( Record s : tableS )
 			if( rand.nextDouble() < sampleratio )
 				sampleSlist.add( s );
-		List<Record> tmpR = tableR;
-		tableR = sampleSlist;
+		List<Record> tmpR = tableT;
+		tableT = sampleSlist;
 		List<Record> tmpS = tableS;
 		tableS = sampleSlist;
 
@@ -683,7 +683,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		Validator.printStats();
 
 		// Restore
-		tableR = tmpR;
+		tableT = tmpR;
 		tableS = tmpS;
 
 		System.out.println( "Alpha : " + alpha );
@@ -701,7 +701,7 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 		// Sample records
 		sampleS = new ArrayList<Record>();
 		sampleT = new ArrayList<Record>();
-		for( Record recS : tableR )
+		for( Record recS : tableT )
 			if( rand.nextDouble() < idx_count_sampleratio )
 				sampleS.add( recS );
 		for( Record recT : tableS )

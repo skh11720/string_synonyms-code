@@ -27,20 +27,20 @@ public class SI_SelfJoin extends SIAlgorithm {
 
 		switch( filterType ) {
 		case 1:
-			filter = new ITF1( tableR, rulelist );
+			filter = new ITF1( tableT, rulelist );
 			break;
 		case 2:
-			filter = new ITF2( tableR, rulelist );
+			filter = new ITF2( tableT, rulelist );
 			break;
 		case 3:
-			filter = new ITF3( tableR, rulelist );
+			filter = new ITF3( tableT, rulelist );
 			break;
 		case 4:
-			filter = new ITF4( tableR, rulelist );
+			filter = new ITF4( tableT, rulelist );
 			break;
 		default:
 		}
-		SI_Tree<SIRecord> tree = new SI_Tree<SIRecord>( threshold, filter, tableR );
+		SI_Tree<SIRecord> tree = new SI_Tree<SIRecord>( threshold, filter, tableT );
 		System.out.println( "Node size : " + ( tree.FEsize + tree.LEsize ) );
 		System.out.println( "Sig size : " + tree.sigsize );
 

@@ -11,12 +11,12 @@ import tools.Rule;
 public class ITF4 extends ITF_Filter {
 	private IntegerMap<Long> tfs;
 
-	public ITF4( List<SIRecord> tableR, List<Rule> rulelist ) {
-		super( tableR, rulelist );
+	public ITF4( List<SIRecord> tableT, List<Rule> rulelist ) {
+		super( tableT, rulelist );
 		tfs = new IntegerMap<Long>();
 
 		// Generate all the possible expanded sets
-		for( SIRecord rec : tableR ) {
+		for( SIRecord rec : tableT ) {
 			HashSet<SIRecordExpanded> expanded = rec.generateAll();
 			// Add tf for original tokens
 			for( int token : rec.getTokens() ) {

@@ -23,7 +23,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 	public boolean compact = false;
 	public boolean exact2grams = false;
 	RecordIDComparator idComparator;
-	public int maxIndex = 3;
+	public int maxIndexLength = 3;
 	static Validator checker;
 	/**
 	 * Key: twogram<br/>
@@ -43,12 +43,14 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			// Build an index
 
 			idx = new ArrayList<Map<IntegerPair, List<IntIntRecordTriple>>>();
-			for( int i = 0; i < maxIndex; ++i )
+			for( int i = 0; i < maxIndexLength; ++i ) {
 				idx.add( new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>() );
-			for( Record rec : tableR ) {
+			}
+
+			for( Record rec : tableT ) {
 				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
-				int boundary = Math.min( range[ 1 ], maxIndex );
+				int boundary = Math.min( range[ 1 ], maxIndexLength );
 				for( int i = 0; i < boundary; ++i ) {
 					Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
 					for( IntegerPair twogram : available2Grams.get( i ) ) {
@@ -64,7 +66,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 			System.out.println( "Idx size : " + elements );
 
-			for( int i = 0; i < maxIndex; ++i ) {
+			for( int i = 0; i < maxIndexLength; ++i ) {
 				Map<IntegerPair, List<IntIntRecordTriple>> ithidx = idx.get( i );
 				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
 				// Statistics
@@ -97,17 +99,17 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 		long count = 0;
 
-		long cand_sum[] = new long[ maxIndex ];
-		long cand_sum_afterprune[] = new long[ maxIndex ];
-		long cand_sum_afterunion[] = new long[ maxIndex ];
-		int count_cand[] = new int[ maxIndex ];
-		int count_empty[] = new int[ maxIndex ];
+		long cand_sum[] = new long[ maxIndexLength ];
+		long cand_sum_afterprune[] = new long[ maxIndexLength ];
+		long cand_sum_afterunion[] = new long[ maxIndexLength ];
+		int count_cand[] = new int[ maxIndexLength ];
+		int count_empty[] = new int[ maxIndexLength ];
 		for( Record recS : tableS ) {
 			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
 
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
-			int boundary = Math.min( range[ 0 ], maxIndex );
+			int boundary = Math.min( range[ 0 ], maxIndexLength );
 			for( int i = 0; i < boundary; ++i ) {
 				List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
 				Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
@@ -143,7 +145,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				}
 			}
 		}
-		for( int i = 0; i < maxIndex; ++i ) {
+		for( int i = 0; i < maxIndexLength; ++i ) {
 			System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
@@ -156,7 +158,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	public void run() {
 		long startTime = System.currentTimeMillis();
-		preprocess( compact, maxIndex, useAutomata );
+		preprocess( compact, maxIndexLength, useAutomata );
 		System.out.print( "Preprocess finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
@@ -195,7 +197,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 		Param params = Param.parseArgs( args, stat );
 
-		maxIndex = params.getMaxIndex();
+		maxIndexLength = params.getMaxIndex();
 
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();

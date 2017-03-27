@@ -86,8 +86,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		long idxsize = 0;
 		int count = 0;
 
-		for( int i = 0; i < tableR.size(); ++i ) {
-			final Record recR = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			final Record recR = tableT.get( i );
 			final long est = recR.getEstNumRecords();
 
 			if( threshold != -1 && est > threshold ) {
@@ -180,7 +180,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	}
 
 	private void preprocess() {
-		for( final Record r : tableR ) {
+		for( final Record r : tableT ) {
 			r.preprocessRules( automata, false );
 			r.preprocessEstimatedRecords();
 		}

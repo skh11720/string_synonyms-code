@@ -29,20 +29,20 @@ public class SI_Join_Naive1 extends SIAlgorithm {
 
 		switch( filterType ) {
 		case 1:
-			filterR = new ITF1( tableR, rulelist );
+			filterR = new ITF1( tableT, rulelist );
 			break;
 		case 2:
-			filterR = new ITF2( tableR, rulelist );
+			filterR = new ITF2( tableT, rulelist );
 			break;
 		case 3:
-			filterR = new ITF3( tableR, rulelist );
+			filterR = new ITF3( tableT, rulelist );
 			break;
 		case 4:
-			filterR = new ITF4( tableR, rulelist );
+			filterR = new ITF4( tableT, rulelist );
 			break;
 		default:
 		}
-		SI_Tree<SIRecord> treeR = new SI_Tree<SIRecord>( threshold, filterR, tableR );
+		SI_Tree<SIRecord> treeR = new SI_Tree<SIRecord>( threshold, filterR, tableT );
 		System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );
 		System.out.println( "Sig size : " + treeR.sigsize );
 

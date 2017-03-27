@@ -18,8 +18,8 @@ public abstract class Algorithm {
 	// String list
 	protected List<String> strlist;
 
-	// Table R
-	protected List<Record> tableR;
+	// Table T
+	protected List<Record> tableT;
 
 	// Table S
 	protected List<Record> tableS;
@@ -72,7 +72,7 @@ public abstract class Algorithm {
 		// Read records
 		int size = -1;
 		Record.setStrList( strlist );
-		tableR = readRecords( Rfile, size );
+		tableT = readRecords( Rfile, size );
 		tableS = readRecords( Sfile, size );
 		readRules( rulefile );
 	}
@@ -82,7 +82,7 @@ public abstract class Algorithm {
 
 		this.str2int = o.str2int;
 		this.strlist = o.strlist;
-		this.tableR = o.tableR;
+		this.tableT = o.tableT;
 		this.tableS = o.tableS;
 		this.rulelist = o.rulelist;
 	}
@@ -90,7 +90,7 @@ public abstract class Algorithm {
 	protected Algorithm( AlgorithmTemplate o ) {
 		this.str2int = o.getStr2int();
 		this.strlist = o.getStrlist();
-		this.tableR = o.getTableR();
+		this.tableT = o.getTableT();
 		this.tableS = o.getTableS();
 		this.rulelist = o.getRulelist();
 	}
@@ -109,23 +109,23 @@ public abstract class Algorithm {
 		long currentTime = System.currentTimeMillis();
 		long applicableRules = 0;
 		// Preprocess each records in R
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			applicableRules += rec.getNumApplicableRules();
 		}
 		long time = System.currentTimeMillis() - currentTime;
 		System.out.println( "Preprocess rules : " + time );
-		System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableR.size() );
+		System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableT.size() );
 
 		currentTime = System.currentTimeMillis();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessLengths();
 		}
 		time = System.currentTimeMillis() - currentTime;
 		System.out.println( "Preprocess lengths: " + time );
 
 		currentTime = System.currentTimeMillis();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessEstimatedRecords();
 		}
 		time = System.currentTimeMillis() - currentTime;
@@ -133,7 +133,7 @@ public abstract class Algorithm {
 
 		if( !compact ) {
 			currentTime = System.currentTimeMillis();
-			for( Record rec : tableR ) {
+			for( Record rec : tableT ) {
 				rec.preprocessAvailableTokens( maxIndex );
 			}
 			time = System.currentTimeMillis() - currentTime;
@@ -141,7 +141,7 @@ public abstract class Algorithm {
 		}
 
 		currentTime = System.currentTimeMillis();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}

@@ -33,7 +33,7 @@ public abstract class AlgorithmTemplate {
 	protected List<String> strlist;
 
 	// Table R
-	protected List<Record> tableR;
+	protected List<Record> tableT;
 
 	// Table S
 	protected List<Record> tableS;
@@ -45,7 +45,7 @@ public abstract class AlgorithmTemplate {
 
 		this.str2int = o.str2int;
 		this.strlist = o.strlist;
-		this.tableR = o.tableR;
+		this.tableT = o.tableT;
 		this.tableS = o.tableS;
 		this.rulelist = o.rulelist;
 		this.outputfile = o.outputfile;
@@ -93,7 +93,7 @@ public abstract class AlgorithmTemplate {
 		// Read records
 		final int size = -1;
 		Record.setStrList( strlist );
-		tableR = readRecords( Rfile, size );
+		tableT = readRecords( Rfile, size );
 		tableS = readRecords( Sfile, size );
 
 		readRules( rulefile );
@@ -129,8 +129,8 @@ public abstract class AlgorithmTemplate {
 		return strlist;
 	}
 
-	public List<Record> getTableR() {
-		return tableR;
+	public List<Record> getTableT() {
+		return tableT;
 	}
 
 	public List<Record> getTableS() {
@@ -154,20 +154,20 @@ public abstract class AlgorithmTemplate {
 
 		long applicableRules = 0;
 		// Preprocess each records in R
-		for( final Record rec : tableR ) {
+		for( final Record rec : tableT ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			applicableRules += rec.getNumApplicableRules();
 		}
 		preprocessTime.stopQuiet();
 		stat.add( preprocessTime );
 
-		System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableR.size() );
-		stat.add( "Avg applicable rules", applicableRules + "/" + tableR.size() );
+		System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableT.size() );
+		stat.add( "Avg applicable rules", applicableRules + "/" + tableT.size() );
 
 		preprocessTime.resetAndStart( "Preprocess length time" );
 
 		System.out.println( "Preprocessing with modified length" );
-		for( final Record rec : tableR ) {
+		for( final Record rec : tableT ) {
 			rec.preprocessLengths();
 		}
 
@@ -175,7 +175,7 @@ public abstract class AlgorithmTemplate {
 		stat.add( preprocessTime );
 
 		preprocessTime.resetAndStart( "Preprocess est record time" );
-		for( final Record rec : tableR ) {
+		for( final Record rec : tableT ) {
 			rec.preprocessEstimatedRecords();
 		}
 		preprocessTime.stopQuiet();
@@ -183,7 +183,7 @@ public abstract class AlgorithmTemplate {
 
 		if( !compact ) {
 			preprocessTime.resetAndStart( "Preprocess token time" );
-			for( final Record rec : tableR ) {
+			for( final Record rec : tableT ) {
 				rec.preprocessAvailableTokens( maxIndex );
 			}
 			preprocessTime.stopQuiet();
@@ -191,7 +191,7 @@ public abstract class AlgorithmTemplate {
 		}
 
 		preprocessTime.resetAndStart( "Preprocess early pruning time" );
-		for( final Record rec : tableR ) {
+		for( final Record rec : tableT ) {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}
@@ -261,8 +261,8 @@ public abstract class AlgorithmTemplate {
 		this.strlist = strlist;
 	}
 
-	public void setTableR( List<Record> tableR ) {
-		this.tableR = tableR;
+	public void setTableT( List<Record> tableT ) {
+		this.tableT = tableT;
 	}
 
 	public void setTableS( List<Record> tableS ) {
@@ -274,12 +274,12 @@ public abstract class AlgorithmTemplate {
 			System.out.println( "Writing results " + rslt.size() );
 			final BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( final IntegerPair ip : rslt ) {
-				final Record r = tableR.get( ip.i1 );
+				final Record r = tableT.get( ip.i1 );
 				final Record s = tableS.get( ip.i2 );
 				if( selfJoin && r.equals( s ) ) {
 					continue;
 				}
-				bw.write( tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist ) + "\n" );
+				bw.write( tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

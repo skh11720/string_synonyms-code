@@ -48,7 +48,7 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
 			idx = new ArrayList<Map<IntegerPair, List<IntIntRecordTriple>>>();
 			for( int i = 0; i < maxIndex; ++i )
 				idx.add( new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>() );
-			for( Record rec : tableR ) {
+			for( Record rec : tableT ) {
 				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int boundary = Math.min( range[ 1 ], maxIndex );
@@ -186,10 +186,10 @@ public class JoinD2GramNoIntervalTree extends Algorithm {
 				if( ip.i1 != ip.i2 )
 					tmp.get( ip.i1 ).add( tableS.get( ip.i2 ) );
 			}
-			for( int i = 0; i < tableR.size(); ++i ) {
+			for( int i = 0; i < tableT.size(); ++i ) {
 				if( !tmp.containsKey( i ) || tmp.get( i ).size() == 0 )
 					continue;
-				bw.write( tableR.get( i ).toString() + "\t" );
+				bw.write( tableT.get( i ).toString() + "\t" );
 				bw.write( tmp.get( i ).toString() + "\n" );
 			}
 			bw.close();

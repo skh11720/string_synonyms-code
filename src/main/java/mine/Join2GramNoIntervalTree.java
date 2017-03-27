@@ -48,7 +48,7 @@ public class Join2GramNoIntervalTree extends Algorithm {
 		long elements = 0;
 
 		idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			Set<IntegerPair> twoGrams = available2Grams.get( 0 );
 			for( IntegerPair twoGram : twoGrams ) {
@@ -139,7 +139,7 @@ public class Join2GramNoIntervalTree extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

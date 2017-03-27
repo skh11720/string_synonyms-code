@@ -183,7 +183,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		// List<IntIntRecordTriple>>>();
 
 		// Actually, tableS
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -289,7 +289,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 			System.out.println( bigram + ": " + e.getValue().get() );
 		}
 
-		for( Record recS : tableR ) {
+		for( Record recS : tableT ) {
 			if( !recS.toString().startsWith( "real estate" ) )
 				continue;
 			System.out.println( recS.toString() + " :" );
@@ -419,7 +419,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -461,14 +461,14 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 				return Long.compare( est1, est2 );
 			}
 		};
-		Collections.sort( tableR, cmp );
+		Collections.sort( tableT, cmp );
 		Collections.sort( tableS, cmp );
 
 		// Reassign ID
 		long maxSEstNumRecords = 0;
 		long maxTEstNumRecords = 0;
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record s = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record s = tableT.get( i );
 			s.setID( i );
 			maxSEstNumRecords = Math.max( maxSEstNumRecords, s.getEstNumRecords() );
 		}
@@ -523,7 +523,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}
@@ -537,14 +537,14 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		// Sample
 		List<Record> sampleRlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
-		for( Record r : tableR )
+		for( Record r : tableT )
 			if( Math.random() < sampleratio )
 				sampleRlist.add( r );
 		for( Record s : tableS )
 			if( Math.random() < sampleratio )
 				sampleSlist.add( s );
-		List<Record> tmpR = tableR;
-		tableR = sampleRlist;
+		List<Record> tmpR = tableT;
+		tableT = sampleRlist;
 		List<Record> tmpS = tableS;
 		tableS = sampleRlist;
 
@@ -579,7 +579,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		Validator.printStats();
 
 		// Restore
-		tableR = tmpR;
+		tableT = tmpR;
 		tableS = tmpS;
 
 		System.out.println( "Alpha : " + alpha );
@@ -596,19 +596,19 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		long best_esttime = Long.MAX_VALUE;
 		long[] best_esttimes = null;
 
-		// Memory cost for storing expanded tableR
+		// Memory cost for storing expanded tableT
 		long memcost = 0;
 
 		// Indicates the minimum indices which have more that 'theta' expanded
 		// records
 		int sidx = 0;
 		int tidx = 0;
-		long theta = Math.min( tableR.get( 0 ).getEstNumRecords(), tableS.get( 0 ).getEstNumRecords() );
+		long theta = Math.min( tableT.get( 0 ).getEstNumRecords(), tableS.get( 0 ).getEstNumRecords() );
 
 		// Prefix sums
 		long currSLExpSize = 0;
 		long currTLExpSize = 0;
-		while( sidx < tableR.size() || tidx < tableS.size() ) {
+		while( sidx < tableT.size() || tidx < tableS.size() ) {
 			if( theta > max_theta )
 				break;
 			long next_theta = Long.MAX_VALUE;
@@ -658,8 +658,8 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 			}
 
 			// Modify both indexes
-			while( sidx < tableR.size() ) {
-				Record s = tableR.get( sidx++ );
+			while( sidx < tableT.size() ) {
+				Record s = tableT.get( sidx++ );
 				long expSize = s.getEstNumRecords();
 				if( expSize > theta ) {
 					next_theta = Math.min( next_theta, expSize );

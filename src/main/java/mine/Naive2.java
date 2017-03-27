@@ -27,8 +27,8 @@ public class Naive2 extends Algorithm {
 	protected Naive2( String rulefile, String Rfile, String Sfile ) throws IOException {
 		super( rulefile, Rfile, Sfile );
 		rec2idx = new HashMap<Record, Integer>();
-		for( int i = 0; i < tableR.size(); ++i )
-			rec2idx.put( tableR.get( i ), i );
+		for( int i = 0; i < tableT.size(); ++i )
+			rec2idx.put( tableT.get( i ), i );
 	}
 
 	private List<IntegerPair> join() {
@@ -74,7 +74,7 @@ public class Naive2 extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

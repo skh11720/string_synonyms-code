@@ -37,7 +37,7 @@ public class ExtractLessThanThreshold extends Algorithm {
 
 	private void extract( int threshold, String outputfile ) throws IOException {
 		BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
-		for( Record str : tableR ) {
+		for( Record str : tableT ) {
 			str.preprocessRules( ruleatm, false );
 			str.preprocessEstimatedRecords();
 			long est = str.getEstNumRecords();

@@ -167,7 +167,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
 		int[] union_sig = new int[ mhsize ];
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
 				totalSigCount += set.size();
@@ -436,7 +436,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		}
 
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -543,7 +543,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -620,7 +620,7 @@ public class JoinH2GramNoIntervalTree2 extends Algorithm {
 
 		Map<Integer, Record> tableRmap = new WYK_HashMap<Integer, Record>();
 		Map<Integer, Record> tableSmap = new WYK_HashMap<Integer, Record>();
-		for( Record r : tableR )
+		for( Record r : tableT )
 			tableRmap.put( r.getID(), r );
 		for( Record s : tableS )
 			tableSmap.put( s.getID(), s );

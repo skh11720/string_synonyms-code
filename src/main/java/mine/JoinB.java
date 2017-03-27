@@ -45,7 +45,7 @@ public class JoinB extends Algorithm {
 		// Build an index
 
 		idx = new IntegerMap<IntervalTreeRW<Integer, Record>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			for( int token : availableTokens[ 0 ] ) {
@@ -143,10 +143,10 @@ public class JoinB extends Algorithm {
 				if( ip.i1 != ip.i2 )
 					tmp.get( ip.i1 ).add( tableS.get( ip.i2 ) );
 			}
-			for( int i = 0; i < tableR.size(); ++i ) {
+			for( int i = 0; i < tableT.size(); ++i ) {
 				if( !tmp.containsKey( i ) || tmp.get( i ).size() == 0 )
 					continue;
-				bw.write( tableR.get( i ).toString() + "\t" );
+				bw.write( tableT.get( i ).toString() + "\t" );
 				bw.write( tmp.get( i ).toString() + "\n" );
 			}
 			bw.close();

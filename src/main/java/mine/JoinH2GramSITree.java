@@ -40,7 +40,7 @@ public class JoinH2GramSITree extends Algorithm {
 
 		readRules( rulefile );
 		Record.setStrList( strlist );
-		tableR = readRecords( Rfile, size );
+		tableT = readRecords( Rfile, size );
 		tableS = readRecords( Sfile, size );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
@@ -75,7 +75,7 @@ public class JoinH2GramSITree extends Algorithm {
 		}
 
 		idx = new WYK_HashMap<Integer, SI_Tree_JoinH<IntegerPair>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -148,7 +148,7 @@ public class JoinH2GramSITree extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -202,7 +202,7 @@ public class JoinH2GramSITree extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

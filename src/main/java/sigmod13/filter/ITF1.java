@@ -10,12 +10,12 @@ public class ITF1 extends ITF_Filter {
 	private IntegerMap<Long> tf_Record;
 	private IntegerMap<Long> tf_Rule;
 
-	public ITF1( List<SIRecord> tableR, List<Rule> rulelist ) {
-		super( tableR, rulelist );
+	public ITF1( List<SIRecord> tableT, List<Rule> rulelist ) {
+		super( tableT, rulelist );
 		tf_Record = new IntegerMap<Long>();
 		tf_Rule = new IntegerMap<Long>();
 
-		for( SIRecord rec : tableR ) {
+		for( SIRecord rec : tableT ) {
 			for( int token : rec.getTokens() ) {
 				Long freq = tf_Record.get( token );
 				if( freq == null )

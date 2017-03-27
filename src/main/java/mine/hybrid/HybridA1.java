@@ -105,7 +105,7 @@ public class HybridA1 extends Algorithm {
 		// Build an index for the strings in S which has more than 'threshold'
 		// 1-expandable strings
 		long_idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -146,7 +146,7 @@ public class HybridA1 extends Algorithm {
 		elements = 0;
 		predictCount = 0;
 		short_idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			if( rec.getEstNumRecords() <= joinThreshold )
 				continue;
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
@@ -198,8 +198,8 @@ public class HybridA1 extends Algorithm {
 
 		// Build 1-expanded set for every record in R
 		setR = new WYK_HashMap<Record, List<Integer>>();
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record rec = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record rec = tableT.get( i );
 			assert ( rec != null );
 			if( rec.getEstNumRecords() > joinThreshold )
 				continue;
@@ -300,7 +300,7 @@ public class HybridA1 extends Algorithm {
 		}
 
 		long_idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -393,7 +393,7 @@ public class HybridA1 extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -450,7 +450,7 @@ public class HybridA1 extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

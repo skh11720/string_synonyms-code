@@ -28,24 +28,24 @@ public class SI_Join extends SIAlgorithm {
 
 		switch( filterType ) {
 		case 1:
-			filterR = new ITF1( tableR, rulelist );
+			filterR = new ITF1( tableT, rulelist );
 			filterS = new ITF1( tableS, rulelist );
 			break;
 		case 2:
-			filterR = new ITF2( tableR, rulelist );
+			filterR = new ITF2( tableT, rulelist );
 			filterS = new ITF2( tableS, rulelist );
 			break;
 		case 3:
-			filterR = new ITF3( tableR, rulelist );
+			filterR = new ITF3( tableT, rulelist );
 			filterS = new ITF3( tableS, rulelist );
 			break;
 		case 4:
-			filterR = new ITF4( tableR, rulelist );
+			filterR = new ITF4( tableT, rulelist );
 			filterS = new ITF4( tableS, rulelist );
 			break;
 		default:
 		}
-		SI_Tree<SIRecord> treeR = new SI_Tree<SIRecord>( threshold, filterR, tableR );
+		SI_Tree<SIRecord> treeR = new SI_Tree<SIRecord>( threshold, filterR, tableT );
 		SI_Tree<SIRecord> treeS = new SI_Tree<SIRecord>( threshold, filterS, tableS );
 		System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );
 		System.out.println( "Sig size : " + treeR.sigsize );

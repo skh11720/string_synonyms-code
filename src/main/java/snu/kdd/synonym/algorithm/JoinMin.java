@@ -127,7 +127,7 @@ public class JoinMin extends AlgorithmTemplate {
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
 				totalSigCount += set.size();
@@ -368,7 +368,7 @@ public class JoinMin extends AlgorithmTemplate {
 		}
 
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -478,7 +478,7 @@ public class JoinMin extends AlgorithmTemplate {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;

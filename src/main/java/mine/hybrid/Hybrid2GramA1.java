@@ -137,7 +137,7 @@ public class Hybrid2GramA1 extends Algorithm {
 		// List<IntIntRecordTriple>>>();
 
 		// Actually, tableS
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -219,8 +219,8 @@ public class Hybrid2GramA1 extends Algorithm {
 		// Build 1-expanded set for every record in R
 		int count = 0;
 		setR = new HashMap<Record, List<Integer>>();
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record rec = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record rec = tableT.get( i );
 			assert ( rec != null );
 			if( rec.getEstNumRecords() > joinThreshold )
 				continue;
@@ -363,7 +363,7 @@ public class Hybrid2GramA1 extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -413,7 +413,7 @@ public class Hybrid2GramA1 extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

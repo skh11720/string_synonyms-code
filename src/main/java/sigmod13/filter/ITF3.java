@@ -9,11 +9,11 @@ import tools.Rule;
 public class ITF3 extends ITF_Filter {
 	private IntegerMap<Long> tfs;
 
-	public ITF3( List<SIRecord> tableR, List<Rule> rulelist ) {
-		super( tableR, rulelist );
+	public ITF3( List<SIRecord> tableT, List<Rule> rulelist ) {
+		super( tableT, rulelist );
 		tfs = new IntegerMap<Long>();
 
-		for( SIRecord rec : tableR ) {
+		for( SIRecord rec : tableT ) {
 			for( int token : rec.getTokens() ) {
 				Long freq = tfs.get( token );
 				if( freq == null )

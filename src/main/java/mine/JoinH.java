@@ -60,7 +60,7 @@ public class JoinH extends Algorithm {
 		}
 
 		idx = new WYK_HashMap<IntegerPair, IntervalTreeRW<Integer, Record>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minlength = range[ 0 ];
@@ -191,7 +191,7 @@ public class JoinH extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

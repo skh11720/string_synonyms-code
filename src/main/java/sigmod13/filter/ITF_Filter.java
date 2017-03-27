@@ -9,7 +9,7 @@ import sigmod13.SIRecordExpanded;
 import tools.Rule;
 
 public abstract class ITF_Filter {
-	public ITF_Filter( List<SIRecord> tableR, List<Rule> rulelist ) {
+	public ITF_Filter( List<SIRecord> tableT, List<Rule> rulelist ) {
 	};
 
 	/**
@@ -71,6 +71,7 @@ public abstract class ITF_Filter {
 			return token + "/" + from_record;
 		}
 
+		@Override
 		public int compareTo( PQEntry o ) {
 			return -compare( token, from_record, o.token, o.from_record );
 		}

@@ -15,7 +15,7 @@ import tools.Rule_ACAutomata;
 public class SIAlgorithm {
 	protected Map<String, Integer> str2int;
 	protected List<String> strlist;
-	protected List<SIRecord> tableR;
+	protected List<SIRecord> tableT;
 	protected List<SIRecord> tableS;
 	protected List<Rule> rulelist;
 
@@ -54,7 +54,7 @@ public class SIAlgorithm {
 		// Read records
 		int size = -1;
 		Record.setStrList( strlist );
-		tableR = readRecords( Rfile, size );
+		tableT = readRecords( Rfile, size );
 		tableS = readRecords( Sfile, size );
 		readRules( rulefile );
 	}

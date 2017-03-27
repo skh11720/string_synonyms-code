@@ -122,7 +122,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 		// idx = new HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
 				totalSigCount += set.size();
@@ -365,7 +365,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 		}
 
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -472,7 +472,7 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -540,10 +540,10 @@ public class JoinH2GramNoIntervalTree extends Algorithm {
 
 				BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 				for( IntegerPair ip : rslt ) {
-					Record r = tableR.get( ip.i1 );
+					Record r = tableT.get( ip.i1 );
 					Record s = tableS.get( ip.i2 );
 					if( !r.equals( s ) )
-						bw.write( tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist )
+						bw.write( tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableS.get( ip.i2 ).toString( strlist )
 								+ "\n" );
 				}
 				bw.close();

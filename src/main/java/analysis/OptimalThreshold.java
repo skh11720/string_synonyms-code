@@ -72,7 +72,7 @@ public class OptimalThreshold extends Algorithm {
 		long cost = 0;
 		long sizesum = 0;
 		List<Record> expandcandidates = new ArrayList<Record>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessRules( ruleatm, false );
 			rec.preprocessSuffixApplicableRules();
 			rec.preprocessEstimatedRecords();
@@ -120,7 +120,7 @@ public class OptimalThreshold extends Algorithm {
 		long cost = 0;
 		long sizesum = 0;
 		List<Record> expandcandidates = new ArrayList<Record>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessRules( ruleatm, false );
 			rec.preprocessSuffixApplicableRules();
 			rec.preprocessEstimatedRecords();
@@ -177,7 +177,7 @@ public class OptimalThreshold extends Algorithm {
 		long candsum = 0;
 		long candsummin = 0;
 		List<Record> expandcandidates = new ArrayList<Record>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessRules( ruleatm, false );
 			rec.preprocessLengths();
 			rec.preprocessSuffixApplicableRules();
@@ -236,16 +236,16 @@ public class OptimalThreshold extends Algorithm {
 	}
 
 	private void estimateJoinMH( double sampleratio, boolean skipequiv ) {
-		List<Record> tableR = new ArrayList<Record>();
+		List<Record> tableT = new ArrayList<Record>();
 		List<Record> tableS = new ArrayList<Record>();
-		for( Record r : this.tableR )
+		for( Record r : this.tableT )
 			if( Math.random() < sampleratio )
-				tableR.add( r );
+				tableT.add( r );
 		for( Record s : this.tableS )
 			if( Math.random() < sampleratio )
 				tableS.add( s );
-		this.tableR = tableR;
-		this.tableS = tableR;
+		this.tableT = tableT;
+		this.tableS = tableT;
 
 		JoinH2GramNoIntervalTree inst = new JoinH2GramNoIntervalTree( this );
 		JoinH2GramNoIntervalTree.skipChecking = skipequiv;
@@ -263,16 +263,16 @@ public class OptimalThreshold extends Algorithm {
 	}
 
 	private void estimateNaive( double sampleratio, int threshold, boolean skipequiv ) {
-		List<Record> tableR = new ArrayList<Record>();
+		List<Record> tableT = new ArrayList<Record>();
 		List<Record> tableS = new ArrayList<Record>();
-		for( Record r : this.tableR )
+		for( Record r : this.tableT )
 			if( Math.random() < sampleratio )
-				tableR.add( r );
+				tableT.add( r );
 		for( Record s : this.tableS )
 			if( Math.random() < sampleratio )
 				tableS.add( s );
-		this.tableR = tableR;
-		this.tableS = tableR;
+		this.tableT = tableT;
+		this.tableS = tableT;
 
 		Naive1 inst = new Naive1( this );
 		Naive1.threshold = threshold;

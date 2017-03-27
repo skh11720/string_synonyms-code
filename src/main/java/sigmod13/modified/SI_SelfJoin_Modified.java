@@ -16,7 +16,7 @@ public class SI_SelfJoin_Modified extends Algorithm {
 
 	protected void preprocess() {
 		long currentTime = System.currentTimeMillis();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			rec.preprocessAvailableTokens( 1 );
 		}
 		long time = System.currentTimeMillis() - currentTime;
@@ -32,7 +32,7 @@ public class SI_SelfJoin_Modified extends Algorithm {
 
 		long startTime = System.currentTimeMillis();
 
-		SI_Tree<Record> tree = new SI_Tree<Record>( threshold, null, tableR );
+		SI_Tree<Record> tree = new SI_Tree<Record>( threshold, null, tableT );
 		System.out.println( "Node size : " + ( tree.FEsize + tree.LEsize ) );
 		System.out.println( "Sig size : " + tree.sigsize );
 

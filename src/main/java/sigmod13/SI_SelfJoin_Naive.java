@@ -27,20 +27,20 @@ public class SI_SelfJoin_Naive extends SIAlgorithm {
 
 		switch( filterType ) {
 		case 1:
-			filter = new ITF1( tableR, rulelist );
+			filter = new ITF1( tableT, rulelist );
 			break;
 		case 2:
-			filter = new ITF2( tableR, rulelist );
+			filter = new ITF2( tableT, rulelist );
 			break;
 		case 3:
-			filter = new ITF3( tableR, rulelist );
+			filter = new ITF3( tableT, rulelist );
 			break;
 		case 4:
-			filter = new ITF4( tableR, rulelist );
+			filter = new ITF4( tableT, rulelist );
 			break;
 		default:
 		}
-		SI_Tree<SIRecord> tree = new SI_Tree<SIRecord>( threshold, filter, tableR );
+		SI_Tree<SIRecord> tree = new SI_Tree<SIRecord>( threshold, filter, tableT );
 		System.out.println( "Node size : " + ( tree.FEsize + tree.LEsize ) );
 		System.out.println( "Sig size : " + tree.sigsize );
 
@@ -55,7 +55,7 @@ public class SI_SelfJoin_Naive extends SIAlgorithm {
 	public void naiveselfjoin( SI_Tree<SIRecord> treeR, double threshold ) {
 		long startTime = System.currentTimeMillis();
 
-		HashSet<Pair<SIRecord>> candidates = treeR.naivejoin( tableR, true );
+		HashSet<Pair<SIRecord>> candidates = treeR.naivejoin( tableT, true );
 		// long counter = treeR.join(treeS, threshold);
 		System.out.print( "Retrieveing candidates finished" );
 

@@ -33,7 +33,7 @@ public class SI_Join_Modified extends Algorithm {
 
 		long startTime = System.currentTimeMillis();
 
-		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, tableR );
+		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, tableT );
 		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, tableS );
 		System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );
 		System.out.println( "Sig size : " + treeR.sigsize );

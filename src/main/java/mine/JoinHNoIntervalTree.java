@@ -44,7 +44,7 @@ public class JoinHNoIntervalTree extends Algorithm {
 
 		readRules( rulefile );
 		Record.setStrList( strlist );
-		tableR = readRecords( Rfile, size );
+		tableT = readRecords( Rfile, size );
 		tableS = readRecords( Sfile, size );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
@@ -74,7 +74,7 @@ public class JoinHNoIntervalTree extends Algorithm {
 		}
 
 		idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -182,7 +182,7 @@ public class JoinHNoIntervalTree extends Algorithm {
 		}
 
 		idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -275,7 +275,7 @@ public class JoinHNoIntervalTree extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -332,7 +332,7 @@ public class JoinHNoIntervalTree extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

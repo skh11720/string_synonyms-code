@@ -23,7 +23,7 @@ public class FilterLargeEquivs extends Algorithm {
 		BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 		Rule_ACAutomata automata = new Rule_ACAutomata( inst.rulelist );
 		Record.setStrList( inst.strlist );
-		for( Record rec : inst.tableR ) {
+		for( Record rec : inst.tableT ) {
 			rec.preprocessRules( automata, false );
 			rec.preprocessEstimatedRecords();
 			if( rec.getEstNumRecords() > threshold )

@@ -80,7 +80,7 @@ public class HybridA2 extends Algorithm {
 		}
 
 		long_idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -130,8 +130,8 @@ public class HybridA2 extends Algorithm {
 
 		// Build set for every record in R
 		setR = new WYK_HashMap<Record, Integer>();
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record rec = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record rec = tableT.get( i );
 			setR.put( rec, i );
 		}
 	}
@@ -222,7 +222,7 @@ public class HybridA2 extends Algorithm {
 		}
 
 		long_idx = new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			IntegerSet[] availableTokens = rec.getAvailableTokens();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -315,7 +315,7 @@ public class HybridA2 extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -379,7 +379,7 @@ public class HybridA2 extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

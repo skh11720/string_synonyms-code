@@ -56,7 +56,7 @@ public class Naive1 extends Algorithm {
 	}
 
 	private void preprocess() {
-		for( Record r : tableR ) {
+		for( Record r : tableT ) {
 			r.preprocessRules( automata, false );
 			r.preprocessEstimatedRecords();
 		}
@@ -71,8 +71,8 @@ public class Naive1 extends Algorithm {
 		long starttime = System.nanoTime();
 		long totalExpSize = 0;
 		int count = 0;
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record recR = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record recR = tableT.get( i );
 			long est = recR.getEstNumRecords();
 			if( threshold != -1 && est > threshold )
 				continue;
@@ -177,7 +177,7 @@ public class Naive1 extends Algorithm {
 
 		List<RecordPair> rlist = new ArrayList<RecordPair>();
 		for( IntegerPair ip : rslt ) {
-			Record r = tableR.get( ip.i1 );
+			Record r = tableT.get( ip.i1 );
 			Record s = tableS.get( ip.i2 );
 			rlist.add( new RecordPair( r, s ) );
 		}

@@ -123,7 +123,7 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		long_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
 		short_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -242,8 +242,8 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		// Build 1-expanded set for every record in R
 		count = 0;
 		setR = new HashMap<Record, List<Integer>>();
-		for( int i = 0; i < tableR.size(); ++i ) {
-			Record rec = tableR.get( i );
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record rec = tableT.get( i );
 			assert ( rec != null );
 			if( rec.getEstNumRecords() > joinThreshold )
 				continue;
@@ -335,7 +335,7 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		}
 
 		long_idx = new WYK_HashMap<Integer, Map<IntegerPair, List<IntIntRecordTriple>>>();
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -499,7 +499,7 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableR ) {
+		for( Record rec : tableT ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -564,7 +564,7 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 			for( IntegerPair ip : rslt ) {
 				if( ip.i1 != ip.i2 )
 					bw.write(
-							tableR.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableR.get( ip.i2 ).toString( strlist ) + "\n" );
+							tableT.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableT.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}
@@ -578,14 +578,14 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		// Sample
 		List<Record> sampleRlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
-		for( Record r : tableR )
+		for( Record r : tableT )
 			if( Math.random() < sampleratio )
 				sampleRlist.add( r );
 		for( Record s : tableS )
 			if( Math.random() < sampleratio )
 				sampleSlist.add( s );
-		List<Record> tmpR = tableR;
-		tableR = sampleRlist;
+		List<Record> tmpR = tableT;
+		tableT = sampleRlist;
 		List<Record> tmpS = tableS;
 		tableS = sampleSlist;
 
@@ -616,7 +616,7 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		System.out.println( "Bigram computation time : " + Record.exectime );
 
 		// Restore
-		tableR = tmpR;
+		tableT = tmpR;
 		tableS = tmpS;
 
 		// Sort R and S with expanded sizes
@@ -628,12 +628,12 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 				return Long.compare( est1, est2 );
 			}
 		};
-		Collections.sort( tableR, cmp );
+		Collections.sort( tableT, cmp );
 		Collections.sort( tableS, cmp );
 
 		// Reassign ID
-		for( int i = 0; i < tableR.size(); ++i )
-			tableR.get( i ).setID( i );
+		for( int i = 0; i < tableT.size(); ++i )
+			tableT.get( i ).setID( i );
 		for( int i = 0; i < tableS.size(); ++i )
 			tableS.get( i ).setID( i );
 
@@ -659,12 +659,12 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 		// Prefix sums
 		long currRLExpSize = 0;
 		long currSLExpSize = 0;
-		int currRHSize = tableR.size();
+		int currRHSize = tableT.size();
 		int currRLSize = 0;
 		long currSHSigSize = totalSSigSize;
-		while( ridx < tableR.size() || sidx < tableS.size() ) {
+		while( ridx < tableT.size() || sidx < tableS.size() ) {
 			// Find the next t
-			Record r = ridx == tableR.size() ? null : tableR.get( ridx );
+			Record r = ridx == tableT.size() ? null : tableT.get( ridx );
 			Record s = sidx == tableS.size() ? null : tableS.get( sidx );
 			long t = 0;
 			if( r == null )
@@ -684,7 +684,7 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 				currRLExpSize += expSize;
 				--currRHSize;
 				++currRLSize;
-				r = tableR.get( ++ridx );
+				r = tableT.get( ++ridx );
 			}
 			while( s != null ) {
 				long expSize = s.getEstNumRecords();

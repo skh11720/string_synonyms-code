@@ -62,6 +62,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		this.theta = theta;
 		this.filter = filter;
 		pairComparator = new Comparator<Pair<T>>() {
+			@Override
 			public int compare( Pair<T> o1, Pair<T> o2 ) {
 				int cmp = Integer.compare( o1.rec1.getID(), o2.rec1.getID() );
 				if( cmp == 0 )
@@ -70,15 +71,16 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 			}
 		};
 		TComparator = new Comparator<T>() {
+			@Override
 			public int compare( T o1, T o2 ) {
 				return Integer.compare( o1.getID(), o2.getID() );
 			}
 		};
 	}
 
-	public SI_Tree( double theta, ITF_Filter filter, List<T> tableR ) {
+	public SI_Tree( double theta, ITF_Filter filter, List<T> tableT ) {
 		this( theta, filter );
-		for( T rec : tableR )
+		for( T rec : tableT )
 			add( rec );
 	}
 
