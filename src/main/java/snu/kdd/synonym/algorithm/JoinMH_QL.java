@@ -186,7 +186,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMH";
+		return "JoinMH_QL";
 	}
 
 	@Override
