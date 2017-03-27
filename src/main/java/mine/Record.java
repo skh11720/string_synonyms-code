@@ -191,39 +191,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	/**
 	 * preprocessRules() should be called before this method is called
 	 */
-	@Deprecated
 	public void preprocessLengths() {
-		transformedLengths = new int[ tokens.length ][ 2 ];
-		for( int i = 0; i < tokens.length; ++i ) {
-			transformedLengths[ i ][ 0 ] = transformedLengths[ i ][ 1 ] = i + 1;
-		}
-
-		for( Rule rule : applicableRules[ 0 ] ) {
-			int fromSize = rule.fromSize();
-			int toSize = rule.toSize();
-			if( fromSize == toSize ) {
-				continue;
-			}
-			transformedLengths[ fromSize - 1 ][ 0 ] = Math.min( transformedLengths[ fromSize - 1 ][ 0 ], toSize );
-			transformedLengths[ fromSize - 1 ][ 1 ] = Math.max( transformedLengths[ fromSize - 1 ][ 1 ], toSize );
-		}
-		for( int i = 1; i < tokens.length; ++i ) {
-			transformedLengths[ i ][ 0 ] = Math.min( transformedLengths[ i ][ 0 ], transformedLengths[ i - 1 ][ 0 ] + 1 );
-			transformedLengths[ i ][ 1 ] = Math.max( transformedLengths[ i ][ 1 ], transformedLengths[ i - 1 ][ 1 ] + 1 );
-			for( Rule rule : applicableRules[ i ] ) {
-				int fromSize = rule.fromSize();
-				int toSize = rule.toSize();
-
-				transformedLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformedLengths[ i + fromSize - 1 ][ 0 ],
-						transformedLengths[ i - 1 ][ 0 ] + toSize );
-
-				transformedLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformedLengths[ i + fromSize - 1 ][ 1 ],
-						transformedLengths[ i - 1 ][ 1 ] + toSize );
-			}
-		}
-	}
-
-	public void preprocessLengths_mod() { // added size comparisons
 		transformedLengths = new int[ tokens.length ][ 2 ];
 		for( int i = 0; i < tokens.length; ++i )
 			transformedLengths[ i ][ 0 ] = transformedLengths[ i ][ 1 ] = i + 1;
@@ -257,6 +225,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 	}
 
+	// TODO check this
 	@SuppressWarnings( "unchecked" )
 	public void preprocessEstimatedRecords() {
 		ArrayList<Rule>[] tmpAppRules = new ArrayList[ tokens.length ];

@@ -168,7 +168,7 @@ public abstract class AlgorithmTemplate {
 
 		System.out.println( "Preprocessing with modified length" );
 		for( final Record rec : tableR ) {
-			rec.preprocessLengths_mod();
+			rec.preprocessLengths();
 		}
 
 		preprocessTime.stopQuiet();
@@ -202,7 +202,7 @@ public abstract class AlgorithmTemplate {
 		preprocessTime.resetAndStart( "Preprocess records in S time" );
 		for( final Record rec : tableS ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
-			rec.preprocessLengths_mod();
+			rec.preprocessLengths();
 			rec.preprocessEstimatedRecords();
 			if( !compact ) {
 				rec.preprocessAvailableTokens( maxIndex );
