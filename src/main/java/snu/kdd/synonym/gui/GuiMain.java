@@ -41,6 +41,7 @@ public class GuiMain extends JFrame {
 	private final JButton btnJoinNaive1 = new JButton( "JoinNaive1" );
 	private final JButton btnJoinNaive2 = new JButton( "JoinNaive2" );
 	private final JButton btnJoinMH = new JButton( "JoinMH" );
+	private final JButton btnJoinMH_QL = new JButton( "JoinMH_QL" );
 	private final JButton btnJoinMin = new JButton( "JoinMin" );
 	private final JButton btnJoinHybridOpt = new JButton( "JoinHybridOpt" );
 	private final JButton btnJoinHybridThres = new JButton( "JoinHybridThres" );
@@ -136,6 +137,7 @@ public class GuiMain extends JFrame {
 					btnJoinMin.setEnabled( true );
 					btnJoinHybridOpt.setEnabled( true );
 					btnJoinHybridThres.setEnabled( true );
+					btnJoinMH_QL.setEnabled( true );
 				}
 			}
 			else {
@@ -166,6 +168,10 @@ public class GuiMain extends JFrame {
 			}
 			else if( command.equals( "JoinMH" ) ) {
 				arg = arg + " -algorithm JoinMH -additional";
+				additional = "-n 1 -compact -v TopDownHashSetSinglePathDS 0";
+			}
+			else if( command.equals( "JoinMH_QL" ) ) {
+				arg = arg + " -algorithm JoinMH_QL -additional";
 				additional = "-n 1 -compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinMin" ) ) {
@@ -231,7 +237,7 @@ public class GuiMain extends JFrame {
 		getContentPane().add( btnJoinNaive1 );
 		btnJoinMH.addActionListener( new RunAlgorithmActionListener() );
 		btnJoinMH.setEnabled( false );
-		btnJoinMH.setBounds( 266, 41, 120, 23 );
+		btnJoinMH.setBounds( 267, 41, 120, 23 );
 
 		getContentPane().add( btnJoinMH );
 
@@ -256,7 +262,7 @@ public class GuiMain extends JFrame {
 		btnJoinMin.setBounds( 394, 41, 120, 23 );
 		getContentPane().add( btnJoinMin );
 
-		chckbxVerbose.setBounds( 533, 41, 73, 23 );
+		chckbxVerbose.setBounds( 655, 41, 73, 23 );
 		getContentPane().add( chckbxVerbose );
 
 		sampleTextField = new JTextField();
@@ -292,11 +298,16 @@ public class GuiMain extends JFrame {
 		btnJoinHybridThres.setEnabled( false );
 		btnJoinHybridThres.setBounds( 139, 74, 120, 23 );
 		getContentPane().add( btnJoinHybridThres );
+		btnJoinHybridThres.addActionListener( new RunAlgorithmActionListener() );
 
 		btnJoinNaive2.setEnabled( false );
 		btnJoinNaive2.setBounds( 139, 41, 120, 23 );
 		getContentPane().add( btnJoinNaive2 );
-		btnJoinHybridThres.addActionListener( new RunAlgorithmActionListener() );
+
+		btnJoinMH_QL.setEnabled( false );
+		btnJoinMH_QL.addActionListener( new RunAlgorithmActionListener() );
+		btnJoinMH_QL.setBounds( 523, 41, 120, 23 );
+		getContentPane().add( btnJoinMH_QL );
 	}
 
 	public static void main( String args[] ) {

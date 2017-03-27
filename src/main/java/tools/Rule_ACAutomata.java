@@ -24,6 +24,7 @@ public class Rule_ACAutomata {
 
 	private final State root;
 
+	// creates an automata with left hand sides of rules
 	public Rule_ACAutomata( Iterable<Rule> rules ) {
 		// 1. Create a root state
 		root = new State();
@@ -142,10 +143,13 @@ public class Rule_ACAutomata {
 	public Rule[][] applicableRules( int[] tokens, int startIdx ) {
 		final HashSet<Rule>[] tmprslt = new HashSet[ tokens.length ];
 		for( int i = 0; i < tokens.length; ++i ) {
+			// the set of applicable rules in each position
 			tmprslt[ i ] = new HashSet<>();
 		}
 		for( int i = 0; i < startIdx; ++i ) {
 			final int t = tokens[ i ];
+			// adding a self rule
+			// TODO: use singleton to reduce memory
 			tmprslt[ i ].add( new Rule( t, t ) );
 		}
 		State curr = root;

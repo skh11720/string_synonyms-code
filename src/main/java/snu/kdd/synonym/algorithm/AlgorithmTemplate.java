@@ -148,10 +148,11 @@ public abstract class AlgorithmTemplate {
 	 */
 
 	protected void preprocess( boolean compact, int maxIndex, boolean computeAutomataPerRecord ) {
+		// builds an automata of the set of rules
+		StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess rule time" );
 		final Rule_ACAutomata automata = new Rule_ACAutomata( getRulelist() );
 
 		long applicableRules = 0;
-		StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess rule time" );
 		// Preprocess each records in R
 		for( final Record rec : tableR ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );

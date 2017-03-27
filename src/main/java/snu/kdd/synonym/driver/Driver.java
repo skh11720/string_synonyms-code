@@ -17,6 +17,7 @@ import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.JoinHybridOpt;
 import snu.kdd.synonym.algorithm.JoinHybridThres;
 import snu.kdd.synonym.algorithm.JoinMH;
+import snu.kdd.synonym.algorithm.JoinMH_QL;
 import snu.kdd.synonym.algorithm.JoinMin;
 import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.algorithm.JoinNaive2;
@@ -47,7 +48,7 @@ public class Driver {
 	}
 
 	private enum AlgorithmName {
-		JoinNaive1, JoinNaive2, JoinMH, JoinMin, JoinHybridThres, JoinHybridOpt, SIJoin
+		JoinNaive1, JoinNaive2, JoinMH, JoinMin, JoinHybridThres, JoinHybridOpt, SIJoin, JoinMH_QL
 	}
 
 	public static CommandLine parseInput( String args[] ) throws ParseException {
@@ -96,6 +97,9 @@ public class Driver {
 			break;
 		case JoinMH:
 			alg = new JoinMH( rulePath, dataOnePath, dataTwoPath, outputPath );
+			break;
+		case JoinMH_QL:
+			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
 		case JoinMin:
 			alg = new JoinMin( rulePath, dataOnePath, dataTwoPath, outputPath );

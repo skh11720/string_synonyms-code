@@ -55,8 +55,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	protected IntegerSet[] availableTokens = null;
 	/**
 	 * For Length filter
+	 * transformedLengths[ i - 1 ][ 0 ] = l_{min}(s[1,i],R)
+	 * transformedLengths[ i - 1 ][ 1 ] = l_{Max}(s[1,i],R)
 	 */
-	protected int[][] candidateLengths = null;
+	protected int[][] transformedLengths = null;
+
 	protected static final Rule[] EMPTY_RULE = new Rule[ 0 ];
 	/**
 	 * Estimate the number of equivalent records
@@ -117,8 +120,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public void preprocessRules( Rule_ACAutomata automata, boolean buildtrie ) {
 		applicableRules = automata.applicableRules( tokens, 0 );
-		if( buildtrie )
+		if( buildtrie ) {
 			applicableRulesTrie = new Rule_InverseTrie( applicableRules );
+		}
 	}
 
 	/**
@@ -128,7 +132,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	// Interval tree를 이용해서 available token set을 저장할 수도 있음
 	public void preprocessAvailableTokens( int maxlength ) {
 		assert ( maxlength > 0 );
-		maxlength = Math.min( maxlength, candidateLengths[ tokens.length - 1 ][ 1 ] );
+		maxlength = Math.min( maxlength, transformedLengths[ tokens.length - 1 ][ 1 ] );
 		availableTokens = new IntegerSet[ maxlength ];
 		for( int i = 0; i < maxlength; ++i )
 			availableTokens[ i ] = new IntegerSet();
@@ -138,7 +142,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			if( i == 0 )
 				range = new int[] { 0, 0 };
 			else
-				range = candidateLengths[ i - 1 ];
+				range = transformedLengths[ i - 1 ];
 			int from = range[ 0 ];
 			int to = range[ 1 ];
 			for( Rule rule : rules ) {
@@ -160,7 +164,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	 */
 	// Interval tree를 이용해서 available token set을 저장할 수도 있음
 	public IntegerSet[] computeAvailableTokens() {
-		IntegerSet[] availableTokens = new IntegerSet[ candidateLengths[ tokens.length - 1 ][ 1 ] ];
+		IntegerSet[] availableTokens = new IntegerSet[ transformedLengths[ tokens.length - 1 ][ 1 ] ];
 		for( int i = 0; i < availableTokens.length; ++i )
 			availableTokens[ i ] = new IntegerSet();
 		for( int i = 0; i < tokens.length; ++i ) {
@@ -169,14 +173,15 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			if( i == 0 )
 				range = new int[] { 0, 0 };
 			else
-				range = candidateLengths[ i - 1 ];
+				range = transformedLengths[ i - 1 ];
 			int from = range[ 0 ];
 			int to = range[ 1 ];
 			for( Rule rule : rules ) {
 				int[] tokens = rule.getTo();
 				for( int j = 0; j < tokens.length; ++j ) {
-					for( int k = from; k <= to; ++k )
+					for( int k = from; k <= to; ++k ) {
 						availableTokens[ k + j ].add( tokens[ j ] );
+					}
 				}
 			}
 		}
@@ -187,28 +192,35 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	 * preprocessRules() should be called before this method is called
 	 */
 	public void preprocessLengths() {
-		candidateLengths = new int[ tokens.length ][ 2 ];
+		transformedLengths = new int[ tokens.length ][ 2 ];
 		for( int i = 0; i < tokens.length; ++i )
-			candidateLengths[ i ][ 0 ] = candidateLengths[ i ][ 1 ] = i + 1;
+			transformedLengths[ i ][ 0 ] = transformedLengths[ i ][ 1 ] = i + 1;
 
 		for( Rule rule : applicableRules[ 0 ] ) {
 			int fromSize = rule.fromSize();
 			int toSize = rule.toSize();
-			if( fromSize == toSize )
-				continue;
-			candidateLengths[ fromSize - 1 ][ 0 ] = Math.min( candidateLengths[ fromSize - 1 ][ 0 ], toSize );
-			candidateLengths[ fromSize - 1 ][ 1 ] = Math.max( candidateLengths[ fromSize - 1 ][ 1 ], toSize );
+			if( fromSize > toSize ) {
+				transformedLengths[ fromSize - 1 ][ 0 ] = Math.min( transformedLengths[ fromSize - 1 ][ 0 ], toSize );
+			}
+			else if( fromSize < toSize ) {
+				transformedLengths[ fromSize - 1 ][ 1 ] = Math.max( transformedLengths[ fromSize - 1 ][ 1 ], toSize );
+			}
 		}
 		for( int i = 1; i < tokens.length; ++i ) {
-			candidateLengths[ i ][ 0 ] = Math.min( candidateLengths[ i ][ 0 ], candidateLengths[ i - 1 ][ 0 ] + 1 );
-			candidateLengths[ i ][ 1 ] = Math.max( candidateLengths[ i ][ 1 ], candidateLengths[ i - 1 ][ 1 ] + 1 );
+			transformedLengths[ i ][ 0 ] = Math.min( transformedLengths[ i ][ 0 ], transformedLengths[ i - 1 ][ 0 ] + 1 );
+			transformedLengths[ i ][ 1 ] = Math.max( transformedLengths[ i ][ 1 ], transformedLengths[ i - 1 ][ 1 ] + 1 );
 			for( Rule rule : applicableRules[ i ] ) {
 				int fromSize = rule.fromSize();
 				int toSize = rule.toSize();
-				candidateLengths[ i + fromSize - 1 ][ 0 ] = Math.min( candidateLengths[ i + fromSize - 1 ][ 0 ],
-						candidateLengths[ i - 1 ][ 0 ] + toSize );
-				candidateLengths[ i + fromSize - 1 ][ 1 ] = Math.max( candidateLengths[ i + fromSize - 1 ][ 1 ],
-						candidateLengths[ i - 1 ][ 1 ] + toSize );
+				if( fromSize > toSize ) {
+					transformedLengths[ i + fromSize - 1 ][ 0 ] = Math.min( transformedLengths[ i + fromSize - 1 ][ 0 ],
+							transformedLengths[ i - 1 ][ 0 ] + toSize );
+				}
+				else if( fromSize < toSize ) {
+					transformedLengths[ i + fromSize - 1 ][ 1 ] = Math.max( transformedLengths[ i + fromSize - 1 ][ 1 ],
+							transformedLengths[ i - 1 ][ 1 ] + toSize );
+				}
+
 			}
 		}
 	}
@@ -333,10 +345,13 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		/* There are two type of 2 grams:
 		 * 1) two tokens are derived from different rules.
 		 * 2) two tokens are generated from the same rule. */
+
+		// twograms.get( k ) returns all positional two-grams each of whose position is k
 		List<Set<IntegerPair>> twograms = new ArrayList<Set<IntegerPair>>();
 		int[] range = getCandidateLengths( size() - 1 );
-		for( int i = 0; i < range[ 1 ]; ++i )
+		for( int i = 0; i < range[ 1 ]; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
 			twograms.add( new WYK_HashSet<IntegerPair>() );
+		}
 		add2GramsFromDiffRules( twograms );
 		add2GramsFromSameRule( twograms );
 		exectime += System.nanoTime() - start;
@@ -606,9 +621,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	public int[] getCandidateLengths( int k ) {
-		if( candidateLengths == null )
+		if( transformedLengths == null )
 			return null;
-		return candidateLengths[ k ];
+		return transformedLengths[ k ];
 	}
 
 	public long getEstNumRecords() {
@@ -792,12 +807,12 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	@Override
 	public int getMinLength() {
-		return candidateLengths[ candidateLengths.length - 1 ][ 0 ];
+		return transformedLengths[ transformedLengths.length - 1 ][ 0 ];
 	}
 
 	@Override
 	public int getMaxLength() {
-		return candidateLengths[ candidateLengths.length - 1 ][ 1 ];
+		return transformedLengths[ transformedLengths.length - 1 ][ 1 ];
 	}
 
 	@Override
