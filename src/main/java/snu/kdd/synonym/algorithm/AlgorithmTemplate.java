@@ -165,8 +165,17 @@ public abstract class AlgorithmTemplate {
 		stat.add( "Avg applicable rules", applicableRules + "/" + tableR.size() );
 
 		preprocessTime.resetAndStart( "Preprocess length time" );
-		for( final Record rec : tableR ) {
-			rec.preprocessLengths();
+
+		if( this instanceof JoinMH_QL ) {
+			System.out.println( "Preprocessing with modified length" );
+			for( final Record rec : tableR ) {
+				rec.preprocessLengths_mod();
+			}
+		}
+		else {
+			for( final Record rec : tableR ) {
+				rec.preprocessLengths();
+			}
 		}
 		preprocessTime.stopQuiet();
 		stat.add( preprocessTime );
