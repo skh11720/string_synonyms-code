@@ -2,6 +2,7 @@ package snu.kdd.synonym.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,14 +107,19 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		int count_cand[] = new int[ maxIndexLength ];
 		int count_empty[] = new int[ maxIndexLength ];
 		for( Record recS : tableS ) {
-			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+			Set<Record> candidates = new HashSet<Record>();
+
+			// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
 
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
 			int boundary = Math.min( range[ 0 ], maxIndexLength );
 			for( int i = 0; i < boundary; ++i ) {
-				List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
+				// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
 				Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
+
+				Set<Record> candidatesAppeared = new HashSet<Record>();
+
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					List<IntIntRecordTriple> tree = map.get( twogram );
 					if( tree == null ) {
@@ -122,18 +128,28 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 					cand_sum[ i ] += tree.size();
 					++count_cand[ i ];
-					List<Record> list = new ArrayList<Record>();
-					for( IntIntRecordTriple e : tree )
-						if( StaticFunctions.overlap( e.min, e.max, range[ 0 ], range[ 1 ] ) )
-							list.add( e.rec );
-					ithCandidates.add( list );
-					cand_sum_afterprune[ i ] += list.size();
+					for( IntIntRecordTriple e : tree ) {
+						if( StaticFunctions.overlap( e.min, e.max, range[ 0 ], range[ 1 ] ) ) {
+							// length filtering
+							if( i == 0 ) {
+								candidatesAppeared.add( e.rec );
+							}
+							else if( candidates.contains( e.rec ) ) {
+								// signature filtering
+								candidatesAppeared.add( e.rec );
+							}
+						}
+					}
+					cand_sum_afterprune[ i ] += candidatesAppeared.size();
 				}
-				List<Record> union = StaticFunctions.union( ithCandidates, idComparator );
-				candidatesList.add( union );
-				cand_sum_afterunion[ i ] += union.size();
+				candidates.clear();
+				Set<Record> temp = candidatesAppeared;
+				candidatesAppeared = candidates;
+				candidates = temp;
+
+				cand_sum_afterunion[ i ] += candidates.size();
 			}
-			List<Record> candidates = StaticFunctions.intersection( candidatesList, idComparator );
+
 			count += candidates.size();
 
 			if( skipChecking ) {
@@ -176,7 +192,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		System.out.println( "Set inter items:" + StaticFunctions.inter_item_counter );
 		System.out.println( "Set inter cmps:" + StaticFunctions.inter_cmp_counter );
 
+		stepTime.resetAndStart( "Result Write Time" );
 		writeResult( rslt );
+		stepTime.stopAndAdd( stat );
 	}
 
 	@Override

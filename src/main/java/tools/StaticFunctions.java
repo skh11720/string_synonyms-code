@@ -175,26 +175,37 @@ public class StaticFunctions {
 	public static long union_cmp_counter = 0;
 
 	public static <T> List<T> union( List<? extends List<T>> list, Comparator<T> cmp ) {
-		if( list.size() == 0 )
+		if( list.size() == 0 ) {
+			// return empty list
 			return new ArrayList<T>();
-		else if( list.size() == 1 )
+		}
+		else if( list.size() == 1 ) {
+			// return list itself
 			return list.get( 0 );
-		for( List<T> l : list )
+		}
+		for( List<T> l : list ) {
 			union_item_counter += l.size();
+		}
+
 		// Merge candidates
 		RecordIntTripleComparator<T> ritCom = new RecordIntTripleComparator<T>( cmp );
+
+		// sort list
 		PriorityQueue<RecordIntTriple<T>> pq = new PriorityQueue<RecordIntTriple<T>>( list.size(), ritCom );
 		for( int i = 0; i < list.size(); ++i ) {
 			List<T> candidates = list.get( i );
-			if( !candidates.isEmpty() )
+			if( !candidates.isEmpty() ) {
 				pq.add( new RecordIntTriple<T>( candidates.get( 0 ), i, 0 ) );
+			}
 		}
+
 		List<T> candidates = new ArrayList<T>();
 		T last = null;
 		while( !pq.isEmpty() ) {
 			RecordIntTriple<T> p = pq.poll();
-			if( last != null )
+			if( last != null ) {
 				++union_cmp_counter;
+			}
 			if( last == null || cmp.compare( last, p.rec ) != 0 ) {
 				last = p.rec;
 				candidates.add( p.rec );
@@ -229,12 +240,15 @@ public class StaticFunctions {
 
 	public static <T> List<T> intersection( List<? extends List<T>> list, Comparator<T> cmp ) {
 		LinkedList<T> intersection = new LinkedList<T>();
-		if( list.size() == 0 )
+		if( list.size() == 0 ) {
 			return intersection;
-		else if( list.size() == 1 )
+		}
+		else if( list.size() == 1 ) {
 			return list.get( 0 );
-		for( List<T> l : list )
+		}
+		for( List<T> l : list ) {
 			inter_item_counter += l.size();
+		}
 		intersection.addAll( list.get( 0 ) );
 		for( int i = 1; i < list.size(); ++i ) {
 			List<T> src = list.get( i );
@@ -260,7 +274,7 @@ public class StaticFunctions {
 				else
 					v2 = iter2.hasNext() ? iter2.next() : null;
 			}
-			if( v1 != null && v2 == null )
+			if( v1 != null && v2 == null ) {
 				while( true ) {
 					iter1.remove();
 					if( iter1.hasNext() )
@@ -268,6 +282,7 @@ public class StaticFunctions {
 					else
 						break;
 				}
+			}
 		}
 		return intersection;
 	}
