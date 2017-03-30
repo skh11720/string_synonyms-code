@@ -69,11 +69,21 @@ public class StopWatch {
 		}
 	}
 
+	public void stopAndAdd( StatContainer st ) {
+		stop();
+		st.add( this );
+	}
+
 	public void stopQuiet() {
 		if( timeStart == 0 ) {
 			Util.printLog( "[Warning]: Stop watch " + watchName + " not started" );
 		}
 		timeEnd = System.currentTimeMillis();
 		totalTime += timeEnd - timeStart;
+	}
+
+	public void stopQuietAndAdd( StatContainer st ) {
+		stopQuiet();
+		st.add( this );
 	}
 }

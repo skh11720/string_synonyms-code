@@ -158,8 +158,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			applicableRules += rec.getNumApplicableRules();
 		}
-		preprocessTime.stopQuiet();
-		stat.add( preprocessTime );
+		preprocessTime.stopQuietAndAdd( stat );
 
 		System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableT.size() );
 		stat.add( "Avg applicable rules", applicableRules + "/" + tableT.size() );
@@ -171,23 +170,20 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessLengths();
 		}
 
-		preprocessTime.stopQuiet();
-		stat.add( preprocessTime );
+		preprocessTime.stopQuietAndAdd( stat );
 
 		preprocessTime.resetAndStart( "Preprocess est record time" );
 		for( final Record rec : tableT ) {
 			rec.preprocessEstimatedRecords();
 		}
-		preprocessTime.stopQuiet();
-		stat.add( preprocessTime );
+		preprocessTime.stopQuietAndAdd( stat );
 
 		if( !compact ) {
 			preprocessTime.resetAndStart( "Preprocess token time" );
 			for( final Record rec : tableT ) {
 				rec.preprocessAvailableTokens( maxIndex );
 			}
-			preprocessTime.stopQuiet();
-			stat.add( preprocessTime );
+			preprocessTime.stopQuietAndAdd( stat );
 		}
 
 		preprocessTime.resetAndStart( "Preprocess early pruning time" );
@@ -195,8 +191,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}
-		preprocessTime.stopQuiet();
-		stat.add( preprocessTime );
+		preprocessTime.stopQuietAndAdd( stat );
 
 		// Preprocess each records in S
 		preprocessTime.resetAndStart( "Preprocess records in S time" );
@@ -210,8 +205,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}
-		preprocessTime.stopQuiet();
-		stat.add( preprocessTime );
+		preprocessTime.stopQuietAndAdd( stat );
 	}
 
 	public void printStat() {
