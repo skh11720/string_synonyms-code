@@ -11,6 +11,7 @@ RUN_JoinMin=${10}
 RUN_JoinMH=${11}
 RUN_JoinHybridOpt=${12}
 RUN_JoinHybridThres=${13}
+RUN_JoinMH_QL=${14}
 
 LIBS=../target/Synonym.jar
 
@@ -28,10 +29,11 @@ echo RUN_JoinMin $RUN_JoinMin
 echo RUN_JoinMH $RUN_JoinMH
 echo RUN_JoinHybridOpt $RUN_JoinHybridOpt
 echo RUN_JoinHybridThres $RUN_JoinHybridThres
+echo RUN_JoinMH_QL $RUN_JoinMH_QL
 echo "--------------------------------------"
 
 PREV="None"
-if [ $# -ne 13 ];
+if [ $# -ne 14 ];
 then
 	echo 'check number of parameters'
 else
@@ -104,7 +106,7 @@ else
 	#JoinMH
 	if [[ $RUN_JoinMH == "True" ]];
 	then
-		for j in {1..1..1}; do
+		for j in {1..3..1}; do
 			date
 			./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $project
 
@@ -121,7 +123,8 @@ else
 	if [[ $RUN_JoinHybridOpt == "True" ]];
 	then
 		#samplings=( 0.01 0.03 )
-		samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
+		samplings=( 0.001 0.003 0.01 )
+		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
 		for sampling in "${samplings[@]}"; do
 			date
 			./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
@@ -138,7 +141,8 @@ else
 	#JoinHybridThres
 	if [[ $RUN_JoinHybridThres == "True" ]];
 	then
-		thresholds=( 3 10 30 100 300 1000 )
+		thresholds=( 10 30 100 )
+		#thresholds=( 3 10 30 100 300 1000 )
 		for threshold in "${thresholds[@]}"; do
 			date
 			./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
@@ -150,5 +154,21 @@ else
 			./compare.sh $PREV JoinHybridThres
 		done
 		PREV="JoinHybridThres"
+	fi
+
+	#JoinMH_QL
+	if [[ $RUN_JoinMH_QL == "True" ]];
+	then
+		for j in {1..3..1}; do
+			date
+			./joinMH_QL.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $project
+
+			#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0
+			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinD2GramCompact$j"TopDownHashSet"; }
+			date
+
+			./compare.sh $PREV JoinMH_QL
+		done
+		PREV="JoinMH_QL"
 	fi
 fi
