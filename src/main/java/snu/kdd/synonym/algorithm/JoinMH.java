@@ -10,6 +10,7 @@ import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
+import snu.kdd.synonym.tools.StopWatch;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
 import tools.StaticFunctions;
@@ -155,28 +156,27 @@ public class JoinMH extends AlgorithmTemplate {
 	}
 
 	public void run() {
-		long startTime = System.currentTimeMillis();
+		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
 		preprocess( compact, maxIndex, useAutomata );
-		System.out.print( "Preprocess finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		stepTime.stopAndAdd( stat );
 
-		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "BuildIndex Total Time" );
 		buildIndex();
-		System.out.print( "Building Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		stepTime.stopAndAdd( stat );
 
-		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Join Total Time" );
 		WYK_HashSet<IntegerPair> rslt = join();
-		System.out.print( "Join finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.out.println( rslt.size() );
+		stepTime.stopAndAdd( stat );
 
+		System.out.println( rslt.size() );
 		System.out.println( "Set union items:" + StaticFunctions.union_item_counter );
 		System.out.println( "Set union cmps:" + StaticFunctions.union_cmp_counter );
 		System.out.println( "Set inter items:" + StaticFunctions.inter_item_counter );
 		System.out.println( "Set inter cmps:" + StaticFunctions.inter_cmp_counter );
 
+		stepTime.resetAndStart( "Result Write Time" );
 		writeResult( rslt );
+		stepTime.stopAndAdd( stat );
 	}
 
 	@Override
