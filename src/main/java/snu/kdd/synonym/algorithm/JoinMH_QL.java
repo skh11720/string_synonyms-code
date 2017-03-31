@@ -126,7 +126,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
 			int boundary = Math.min( range[ 0 ], maxIndexLength );
-			for( int i = boundary - 1; i >= 0; i-- ) {
+			for( int i = 0; i < boundary; ++i ) {
 				// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
 
 				Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
@@ -145,7 +145,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					for( IntIntRecordTriple e : tree ) {
 						if( StaticFunctions.overlap( e.min, e.max, range[ 0 ], range[ 1 ] ) ) {
 							// length filtering
-							if( i == boundary - 1 ) {
+							if( i == 0 ) {
 								candidatesAppeared.add( e.rec );
 							}
 							else if( candidates.contains( e.rec ) ) {
