@@ -1,4 +1,4 @@
-package snu.kdd.synonym.algorithm;
+package snu.kdd.synonym.algorithm.deprecated;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -18,6 +19,7 @@ import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 import validator.Validator;
 
+@Deprecated
 public class JoinMH extends AlgorithmTemplate {
 	public boolean useAutomata = true;
 	public boolean skipChecking = false;
