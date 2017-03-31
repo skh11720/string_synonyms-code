@@ -150,7 +150,7 @@ public class JoinMH extends AlgorithmTemplate {
 			System.out.println( "Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Empty candidates : " + count_empty[ i ] );
 		}
-		stat.add( "Comparison", count );
+		stat.add( "Equiv Comparison", count );
 		System.out.println( "comparisions : " + count );
 
 		return rslt;
