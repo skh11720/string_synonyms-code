@@ -99,7 +99,7 @@ else
 		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
 		date
 
-		./compare.sh $PREV JoinMin
+		./compare.sh $PREV JoinMin_QL
 		PREV="JoinMin"
 	fi
 
@@ -116,7 +116,7 @@ else
 
 			./compare.sh $PREV JoinMH
 		done
-		PREV="JoinMH"
+		PREV="JoinMH_QL"
 	fi
 
 	#JoinHybridOpt
@@ -164,7 +164,7 @@ else
 
 		date
 
-		./compare.sh $PREV JoinMH_QL
+		./compare.sh $PREV JoinMin_Q
 		PREV="JoinMin_Q"
 	fi
 fi
