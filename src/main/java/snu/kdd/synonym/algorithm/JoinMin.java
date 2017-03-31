@@ -91,8 +91,9 @@ public class JoinMin extends AlgorithmTemplate {
 		// Build an index
 		// Count Invokes per each (token, loc) pair
 		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
-		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair,
-		// Integer>();
+		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair,Integer>();
+
+		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
 		for( Record rec : tableS ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
@@ -123,7 +124,9 @@ public class JoinMin extends AlgorithmTemplate {
 		gamma = ( (double) buildIndexTime1 ) / totalSigCount;
 		System.out.println( "Step 1 : " + buildIndexTime1 );
 		starttime = System.nanoTime();
+		stepTime.stopAndAdd( stat );
 
+		stepTime.resetAndStart( "Indexing Time" );
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
@@ -184,6 +187,7 @@ public class JoinMin extends AlgorithmTemplate {
 		buildIndexTime2 = System.nanoTime() - starttime;
 		System.out.println( "Step 2 : " + buildIndexTime2 );
 		delta = ( (double) buildIndexTime2 ) / totalSigCount;
+		stepTime.stopAndAdd( stat );
 
 		int sum = 0;
 		int ones = 0;
@@ -520,7 +524,7 @@ public class JoinMin extends AlgorithmTemplate {
 		// Retrieve statistics
 		statistics();
 
-		long startTime = System.nanoTime();
+		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
 		if( singleside ) {
 			buildIndexSingleSide();
 		}
@@ -533,19 +537,17 @@ public class JoinMin extends AlgorithmTemplate {
 				System.exit( 0 );
 			}
 		}
+		stepTime.stopAndAdd( stat );
 
-		buildIndexTime = System.nanoTime() - startTime;
-		System.out.println( "Building Index finished " + buildIndexTime );
-
-		startTime = System.nanoTime();
+		stepTime.resetAndStart( "Join Total Time" );
 		Collection<IntegerPair> rslt = ( singleside ? joinSingleSide() : join() );
-		joinTime = System.nanoTime() - startTime;
-		System.out.println( "Join finished " + joinTime + " ns" );
-		System.out.println( rslt.size() );
+		stepTime.stopAndAdd( stat );
 
-		stat.add( "JoinMin result", rslt.size() );
-
-		if( writeResult ) {
+		System.out.println( "Result Size: " + rslt.size() );
+		if( !writeResult ) {
+			stat.add( "JoinMin Result", rslt.size() );
+		}
+		else {
 			this.writeResult( rslt );
 		}
 

@@ -93,6 +93,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
 		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair, Integer>();
 
+		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
 		for( Record rec : tableS ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 
@@ -129,7 +130,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		System.out.println( "Gamma (buildTime / signature): " + gamma );
 
 		starttime = System.nanoTime();
+		stepTime.stopAndAdd( stat );
 
+		stepTime.resetAndStart( "Indexing Time" );
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
@@ -194,6 +197,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		buildIndexTime2 = System.nanoTime() - starttime;
 		System.out.println( "Step 2 : " + buildIndexTime2 );
 		delta = ( (double) buildIndexTime2 ) / totalSigCount;
+		stepTime.stopAndAdd( stat );
 
 		int sum = 0;
 		int ones = 0;
@@ -525,12 +529,11 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		runWithoutPreprocess( true );
 	}
 
-	@SuppressWarnings( "static-access" )
 	public void runWithoutPreprocess( boolean writeResult ) {
 		// Retrieve statistics
 		statistics();
 
-		long startTime = System.nanoTime();
+		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
 		if( singleside ) {
 			buildIndexSingleSide();
 		}
@@ -543,26 +546,24 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				System.exit( 0 );
 			}
 		}
+		stepTime.stopAndAdd( stat );
 
-		buildIndexTime = System.nanoTime() - startTime;
-		System.out.println( "Building Index finished " + buildIndexTime );
-
-		startTime = System.nanoTime();
+		stepTime.resetAndStart( "Join Total Time" );
 		Collection<IntegerPair> rslt = ( singleside ? joinSingleSide() : join() );
-		joinTime = System.nanoTime() - startTime;
-		System.out.println( "Join finished " + joinTime + " ns" );
-		System.out.println( rslt.size() );
+		stepTime.stopAndAdd( stat );
 
-		stat.add( "JoinMin result", rslt.size() );
-
-		if( writeResult ) {
+		System.out.println( "Result Size: " + rslt.size() );
+		if( !writeResult ) {
+			stat.add( "JoinMin Result", rslt.size() );
+		}
+		else {
 			this.writeResult( rslt );
 		}
 
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-			TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
-			System.out.println( "Prev entry count : " + tmp.prevEntryCount );
-			System.out.println( "Effective prev entry count : " + tmp.effectivePrevEntryCount );
+			System.out.println( "Prev entry count : " + TopDownHashSetSinglePath_DS_SharedPrefix.prevEntryCount );
+			System.out.println(
+					"Effective prev entry count : " + TopDownHashSetSinglePath_DS_SharedPrefix.effectivePrevEntryCount );
 		}
 	}
 

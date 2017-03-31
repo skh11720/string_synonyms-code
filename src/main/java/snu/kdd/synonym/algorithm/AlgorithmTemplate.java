@@ -264,7 +264,9 @@ public abstract class AlgorithmTemplate {
 	}
 
 	public void writeResult( Collection<IntegerPair> rslt ) {
+
 		stat.addPrimary( "Final Result Size", rslt.size() );
+
 		try {
 			System.out.println( "Writing results " + rslt.size() );
 			final BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
