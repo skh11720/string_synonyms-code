@@ -71,8 +71,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			stat.add( "Index Size", elements );
 			System.out.println( "Idx size : " + elements );
 
+			// computes the statistics of the indexes
 			String indexStr = "";
-
 			for( int i = 0; i < maxIndexLength; ++i ) {
 				Map<IntegerPair, List<IntIntRecordTriple>> ithidx = idx.get( i );
 				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
@@ -279,7 +279,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		checker = params.getValidator();
 		exact2grams = params.isExact2Grams();
 
+		StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
 		run();
+		runTime.stop();
 
 		Validator.printStats();
 	}
