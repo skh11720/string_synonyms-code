@@ -1,8 +1,6 @@
 package snu.kdd.synonym.algorithm;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -252,7 +250,7 @@ public class JoinMin extends AlgorithmTemplate {
 
 	private List<IntegerPair> join() {
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "join.txt" ) );
+			// BufferedWriter bw = new BufferedWriter( new FileWriter( "join.txt" ) );
 
 			List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 			long starttime = System.nanoTime() - Record.exectime;
@@ -304,9 +302,9 @@ public class JoinMin extends AlgorithmTemplate {
 						ruleiters = Validator.niterrules - ruleiters;
 						reccalls = Validator.recursivecalls - reccalls;
 						entryiters = Validator.niterentry - entryiters;
-						bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
-								+ recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
-								+ recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+						// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
+						// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
+						// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
 						joinTime += duration;
 						if( compare >= 0 ) {
 							rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
@@ -326,7 +324,7 @@ public class JoinMin extends AlgorithmTemplate {
 			System.out.println( "Cand extract time : " + candExtractTime );
 			System.out.println( "Join time : " + joinTime );
 			epsilon = ( joinTime ) / weight;
-			bw.close();
+			// bw.close();
 
 			return rslt;
 		}
