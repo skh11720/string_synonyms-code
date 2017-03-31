@@ -13,6 +13,7 @@ JiahengLu/
 /run/output/
 /run/result/
 /run/json/
+/run/err.log
 result/
 output/
 exp/~$exp.xlsx
