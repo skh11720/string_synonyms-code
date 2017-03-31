@@ -182,6 +182,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				// curridx = new HashMap<IntegerPair, List<Record>>();
 				idx.put( minIdx, curridx );
 			}
+
 			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
 				// write2File(bw, minIdx, twogram, rec.getID());
 				if( true ) {
@@ -201,16 +202,20 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		buildIndexTime2 = System.nanoTime() - starttime;
 		System.out.println( "Step 2 Time : " + buildIndexTime2 );
 		delta = ( (double) buildIndexTime2 ) / totalSigCount;
+		System.out.println( "Delta (index build / signature ): " + delta );
 		stepTime.stopAndAdd( stat );
 
+		stepTime.resetAndStart( "Statistic Time" );
 		int sum = 0;
 		int ones = 0;
 		long count = 0;
 		///// Statistics
 		for( Map<IntegerPair, List<Record>> curridx : idx.values() ) {
 			WYK_HashMap<IntegerPair, List<Record>> tmp = (WYK_HashMap<IntegerPair, List<Record>>) curridx;
-			if( sum == 0 )
+			if( sum == 0 ) {
 				tmp.printStat();
+			}
+
 			for( List<Record> list : curridx.values() ) {
 				if( list.size() == 1 ) {
 					++ones;
@@ -233,8 +238,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		count = 0;
 		for( Map<IntegerPair, WrappedInteger> curridx : invokes.values() ) {
 			WYK_HashMap<IntegerPair, WrappedInteger> tmp = (WYK_HashMap<IntegerPair, WrappedInteger>) curridx;
-			if( sum == 0 )
+			if( sum == 0 ) {
 				tmp.printStat();
+			}
 			for( Entry<IntegerPair, WrappedInteger> list : curridx.entrySet() ) {
 				if( list.getValue().get() == 1 ) {
 					++ones;
@@ -250,6 +256,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		System.out.println( "key-value pairs(w/o 1) : " + sum );
 		System.out.println( "iIdx size(w/o 1) : " + count );
 		System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+		stepTime.stopAndAdd( stat );
 	}
 
 	static ByteBuffer buffer = ByteBuffer.allocate( 16 );
