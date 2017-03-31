@@ -35,11 +35,12 @@ RUN_JoinHybridOpt=False
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
 
-RUN_JoinMH_QL=True
-#RUN_JoinMH_QL=False
+RUN_DEBUG=True
+#RUN_DEBUG=False
 
 
-IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
+IDS=( 8 9 10 11 )
+#IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
 for nId in ${IDS[@]};
 do
 	project=aol_sample_$nId
@@ -49,5 +50,5 @@ do
 	rulefile=/home/kddlab/wooyekim/Synonym/wordnet/rules.noun
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive1 $RUN_Naive2 $RUN_SIJoin $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt  $RUN_JoinHybridThres $RUN_JoinMH_QL
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive1 $RUN_Naive2 $RUN_SIJoin $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt  $RUN_JoinHybridThres $RUN_DEBUG
 done
