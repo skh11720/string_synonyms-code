@@ -84,7 +84,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 	private void buildIndex() throws IOException {
 		long elements = 0;
-		long predictCount = 0;
 		long starttime = System.nanoTime();
 		long totalSigCount = 0;
 
@@ -136,6 +135,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
+		long predictCount = 0;
 		for( Record rec : tableT ) {
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int searchmax = Math.min( range[ 0 ], maxIndex );
@@ -149,20 +149,24 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			int minInvokes = Integer.MAX_VALUE;
 
 			for( int i = 0; i < searchmax; ++i ) {
-				if( available2Grams.get( i ).isEmpty() )
+				if( available2Grams.get( i ).isEmpty() ) {
 					continue;
+				}
 				int invoke = 0;
 				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+
 				// There is no invocation count: this is the minimum point
 				if( curridx_invokes == null ) {
 					minIdx = i;
 					minInvokes = 0;
 					break;
 				}
+
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					WrappedInteger count = curridx_invokes.get( twogram );
-					if( count != null )
+					if( count != null ) {
 						invoke += count.get();
+					}
 				}
 				if( invoke < minInvokes ) {
 					minIdx = i;
@@ -174,7 +178,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 			Map<IntegerPair, List<Record>> curridx = idx.get( minIdx );
 			if( curridx == null ) {
-				curridx = new WYK_HashMap<IntegerPair, List<Record>>( 1000000 );
+				curridx = new WYK_HashMap<IntegerPair, List<Record>>();
 				// curridx = new HashMap<IntegerPair, List<Record>>();
 				idx.put( minIdx, curridx );
 			}
