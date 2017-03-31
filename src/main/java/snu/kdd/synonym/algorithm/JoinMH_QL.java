@@ -196,9 +196,13 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		stat.add( "Length Filtered", lengthFiltered );
 		stat.add( equivTime );
 
+		String candTimeStr = "";
 		for( int i = 0; i < maxIndexLength; i++ ) {
 			candidateTimes[ i ].printTotal();
+
+			candTimeStr = candTimeStr + ( candidateTimes[ i ].getTotalTime() / 1000 ) + " ";
 		}
+		stat.add( "Candidate Times Per Index", candTimeStr );
 		return rslt;
 	}
 
