@@ -137,14 +137,14 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 
-					List<IntIntRecordTriple> tree = map.get( twogram );
-					if( tree == null ) {
+					List<IntIntRecordTriple> list = map.get( twogram );
+					if( list == null ) {
 						++count_empty[ i ];
 						continue;
 					}
-					cand_sum[ i ] += tree.size();
+					cand_sum[ i ] += list.size();
 					++count_cand[ i ];
-					for( IntIntRecordTriple e : tree ) {
+					for( IntIntRecordTriple e : list ) {
 						if( StaticFunctions.overlap( e.min, e.max, range[ 0 ], range[ 1 ] ) ) {
 							// length filtering
 							if( i == 0 ) {
