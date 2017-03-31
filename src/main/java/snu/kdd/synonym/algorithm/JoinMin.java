@@ -122,7 +122,7 @@ public class JoinMin extends AlgorithmTemplate {
 
 		buildIndexTime1 = System.nanoTime() - starttime;
 		gamma = ( (double) buildIndexTime1 ) / totalSigCount;
-		System.out.println( "Step 1 : " + buildIndexTime1 );
+		System.out.println( "Step 1 Time : " + buildIndexTime1 );
 		starttime = System.nanoTime();
 		stepTime.stopAndAdd( stat );
 
@@ -185,7 +185,7 @@ public class JoinMin extends AlgorithmTemplate {
 		System.out.println( "Predict : " + predictCount );
 		System.out.println( "Idx size : " + elements );
 		buildIndexTime2 = System.nanoTime() - starttime;
-		System.out.println( "Step 2 : " + buildIndexTime2 );
+		System.out.println( "Step 2 Time : " + buildIndexTime2 );
 		delta = ( (double) buildIndexTime2 ) / totalSigCount;
 		stepTime.stopAndAdd( stat );
 
