@@ -17,20 +17,22 @@ with open( 'output/' + file_one ) as f_one:
         line = line.strip()
         result_dic.add( line )
 
-with open( 'output/' + file_two ) as f_two:
-    for line in f_two:
-        line = line.strip()
-        if line in result_dic:
-            result_dic.remove( line )
-        else:
-            print( file_one + ' does not contains ' + line )
-            different = True
+with open( 'err.log', 'w' ) as err:
+    with open( 'output/' + file_two ) as f_two:
+        for line in f_two:
+            line = line.strip()
+            if line in result_dic:
+                result_dic.remove( line )
+            else:
+                err.write( file_one + ' does not contains ' + line )
+                different = True
 
-for line in result_dic:
-    print( file_two + ' does not contains ' + line )
-    different = True
+    for line in result_dic:
+        err.write( file_two + ' does not contains ' + line )
+        different = True
 
-print( 'Comparing finished ' + file_one + ' ' + file_two )
+    err.write( 'Comparing finished ' + file_one + ' ' + file_two )
+    print( 'Comparing finished ' + file_one + ' ' + file_two )
 
 if different:
     sys.exit( 1 )
