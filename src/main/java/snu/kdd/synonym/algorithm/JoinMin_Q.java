@@ -176,7 +176,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 			Map<IntegerPair, List<Record>> curridx = idx.get( minIdx );
 			if( curridx == null ) {
-				curridx = new WYK_HashMap<IntegerPair, List<Record>>();
+				curridx = new WYK_HashMap<IntegerPair, List<Record>>( 1000 );
 				// curridx = new HashMap<IntegerPair, List<Record>>();
 				idx.put( minIdx, curridx );
 			}
@@ -286,8 +286,10 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, List<Record>> curridx = idx.get( i );
-				if( curridx == null )
+				if( curridx == null ) {
 					continue;
+				}
+
 				List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					List<Record> tree = curridx.get( twogram );
