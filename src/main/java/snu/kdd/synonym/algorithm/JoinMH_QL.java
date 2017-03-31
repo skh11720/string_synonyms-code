@@ -78,7 +78,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
 				// Statistics
 				int sum = 0;
-				int singlelistsize = 0;
+				long singlelistsize = 0;
 				long count = 0;
 				long sqsum = 0;
 				for( List<IntIntRecordTriple> list : ithidx.values() ) {
@@ -95,7 +95,22 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
 				System.out.println( i + "th Sqsum : " + sqsum );
 
-				indexStr = indexStr + ( count + singlelistsize / 1000 ) + "k ";
+				long totalCount = count + singlelistsize;
+				int exp = 0;
+				while( totalCount / 1000 != 0 ) {
+					totalCount = totalCount / 1000;
+					exp++;
+				}
+
+				if( exp == 1 ) {
+					indexStr = indexStr + totalCount + "k ";
+				}
+				else if( exp == 2 ) {
+					indexStr = indexStr + totalCount + "M ";
+				}
+				else {
+					indexStr = indexStr + totalCount + "G ";
+				}
 			}
 
 			stat.add( "Index Size Per Position", indexStr );
