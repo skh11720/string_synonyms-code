@@ -81,7 +81,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	}
 
 	private void buildIndex() throws IOException {
-		long elements = 0;
+
 		long starttime = System.nanoTime();
 		long totalSigCount = 0;
 
@@ -134,6 +134,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
 		long predictCount = 0;
+		long indexedElements = 0;
 		for( Record rec : tableT ) {
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int searchmax = Math.min( range[ 0 ], maxIndex );
@@ -192,11 +193,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					list.add( rec );
 				}
 			}
-			elements += available2Grams.get( minIdx ).size();
+			indexedElements += available2Grams.get( minIdx ).size();
 		}
 		// bw.close();
 		System.out.println( "Predict : " + predictCount );
-		System.out.println( "Idx size : " + elements );
+		System.out.println( "Idx size : " + indexedElements );
+		stat.add( "Index Size", indexedElements );
+
 		buildIndexTime2 = System.nanoTime() - starttime;
 		System.out.println( "Step 2 Time : " + buildIndexTime2 );
 		delta = ( (double) buildIndexTime2 ) / totalSigCount;
@@ -278,6 +281,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		long appliedRules_sum = 0;
 		long count = 0;
+		long equivComparisons = 0;
 		for( Record recS : tableS ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
 			// for (Set<IntegerPair> set : available2Grams)
@@ -317,13 +321,16 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					computePrefixCount( candidates );
 				}
 
+				equivComparisons += candidates.size();
 				for( Record recR : candidates ) {
 					long ruleiters = Validator.niterrules;
 					long reccalls = Validator.recursivecalls;
 					long entryiters = Validator.niterentry;
+
 					long st = System.nanoTime();
 					int compare = checker.isEqual( recR, recS );
 					long duration = System.nanoTime() - st;
+
 					ruleiters = Validator.niterrules - ruleiters;
 					reccalls = Validator.recursivecalls - reccalls;
 					entryiters = Validator.niterentry - entryiters;
@@ -352,6 +359,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		System.out.println( "Join time : " + joinTime );
 		epsilon = ( joinTime ) / weight;
 		// bw.close();
+
+		stat.add( "Equiv Comparison", equivComparisons );
 
 		return rslt;
 
