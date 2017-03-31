@@ -50,7 +50,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 
 			for( Record rec : tableT ) {
-				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
+				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams()
+						: rec.get2GramsWithBound( maxIndexLength );
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int boundary = Math.min( range[ 1 ], maxIndexLength );
 				for( int i = 0; i < boundary; ++i ) {

@@ -359,6 +359,28 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		return twograms;
 	}
 
+	public List<Set<IntegerPair>> get2GramsWithBound( int maxStartPos ) {
+		long start = System.nanoTime();
+		/* There are two type of 2 grams:
+		 * 1) two tokens are derived from different rules.
+		 * 2) two tokens are generated from the same rule. */
+
+		// twograms.get( k ) returns all positional two-grams each of whose position is k
+		List<Set<IntegerPair>> twograms = new ArrayList<Set<IntegerPair>>();
+		int[] range = getCandidateLengths( size() - 1 );
+
+		// to include maxLength
+		int max = Integer.min( maxStartPos, range[ 1 ] );
+
+		for( int i = 0; i < max; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
+			twograms.add( new WYK_HashSet<IntegerPair>() );
+		}
+		add2GramsFromDiffRulesWithBound( twograms, maxStartPos );
+		add2GramsFromSameRuleWithBound( twograms, maxStartPos );
+		exectime += System.nanoTime() - start;
+		return twograms;
+	}
+
 	public List<Set<IntegerPair>> getExact2Grams() {
 		/* There are two type of 2 grams:
 		 * 1) two tokens are derived from different rules.
@@ -449,10 +471,12 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			// Every rules are applicable to a prefix of str[i..*]
 			Rule[] headrules = getApplicableRules( i );
 			int[] range = null;
-			if( i == 0 )
+			if( i == 0 ) {
 				range = new int[] { 0, 0 };
-			else
+			}
+			else {
 				range = getCandidateLengths( i - 1 );
+			}
 			for( Rule headrule : headrules ) {
 				// Retrieve another prefix rules
 				Rule[] tailrules = getApplicableRules( i + headrule.getFrom().length );
@@ -460,6 +484,58 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				// The minimum index of the last token
 				int min = range[ 0 ] + headstr.length - 1;
 				int max = range[ 1 ] + headstr.length - 1;
+				// If there is no applicable rule, (== end of string reached)
+				// it adds 2 grams with EOL character.
+				if( tailrules == EMPTY_RULE ) {
+					assert ( i + headrule.getFrom().length == size() );
+					IntegerPair twogram = new IntegerPair( headstr[ headstr.length - 1 ], Integer.MAX_VALUE );
+					for( int idx = min; idx <= max; ++idx ) {
+						twograms.get( idx ).add( twogram );
+					}
+				}
+				else {
+					assert ( tailrules.length > 0 );
+					for( Rule tailrule : tailrules ) {
+						// Generate twogram
+						IntegerPair twogram = new IntegerPair( headstr[ headstr.length - 1 ], tailrule.getTo()[ 0 ] );
+						for( int idx = min; idx <= max; ++idx )
+							twograms.get( idx ).add( twogram );
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Add every 2 grams derived from different rules.
+	 * Also add 2 gram which contains EOL character.
+	 *
+	 * @param twograms
+	 *            set which stores 2 grams
+	 * @param maxRange
+	 *            maximum range of position of 2 grams
+	 */
+	private void add2GramsFromDiffRulesWithBound( List<Set<IntegerPair>> twograms, int maxStartPos ) {
+		// iterate on prefix rules: it is easier
+		for( int i = 0; i < size(); ++i ) {
+			// Every rules are applicable to a prefix of str[i..*]
+			Rule[] headrules = getApplicableRules( i );
+			int[] range = null;
+			if( i == 0 ) {
+				range = new int[] { 0, 0 };
+			}
+			else {
+				range = getCandidateLengths( i - 1 );
+			}
+			for( Rule headrule : headrules ) {
+				// Retrieve another prefix rules
+				Rule[] tailrules = getApplicableRules( i + headrule.getFrom().length );
+				int[] headstr = headrule.getTo();
+				// The minimum index of the last token
+				int min = range[ 0 ] + headstr.length - 1;
+				int max = range[ 1 ] + headstr.length - 1;
+
+				max = Integer.min( max, maxStartPos - 1 );
 				// If there is no applicable rule, (== end of string reached)
 				// it adds 2 grams with EOL character.
 				if( tailrules == EMPTY_RULE ) {
@@ -473,8 +549,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					for( Rule tailrule : tailrules ) {
 						// Generate twogram
 						IntegerPair twogram = new IntegerPair( headstr[ headstr.length - 1 ], tailrule.getTo()[ 0 ] );
-						for( int idx = min; idx <= max; ++idx )
+						for( int idx = min; idx <= max; ++idx ) {
 							twograms.get( idx ).add( twogram );
+						}
 					}
 				}
 			}
@@ -506,6 +583,44 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					// Generate twogram
 					IntegerPair twogram = new IntegerPair( str[ idx ], str[ idx + 1 ] );
 					for( int jdx = range[ 0 ] + idx; jdx <= range[ 1 ] + idx; ++jdx ) {
+						twograms.get( jdx ).add( twogram );
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Add every 2 grams derived from the same rule
+	 *
+	 * @param twograms
+	 *            set which stores 2 grams
+	 */
+	private void add2GramsFromSameRuleWithBound( List<Set<IntegerPair>> twograms, int maxStartPos ) {
+		// iterate on prefix rules: it is easier
+		for( int i = 0; i < size(); ++i ) {
+			// Every rules are applicable to a prefix of str[i..*]
+			Rule[] rules = getApplicableRules( i );
+			int[] range = null;
+			if( i == 0 ) {
+				range = new int[] { 0, 0 };
+			}
+			else {
+				range = getCandidateLengths( i - 1 );
+			}
+			for( Rule headrule : rules ) {
+				int[] str = headrule.getTo();
+				// If this rule generates one token only, skip generating 2 grams
+				if( str.length < 2 ) {
+					continue;
+				}
+				for( int idx = 0; idx < str.length - 1; ++idx ) {
+					// Generate twogram
+					IntegerPair twogram = new IntegerPair( str[ idx ], str[ idx + 1 ] );
+					for( int jdx = range[ 0 ] + idx; jdx <= range[ 1 ] + idx; ++jdx ) {
+						if( jdx >= maxStartPos ) {
+							break;
+						}
 						twograms.get( jdx ).add( twogram );
 					}
 				}
