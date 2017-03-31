@@ -71,6 +71,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			stat.add( "Index Size", elements );
 			System.out.println( "Idx size : " + elements );
 
+			String indexStr = "";
+
 			for( int i = 0; i < maxIndexLength; ++i ) {
 				Map<IntegerPair, List<IntIntRecordTriple>> ithidx = idx.get( i );
 				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
@@ -92,7 +94,11 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				System.out.println( i + "th iIdx size(w/o 1) : " + count );
 				System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
 				System.out.println( i + "th Sqsum : " + sqsum );
+
+				indexStr = indexStr + ( count / 1000 ) + "k ";
 			}
+
+			stat.add( "Index Size Per Position", indexStr );
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
