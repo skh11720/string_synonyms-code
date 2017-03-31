@@ -95,8 +95,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// Integer>();
 		for( Record rec : tableS ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
-			for( Set<IntegerPair> set : available2Grams )
-				totalSigCount += set.size();
+
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
@@ -104,7 +103,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					curridx_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
 					invokes.put( i, curridx_invokes );
 				}
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
+				Set<IntegerPair> available = available2Grams.get( i );
+				totalSigCount += available.size();
+				for( IntegerPair twogram : available ) {
 					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count == null ) {
 						curridx_invokes.put( twogram, ONE );
@@ -113,8 +114,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 						count = new WrappedInteger( 2 );
 						curridx_invokes.put( twogram, count );
 					}
-					else
+					else {
 						count.increment();
+					}
 				}
 			}
 		}

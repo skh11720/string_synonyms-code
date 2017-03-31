@@ -41,7 +41,7 @@ public class GuiMain extends JFrame {
 	private final JButton btnJoinNaive1 = new JButton( "JoinNaive1" );
 	private final JButton btnJoinNaive2 = new JButton( "JoinNaive2" );
 	private final JButton btnJoinMH = new JButton( "JoinMH" );
-	private final JButton btnJoinMH_QL = new JButton( "JoinMH_QL" );
+	private final JButton btnDebug = new JButton( "JoinDebug" );
 	private final JButton btnJoinMin = new JButton( "JoinMin" );
 	private final JButton btnJoinHybridOpt = new JButton( "JoinHybridOpt" );
 	private final JButton btnJoinHybridThres = new JButton( "JoinHybridThres" );
@@ -137,7 +137,7 @@ public class GuiMain extends JFrame {
 					btnJoinMin.setEnabled( true );
 					btnJoinHybridOpt.setEnabled( true );
 					btnJoinHybridThres.setEnabled( true );
-					btnJoinMH_QL.setEnabled( true );
+					btnDebug.setEnabled( true );
 				}
 			}
 			else {
@@ -170,9 +170,9 @@ public class GuiMain extends JFrame {
 				arg = arg + " -algorithm JoinMH -additional";
 				additional = "-n 1 -compact -v TopDownHashSetSinglePathDS 0";
 			}
-			else if( command.equals( "JoinMH_QL" ) ) {
-				arg = arg + " -algorithm JoinMH_QL -additional";
-				additional = "-n 1 -compact -v TopDownHashSetSinglePathDS 0";
+			else if( command.equals( "JoinDebug" ) ) {
+				arg = arg + " -algorithm DebugAlg -additional";
+				additional = "-compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinMin" ) ) {
 				arg = arg + " -algorithm JoinMin -additional";
@@ -304,10 +304,10 @@ public class GuiMain extends JFrame {
 		btnJoinNaive2.setBounds( 139, 41, 120, 23 );
 		getContentPane().add( btnJoinNaive2 );
 
-		btnJoinMH_QL.setEnabled( false );
-		btnJoinMH_QL.addActionListener( new RunAlgorithmActionListener() );
-		btnJoinMH_QL.setBounds( 523, 41, 120, 23 );
-		getContentPane().add( btnJoinMH_QL );
+		btnDebug.setEnabled( false );
+		btnDebug.addActionListener( new RunAlgorithmActionListener() );
+		btnDebug.setBounds( 523, 41, 120, 23 );
+		getContentPane().add( btnDebug );
 	}
 
 	public static void main( String args[] ) {
