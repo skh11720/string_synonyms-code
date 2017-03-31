@@ -126,7 +126,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
 			int boundary = Math.min( range[ 0 ], maxIndexLength );
-			for( int i = 0; i < boundary; ++i ) {
+			for( int i = boundary - 1; i >= 0; i-- ) {
 				// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
 
 				Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
@@ -145,7 +145,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					for( IntIntRecordTriple e : tree ) {
 						if( StaticFunctions.overlap( e.min, e.max, range[ 0 ], range[ 1 ] ) ) {
 							// length filtering
-							if( i == 0 ) {
+							if( i == boundary - 1 ) {
 								candidatesAppeared.add( e.rec );
 							}
 							else if( candidates.contains( e.rec ) ) {
@@ -189,15 +189,16 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			System.out.println( "Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Empty candidates : " + count_empty[ i ] );
 		}
+
+		System.out.println( "comparisions : " + count );
 		stat.add( "Equiv Comparison", count );
+
 		stat.add( "Length Filtered", lengthFiltered );
 		stat.add( equivTime );
 
 		for( int i = 0; i < maxIndexLength; i++ ) {
 			candidateTimes[ i ].printTotal();
 		}
-		System.out.println( "comparisions : " + count );
-
 		return rslt;
 	}
 
