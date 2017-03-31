@@ -359,6 +359,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		return twograms;
 	}
 
+	// maxStartPos exclusive
 	public List<Set<IntegerPair>> get2GramsWithBound( int maxStartPos ) {
 		long start = System.nanoTime();
 		/* There are two type of 2 grams:

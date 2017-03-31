@@ -91,8 +91,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// Build an index
 		// Count Invokes per each (token, loc) pair
 		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
-		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair,
-		// Integer>();
+		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair, Integer>();
+
 		for( Record rec : tableS ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 
@@ -103,11 +103,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					curridx_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
 					invokes.put( i, curridx_invokes );
 				}
+
 				Set<IntegerPair> available = available2Grams.get( i );
 				totalSigCount += available.size();
 				for( IntegerPair twogram : available ) {
 					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count == null ) {
+						// object ONE is shared to reduce memory usage
 						curridx_invokes.put( twogram, ONE );
 					}
 					else if( count == ONE ) {
@@ -124,19 +126,25 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		buildIndexTime1 = System.nanoTime() - starttime;
 		gamma = ( (double) buildIndexTime1 ) / totalSigCount;
 		System.out.println( "Step 1 : " + buildIndexTime1 );
+		System.out.println( "Gamma (buildTime / signature): " + gamma );
+
 		starttime = System.nanoTime();
 
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
 		for( Record rec : tableT ) {
-			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
-			for( Set<IntegerPair> set : available2Grams )
-				totalSigCount += set.size();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
+			int searchmax = Math.min( range[ 0 ], maxIndex );
+
+			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2GramsWithBound( searchmax );
+			for( Set<IntegerPair> set : available2Grams ) {
+				totalSigCount += set.size();
+			}
+
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
-			int searchmax = Math.min( range[ 0 ], maxIndex );
+
 			for( int i = 0; i < searchmax; ++i ) {
 				if( available2Grams.get( i ).isEmpty() )
 					continue;
