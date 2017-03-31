@@ -264,6 +264,7 @@ public abstract class AlgorithmTemplate {
 	}
 
 	public void writeResult( Collection<IntegerPair> rslt ) {
+		stat.addPrimary( "Final Result Size", rslt.size() );
 		try {
 			System.out.println( "Writing results " + rslt.size() );
 			final BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
@@ -277,9 +278,7 @@ public abstract class AlgorithmTemplate {
 			}
 			bw.close();
 		}
-		catch(
-
-		final Exception e ) {
+		catch( final Exception e ) {
 			e.printStackTrace();
 			System.out.println( "Error: " + e.getMessage() );
 		}
