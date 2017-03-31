@@ -11,6 +11,11 @@ public class StopWatch {
 		return watch;
 	}
 
+	public static StopWatch getWatchStoped( String name ) {
+		final StopWatch watch = new StopWatch( name );
+		return watch;
+	}
+
 	private long timeEnd;
 	private long timeStart;
 	private long totalTime = 0;

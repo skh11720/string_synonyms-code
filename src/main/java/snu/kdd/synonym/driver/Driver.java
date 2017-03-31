@@ -119,7 +119,6 @@ public class Driver {
 			System.exit( 0 );
 			break;
 		}
-		initializeTime.stop();
 
 		stat.addPrimary( "Date", "\"" + new Date().toString() + "\"" );
 		stat.add( cmd );
@@ -127,12 +126,13 @@ public class Driver {
 		if( dataOnePath.equals( dataTwoPath ) ) {
 			alg.setSelfJoin( true );
 		}
+		initializeTime.stopAndAdd( stat );
 
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
+
 		totalTime.stop();
 
 		stat.addPrimary( totalTime );
-		stat.add( initializeTime );
 
 		alg.printStat();
 

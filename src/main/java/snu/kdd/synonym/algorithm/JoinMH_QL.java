@@ -103,12 +103,15 @@ public class JoinMH_QL extends AlgorithmTemplate {
 	private WYK_HashSet<IntegerPair> join() {
 		WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 		long count = 0;
+		long lengthFiltered = 0;
 
 		long cand_sum[] = new long[ maxIndexLength ];
 		long cand_sum_afterprune[] = new long[ maxIndexLength ];
 		long cand_sum_afterunion[] = new long[ maxIndexLength ];
 		int count_cand[] = new int[ maxIndexLength ];
 		int count_empty[] = new int[ maxIndexLength ];
+
+		StopWatch equivTime = StopWatch.getWatchStoped( "Equiv Checking Time" );
 		for( Record recS : tableS ) {
 			Set<Record> candidates = new HashSet<Record>();
 
@@ -143,6 +146,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 								candidatesAppeared.add( e.rec );
 							}
 						}
+						else {
+							lengthFiltered++;
+						}
 					}
 					cand_sum_afterprune[ i ] += candidatesAppeared.size();
 				}
@@ -159,12 +165,14 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			if( skipChecking ) {
 				continue;
 			}
+			equivTime.start();
 			for( Record recR : candidates ) {
 				int compare = checker.isEqual( recR, recS );
 				if( compare >= 0 ) {
 					rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
 				}
 			}
+			equivTime.stopQuiet();
 		}
 		for( int i = 0; i < maxIndexLength; ++i ) {
 			System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
@@ -173,6 +181,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			System.out.println( "Empty candidates : " + count_empty[ i ] );
 		}
 		stat.add( "Equiv Comparison", count );
+		stat.add( "Length Filtered", lengthFiltered );
+		stat.add( equivTime );
 		System.out.println( "comparisions : " + count );
 
 		return rslt;
