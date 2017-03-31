@@ -11,7 +11,7 @@ public class StopWatch {
 		return watch;
 	}
 
-	public static StopWatch getWatchStoped( String name ) {
+	public static StopWatch getWatchStopped( String name ) {
 		final StopWatch watch = new StopWatch( name );
 		return watch;
 	}

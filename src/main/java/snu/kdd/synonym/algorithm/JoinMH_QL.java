@@ -111,7 +111,12 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		int count_cand[] = new int[ maxIndexLength ];
 		int count_empty[] = new int[ maxIndexLength ];
 
-		StopWatch equivTime = StopWatch.getWatchStoped( "Equiv Checking Time" );
+		StopWatch equivTime = StopWatch.getWatchStopped( "Equiv Checking Time" );
+		StopWatch[] candidateTimes = new StopWatch[ maxIndexLength ];
+		for( int i = 0; i < maxIndexLength; i++ ) {
+			candidateTimes[ i ] = StopWatch.getWatchStopped( "Cand" + i + " Time" );
+		}
+
 		for( Record recS : tableS ) {
 			Set<Record> candidates = new HashSet<Record>();
 
@@ -123,11 +128,13 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			int boundary = Math.min( range[ 0 ], maxIndexLength );
 			for( int i = 0; i < boundary; ++i ) {
 				// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
+
 				Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
 
 				Set<Record> candidatesAppeared = new HashSet<Record>();
 
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
+					candidateTimes[ i ].start();
 					List<IntIntRecordTriple> tree = map.get( twogram );
 					if( tree == null ) {
 						++count_empty[ i ];
@@ -151,6 +158,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 						}
 					}
 					cand_sum_afterprune[ i ] += candidatesAppeared.size();
+
+					candidateTimes[ i ].stopQuiet();
 				}
 				candidates.clear();
 				Set<Record> temp = candidatesAppeared;
@@ -183,6 +192,10 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		stat.add( "Equiv Comparison", count );
 		stat.add( "Length Filtered", lengthFiltered );
 		stat.add( equivTime );
+
+		for( int i = 0; i < maxIndexLength; i++ ) {
+			candidateTimes[ i ].printTotal();
+		}
 		System.out.println( "comparisions : " + count );
 
 		return rslt;
