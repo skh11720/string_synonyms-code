@@ -127,6 +127,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
 			int boundary = Math.min( range[ 0 ], maxIndexLength );
 			for( int i = 0; i < boundary; ++i ) {
+				candidateTimes[ i ].start();
+
 				// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
 
 				Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
@@ -134,7 +136,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				Set<Record> candidatesAppeared = new HashSet<Record>();
 
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					candidateTimes[ i ].start();
+
 					List<IntIntRecordTriple> tree = map.get( twogram );
 					if( tree == null ) {
 						++count_empty[ i ];
@@ -159,7 +161,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 					cand_sum_afterprune[ i ] += candidatesAppeared.size();
 
-					candidateTimes[ i ].stopQuiet();
 				}
 				candidates.clear();
 				Set<Record> temp = candidatesAppeared;
@@ -167,6 +168,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				candidates = temp;
 
 				cand_sum_afterunion[ i ] += candidates.size();
+
+				candidateTimes[ i ].stopQuiet();
 			}
 
 			count += candidates.size();
