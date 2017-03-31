@@ -281,7 +281,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 		StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
 		run();
-		runTime.stop();
+		runTime.stopAndAdd( stat );
 
 		Validator.printStats();
 	}
