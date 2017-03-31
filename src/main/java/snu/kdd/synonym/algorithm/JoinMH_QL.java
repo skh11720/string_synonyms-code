@@ -200,7 +200,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		for( int i = 0; i < maxIndexLength; i++ ) {
 			candidateTimes[ i ].printTotal();
 
-			candTimeStr = candTimeStr + ( candidateTimes[ i ].getTotalTime() / 1000 ) + " ";
+			candTimeStr = candTimeStr + ( candidateTimes[ i ].getTotalTime() ) + " ";
 		}
 		stat.add( "Candidate Times Per Index", candTimeStr );
 		return rslt;
