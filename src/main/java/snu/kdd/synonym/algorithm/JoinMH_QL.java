@@ -95,7 +95,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
 				System.out.println( i + "th Sqsum : " + sqsum );
 
-				indexStr = indexStr + ( count / 1000 ) + "k ";
+				indexStr = indexStr + ( count + singlelistsize / 1000 ) + "k ";
 			}
 
 			stat.add( "Index Size Per Position", indexStr );
