@@ -169,7 +169,7 @@ public class JoinMH extends AlgorithmTemplate {
 		WYK_HashSet<IntegerPair> rslt = join();
 		stepTime.stopAndAdd( stat );
 
-		System.out.println( rslt.size() );
+		System.out.println( "Result " + rslt.size() );
 		System.out.println( "Set union items:" + StaticFunctions.union_item_counter );
 		System.out.println( "Set union cmps:" + StaticFunctions.union_cmp_counter );
 		System.out.println( "Set inter items:" + StaticFunctions.inter_item_counter );
