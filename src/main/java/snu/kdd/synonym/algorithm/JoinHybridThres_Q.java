@@ -425,7 +425,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinHybridThres";
+		return "JoinHybridThres_Q";
 	}
 
 	@Override
