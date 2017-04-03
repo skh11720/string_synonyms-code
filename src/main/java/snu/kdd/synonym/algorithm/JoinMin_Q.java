@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -297,31 +297,25 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					continue;
 				}
 
-				List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+				Set<Record> candidates = new HashSet<Record>();
+
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					List<Record> tree = curridx.get( twogram );
 
 					if( tree == null ) {
 						continue;
 					}
-					List<Record> list = new ArrayList<Record>();
+
 					for( Record e : tree ) {
 						if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-							list.add( e );
+							candidates.add( e );
+							count++;
 						}
 					}
-					candidatesList.add( list );
-					count += list.size();
 				}
-				List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
+
 				if( skipChecking ) {
 					continue;
-				}
-				else if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-					// Sort records to utilize similar prefixes
-					Collections.sort( candidates );
-					Collections.reverse( candidates );
-					computePrefixCount( candidates );
 				}
 
 				equivComparisons += candidates.size();
@@ -367,19 +361,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		return rslt;
 
-	}
-
-	private void computePrefixCount( List<Record> list ) {
-		int[] prevTokens = new int[ 0 ];
-		for( Record r : list ) {
-			int[] tokens = r.getTokenArray();
-			int bound = Math.min( prevTokens.length, tokens.length );
-			for( int i = 0; i < bound; ++i )
-				if( tokens[ i ] == prevTokens[ i ] )
-					++freq;
-			sumlength += tokens.length;
-			prevTokens = tokens;
-		}
 	}
 
 	private void buildIndexSingleSide() {

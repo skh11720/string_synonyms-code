@@ -374,7 +374,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		int max = Integer.min( maxStartPos, range[ 1 ] );
 
 		for( int i = 0; i < max; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
-			twograms.add( new WYK_HashSet<IntegerPair>() );
+			twograms.add( new WYK_HashSet<IntegerPair>( 30 ) );
 		}
 		add2GramsFromDiffRulesWithBound( twograms, maxStartPos );
 		add2GramsFromSameRuleWithBound( twograms, maxStartPos );
