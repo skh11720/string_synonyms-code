@@ -1,4 +1,4 @@
-package snu.kdd.synonym.algorithm;
+package snu.kdd.synonym.algorithm.deprecated;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -26,6 +27,7 @@ import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
 import wrapped.WrappedInteger;
 
+@Deprecated
 public class JoinMin extends AlgorithmTemplate {
 	public boolean useAutomata = false;
 	public boolean skipChecking = false;

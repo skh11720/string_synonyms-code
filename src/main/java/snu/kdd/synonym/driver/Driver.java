@@ -16,8 +16,8 @@ import org.apache.commons.cli.ParseException;
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.JoinHybridOpt;
 import snu.kdd.synonym.algorithm.JoinHybridThres;
+import snu.kdd.synonym.algorithm.JoinHybridThres_Q;
 import snu.kdd.synonym.algorithm.JoinMH_QL;
-import snu.kdd.synonym.algorithm.JoinMin;
 import snu.kdd.synonym.algorithm.JoinMin_Q;
 import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.algorithm.JoinNaive2;
@@ -99,10 +99,10 @@ public class Driver {
 			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
 		case DebugAlg:
-			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
 		case JoinMin:
-			alg = new JoinMin( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath );
 			break;
 		case JoinHybridThres:
 			alg = new JoinHybridThres( rulePath, dataOnePath, dataTwoPath, outputPath );
