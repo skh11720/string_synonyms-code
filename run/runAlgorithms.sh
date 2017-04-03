@@ -100,7 +100,7 @@ else
 		date
 
 		./compare.sh $PREV JoinMin_QL
-		PREV="JoinMin"
+		PREV="JoinMin_Q"
 	fi
 
 	#JoinMH
@@ -166,7 +166,7 @@ else
 			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
 			date
 
-			./compare.sh $PREV JoinHybridThres
+			./compare.sh $PREV JoinHybridThres_Q
 		done
 		PREV="JoinHybridThres_Q"
 	fi
