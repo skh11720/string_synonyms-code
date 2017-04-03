@@ -351,7 +351,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		List<Set<IntegerPair>> twograms = new ArrayList<Set<IntegerPair>>();
 		int[] range = getCandidateLengths( size() - 1 );
 		for( int i = 0; i < range[ 1 ]; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
-			twograms.add( new WYK_HashSet<IntegerPair>() );
+			twograms.add( new WYK_HashSet<IntegerPair>( 30 ) );
 		}
 		add2GramsFromDiffRules( twograms );
 		add2GramsFromSameRule( twograms );
@@ -499,8 +499,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					for( Rule tailrule : tailrules ) {
 						// Generate twogram
 						IntegerPair twogram = new IntegerPair( headstr[ headstr.length - 1 ], tailrule.getTo()[ 0 ] );
-						for( int idx = min; idx <= max; ++idx )
+						for( int idx = min; idx <= max; ++idx ) {
 							twograms.get( idx ).add( twogram );
+						}
 					}
 				}
 			}
