@@ -88,7 +88,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// Count Invokes per each (token, loc) pair
 		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
 		int invokesInitialized = 0;
-		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair, Integer>();
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
 		for( Record rec : tableS ) {

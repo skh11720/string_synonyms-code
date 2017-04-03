@@ -75,31 +75,38 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long SL_TH_elements = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
-
+		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
+		int invokesInitialized = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
 		// Actually, tableT
+		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
+
 		for( Record rec : tableS ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
+
+			for( int i = invokesInitialized; i < searchmax; i++ ) {
+				invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
+				invokesInitialized = searchmax;
+			}
+
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
-				if( curr_invokes == null ) {
-					curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
-					invokes.put( i, curr_invokes );
-				}
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					WrappedInteger count = curr_invokes.get( twogram );
+				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+
+				Set<IntegerPair> available = available2Grams.get( i );
+				for( IntegerPair twogram : available ) {
+					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count == null ) {
-						curr_invokes.put( twogram, ONE );
+						curridx_invokes.put( twogram, ONE );
 					}
 					else if( count == ONE ) {
 						count = new WrappedInteger( 2 );
-						curr_invokes.put( twogram, count );
+						curridx_invokes.put( twogram, count );
 					}
-					else
+					else {
 						count.increment();
+					}
 				}
 			}
 		}
@@ -108,15 +115,18 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 
+		stepTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Indexing Time" );
 		// Actually, tableS
 		for( Record rec : tableT ) {
-			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
 			int searchmax = Math.min( range[ 0 ], maxIndex );
 			int[] invokearr = new int[ searchmax ];
 
+			List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
 				if( curr_invokes == null ) {
@@ -328,7 +338,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			maxstrlength = Math.max( maxstrlength, length );
 		}
 
-		for( Rule rule : rulelist ) {
+		for( Rule rule : getRulelist() ) {
 			int length = rule.getTo().length;
 			++rules;
 			rhslengthsum += length;
