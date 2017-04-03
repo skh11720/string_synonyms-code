@@ -220,28 +220,37 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 
 		long startTime = System.currentTimeMillis();
+		StopWatch stepTime = StopWatch.getWatchStarted( "JoinMin Index Building Time" );
 		buildJoinMinIndex();
-		System.out.print( "Building JoinMin Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		stepTime.stopAndAdd( stat );
+		System.out.print( "Building JoinMin Index finished " + ( System.currentTimeMillis() - startTime ) );
 
+		stepTime.resetAndStart( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableS )
+		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+		}
+		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
 		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Naive Index Building Time" );
 		buildNaiveIndex();
+		stepTime.stopAndAdd( stat );
 		System.out.print( "Building Naive Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
+		stepTime.resetAndStart( "SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		for( Record s : tableS ) {
 			if( s.getEstNumRecords() > joinThreshold )
 				continue;
-			else
+			else {
 				searchEquivsByNaive1Expansion( s, rslt );
+			}
 		}
+		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
