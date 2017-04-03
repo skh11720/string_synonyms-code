@@ -159,12 +159,15 @@ else
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
-		date
-		./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
+		thresholds=( 3 10 30 100 )
+		#thresholds=( 3 10 30 100 300 1000 )
+		for threshold in "${thresholds[@]}"; do
+			date
+			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
+			date
 
-		date
-
-		./compare.sh $PREV JoinMin_Q
-		PREV="JoinMin_Q"
+			./compare.sh $PREV JoinHybridThres
+		done
+		PREV="JoinHybridThres_Q"
 	fi
 fi
