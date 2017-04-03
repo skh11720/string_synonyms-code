@@ -81,7 +81,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	}
 
 	private void buildIndex() throws IOException {
-
 		long starttime = System.nanoTime();
 		long totalSigCount = 0;
 

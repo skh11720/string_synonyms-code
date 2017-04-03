@@ -16,6 +16,7 @@ import mine.RecordIDComparator;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
+import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
 import tools.Parameters;
 import tools.Rule;
@@ -342,19 +343,22 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	}
 
 	public void run() {
-		long startTime = System.currentTimeMillis();
+		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
 		preprocess( compact, maxIndex, useAutomata );
+		stepTime.stopAndAdd( stat );
 		System.out.print( "Preprocess finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
 		// Retrieve statistics
+		stepTime.resetAndStart( "Statistics Time" );
 		statistics();
+		stepTime.stopAndAdd( stat );
 
-		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Join Total Time" );
 		Collection<IntegerPair> rslt = join();
+		stepTime.stopAndAdd( stat );
 		System.out.print( "Join finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.out.println( rslt.size() );
+
+		System.out.println( "Result time " + rslt.size() );
 		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
 
 		writeResult( rslt );

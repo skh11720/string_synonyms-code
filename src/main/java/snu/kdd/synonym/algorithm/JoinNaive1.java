@@ -165,6 +165,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				}
 				candidates.add( overlapidx );
 			}
+
 			if( !skipequiv ) {
 				final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
 				for( final Integer idx : union ) {
