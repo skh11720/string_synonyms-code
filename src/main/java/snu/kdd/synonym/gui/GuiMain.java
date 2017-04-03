@@ -171,8 +171,9 @@ public class GuiMain extends JFrame {
 				additional = "-n 1 -compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinDebug" ) ) {
+				String thres = thresTextField.getText();
 				arg = arg + " -algorithm DebugAlg -additional";
-				additional = "-compact -v TopDownHashSetSinglePathDS 0";
+				additional = "-compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold " + thres;
 			}
 			else if( command.equals( "JoinMin" ) ) {
 				arg = arg + " -algorithm JoinMin -additional";
