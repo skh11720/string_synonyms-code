@@ -1,7 +1,6 @@
 package mine;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -226,7 +225,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 	}
 
-	// TODO check this
 	@SuppressWarnings( "unchecked" )
 	public void preprocessEstimatedRecords() {
 		ArrayList<Rule>[] tmpAppRules = new ArrayList[ tokens.length ];
@@ -258,8 +256,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				}
 
 				if( size < 0 ) {
-					System.out.println( Arrays.toString( est ) );
-					System.out.println( id + Arrays.toString( tokens ) );
+					System.out.println( "Too many generalizations: " + id );
 					return;
 				}
 			}
