@@ -87,7 +87,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
+		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
+		int invokesInitialized = 0;
 		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair, Integer>();
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
@@ -95,12 +96,14 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
+
+			for( int i = invokesInitialized; i < searchmax; i++ ) {
+				invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
+				invokesInitialized = searchmax;
+			}
+
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
-				if( curridx_invokes == null ) {
-					curridx_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
-					invokes.put( i, curridx_invokes );
-				}
 
 				Set<IntegerPair> available = available2Grams.get( i );
 				totalSigCount += available.size();
@@ -237,7 +240,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		sum = 0;
 		ones = 0;
 		count = 0;
-		for( Map<IntegerPair, WrappedInteger> curridx : invokes.values() ) {
+		for( Map<IntegerPair, WrappedInteger> curridx : invokes ) {
 			WYK_HashMap<IntegerPair, WrappedInteger> tmp = (WYK_HashMap<IntegerPair, WrappedInteger>) curridx;
 			if( sum == 0 ) {
 				tmp.printStat();
