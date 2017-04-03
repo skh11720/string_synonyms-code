@@ -381,18 +381,17 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		Collections.sort( tableS, cmp );
 
 		// Reassign ID
-		long maxSEstNumRecords = 0;
-		long maxTEstNumRecords = 0;
 		for( int i = 0; i < tableT.size(); ++i ) {
 			Record s = tableT.get( i );
 			s.setID( i );
-			maxSEstNumRecords = Math.max( maxSEstNumRecords, s.getEstNumRecords() );
 		}
+		long maxTEstNumRecords = tableT.get( tableT.size() - 1 ).getEstNumRecords();
+
 		for( int i = 0; i < tableS.size(); ++i ) {
 			Record t = tableS.get( i );
 			t.setID( i );
-			maxTEstNumRecords = Math.max( maxTEstNumRecords, t.getEstNumRecords() );
 		}
+		long maxSEstNumRecords = tableS.get( tableS.size() - 1 ).getEstNumRecords();
 
 		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
 		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
