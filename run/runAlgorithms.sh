@@ -141,7 +141,7 @@ else
 	#JoinHybridThres
 	if [[ $RUN_JoinHybridThres == "True" ]];
 	then
-		thresholds=( 10 )
+		thresholds=( 170 )
 		#thresholds=( 3 10 30 100 )
 		#thresholds=( 3 10 30 100 300 1000 )
 		for threshold in "${thresholds[@]}"; do
