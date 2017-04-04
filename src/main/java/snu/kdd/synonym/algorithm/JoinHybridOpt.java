@@ -214,6 +214,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		for( Entry<Integer, Map<IntegerPair, Directory>> e : idx.entrySet() ) {
 			System.out.println( e.getKey() + " : " + e.getValue().size() );
 		}
+		stepTime.stopAndAdd( stat );
 	}
 
 	private void clearJoinMinIndex() {

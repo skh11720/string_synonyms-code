@@ -213,6 +213,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		for( int i = 0; i < idx.size(); i++ ) {
 			System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
 		}
+		stepTime.stopAndAdd( stat );
 	}
 
 	private void clearJoinMinIndex() {
