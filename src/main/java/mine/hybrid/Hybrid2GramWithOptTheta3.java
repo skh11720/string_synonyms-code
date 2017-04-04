@@ -199,9 +199,7 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 		System.out.println( "predict : " + est_cmps );
 		System.out.println( "idx size : " + elements );
 		System.out.println( WrappedInteger.count + " Wrapped Integers" );
-		for(
-
-		Entry<Integer, Map<IntegerPair, Directory>> e : idx.entrySet() ) {
+		for( Entry<Integer, Map<IntegerPair, Directory>> e : idx.entrySet() ) {
 			System.out.println( e.getKey() + " : " + e.getValue().size() );
 		}
 	}

@@ -195,9 +195,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( "predict : " + est_cmps );
 		System.out.println( "idx size : " + elements );
 		System.out.println( WrappedInteger.count + " Wrapped Integers" );
-		for(
-
-		Entry<Integer, Map<IntegerPair, Directory>> e : idx.entrySet() ) {
+		for( Entry<Integer, Map<IntegerPair, Directory>> e : idx.entrySet() ) {
 			System.out.println( e.getKey() + " : " + e.getValue().size() );
 		}
 	}
@@ -249,9 +247,9 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 
 		long startTime = System.currentTimeMillis();
-		buildJoinMinIndex();
-		System.out.print( "Building JoinMin Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		// buildJoinMinIndex();
+		// System.out.print( "Building JoinMin Index finished" );
+		// System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
 		long time1 = System.currentTimeMillis();
 		for( Record s : tableS )
