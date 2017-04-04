@@ -18,6 +18,7 @@ import mine.RecordIDComparator;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
+import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
 import tools.Rule;
 import tools.RuleTrie;
@@ -404,38 +405,39 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	}
 
 	public void run( double sampleratio ) {
-		long startTime = System.currentTimeMillis();
+		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
 		preprocess( compact, maxIndex, useAutomata );
-		System.out.print( "Preprocess finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		stepTime.stopAndAdd( stat );
 
 		// Retrieve statistics
+		stepTime.resetAndStart( "Statistics Time" );
 		statistics();
+		stepTime.stopAndAdd( stat );
 
 		// Estimate constants
+		stepTime.resetAndStart( "Find Constants Time" );
 		findConstants( sampleratio );
+		stepTime.stopAndAdd( stat );
 
-		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "JoinMin Index Build Time" );
 		try {
 			buildJoinMinIndex();
 			// checkLongestIndex();
 		}
 		catch( Exception e ) {
 		}
-		System.out.print( "Building Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		stepTime.stopAndAdd( stat );
 
 		// Modify index to get optimal theta
-		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Find Theta Time" );
 		findTheta( Integer.MAX_VALUE );
-		System.out.print( "Estimation finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		stepTime.stopAndAdd( stat );
 
-		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Join Time" );
 		Collection<IntegerPair> rslt = join();
-		System.out.print( "Join finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.out.println( rslt.size() );
+		stepTime.stopAndAdd( stat );
+
+		System.out.println( "Result size: " + rslt.size() );
 		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
 
 		stat.add( "rslt size", rslt.size() );
