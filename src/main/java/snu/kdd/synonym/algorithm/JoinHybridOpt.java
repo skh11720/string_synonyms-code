@@ -50,10 +50,15 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 	int joinThreshold = 0;
 
+	// alpha: Naive indexing time per transformed strings of table T
 	double alpha;
+	// beta: Navie join time per transformed strings of table S
 	double beta;
+	// gamma: JoinMin counting twogram time per twograms of table S
 	double gamma;
+	// delta: JoinMin indexing time per twograms of table T
 	double delta;
+	// epsilon: JoinMin join time per candidate of table S
 	double epsilon;
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
@@ -125,13 +130,13 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 					T_invokes.put( i, curr_invokes );
 				}
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					WrappedInteger count = curr_invokes.get( twogram );
+					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count == null ) {
-						curr_invokes.put( twogram, ONE );
+						curridx_invokes.put( twogram, ONE );
 					}
 					else if( count == ONE ) {
 						count = new WrappedInteger( 2 );
-						curr_invokes.put( twogram, count );
+						curridx_invokes.put( twogram, count );
 					}
 					else
 						count.increment();
@@ -184,9 +189,8 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 				}
 				dir.list.add( rec );
 			}
-			int count = available2Grams.get( minIdx ).size();
+			elements += available2Grams.get( minIdx ).size();
 			est_cmps += minInvokes;
-			elements += count;
 		}
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
@@ -201,8 +205,9 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 	}
 
 	private void clearJoinMinIndex() {
-		for( Map<IntegerPair, Directory> map : idx.values() )
+		for( Map<IntegerPair, Directory> map : idx.values() ) {
 			map.clear();
+		}
 		idx.clear();
 	}
 
@@ -230,8 +235,9 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 			++count;
 		}
 		long idxsize = 0;
-		for( List<Integer> list : setR.values() )
+		for( List<Integer> list : setR.values() ) {
 			idxsize += list.size();
+		}
 		System.out.println( count + " records are 1-expanded and indexed" );
 		System.out.println( "Total index size: " + idxsize );
 	}
@@ -248,12 +254,11 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 		long startTime = System.currentTimeMillis();
 		// buildJoinMinIndex();
-		// System.out.print( "Building JoinMin Index finished" );
-		// System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableS )
+		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+		}
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
@@ -264,12 +269,18 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 		System.out.println( "Join Threshold " + joinThreshold );
 		long time2 = System.currentTimeMillis();
+		int naiveSearch = 0;
 		for( Record s : tableS ) {
-			if( s.getEstNumRecords() > joinThreshold )
+			if( s.getEstNumRecords() > joinThreshold ) {
 				continue;
-			else
+			}
+			else {
 				searchEquivsByNaive1Expansion( s, rslt );
+				naiveSearch++;
+			}
 		}
+		stat.add( "Naive search count", naiveSearch );
+		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
@@ -287,19 +298,27 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		int searchmax = Math.min( available2Grams.size(), maxIndex );
 		for( int i = 0; i < searchmax; ++i ) {
 			Map<IntegerPair, Directory> curr_idx = idx.get( i );
-			if( curr_idx == null )
+			if( curr_idx == null ) {
 				continue;
+			}
+
 			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 			for( IntegerPair twogram : available2Grams.get( i ) ) {
 				Directory tree = curr_idx.get( twogram );
 
-				if( tree == null )
+				if( tree == null ) {
 					continue;
+				}
+
 				List<Record> list = new ArrayList<Record>();
-				for( int j = is_TH_record ? 0 : tree.SHsize; j < tree.list.size(); ++j ) {
-					Record r = tree.list.get( j );
-					if( StaticFunctions.overlap( r.getMinLength(), r.getMaxLength(), range[ 0 ], range[ 1 ] ) )
-						list.add( r );
+				for( int j = tree.list.size() - 1; j >= 0; --j ) {
+					Record rec = tree.list.get( j );
+					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold ) {
+						continue;
+					}
+					if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+						list.add( rec );
+					}
 				}
 				candidatesList.add( list );
 			}
@@ -322,13 +341,15 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		ArrayList<Record> expanded = s.expandAll( ruletrie );
 		for( Record exp : expanded ) {
 			List<Integer> list = setR.get( exp );
-			if( list == null )
+			if( list == null ) {
 				continue;
+			}
 			candidates.add( list );
 		}
 		List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-		for( Integer idx : union )
+		for( Integer idx : union ) {
 			rslt.add( new IntegerPair( idx, s.getID() ) );
+		}
 	}
 
 	public void statistics() {

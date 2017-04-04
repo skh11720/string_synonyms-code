@@ -216,8 +216,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	}
 
 	private void clearJoinMinIndex() {
-		for( Map<IntegerPair, Directory> map : idx )
+		for( Map<IntegerPair, Directory> map : idx ) {
 			map.clear();
+		}
 		idx.clear();
 	}
 
@@ -267,10 +268,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 
 		long startTime = System.currentTimeMillis();
-		// StopWatch stepTime = StopWatch.getWatchStarted( "JoinMin Index Building Time" );
 		// buildJoinMinIndex();
-		// stepTime.stopAndAdd( stat );
-		// System.out.print( "Building JoinMin Index finished " + ( System.currentTimeMillis() - startTime ) );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
