@@ -1,4 +1,4 @@
-package snu.kdd.synonym.algorithm;
+package snu.kdd.synonym.algorithm.deprecated;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +13,7 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
@@ -33,6 +34,7 @@ import wrapped.WrappedInteger;
  * if two strings are equivalent.
  * Utilize only one index by sorting records according to their expanded size.
  */
+@Deprecated
 public class JoinHybridThres extends AlgorithmTemplate {
 	static boolean useAutomata = true;
 	static boolean skipChecking = false;
