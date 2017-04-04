@@ -194,19 +194,24 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			assert ( expanded.size() <= joinThreshold );
 			assert ( !expanded.isEmpty() );
 			for( Record expR : expanded ) {
-				if( !setR.containsKey( expR ) )
-					setR.put( expR, new ArrayList<Integer>( 5 ) );
 				List<Integer> list = setR.get( expR );
-				assert ( list != null );
-				if( !list.isEmpty() && list.get( list.size() - 1 ) == i )
+				if( list == null ) {
+					list = new ArrayList<Integer>( 5 );
+					setR.put( expR, list );
+				}
+
+				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
 					continue;
+				}
+
 				list.add( i );
 			}
 			++count;
 		}
 		long idxsize = 0;
-		for( List<Integer> list : setR.values() )
+		for( List<Integer> list : setR.values() ) {
 			idxsize += list.size();
+		}
 		System.out.println( count + " records are 1-expanded and indexed" );
 		System.out.println( "Total index size: " + idxsize );
 	}
@@ -232,6 +237,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
+		stat.add( "AppliedRules Sum", appliedRules_sum );
 		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
@@ -245,13 +251,16 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
+		int naiveSearch = 0;
 		for( Record s : tableS ) {
 			if( s.getEstNumRecords() > joinThreshold )
 				continue;
 			else {
 				searchEquivsByNaive1Expansion( s, rslt );
+				naiveSearch++;
 			}
 		}
+		stat.add( "Naive search count", naiveSearch );
 		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
@@ -328,8 +337,9 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			candidates.add( list );
 		}
 		List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-		for( Integer idx : union )
+		for( Integer idx : union ) {
 			rslt.add( new IntegerPair( idx, s.getID() ) );
+		}
 	}
 
 	public void statistics() {
