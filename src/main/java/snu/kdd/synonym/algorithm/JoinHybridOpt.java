@@ -448,7 +448,6 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 	private void findConstants( double sampleratio ) {
 		// Sample
-		// TODO : DEBUG
 		Random rn = new Random( 0 );
 
 		List<Record> sampleTlist = new ArrayList<Record>();
@@ -470,6 +469,9 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 		System.out.println( sampleTlist.size() + " R records are sampled" );
 		System.out.println( sampleSlist.size() + " S records are sampled" );
+
+		stat.add( "Sample T size", sampleTlist.size() );
+		stat.add( "Sample S size", sampleSlist.size() );
 
 		// Infer alpha and beta
 		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
