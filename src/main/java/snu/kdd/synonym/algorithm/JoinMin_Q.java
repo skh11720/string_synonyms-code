@@ -155,13 +155,19 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 
 				// There is no invocation count: this is the minimum point
-				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
-				if( i >= invokes.size() || curridx_invokes.size() == 0 ) {
+
+				if( i >= invokes.size() ) {
 					minIdx = i;
 					minInvokes = 0;
 					break;
 				}
 
+				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+				if( curridx_invokes.size() == 0 ) {
+					minIdx = i;
+					minInvokes = 0;
+					break;
+				}
 				int invoke = 0;
 
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
