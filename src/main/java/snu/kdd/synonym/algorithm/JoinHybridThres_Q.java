@@ -54,6 +54,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	 * 'threshold' 1-expandable strings
 	 */
 	List<Map<IntegerPair, List<Record>>> idx;
+
 	/**
 	 * List of 1-expandable strings
 	 */
@@ -250,8 +251,9 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
 		for( Record s : tableS ) {
-			if( s.getEstNumRecords() > joinThreshold )
+			if( s.getEstNumRecords() > joinThreshold ) {
 				continue;
+			}
 			else {
 				searchEquivsByNaive1Expansion( s, rslt );
 				naiveSearch++;

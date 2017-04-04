@@ -7,9 +7,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
@@ -87,8 +87,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	 * Index of the records in S
 	 * (SL x TH)
 	 */
-	Map<Integer, Map<IntegerPair, Directory>> idx;
-	Map<Integer, Map<IntegerPair, WrappedInteger>> T_invokes;
+	List<Map<IntegerPair, Directory>> idx;
+	List<Map<IntegerPair, WrappedInteger>> T_invokes;
 
 	/**
 	 * List of 1-expandable strings
@@ -114,28 +114,34 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		est_cmps = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		idx = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
-		T_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
+		T_invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
+		int invokesInitialized = 0;
+		idx = new ArrayList<Map<IntegerPair, Directory>>();
+
 		// Actually, tableT
+		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
+
 		for( Record rec : tableS ) {
-			// long prev = Record.exectime;
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
-			// Every record is SH/TH record at the beginning
+
+			for( int i = invokesInitialized; i < searchmax; i++ ) {
+				T_invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
+				invokesInitialized = searchmax;
+			}
+
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
-				if( curr_invokes == null ) {
-					curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
-					T_invokes.put( i, curr_invokes );
-				}
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					WrappedInteger count = curr_invokes.get( twogram );
+				Map<IntegerPair, WrappedInteger> curridx_invokes = T_invokes.get( i );
+
+				Set<IntegerPair> available = available2Grams.get( i );
+				for( IntegerPair twogram : available ) {
+					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count == null ) {
-						curr_invokes.put( twogram, ONE );
+						curridx_invokes.put( twogram, ONE );
 					}
 					else if( count == ONE ) {
 						count = new WrappedInteger( 2 );
-						curr_invokes.put( twogram, count );
+						curridx_invokes.put( twogram, count );
 					}
 					else {
 						count.increment();
@@ -147,14 +153,22 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 
+		stepTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Indexing Time" );
 		// Actually, tableS
 		for( Record rec : tableT ) {
-			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
 			int searchmax = Math.min( range[ 0 ], maxIndex );
 			int[] invokearr = new int[ searchmax ];
+
+			List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
+
+			for( int i = idx.size(); i < searchmax; i++ ) {
+				idx.add( new WYK_HashMap<IntegerPair, Directory>() );
+			}
 
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
@@ -177,10 +191,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 
 			Map<IntegerPair, Directory> curr_idx = idx.get( minIdx );
-			if( curr_idx == null ) {
-				curr_idx = new WYK_HashMap<IntegerPair, Directory>();
-				idx.put( minIdx, curr_idx );
-			}
+
 			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
 				Directory dir = curr_idx.get( twogram );
 				if( dir == null ) {
@@ -189,9 +200,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				}
 				dir.list.add( rec );
 			}
-			int count = available2Grams.get( minIdx ).size();
+			elements += available2Grams.get( minIdx ).size();
 			est_cmps += minInvokes;
-			elements += count;
 		}
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
@@ -200,13 +210,13 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( "predict : " + est_cmps );
 		System.out.println( "idx size : " + elements );
 		System.out.println( WrappedInteger.count + " Wrapped Integers" );
-		for( Entry<Integer, Map<IntegerPair, Directory>> e : idx.entrySet() ) {
-			System.out.println( e.getKey() + " : " + e.getValue().size() );
+		for( int i = 0; i < idx.size(); i++ ) {
+			System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
 		}
 	}
 
 	private void clearJoinMinIndex() {
-		for( Map<IntegerPair, Directory> map : idx.values() )
+		for( Map<IntegerPair, Directory> map : idx )
 			map.clear();
 		idx.clear();
 	}
@@ -284,8 +294,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
 		for( Record s : tableS ) {
-			if( s.getEstNumRecords() > joinThreshold )
+			if( s.getEstNumRecords() > joinThreshold ) {
 				continue;
+			}
 			else {
 				searchEquivsByNaive1Expansion( s, rslt );
 				naiveSearch++;
@@ -302,19 +313,22 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private int searchEquivsByDynamicIndex( Record s, Map<Integer, Map<IntegerPair, Directory>> idx, List<IntegerPair> rslt ) {
+	private int searchEquivsByDynamicIndex( Record s, List<Map<IntegerPair, Directory>> idx, List<IntegerPair> rslt ) {
 		boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
 
 		int appliedRules_sum = 0;
-		List<Set<IntegerPair>> available2Grams = s.get2Grams();
+		int idxSize = idx.size();
+		List<Set<IntegerPair>> available2Grams = s.get2GramsWithBound( idxSize );
 		int[] range = s.getCandidateLengths( s.size() - 1 );
 		int searchmax = Math.min( available2Grams.size(), maxIndex );
 		for( int i = 0; i < searchmax; ++i ) {
-			Map<IntegerPair, Directory> curr_idx = idx.get( i );
-			if( curr_idx == null ) {
-				continue;
+			if( i >= idx.size() ) {
+				break;
 			}
-			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+
+			Map<IntegerPair, Directory> curr_idx = idx.get( i );
+
+			Set<Record> candidates = new HashSet<Record>();
 			for( IntegerPair twogram : available2Grams.get( i ) ) {
 				Directory tree = curr_idx.get( twogram );
 
@@ -322,15 +336,16 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					continue;
 				}
 
-				List<Record> list = new ArrayList<Record>();
-				for( int j = is_TH_record ? 0 : tree.SHsize; j < tree.list.size(); ++j ) {
-					Record r = tree.list.get( j );
-					if( StaticFunctions.overlap( r.getMinLength(), r.getMaxLength(), range[ 0 ], range[ 1 ] ) )
-						list.add( r );
+				for( int j = tree.list.size() - 1; j >= 0; --j ) {
+					Record rec = tree.list.get( j );
+					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold ) {
+						continue;
+					}
+					if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+						candidates.add( rec );
+					}
 				}
-				candidatesList.add( list );
 			}
-			List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
 
 			if( skipChecking ) {
 				continue;
