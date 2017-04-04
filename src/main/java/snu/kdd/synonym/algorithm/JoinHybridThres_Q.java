@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -271,25 +272,30 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			Map<IntegerPair, List<Record>> curr_idx = idx.get( i );
 			if( curr_idx == null )
 				continue;
-			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+
+			Set<Record> candidates = new HashSet<Record>();
 			for( IntegerPair twogram : available2Grams.get( i ) ) {
 				List<Record> tree = curr_idx.get( twogram );
 
-				if( tree == null )
+				if( tree == null ) {
 					continue;
-				List<Record> list = new ArrayList<Record>();
+				}
+
 				for( int j = tree.size() - 1; j >= 0; --j ) {
 					Record rec = tree.get( j );
-					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold )
+					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold ) {
 						break;
-					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) )
-						list.add( rec );
+					}
+					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+						candidates.add( rec );
+					}
 				}
-				candidatesList.add( list );
 			}
-			List<Record> candidates = StaticFunctions.union( candidatesList, idReverseComparator );
-			if( skipChecking )
+
+			if( skipChecking ) {
 				continue;
+			}
+
 			for( Record recR : candidates ) {
 				int compare = checker.isEqual( recR, s );
 				if( compare >= 0 ) {

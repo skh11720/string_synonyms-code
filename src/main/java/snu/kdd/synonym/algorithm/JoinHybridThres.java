@@ -127,8 +127,9 @@ public class JoinHybridThres extends AlgorithmTemplate {
 				int invoke = 0;
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					WrappedInteger count = curr_invokes.get( twogram );
-					if( count != null )
+					if( count != null ) {
 						invoke += count.get();
+					}
 				}
 				if( invoke < minInvokes ) {
 					minIdx = i;
@@ -272,8 +273,9 @@ public class JoinHybridThres extends AlgorithmTemplate {
 					Record rec = tree.get( j );
 					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold )
 						break;
-					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) )
+					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
 						list.add( rec );
+					}
 				}
 				candidatesList.add( list );
 			}
