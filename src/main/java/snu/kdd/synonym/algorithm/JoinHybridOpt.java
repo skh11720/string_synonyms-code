@@ -46,6 +46,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 	static Validator checker;
 
 	RecordIDComparator idComparator;
+	RecordIDReverseComparator idReverseComparator;
 	RuleTrie ruletrie;
 
 	int joinThreshold = 0;
@@ -345,7 +346,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 				}
 				candidatesList.add( list );
 			}
-			List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
+			List<Record> candidates = StaticFunctions.union( candidatesList, idReverseComparator );
 
 			if( skipChecking ) {
 				continue;
@@ -360,6 +361,13 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 			}
 		}
 		return appliedRules_sum;
+	}
+
+	private class RecordIDReverseComparator implements Comparator<Record> {
+		@Override
+		public int compare( Record o1, Record o2 ) {
+			return -idComparator.compare( o1, o2 );
+		}
 	}
 
 	private void searchEquivsByNaive1Expansion( Record s, List<IntegerPair> rslt ) {
