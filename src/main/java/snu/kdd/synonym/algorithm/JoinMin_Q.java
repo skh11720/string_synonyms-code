@@ -139,7 +139,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		for( Record rec : tableT ) {
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int searchmax = Math.min( range[ 0 ], maxIndex );
-			searchmax = Math.min( searchmax, invokes.size() );
+			// searchmax = Math.min( searchmax, invokes.size() );
 
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2GramsWithBound( searchmax );
 			for( Set<IntegerPair> set : available2Grams ) {
@@ -153,15 +153,16 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				if( available2Grams.get( i ).isEmpty() ) {
 					continue;
 				}
-				int invoke = 0;
-				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
 
 				// There is no invocation count: this is the minimum point
-				if( curridx_invokes == null ) {
+				if( i >= invokes.size() ) {
 					minIdx = i;
 					minInvokes = 0;
 					break;
 				}
+
+				int invoke = 0;
+				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
 
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					WrappedInteger count = curridx_invokes.get( twogram );
