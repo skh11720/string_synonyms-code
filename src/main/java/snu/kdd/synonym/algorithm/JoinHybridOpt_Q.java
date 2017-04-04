@@ -450,11 +450,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Sample
 		Random rn = new Random();
 
-		List<Record> sampleRlist = new ArrayList<Record>();
+		List<Record> sampleTlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
 		for( Record r : tableT ) {
 			if( rn.nextDouble() < sampleratio ) {
-				sampleRlist.add( r );
+				sampleTlist.add( r );
 			}
 		}
 		for( Record s : tableS ) {
@@ -463,12 +463,15 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 		}
 		List<Record> tmpR = tableT;
-		tableT = sampleRlist;
+		tableT = sampleTlist;
 		List<Record> tmpS = tableS;
-		tableS = sampleRlist;
+		tableS = sampleSlist;
 
-		System.out.println( sampleRlist.size() + " R records are sampled" );
+		System.out.println( sampleTlist.size() + " R records are sampled" );
 		System.out.println( sampleSlist.size() + " S records are sampled" );
+
+		stat.add( "Sample T size", sampleTlist.size() );
+		stat.add( "Sample S size", sampleSlist.size() );
 
 		// Infer alpha and beta
 		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
