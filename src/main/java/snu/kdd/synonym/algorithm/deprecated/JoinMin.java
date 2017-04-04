@@ -83,8 +83,7 @@ public class JoinMin extends AlgorithmTemplate {
 	}
 
 	private void buildIndex() throws IOException {
-		long elements = 0;
-		long predictCount = 0;
+
 		long starttime = System.nanoTime();
 		long totalSigCount = 0;
 
@@ -123,6 +122,8 @@ public class JoinMin extends AlgorithmTemplate {
 		buildIndexTime1 = System.nanoTime() - starttime;
 		gamma = ( (double) buildIndexTime1 ) / totalSigCount;
 		System.out.println( "Step 1 Time : " + buildIndexTime1 );
+		System.out.println( "Gamma (buildTime / signature): " + gamma );
+
 		starttime = System.nanoTime();
 		stepTime.stopAndAdd( stat );
 
@@ -130,6 +131,8 @@ public class JoinMin extends AlgorithmTemplate {
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
+		long predictCount = 0;
+		long elements = 0;
 		for( Record rec : tableT ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
@@ -151,8 +154,9 @@ public class JoinMin extends AlgorithmTemplate {
 				}
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					WrappedInteger count = curridx_invokes.get( twogram );
-					if( count != null )
+					if( count != null ) {
 						invoke += count.get();
+					}
 				}
 				if( invoke < minInvokes ) {
 					minIdx = i;
@@ -168,6 +172,7 @@ public class JoinMin extends AlgorithmTemplate {
 				// curridx = new HashMap<IntegerPair, List<Record>>();
 				idx.put( minIdx, curridx );
 			}
+			
 			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
 				// write2File(bw, minIdx, twogram, rec.getID());
 				if( true ) {
@@ -184,19 +189,25 @@ public class JoinMin extends AlgorithmTemplate {
 		// bw.close();
 		System.out.println( "Predict : " + predictCount );
 		System.out.println( "Idx size : " + elements );
+		stat.add( "Index Size", elements );
+
 		buildIndexTime2 = System.nanoTime() - starttime;
 		System.out.println( "Step 2 Time : " + buildIndexTime2 );
 		delta = ( (double) buildIndexTime2 ) / totalSigCount;
+		System.out.println( "Delta (index build / signature ): " + delta );
 		stepTime.stopAndAdd( stat );
 
+		stepTime.resetAndStart( "Statistic Time" );
 		int sum = 0;
 		int ones = 0;
 		long count = 0;
 		///// Statistics
 		for( Map<IntegerPair, List<Record>> curridx : idx.values() ) {
 			WYK_HashMap<IntegerPair, List<Record>> tmp = (WYK_HashMap<IntegerPair, List<Record>>) curridx;
-			if( sum == 0 )
+			if( sum == 0 ) {
 				tmp.printStat();
+			}
+
 			for( List<Record> list : curridx.values() ) {
 				if( list.size() == 1 ) {
 					++ones;
@@ -219,8 +230,9 @@ public class JoinMin extends AlgorithmTemplate {
 		count = 0;
 		for( Map<IntegerPair, WrappedInteger> curridx : invokes.values() ) {
 			WYK_HashMap<IntegerPair, WrappedInteger> tmp = (WYK_HashMap<IntegerPair, WrappedInteger>) curridx;
-			if( sum == 0 )
+			if( sum == 0 ) {
 				tmp.printStat();
+			}
 			for( Entry<IntegerPair, WrappedInteger> list : curridx.entrySet() ) {
 				if( list.getValue().get() == 1 ) {
 					++ones;
@@ -236,6 +248,7 @@ public class JoinMin extends AlgorithmTemplate {
 		System.out.println( "key-value pairs(w/o 1) : " + sum );
 		System.out.println( "iIdx size(w/o 1) : " + count );
 		System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+		stepTime.stopAndAdd( stat );
 	}
 
 	static ByteBuffer buffer = ByteBuffer.allocate( 16 );
@@ -251,88 +264,100 @@ public class JoinMin extends AlgorithmTemplate {
 	}
 
 	private List<IntegerPair> join() {
-		try {
-			// BufferedWriter bw = new BufferedWriter( new FileWriter( "join.txt" ) );
+		// BufferedWriter bw = new BufferedWriter( new FileWriter( "join.txt" ) );
 
-			List<IntegerPair> rslt = new ArrayList<IntegerPair>();
-			long starttime = System.nanoTime() - Record.exectime;
-			// long totalSigCount = 0;
+		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		long starttime = System.nanoTime() - Record.exectime;
+		// long totalSigCount = 0;
 
-			long appliedRules_sum = 0;
-			long count = 0;
-			for( Record recS : tableS ) {
-				List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
-				// for (Set<IntegerPair> set : available2Grams)
-				// totalSigCount += set.size();
-				int[] range = recS.getCandidateLengths( recS.size() - 1 );
-				int searchmax = Math.min( available2Grams.size(), maxIndex );
-				for( int i = 0; i < searchmax; ++i ) {
-					Map<IntegerPair, List<Record>> curridx = idx.get( i );
-					if( curridx == null )
-						continue;
-					List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-					for( IntegerPair twogram : available2Grams.get( i ) ) {
-						List<Record> tree = curridx.get( twogram );
+		long appliedRules_sum = 0;
+		long count = 0;
+		long equivComparisons = 0;
+		for( Record recS : tableS ) {
+			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
+			// for (Set<IntegerPair> set : available2Grams)
+			// totalSigCount += set.size();
+			int[] range = recS.getCandidateLengths( recS.size() - 1 );
+			int searchmax = Math.min( available2Grams.size(), maxIndex );
+			for( int i = 0; i < searchmax; ++i ) {
+				Map<IntegerPair, List<Record>> curridx = idx.get( i );
+				if( curridx == null ) {
+					continue;
+				}
 
-						if( tree == null )
-							continue;
-						List<Record> list = new ArrayList<Record>();
-						for( Record e : tree )
-							if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) )
-								list.add( e );
-						candidatesList.add( list );
-						count += list.size();
-					}
-					List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
-					if( skipChecking ) {
+				List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+				
+				for( IntegerPair twogram : available2Grams.get( i ) ) {
+					List<Record> tree = curridx.get( twogram );
+
+					if( tree == null ) {
 						continue;
 					}
-					else if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-						// Sort records to utilize similar prefixes
-						Collections.sort( candidates );
-						Collections.reverse( candidates );
-						computePrefixCount( candidates );
-					}
 
-					for( Record recR : candidates ) {
-						long ruleiters = Validator.niterrules;
-						long reccalls = Validator.recursivecalls;
-						long entryiters = Validator.niterentry;
-						long st = System.nanoTime();
-						int compare = checker.isEqual( recR, recS );
-						long duration = System.nanoTime() - st;
-						ruleiters = Validator.niterrules - ruleiters;
-						reccalls = Validator.recursivecalls - reccalls;
-						entryiters = Validator.niterentry - entryiters;
-						// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
-						// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
-						// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
-						joinTime += duration;
-						if( compare >= 0 ) {
-							rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
-							appliedRules_sum += compare;
+					List<Record> list = new ArrayList<Record>();
+					for( Record e : tree ) {
+						if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+							list.add( e );
 						}
+					}
+					candidatesList.add( list );
+					count += list.size();
+				}
+				List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
+
+				if( skipChecking ) {
+					continue;
+				}
+				else if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
+					// Sort records to utilize similar prefixes
+					Collections.sort( candidates );
+					Collections.reverse( candidates );
+					computePrefixCount( candidates );
+				}
+
+				equivComparisons += candidates.size();
+				for( Record recR : candidates ) {
+					long ruleiters = Validator.niterrules;
+					long reccalls = Validator.recursivecalls;
+					long entryiters = Validator.niterentry;
+
+					long st = System.nanoTime();
+					int compare = checker.isEqual( recR, recS );
+					long duration = System.nanoTime() - st;
+
+					ruleiters = Validator.niterrules - ruleiters;
+					reccalls = Validator.recursivecalls - reccalls;
+					entryiters = Validator.niterentry - entryiters;
+
+					// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
+					// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
+					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+
+					joinTime += duration;
+					if( compare >= 0 ) {
+						rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
+						appliedRules_sum += compare;
 					}
 				}
 			}
-			System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-			if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-				System.out.println( "Prefix freq : " + freq );
-				System.out.println( "Prefix sumlength : " + sumlength );
-			}
-			candExtractTime = System.nanoTime() - Record.exectime - starttime - joinTime;
-			double weight = count;
-			System.out.println( "Est weight : " + weight );
-			System.out.println( "Cand extract time : " + candExtractTime );
-			System.out.println( "Join time : " + joinTime );
-			epsilon = ( joinTime ) / weight;
-			// bw.close();
+		}
+		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
+		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
+			System.out.println( "Prefix freq : " + freq );
+			System.out.println( "Prefix sumlength : " + sumlength );
+		}
+		candExtractTime = System.nanoTime() - Record.exectime - starttime - joinTime;
+		double weight = count;
+		System.out.println( "Est weight : " + weight );
+		System.out.println( "Cand extract time : " + candExtractTime );
+		System.out.println( "Join time : " + joinTime );
+		epsilon = ( joinTime ) / weight;
+		// bw.close();
 
-			return rslt;
-		}
-		catch( Exception e ) {
-			return null;
-		}
+		stat.add( "Equiv Comparison", equivComparisons );
+
+		return rslt;
+
 	}
 
 	private void computePrefixCount( List<Record> list ) {
@@ -519,7 +544,6 @@ public class JoinMin extends AlgorithmTemplate {
 		runWithoutPreprocess( true );
 	}
 
-	@SuppressWarnings( "static-access" )
 	public void runWithoutPreprocess( boolean writeResult ) {
 		// Retrieve statistics
 		statistics();
@@ -552,9 +576,9 @@ public class JoinMin extends AlgorithmTemplate {
 		}
 
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-			TopDownHashSetSinglePath_DS_SharedPrefix tmp = (TopDownHashSetSinglePath_DS_SharedPrefix) checker;
-			System.out.println( "Prev entry count : " + tmp.prevEntryCount );
-			System.out.println( "Effective prev entry count : " + tmp.effectivePrevEntryCount );
+			System.out.println( "Prev entry count : " + TopDownHashSetSinglePath_DS_SharedPrefix.prevEntryCount );
+			System.out.println(
+					"Effective prev entry count : " + TopDownHashSetSinglePath_DS_SharedPrefix.effectivePrevEntryCount );
 		}
 	}
 
