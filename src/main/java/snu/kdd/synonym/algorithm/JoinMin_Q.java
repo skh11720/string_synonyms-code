@@ -139,6 +139,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		for( Record rec : tableT ) {
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int searchmax = Math.min( range[ 0 ], maxIndex );
+			searchmax = Math.min( searchmax, invokes.size() );
 
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2GramsWithBound( searchmax );
 			for( Set<IntegerPair> set : available2Grams ) {
