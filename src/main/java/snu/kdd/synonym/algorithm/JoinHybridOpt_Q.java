@@ -445,7 +445,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		writeResult( rslt );
 	}
 
-	@SuppressWarnings( "static-access" )
 	private void findConstants( double sampleratio ) {
 		// Sample
 		Random rn = new Random();
@@ -486,7 +485,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		joinmininst.skipChecking = skipChecking;
 		joinmininst.maxIndex = maxIndex;
 		joinmininst.compact = compact;
-		joinmininst.checker = checker;
+		JoinMin_Q.checker = checker;
 		joinmininst.outputfile = outputfile;
 		try {
 			System.out.println( "Joinmininst run" );
@@ -502,7 +501,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( "Bigram computation time : " + Record.exectime );
 		Validator.printStats();
 
-		// Restore
+		// Restore tables
 		tableT = tmpR;
 		tableS = tmpS;
 
@@ -512,11 +511,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( "Delta : " + delta );
 		System.out.println( "Epsilon : " + epsilon );
 
-		stat.add( "findConstant_Alpha", String.format( "%.2f", alpha ) );
-		stat.add( "findConstant_Beta", String.format( "%.2f", beta ) );
-		stat.add( "findConstant_Gamma", String.format( "%.2f", gamma ) );
-		stat.add( "findConstant_Delta", String.format( "%.2f", delta ) );
-		stat.add( "findConstant_Epsilon", String.format( "%.2f", epsilon ) );
+		stat.add( "Const_Alpha", String.format( "%.2f", alpha ) );
+		stat.add( "Const_Beta", String.format( "%.2f", beta ) );
+		stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
+		stat.add( "Const_Delta", String.format( "%.2f", delta ) );
+		stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
 	}
 
 	private void findTheta( int max_theta ) {
