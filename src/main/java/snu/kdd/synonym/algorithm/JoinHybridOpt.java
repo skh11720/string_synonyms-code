@@ -124,12 +124,14 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 			// Every record is SH/TH record at the beginning
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
-				if( curr_invokes == null ) {
-					curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
-					T_invokes.put( i, curr_invokes );
+				Map<IntegerPair, WrappedInteger> curridx_invokes = T_invokes.get( i );
+				if( curridx_invokes == null ) {
+					curridx_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
+					T_invokes.put( i, curridx_invokes );
 				}
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
+
+				Set<IntegerPair> available = available2Grams.get( i );
+				for( IntegerPair twogram : available ) {
 					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count == null ) {
 						curridx_invokes.put( twogram, ONE );
@@ -255,19 +257,25 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		long startTime = System.currentTimeMillis();
 		// buildJoinMinIndex();
 
+		StopWatch stepTime = StopWatch.getWatchStarted( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
 		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
+		stat.add( "AppliedRules Sum", appliedRules_sum );
+		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
 		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Naive Index Building Time" );
 		buildNaiveIndex();
+		stepTime.stopAndAdd( stat );
 		System.out.print( "Building Naive Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
 		System.out.println( "Join Threshold " + joinThreshold );
+		stepTime.resetAndStart( "SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
 		for( Record s : tableS ) {
