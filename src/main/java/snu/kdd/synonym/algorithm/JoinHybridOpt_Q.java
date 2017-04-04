@@ -211,7 +211,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( "idx size : " + elements );
 		System.out.println( WrappedInteger.count + " Wrapped Integers" );
 		for( int i = 0; i < idx.size(); i++ ) {
-			System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+			if( idx.get( i ).size() != 0 ) {
+				System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+			}
 		}
 		stepTime.stopAndAdd( stat );
 	}
