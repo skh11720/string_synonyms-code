@@ -447,7 +447,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	private void findConstants( double sampleratio ) {
 		// Sample
-		Random rn = new Random();
+		// TODO : DEBUG
+		Random rn = new Random( 0 );
 
 		List<Record> sampleTlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
