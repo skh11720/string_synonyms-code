@@ -24,14 +24,14 @@ with open( 'err.log', 'w' ) as err:
             if line in result_dic:
                 result_dic.remove( line )
             else:
-                err.write( file_one + ' does not contains ' + line )
+                err.write( file_one + ' does not contains ' + line + '\n' )
                 different = True
 
     for line in result_dic:
-        err.write( file_two + ' does not contains ' + line )
+        err.write( file_two + ' does not contains ' + line + '\n' )
         different = True
 
-    err.write( 'Comparing finished ' + file_one + ' ' + file_two )
+    err.write( 'Comparing finished ' + file_one + ' ' + file_two + '\n' )
     print( 'Comparing finished ' + file_one + ' ' + file_two )
 
 if different:
