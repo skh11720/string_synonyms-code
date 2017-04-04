@@ -106,6 +106,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile );
 		idComparator = new RecordIDComparator();
+		idReverseComparator = new RecordIDReverseComparator();
 		ruletrie = new RuleTrie( rulelist );
 	}
 
