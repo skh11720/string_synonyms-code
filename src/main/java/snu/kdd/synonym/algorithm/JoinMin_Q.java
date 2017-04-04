@@ -45,11 +45,10 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	 */
 	Map<Integer, Map<IntegerPair, List<Record>>> idx;
 
-	public long buildIndexTime;
-	public long buildIndexTime1;
-	public long buildIndexTime2;
-	public long candExtractTime;
-	public long joinTime;
+	private long buildIndexTime1;
+	private long buildIndexTime2;
+	private long candExtractTime;
+	private long joinTime;
 
 	public double gamma;
 	public double delta;

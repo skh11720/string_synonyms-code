@@ -47,11 +47,10 @@ public class JoinMin extends AlgorithmTemplate {
 	 */
 	Map<Integer, Map<IntegerPair, List<Record>>> idx;
 
-	public long buildIndexTime;
-	public long buildIndexTime1;
-	public long buildIndexTime2;
-	public long candExtractTime;
-	public long joinTime;
+	private long buildIndexTime1;
+	private long buildIndexTime2;
+	private long candExtractTime;
+	private long joinTime;
 
 	public double gamma;
 	public double delta;
@@ -172,7 +171,7 @@ public class JoinMin extends AlgorithmTemplate {
 				// curridx = new HashMap<IntegerPair, List<Record>>();
 				idx.put( minIdx, curridx );
 			}
-			
+
 			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
 				// write2File(bw, minIdx, twogram, rec.getID());
 				if( true ) {
@@ -286,7 +285,7 @@ public class JoinMin extends AlgorithmTemplate {
 				}
 
 				List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-				
+
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					List<Record> tree = curridx.get( twogram );
 
