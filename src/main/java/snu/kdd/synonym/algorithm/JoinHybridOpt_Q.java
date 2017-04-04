@@ -263,6 +263,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.print( "Building Naive Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
+		System.out.println( "Join Threshold " + joinThreshold );
 		long time2 = System.currentTimeMillis();
 		for( Record s : tableS ) {
 			if( s.getEstNumRecords() > joinThreshold )
