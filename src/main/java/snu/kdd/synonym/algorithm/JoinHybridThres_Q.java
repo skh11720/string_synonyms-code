@@ -270,9 +270,11 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		int[] range = s.getCandidateLengths( s.size() - 1 );
 		int searchmax = Math.min( available2Grams.size(), maxIndex );
 		for( int i = 0; i < searchmax; ++i ) {
+			if( i >= idx.size() ) {
+				break;
+			}
+
 			Map<IntegerPair, List<Record>> curr_idx = idx.get( i );
-			if( curr_idx == null )
-				continue;
 
 			Set<Record> candidates = new HashSet<Record>();
 			for( IntegerPair twogram : available2Grams.get( i ) ) {
@@ -285,7 +287,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				for( int j = tree.size() - 1; j >= 0; --j ) {
 					Record rec = tree.get( j );
 					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold ) {
-						break;
+						continue;
 					}
 					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
 						candidates.add( rec );
