@@ -616,7 +616,7 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 				memcost += RECORD_CLASS_BYTES * expSize;
 				// Pointers in the inverted index
 				memcost += 8 * expSize;
-				// Pointers in the Hashmap (in worst case)
+				// Pointers in the Hashmap (in the worst case)
 				// Our hashmap filling ratio is 0.5: 24 / 0.5 = 48
 				memcost += 48 * expSize;
 				if( memcost > memlimit_expandedS ) {
@@ -635,8 +635,9 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 					int sum_invokes = 0;
 					for( IntegerPair curr_twogram : twograms.get( i ) ) {
 						WrappedInteger count = T_invokes.get( i ).get( curr_twogram );
-						if( count != null )
+						if( count != null ) {
 							sum_invokes += count.get();
+						}
 					}
 					if( sum_invokes < min_invokes ) {
 						min_invokes = sum_invokes;
@@ -650,8 +651,9 @@ public class Hybrid2GramWithOptTheta3 extends Algorithm {
 					Directory dir = curr_idx.get( curr_twogram );
 					++dir.SHsize;
 				}
-				for( Set<IntegerPair> set : twograms )
+				for( Set<IntegerPair> set : twograms ) {
 					set.clear();
+				}
 				twograms.clear();
 			}
 			if( memcost > memlimit_expandedS ) {

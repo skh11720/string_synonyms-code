@@ -49,10 +49,15 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	int joinThreshold = 0;
 
+	// alpha: Naive indexing time per transformed strings of table T
 	double alpha;
+	// beta: Navie join time per transformed strings of table S
 	double beta;
+	// gamma: JoinMin counting twogram time per twograms of table S
 	double gamma;
+	// delta: JoinMin indexing time per twograms of table T
 	double delta;
+	// epsilon: JoinMin join time per candidate of table S
 	double epsilon;
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
@@ -132,8 +137,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 						count = new WrappedInteger( 2 );
 						curr_invokes.put( twogram, count );
 					}
-					else
+					else {
 						count.increment();
+					}
 				}
 			}
 		}
@@ -463,11 +469,12 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 		}
 		List<Record> tmpR = tableT;
-		tableT = sampleTlist;
 		List<Record> tmpS = tableS;
+
+		tableT = sampleTlist;
 		tableS = sampleSlist;
 
-		System.out.println( sampleTlist.size() + " R records are sampled" );
+		System.out.println( sampleTlist.size() + " T records are sampled" );
 		System.out.println( sampleSlist.size() + " S records are sampled" );
 
 		stat.add( "Sample T size", sampleTlist.size() );
@@ -487,7 +494,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		joinmininst.maxIndex = maxIndex;
 		joinmininst.compact = compact;
 		JoinMin_Q.checker = checker;
-		joinmininst.outputfile = outputfile;
+		joinmininst.outputfile = null;
 		try {
 			System.out.println( "Joinmininst run" );
 			joinmininst.runWithoutPreprocess( false );
@@ -542,8 +549,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		long currSLExpSize = 0;
 		long currTLExpSize = 0;
 		while( sidx < tableT.size() || tidx < tableS.size() ) {
-			if( theta > max_theta )
+			if( theta > max_theta ) {
 				break;
+			}
 			long next_theta = Long.MAX_VALUE;
 			// Estimate new running time
 			// Modify SL_TH_invokes, SL_TH_idx
@@ -658,7 +666,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				best_esttimes = esttimes;
 			}
 			if( theta == 10 || theta == 30 || theta == 100 || theta == 300 || theta == 1000 || theta == 3000 ) {
-				System.out.println( "T=" + theta + " : " + esttime );
+				System.out.println( "T=" + theta + " : esttime " + esttime );
 				System.out.println( Arrays.toString( esttimes ) );
 				System.out.println( "Mem : " + memcost + " / " + memlimit_expandedS );
 			}
