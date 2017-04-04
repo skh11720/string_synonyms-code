@@ -212,7 +212,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( "idx size : " + elements );
 		System.out.println( WrappedInteger.count + " Wrapped Integers" );
 		for( Entry<Integer, Map<IntegerPair, Directory>> e : idx.entrySet() ) {
-			System.out.println( e.getKey() + " : " + e.getValue().size() );
+			System.out.println( "JoinMin idx " + e.getKey() + " size: " + e.getValue().size() );
 		}
 		stepTime.stopAndAdd( stat );
 	}
