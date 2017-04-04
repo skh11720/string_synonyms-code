@@ -99,7 +99,7 @@ else
 		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
 		date
 
-		./compare.sh $PREV JoinMin_QL
+		./compare.sh $PREV JoinMin_Q
 		PREV="JoinMin_Q"
 	fi
 
@@ -114,7 +114,7 @@ else
 			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinD2GramCompact$j"TopDownHashSet"; }
 			date
 
-			./compare.sh $PREV JoinMH
+			./compare.sh $PREV JoinMH_QL
 		done
 		PREV="JoinMH_QL"
 	fi
@@ -122,8 +122,8 @@ else
 	#JoinHybridOpt
 	if [[ $RUN_JoinHybridOpt == "True" ]];
 	then
-		#samplings=( 0.01 0.03 )
-		samplings=( 0.001 0.003 0.01 0.03 )
+		samplings=( 0.01 )
+		#samplings=( 0.001 0.003 0.01 0.03 )
 		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
 		for sampling in "${samplings[@]}"; do
 			date
@@ -141,7 +141,8 @@ else
 	#JoinHybridThres
 	if [[ $RUN_JoinHybridThres == "True" ]];
 	then
-		thresholds=( 3 10 30 100 )
+		thresholds=( 10 )
+		#thresholds=( 3 10 30 100 )
 		#thresholds=( 3 10 30 100 300 1000 )
 		for threshold in "${thresholds[@]}"; do
 			date
@@ -151,23 +152,24 @@ else
 			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold > $dir"/"logHybrid2GramA3_$threshold; }
 			date
 
-			./compare.sh $PREV JoinHybridThres
+			./compare.sh $PREV JoinHybridThres_Q
 		done
-		PREV="JoinHybridThres"
+		PREV="JoinHybridThres_Q"
 	fi
 
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
-		thresholds=( 3 10 30 100 )
-		#thresholds=( 3 10 30 100 300 1000 )
-		for threshold in "${thresholds[@]}"; do
+		samplings=( 0.01 )
+		#samplings=( 0.001 0.003 0.01 0.03 )
+		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
+		for sampling in "${samplings[@]}"; do
 			date
-			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
+			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
 			date
 
-			./compare.sh $PREV JoinHybridThres_Q
+			./compare.sh $PREV JoinHybridOpt_Q
 		done
-		PREV="JoinHybridThres_Q"
+		PREV="JoinHybridOpt_Q"
 	fi
 fi
