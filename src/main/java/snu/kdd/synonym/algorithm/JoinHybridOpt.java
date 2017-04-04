@@ -115,9 +115,13 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		est_cmps = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		idx = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+
 		T_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
+		idx = new WYK_HashMap<Integer, Map<IntegerPair, Directory>>();
+
 		// Actually, tableT
+		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
+
 		for( Record rec : tableS ) {
 			// long prev = Record.exectime;
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
@@ -140,8 +144,9 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 						count = new WrappedInteger( 2 );
 						curridx_invokes.put( twogram, count );
 					}
-					else
+					else {
 						count.increment();
+					}
 				}
 			}
 		}
@@ -149,14 +154,19 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 
+		stepTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Indexing Time" );
 		// Actually, tableS
 		for( Record rec : tableT ) {
-			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
+
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
 			int searchmax = Math.min( range[ 0 ], maxIndex );
 			int[] invokearr = new int[ searchmax ];
+
+			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
@@ -183,6 +193,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 				curr_idx = new WYK_HashMap<IntegerPair, Directory>();
 				idx.put( minIdx, curr_idx );
 			}
+
 			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
 				Directory dir = curr_idx.get( twogram );
 				if( dir == null ) {
@@ -226,12 +237,15 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 			assert ( expanded.size() <= joinThreshold );
 			assert ( !expanded.isEmpty() );
 			for( Record expR : expanded ) {
-				if( !setR.containsKey( expR ) )
+				if( !setR.containsKey( expR ) ) {
 					setR.put( expR, new ArrayList<Integer>( 5 ) );
+				}
 				List<Integer> list = setR.get( expR );
 				assert ( list != null );
-				if( !list.isEmpty() && list.get( list.size() - 1 ) == i )
+				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
 					continue;
+				}
+
 				list.add( i );
 			}
 			++count;
@@ -331,8 +345,11 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 				candidatesList.add( list );
 			}
 			List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
-			if( skipChecking )
+
+			if( skipChecking ) {
 				continue;
+			}
+
 			for( Record recR : candidates ) {
 				int compare = checker.isEqual( recR, s );
 				if( compare >= 0 ) {
@@ -491,11 +508,12 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 			}
 		}
 		List<Record> tmpR = tableT;
-		tableT = sampleTlist;
 		List<Record> tmpS = tableS;
+
+		tableT = sampleTlist;
 		tableS = sampleSlist;
 
-		System.out.println( sampleTlist.size() + " R records are sampled" );
+		System.out.println( sampleTlist.size() + " T records are sampled" );
 		System.out.println( sampleSlist.size() + " S records are sampled" );
 
 		stat.add( "Sample T size", sampleTlist.size() );
@@ -515,7 +533,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		joinmininst.maxIndex = maxIndex;
 		joinmininst.compact = compact;
 		JoinMin.checker = checker;
-		joinmininst.outputfile = outputfile;
+		joinmininst.outputfile = null;
 		try {
 			System.out.println( "Joinmininst run" );
 			joinmininst.runWithoutPreprocess( false );
@@ -570,8 +588,9 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		long currSLExpSize = 0;
 		long currTLExpSize = 0;
 		while( sidx < tableT.size() || tidx < tableS.size() ) {
-			if( theta > max_theta )
+			if( theta > max_theta ) {
 				break;
+			}
 			long next_theta = Long.MAX_VALUE;
 			// Estimate new running time
 			// Modify SL_TH_invokes, SL_TH_idx
@@ -686,7 +705,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 				best_esttimes = esttimes;
 			}
 			if( theta == 10 || theta == 30 || theta == 100 || theta == 300 || theta == 1000 || theta == 3000 ) {
-				System.out.println( "T=" + theta + " : " + esttime );
+				System.out.println( "T=" + theta + " : esttime " + esttime );
 				System.out.println( Arrays.toString( esttimes ) );
 				System.out.println( "Mem : " + memcost + " / " + memlimit_expandedS );
 			}
