@@ -276,6 +276,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
 		stat.add( "AppliedRules Sum", appliedRules_sum );
+		System.out.println( "After JoinMin Result: " + rslt.size() );
 		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
