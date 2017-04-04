@@ -43,7 +43,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	static Validator checker;
 
 	RecordIDComparator idComparator;
-	RecordIDReverseComparator idReverseComparator;
 	RuleTrie ruletrie;
 
 	/**
@@ -64,7 +63,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	public JoinHybridThres_Q( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile );
 		idComparator = new RecordIDComparator();
-		idReverseComparator = new RecordIDReverseComparator();
 		ruletrie = new RuleTrie( rulelist );
 	}
 
@@ -111,7 +109,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			}
 		}
 
-		// bw.close();
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 
@@ -320,20 +317,14 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		return appliedRules_sum;
 	}
 
-	private class RecordIDReverseComparator implements Comparator<Record> {
-		@Override
-		public int compare( Record o1, Record o2 ) {
-			return -idComparator.compare( o1, o2 );
-		}
-	}
-
 	private void searchEquivsByNaive1Expansion( Record s, List<IntegerPair> rslt ) {
 		ArrayList<List<Integer>> candidates = new ArrayList<List<Integer>>();
 		ArrayList<Record> expanded = s.expandAll( ruletrie );
 		for( Record exp : expanded ) {
 			List<Integer> list = setR.get( exp );
-			if( list == null )
+			if( list == null ) {
 				continue;
+			}
 			candidates.add( list );
 		}
 		List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
@@ -381,28 +372,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.println( "Maximum rhs length: " + maxrhslength );
 	}
 
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
-		preprocess( compact, maxIndex, useAutomata );
-		stepTime.stopAndAdd( stat );
-		System.out.print( "Preprocess finished" );
-
-		// Retrieve statistics
-		stepTime.resetAndStart( "Statistics Time" );
-		statistics();
-		stepTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Join Total Time" );
-		Collection<IntegerPair> rslt = join();
-		stepTime.stopAndAdd( stat );
-		System.out.print( "Join finished" );
-
-		System.out.println( "Result time " + rslt.size() );
-		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
-
-		writeResult( rslt );
-	}
-
 	@Override
 	protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
 		super.preprocess( compact, maxIndex, useAutomata );
@@ -434,6 +403,28 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
 		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
+	}
+
+	public void run() {
+		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
+		preprocess( compact, maxIndex, useAutomata );
+		stepTime.stopAndAdd( stat );
+		System.out.print( "Preprocess finished" );
+
+		// Retrieve statistics
+		stepTime.resetAndStart( "Statistics Time" );
+		statistics();
+		stepTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Join Total Time" );
+		Collection<IntegerPair> rslt = join();
+		stepTime.stopAndAdd( stat );
+		System.out.print( "Join finished" );
+
+		System.out.println( "Result time " + rslt.size() );
+		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
+
+		writeResult( rslt );
 	}
 
 	public static void main( String[] args ) throws IOException {

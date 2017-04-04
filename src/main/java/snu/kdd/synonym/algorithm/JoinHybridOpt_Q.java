@@ -226,19 +226,24 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			assert ( expanded.size() <= joinThreshold );
 			assert ( !expanded.isEmpty() );
 			for( Record expR : expanded ) {
-				if( !setR.containsKey( expR ) )
-					setR.put( expR, new ArrayList<Integer>( 5 ) );
 				List<Integer> list = setR.get( expR );
-				assert ( list != null );
-				if( !list.isEmpty() && list.get( list.size() - 1 ) == i )
+				if( list == null ) {
+					list = new ArrayList<Integer>( 5 );
+					setR.put( expR, list );
+				}
+
+				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
 					continue;
+				}
+
 				list.add( i );
 			}
 			++count;
 		}
 		long idxsize = 0;
-		for( List<Integer> list : setR.values() )
+		for( List<Integer> list : setR.values() ) {
 			idxsize += list.size();
+		}
 		System.out.println( count + " records are 1-expanded and indexed" );
 		System.out.println( "Total index size: " + idxsize );
 	}
@@ -254,29 +259,42 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 
 		long startTime = System.currentTimeMillis();
-		buildJoinMinIndex();
-		System.out.print( "Building JoinMin Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		// StopWatch stepTime = StopWatch.getWatchStarted( "JoinMin Index Building Time" );
+		// buildJoinMinIndex();
+		// stepTime.stopAndAdd( stat );
+		// System.out.print( "Building JoinMin Index finished " + ( System.currentTimeMillis() - startTime ) );
 
+		StopWatch stepTime = StopWatch.getWatchStarted( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableS )
+		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+		}
+		stat.add( "AppliedRules Sum", appliedRules_sum );
+		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
 		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Naive Index Building Time" );
 		buildNaiveIndex();
+		stepTime.stopAndAdd( stat );
 		System.out.print( "Building Naive Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
 		System.out.println( "Join Threshold " + joinThreshold );
+		stepTime.resetAndStart( "SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
+		int naiveSearch = 0;
 		for( Record s : tableS ) {
 			if( s.getEstNumRecords() > joinThreshold )
 				continue;
-			else
+			else {
 				searchEquivsByNaive1Expansion( s, rslt );
+				naiveSearch++;
+			}
 		}
+		stat.add( "Naive search count", naiveSearch );
+		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
@@ -288,20 +306,24 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	private int searchEquivsByDynamicIndex( Record s, Map<Integer, Map<IntegerPair, Directory>> idx, List<IntegerPair> rslt ) {
 		boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
+
 		int appliedRules_sum = 0;
 		List<Set<IntegerPair>> available2Grams = s.get2Grams();
 		int[] range = s.getCandidateLengths( s.size() - 1 );
 		int searchmax = Math.min( available2Grams.size(), maxIndex );
 		for( int i = 0; i < searchmax; ++i ) {
 			Map<IntegerPair, Directory> curr_idx = idx.get( i );
-			if( curr_idx == null )
+			if( curr_idx == null ) {
 				continue;
+			}
 			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 			for( IntegerPair twogram : available2Grams.get( i ) ) {
 				Directory tree = curr_idx.get( twogram );
 
-				if( tree == null )
+				if( tree == null ) {
 					continue;
+				}
+
 				List<Record> list = new ArrayList<Record>();
 				for( int j = is_TH_record ? 0 : tree.SHsize; j < tree.list.size(); ++j ) {
 					Record r = tree.list.get( j );
@@ -311,8 +333,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				candidatesList.add( list );
 			}
 			List<Record> candidates = StaticFunctions.union( candidatesList, idComparator );
-			if( skipChecking )
+
+			if( skipChecking ) {
 				continue;
+			}
+
 			for( Record recR : candidates ) {
 				int compare = checker.isEqual( recR, s );
 				if( compare >= 0 ) {
@@ -329,13 +354,15 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		ArrayList<Record> expanded = s.expandAll( ruletrie );
 		for( Record exp : expanded ) {
 			List<Integer> list = setR.get( exp );
-			if( list == null )
+			if( list == null ) {
 				continue;
+			}
 			candidates.add( list );
 		}
 		List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-		for( Integer idx : union )
+		for( Integer idx : union ) {
 			rslt.add( new IntegerPair( idx, s.getID() ) );
+		}
 	}
 
 	public void statistics() {
@@ -363,7 +390,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			maxstrlength = Math.max( maxstrlength, length );
 		}
 
-		for( Rule rule : rulelist ) {
+		for( Rule rule : getRulelist() ) {
 			int length = rule.getTo().length;
 			++rules;
 			rhslengthsum += length;
@@ -394,18 +421,17 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		Collections.sort( tableS, cmp );
 
 		// Reassign ID
-		long maxSEstNumRecords = 0;
-		long maxTEstNumRecords = 0;
 		for( int i = 0; i < tableT.size(); ++i ) {
 			Record s = tableT.get( i );
 			s.setID( i );
-			maxSEstNumRecords = Math.max( maxSEstNumRecords, s.getEstNumRecords() );
 		}
+		long maxTEstNumRecords = tableT.get( tableT.size() - 1 ).getEstNumRecords();
+
 		for( int i = 0; i < tableS.size(); ++i ) {
 			Record t = tableS.get( i );
 			t.setID( i );
-			maxTEstNumRecords = Math.max( maxTEstNumRecords, t.getEstNumRecords() );
 		}
+		long maxSEstNumRecords = tableS.get( tableS.size() - 1 ).getEstNumRecords();
 
 		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
 		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
