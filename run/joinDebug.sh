@@ -4,10 +4,10 @@ rulefile=$3
 outputPath=$4
 logdir=$5
 LIBS=$6
-threshold=$7
+sample=$7
 project=$8
 
-ADDITIONAL="-joinExpandThreshold $threshold -compact -v TopDownHashSetSinglePathDS 0"
+ADDITIONAL="-s $sample -compact -v TopDownHashSetSinglePathDS 0"
 
 ALG=DebugAlg
 

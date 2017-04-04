@@ -26,14 +26,14 @@ RUN_SIJoin=False
 RUN_JoinMin=True
 #RUN_JoinMin=False
 
-#RUN_JoinMH=True
-RUN_JoinMH=False
+RUN_JoinMH=True
+#RUN_JoinMH=False
 
 #RUN_JoinHybridOpt=True
 RUN_JoinHybridOpt=False
 
-#RUN_JoinHybridThres=True
-RUN_JoinHybridThres=False
+RUN_JoinHybridThres=True
+#RUN_JoinHybridThres=False
 
 RUN_DEBUG=True
 #RUN_DEBUG=False
