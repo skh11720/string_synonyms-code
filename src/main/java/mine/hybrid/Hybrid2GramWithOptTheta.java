@@ -576,16 +576,16 @@ public class Hybrid2GramWithOptTheta extends Algorithm {
 	@SuppressWarnings( "static-access" )
 	private void findTheta( double sampleratio ) {
 		// Sample
-		List<Record> sampleRlist = new ArrayList<Record>();
+		List<Record> sampleTlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
 		for( Record r : tableT )
 			if( Math.random() < sampleratio )
-				sampleRlist.add( r );
+				sampleTlist.add( r );
 		for( Record s : tableS )
 			if( Math.random() < sampleratio )
 				sampleSlist.add( s );
 		List<Record> tmpR = tableT;
-		tableT = sampleRlist;
+		tableT = sampleTlist;
 		List<Record> tmpS = tableS;
 		tableS = sampleSlist;
 

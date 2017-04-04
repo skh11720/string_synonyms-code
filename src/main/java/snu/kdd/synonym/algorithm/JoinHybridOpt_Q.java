@@ -15,7 +15,6 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
-import snu.kdd.synonym.algorithm.deprecated.JoinMin;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
@@ -37,7 +36,7 @@ import wrapped.WrappedInteger;
  * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
  * index in order to find the best execution time.
  */
-public class JoinHybridOpt extends AlgorithmTemplate {
+public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	static boolean useAutomata = true;
 	static boolean skipChecking = false;
 	static int maxIndex = Integer.MAX_VALUE;
@@ -97,7 +96,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 	long memlimit_expandedS;
 
-	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
+	public JoinHybridOpt_Q( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
@@ -471,6 +470,9 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		System.out.println( sampleTlist.size() + " R records are sampled" );
 		System.out.println( sampleSlist.size() + " S records are sampled" );
 
+		stat.add( "Sample T size", sampleTlist.size() );
+		stat.add( "Sample S size", sampleSlist.size() );
+
 		// Infer alpha and beta
 		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
 		naiveinst.threshold = 100;
@@ -479,12 +481,12 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		beta = naiveinst.beta;
 
 		// Infer gamma, delta and epsilon
-		JoinMin joinmininst = new JoinMin( this, stat );
+		JoinMin_Q joinmininst = new JoinMin_Q( this, stat );
 		joinmininst.useAutomata = useAutomata;
 		joinmininst.skipChecking = skipChecking;
 		joinmininst.maxIndex = maxIndex;
 		joinmininst.compact = compact;
-		JoinMin.checker = checker;
+		JoinMin_Q.checker = checker;
 		joinmininst.outputfile = outputfile;
 		try {
 			System.out.println( "Joinmininst run" );
@@ -678,7 +680,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinHybridOpt";
+		return "JoinHybridOpt_Q";
 	}
 
 	@Override

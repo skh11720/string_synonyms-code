@@ -1,4 +1,4 @@
-package snu.kdd.synonym.algorithm;
+package snu.kdd.synonym.algorithm.deprecated;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +13,7 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
@@ -33,6 +34,7 @@ import wrapped.WrappedInteger;
  * if two strings are equivalent.
  * Utilize only one index by sorting records according to their expanded size.
  */
+@Deprecated
 public class JoinHybridThres extends AlgorithmTemplate {
 	static boolean useAutomata = true;
 	static boolean skipChecking = false;
@@ -127,8 +129,9 @@ public class JoinHybridThres extends AlgorithmTemplate {
 				int invoke = 0;
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					WrappedInteger count = curr_invokes.get( twogram );
-					if( count != null )
+					if( count != null ) {
 						invoke += count.get();
+					}
 				}
 				if( invoke < minInvokes ) {
 					minIdx = i;
@@ -210,28 +213,37 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 
 		long startTime = System.currentTimeMillis();
+		StopWatch stepTime = StopWatch.getWatchStarted( "JoinMin Index Building Time" );
 		buildJoinMinIndex();
-		System.out.print( "Building JoinMin Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		stepTime.stopAndAdd( stat );
+		System.out.print( "Building JoinMin Index finished " + ( System.currentTimeMillis() - startTime ) );
 
+		stepTime.resetAndStart( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableS )
+		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+		}
+		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
 		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Naive Index Building Time" );
 		buildNaiveIndex();
+		stepTime.stopAndAdd( stat );
 		System.out.print( "Building Naive Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
+		stepTime.resetAndStart( "SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		for( Record s : tableS ) {
 			if( s.getEstNumRecords() > joinThreshold )
 				continue;
-			else
+			else {
 				searchEquivsByNaive1Expansion( s, rslt );
+			}
 		}
+		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
@@ -263,8 +275,9 @@ public class JoinHybridThres extends AlgorithmTemplate {
 					Record rec = tree.get( j );
 					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold )
 						break;
-					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) )
+					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
 						list.add( rec );
+					}
 				}
 				candidatesList.add( list );
 			}

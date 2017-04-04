@@ -638,20 +638,20 @@ public class Hybrid2GramWithOptTheta4 extends Algorithm {
 	@SuppressWarnings( "static-access" )
 	private void findConstants( double sampleratio ) {
 		// Sample
-		List<Record> sampleRlist = new ArrayList<Record>();
+		List<Record> sampleTlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
 		for( Record r : tableT )
 			if( rand.nextDouble() < sampleratio )
-				sampleRlist.add( r );
+				sampleTlist.add( r );
 		for( Record s : tableS )
 			if( rand.nextDouble() < sampleratio )
 				sampleSlist.add( s );
 		List<Record> tmpR = tableT;
-		tableT = sampleSlist;
+		tableT = sampleTlist;
 		List<Record> tmpS = tableS;
 		tableS = sampleSlist;
 
-		System.out.println( sampleRlist.size() + " R records are sampled" );
+		System.out.println( sampleTlist.size() + " R records are sampled" );
 		System.out.println( sampleSlist.size() + " S records are sampled" );
 		System.out.println( "Estimated maximum theta : " + maxtheta );
 

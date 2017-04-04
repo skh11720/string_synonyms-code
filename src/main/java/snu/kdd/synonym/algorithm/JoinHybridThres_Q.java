@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import mine.Record;
@@ -54,7 +54,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	 * Index of the records in R for the strings in S which has more than
 	 * 'threshold' 1-expandable strings
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> idx;
+	List<Map<IntegerPair, List<Record>>> idx;
 	/**
 	 * List of 1-expandable strings
 	 */
@@ -75,31 +75,38 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long SL_TH_elements = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		Map<Integer, Map<IntegerPair, WrappedInteger>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
-
-		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
+		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
+		int invokesInitialized = 0;
+		idx = new ArrayList<Map<IntegerPair, List<Record>>>();
 
 		// Actually, tableT
+		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
+
 		for( Record rec : tableS ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
+
+			for( int i = invokesInitialized; i < searchmax; i++ ) {
+				invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
+				invokesInitialized = searchmax;
+			}
+
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
-				if( curr_invokes == null ) {
-					curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
-					invokes.put( i, curr_invokes );
-				}
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					WrappedInteger count = curr_invokes.get( twogram );
+				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+
+				Set<IntegerPair> available = available2Grams.get( i );
+				for( IntegerPair twogram : available ) {
+					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count == null ) {
-						curr_invokes.put( twogram, ONE );
+						curridx_invokes.put( twogram, ONE );
 					}
 					else if( count == ONE ) {
 						count = new WrappedInteger( 2 );
-						curr_invokes.put( twogram, count );
+						curridx_invokes.put( twogram, count );
 					}
-					else
+					else {
 						count.increment();
+					}
 				}
 			}
 		}
@@ -108,14 +115,22 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 
+		stepTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Indexing Time" );
 		// Actually, tableS
 		for( Record rec : tableT ) {
-			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
 			int searchmax = Math.min( range[ 0 ], maxIndex );
 			int[] invokearr = new int[ searchmax ];
+
+			List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
+
+			for( int i = idx.size(); i < searchmax; i++ ) {
+				idx.add( new WYK_HashMap<IntegerPair, List<Record>>() );
+			}
 
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
@@ -138,10 +153,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			}
 
 			Map<IntegerPair, List<Record>> curr_idx = idx.get( minIdx );
-			if( curr_idx == null ) {
-				curr_idx = new WYK_HashMap<IntegerPair, List<Record>>();
-				idx.put( minIdx, curr_idx );
-			}
+
 			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
 				List<Record> list = curr_idx.get( twogram );
 				if( list == null ) {
@@ -158,13 +170,13 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.println( "SH_T idx size : " + elements );
 		System.out.println( "SL_TH idx size : " + SL_TH_elements );
 		System.out.println( WrappedInteger.count + " Wrapped Integers" );
-		for( Entry<Integer, Map<IntegerPair, List<Record>>> e : idx.entrySet() ) {
-			System.out.println( e.getKey() + " : " + e.getValue().size() );
+		for( int i = 0; i < idx.size(); i++ ) {
+			System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
 		}
 	}
 
 	private void clearJoinMinIndex() {
-		for( Map<IntegerPair, List<Record>> map : idx.values() )
+		for( Map<IntegerPair, List<Record>> map : idx )
 			map.clear();
 		idx.clear();
 	}
@@ -182,19 +194,24 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			assert ( expanded.size() <= joinThreshold );
 			assert ( !expanded.isEmpty() );
 			for( Record expR : expanded ) {
-				if( !setR.containsKey( expR ) )
-					setR.put( expR, new ArrayList<Integer>( 5 ) );
 				List<Integer> list = setR.get( expR );
-				assert ( list != null );
-				if( !list.isEmpty() && list.get( list.size() - 1 ) == i )
+				if( list == null ) {
+					list = new ArrayList<Integer>( 5 );
+					setR.put( expR, list );
+				}
+
+				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
 					continue;
+				}
+
 				list.add( i );
 			}
 			++count;
 		}
 		long idxsize = 0;
-		for( List<Integer> list : setR.values() )
+		for( List<Integer> list : setR.values() ) {
 			idxsize += list.size();
+		}
 		System.out.println( count + " records are 1-expanded and indexed" );
 		System.out.println( "Total index size: " + idxsize );
 	}
@@ -210,28 +227,41 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 
 		long startTime = System.currentTimeMillis();
+		StopWatch stepTime = StopWatch.getWatchStarted( "JoinMin Index Building Time" );
 		buildJoinMinIndex();
-		System.out.print( "Building JoinMin Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		stepTime.stopAndAdd( stat );
+		System.out.print( "Building JoinMin Index finished " + ( System.currentTimeMillis() - startTime ) );
 
+		stepTime.resetAndStart( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableS )
+		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+		}
+		stat.add( "AppliedRules Sum", appliedRules_sum );
+		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
 		startTime = System.currentTimeMillis();
+		stepTime.resetAndStart( "Naive Index Building Time" );
 		buildNaiveIndex();
+		stepTime.stopAndAdd( stat );
 		System.out.print( "Building Naive Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
+		stepTime.resetAndStart( "SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
+		int naiveSearch = 0;
 		for( Record s : tableS ) {
 			if( s.getEstNumRecords() > joinThreshold )
 				continue;
-			else
+			else {
 				searchEquivsByNaive1Expansion( s, rslt );
+				naiveSearch++;
+			}
 		}
+		stat.add( "Naive search count", naiveSearch );
+		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
@@ -241,36 +271,44 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private int searchEquivsByDynamicIndex( Record s, Map<Integer, Map<IntegerPair, List<Record>>> idx, List<IntegerPair> rslt ) {
+	private int searchEquivsByDynamicIndex( Record s, List<Map<IntegerPair, List<Record>>> idx, List<IntegerPair> rslt ) {
 		boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
 
 		int appliedRules_sum = 0;
-		List<Set<IntegerPair>> available2Grams = s.get2Grams();
+		int idxSize = idx.size();
+		List<Set<IntegerPair>> available2Grams = s.get2GramsWithBound( idxSize );
 		int[] range = s.getCandidateLengths( s.size() - 1 );
 		int searchmax = Math.min( available2Grams.size(), maxIndex );
 		for( int i = 0; i < searchmax; ++i ) {
+			if( i >= idx.size() ) {
+				break;
+			}
+
 			Map<IntegerPair, List<Record>> curr_idx = idx.get( i );
-			if( curr_idx == null )
-				continue;
-			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+
+			Set<Record> candidates = new HashSet<Record>();
 			for( IntegerPair twogram : available2Grams.get( i ) ) {
 				List<Record> tree = curr_idx.get( twogram );
 
-				if( tree == null )
+				if( tree == null ) {
 					continue;
-				List<Record> list = new ArrayList<Record>();
+				}
+
 				for( int j = tree.size() - 1; j >= 0; --j ) {
 					Record rec = tree.get( j );
-					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold )
-						break;
-					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) )
-						list.add( rec );
+					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold ) {
+						continue;
+					}
+					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+						candidates.add( rec );
+					}
 				}
-				candidatesList.add( list );
 			}
-			List<Record> candidates = StaticFunctions.union( candidatesList, idReverseComparator );
-			if( skipChecking )
+
+			if( skipChecking ) {
 				continue;
+			}
+
 			for( Record recR : candidates ) {
 				int compare = checker.isEqual( recR, s );
 				if( compare >= 0 ) {
@@ -299,8 +337,9 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			candidates.add( list );
 		}
 		List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-		for( Integer idx : union )
+		for( Integer idx : union ) {
 			rslt.add( new IntegerPair( idx, s.getID() ) );
+		}
 	}
 
 	public void statistics() {
@@ -328,7 +367,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			maxstrlength = Math.max( maxstrlength, length );
 		}
 
-		for( Rule rule : rulelist ) {
+		for( Rule rule : getRulelist() ) {
 			int length = rule.getTo().length;
 			++rules;
 			rhslengthsum += length;
