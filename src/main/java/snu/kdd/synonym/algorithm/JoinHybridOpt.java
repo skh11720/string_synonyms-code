@@ -159,7 +159,6 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Indexing Time" );
 		// Actually, tableS
 		for( Record rec : tableT ) {
-
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
@@ -472,6 +471,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 			// checkLongestIndex();
 		}
 		catch( Exception e ) {
+			e.printStackTrace();
 		}
 		stepTime.stopAndAdd( stat );
 

@@ -470,6 +470,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			// checkLongestIndex();
 		}
 		catch( Exception e ) {
+			e.printStackTrace();
 		}
 		stepTime.stopAndAdd( stat );
 
