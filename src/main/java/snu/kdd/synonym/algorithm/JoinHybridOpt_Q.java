@@ -671,6 +671,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( Arrays.toString( best_esttimes ) );
 		long duration = System.nanoTime() - starttime;
 		System.out.println( "Find theta with " + duration + "ns" );
+
+		joinThreshold = best_theta;
 	}
 
 	@Override
