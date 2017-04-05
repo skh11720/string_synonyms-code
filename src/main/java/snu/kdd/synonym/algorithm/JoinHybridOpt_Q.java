@@ -609,6 +609,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				for( int i = 0; i < t.getMaxLength(); ++i ) {
 					// Frequency count of i-th bigrams of TL records
 					Map<IntegerPair, WrappedInteger> curr_invokes = TL_invokes.get( i );
+					if( i >= idx.size() ) {
+						continue;
+					}
 					Map<IntegerPair, Directory> curr_idx = idx.get( i );
 					if( curr_invokes == null ) {
 						curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
@@ -625,8 +628,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 							count.increment();
 
 						// Update est_cmps
-						if( curr_idx == null )
-							continue;
 						Directory dir = curr_idx.get( curr_twogram );
 						if( dir == null )
 							continue;
