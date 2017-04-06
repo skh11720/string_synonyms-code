@@ -290,6 +290,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 		long count = 0;
 		long equivComparisons = 0;
+		long lastTokenFiltered = 0;
 		for( Record recS : tableS ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
 			// for (Set<IntegerPair> set : available2Grams)
@@ -316,6 +317,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 							if( recS.shareLastToken( e ) ) {
 								candidates.add( e );
 								count++;
+							}
+							else {
+								lastTokenFiltered++;
 							}
 						}
 					}
@@ -351,6 +355,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 			}
 		}
+		stat.add( "Last Token Filtered", lastTokenFiltered );
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 			System.out.println( "Prefix freq : " + freq );

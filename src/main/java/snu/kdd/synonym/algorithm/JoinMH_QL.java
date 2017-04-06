@@ -202,15 +202,19 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				candidatesAppeared = candidates;
 				candidates = temp;
 
+				long lastTokenFiltered = 0;
 				if( i == 0 ) {
 					Iterator<Record> itr = candidates.iterator();
 					while( itr.hasNext() ) {
 						Record rec = itr.next();
 						if( !recS.shareLastToken( rec ) ) {
 							itr.remove();
+							lastTokenFiltered++;
 						}
 					}
 				}
+
+				stat.add( "Last Token Filtered", lastTokenFiltered );
 
 				cand_sum_afterunion[ i ] += candidates.size();
 
