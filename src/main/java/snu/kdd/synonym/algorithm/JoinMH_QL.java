@@ -219,7 +219,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				candidateTimes[ i ].stopQuiet();
 			}
 
-			stat.add( "Last Token Filtered", lastTokenFiltered );
 			count += candidates.size();
 
 			// DEBUG
@@ -244,6 +243,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 			equivTime.stopQuiet();
 		}
+		stat.add( "Last Token Filtered", lastTokenFiltered );
 		for( int i = 0; i < maxIndexLength; ++i ) {
 			System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
