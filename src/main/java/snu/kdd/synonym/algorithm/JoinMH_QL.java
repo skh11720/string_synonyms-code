@@ -3,6 +3,7 @@ package snu.kdd.synonym.algorithm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -182,9 +183,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 							// length filtering
 							if( i == 0 ) {
 								// last token filtering
-								if( recS.shareLastToken( e.rec ) ) {
-									candidatesAppeared.add( e.rec );
-								}
+								candidatesAppeared.add( e.rec );
 							}
 							else if( candidates.contains( e.rec ) ) {
 								// signature filtering
@@ -202,6 +201,16 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				Set<Record> temp = candidatesAppeared;
 				candidatesAppeared = candidates;
 				candidates = temp;
+
+				if( i == 0 ) {
+					Iterator<Record> itr = candidates.iterator();
+					while( itr.hasNext() ) {
+						Record rec = itr.next();
+						if( !recS.shareLastToken( rec ) ) {
+							itr.remove();
+						}
+					}
+				}
 
 				cand_sum_afterunion[ i ] += candidates.size();
 
