@@ -42,6 +42,8 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	static boolean singleside;
 	static Validator checker;
 
+	long lastTokenFiltered = 0;
+
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
 
@@ -232,9 +234,11 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
+		lastTokenFiltered = 0;
 		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
+		stat.add( "Last Token Filtered", lastTokenFiltered );
 		stat.add( "AppliedRules Sum", appliedRules_sum );
 		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
@@ -299,7 +303,12 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 						continue;
 					}
 					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						candidates.add( rec );
+						if( s.shareLastToken( rec ) ) {
+							candidates.add( rec );
+						}
+						else {
+							lastTokenFiltered++;
+						}
 					}
 				}
 			}
