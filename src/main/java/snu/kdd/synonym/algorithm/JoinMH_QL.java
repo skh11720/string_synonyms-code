@@ -181,7 +181,10 @@ public class JoinMH_QL extends AlgorithmTemplate {
 						if( StaticFunctions.overlap( e.min, e.max, range[ 0 ], range[ 1 ] ) ) {
 							// length filtering
 							if( i == 0 ) {
-								candidatesAppeared.add( e.rec );
+								// last token filtering
+								if( recS.shareLastToken( e.rec ) ) {
+									candidatesAppeared.add( e.rec );
+								}
 							}
 							else if( candidates.contains( e.rec ) ) {
 								// signature filtering
