@@ -41,6 +41,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	private void buildIndex() {
 		try {
+			// BufferedWriter bw = new BufferedWriter( new FileWriter( "debug.txt" ) );
 			long elements = 0;
 			// Build an index
 
@@ -81,7 +82,15 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				long singlelistsize = 0;
 				long count = 0;
 				long sqsum = 0;
-				for( List<IntIntRecordTriple> list : ithidx.values() ) {
+				for( Map.Entry<IntegerPair, List<IntIntRecordTriple>> entry : ithidx.entrySet() ) {
+					List<IntIntRecordTriple> list = entry.getValue();
+
+					// bw.write( "Key " + Record.strlist.get( entry.getKey().i1 ) + " " + Record.strlist.get( entry.getKey().i2 )
+					// + "\n" );
+					// for( IntIntRecordTriple triple : list ) {
+					// bw.write( triple.toString() + "\n" );
+					// }
+
 					sqsum += list.size() * list.size();
 					if( list.size() == 1 ) {
 						++singlelistsize;
@@ -114,6 +123,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 
 			stat.add( "Index Size Per Position", indexStr );
+
+			// bw.close();
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
@@ -138,7 +149,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			candidateTimes[ i ] = StopWatch.getWatchStopped( "Cand" + i + " Time" );
 		}
 
-		for( Record recS : tableS ) {
+		for( int sid = 0; sid < tableS.size(); sid++ ) {
+			Record recS = tableS.get( sid );
 			Set<Record> candidates = new HashSet<Record>();
 
 			// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
@@ -194,6 +206,16 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 
 			count += candidates.size();
+
+			// DEBUG
+			// if( candidates.size() != 1 ) {
+			// System.out.println( candidates.size() );
+			// for( int i = 0; i < boundary; i++ ) {
+			// for( IntegerPair twogram : available2Grams.get( i ) ) {
+			// System.out.println( twogram.toStrString() );
+			// }
+			// }
+			// }
 
 			if( skipChecking ) {
 				continue;

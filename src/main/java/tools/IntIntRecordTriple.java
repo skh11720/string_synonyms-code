@@ -12,4 +12,9 @@ public class IntIntRecordTriple {
 		this.max = max;
 		this.rec = rec;
 	}
+
+	@Override
+	public String toString() {
+		return this.min + " " + this.max + " " + rec.getID();
+	}
 }
