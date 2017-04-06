@@ -168,6 +168,8 @@ public abstract class AlgorithmTemplate {
 		System.out.println( "Preprocessing with modified length" );
 		for( final Record rec : tableT ) {
 			rec.preprocessLengths();
+			// DEBUG
+			rec.preprocessLastToken();
 		}
 
 		preprocessTime.stopQuietAndAdd( stat );
@@ -198,6 +200,7 @@ public abstract class AlgorithmTemplate {
 		for( final Record rec : tableS ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			rec.preprocessLengths();
+			rec.preprocessLastToken();
 			rec.preprocessEstimatedRecords();
 			if( !compact ) {
 				rec.preprocessAvailableTokens( maxIndex );

@@ -2,6 +2,7 @@ package mine;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	protected short maxinvsearchrange = 1;
 
 	protected static final Validator checker = new DefaultValidator();
+
+	public HashMap<Integer, IntegerPair> lastTokenMap;
 
 	private Record() {
 		id = -1;
@@ -221,6 +224,39 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 							transformedLengths[ i - 1 ][ 1 ] + toSize );
 				}
 
+			}
+		}
+	}
+
+	public void preprocessLastToken() {
+		lastTokenMap = new HashMap<Integer, IntegerPair>();
+		for( int i = 0; i < tokens.length; i++ ) {
+			for( Rule rule : applicableRules[ i ] ) {
+				int fromSize = rule.fromSize();
+				int toSize = rule.toSize();
+				if( i + fromSize == tokens.length ) {
+					// rule generates the last token
+					int min;
+					int max;
+					if( i != 0 ) {
+						min = transformedLengths[ i - 1 ][ 0 ] + toSize;
+						max = transformedLengths[ i - 1 ][ 1 ] + toSize;
+					}
+					else {
+						min = toSize;
+						max = toSize;
+					}
+
+					int lastToken = rule.getTo()[ toSize - 1 ];
+					IntegerPair pair = lastTokenMap.get( lastToken );
+					if( pair == null ) {
+						lastTokenMap.put( lastToken, new IntegerPair( min, max ) );
+					}
+					else {
+						pair.i1 = Integer.min( pair.i1, min );
+						pair.i2 = Integer.max( pair.i2, max );
+					}
+				}
 			}
 		}
 	}
@@ -1015,5 +1051,21 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		for( idx = 0; idx < list.size(); ++idx )
 			transformed[ idx ] = list.get( idx );
 		return new Record( transformed );
+	}
+
+	public boolean shareLastToken( Record e ) {
+		for( Map.Entry<Integer, IntegerPair> entry : lastTokenMap.entrySet() ) {
+			IntegerPair range = e.lastTokenMap.get( entry.getKey() );
+
+			if( range == null ) {
+				continue;
+			}
+
+			IntegerPair thisRange = entry.getValue();
+			if( StaticFunctions.overlap( range.i1, range.i2, thisRange.i1, thisRange.i2 ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
