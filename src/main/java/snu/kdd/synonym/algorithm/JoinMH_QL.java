@@ -150,6 +150,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			candidateTimes[ i ] = StopWatch.getWatchStopped( "Cand" + i + " Time" );
 		}
 
+		long lastTokenFiltered = 0;
 		for( int sid = 0; sid < tableS.size(); sid++ ) {
 			Record recS = tableS.get( sid );
 			Set<Record> candidates = new HashSet<Record>();
@@ -202,7 +203,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				candidatesAppeared = candidates;
 				candidates = temp;
 
-				long lastTokenFiltered = 0;
 				if( i == 0 ) {
 					Iterator<Record> itr = candidates.iterator();
 					while( itr.hasNext() ) {
@@ -214,13 +214,12 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 				}
 
-				stat.add( "Last Token Filtered", lastTokenFiltered );
-
 				cand_sum_afterunion[ i ] += candidates.size();
 
 				candidateTimes[ i ].stopQuiet();
 			}
 
+			stat.add( "Last Token Filtered", lastTokenFiltered );
 			count += candidates.size();
 
 			// DEBUG
