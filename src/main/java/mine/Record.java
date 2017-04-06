@@ -1054,8 +1054,21 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	public boolean shareLastToken( Record e ) {
-		for( Map.Entry<Integer, IntegerPair> entry : lastTokenMap.entrySet() ) {
-			IntegerPair range = e.lastTokenMap.get( entry.getKey() );
+		Map<Integer, IntegerPair> smallMap = null;
+		Map<Integer, IntegerPair> bigMap = null;
+
+		// iterate small map
+		if( e.lastTokenMap.size() > lastTokenMap.size() ) {
+			smallMap = lastTokenMap;
+			bigMap = e.lastTokenMap;
+		}
+		else {
+			smallMap = e.lastTokenMap;
+			bigMap = lastTokenMap;
+		}
+
+		for( Map.Entry<Integer, IntegerPair> entry : smallMap.entrySet() ) {
+			IntegerPair range = bigMap.get( entry.getKey() );
 
 			if( range == null ) {
 				continue;
