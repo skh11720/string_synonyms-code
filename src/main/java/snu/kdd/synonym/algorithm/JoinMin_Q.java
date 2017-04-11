@@ -79,7 +79,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		this.stat = stat;
 	}
 
-	private void buildIndex() throws IOException {
+	private void buildIndex( boolean writeResult ) throws IOException {
 		long starttime = System.nanoTime();
 		long totalSigCount = 0;
 
@@ -127,7 +127,12 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		System.out.println( "Gamma (buildTime / signature): " + gamma );
 
 		starttime = System.nanoTime();
-		stepTime.stopAndAdd( stat );
+		if( writeResult ) {
+			stepTime.stopAndAdd( stat );
+		}
+		else {
+			stepTime.stop();
+		}
 
 		stepTime.resetAndStart( "Indexing Time" );
 		totalSigCount = 0;
@@ -206,13 +211,20 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// bw.close();
 		System.out.println( "Predict : " + predictCount );
 		System.out.println( "Idx size : " + indexedElements );
-		stat.add( "Index Size", indexedElements );
+		if( writeResult ) {
+			stat.add( "Index Size", indexedElements );
+		}
 
 		buildIndexTime2 = System.nanoTime() - starttime;
 		System.out.println( "Step 2 Time : " + buildIndexTime2 );
 		delta = ( (double) buildIndexTime2 ) / totalSigCount;
 		System.out.println( "Delta (index build / signature ): " + delta );
-		stepTime.stopAndAdd( stat );
+		if( writeResult ) {
+			stepTime.stopAndAdd( stat );
+		}
+		else {
+			stepTime.stop();
+		}
 
 		stepTime.resetAndStart( "Statistic Time" );
 		int sum = 0;
@@ -265,7 +277,12 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		System.out.println( "key-value pairs(w/o 1) : " + sum );
 		System.out.println( "iIdx size(w/o 1) : " + count );
 		System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-		stepTime.stopAndAdd( stat );
+		if( writeResult ) {
+			stepTime.stopAndAdd( stat );
+		}
+		else {
+			stepTime.stop();
+		}
 	}
 
 	static ByteBuffer buffer = ByteBuffer.allocate( 16 );
@@ -280,7 +297,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		bos.write( buffer.array() );
 	}
 
-	private List<IntegerPair> join() {
+	private List<IntegerPair> join( boolean writeResult ) {
 		// BufferedWriter bw = new BufferedWriter( new FileWriter( "join.txt" ) );
 
 		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
@@ -355,7 +372,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 			}
 		}
-		stat.add( "Last Token Filtered", lastTokenFiltered );
+		if( writeResult ) {
+			stat.add( "Last Token Filtered", lastTokenFiltered );
+		}
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 			System.out.println( "Prefix freq : " + freq );
@@ -369,7 +388,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		epsilon = ( joinTime ) / weight;
 		// bw.close();
 
-		stat.add( "Equiv Comparison", equivComparisons );
+		if( writeResult ) {
+			stat.add( "Equiv Comparison", equivComparisons );
+		}
 
 		return rslt;
 
@@ -556,18 +577,28 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 		else {
 			try {
-				buildIndex();
+				buildIndex( writeResult );
 			}
 			catch( Exception e ) {
 				e.printStackTrace();
 				System.exit( 0 );
 			}
 		}
-		stepTime.stopAndAdd( stat );
+		if( writeResult ) {
+			stepTime.stopAndAdd( stat );
+		}
+		else {
+			stepTime.stop();
+		}
 
 		stepTime.resetAndStart( "Join Total Time" );
-		Collection<IntegerPair> rslt = ( singleside ? joinSingleSide() : join() );
-		stepTime.stopAndAdd( stat );
+		Collection<IntegerPair> rslt = ( singleside ? joinSingleSide() : join( writeResult ) );
+		if( writeResult ) {
+			stepTime.stopAndAdd( stat );
+		}
+		else {
+			stepTime.stop();
+		}
 
 		System.out.println( "Result Size: " + rslt.size() );
 		if( !writeResult ) {

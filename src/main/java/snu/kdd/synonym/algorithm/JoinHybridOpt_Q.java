@@ -437,14 +437,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		// Reassign ID
 		for( int i = 0; i < tableT.size(); ++i ) {
-			Record s = tableT.get( i );
-			s.setID( i );
+			Record t = tableT.get( i );
+			t.setID( i );
 		}
 		long maxTEstNumRecords = tableT.get( tableT.size() - 1 ).getEstNumRecords();
 
 		for( int i = 0; i < tableS.size(); ++i ) {
-			Record t = tableS.get( i );
-			t.setID( i );
+			Record s = tableS.get( i );
+			s.setID( i );
 		}
 		long maxSEstNumRecords = tableS.get( tableS.size() - 1 ).getEstNumRecords();
 
