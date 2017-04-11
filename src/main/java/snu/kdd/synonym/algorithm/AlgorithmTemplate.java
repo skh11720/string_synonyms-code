@@ -175,9 +175,16 @@ public abstract class AlgorithmTemplate {
 		preprocessTime.stopQuietAndAdd( stat );
 
 		preprocessTime.resetAndStart( "Preprocess est record time" );
+		long maxTSize = 0;
 		for( final Record rec : tableT ) {
 			rec.preprocessEstimatedRecords();
+			long est = rec.getEstimatedEquiv();
+			if( maxTSize < est ) {
+				maxTSize = est;
+			}
 		}
+		stat.add( "maxTSize", maxTSize );
+
 		preprocessTime.stopQuietAndAdd( stat );
 
 		if( !compact ) {
@@ -197,17 +204,24 @@ public abstract class AlgorithmTemplate {
 
 		// Preprocess each records in S
 		preprocessTime.resetAndStart( "Preprocess records in S time" );
+		long maxSSize = 0;
 		for( final Record rec : tableS ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			rec.preprocessLengths();
 			rec.preprocessLastToken();
 			rec.preprocessEstimatedRecords();
+			long est = rec.getEstimatedEquiv();
+			if( maxSSize < est ) {
+				maxSSize = est;
+			}
+
 			if( !compact ) {
 				rec.preprocessAvailableTokens( maxIndex );
 			}
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}
+		stat.add( "maxTSize", maxTSize );
 		preprocessTime.stopQuietAndAdd( stat );
 	}
 

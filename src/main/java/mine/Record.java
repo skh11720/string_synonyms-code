@@ -1081,4 +1081,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 		return false;
 	}
+
+	public long getEstimatedEquiv() {
+		return estimated_equivs[ estimated_equivs.length - 1 ];
+	}
 }
