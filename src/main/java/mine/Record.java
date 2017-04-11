@@ -291,8 +291,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					size += est[ sidx - 1 ];
 				}
 
-				if( size < 0 ) {
-					System.out.println( "Too many generalizations: " + id );
+				if( size < 0 || size > Integer.MAX_VALUE ) {
+					System.out.println( "Too many generalizations: " + id + " size " + size );
 					return;
 				}
 			}
