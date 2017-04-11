@@ -183,7 +183,7 @@ public abstract class AlgorithmTemplate {
 				maxTSize = est;
 			}
 		}
-		stat.add( "maxTSize", maxTSize );
+		stat.add( "maximum Size of Table T", maxTSize );
 
 		preprocessTime.stopQuietAndAdd( stat );
 
@@ -221,7 +221,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}
-		stat.add( "maxTSize", maxTSize );
+		stat.add( "maximum Size of Table S", maxSSize );
 		preprocessTime.stopQuietAndAdd( stat );
 	}
 
