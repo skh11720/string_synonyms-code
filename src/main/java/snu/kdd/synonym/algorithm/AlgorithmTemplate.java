@@ -180,6 +180,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessEstimatedRecords();
 			long est = rec.getEstimatedEquiv();
 			if( maxTSize < est ) {
+				System.out.println( "New Maximum Estimation " + rec.getID() + " " + est );
 				maxTSize = est;
 			}
 		}
@@ -212,6 +213,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessEstimatedRecords();
 			long est = rec.getEstimatedEquiv();
 			if( maxSSize < est ) {
+				System.out.println( "New Maximum Estimation " + rec.getID() + " " + est );
 				maxSSize = est;
 			}
 
