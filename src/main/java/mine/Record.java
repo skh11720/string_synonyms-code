@@ -298,6 +298,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			}
 			est[ i ] = size;
 		}
+
+		if( est[ est.length - 1 ] > 10000 ) {
+			System.out.println( "[Warning] Many generalizations: " + id + " size " + size );
+		}
 	}
 
 	public void preprocessSearchRanges() {
