@@ -69,7 +69,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		stat.add( preprocessTime );
 
 		final StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		final List<IntegerPair> list = runWithoutPreprocess();
+		final List<IntegerPair> list = runWithoutPreprocess( true );
 		runTime.stop();
 		stat.add( runTime );
 
@@ -192,22 +192,25 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		}
 	}
 
-	public List<IntegerPair> runWithoutPreprocess() {
+	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
 		// Index building
 		StopWatch idxTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		buildIndex();
 		idxTime.stopQuiet();
-		stat.add( idxTime );
+		if( addStat ) {
+			stat.add( idxTime );
+		}
 
 		// Join
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 		final List<IntegerPair> rslt = join();
 		joinTime.stopQuiet();
-		stat.add( joinTime );
-
-		// stat.addPrimary( "Naive Result size", rslt.size() );
-		stat.add( "Stat_Union counter", StaticFunctions.union_cmp_counter );
-		stat.add( "Stat_Equals counter", StaticFunctions.compare_cmp_counter );
+		if( addStat ) {
+			stat.add( joinTime );
+			// stat.addPrimary( "Naive Result size", rslt.size() );
+			stat.add( "Stat_Union counter", StaticFunctions.union_cmp_counter );
+			stat.add( "Stat_Equals counter", StaticFunctions.compare_cmp_counter );
+		}
 
 		return rslt;
 	}

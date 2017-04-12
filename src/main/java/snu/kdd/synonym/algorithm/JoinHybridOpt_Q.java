@@ -518,7 +518,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Infer alpha and beta
 		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
 		naiveinst.threshold = 100;
-		naiveinst.runWithoutPreprocess();
+		naiveinst.runWithoutPreprocess( false );
 		alpha = naiveinst.alpha;
 		beta = naiveinst.beta;
 
