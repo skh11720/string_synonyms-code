@@ -20,6 +20,7 @@ import snu.kdd.synonym.algorithm.JoinMin_Q;
 import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.algorithm.JoinNaive2;
 import snu.kdd.synonym.algorithm.SIJoin;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
@@ -78,6 +79,8 @@ public class Driver {
 		String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
 		String outputPath = cmd.getOptionValue( "outputPath" );
 
+		DataInfo dataInfo = new DataInfo( dataOnePath, dataTwoPath, rulePath );
+
 		AlgorithmTemplate alg = null;
 
 		StatContainer stat = new StatContainer();
@@ -134,7 +137,7 @@ public class Driver {
 
 		alg.printStat();
 
-		alg.writeJSON();
+		alg.writeJSON( dataInfo );
 
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
