@@ -453,21 +453,21 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	}
 
 	public void run( double sampleratio ) {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess( compact, maxIndex, useAutomata );
 		stepTime.stopAndAdd( stat );
 
 		// Retrieve statistics
-		stepTime.resetAndStart( "Statistics Time" );
+		stepTime.resetAndStart( "Result_3_Statistics_Time" );
 		statistics();
 		stepTime.stopAndAdd( stat );
 
 		// Estimate constants
-		stepTime.resetAndStart( "Find Constants Time" );
+		stepTime.resetAndStart( "Result_4_Find_Constants_Time" );
 		findConstants( sampleratio );
 		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "JoinMin Index Build Time" );
+		stepTime.resetAndStart( "Result_5_JoinMin_Index_Build_Time" );
 		try {
 			buildJoinMinIndex();
 			// checkLongestIndex();
@@ -478,18 +478,16 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		// Modify index to get optimal theta
-		stepTime.resetAndStart( "Find Theta Time" );
+		stepTime.resetAndStart( "Result_6_Find_Theta_Time" );
 		findTheta( Integer.MAX_VALUE );
 		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Join Time" );
+		stepTime.resetAndStart( "Result_7_Join_Time" );
 		Collection<IntegerPair> rslt = join();
 		stepTime.stopAndAdd( stat );
 
 		System.out.println( "Result size: " + rslt.size() );
 		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
-
-		stat.add( "rslt size", rslt.size() );
 
 		writeResult( rslt );
 	}
@@ -519,8 +517,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( sampleTlist.size() + " T records are sampled" );
 		System.out.println( sampleSlist.size() + " S records are sampled" );
 
-		stat.add( "Sample T size", sampleTlist.size() );
-		stat.add( "Sample S size", sampleSlist.size() );
+		stat.add( "Stat_Sample T size", sampleTlist.size() );
+		stat.add( "Stat_Sample S size", sampleSlist.size() );
 
 		// Infer alpha and beta
 		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
@@ -570,7 +568,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	private void findTheta( int max_theta ) {
 		// Find the best threshold
-		long starttime = System.nanoTime();
 		int best_theta = 0;
 		long best_esttime = Long.MAX_VALUE;
 		long[] best_esttimes = null;
@@ -715,13 +712,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 			theta = next_theta;
 		}
-		System.out.print( "Best threshold : " + best_theta );
-		stat.addPrimary( "Best Threshold", best_theta );
-		System.out.println( " with running time " + best_esttime );
-		stat.add( "Best Estimated Time", best_esttime );
+		System.out.println( "Best threshold : " + best_theta + " with running time " + best_esttime );
 		System.out.println( Arrays.toString( best_esttimes ) );
-		long duration = System.nanoTime() - starttime;
-		System.out.println( "Find theta with " + duration + "ns" );
+
+		stat.addPrimary( "Best Threshold", best_theta );
+		stat.add( "Best Estimated Time", best_esttime );
 
 		joinThreshold = best_theta;
 	}
