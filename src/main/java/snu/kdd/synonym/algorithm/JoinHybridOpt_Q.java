@@ -272,9 +272,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long appliedRules_sum = 0;
 
-		long startTime = System.currentTimeMillis();
-		// buildJoinMinIndex();
-
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		long time1 = System.currentTimeMillis();
 		for( Record s : tableS ) {
@@ -286,7 +283,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
-		startTime = System.currentTimeMillis();
 		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		buildNaiveIndex();
 		stepTime.stopAndAdd( stat );
