@@ -110,6 +110,7 @@ public class DataInfo {
 			}
 			saveRuleToFile( ruleInfoFile );
 		}
+		info = nOneRecord + " " + nTwoRecord + " " + nRule;
 	}
 
 	public String toJson() {
