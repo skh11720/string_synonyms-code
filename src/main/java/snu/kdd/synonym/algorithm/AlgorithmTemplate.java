@@ -326,7 +326,7 @@ public abstract class AlgorithmTemplate {
 
 			bw_json.write( "{" );
 
-			bw_json.write( "\"Date\": " + new Date().toString() + "\"," );
+			bw_json.write( "\"Date\": \"" + new Date().toString() + "\"," );
 
 			bw_json.write( "\"Algorithm\": {" );
 			bw_json.write( "\"name\": \"" + getName() + "\"," );

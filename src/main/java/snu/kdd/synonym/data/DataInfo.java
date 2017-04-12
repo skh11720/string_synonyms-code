@@ -15,6 +15,7 @@ public class DataInfo {
 	String dataOnePath;
 	String dataTwoPath;
 	String rulePath;
+	String name = "None";
 
 	public DataInfo() {
 
@@ -24,12 +25,14 @@ public class DataInfo {
 		this.dataOnePath = dataOnePath;
 		this.dataTwoPath = dataTwoPath;
 		this.rulePath = rulePath;
+
 	}
 
 	public String toJson() {
 		StringBuilder bld = new StringBuilder();
 
-		bld.append( "\"Data One Path\": \"" + dataOnePath + "\"" );
+		bld.append( "\"name\": \"" + name + "\"" );
+		bld.append( ", \"Data One Path\": \"" + dataOnePath + "\"" );
 		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
 
