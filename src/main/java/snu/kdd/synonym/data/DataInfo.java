@@ -68,8 +68,8 @@ public class DataInfo {
 		this.rulePath = rulePath;
 
 		String dataOne = dataOnePath.substring( dataOnePath.lastIndexOf( "/" ) );
-		String oneInfoFilePath = dataOnePath.substring( 0, dataOnePath.lastIndexOf( "/" ) ) + "/" + dataOne + "_info.json";
-
+		String oneInfoFilePath = dataOnePath.substring( 0, dataOnePath.lastIndexOf( "/" ) ) + dataOne + "_info.json";
+		name = dataOne;
 		System.out.println( "One info file path " + oneInfoFilePath );
 		oneInfoFile = new File( oneInfoFilePath );
 		infoFileOneExists = oneInfoFile.exists();
@@ -78,19 +78,26 @@ public class DataInfo {
 		}
 
 		if( !dataOnePath.equals( dataTwoPath ) ) {
-			String dataTwo = dataOnePath.substring( dataTwoPath.lastIndexOf( "/" ) );
-			twoInfoFile = new File( dataTwoPath.substring( 0, dataTwoPath.lastIndexOf( "/" ) ) + "/" + dataTwo + "_info.json" );
+			String dataTwo = dataTwoPath.substring( dataTwoPath.lastIndexOf( "/" ) );
+			String twoInfoFilePath = dataTwoPath.substring( 0, dataTwoPath.lastIndexOf( "/" ) ) + dataTwo + "_info.json";
+			twoInfoFile = new File( twoInfoFilePath );
 			infoFileTwoExists = twoInfoFile.exists();
 			if( infoFileTwoExists ) {
 				info += loadFromFile( twoInfoFile );
 			}
+			name += "_JoinWith_" + dataTwo;
+		}
+		else {
+			name += "_SelfJoin";
 		}
 
-		ruleInfoFile = new File( rulePath.substring( 0, rulePath.lastIndexOf( "/" ) ) + "/_ruleinfo.json" );
+		String rule = rulePath.substring( rulePath.lastIndexOf( "/" ) );
+		ruleInfoFile = new File( rulePath.substring( 0, rulePath.lastIndexOf( "/" ) ) + "_ruleinfo.json" );
 		infoRuleExists = ruleInfoFile.exists();
 		if( infoRuleExists ) {
 			info += loadFromFile( ruleInfoFile );
 		}
+		name += "_WRT_" + rule;
 	}
 
 	public void writeInfo() {
