@@ -1,16 +1,20 @@
 package snu.kdd.synonym.data;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import snu.kdd.synonym.tools.JSONUtil;
 
 public class DataInfo {
 	// int avgRecLen;
-	int nRecord;
+	int nOneRecord;
+	int nTwoRecord;
 	int nToken;
+	int nRule;
 
 	boolean isSynthetic = false;
 	double equivRatio;
@@ -24,11 +28,38 @@ public class DataInfo {
 	String name = "None";
 	String info;
 
+	File oneInfoFile;
+	File twoInfoFile;
+	File ruleInfoFile;
+
 	boolean infoFileOneExists = false;
 	boolean infoFileTwoExists = false;
+	boolean infoRuleExists = false;
+	boolean updated = false;
 
 	public DataInfo() {
 
+	}
+
+	public void updateRuleCount( int count ) {
+		if( this.nRule != count ) {
+			this.nRule = count;
+			updated = true;
+		}
+	}
+
+	public void updateOneCount( int count ) {
+		if( this.nOneRecord != count ) {
+			this.nOneRecord = count;
+			updated = true;
+		}
+	}
+
+	public void updateTwoCount( int count ) {
+		if( this.nTwoRecord != count ) {
+			this.nTwoRecord = count;
+			updated = true;
+		}
 	}
 
 	public DataInfo( String dataOnePath, String dataTwoPath, String rulePath ) {
@@ -36,16 +67,30 @@ public class DataInfo {
 		this.dataTwoPath = dataTwoPath;
 		this.rulePath = rulePath;
 
-		File oneInfoFile = new File( dataOnePath.substring( 0, dataOnePath.lastIndexOf( "/" ) ) + "/_info.json" );
+		oneInfoFile = new File( dataOnePath.substring( 0, dataOnePath.lastIndexOf( "/" ) ) + "/_info.json" );
 		infoFileOneExists = oneInfoFile.exists();
 		if( infoFileOneExists ) {
 			info += loadFromFile( oneInfoFile );
 		}
 
-		File twoInfoFile = new File( dataTwoPath.substring( 0, dataTwoPath.lastIndexOf( "/" ) ) + "/_info.json" );
+		twoInfoFile = new File( dataTwoPath.substring( 0, dataTwoPath.lastIndexOf( "/" ) ) + "/_info.json" );
 		infoFileTwoExists = twoInfoFile.exists();
 		if( infoFileTwoExists ) {
 			info += loadFromFile( twoInfoFile );
+		}
+
+		ruleInfoFile = new File( rulePath.substring( 0, rulePath.lastIndexOf( "/" ) ) + "/_info.json" );
+		infoRuleExists = ruleInfoFile.exists();
+		if( infoRuleExists ) {
+			info += loadFromFile( ruleInfoFile );
+		}
+	}
+
+	public void writeInfo() {
+		if( updated ) {
+			saveToFile( oneInfoFile, true );
+			saveToFile( twoInfoFile, false );
+			saveRuleToFile( ruleInfoFile );
 		}
 	}
 
@@ -70,9 +115,9 @@ public class DataInfo {
 
 	}
 
-	public void setSynthetic( int avgRecLen, int nRecord, long seed, int nToken, double zipf, double equivRatio ) {
+	public void setSynthetic( int avgRecLen, int nOneRecord, long seed, int nToken, double zipf, double equivRatio ) {
 		// this.avgRecLen = avgRecLen;
-		this.nRecord = nRecord;
+		this.nOneRecord = nOneRecord;
 		this.nToken = nToken;
 
 		this.isSynthetic = true;
@@ -81,10 +126,43 @@ public class DataInfo {
 		this.equivRatio = equivRatio;
 	}
 
+	public void saveToFile( File file, boolean isFirst ) {
+		BufferedWriter bw;
+		try {
+			bw = new BufferedWriter( new FileWriter( file ) );
+
+			bw.write( "\"nRecord\": " );
+			if( isFirst ) {
+				bw.write( "" + nOneRecord );
+			}
+			else {
+				bw.write( "" + nTwoRecord );
+			}
+			bw.write( "\"" );
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
+	}
+
+	public void saveRuleToFile( File file ) {
+		BufferedWriter bw;
+		try {
+			bw = new BufferedWriter( new FileWriter( file ) );
+
+			bw.write( "\"nRule\": " );
+			bw.write( "" + nRule );
+			bw.write( "\"" );
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
+	}
+
 	public void saveToFile( String fileName ) {
 		JSONUtil json = new JSONUtil();
 		// json.add( "avgRecLen", this.avgRecLen );
-		json.add( "nRecord", this.nRecord );
+		json.add( "nOneRecord", this.nOneRecord );
 		json.add( "nToken", this.nToken );
 		json.add( "isSynthetic", this.isSynthetic );
 

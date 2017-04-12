@@ -3,6 +3,7 @@ package snu.kdd.synonym.algorithm;
 import java.io.IOException;
 
 import mine.Record;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.Rule;
 import tools.RuleTrie;
@@ -10,8 +11,9 @@ import tools.RuleTrie;
 public class PrintRecordInfo extends AlgorithmTemplate {
 	RuleTrie ruletrie;
 
-	protected PrintRecordInfo( String rulefile, String Rfile, String Sfile, String outputPath ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputPath );
+	protected PrintRecordInfo( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo dataInfo )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outputPath, dataInfo );
 
 		Record.setStrList( strlist );
 		ruletrie = new RuleTrie( getRulelist() );
@@ -42,7 +44,9 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		String Sfile = args[ 2 ];
 		String outputPath = args[ 3 ];
 
-		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath );
+		DataInfo dataInfo = new DataInfo( rulefile, Rfile, Sfile );
+
+		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath, dataInfo );
 
 		info.printInfo( Integer.parseInt( args[ 4 ] ) );
 	}

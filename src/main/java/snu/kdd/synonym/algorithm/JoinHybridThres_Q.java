@@ -13,12 +13,12 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
-import tools.Parameters;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
@@ -63,8 +63,9 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	Map<Record, List<Integer>> setR;
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinHybridThres_Q( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile );
+	public JoinHybridThres_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 	}
@@ -436,30 +437,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
 
 		writeResult( rslt );
-	}
-
-	public static void main( String[] args ) throws IOException {
-		Parameters params = Parameters.parseArgs( args );
-		String Rfile = params.getInputX();
-		String Sfile = params.getInputY();
-		String Rulefile = params.getInputRules();
-		String outputfile = params.getOutput();
-
-		// Setup parameters
-		useAutomata = params.isUseACAutomata();
-		skipChecking = params.isSkipChecking();
-		maxIndex = params.getMaxIndex();
-		compact = params.isCompact();
-		joinThreshold = params.getJoinThreshold();
-		singleside = params.isSingleside();
-		checker = params.getValidator();
-
-		long startTime = System.currentTimeMillis();
-		JoinHybridThres_Q inst = new JoinHybridThres_Q( Rulefile, Rfile, Sfile, outputfile );
-		System.out.print( "Constructor finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		inst.run();
-		Validator.printStats();
 	}
 
 	@Override

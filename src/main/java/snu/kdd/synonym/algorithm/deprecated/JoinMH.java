@@ -9,6 +9,7 @@ import java.util.Set;
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -35,8 +36,8 @@ public class JoinMH extends AlgorithmTemplate {
 	 */
 	List<Map<IntegerPair, List<IntIntRecordTriple>>> idx;
 
-	public JoinMH( String rulefile, String Rfile, String Sfile, String outFile ) throws IOException {
-		super( rulefile, Rfile, Sfile, outFile );
+	public JoinMH( String rulefile, String Rfile, String Sfile, String outFile, DataInfo dataInfo ) throws IOException {
+		super( rulefile, Rfile, Sfile, outFile, dataInfo );
 		idComparator = new RecordIDComparator();
 	}
 

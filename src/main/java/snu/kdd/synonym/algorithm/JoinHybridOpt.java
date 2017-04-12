@@ -16,6 +16,7 @@ import java.util.Set;
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.algorithm.deprecated.JoinMin;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
@@ -103,8 +104,8 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 	long memlimit_expandedS;
 
-	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile );
+	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 		idComparator = new RecordIDComparator();
 		idReverseComparator = new RecordIDReverseComparator();
 		ruletrie = new RuleTrie( rulelist );

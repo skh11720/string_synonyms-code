@@ -56,7 +56,8 @@ public abstract class AlgorithmTemplate {
 	}
 
 	// Initialize rules and tables
-	protected AlgorithmTemplate( String rulefile, String Rfile, String Sfile, String outputPath ) throws IOException {
+	protected AlgorithmTemplate( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo info )
+			throws IOException {
 
 		str2int = new Object2IntOpenHashMap<>();
 		str2int.defaultReturnValue( -1 );
@@ -67,8 +68,10 @@ public abstract class AlgorithmTemplate {
 		strlist.add( "" );
 
 		BufferedReader br = new BufferedReader( new FileReader( rulefile ) );
+		int ruleCount = 0;
 		String line;
 		while( ( line = br.readLine() ) != null ) {
+			ruleCount++;
 			final String[] pstr = line.split( "(,| |\t)+" );
 			for( final String str : pstr ) {
 				getID( str );
@@ -76,8 +79,12 @@ public abstract class AlgorithmTemplate {
 		}
 		br.close();
 
+		info.updateRuleCount( ruleCount );
+
+		int oneCount = 0;
 		br = new BufferedReader( new FileReader( Rfile ) );
 		while( ( line = br.readLine() ) != null ) {
+			oneCount++;
 			final String[] pstr = line.split( "( |\t)+" );
 			for( final String str : pstr ) {
 				getID( str );
@@ -85,14 +92,20 @@ public abstract class AlgorithmTemplate {
 		}
 		br.close();
 
+		info.updateOneCount( oneCount );
+
+		int twoCount = 0;
 		br = new BufferedReader( new FileReader( Sfile ) );
 		while( ( line = br.readLine() ) != null ) {
+			twoCount++;
 			final String[] pstr = line.split( "( |\t)+" );
 			for( final String str : pstr ) {
 				getID( str );
 			}
 		}
 		br.close();
+
+		info.updateTwoCount( twoCount );
 
 		// Read records
 		final int size = -1;
@@ -103,6 +116,7 @@ public abstract class AlgorithmTemplate {
 		readRules( rulefile );
 
 		this.outputfile = outputPath + "/" + this.getName();
+		info.writeInfo();
 	}
 
 	private int getID( String str ) {

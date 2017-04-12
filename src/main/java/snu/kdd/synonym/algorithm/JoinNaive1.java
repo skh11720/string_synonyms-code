@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import mine.Record;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -44,8 +45,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		this.stat = stat;
 	}
 
-	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile );
+	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 
 		// build an ac automata / a trie from rule lists
 		automata = new Rule_ACAutomata( getRulelist() );

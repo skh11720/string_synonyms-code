@@ -91,28 +91,28 @@ public class Driver {
 		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
 		switch( algorithm ) {
 		case JoinNaive1:
-			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case JoinNaive2:
-			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case JoinMH:
-			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case DebugAlg:
-			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case JoinMin:
-			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case JoinHybridThres:
-			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case JoinHybridOpt:
-			alg = new JoinHybridOpt( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new JoinHybridOpt( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case SIJoin:
-			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath );
+			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		default:
 			HelpFormatter formatter = new HelpFormatter();

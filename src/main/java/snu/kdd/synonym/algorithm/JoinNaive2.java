@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import mine.Record;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.IntegerPair;
 import tools.RuleTrie;
@@ -22,8 +23,8 @@ public class JoinNaive2 extends AlgorithmTemplate {
 
 	static int threshold = 1000;
 
-	public JoinNaive2( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile );
+	public JoinNaive2( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 		rec2idx = new HashMap<Record, Integer>();
 		for( int i = 0; i < tableT.size(); ++i )
 			rec2idx.put( tableT.get( i ), i );

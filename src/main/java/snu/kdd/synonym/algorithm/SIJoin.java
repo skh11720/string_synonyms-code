@@ -14,12 +14,13 @@ import org.apache.commons.cli.ParseException;
 
 import mine.Record;
 import sigmod13.SI_Tree;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.Pair;
 
 public class SIJoin extends AlgorithmTemplate {
-	public SIJoin( String rulefile, String DBR_file, String DBS_file, String outputFile ) throws IOException {
-		super( rulefile, DBR_file, DBS_file, outputFile );
+	public SIJoin( String rulefile, String DBR_file, String DBS_file, String outputFile, DataInfo dataInfo ) throws IOException {
+		super( rulefile, DBR_file, DBS_file, outputFile, dataInfo );
 	}
 
 	public void run() throws IOException {
@@ -89,8 +90,10 @@ public class SIJoin extends AlgorithmTemplate {
 		String Rulefile = remainingArgs[ 2 ];
 		String outputfile = remainingArgs[ 3 ];
 
+		DataInfo dataInfo = new DataInfo( Rulefile, Rfile, Sfile );
+
 		long startTime = System.currentTimeMillis();
-		SIJoin inst = new SIJoin( Rfile, Sfile, Rulefile, outputfile );
+		SIJoin inst = new SIJoin( Rfile, Sfile, Rulefile, outputfile, dataInfo );
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		inst.run();

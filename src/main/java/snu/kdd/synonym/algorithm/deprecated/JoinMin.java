@@ -14,6 +14,7 @@ import java.util.Set;
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -61,8 +62,8 @@ public class JoinMin extends AlgorithmTemplate {
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinMin( String rulefile, String Rfile, String Sfile, String outputFile ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputFile );
+	public JoinMin( String rulefile, String Rfile, String Sfile, String outputFile, DataInfo dataInfo ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputFile, dataInfo );
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();

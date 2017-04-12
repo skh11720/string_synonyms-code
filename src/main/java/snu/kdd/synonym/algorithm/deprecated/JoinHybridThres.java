@@ -14,6 +14,7 @@ import java.util.Set;
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
@@ -63,8 +64,9 @@ public class JoinHybridThres extends AlgorithmTemplate {
 	Map<Record, List<Integer>> setR;
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinHybridThres( String rulefile, String Rfile, String Sfile, String outputfile ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile );
+	public JoinHybridThres( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 		idComparator = new RecordIDComparator();
 		idReverseComparator = new RecordIDReverseComparator();
 		ruletrie = new RuleTrie( rulelist );
@@ -427,8 +429,10 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		singleside = params.isSingleside();
 		checker = params.getValidator();
 
+		DataInfo dataInfo = new DataInfo( Rulefile, Rfile, Sfile );
+
 		long startTime = System.currentTimeMillis();
-		JoinHybridThres inst = new JoinHybridThres( Rulefile, Rfile, Sfile, outputfile );
+		JoinHybridThres inst = new JoinHybridThres( Rulefile, Rfile, Sfile, outputfile, dataInfo );
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		inst.run();
