@@ -283,6 +283,7 @@ public class StatContainer {
 
 	public String toJson() {
 		final StringBuilder bld = new StringBuilder();
+		bld.append( "{" );
 		for( int i = 0; i < primaryNameList.size(); i++ ) {
 			if( i != 0 ) {
 				bld.append( "," );
@@ -298,6 +299,7 @@ public class StatContainer {
 			bld.append( "\"" + nameList.get( i ) + "\":" );
 			bld.append( "\"" + valueList.get( i ) + "\"" );
 		}
+		bld.append( "}" );
 		return bld.toString();
 	}
 }
