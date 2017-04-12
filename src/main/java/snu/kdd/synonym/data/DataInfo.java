@@ -60,6 +60,7 @@ public class DataInfo {
 		bld.append( "\"Data One Path\": \"" + dataOnePath + "\"" );
 		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
+		bld.append( ", \"Info\": \"" + info + "\"" );
 		bld.append( "}" );
 
 		return bld.toString();

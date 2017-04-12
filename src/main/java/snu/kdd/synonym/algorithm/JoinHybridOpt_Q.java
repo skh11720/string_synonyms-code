@@ -273,26 +273,23 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		long startTime = System.currentTimeMillis();
 		// buildJoinMinIndex();
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "SearchEquiv JoinMin Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		long time1 = System.currentTimeMillis();
 		for( Record s : tableS ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
-		stat.add( "AppliedRules Sum", appliedRules_sum );
+		stat.add( "Stat_Join_AppliedRules Sum", appliedRules_sum );
 		System.out.println( "After JoinMin Result: " + rslt.size() );
 		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
 		startTime = System.currentTimeMillis();
-		stepTime.resetAndStart( "Naive Index Building Time" );
+		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		buildNaiveIndex();
 		stepTime.stopAndAdd( stat );
-		System.out.print( "Building Naive Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
-		System.out.println( "Join Threshold " + joinThreshold );
-		stepTime.resetAndStart( "SearchEquiv Naive Time" );
+		stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
 		for( Record s : tableS ) {
@@ -308,7 +305,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
-		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
+		System.out.println( "Stat_Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
 		System.out.println( "SH_T + SL_TH : " + time1 );
 		System.out.println( "SL_TL : " + time2 );
 
