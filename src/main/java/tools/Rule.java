@@ -1,6 +1,7 @@
 package tools;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Rule implements Comparable<Rule> {
@@ -96,5 +97,17 @@ public class Rule implements Comparable<Rule> {
 	@Override
 	public String toString() {
 		return Arrays.toString( from ) + " -> " + Arrays.toString( to );
+	}
+
+	public String toTextString( List<String> strlist ) {
+		StringBuilder bld = new StringBuilder();
+		for( int i = 0; i < from.length; i++ ) {
+			bld.append( strlist.get( from[ i ] ) + " " );
+		}
+		bld.append( "-> " );
+		for( int i = 0; i < to.length; i++ ) {
+			bld.append( strlist.get( to[ i ] ) + " " );
+		}
+		return bld.toString();
 	}
 }
