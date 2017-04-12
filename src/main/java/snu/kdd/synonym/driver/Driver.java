@@ -1,7 +1,5 @@
 package snu.kdd.synonym.driver;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
@@ -136,10 +134,7 @@ public class Driver {
 
 		alg.printStat();
 
-		BufferedWriter bw_json = new BufferedWriter( new FileWriter( "json/" + alg.getName() + "_"
-				+ new java.text.SimpleDateFormat( "yyyyMMdd_HHmmss_z" ).format( new java.util.Date() ) + ".txt", true ) );
-		bw_json.write( stat.toJson() );
-		bw_json.close();
+		alg.writeJSON();
 
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 

@@ -15,24 +15,6 @@ import org.apache.commons.cli.Option;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class StatContainer {
-	public static void appendBlank( PrintStream dataFile, int blankCount ) {
-		if( blankCount < 0 ) {
-			return;
-		}
-		for( int i = 0; i < blankCount; i++ ) {
-			dataFile.print( ' ' );
-		}
-	}
-
-	public static void appendBlank( StringBuilder builder, int blankCount ) {
-		if( blankCount < 0 ) {
-			return;
-		}
-		for( int i = 0; i < blankCount; i++ ) {
-			builder.append( ' ' );
-		}
-	}
-
 	private final ObjectArrayList<String> nameList = new ObjectArrayList<>();
 	private final ObjectArrayList<String> valueList = new ObjectArrayList<>();
 
@@ -278,6 +260,24 @@ public class StatContainer {
 		}
 		finally {
 			dataFile.close();
+		}
+	}
+
+	private static void appendBlank( PrintStream dataFile, int blankCount ) {
+		if( blankCount < 0 ) {
+			return;
+		}
+		for( int i = 0; i < blankCount; i++ ) {
+			dataFile.print( ' ' );
+		}
+	}
+
+	private static void appendBlank( StringBuilder builder, int blankCount ) {
+		if( blankCount < 0 ) {
+			return;
+		}
+		for( int i = 0; i < blankCount; i++ ) {
+			builder.append( ' ' );
 		}
 	}
 

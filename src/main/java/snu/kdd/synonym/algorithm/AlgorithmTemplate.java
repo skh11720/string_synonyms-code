@@ -11,6 +11,7 @@ import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mine.Record;
+import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
@@ -312,5 +313,36 @@ public abstract class AlgorithmTemplate {
 
 	public void setSelfJoin( boolean selfJoin ) {
 		this.selfJoin = selfJoin;
+	}
+
+	public void writeJSON( DataInfo dataInfo ) {
+		BufferedWriter bw_json;
+		try {
+			bw_json = new BufferedWriter( new FileWriter(
+					"json/" + this.getName() + "_"
+							+ new java.text.SimpleDateFormat( "yyyyMMdd_HHmmss_z" ).format( new java.util.Date() ) + ".txt",
+					true ) );
+
+			bw_json.write( "{" );
+
+			bw_json.write( "\"Algorithm\": {" );
+			bw_json.write( "\"name\": \"" + getName() + "\"," );
+			bw_json.write( "\"version\": \"" + getVersion() + "\"" );
+			bw_json.write( "}" );
+
+			bw_json.write( ", \"Result\":{" );
+			bw_json.write( stat.toJson() );
+			bw_json.write( "}" );
+
+			bw_json.write( "\"ParametersUsed\": {" );
+			bw_json.write( "}" );
+
+			bw_json.write( "}" );
+			bw_json.close();
+		}
+		catch( IOException e ) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
