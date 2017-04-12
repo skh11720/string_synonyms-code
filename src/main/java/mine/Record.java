@@ -300,7 +300,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 
 		if( est[ est.length - 1 ] > 10000 ) {
-			System.out.println( "[Warning] Many generalizations: " + id + " size " + size );
+			System.out.println( "[Warning] Many generalizations: " + id + " size " + est[ est.length - 1 ] );
 		}
 	}
 
