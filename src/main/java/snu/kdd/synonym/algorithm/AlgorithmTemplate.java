@@ -230,7 +230,8 @@ public abstract class AlgorithmTemplate {
 	public void printStat() {
 		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
 		stat.printResult();
-		System.out.println( "==============" + this.getName().replaceAll( ".", "=" ) + "====================" );
+		System.out.println(
+				"==============" + new String( new char[ getName().length() ] ).replace( "\0", "=" ) + "====================" );
 	}
 
 	protected List<Record> readRecords( String DBfile, int num ) throws IOException {
