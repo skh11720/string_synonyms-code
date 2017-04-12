@@ -153,6 +153,8 @@ public class DataInfo {
 				bw.write( "" + nTwoRecord );
 			}
 			bw.write( "\"" );
+
+			bw.close();
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
@@ -167,6 +169,8 @@ public class DataInfo {
 			bw.write( "\"nRule\": " );
 			bw.write( "" + nRule );
 			bw.write( "\"" );
+
+			bw.close();
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
