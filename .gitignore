@@ -14,6 +14,7 @@ JiahengLu/
 /run/result/
 /run/json/
 /run/err.log
+/run/uploader/
 result/
 output/
 exp/~$exp.xlsx
