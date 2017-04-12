@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -325,6 +326,8 @@ public abstract class AlgorithmTemplate {
 
 			bw_json.write( "{" );
 
+			bw_json.write( "\"Date\": " + new Date().toString() + "\"," );
+
 			bw_json.write( "\"Algorithm\": {" );
 			bw_json.write( "\"name\": \"" + getName() + "\"," );
 			bw_json.write( "\"version\": \"" + getVersion() + "\"" );
@@ -334,7 +337,7 @@ public abstract class AlgorithmTemplate {
 			bw_json.write( stat.toJson() );
 			bw_json.write( "}" );
 
-			bw_json.write( "\"ParametersUsed\": {" );
+			bw_json.write( ", \"ParametersUsed\": {" );
 			bw_json.write( "}" );
 
 			bw_json.write( "}" );
