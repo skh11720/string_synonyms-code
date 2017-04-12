@@ -288,8 +288,8 @@ public class StatContainer {
 			if( i != 0 ) {
 				bld.append( "," );
 			}
-			bld.append( "\"" + primaryNameList.get( i ) + "\":" );
-			bld.append( "\"" + primaryValueList.get( i ) + "\"" );
+			bld.append( "\"" + primaryNameList.get( i ).replaceAll( "\"", "" ) + "\":" );
+			bld.append( "\"" + primaryValueList.get( i ).replaceAll( "\"", "" ) + "\"" );
 		}
 
 		for( int i = 0; i < nameList.size(); i++ ) {
