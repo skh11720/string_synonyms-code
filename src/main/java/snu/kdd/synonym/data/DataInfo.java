@@ -12,6 +12,10 @@ public class DataInfo {
 	long seed;
 	double zipf;
 
+	public DataInfo() {
+
+	}
+
 	public DataInfo( String dataOnePath, String dataTwoPath, String rulePath ) {
 
 	}
