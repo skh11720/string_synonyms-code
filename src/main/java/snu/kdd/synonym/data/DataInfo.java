@@ -7,10 +7,11 @@ public class DataInfo {
 	int nRecord;
 	int nToken;
 
-	boolean isSynthetic;
+	boolean isSynthetic = false;
 	double equivRatio;
 	long seed;
 	double zipf;
+	long size = 0;
 
 	String dataOnePath;
 	String dataTwoPath;
@@ -32,9 +33,14 @@ public class DataInfo {
 		StringBuilder bld = new StringBuilder();
 
 		bld.append( "\"name\": \"" + name + "\"" );
-		bld.append( ", \"Data One Path\": \"" + dataOnePath + "\"" );
+		bld.append( ", \"is_synthetic\": \"" + isSynthetic + "\"" );
+		bld.append( ", \"size\": \"" + size + "\"" );
+
+		bld.append( ", \"synthetic_parameters\": {" );
+		bld.append( "\"Data One Path\": \"" + dataOnePath + "\"" );
 		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
+		bld.append( "}" );
 
 		return bld.toString();
 	}
