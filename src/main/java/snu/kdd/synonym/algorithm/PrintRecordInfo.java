@@ -17,6 +17,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		ruletrie = new RuleTrie( getRulelist() );
 		Record.setRuleTrie( ruletrie );
 
+		this.stat = new StatContainer();
 		this.preprocess( true, Integer.MAX_VALUE, false );
 	}
 
