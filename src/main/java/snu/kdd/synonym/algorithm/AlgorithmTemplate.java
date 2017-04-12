@@ -337,6 +337,10 @@ public abstract class AlgorithmTemplate {
 			bw_json.write( stat.toJson() );
 			bw_json.write( "}" );
 
+			bw_json.write( ", \"Dataset\": {" );
+			bw_json.write( dataInfo.toJson() );
+			bw_json.write( "}" );
+
 			bw_json.write( ", \"ParametersUsed\": {" );
 			bw_json.write( "}" );
 

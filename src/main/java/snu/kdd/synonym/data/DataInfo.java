@@ -12,12 +12,28 @@ public class DataInfo {
 	long seed;
 	double zipf;
 
+	String dataOnePath;
+	String dataTwoPath;
+	String rulePath;
+
 	public DataInfo() {
 
 	}
 
 	public DataInfo( String dataOnePath, String dataTwoPath, String rulePath ) {
+		this.dataOnePath = dataOnePath;
+		this.dataTwoPath = dataTwoPath;
+		this.rulePath = rulePath;
+	}
 
+	public String toJson() {
+		StringBuilder bld = new StringBuilder();
+
+		bld.append( "\"Data One Path\": \"" + dataOnePath + "\"" );
+		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
+		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
+
+		return bld.toString();
 	}
 
 	public DataInfo( String fileName ) {
