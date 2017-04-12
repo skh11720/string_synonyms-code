@@ -362,7 +362,7 @@ public abstract class AlgorithmTemplate {
 			bw_json.write( cmd.getOptionValue( "additional", "" ) + "\"" );
 			bw_json.write( "}" );
 
-			bw_json.write( "}" );
+			bw_json.write( "}\n" );
 			bw_json.close();
 		}
 		catch( IOException e ) {
