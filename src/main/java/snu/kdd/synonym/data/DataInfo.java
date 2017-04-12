@@ -167,7 +167,7 @@ public class DataInfo {
 			bw = new BufferedWriter( new FileWriter( file ) );
 
 			bw.write( "\"nRule\": " );
-			bw.write( "" + nRule );
+			bw.write( "\"" + nRule );
 			bw.write( "\"" );
 
 			bw.close();
@@ -200,7 +200,7 @@ public class DataInfo {
 			br = new BufferedReader( new FileReader( file ) );
 			line = br.readLine();
 
-			int count = Integer.parseInt( line );
+			int count = Integer.parseInt( line.replaceAll( "\"", "" ).split( " " )[ 1 ] );
 
 			if( type == 0 ) {
 				nRule = count;
