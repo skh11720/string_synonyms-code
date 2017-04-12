@@ -87,8 +87,8 @@ public class Driver {
 
 		AlgorithmName algorithm = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
-		StopWatch totalTime = StopWatch.getWatchStarted( "Total Time" );
-		StopWatch initializeTime = StopWatch.getWatchStarted( "Initialize Time" );
+		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
+		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
 		switch( algorithm ) {
 		case JoinNaive1:
 			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath );
