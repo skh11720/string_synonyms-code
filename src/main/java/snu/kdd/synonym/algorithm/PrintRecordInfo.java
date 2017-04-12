@@ -22,7 +22,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 	}
 
-	public void main( String args[] ) throws IOException {
+	public static void main( String args[] ) throws IOException {
 		String rulefile = args[ 0 ];
 		String Rfile = args[ 1 ];
 		String Sfile = args[ 2 ];
