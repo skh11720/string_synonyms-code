@@ -99,6 +99,7 @@ public class DataInfo {
 		}
 		else {
 			name += "_SelfJoin";
+			twoSize = oneSize;
 			selfJoin = true;
 		}
 
@@ -108,9 +109,9 @@ public class DataInfo {
 		if( infoRuleExists ) {
 			loadFromFile( ruleInfoFile, 0 );
 		}
-		ruleSize += new File( rulePath ).length();
+		ruleSize = new File( rulePath ).length();
 		size += ruleSize;
-		name += "_WRT_" + rule;
+		name += "_wrt_" + rule;
 	}
 
 	public void writeInfo() {
