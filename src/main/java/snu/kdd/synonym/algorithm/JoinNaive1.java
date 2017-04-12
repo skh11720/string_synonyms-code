@@ -63,12 +63,12 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 		stat.addPrimary( "cmd_threshold", threshold );
 
-		final StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess Time" );
+		final StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		preprocessTime.stop();
 		stat.add( preprocessTime );
 
-		final StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
+		final StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		final List<IntegerPair> list = runWithoutPreprocess();
 		runTime.stop();
 		stat.add( runTime );
@@ -120,8 +120,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			++count;
 		}
 
-		stat.add( "Indexed Records", count );
-		stat.add( "Total index size", idxsize );
+		stat.add( "Stat_Indexed Records", count );
+		stat.add( "Stat_Total index size", idxsize );
 
 		// ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
 		final long duration = System.nanoTime() - starttime;
@@ -194,20 +194,20 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 	public List<IntegerPair> runWithoutPreprocess() {
 		// Index building
-		StopWatch idxTime = StopWatch.getWatchStarted( "Index building time" );
+		StopWatch idxTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		buildIndex();
 		idxTime.stopQuiet();
 		stat.add( idxTime );
 
 		// Join
-		StopWatch joinTime = StopWatch.getWatchStarted( "Join time" );
+		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 		final List<IntegerPair> rslt = join();
 		joinTime.stopQuiet();
 		stat.add( joinTime );
 
-		stat.addPrimary( "Naive Result size", rslt.size() );
-		stat.add( "Union counter", StaticFunctions.union_cmp_counter );
-		stat.add( "Equals counter", StaticFunctions.compare_cmp_counter );
+		// stat.addPrimary( "Naive Result size", rslt.size() );
+		stat.add( "Stat_Union counter", StaticFunctions.union_cmp_counter );
+		stat.add( "Stat_Equals counter", StaticFunctions.compare_cmp_counter );
 
 		return rslt;
 	}
