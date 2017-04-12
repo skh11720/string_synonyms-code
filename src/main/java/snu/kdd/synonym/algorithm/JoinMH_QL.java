@@ -183,12 +183,12 @@ public class JoinMH_QL extends AlgorithmTemplate {
 							// length filtering
 							if( i == 0 ) {
 								// last token filtering
-								if( recS.shareLastToken( e.rec ) ) {
-									candidatesAppeared.add( e.rec );
-								}
-								else {
-									lastTokenFiltered++;
-								}
+								// if( recS.shareLastToken( e.rec ) ) {
+								candidatesAppeared.add( e.rec );
+								// }
+								// else {
+								// lastTokenFiltered++;
+								// }
 							}
 							else if( candidates.contains( e.rec ) ) {
 								// signature filtering
@@ -248,7 +248,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			equivTime.stopQuiet();
 		}
 		stat.add( "Last Token Filtered", lastTokenFiltered );
-		for( int i = 0; i < maxIndexLength; ++i ) {
+		for(
+
+				int i = 0; i < maxIndexLength; ++i ) {
 			System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );

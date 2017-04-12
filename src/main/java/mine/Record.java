@@ -2,7 +2,6 @@ package mine;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +82,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	protected static final Validator checker = new DefaultValidator();
 
-	public HashMap<Integer, IntegerPair> lastTokenMap;
+	// public HashMap<Integer, IntegerPair> lastTokenMap;
 
 	private Record() {
 		id = -1;
@@ -228,38 +227,38 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 	}
 
-	public void preprocessLastToken() {
-		lastTokenMap = new HashMap<Integer, IntegerPair>();
-		for( int i = 0; i < tokens.length; i++ ) {
-			for( Rule rule : applicableRules[ i ] ) {
-				int fromSize = rule.fromSize();
-				int toSize = rule.toSize();
-				if( i + fromSize == tokens.length ) {
-					// rule generates the last token
-					int min;
-					int max;
-					if( i != 0 ) {
-						min = transformedLengths[ i - 1 ][ 0 ] + toSize;
-						max = transformedLengths[ i - 1 ][ 1 ] + toSize;
-					}
-					else {
-						min = toSize;
-						max = toSize;
-					}
-
-					int lastToken = rule.getTo()[ toSize - 1 ];
-					IntegerPair pair = lastTokenMap.get( lastToken );
-					if( pair == null ) {
-						lastTokenMap.put( lastToken, new IntegerPair( min, max ) );
-					}
-					else {
-						pair.i1 = Integer.min( pair.i1, min );
-						pair.i2 = Integer.max( pair.i2, max );
-					}
-				}
-			}
-		}
-	}
+	// public void preprocessLastToken() {
+	// lastTokenMap = new HashMap<Integer, IntegerPair>();
+	// for( int i = 0; i < tokens.length; i++ ) {
+	// for( Rule rule : applicableRules[ i ] ) {
+	// int fromSize = rule.fromSize();
+	// int toSize = rule.toSize();
+	// if( i + fromSize == tokens.length ) {
+	// // rule generates the last token
+	// int min;
+	// int max;
+	// if( i != 0 ) {
+	// min = transformedLengths[ i - 1 ][ 0 ] + toSize;
+	// max = transformedLengths[ i - 1 ][ 1 ] + toSize;
+	// }
+	// else {
+	// min = toSize;
+	// max = toSize;
+	// }
+	//
+	// int lastToken = rule.getTo()[ toSize - 1 ];
+	// IntegerPair pair = lastTokenMap.get( lastToken );
+	// if( pair == null ) {
+	// lastTokenMap.put( lastToken, new IntegerPair( min, max ) );
+	// }
+	// else {
+	// pair.i1 = Integer.min( pair.i1, min );
+	// pair.i2 = Integer.max( pair.i2, max );
+	// }
+	// }
+	// }
+	// }
+	// }
 
 	@SuppressWarnings( "unchecked" )
 	public void preprocessEstimatedRecords() {
@@ -1063,34 +1062,34 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		return new Record( transformed );
 	}
 
-	public boolean shareLastToken( Record e ) {
-		Map<Integer, IntegerPair> smallMap = null;
-		Map<Integer, IntegerPair> otherMap = null;
-
-		// iterate small map
-		// if( e.lastTokenMap.size() < lastTokenMap.size() ) {
-		smallMap = lastTokenMap;
-		otherMap = e.lastTokenMap;
-		// }
-		// else {
-		// smallMap = e.lastTokenMap;
-		// otherMap = lastTokenMap;
-		// }
-
-		for( Map.Entry<Integer, IntegerPair> entry : smallMap.entrySet() ) {
-			IntegerPair range = otherMap.get( entry.getKey() );
-
-			if( range == null ) {
-				continue;
-			}
-
-			IntegerPair thisRange = entry.getValue();
-			if( StaticFunctions.overlap( range.i1, range.i2, thisRange.i1, thisRange.i2 ) ) {
-				return true;
-			}
-		}
-		return false;
-	}
+	// public boolean shareLastToken( Record e ) {
+	// Map<Integer, IntegerPair> smallMap = null;
+	// Map<Integer, IntegerPair> otherMap = null;
+	//
+	// // iterate small map
+	// // if( e.lastTokenMap.size() < lastTokenMap.size() ) {
+	// smallMap = lastTokenMap;
+	// otherMap = e.lastTokenMap;
+	// // }
+	// // else {
+	// // smallMap = e.lastTokenMap;
+	// // otherMap = lastTokenMap;
+	// // }
+	//
+	// for( Map.Entry<Integer, IntegerPair> entry : smallMap.entrySet() ) {
+	// IntegerPair range = otherMap.get( entry.getKey() );
+	//
+	// if( range == null ) {
+	// continue;
+	// }
+	//
+	// IntegerPair thisRange = entry.getValue();
+	// if( StaticFunctions.overlap( range.i1, range.i2, thisRange.i1, thisRange.i2 ) ) {
+	// return true;
+	// }
+	// }
+	// return false;
+	// }
 
 	public long getEstimatedEquiv() {
 		return estimated_equivs[ estimated_equivs.length - 1 ];

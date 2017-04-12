@@ -331,13 +331,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 					for( Record e : tree ) {
 						if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-							if( recS.shareLastToken( e ) ) {
-								candidates.add( e );
-								count++;
-							}
-							else {
-								lastTokenFiltered++;
-							}
+							// if( recS.shareLastToken( e ) ) {
+							candidates.add( e );
+							count++;
+							// }
+							// else {
+							// lastTokenFiltered++;
+							// }
 						}
 					}
 				}

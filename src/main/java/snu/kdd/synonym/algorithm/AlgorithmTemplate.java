@@ -169,7 +169,7 @@ public abstract class AlgorithmTemplate {
 		for( final Record rec : tableT ) {
 			rec.preprocessLengths();
 			// DEBUG
-			rec.preprocessLastToken();
+			// rec.preprocessLastToken();
 		}
 
 		preprocessTime.stopQuietAndAdd( stat );
@@ -209,7 +209,7 @@ public abstract class AlgorithmTemplate {
 		for( final Record rec : tableS ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			rec.preprocessLengths();
-			rec.preprocessLastToken();
+			// rec.preprocessLastToken();
 			rec.preprocessEstimatedRecords();
 			long est = rec.getEstimatedEquiv();
 			if( maxSSize < est ) {
