@@ -382,6 +382,10 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 		candExtractTime = System.nanoTime() - Record.exectime - starttime - joinTime;
 		double weight = count;
+		if( weight == 0 ) {
+			// To avoid NaN
+			weight = 1;
+		}
 		System.out.println( "Est weight : " + weight );
 		System.out.println( "Cand extract time : " + candExtractTime );
 		System.out.println( "Join time : " + joinTime );
