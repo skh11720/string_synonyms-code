@@ -172,4 +172,6 @@ else
 		done
 		PREV="JoinHybridOpt_Q"
 	fi
+
+	./upload.sh
 fi
