@@ -16,6 +16,8 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		Record.setStrList( strlist );
 		ruletrie = new RuleTrie( getRulelist() );
 		Record.setRuleTrie( ruletrie );
+
+		this.preprocess( true, Integer.MAX_VALUE, false );
 	}
 
 	public void printInfo( int id ) {
