@@ -36,7 +36,7 @@ public class DataInfo {
 		bld.append( ", \"is_synthetic\": \"" + isSynthetic + "\"" );
 		bld.append( ", \"file_size\": \"" + size + "\"" );
 
-		bld.append( ", \"synthetic_parameters\": {" );
+		bld.append( ", \"data_info\": {" );
 		bld.append( "\"Data One Path\": \"" + dataOnePath + "\"" );
 		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
