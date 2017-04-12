@@ -137,7 +137,7 @@ public class Driver {
 
 		alg.printStat();
 
-		alg.writeJSON( dataInfo );
+		alg.writeJSON( dataInfo, cmd );
 
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 

@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import mine.Record;
 import snu.kdd.synonym.data.DataInfo;
@@ -316,7 +318,7 @@ public abstract class AlgorithmTemplate {
 		this.selfJoin = selfJoin;
 	}
 
-	public void writeJSON( DataInfo dataInfo ) {
+	public void writeJSON( DataInfo dataInfo, CommandLine cmd ) {
 		BufferedWriter bw_json;
 		try {
 			bw_json = new BufferedWriter( new FileWriter(
@@ -342,6 +344,8 @@ public abstract class AlgorithmTemplate {
 			bw_json.write( "}" );
 
 			bw_json.write( ", \"ParametersUsed\": {" );
+			bw_json.write( "\"additional\": \"" );
+			bw_json.write( cmd.getOptionValue( "additional", "" ) + "\"" );
 			bw_json.write( "}" );
 
 			bw_json.write( "}" );
