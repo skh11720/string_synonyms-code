@@ -3,6 +3,7 @@ package snu.kdd.synonym.algorithm;
 import java.io.IOException;
 
 import mine.Record;
+import snu.kdd.synonym.tools.StatContainer;
 import tools.RuleTrie;
 
 public class PrintRecordInfo extends AlgorithmTemplate {
@@ -30,6 +31,22 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath );
 
 		info.printInfo( Integer.parseInt( args[ 4 ] ) );
+	}
+
+	@Override
+	public String getName() {
+		return "PrintRecordInfo";
+	}
+
+	@Override
+	public String getVersion() {
+		return "1.0";
+	}
+
+	@Override
+	public void run( String[] args, StatContainer stat ) {
+		// TODO Auto-generated method stub
+
 	}
 
 }
