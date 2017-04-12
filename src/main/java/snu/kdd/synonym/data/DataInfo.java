@@ -74,7 +74,7 @@ public class DataInfo {
 		oneInfoFile = new File( oneInfoFilePath );
 		infoFileOneExists = oneInfoFile.exists();
 		if( infoFileOneExists ) {
-			info += loadFromFile( oneInfoFile );
+			loadFromFile( oneInfoFile, 1 );
 		}
 
 		if( !dataOnePath.equals( dataTwoPath ) ) {
@@ -83,7 +83,7 @@ public class DataInfo {
 			twoInfoFile = new File( twoInfoFilePath );
 			infoFileTwoExists = twoInfoFile.exists();
 			if( infoFileTwoExists ) {
-				info += loadFromFile( twoInfoFile );
+				loadFromFile( twoInfoFile, 2 );
 			}
 			name += "_JoinWith_" + dataTwo;
 		}
@@ -95,7 +95,7 @@ public class DataInfo {
 		ruleInfoFile = new File( rulePath.substring( 0, rulePath.lastIndexOf( "/" ) ) + "_ruleinfo.json" );
 		infoRuleExists = ruleInfoFile.exists();
 		if( infoRuleExists ) {
-			info += loadFromFile( ruleInfoFile );
+			loadFromFile( ruleInfoFile, 0 );
 		}
 		name += "_WRT_" + rule;
 	}
@@ -193,17 +193,30 @@ public class DataInfo {
 		json.write( fileName );
 	}
 
-	public String loadFromFile( File file ) {
+	public void loadFromFile( File file, int type ) {
 		BufferedReader br;
 		String line = "";
 		try {
 			br = new BufferedReader( new FileReader( file ) );
 			line = br.readLine();
+
+			int count = Integer.parseInt( line );
+
+			if( type == 0 ) {
+				nRule = count;
+			}
+			else if( type == 1 ) {
+				nOneRecord = count;
+			}
+			else {
+				nTwoRecord = count;
+			}
+
+			br.close();
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
 		}
-		return line;
 
 		// this.avgRecLen = Integer.parseInt( (String) json.getValue( "avgRecLen" ) );
 		// this.nRecord = Integer.parseInt( (String) json.getValue( "nRecord" ) );
