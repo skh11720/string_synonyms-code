@@ -301,12 +301,12 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 		if( est[ est.length - 1 ] > 10000 ) {
 			System.out.println( "[Warning] Many generalizations: " + id + " size " + est[ est.length - 1 ] );
-			System.out.println( this.toString() );
-			for( int i = 0; i < tokens.length; ++i ) {
-				for( Rule rule : applicableRules[ i ] ) {
-					System.out.println( rule.toTextString( strlist ) );
-				}
-			}
+			// System.out.println( this.toString() );
+			// for( int i = 0; i < tokens.length; ++i ) {
+			// for( Rule rule : applicableRules[ i ] ) {
+			// System.out.println( rule.toTextString( strlist ) );
+			// }
+			// }
 		}
 	}
 
