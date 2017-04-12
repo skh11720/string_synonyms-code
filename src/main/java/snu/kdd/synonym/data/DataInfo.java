@@ -1,9 +1,14 @@
 package snu.kdd.synonym.data;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 import snu.kdd.synonym.tools.JSONUtil;
 
 public class DataInfo {
-	int avgRecLen;
+	// int avgRecLen;
 	int nRecord;
 	int nToken;
 
@@ -17,6 +22,10 @@ public class DataInfo {
 	String dataTwoPath;
 	String rulePath;
 	String name = "None";
+	String info;
+
+	boolean infoFileOneExists = false;
+	boolean infoFileTwoExists = false;
 
 	public DataInfo() {
 
@@ -27,6 +36,17 @@ public class DataInfo {
 		this.dataTwoPath = dataTwoPath;
 		this.rulePath = rulePath;
 
+		File oneInfoFile = new File( dataOnePath.substring( 0, dataOnePath.lastIndexOf( "/" ) ) + "/_info.json" );
+		infoFileOneExists = oneInfoFile.exists();
+		if( infoFileOneExists ) {
+			info += loadFromFile( oneInfoFile );
+		}
+
+		File twoInfoFile = new File( dataTwoPath.substring( 0, dataTwoPath.lastIndexOf( "/" ) ) + "/_info.json" );
+		infoFileTwoExists = twoInfoFile.exists();
+		if( infoFileTwoExists ) {
+			info += loadFromFile( twoInfoFile );
+		}
 	}
 
 	public String toJson() {
@@ -46,11 +66,11 @@ public class DataInfo {
 	}
 
 	public DataInfo( String fileName ) {
-		loadFromFile( fileName );
+
 	}
 
 	public void setSynthetic( int avgRecLen, int nRecord, long seed, int nToken, double zipf, double equivRatio ) {
-		this.avgRecLen = avgRecLen;
+		// this.avgRecLen = avgRecLen;
 		this.nRecord = nRecord;
 		this.nToken = nToken;
 
@@ -62,7 +82,7 @@ public class DataInfo {
 
 	public void saveToFile( String fileName ) {
 		JSONUtil json = new JSONUtil();
-		json.add( "avgRecLen", this.avgRecLen );
+		// json.add( "avgRecLen", this.avgRecLen );
 		json.add( "nRecord", this.nRecord );
 		json.add( "nToken", this.nToken );
 		json.add( "isSynthetic", this.isSynthetic );
@@ -76,19 +96,27 @@ public class DataInfo {
 		json.write( fileName );
 	}
 
-	public void loadFromFile( String fileName ) {
-		JSONUtil json = new JSONUtil();
-		json.read( fileName );
-
-		this.avgRecLen = Integer.parseInt( (String) json.getValue( "avgRecLen" ) );
-		this.nRecord = Integer.parseInt( (String) json.getValue( "nRecord" ) );
-		this.nToken = Integer.parseInt( (String) json.getValue( "nToken" ) );
-		this.isSynthetic = Boolean.parseBoolean( (String) json.getValue( "isSynthetic" ) );
-
-		if( isSynthetic ) {
-			this.seed = Long.parseLong( (String) json.getValue( "seed" ) );
-			this.zipf = Double.parseDouble( (String) json.getValue( "zipf" ) );
-			this.equivRatio = Double.parseDouble( (String) json.getValue( "equivRatio" ) );
+	public String loadFromFile( File file ) {
+		BufferedReader br;
+		String line = "";
+		try {
+			br = new BufferedReader( new FileReader( file ) );
+			line = br.readLine();
 		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
+		return line;
+
+		// this.avgRecLen = Integer.parseInt( (String) json.getValue( "avgRecLen" ) );
+		// this.nRecord = Integer.parseInt( (String) json.getValue( "nRecord" ) );
+		// this.nToken = Integer.parseInt( (String) json.getValue( "nToken" ) );
+		// this.isSynthetic = Boolean.parseBoolean( (String) json.getValue( "isSynthetic" ) );
+		//
+		// if( isSynthetic ) {
+		// this.seed = Long.parseLong( (String) json.getValue( "seed" ) );
+		// this.zipf = Double.parseDouble( (String) json.getValue( "zipf" ) );
+		// this.equivRatio = Double.parseDouble( (String) json.getValue( "equivRatio" ) );
+		// }
 	}
 }
