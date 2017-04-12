@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import mine.Record;
 import snu.kdd.synonym.tools.StatContainer;
+import tools.Rule;
 import tools.RuleTrie;
 
 public class PrintRecordInfo extends AlgorithmTemplate {
@@ -18,7 +19,17 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 	}
 
 	public void printInfo( int id ) {
-		System.out.println( tableT.get( id ) );
+		Record r = tableT.get( id );
+		System.out.println( r );
+
+		int length = r.getTokenArray().length;
+
+		for( int i = 0; i < length; i++ ) {
+			Rule[] rlist = r.getApplicableRules( i );
+			for( int x = 0; x < rlist.length; x++ ) {
+				System.out.println( rlist[ x ].toTextString( Record.strlist ) );
+			}
+		}
 
 	}
 
