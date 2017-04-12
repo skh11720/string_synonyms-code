@@ -63,6 +63,7 @@ public class StatContainer {
 			}
 			else if( valueName.startsWith( "/home/" ) ) {
 				valueName = valueName.replaceAll( "/home/kddlab/wooyekim/", "" );
+				valueName = valueName.replaceAll( "Synonym", "" );
 			}
 
 			addPrimary( name, valueName );
