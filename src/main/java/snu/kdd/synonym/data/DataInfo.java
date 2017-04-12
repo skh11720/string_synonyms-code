@@ -21,6 +21,9 @@ public class DataInfo {
 	long seed;
 	double zipf;
 	long size = 0;
+	long oneSize = 0;
+	long twoSize = 0;
+	long ruleSize = 0;
 
 	String dataOnePath;
 	String dataTwoPath;
@@ -78,6 +81,9 @@ public class DataInfo {
 			loadFromFile( oneInfoFile, 1 );
 		}
 
+		oneSize = new File( dataOnePath ).length();
+		size += oneSize;
+
 		if( !dataOnePath.equals( dataTwoPath ) ) {
 			String dataTwo = dataTwoPath.substring( dataTwoPath.lastIndexOf( "/" ) + 1 );
 			String twoInfoFilePath = dataTwoPath.substring( 0, dataTwoPath.lastIndexOf( "/" ) - 1 ) + dataTwo + "_info.json";
@@ -87,6 +93,9 @@ public class DataInfo {
 				loadFromFile( twoInfoFile, 2 );
 			}
 			name += "_JoinWith_" + dataTwo;
+
+			twoSize = new File( dataTwoPath ).length();
+			size += twoSize;
 		}
 		else {
 			name += "_SelfJoin";
@@ -99,6 +108,8 @@ public class DataInfo {
 		if( infoRuleExists ) {
 			loadFromFile( ruleInfoFile, 0 );
 		}
+		ruleSize += new File( rulePath ).length();
+		size += ruleSize;
 		name += "_WRT_" + rule;
 	}
 
@@ -110,7 +121,7 @@ public class DataInfo {
 			}
 			saveRuleToFile( ruleInfoFile );
 		}
-		info = nOneRecord + " " + nTwoRecord + " " + nRule;
+		info = nOneRecord + " " + oneSize + " " + nTwoRecord + " " + twoSize + " " + nRule + " " + ruleSize;
 	}
 
 	public String toJson() {
