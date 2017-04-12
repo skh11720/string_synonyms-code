@@ -35,6 +35,7 @@ public class DataInfo {
 	boolean infoFileOneExists = false;
 	boolean infoFileTwoExists = false;
 	boolean infoRuleExists = false;
+	boolean selfJoin = false;
 	boolean updated = false;
 
 	public DataInfo() {
@@ -89,6 +90,7 @@ public class DataInfo {
 		}
 		else {
 			name += "_SelfJoin";
+			selfJoin = true;
 		}
 
 		String rule = rulePath.substring( rulePath.lastIndexOf( "/" ) );
@@ -103,7 +105,9 @@ public class DataInfo {
 	public void writeInfo() {
 		if( updated ) {
 			saveToFile( oneInfoFile, true );
-			saveToFile( twoInfoFile, false );
+			if( !selfJoin ) {
+				saveToFile( twoInfoFile, false );
+			}
 			saveRuleToFile( ruleInfoFile );
 		}
 	}
