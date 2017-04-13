@@ -238,10 +238,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 						if( debug ) {
 							if( count != null ) {
-								bw.write( "count " + twogram + ":" + count + "\n" );
+								bw.write( twogram + ":" + count + "\n" );
 							}
 							else {
-								bw.write( "count " + twogram + ":null\n" );
+								bw.write( twogram + ":null\n" );
 							}
 						}
 
