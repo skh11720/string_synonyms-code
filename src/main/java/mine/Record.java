@@ -401,8 +401,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		List<Set<IntegerPair>> twograms = new ArrayList<Set<IntegerPair>>();
 		int[] range = getCandidateLengths( size() - 1 );
 
-		int maxRange = Integer.max( range[ 1 ] - 1, 1 ); // if Maximum length is 1, we need to generate (token, EOL) twogram
-		for( int i = 0; i < maxRange; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R) - 1
+		for( int i = 0; i < range[ 1 ]; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
 			twograms.add( new WYK_HashSet<IntegerPair>( 30 ) );
 		}
 		add2GramsFromDiffRules( twograms );
@@ -423,7 +422,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		int[] range = getCandidateLengths( size() - 1 );
 
 		// to include maxLength
-		int max = Integer.min( maxStartPos, Integer.max( 1, range[ 1 ] - 1 ) );
+		int max = Integer.min( maxStartPos, range[ 1 ] );
 
 		for( int i = 0; i < max; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
 			twograms.add( new WYK_HashSet<IntegerPair>( 30 ) );
@@ -543,9 +542,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					assert ( i + headrule.getFrom().length == size() );
 					IntegerPair twogram = new IntegerPair( headstr[ headstr.length - 1 ], Integer.MAX_VALUE );
 
-					// TODO DEBUG
-					// for( int idx = min; idx <= max; ++idx ) {
-					for( int idx = Integer.min( 1, max ); idx >= min; idx-- ) {
+					for( int idx = min; idx <= max; ++idx ) {
 						twograms.get( idx ).add( twogram );
 					}
 				}
@@ -598,9 +595,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				if( tailrules == EMPTY_RULE ) {
 					assert ( i + headrule.getFrom().length == size() );
 					IntegerPair twogram = new IntegerPair( headstr[ headstr.length - 1 ], Integer.MAX_VALUE );
-					// TODO DEBUG
-					// for( int idx = min; idx <= max; ++idx ) {
-					for( int idx = Integer.min( 1, max ); idx >= min; idx-- ) {
+
+					for( int idx = min; idx <= max; ++idx ) {
 						twograms.get( idx ).add( twogram );
 					}
 				}
