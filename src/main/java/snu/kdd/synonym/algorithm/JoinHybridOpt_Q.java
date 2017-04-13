@@ -157,7 +157,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 				int newSize = countPerPosition.get( i ) + available.size();
 
-				countPerPosition.add( i, newSize );
+				countPerPosition.set( i, newSize );
 			}
 		}
 
