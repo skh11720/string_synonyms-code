@@ -191,54 +191,80 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
 		// Actually, tableS
-		for( Record rec : tableT ) {
-			int[] range = rec.getCandidateLengths( rec.size() - 1 );
-			int minIdx = -1;
-			int minInvokes = Integer.MAX_VALUE;
-			int searchmax = Math.min( range[ 0 ], maxIndex );
 
-			List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
+		// DEBUG
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "MinIndex.txt" ) );
+			boolean debug = false;
 
-			for( int i = idx.size(); i < searchmax; i++ ) {
-				idx.add( new WYK_HashMap<IntegerPair, Directory>() );
-			}
+			for( Record rec : tableT ) {
 
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
-				if( curr_invokes == null ) {
-					// there is no twogram in T with position i
-					minIdx = i;
-					minInvokes = 0;
-					break;
+				if( rec.getID() == 0 ) {
+					debug = true;
 				}
-				int invoke = 0;
+				else {
+					debug = false;
+				}
 
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					WrappedInteger count = curr_invokes.get( twogram );
-					if( count != null ) {
-						// upper bound
-						invoke += count.get();
+				int[] range = rec.getCandidateLengths( rec.size() - 1 );
+				int minIdx = -1;
+				int minInvokes = Integer.MAX_VALUE;
+				int searchmax = Math.min( range[ 0 ], maxIndex );
+
+				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
+
+				for( int i = idx.size(); i < searchmax; i++ ) {
+					idx.add( new WYK_HashMap<IntegerPair, Directory>() );
+				}
+
+				bw.write( "Search max : " + searchmax );
+
+				for( int i = 0; i < searchmax; ++i ) {
+					Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
+					if( curr_invokes == null ) {
+						// there is no twogram in T with position i
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+					int invoke = 0;
+
+					for( IntegerPair twogram : available2Grams.get( i ) ) {
+						WrappedInteger count = curr_invokes.get( twogram );
+						if( count != null ) {
+							// upper bound
+							invoke += count.get();
+						}
+					}
+					if( debug ) {
+						bw.write( "count " + i + ":" + invoke );
+					}
+					if( invoke < minInvokes ) {
+						minIdx = i;
+						minInvokes = invoke;
 					}
 				}
-				if( invoke < minInvokes ) {
-					minIdx = i;
-					minInvokes = invoke;
-				}
-			}
 
-			Map<IntegerPair, Directory> curr_idx = idx.get( minIdx );
+				Map<IntegerPair, Directory> curr_idx = idx.get( minIdx );
 
-			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
-				Directory dir = curr_idx.get( twogram );
-				if( dir == null ) {
-					dir = new Directory();
-					curr_idx.put( twogram, dir );
+				for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
+					Directory dir = curr_idx.get( twogram );
+					if( dir == null ) {
+						dir = new Directory();
+						curr_idx.put( twogram, dir );
+					}
+					dir.list.add( rec );
 				}
-				dir.list.add( rec );
+				elements += available2Grams.get( minIdx ).size();
+				est_cmps += minInvokes;
 			}
-			elements += available2Grams.get( minIdx ).size();
-			est_cmps += minInvokes;
+			bw.close();
 		}
+		catch( IOException e ) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
 		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
