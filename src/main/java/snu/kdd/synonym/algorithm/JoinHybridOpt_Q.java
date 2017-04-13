@@ -680,7 +680,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 				currTLExpSize += expSize;
 				List<Set<IntegerPair>> twograms = t.get2Grams();
-				for( int i = 0; i < t.getMaxLength(); ++i ) {
+
+				int searchRange = twograms.size();
+
+				for( int i = 0; i < searchRange; ++i ) {
 					// Frequency count of i-th bigrams of TL records
 
 					if( i >= idx.size() ) {
@@ -694,6 +697,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					}
 
 					Map<IntegerPair, Directory> curr_idx = idx.get( i );
+
 					for( IntegerPair curr_twogram : twograms.get( i ) ) {
 						// Update TL_invokes
 						WrappedInteger count = curr_invokes.get( curr_twogram );
