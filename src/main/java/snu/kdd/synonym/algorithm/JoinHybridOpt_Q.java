@@ -217,7 +217,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					idx.add( new WYK_HashMap<IntegerPair, Directory>() );
 				}
 
-				bw.write( "Search max : " + searchmax );
+				bw.write( "Search max : " + searchmax + "\n" );
 
 				for( int i = 0; i < searchmax; ++i ) {
 					Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
@@ -231,6 +231,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 					for( IntegerPair twogram : available2Grams.get( i ) ) {
 						WrappedInteger count = curr_invokes.get( twogram );
+						if( debug ) {
+							bw.write( twogram + ":" + count + "\n" );
+						}
 						if( count != null ) {
 							// upper bound
 							invoke += count.get();
