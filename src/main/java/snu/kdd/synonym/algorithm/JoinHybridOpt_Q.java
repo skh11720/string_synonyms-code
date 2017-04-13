@@ -1,7 +1,5 @@
 package snu.kdd.synonym.algorithm;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
@@ -165,20 +162,20 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		// DEBUG
-		{
-			try {
-				for( int i = 0; i < T_invokes.size(); i++ ) {
-					BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_T_invokes" + i + ".txt" ) );
-					for( Entry<IntegerPair, WrappedInteger> entry : T_invokes.get( i ).entrySet() ) {
-						bw.write( entry.getKey() + " " + entry.getValue() + "\n" );
-					}
-					bw.close();
-				}
-			}
-			catch( Exception e ) {
-				e.printStackTrace();
-			}
-		}
+		// {
+		// try {
+		// for( int i = 0; i < T_invokes.size(); i++ ) {
+		// BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_T_invokes" + i + ".txt" ) );
+		// for( Entry<IntegerPair, WrappedInteger> entry : T_invokes.get( i ).entrySet() ) {
+		// bw.write( entry.getKey() + " " + entry.getValue() + "\n" );
+		// }
+		// bw.close();
+		// }
+		// }
+		// catch( Exception e ) {
+		// e.printStackTrace();
+		// }
+		// }
 
 		for( int i = 0; i < countPerPosition.size(); i++ ) {
 			stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
@@ -193,94 +190,96 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Actually, tableS
 
 		// TODO DEBUG
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "MinIndex.txt" ) );
-			boolean debug = false;
+		// try {
+		// BufferedWriter bw = new BufferedWriter( new FileWriter( "MinIndex.txt" ) );
+		// boolean debug = false;
 
-			for( Record rec : tableT ) {
+		for( Record rec : tableT ) {
 
-				if( rec.getID() < 100 ) {
-					debug = true;
-					bw.write( "Item " + rec.toString() );
+			// if( rec.getID() < 100 ) {
+			// debug = true;
+			// bw.write( "Item " + rec.toString() );
+			//
+			// }
+			// else {
+			// debug = false;
+			// }
 
-				}
-				else {
-					debug = false;
-				}
+			int[] range = rec.getCandidateLengths( rec.size() - 1 );
+			int minIdx = -1;
+			int minInvokes = Integer.MAX_VALUE;
+			int searchmax = Math.min( range[ 0 ] - 1, maxIndex );
 
-				int[] range = rec.getCandidateLengths( rec.size() - 1 );
-				int minIdx = -1;
-				int minInvokes = Integer.MAX_VALUE;
-				int searchmax = Math.min( range[ 0 ] - 1, maxIndex );
+			List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
 
-				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
-
-				for( int i = idx.size(); i < searchmax; i++ ) {
-					idx.add( new WYK_HashMap<IntegerPair, Directory>() );
-				}
-
-				if( debug ) {
-					bw.write( "Search max : " + searchmax + "\n" );
-				}
-
-				for( int i = 0; i < searchmax; ++i ) {
-					Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
-					if( curr_invokes == null ) {
-						// there is no twogram in T with position i
-						minIdx = i;
-						minInvokes = 0;
-						break;
-					}
-					int invoke = 0;
-
-					for( IntegerPair twogram : available2Grams.get( i ) ) {
-						WrappedInteger count = curr_invokes.get( twogram );
-
-						if( debug ) {
-							if( count != null ) {
-								bw.write( twogram + ":" + count + "\n" );
-							}
-							else {
-								bw.write( twogram + ":null\n" );
-							}
-						}
-
-						if( count != null ) {
-							// upper bound
-							invoke += count.get();
-						}
-					}
-					if( debug ) {
-						bw.write( "count " + i + ":" + invoke + "\n" );
-					}
-					if( invoke < minInvokes ) {
-						minIdx = i;
-						minInvokes = invoke;
-					}
-				}
-
-				if( debug ) {
-					bw.write( "min " + minIdx + " " + minInvokes + "\n" );
-				}
-
-				Map<IntegerPair, Directory> curr_idx = idx.get( minIdx );
-
-				for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
-					Directory dir = curr_idx.get( twogram );
-					if( dir == null ) {
-						dir = new Directory();
-						curr_idx.put( twogram, dir );
-					}
-					dir.list.add( rec );
-				}
-				elements += available2Grams.get( minIdx ).size();
-				est_cmps += minInvokes;
+			for( int i = idx.size(); i < searchmax; i++ ) {
+				idx.add( new WYK_HashMap<IntegerPair, Directory>() );
 			}
-			bw.close();
+
+			// if( debug ) {
+			// bw.write( "Search max : " + searchmax + "\n" );
+			// }
+
+			for( int i = 0; i < searchmax; ++i ) {
+				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
+				if( curr_invokes == null ) {
+					// there is no twogram in T with position i
+					minIdx = i;
+					minInvokes = 0;
+					break;
+				}
+				int invoke = 0;
+
+				for( IntegerPair twogram : available2Grams.get( i ) ) {
+					WrappedInteger count = curr_invokes.get( twogram );
+
+					// if( debug ) {
+					// if( count != null ) {
+					// bw.write( twogram + ":" + count + "\n" );
+					// }
+					// else {
+					// bw.write( twogram + ":null\n" );
+					// }
+					// }
+
+					if( count != null ) {
+						// upper bound
+						invoke += count.get();
+					}
+				}
+				// if( debug ) {
+				// bw.write( "count " + i + ":" + invoke + "\n" );
+				// }
+				if( invoke < minInvokes ) {
+					minIdx = i;
+					minInvokes = invoke;
+				}
+			}
+
+			// if( debug ) {
+			// bw.write( "min " + minIdx + " " + minInvokes + "\n" );
+			// }
+
+			Map<IntegerPair, Directory> curr_idx = idx.get( minIdx );
+
+			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
+				Directory dir = curr_idx.get( twogram );
+				if( dir == null ) {
+					dir = new Directory();
+					curr_idx.put( twogram, dir );
+				}
+				dir.list.add( rec );
+			}
+			elements += available2Grams.get( minIdx ).size();
+			est_cmps += minInvokes;
 		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
+		// bw.close();
+		// }catch(
+		//
+		// IOException e)
+		// {
+		// e.printStackTrace();
+		// }
 
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
@@ -667,28 +666,34 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				break;
 			}
 			long next_theta = Long.MAX_VALUE;
+
 			// Estimate new running time
 			// Modify SL_TH_invokes, SL_TH_idx
 			while( tidx < tableS.size() ) {
 				Record t = tableS.get( tidx++ );
 				long expSize = t.getEstNumRecords();
+
 				if( expSize > theta ) {
 					next_theta = Math.min( next_theta, expSize );
 					break;
 				}
+
 				currTLExpSize += expSize;
 				List<Set<IntegerPair>> twograms = t.get2Grams();
 				for( int i = 0; i < t.getMaxLength(); ++i ) {
 					// Frequency count of i-th bigrams of TL records
-					Map<IntegerPair, WrappedInteger> curr_invokes = TL_invokes.get( i );
+
 					if( i >= idx.size() ) {
 						continue;
 					}
-					Map<IntegerPair, Directory> curr_idx = idx.get( i );
+
+					Map<IntegerPair, WrappedInteger> curr_invokes = TL_invokes.get( i );
 					if( curr_invokes == null ) {
 						curr_invokes = new WYK_HashMap<IntegerPair, WrappedInteger>();
 						TL_invokes.put( i, curr_invokes );
 					}
+
+					Map<IntegerPair, Directory> curr_idx = idx.get( i );
 					for( IntegerPair curr_twogram : twograms.get( i ) ) {
 						// Update TL_invokes
 						WrappedInteger count = curr_invokes.get( curr_twogram );
