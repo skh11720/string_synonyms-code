@@ -97,8 +97,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 			for( int i = invokesInitialized; i < searchmax; i++ ) {
 				invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
-				invokesInitialized = searchmax;
 			}
+			invokesInitialized = searchmax;
 
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
@@ -178,6 +178,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count != null ) {
+						// upper bound
 						invoke += count.get();
 					}
 				}
@@ -209,11 +210,12 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			}
 			indexedElements += available2Grams.get( minIdx ).size();
 		}
-		// bw.close();
-		System.out.println( "Predict : " + predictCount );
 		System.out.println( "Idx size : " + indexedElements );
+		System.out.println( "Predict : " + predictCount );
+
 		if( writeResult ) {
-			stat.add( "Index Size", indexedElements );
+			stat.add( "Stat_JoinMin_Index Size", indexedElements );
+			stat.add( "Stat_Predicted_Comparison", predictCount );
 		}
 
 		buildIndexTime2 = System.nanoTime() - starttime;

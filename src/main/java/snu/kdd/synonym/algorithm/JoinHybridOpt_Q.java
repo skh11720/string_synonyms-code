@@ -129,8 +129,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			for( int i = invokesInitialized; i < searchmax; i++ ) {
 				T_invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
-				invokesInitialized = searchmax;
 			}
+			invokesInitialized = searchmax;
 
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curridx_invokes = T_invokes.get( i );
@@ -153,8 +153,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		System.out.println( "Bigram retrieval : " + Record.exectime );
-		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
-
+		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
@@ -164,7 +163,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
 			int searchmax = Math.min( range[ 0 ], maxIndex );
-			int[] invokearr = new int[ searchmax ];
 
 			List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
 
@@ -175,21 +173,24 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
 				if( curr_invokes == null ) {
+					// there is no twogram in T with position i
 					minIdx = i;
 					minInvokes = 0;
 					break;
 				}
 				int invoke = 0;
+
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					WrappedInteger count = curr_invokes.get( twogram );
-					if( count != null )
+					if( count != null ) {
+						// upper bound
 						invoke += count.get();
+					}
 				}
 				if( invoke < minInvokes ) {
 					minIdx = i;
 					minInvokes = invoke;
 				}
-				invokearr[ i ] = invoke;
 			}
 
 			Map<IntegerPair, Directory> curr_idx = idx.get( minIdx );
@@ -209,12 +210,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
 		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
 
-		System.out.println( "predict : " + est_cmps );
-		System.out.println( "idx size : " + elements );
-		System.out.println( WrappedInteger.count + " Wrapped Integers" );
+		stat.add( "Stat_Predicted_Comparisons", est_cmps );
+		stat.add( "Stat_JoinMin_Index_Size", elements );
+		stat.add( "Stat_Wrapped Integers", WrappedInteger.count );
+
 		for( int i = 0; i < idx.size(); i++ ) {
 			if( idx.get( i ).size() != 0 ) {
-				System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+				// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+				stat.add( "Stat_JoinMin_IDX" + i, idx.get( i ).size() );
 			}
 		}
 		stepTime.stopAndAdd( stat );
@@ -299,7 +302,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
-		stat.add( "Naive search count", naiveSearch );
+		stat.add( "Stat_Naive search count", naiveSearch );
 		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
