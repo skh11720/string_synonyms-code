@@ -18,7 +18,6 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			throws IOException {
 		super( rulefile, Rfile, Sfile, outputPath, dataInfo );
 
-		Record.setStrList( strlist );
 		ruletrie = new RuleTrie( getRulelist() );
 		Record.setRuleTrie( ruletrie );
 

@@ -199,7 +199,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
 		// Actually, tableS
 
-		// DEBUG
+		// TODO DEBUG
 		try {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( "MinIndex.txt" ) );
 			boolean debug = false;
@@ -208,6 +208,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 				if( rec.getID() == 0 ) {
 					debug = true;
+					bw.write( "Item " + rec.toString() );
 				}
 				else {
 					debug = false;
@@ -271,7 +272,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			bw.close();
 		}
 		catch( IOException e ) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
