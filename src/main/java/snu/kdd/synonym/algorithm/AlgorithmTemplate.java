@@ -167,7 +167,7 @@ public abstract class AlgorithmTemplate {
 
 	protected void preprocess( boolean compact, int maxIndex, boolean computeAutomataPerRecord ) {
 		// builds an automata of the set of rules
-		StopWatch preprocessTime = StopWatch.getWatchStarted( "Preprocess rule time" );
+		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
 		final Rule_ACAutomata automata = new Rule_ACAutomata( getRulelist() );
 
 		long applicableRules = 0;
@@ -178,12 +178,12 @@ public abstract class AlgorithmTemplate {
 		}
 		preprocessTime.stopQuietAndAdd( stat );
 
-		System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableT.size() );
-		stat.add( "Avg applicable rules", applicableRules + "/" + tableT.size() );
+		// System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableT.size() );
+		stat.add( "Stat_Avg applicable rules", applicableRules + "/" + tableT.size() );
 
-		preprocessTime.resetAndStart( "Preprocess length time" );
+		preprocessTime.resetAndStart( "Result_2_2_Preprocess length time" );
 
-		System.out.println( "Preprocessing with modified length" );
+		// System.out.println( "Preprocessing with modified length" );
 		for( final Record rec : tableT ) {
 			rec.preprocessLengths();
 			// DEBUG
@@ -192,7 +192,7 @@ public abstract class AlgorithmTemplate {
 
 		preprocessTime.stopQuietAndAdd( stat );
 
-		preprocessTime.resetAndStart( "Preprocess est record time" );
+		preprocessTime.resetAndStart( "Result_2_3_Preprocess est record time" );
 		long maxTSize = 0;
 		for( final Record rec : tableT ) {
 			rec.preprocessEstimatedRecords();
@@ -202,19 +202,19 @@ public abstract class AlgorithmTemplate {
 				maxTSize = est;
 			}
 		}
-		stat.add( "maximum Size of Table T", maxTSize );
+		stat.add( "Stat_maximum Size of Table T", maxTSize );
 
 		preprocessTime.stopQuietAndAdd( stat );
 
 		if( !compact ) {
-			preprocessTime.resetAndStart( "Preprocess token time" );
+			preprocessTime.resetAndStart( "Result_2_4_Preprocess token time" );
 			for( final Record rec : tableT ) {
 				rec.preprocessAvailableTokens( maxIndex );
 			}
 			preprocessTime.stopQuietAndAdd( stat );
 		}
 
-		preprocessTime.resetAndStart( "Preprocess early pruning time" );
+		preprocessTime.resetAndStart( "Result_2_5_Preprocess early pruning time" );
 		for( final Record rec : tableT ) {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
@@ -222,7 +222,7 @@ public abstract class AlgorithmTemplate {
 		preprocessTime.stopQuietAndAdd( stat );
 
 		// Preprocess each records in S
-		preprocessTime.resetAndStart( "Preprocess records in S time" );
+		preprocessTime.resetAndStart( "Result_2_6_Preprocess records in S time" );
 		long maxSSize = 0;
 		for( final Record rec : tableS ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
@@ -241,7 +241,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}
-		stat.add( "maximum Size of Table S", maxSSize );
+		stat.add( "Stat_maximum Size of Table S", maxSSize );
 		preprocessTime.stopQuietAndAdd( stat );
 	}
 
