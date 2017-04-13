@@ -207,9 +207,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			est_cmps += minInvokes;
 		}
 		System.out.println( "Bigram retrieval : " + Record.exectime );
-		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
+		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
 		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
 
+		stat.add( "Mem_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		stat.add( "Stat_Predicted_Comparisons", est_cmps );
 		stat.add( "Stat_JoinMin_Index_Size", elements );
 		stat.add( "Stat_Wrapped Integers", WrappedInteger.count );
