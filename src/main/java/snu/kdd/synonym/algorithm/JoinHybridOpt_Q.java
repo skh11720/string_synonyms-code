@@ -121,7 +121,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		idx = new ArrayList<Map<IntegerPair, Directory>>();
 
 		// Actually, tableT
-		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_5_1_Index Count Time" );
 
 		for( Record rec : tableS ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
@@ -157,7 +157,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Indexing Time" );
+		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
 		// Actually, tableS
 		for( Record rec : tableT ) {
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
