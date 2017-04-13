@@ -400,7 +400,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		// twograms.get( k ) returns all positional two-grams each of whose position is k
 		List<Set<IntegerPair>> twograms = new ArrayList<Set<IntegerPair>>();
 		int[] range = getCandidateLengths( size() - 1 );
-		for( int i = 0; i < range[ 1 ]; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
+		for( int i = 0; i < range[ 1 ] - 1; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
 			twograms.add( new WYK_HashSet<IntegerPair>( 30 ) );
 		}
 		add2GramsFromDiffRules( twograms );
@@ -421,7 +421,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		int[] range = getCandidateLengths( size() - 1 );
 
 		// to include maxLength
-		int max = Integer.min( maxStartPos, range[ 1 ] );
+		int max = Integer.min( maxStartPos, range[ 1 ] - 1 );
 
 		for( int i = 0; i < max; ++i ) { // generates all positional two-grams with k = 1, ..., l_{Max}(s, R)
 			twograms.add( new WYK_HashSet<IntegerPair>( 30 ) );
