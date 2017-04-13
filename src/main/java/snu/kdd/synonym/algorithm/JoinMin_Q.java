@@ -98,7 +98,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			for( int i = invokesInitialized; i < searchmax; i++ ) {
 				invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
 			}
-			invokesInitialized = searchmax;
+			if( invokesInitialized < searchmax ) {
+				invokesInitialized = searchmax;
+			}
 
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );

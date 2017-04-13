@@ -133,7 +133,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				T_invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
 				countPerPosition.add( 0 );
 			}
-			invokesInitialized = searchmax;
+			if( invokesInitialized < searchmax ) {
+				invokesInitialized = searchmax;
+			}
 
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<IntegerPair, WrappedInteger> curridx_invokes = T_invokes.get( i );
