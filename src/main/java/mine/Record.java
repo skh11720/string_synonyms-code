@@ -543,7 +543,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 					// TODO DEBUG
 					// for( int idx = min; idx <= max; ++idx ) {
-					for( int idx = min; idx <= 1; ++idx ) {
+					for( int idx = Integer.min( 1, max ); idx >= min; idx-- ) {
 						twograms.get( idx ).add( twogram );
 					}
 				}
@@ -598,7 +598,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					IntegerPair twogram = new IntegerPair( headstr[ headstr.length - 1 ], Integer.MAX_VALUE );
 					// TODO DEBUG
 					// for( int idx = min; idx <= max; ++idx ) {
-					for( int idx = min; idx <= 1; ++idx ) {
+					for( int idx = Integer.min( 1, max ); idx >= min; idx-- ) {
 						twograms.get( idx ).add( twogram );
 					}
 				}
