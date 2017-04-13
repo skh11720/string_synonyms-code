@@ -1,10 +1,13 @@
 package snu.kdd.synonym.algorithm;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 import mine.Record;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
+import tools.IntegerPair;
 import tools.Rule;
 import tools.RuleTrie;
 
@@ -33,6 +36,14 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			Rule[] rlist = r.getApplicableRules( i );
 			for( int x = 0; x < rlist.length; x++ ) {
 				System.out.println( rlist[ x ].toTextString( Record.strlist ) );
+			}
+		}
+
+		List<Set<IntegerPair>> twogram = r.get2Grams();
+		for( int i = 0; i < twogram.size(); i++ ) {
+			System.out.println( "Position " + i );
+			for( IntegerPair pair : twogram.get( i ) ) {
+				System.out.println( pair.toStrString() );
 			}
 		}
 
