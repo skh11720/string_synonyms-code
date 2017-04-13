@@ -1,6 +1,8 @@
 package snu.kdd.synonym.algorithm;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +25,39 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 		this.stat = new StatContainer();
 		this.preprocess( true, Integer.MAX_VALUE, false );
+	}
+
+	@Override
+	protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
+		super.preprocess( compact, maxIndex, useAutomata );
+
+		// Sort R and S with expanded sizes
+		Comparator<Record> cmp = new Comparator<Record>() {
+			@Override
+			public int compare( Record o1, Record o2 ) {
+				long est1 = o1.getEstNumRecords();
+				long est2 = o2.getEstNumRecords();
+				return Long.compare( est1, est2 );
+			}
+		};
+		Collections.sort( tableT, cmp );
+		Collections.sort( tableS, cmp );
+
+		// Reassign ID
+		for( int i = 0; i < tableT.size(); ++i ) {
+			Record t = tableT.get( i );
+			t.setID( i );
+		}
+		long maxTEstNumRecords = tableT.get( tableT.size() - 1 ).getEstNumRecords();
+
+		for( int i = 0; i < tableS.size(); ++i ) {
+			Record s = tableS.get( i );
+			s.setID( i );
+		}
+		long maxSEstNumRecords = tableS.get( tableS.size() - 1 ).getEstNumRecords();
+
+		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
+		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
 	}
 
 	public void printInfo( int id ) {
@@ -57,6 +92,8 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		DataInfo dataInfo = new DataInfo( rulefile, Rfile, Sfile );
 
 		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath, dataInfo );
+
+		info.preprocess( true, -1, false );
 
 		info.printInfo( Integer.parseInt( args[ 4 ] ) );
 	}
