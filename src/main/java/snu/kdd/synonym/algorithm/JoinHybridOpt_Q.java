@@ -110,13 +110,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
-
-		// TODO DEBUG
-		BufferedWriter bw = new BufferedWriter( new FileWriter( "item.txt" ) );
-		for( int i = 0; i < strlist.size(); i++ ) {
-			bw.write( i + " " + strlist.get( i ) + "\n" );
-		}
-		bw.close();
 	}
 
 	private void buildJoinMinIndex() {
@@ -206,7 +199,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			for( Record rec : tableT ) {
 
-				if( rec.getID() == 0 ) {
+				if( rec.getID() == 999999 ) {
 					debug = true;
 					bw.write( "Item " + rec.toString() );
 

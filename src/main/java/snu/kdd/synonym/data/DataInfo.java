@@ -89,6 +89,8 @@ public class DataInfo {
 			String twoInfoFilePath = dataTwoPath.substring( 0, dataTwoPath.lastIndexOf( "/" ) + 1 ) + dataTwo + "_info.json";
 			twoInfoFile = new File( twoInfoFilePath );
 			infoFileTwoExists = twoInfoFile.exists();
+
+			System.out.println( "Two info file path " + twoInfoFilePath );
 			if( infoFileTwoExists ) {
 				loadFromFile( twoInfoFile, 2 );
 			}
@@ -104,7 +106,9 @@ public class DataInfo {
 		}
 
 		String rule = rulePath.substring( rulePath.lastIndexOf( "/" ) + 1 );
-		ruleInfoFile = new File( rulePath.substring( 0, rulePath.lastIndexOf( "/" ) + 1 ) + "_ruleinfo.json" );
+		String ruleInfoFilePath = rulePath.substring( 0, rulePath.lastIndexOf( "/" ) + 1 ) + rule + "_ruleinfo.json";
+		ruleInfoFile = new File( ruleInfoFilePath );
+		System.out.println( "Rule info file path " + ruleInfoFilePath );
 		infoRuleExists = ruleInfoFile.exists();
 		if( infoRuleExists ) {
 			loadFromFile( ruleInfoFile, 0 );
