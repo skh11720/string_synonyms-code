@@ -236,6 +236,15 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					for( IntegerPair twogram : available2Grams.get( i ) ) {
 						WrappedInteger count = curr_invokes.get( twogram );
 
+						if( debug ) {
+							if( count != null ) {
+								bw.write( "count " + twogram + ":" + count + "\n" );
+							}
+							else {
+								bw.write( "count " + twogram + ":null\n" );
+							}
+						}
+
 						if( count != null ) {
 							// upper bound
 							invoke += count.get();
