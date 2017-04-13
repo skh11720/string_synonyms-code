@@ -540,7 +540,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				if( tailrules == EMPTY_RULE ) {
 					assert ( i + headrule.getFrom().length == size() );
 					IntegerPair twogram = new IntegerPair( headstr[ headstr.length - 1 ], Integer.MAX_VALUE );
-					for( int idx = min; idx <= max; ++idx ) {
+
+					// TODO DEBUG
+					// for( int idx = min; idx <= max; ++idx ) {
+					for( int idx = min; idx <= 2; ++idx ) {
 						twograms.get( idx ).add( twogram );
 					}
 				}
