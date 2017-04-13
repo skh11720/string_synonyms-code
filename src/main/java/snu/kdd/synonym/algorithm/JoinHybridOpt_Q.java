@@ -701,22 +701,27 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					for( IntegerPair curr_twogram : twograms.get( i ) ) {
 						// Update TL_invokes
 						WrappedInteger count = curr_invokes.get( curr_twogram );
-						if( count == null )
+						if( count == null ) {
 							curr_invokes.put( curr_twogram, ONE );
-						else if( count == ONE )
+						}
+						else if( count == ONE ) {
 							curr_invokes.put( curr_twogram, new WrappedInteger( 2 ) );
-						else
+						}
+						else {
 							count.increment();
+						}
 
 						// Update est_cmps
 						Directory dir = curr_idx.get( curr_twogram );
-						if( dir == null )
+						if( dir == null ) {
 							continue;
+						}
 						est_cmps -= dir.SHsize;
 					}
 				}
-				for( Set<IntegerPair> set : twograms )
+				for( Set<IntegerPair> set : twograms ) {
 					set.clear();
+				}
 				twograms.clear();
 			}
 
@@ -770,8 +775,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					Directory dir = curr_idx.get( curr_twogram );
 					++dir.SHsize;
 				}
-				for( Set<IntegerPair> set : twograms )
+				for( Set<IntegerPair> set : twograms ) {
 					set.clear();
+				}
 				twograms.clear();
 			}
 			if( memcost > memlimit_expandedS ) {
