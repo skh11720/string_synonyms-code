@@ -73,6 +73,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			}
 		}
 
+		System.out.println( "\nTwoGram" );
 		List<Set<IntegerPair>> twogram = r.get2Grams();
 		for( int i = 0; i < twogram.size(); i++ ) {
 			System.out.println( "Position " + i );
@@ -81,6 +82,17 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			}
 		}
 
+		System.out.println( "\nTwoGramWithBound " );
+		int[] range = r.getCandidateLengths( r.size() - 1 );
+
+		System.out.println( "Range " + range[ 0 ] );
+		twogram = r.get2GramsWithBound( range[ 0 ] );
+		for( int i = 0; i < twogram.size(); i++ ) {
+			System.out.println( "Position " + i );
+			for( IntegerPair pair : twogram.get( i ) ) {
+				System.out.println( pair.toStrString() );
+			}
+		}
 	}
 
 	public static void main( String args[] ) throws IOException {
