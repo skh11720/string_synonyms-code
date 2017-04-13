@@ -209,6 +209,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				if( rec.getID() == 0 ) {
 					debug = true;
 					bw.write( "Item " + rec.toString() );
+
 				}
 				else {
 					debug = false;
@@ -225,7 +226,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					idx.add( new WYK_HashMap<IntegerPair, Directory>() );
 				}
 
-				bw.write( "Search max : " + searchmax + "\n" );
+				if( debug ) {
+					bw.write( "Search max : " + searchmax + "\n" );
+				}
 
 				for( int i = 0; i < searchmax; ++i ) {
 					Map<IntegerPair, WrappedInteger> curr_invokes = T_invokes.get( i );
