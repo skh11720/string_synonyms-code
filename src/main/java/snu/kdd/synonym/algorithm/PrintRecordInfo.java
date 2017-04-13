@@ -82,6 +82,11 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			}
 		}
 
+		for( int i = 0; i < r.getTokenArray().length; i++ ) {
+			System.out.println(
+					"Candidate length " + i + " " + r.getCandidateLengths( i )[ 0 ] + " " + r.getCandidateLengths( i )[ 1 ] );
+		}
+
 		System.out.println( "\nTwoGramWithBound " );
 		int[] range = r.getCandidateLengths( r.size() - 1 );
 
