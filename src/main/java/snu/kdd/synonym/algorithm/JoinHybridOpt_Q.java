@@ -167,13 +167,13 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// DEBUG
 		{
 			try {
-				BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_T_invokes.txt" ) );
 				for( int i = 0; i < T_invokes.size(); i++ ) {
+					BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_T_invokes" + i + ".txt" ) );
 					for( Entry<IntegerPair, WrappedInteger> entry : T_invokes.get( i ).entrySet() ) {
-						bw.write( entry.getKey() + " " + entry.getValue() );
+						bw.write( entry.getKey() + " " + entry.getValue() + "\n" );
 					}
+					bw.close();
 				}
-				bw.close();
 			}
 			catch( Exception e ) {
 				e.printStackTrace();
