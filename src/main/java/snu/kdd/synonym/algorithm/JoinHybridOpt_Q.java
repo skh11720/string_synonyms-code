@@ -237,7 +237,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 						}
 					}
 					if( debug ) {
-						bw.write( "count " + i + ":" + invoke );
+						bw.write( "count " + i + ":" + invoke + "\n" );
 					}
 					if( invoke < minInvokes ) {
 						minIdx = i;
