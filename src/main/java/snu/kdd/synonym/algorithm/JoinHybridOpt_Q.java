@@ -199,7 +199,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			for( Record rec : tableT ) {
 
-				if( rec.getID() == 999999 ) {
+				if( rec.getID() < 100 ) {
 					debug = true;
 					bw.write( "Item " + rec.toString() );
 
@@ -235,9 +235,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 					for( IntegerPair twogram : available2Grams.get( i ) ) {
 						WrappedInteger count = curr_invokes.get( twogram );
-						if( debug ) {
-							bw.write( twogram + ":" + count + "\n" );
-						}
+
 						if( count != null ) {
 							// upper bound
 							invoke += count.get();
@@ -250,6 +248,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 						minIdx = i;
 						minInvokes = invoke;
 					}
+				}
+
+				if( debug ) {
+					bw.write( "min " + minIdx + " " + minInvokes + "\n" );
 				}
 
 				Map<IntegerPair, Directory> curr_idx = idx.get( minIdx );
