@@ -609,7 +609,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		System.out.println( "Result Size: " + rslt.size() );
 		if( !writeResult ) {
-			stat.add( "JoinMin Result", rslt.size() );
+			stat.add( "Sample_JoinMin Result", rslt.size() );
 		}
 		else {
 			this.writeResult( rslt );

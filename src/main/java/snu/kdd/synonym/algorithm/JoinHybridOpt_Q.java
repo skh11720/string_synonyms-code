@@ -123,12 +123,15 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Actually, tableT
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_5_1_Index Count Time" );
 
+		ArrayList<Integer> countPerPosition = new ArrayList<Integer>();
+
 		for( Record rec : tableS ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 
 			for( int i = invokesInitialized; i < searchmax; i++ ) {
 				T_invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
+				countPerPosition.add( 0 );
 			}
 			invokesInitialized = searchmax;
 
@@ -149,11 +152,20 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 						count.increment();
 					}
 				}
+
+				int newSize = countPerPosition.get( i ) + available.size();
+
+				countPerPosition.add( i, newSize );
 			}
 		}
 
+		for( int i = 0; i < countPerPosition.size(); i++ ) {
+			stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
+		}
+
 		System.out.println( "Bigram retrieval : " + Record.exectime );
-		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
+		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
+		stat.add( "Mem_After_Counting_Bigrams", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
@@ -207,7 +219,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			est_cmps += minInvokes;
 		}
 		System.out.println( "Bigram retrieval : " + Record.exectime );
-		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
+		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
 		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
 
 		stat.add( "Mem_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
@@ -218,7 +230,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		for( int i = 0; i < idx.size(); i++ ) {
 			if( idx.get( i ).size() != 0 ) {
 				// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
-				stat.add( "Stat_JoinMin_IDX" + i, idx.get( i ).size() );
+				stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
 			}
 		}
 		stepTime.stopAndAdd( stat );
