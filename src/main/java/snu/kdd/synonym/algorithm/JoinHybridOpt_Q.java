@@ -1,5 +1,7 @@
 package snu.kdd.synonym.algorithm;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
@@ -158,6 +161,22 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				int newSize = countPerPosition.get( i ) + available.size();
 
 				countPerPosition.set( i, newSize );
+			}
+		}
+
+		// DEBUG
+		{
+			try {
+				BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_T_invokes.txt" ) );
+				for( int i = 0; i < T_invokes.size(); i++ ) {
+					for( Entry<IntegerPair, WrappedInteger> entry : T_invokes.get( i ).entrySet() ) {
+						bw.write( entry.getKey() + " " + entry.getValue() );
+					}
+				}
+				bw.close();
+			}
+			catch( Exception e ) {
+				e.printStackTrace();
 			}
 		}
 
