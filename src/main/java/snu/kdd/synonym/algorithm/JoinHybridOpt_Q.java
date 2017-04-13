@@ -208,7 +208,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
-			int searchmax = Math.min( range[ 0 ] - 1, maxIndex );
+			int searchmax = Math.min( range[ 0 ], maxIndex );
 
 			List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
 
