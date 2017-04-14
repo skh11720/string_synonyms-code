@@ -87,8 +87,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		long idxsize = 0;
 		int count = 0;
 
-		for( int i = 0; i < tableT.size(); ++i ) {
-			final Record recR = tableT.get( i );
+		for( int i = 0; i < tableX.size(); ++i ) {
+			final Record recR = tableX.get( i );
 			final long est = recR.getEstNumRecords();
 
 			if( threshold != -1 && est > threshold ) {
@@ -150,8 +150,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		final long starttime = System.nanoTime();
 		long totalExpSize = 0;
 
-		for( int idxS = 0; idxS < tableS.size(); ++idxS ) {
-			final Record recS = tableS.get( idxS );
+		for( int idxS = 0; idxS < tableY.size(); ++idxS ) {
+			final Record recS = tableY.get( idxS );
 			final long est = recS.getEstNumRecords();
 			if( threshold != -1 && est > threshold ) {
 				continue;
@@ -182,11 +182,11 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	}
 
 	private void preprocess() {
-		for( final Record r : tableT ) {
+		for( final Record r : tableX ) {
 			r.preprocessRules( automata, false );
 			r.preprocessEstimatedRecords();
 		}
-		for( final Record s : tableS ) {
+		for( final Record s : tableY ) {
 			s.preprocessRules( automata, false );
 			s.preprocessEstimatedRecords();
 		}

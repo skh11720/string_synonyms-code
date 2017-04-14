@@ -31,8 +31,8 @@ public class SIJoin extends AlgorithmTemplate {
 
 		long startTime = System.currentTimeMillis();
 
-		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, tableT );
-		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, tableS );
+		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, tableX );
+		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, tableY );
 		System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );
 		System.out.println( "Sig size : " + treeR.sigsize );
 

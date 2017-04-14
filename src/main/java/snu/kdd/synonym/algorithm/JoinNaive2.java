@@ -26,8 +26,8 @@ public class JoinNaive2 extends AlgorithmTemplate {
 	public JoinNaive2( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 		rec2idx = new HashMap<Record, Integer>();
-		for( int i = 0; i < tableT.size(); ++i )
-			rec2idx.put( tableT.get( i ), i );
+		for( int i = 0; i < tableX.size(); ++i )
+			rec2idx.put( tableX.get( i ), i );
 	}
 
 	private List<IntegerPair> join() {
@@ -35,8 +35,8 @@ public class JoinNaive2 extends AlgorithmTemplate {
 		ruletrie = new RuleTrie( getRulelist() );
 		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
-		for( int idxS = 0; idxS < tableS.size(); ++idxS ) {
-			Record recS = tableS.get( idxS );
+		for( int idxS = 0; idxS < tableY.size(); ++idxS ) {
+			Record recS = tableY.get( idxS );
 			recS.preprocessRules( automata, false );
 			recS.preprocessEstimatedRecords();
 			long est = recS.getEstNumRecords();

@@ -40,28 +40,28 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 				return Long.compare( est1, est2 );
 			}
 		};
-		Collections.sort( tableT, cmp );
-		Collections.sort( tableS, cmp );
+		Collections.sort( tableX, cmp );
+		Collections.sort( tableY, cmp );
 
 		// Reassign ID
-		for( int i = 0; i < tableT.size(); ++i ) {
-			Record t = tableT.get( i );
+		for( int i = 0; i < tableX.size(); ++i ) {
+			Record t = tableX.get( i );
 			t.setID( i );
 		}
-		long maxTEstNumRecords = tableT.get( tableT.size() - 1 ).getEstNumRecords();
+		long maxTEstNumRecords = tableX.get( tableX.size() - 1 ).getEstNumRecords();
 
-		for( int i = 0; i < tableS.size(); ++i ) {
-			Record s = tableS.get( i );
+		for( int i = 0; i < tableY.size(); ++i ) {
+			Record s = tableY.get( i );
 			s.setID( i );
 		}
-		long maxSEstNumRecords = tableS.get( tableS.size() - 1 ).getEstNumRecords();
+		long maxSEstNumRecords = tableY.get( tableY.size() - 1 ).getEstNumRecords();
 
 		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
 		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
 	}
 
 	public void printInfo( int id ) {
-		Record r = tableT.get( id );
+		Record r = tableX.get( id );
 		System.out.println( r );
 
 		int length = r.getTokenArray().length;

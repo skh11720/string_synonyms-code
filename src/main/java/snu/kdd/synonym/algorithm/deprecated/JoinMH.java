@@ -49,7 +49,7 @@ public class JoinMH extends AlgorithmTemplate {
 			idx = new ArrayList<Map<IntegerPair, List<IntIntRecordTriple>>>();
 			for( int i = 0; i < maxIndex; ++i )
 				idx.add( new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>() );
-			for( Record rec : tableT ) {
+			for( Record rec : tableX ) {
 				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int boundary = Math.min( range[ 1 ], maxIndex );
@@ -106,7 +106,7 @@ public class JoinMH extends AlgorithmTemplate {
 		long cand_sum_afterunion[] = new long[ maxIndex ];
 		int count_cand[] = new int[ maxIndex ];
 		int count_empty[] = new int[ maxIndex ];
-		for( Record recS : tableS ) {
+		for( Record recS : tableY ) {
 			List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
 
