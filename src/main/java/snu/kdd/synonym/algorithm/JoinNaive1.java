@@ -79,7 +79,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		stat.add( writeTime );
 	}
 
-	private void buildIndex() {
+	private void buildIndex( boolean addStat ) {
 		rec2idx = new WYK_HashMap<>( 1000000 );
 		final long starttime = System.nanoTime();
 
@@ -87,6 +87,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		long estimatedExpSize = 0;
 		long idxsize = 0;
 		int count = 0;
+
+		long expandTime = 0;
+		long indexingTime = 0;
 
 		for( int i = 0; i < tableSearched.size(); ++i ) {
 			final Record recR = tableSearched.get( i );
@@ -97,13 +100,16 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				continue;
 			}
 
+			long expandStartTime = System.nanoTime();
 			final List<Record> expanded = recR.expandAll( ruletrie );
+			expandTime += System.nanoTime() - expandStartTime;
 
 			assert ( threshold == -1 || expanded.size() <= threshold );
 
 			totalExpSize += expanded.size();
 			estimatedExpSize += est;
 
+			long indexingStartTime = System.nanoTime();
 			for( final Record exp : expanded ) {
 				ArrayList<Integer> list = rec2idx.get( exp );
 
@@ -120,20 +126,25 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				list.add( i );
 				idxsize++;
 			}
+			indexingTime += System.nanoTime() - indexingStartTime;
 			++count;
 		}
-
-		stat.add( "Stat_Indexed Records", count );
-		stat.add( "Stat_Total index size", idxsize );
 
 		// ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
 		final long duration = System.nanoTime() - starttime;
 		alpha = ( (double) duration ) / totalExpSize;
 
-		stat.add( "Est_Stat_totalExpSize", totalExpSize );
-		stat.add( "Est_Stat_estimatedExpSize", estimatedExpSize );
-		stat.add( "Est_Stat_executeTimeRatio", Double.toString( alpha ) );
+		if( addStat ) {
+			stat.add( "Stat_Indexed Records", count );
+			stat.add( "Stat_Total index size", idxsize );
 
+			stat.add( "Est_Stat_totalExpSize", totalExpSize );
+			stat.add( "Est_Stat_estimatedExpSize", estimatedExpSize );
+			stat.add( "Est_Stat_executeTimeRatio", Double.toString( alpha ) );
+			stat.add( "Est_Time_executeTime", duration );
+			stat.add( "Est_Time_expandTime", expandTime );
+			stat.add( "Est_Time_indexingTime", indexingTime );
+		}
 	}
 
 	public void clearIndex() {
@@ -203,7 +214,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
 		// Index building
 		StopWatch idxTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		buildIndex();
+		buildIndex( addStat );
 		idxTime.stopQuiet();
 		if( addStat ) {
 			stat.add( idxTime );
