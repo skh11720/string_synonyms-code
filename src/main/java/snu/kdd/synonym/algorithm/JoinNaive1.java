@@ -225,14 +225,21 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	}
 
 	private void preprocess() {
-		for( final Record r : tableSearched ) {
-			r.preprocessRules( automata, false );
-			r.preprocessEstimatedRecords();
+		long applicableRules = 0;
+		for( final Record t : tableSearched ) {
+			t.preprocessRules( automata, false );
+			applicableRules += t.getNumApplicableRules();
+			t.preprocessEstimatedRecords();
 		}
+		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+
+		applicableRules = 0;
 		for( final Record s : tableIndexed ) {
 			s.preprocessRules( automata, false );
+			applicableRules += s.getNumApplicableRules();
 			s.preprocessEstimatedRecords();
 		}
+		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
 	}
 
 	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
