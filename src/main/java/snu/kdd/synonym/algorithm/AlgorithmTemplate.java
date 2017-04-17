@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -314,7 +316,8 @@ public abstract class AlgorithmTemplate {
 				if( selfJoin && r.equals( s ) ) {
 					continue;
 				}
-				bw.write( tableSearched.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableIndexed.get( ip.i2 ).toString( strlist ) + "\n" );
+				bw.write( tableSearched.get( ip.i1 ).toString( strlist ) + "\t==\t"
+						+ tableIndexed.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}
@@ -370,4 +373,28 @@ public abstract class AlgorithmTemplate {
 			e.printStackTrace();
 		}
 	}
+
+	public void printGCStats() {
+		long totalGarbageCollections = 0;
+		long garbageCollectionTime = 0;
+
+		for( GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans() ) {
+
+			long count = gc.getCollectionCount();
+
+			if( count >= 0 ) {
+				totalGarbageCollections += count;
+			}
+
+			long time = gc.getCollectionTime();
+
+			if( time >= 0 ) {
+				garbageCollectionTime += time;
+			}
+		}
+
+		System.out.println( "Total Garbage Collections: " + totalGarbageCollections );
+		System.out.println( "Total Garbage Collection Time (ms): " + garbageCollectionTime );
+	}
+
 }

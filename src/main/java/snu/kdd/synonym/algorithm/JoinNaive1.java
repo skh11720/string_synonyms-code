@@ -274,7 +274,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Stat_Union counter", StaticFunctions.union_cmp_counter );
 			stat.add( "Stat_Equals counter", StaticFunctions.compare_cmp_counter );
 		}
+		printGCStats();
 
 		return rslt;
 	}
+
 }
