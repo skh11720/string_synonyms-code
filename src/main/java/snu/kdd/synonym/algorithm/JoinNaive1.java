@@ -115,7 +115,12 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 				if( debug ) {
 					if( expanded.size() != est ) {
-						debug_bw.write( recR.toString() );
+						debug_bw.write( recR.toString() + "\n" );
+						debug_bw.write( "expaneded: " + expanded.size() + "\n" );
+						debug_bw.write( "estimated: " + est + "\n" );
+						for( int x = 0; x < expanded.size(); x++ ) {
+							debug_bw.write( expanded.get( x ).toString() + "\n" );
+						}
 						debug = false;
 					}
 				}
