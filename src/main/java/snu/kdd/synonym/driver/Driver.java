@@ -133,6 +133,8 @@ public class Driver {
 
 		totalTime.stop();
 
+		alg.printGCStats();
+
 		stat.addPrimary( totalTime );
 
 		alg.printStat();

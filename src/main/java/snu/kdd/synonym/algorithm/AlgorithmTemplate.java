@@ -395,6 +395,9 @@ public abstract class AlgorithmTemplate {
 
 		System.out.println( "Total Garbage Collections: " + totalGarbageCollections );
 		System.out.println( "Total Garbage Collection Time (ms): " + garbageCollectionTime );
+
+		stat.add( "Stat_Garbage_Collections", totalGarbageCollections );
+		stat.add( "Stat_Garbage_Collections_Time", garbageCollectionTime );
 	}
 
 }
