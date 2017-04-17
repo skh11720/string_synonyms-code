@@ -73,7 +73,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		runTime.stop();
 		stat.add( runTime );
 
-		final StopWatch writeTime = StopWatch.getWatchStarted( "Write Time" );
+		final StopWatch writeTime = StopWatch.getWatchStarted( "Result_4_Write_Time" );
 		this.writeResult( list );
 		writeTime.stop();
 		stat.add( writeTime );
@@ -157,15 +157,16 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		alpha = ( (double) duration ) / totalExpSize;
 
 		if( addStat ) {
-			stat.add( "Stat_Indexed Records", count );
-			stat.add( "Stat_Total index size", idxsize );
+			stat.add( "Stat_Size_Indexed_Records", count );
+			stat.add( "Stat_Size_Total_Index", idxsize );
 
-			stat.add( "Est_Index_expSize", totalExpSize );
-			stat.add( "Est_Index_expSizeEstimated", estimatedExpSize );
-			stat.add( "Est_Index_executeTimeRatio", Double.toString( alpha ) );
-			stat.add( "Est_Index_executeTime", duration );
-			stat.add( "Est_Index_expandTime", expandTime );
-			stat.add( "Est_Index_indexingTime", indexingTime );
+			stat.add( "Est_Index_1_expSize", totalExpSize );
+			stat.add( "Est_Index_2_expSizeEstimated", estimatedExpSize );
+			stat.add( "Est_Index_3_executeTimeRatio", Double.toString( alpha ) );
+
+			stat.add( "Est_Index_1_expandTime", expandTime );
+			stat.add( "Est_Index_2_indexingTime", indexingTime );
+			stat.add( "Est_Index_3_totalTime", duration );
 		}
 	}
 
@@ -230,9 +231,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		final long duration = System.nanoTime() - starttime;
 		beta = ( (double) duration ) / totalExpSize;
 
-		stat.add( "Est_Join_totalTime", duration );
-		stat.add( "Est_Join_expandTime", expandTime );
-		stat.add( "Est_Join_searchTime", searchTime );
+		stat.add( "Est_Join_3_totalTime", duration );
+		stat.add( "Est_Join_1_expandTime", expandTime );
+		stat.add( "Est_Join_2_searchTime", searchTime );
 
 		return rslt;
 	}
