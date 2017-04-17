@@ -162,12 +162,12 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Stat_Indexed Records", count );
 			stat.add( "Stat_Total index size", idxsize );
 
-			stat.add( "Est_Stat_totalExpSize", totalExpSize );
-			stat.add( "Est_Stat_estimatedExpSize", estimatedExpSize );
-			stat.add( "Est_Stat_executeTimeRatio", Double.toString( alpha ) );
-			stat.add( "Est_Time_executeTime", duration );
-			stat.add( "Est_Time_expandTime", expandTime );
-			stat.add( "Est_Time_indexingTime", indexingTime );
+			stat.add( "Est_Index_expSize", totalExpSize );
+			stat.add( "Est_Index_expSizeEstimated", estimatedExpSize );
+			stat.add( "Est_Index_executeTimeRatio", Double.toString( alpha ) );
+			stat.add( "Est_Index_executeTime", duration );
+			stat.add( "Est_Index_expandTime", expandTime );
+			stat.add( "Est_Index_indexingTime", indexingTime );
 		}
 	}
 
