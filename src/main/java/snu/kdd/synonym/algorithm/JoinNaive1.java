@@ -271,8 +271,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		if( addStat ) {
 			stat.add( joinTime );
 			// stat.addPrimary( "Naive Result size", rslt.size() );
-			stat.add( "Stat_Union counter", StaticFunctions.union_cmp_counter );
-			stat.add( "Stat_Equals counter", StaticFunctions.compare_cmp_counter );
+			stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
+			stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
 		}
 		printGCStats();
 
