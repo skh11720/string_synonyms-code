@@ -84,6 +84,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		final long starttime = System.nanoTime();
 
 		long totalExpSize = 0;
+		long estimatedExpSize = 0;
 		long idxsize = 0;
 		int count = 0;
 
@@ -101,6 +102,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			assert ( threshold == -1 || expanded.size() <= threshold );
 
 			totalExpSize += expanded.size();
+			estimatedExpSize += est;
+
 			for( final Record exp : expanded ) {
 				ArrayList<Integer> list = rec2idx.get( exp );
 
@@ -126,6 +129,11 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		// ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
 		final long duration = System.nanoTime() - starttime;
 		alpha = ( (double) duration ) / totalExpSize;
+
+		stat.add( "Est_Stat_totalExpSize", totalExpSize );
+		stat.add( "Est_Stat_estimatedExpSize", estimatedExpSize );
+		stat.add( "Est_Stat_executeTimeRatio", Double.toString( alpha ) );
+
 	}
 
 	public void clearIndex() {
