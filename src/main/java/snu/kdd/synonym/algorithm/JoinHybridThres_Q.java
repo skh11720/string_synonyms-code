@@ -84,7 +84,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		// Actually, tableT
 		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
 
-		for( Record rec : tableY ) {
+		for( Record rec : tableIndexed ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 
@@ -120,7 +120,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "Indexing Time" );
 		// Actually, tableS
-		for( Record rec : tableX ) {
+		for( Record rec : tableSearched ) {
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
@@ -186,8 +186,8 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		// Build 1-expanded set for every record in R
 		int count = 0;
 		setR = new HashMap<Record, List<Integer>>();
-		for( int i = 0; i < tableX.size(); ++i ) {
-			Record rec = tableX.get( i );
+		for( int i = 0; i < tableSearched.size(); ++i ) {
+			Record rec = tableSearched.get( i );
 			assert ( rec != null );
 			if( rec.getEstNumRecords() > joinThreshold )
 				continue;
@@ -236,7 +236,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		stepTime.resetAndStart( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
 		// lastTokenFiltered = 0;
-		for( Record s : tableY ) {
+		for( Record s : tableIndexed ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
@@ -255,7 +255,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		stepTime.resetAndStart( "SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
-		for( Record s : tableY ) {
+		for( Record s : tableIndexed ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
 				continue;
 			}
@@ -355,14 +355,14 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableX ) {
+		for( Record rec : tableSearched ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
 			strlengthsum += length;
 			maxstrlength = Math.max( maxstrlength, length );
 		}
-		for( Record rec : tableY ) {
+		for( Record rec : tableIndexed ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -397,21 +397,21 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				return Long.compare( est1, est2 );
 			}
 		};
-		Collections.sort( tableX, cmp );
-		Collections.sort( tableY, cmp );
+		Collections.sort( tableSearched, cmp );
+		Collections.sort( tableIndexed, cmp );
 
 		// Reassign ID
-		for( int i = 0; i < tableX.size(); ++i ) {
-			Record s = tableX.get( i );
+		for( int i = 0; i < tableSearched.size(); ++i ) {
+			Record s = tableSearched.get( i );
 			s.setID( i );
 		}
-		long maxTEstNumRecords = tableX.get( tableX.size() - 1 ).getEstNumRecords();
+		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 
-		for( int i = 0; i < tableY.size(); ++i ) {
-			Record t = tableY.get( i );
+		for( int i = 0; i < tableIndexed.size(); ++i ) {
+			Record t = tableIndexed.get( i );
 			t.setID( i );
 		}
-		long maxSEstNumRecords = tableY.get( tableY.size() - 1 ).getEstNumRecords();
+		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
 		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
 		System.out.println( "Max T expanded size : " + maxTEstNumRecords );

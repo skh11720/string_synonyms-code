@@ -21,6 +21,8 @@ import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
+import tools.LongIntPair;
+import tools.QGram;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
@@ -62,6 +64,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	double epsilon;
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
+	private static final CountEntry ZERO_ONE = new CountEntry( 0, 1 );
 	private static final int RECORD_CLASS_BYTES = 64;
 
 	/* private int intarrbytes(int len) {
@@ -77,6 +80,40 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		Directory() {
 			list = new ArrayList<Record>();
 			SHsize = 0;
+		}
+	}
+
+	class IndexEntry {
+		List<Record> smallList;
+		List<Record> largeList;
+
+		IndexEntry() {
+			smallList = new ArrayList<Record>();
+			largeList = new ArrayList<Record>();
+		}
+	}
+
+	public static class CountEntry {
+		public int smallListSize;
+		public int largeListSize;
+
+		CountEntry() {
+			smallListSize = 0;
+			largeListSize = 0;
+		}
+
+		CountEntry( int small, int large ) {
+			smallListSize = small;
+			largeListSize = large;
+		}
+
+		void increaseLarge() {
+			largeListSize++;
+		}
+
+		void fromLargeToSmall() {
+			largeListSize--;
+			smallListSize++;
 		}
 	}
 
@@ -122,21 +159,21 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				return Long.compare( est1, est2 );
 			}
 		};
-		Collections.sort( tableX, cmp );
-		Collections.sort( tableY, cmp );
+		Collections.sort( tableSearched, cmp );
+		Collections.sort( tableIndexed, cmp );
 
 		// Reassign ID
-		for( int i = 0; i < tableX.size(); ++i ) {
-			Record t = tableX.get( i );
+		for( int i = 0; i < tableSearched.size(); ++i ) {
+			Record t = tableSearched.get( i );
 			t.setID( i );
 		}
-		long maxTEstNumRecords = tableX.get( tableX.size() - 1 ).getEstNumRecords();
+		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 
-		for( int i = 0; i < tableY.size(); ++i ) {
-			Record s = tableY.get( i );
+		for( int i = 0; i < tableIndexed.size(); ++i ) {
+			Record s = tableIndexed.get( i );
 			s.setID( i );
 		}
-		long maxSEstNumRecords = tableY.get( tableY.size() - 1 ).getEstNumRecords();
+		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
 		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
 		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
@@ -182,6 +219,112 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		writeResult( rslt );
 	}
 
+	private long findThetaRevised( int maxThreshold ) {
+		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
+
+		// count qgrams for each that will be searched
+		for( Record rec : tableSearched ) {
+			// TODO : modify with qgrams
+			List<Set<QGram>> availableQGrams = rec.getQGrams();
+			int searchmax = Math.min( availableQGrams.size(), maxIndex );
+
+			for( int i = positionalQCountMap.size(); i < searchmax; i++ ) {
+				positionalQCountMap.add( new WYK_HashMap<QGram, CountEntry>() );
+			}
+
+			for( int i = 0; i < searchmax; ++i ) {
+				Map<QGram, CountEntry> currPositionalCount = positionalQCountMap.get( i );
+
+				Set<QGram> positionalQGram = availableQGrams.get( i );
+				for( QGram qgram : positionalQGram ) {
+					CountEntry count = currPositionalCount.get( qgram );
+
+					if( count == null ) {
+						currPositionalCount.put( qgram, ZERO_ONE );
+					}
+					else if( count == ZERO_ONE ) {
+						count = new CountEntry( 0, 2 );
+						currPositionalCount.put( qgram, count );
+					}
+					else {
+						count.increaseLarge();
+					}
+				}
+			}
+		}
+
+		long bestThreshold = 0;
+		double bestEstimatedTime = Double.MAX_VALUE;
+
+		// TODO : compute estimated time of JoinMin only
+
+		// since both tables are sorted with est num records, the two values are minimum est num records in both tables
+		long threshold = Math.min( tableSearched.get( 0 ).getEstNumRecords(), tableIndexed.get( 0 ).getEstNumRecords() );
+
+		int idSearched = 0;
+		int idIndexed = 0;
+		long naiveExpSize = 0;
+
+		while( idSearched < tableSearched.size() ) {
+			if( threshold > maxThreshold ) {
+				System.out.println( "Stop searching due to maxTheta" );
+				break;
+			}
+
+			// iterate through tableSearched
+			while( idSearched < tableSearched.size() ) {
+				Record s = tableSearched.get( idSearched );
+				long expSize = s.getEstNumRecords();
+
+				if( expSize > threshold ) {
+					break;
+				}
+
+				// update count for JoinMin
+				List<Set<QGram>> availableQGrams = s.getQGrams();
+
+				for( int i = 0; i < availableQGrams.size(); i++ ) {
+					Set<QGram> qgrams = availableQGrams.get( i );
+					Map<QGram, CountEntry> currPositionalCount = positionalQCountMap.get( i );
+					for( QGram qg : qgrams ) {
+						CountEntry entry = currPositionalCount.get( qg );
+						entry.fromLargeToSmall();
+					}
+				}
+
+				// update count for JoinNaive
+				naiveExpSize += expSize;
+			}
+
+			// iterate through tableIndexed to count candidate when join two tables
+			long joinMinCandidateCount = 0;
+			while( idIndexed < tableIndexed.size() ) {
+				Record t = tableIndexed.get( idIndexed );
+				long expSize = t.getEstNumRecords();
+
+				if( expSize > threshold ) {
+					break;
+				}
+
+				LongIntPair result = t.getMinimumIndexSize( positionalQCountMap, threshold );
+				joinMinCandidateCount += result.l;
+			}
+
+			double estimatedExecutionTime = getEstimatedTime( naiveExpSize, joinMinCandidateCount );
+
+			if( bestEstimatedTime > estimatedExecutionTime ) {
+				bestEstimatedTime = estimatedExecutionTime;
+				bestThreshold = threshold;
+			}
+		}
+
+		return bestThreshold;
+	}
+
+	private double getEstimatedTime( long naiveExpSize, long joinMinCandidateCount ) {
+		return 0;
+	}
+
 	private void findTheta( int max_theta ) {
 		// Find the best threshold
 		int best_theta = 0;
@@ -195,7 +338,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// records
 		int sidx = 0;
 		int tidx = 0;
-		long theta = Math.min( tableX.get( 0 ).getEstNumRecords(), tableY.get( 0 ).getEstNumRecords() );
+		long theta = Math.min( tableSearched.get( 0 ).getEstNumRecords(), tableIndexed.get( 0 ).getEstNumRecords() );
 
 		// Number of bigrams generated by expanded TL records
 		Map<Integer, Map<IntegerPair, WrappedInteger>> TL_invokes = new WYK_HashMap<Integer, Map<IntegerPair, WrappedInteger>>();
@@ -203,7 +346,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Prefix sums
 		long currSLExpSize = 0;
 		long currTLExpSize = 0;
-		while( sidx < tableX.size() || tidx < tableY.size() ) {
+		while( sidx < tableSearched.size() || tidx < tableIndexed.size() ) {
 			if( theta > max_theta ) {
 				break;
 			}
@@ -211,8 +354,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			// Estimate new running time
 			// Modify SL_TH_invokes, SL_TH_idx
-			while( tidx < tableY.size() ) {
-				Record t = tableY.get( tidx++ );
+			while( tidx < tableIndexed.size() ) {
+				Record t = tableIndexed.get( tidx++ );
 				long expSize = t.getEstNumRecords();
 
 				if( expSize > theta ) {
@@ -268,8 +411,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 
 			// Modify both indexes
-			while( sidx < tableX.size() ) {
-				Record s = tableX.get( sidx++ );
+			while( sidx < tableSearched.size() ) {
+				Record s = tableSearched.get( sidx++ );
 				long expSize = s.getEstNumRecords();
 				if( expSize > theta ) {
 					next_theta = Math.min( next_theta, expSize );
@@ -369,7 +512,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		ArrayList<Integer> countPerPosition = new ArrayList<Integer>();
 
-		for( Record rec : tableY ) {
+		for( Record rec : tableIndexed ) {
 			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int searchmax = Math.min( available2Grams.size(), maxIndex );
 
@@ -438,7 +581,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// BufferedWriter bw = new BufferedWriter( new FileWriter( "MinIndex.txt" ) );
 		// boolean debug = false;
 
-		for( Record rec : tableX ) {
+		for( Record rec : tableSearched ) {
 
 			// if( rec.getID() < 100 ) {
 			// debug = true;
@@ -547,8 +690,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Build 1-expanded set for every record in R
 		int count = 0;
 		setR = new HashMap<Record, List<Integer>>();
-		for( int i = 0; i < tableX.size(); ++i ) {
-			Record rec = tableX.get( i );
+		for( int i = 0; i < tableSearched.size(); ++i ) {
+			Record rec = tableSearched.get( i );
 			assert ( rec != null );
 			if( rec.getEstNumRecords() > joinThreshold )
 				continue;
@@ -597,7 +740,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableY ) {
+		for( Record s : tableIndexed ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
 		stat.add( "Stat_Join_AppliedRules Sum", appliedRules_sum );
@@ -613,7 +756,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
-		for( Record s : tableY ) {
+		for( Record s : tableIndexed ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
 				continue;
 			}
@@ -708,14 +851,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableX ) {
+		for( Record rec : tableSearched ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
 			strlengthsum += length;
 			maxstrlength = Math.max( maxstrlength, length );
 		}
-		for( Record rec : tableY ) {
+		for( Record rec : tableIndexed ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
@@ -743,21 +886,21 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		List<Record> sampleTlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
-		for( Record r : tableX ) {
+		for( Record r : tableSearched ) {
 			if( rn.nextDouble() < sampleratio ) {
 				sampleTlist.add( r );
 			}
 		}
-		for( Record s : tableY ) {
+		for( Record s : tableIndexed ) {
 			if( rn.nextDouble() < sampleratio ) {
 				sampleSlist.add( s );
 			}
 		}
-		List<Record> tmpR = tableX;
-		List<Record> tmpS = tableY;
+		List<Record> tmpR = tableSearched;
+		List<Record> tmpS = tableIndexed;
 
-		tableX = sampleTlist;
-		tableY = sampleSlist;
+		tableSearched = sampleTlist;
+		tableIndexed = sampleSlist;
 
 		System.out.println( sampleTlist.size() + " T records are sampled" );
 		System.out.println( sampleSlist.size() + " S records are sampled" );
@@ -795,8 +938,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		Validator.printStats();
 
 		// Restore tables
-		tableX = tmpR;
-		tableY = tmpS;
+		tableSearched = tmpR;
+		tableIndexed = tmpS;
 
 		System.out.println( "Alpha : " + alpha );
 		System.out.println( "Beta : " + beta );

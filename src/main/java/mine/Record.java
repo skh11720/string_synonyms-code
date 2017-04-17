@@ -10,8 +10,11 @@ import java.util.Set;
 
 import sigmod13.RecordInterface;
 import sigmod13.filter.ITF_Filter;
+import snu.kdd.synonym.algorithm.JoinHybridOpt_Q.CountEntry;
 import tools.IntegerPair;
 import tools.IntegerSet;
+import tools.LongIntPair;
+import tools.QGram;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -387,6 +390,43 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	public static long exectime = 0;
+
+	public List<Set<QGram>> getQGrams() {
+		return null;
+	}
+
+	public LongIntPair getMinimumIndexSize( List<Map<QGram, CountEntry>> positionalQCountMap, long threshold ) {
+
+		boolean isLarge = this.getEstNumRecords() > threshold;
+		List<Set<QGram>> positionalQGrams = this.getQGrams();
+
+		int minIndex = 0;
+		long minCount = Long.MAX_VALUE;
+
+		for( int i = 0; i < positionalQGrams.size(); i++ ) {
+			Set<QGram> qgrams = positionalQGrams.get( i );
+			Map<QGram, CountEntry> currentCountMap = positionalQCountMap.get( i );
+
+			long count = 0;
+			for( QGram qgram : qgrams ) {
+				CountEntry entry = currentCountMap.get( qgram );
+
+				if( isLarge ) {
+					count += entry.largeListSize + entry.smallListSize;
+				}
+				else {
+					count += entry.largeListSize;
+				}
+			}
+
+			if( minCount > count ) {
+				minCount = count;
+				minIndex = i;
+			}
+		}
+
+		return new LongIntPair( minCount, minIndex );
+	}
 
 	/**
 	 * Returns all available (actually, superset) 2 grams

@@ -37,10 +37,10 @@ public abstract class AlgorithmTemplate {
 	protected List<String> strlist;
 
 	// Table S
-	protected List<Record> tableX;
+	protected List<Record> tableSearched;
 
 	// Table T
-	protected List<Record> tableY;
+	protected List<Record> tableIndexed;
 
 	private boolean selfJoin = false;
 
@@ -49,8 +49,8 @@ public abstract class AlgorithmTemplate {
 
 		this.str2int = o.str2int;
 		this.strlist = o.strlist;
-		this.tableX = o.tableX;
-		this.tableY = o.tableY;
+		this.tableSearched = o.tableSearched;
+		this.tableIndexed = o.tableIndexed;
 		this.rulelist = o.rulelist;
 		this.outputfile = o.outputfile;
 	}
@@ -110,8 +110,8 @@ public abstract class AlgorithmTemplate {
 		// Read records
 		final int size = -1;
 		Record.setStrList( strlist );
-		tableX = readRecords( Rfile, size );
-		tableY = readRecords( Sfile, size );
+		tableSearched = readRecords( Rfile, size );
+		tableIndexed = readRecords( Sfile, size );
 
 		readRules( rulefile );
 
@@ -148,11 +148,11 @@ public abstract class AlgorithmTemplate {
 	}
 
 	public List<Record> getTableT() {
-		return tableX;
+		return tableSearched;
 	}
 
 	public List<Record> getTableS() {
-		return tableY;
+		return tableIndexed;
 	}
 
 	public abstract String getVersion();
@@ -172,19 +172,19 @@ public abstract class AlgorithmTemplate {
 
 		long applicableRules = 0;
 		// Preprocess each records in R
-		for( final Record rec : tableX ) {
+		for( final Record rec : tableSearched ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			applicableRules += rec.getNumApplicableRules();
 		}
 		preprocessTime.stopQuietAndAdd( stat );
 
 		// System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableT.size() );
-		stat.add( "Stat_Avg applicable rules", applicableRules + "/" + tableX.size() );
+		stat.add( "Stat_Avg applicable rules", applicableRules + "/" + tableSearched.size() );
 
 		preprocessTime.resetAndStart( "Result_2_2_Preprocess length time" );
 
 		// System.out.println( "Preprocessing with modified length" );
-		for( final Record rec : tableX ) {
+		for( final Record rec : tableSearched ) {
 			rec.preprocessLengths();
 			// DEBUG
 			// rec.preprocessLastToken();
@@ -194,7 +194,7 @@ public abstract class AlgorithmTemplate {
 
 		preprocessTime.resetAndStart( "Result_2_3_Preprocess est record time" );
 		long maxTSize = 0;
-		for( final Record rec : tableX ) {
+		for( final Record rec : tableSearched ) {
 			rec.preprocessEstimatedRecords();
 			long est = rec.getEstimatedEquiv();
 			if( maxTSize < est ) {
@@ -208,14 +208,14 @@ public abstract class AlgorithmTemplate {
 
 		if( !compact ) {
 			preprocessTime.resetAndStart( "Result_2_4_Preprocess token time" );
-			for( final Record rec : tableX ) {
+			for( final Record rec : tableSearched ) {
 				rec.preprocessAvailableTokens( maxIndex );
 			}
 			preprocessTime.stopQuietAndAdd( stat );
 		}
 
 		preprocessTime.resetAndStart( "Result_2_5_Preprocess early pruning time" );
-		for( final Record rec : tableX ) {
+		for( final Record rec : tableSearched ) {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}
@@ -224,7 +224,7 @@ public abstract class AlgorithmTemplate {
 		// Preprocess each records in S
 		preprocessTime.resetAndStart( "Result_2_6_Preprocess records in S time" );
 		long maxSSize = 0;
-		for( final Record rec : tableY ) {
+		for( final Record rec : tableIndexed ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			rec.preprocessLengths();
 			// rec.preprocessLastToken();
@@ -294,11 +294,11 @@ public abstract class AlgorithmTemplate {
 	}
 
 	public void setTableT( List<Record> tableT ) {
-		this.tableX = tableT;
+		this.tableSearched = tableT;
 	}
 
 	public void setTableS( List<Record> tableS ) {
-		this.tableY = tableS;
+		this.tableIndexed = tableS;
 	}
 
 	public void writeResult( Collection<IntegerPair> rslt ) {
@@ -309,12 +309,12 @@ public abstract class AlgorithmTemplate {
 			System.out.println( "Writing results " + rslt.size() );
 			final BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( final IntegerPair ip : rslt ) {
-				final Record r = tableX.get( ip.i1 );
-				final Record s = tableY.get( ip.i2 );
+				final Record r = tableSearched.get( ip.i1 );
+				final Record s = tableIndexed.get( ip.i2 );
 				if( selfJoin && r.equals( s ) ) {
 					continue;
 				}
-				bw.write( tableX.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableY.get( ip.i2 ).toString( strlist ) + "\n" );
+				bw.write( tableSearched.get( ip.i1 ).toString( strlist ) + "\t==\t" + tableIndexed.get( ip.i2 ).toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}

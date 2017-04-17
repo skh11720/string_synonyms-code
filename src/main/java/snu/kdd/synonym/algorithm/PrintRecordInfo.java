@@ -40,28 +40,28 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 				return Long.compare( est1, est2 );
 			}
 		};
-		Collections.sort( tableX, cmp );
-		Collections.sort( tableY, cmp );
+		Collections.sort( tableSearched, cmp );
+		Collections.sort( tableIndexed, cmp );
 
 		// Reassign ID
-		for( int i = 0; i < tableX.size(); ++i ) {
-			Record t = tableX.get( i );
+		for( int i = 0; i < tableSearched.size(); ++i ) {
+			Record t = tableSearched.get( i );
 			t.setID( i );
 		}
-		long maxTEstNumRecords = tableX.get( tableX.size() - 1 ).getEstNumRecords();
+		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 
-		for( int i = 0; i < tableY.size(); ++i ) {
-			Record s = tableY.get( i );
+		for( int i = 0; i < tableIndexed.size(); ++i ) {
+			Record s = tableIndexed.get( i );
 			s.setID( i );
 		}
-		long maxSEstNumRecords = tableY.get( tableY.size() - 1 ).getEstNumRecords();
+		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
 		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
 		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
 	}
 
 	public void printInfo( int id ) {
-		Record r = tableX.get( id );
+		Record r = tableSearched.get( id );
 		System.out.println( r );
 
 		int length = r.getTokenArray().length;

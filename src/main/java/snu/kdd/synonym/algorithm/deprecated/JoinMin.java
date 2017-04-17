@@ -93,7 +93,7 @@ public class JoinMin extends AlgorithmTemplate {
 		// Map<LongIntPair, Integer> invokes = new HashMap<IntegerPairIntPair,Integer>();
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
-		for( Record rec : tableY ) {
+		for( Record rec : tableIndexed ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
 				totalSigCount += set.size();
@@ -133,7 +133,7 @@ public class JoinMin extends AlgorithmTemplate {
 
 		long predictCount = 0;
 		long elements = 0;
-		for( Record rec : tableX ) {
+		for( Record rec : tableSearched ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			for( Set<IntegerPair> set : available2Grams )
 				totalSigCount += set.size();
@@ -273,7 +273,7 @@ public class JoinMin extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 		long count = 0;
 		long equivComparisons = 0;
-		for( Record recS : tableY ) {
+		for( Record recS : tableIndexed ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
 			// for (Set<IntegerPair> set : available2Grams)
 			// totalSigCount += set.size();
@@ -379,7 +379,7 @@ public class JoinMin extends AlgorithmTemplate {
 		// Build an index
 		// Count Invokes per each (twogram, loc) pair
 		Map<Integer, Map<IntegerPair, Integer>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, Integer>>();
-		for( Record rec : tableY ) {
+		for( Record rec : tableIndexed ) {
 			for( int i = 0; i < rec.size(); ++i ) {
 				Map<IntegerPair, Integer> curridx_invokes = invokes.get( i );
 				if( curridx_invokes == null ) {
@@ -397,7 +397,7 @@ public class JoinMin extends AlgorithmTemplate {
 		}
 
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-		for( Record rec : tableX ) {
+		for( Record rec : tableSearched ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
@@ -462,7 +462,7 @@ public class JoinMin extends AlgorithmTemplate {
 		WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 
 		long appliedRules_sum = 0;
-		for( Record recS : tableY ) {
+		for( Record recS : tableIndexed ) {
 			int minlength = recS.getMinLength();
 			int maxlength = recS.getMaxLength();
 			for( int i = 0; i < recS.size(); ++i ) {
@@ -507,14 +507,14 @@ public class JoinMin extends AlgorithmTemplate {
 		int rules = 0;
 		int maxrhslength = 0;
 
-		for( Record rec : tableX ) {
+		for( Record rec : tableSearched ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;
 			strlengthsum += length;
 			maxstrlength = Math.max( maxstrlength, length );
 		}
-		for( Record rec : tableY ) {
+		for( Record rec : tableIndexed ) {
 			strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
 			int length = rec.getTokenArray().length;
 			++strs;

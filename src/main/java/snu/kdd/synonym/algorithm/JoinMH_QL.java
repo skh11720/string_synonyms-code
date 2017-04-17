@@ -51,7 +51,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				idx.add( new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>() );
 			}
 
-			for( Record rec : tableX ) {
+			for( Record rec : tableSearched ) {
 				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams()
 						: rec.get2GramsWithBound( maxIndexLength );
 
@@ -151,8 +151,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		}
 
 		long lastTokenFiltered = 0;
-		for( int sid = 0; sid < tableY.size(); sid++ ) {
-			Record recS = tableY.get( sid );
+		for( int sid = 0; sid < tableIndexed.size(); sid++ ) {
+			Record recS = tableIndexed.get( sid );
 			Set<Record> candidates = new HashSet<Record>();
 
 			// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
