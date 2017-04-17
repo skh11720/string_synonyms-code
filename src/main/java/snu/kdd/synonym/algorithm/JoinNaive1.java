@@ -193,15 +193,24 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		final long starttime = System.nanoTime();
 		long totalExpSize = 0;
 
+		long expandTime = 0;
+		long searchTime = 0;
+
 		for( int idxS = 0; idxS < tableIndexed.size(); ++idxS ) {
 			final Record recS = tableIndexed.get( idxS );
 			final long est = recS.getEstNumRecords();
 			if( threshold != -1 && est > threshold ) {
 				continue;
 			}
+
+			long expandStartTime = System.nanoTime();
 			final List<Record> expanded = recS.expandAll( ruletrie );
+			expandTime += System.nanoTime() - expandStartTime;
+
 			totalExpSize += expanded.size();
 			final List<List<Integer>> candidates = new ArrayList<>( expanded.size() * 2 );
+
+			long searchStartTime = System.nanoTime();
 			for( final Record exp : expanded ) {
 				final List<Integer> overlapidx = rec2idx.get( exp );
 				if( overlapidx == null ) {
@@ -216,10 +225,16 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					rslt.add( new IntegerPair( idx, idxS ) );
 				}
 			}
+
+			searchTime += System.nanoTime() - searchStartTime;
 		}
 
 		final long duration = System.nanoTime() - starttime;
 		beta = ( (double) duration ) / totalExpSize;
+
+		stat.add( "Est_Join_totalTime", duration );
+		stat.add( "Est_Join_expandTime", expandTime );
+		stat.add( "Est_Join_searchTime", searchTime );
 
 		return rslt;
 	}
