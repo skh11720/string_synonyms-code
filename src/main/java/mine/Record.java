@@ -35,6 +35,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	protected int hashValue;
 	private static final int bigprime = 1645333507;
 
+	public static int expandAllCount = 0;
+
 	/**
 	 * Actual tokens
 	 */
@@ -911,6 +913,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	private void expandAll( ArrayList<Record> rslt, int idx, int[] t ) {
+		expandAllCount++;
+
 		if( idx == tokens.length ) {
 			rslt.add( new Record( t ) );
 			return;
