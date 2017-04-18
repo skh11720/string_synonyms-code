@@ -166,7 +166,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
 					debug_bw.write( String.format( " %.2f", time / recR.getTokenArray().length ) );
 					debug_bw.write( String.format( " %.2f", time / ( Record.expandAllCount - debug_Count ) ) );
-					debug_bw.write( " " + time + "\n" );
+					debug_bw.write( " " + time );
+					debug_bw.write( " " + Math.pow( 2, recR.getNumApplicableRules() ) );
+					debug_bw.write( "\n" );
 
 					debug_Count = Record.expandAllCount;
 				}
