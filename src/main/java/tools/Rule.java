@@ -9,6 +9,7 @@ public class Rule implements Comparable<Rule> {
 	private final int hash;
 	int[] from;
 	int[] to;
+	boolean isSelfRule = false;
 
 	public Rule( String str, Map<String, Integer> str2int ) {
 		int hash = 0;
@@ -56,11 +57,17 @@ public class Rule implements Comparable<Rule> {
 
 	public static Rule getSelfRule( int item ) {
 		Rule r = selfRuleMap.get( item );
+
 		if( r == null ) {
 			r = new Rule( item, item );
+			r.isSelfRule = true;
 			selfRuleMap.put( item, r );
 		}
 		return r;
+	}
+
+	public boolean isSelfRule() {
+		return isSelfRule;
 	}
 
 	public int[] getFrom() {

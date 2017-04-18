@@ -380,9 +380,9 @@ public class StaticFunctions {
 		return rslt;
 	}
 
-	public static boolean isSelfRule( Rule rule ) {
-		return rule.getFrom()[ 0 ] == rule.getTo()[ 0 ] && rule.getFrom().length == 1 && rule.getTo().length == 1;
-	}
+	// public static boolean isSelfRule( Rule rule ) {
+	// return rule.getFrom()[ 0 ] == rule.getTo()[ 0 ] && rule.getFrom().length == 1 && rule.getTo().length == 1;
+	// }
 
 	public static <T> void write2file( List<T> list, String filename ) throws IOException {
 		BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );

@@ -9,7 +9,6 @@ import tools.IntegerPair;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
-import tools.StaticFunctions;
 import tools.WYK_HashSet;
 
 public class RevRecord {
@@ -412,7 +411,7 @@ public class RevRecord {
 		ArrayList<Rule> rules = atm.applicableRules( tokens, idx );
 		for( Rule rule : rules ) {
 			RevRecord new_rec = this;
-			if( !StaticFunctions.isSelfRule( rule ) ) {
+			if( !rule.isSelfRule() ) {
 				new_rec = applyRule( rule, idx );
 			}
 			int new_idx = idx + rule.toSize();

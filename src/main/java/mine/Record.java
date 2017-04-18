@@ -786,7 +786,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		int count = 0;
 		for( int i = 0; i < applicableRules.length; ++i ) {
 			for( Rule rule : applicableRules[ i ] ) {
-				if( StaticFunctions.isSelfRule( rule ) ) {
+				if( rule.isSelfRule() ) {
 					continue;
 				}
 				++count;
@@ -851,7 +851,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		for( int i = 1; i <= size(); ++i ) {
 			Rule[] rules = getSuffixApplicableRules( i - 1 );
 			for( Rule rule : rules ) {
-				if( StaticFunctions.isSelfRule( rule ) )
+				if( rule.isSelfRule() )
 					continue;
 				int deltalen = rule.getTo().length - rule.getFrom().length;
 				int previdx = i - rule.getFrom().length - 1;
@@ -922,7 +922,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		Rule[] rules = applicableRules[ idx ];
 
 		for( Rule rule : rules ) {
-			if( StaticFunctions.isSelfRule( rule ) ) {
+			if( rule.isSelfRule() ) {
 				expandAll( rslt, idx + 1, t );
 			}
 			else {
@@ -973,7 +973,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		ArrayList<Rule> rules = atm.applicableRules( tokens, idx );
 		for( Rule rule : rules ) {
 			Record new_rec = this;
-			if( !StaticFunctions.isSelfRule( rule ) ) {
+			if( !rule.isSelfRule() ) {
 				new_rec = applyRule( rule, idx );
 			}
 			int new_idx = idx + rule.toSize();
