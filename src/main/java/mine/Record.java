@@ -947,6 +947,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	/**
 	 * Expand this record with given rule trie
 	 */
+	@Deprecated
 	public ArrayList<Record> expandAll( RuleTrie atm ) {
 		ArrayList<Record> rslt = new ArrayList<Record>();
 		expandAll( rslt, atm, 0 );
@@ -959,6 +960,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	 * @param tidx
 	 *            Transformed location index
 	 */
+	@Deprecated
 	private void expandAll( ArrayList<Record> rslt, RuleTrie atm, int idx ) {
 		if( idx == tokens.length ) {
 			rslt.add( this );

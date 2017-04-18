@@ -149,8 +149,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			}
 
 			long expandStartTime = System.nanoTime();
-			// final List<Record> expanded = recR.expandAll( ruletrie );
-			final List<Record> expanded = recR.expandAll();
+			final List<Record> expanded = recR.expandAll( ruletrie );
+			// final List<Record> expanded = recR.expandAll();
 			expandTime += System.nanoTime() - expandStartTime;
 
 			assert ( threshold == -1 || expanded.size() <= threshold );
@@ -239,7 +239,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			}
 
 			long expandStartTime = System.nanoTime();
-			final List<Record> expanded = recS.expandAll();
+			final List<Record> expanded = recS.expandAll( ruletrie );
+			// final List<Record> expanded = recS.expandAll();
 			expandTime += System.nanoTime() - expandStartTime;
 
 			totalExpSize += expanded.size();
