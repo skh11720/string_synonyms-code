@@ -140,6 +140,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		try {
 			boolean debug = true;
 			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "est_debug.txt" ) );
+			long debug_Count = 0;
 
 			for( int i = 0; i < tableSearched.size(); ++i ) {
 				final Record recR = tableSearched.get( i );
@@ -160,7 +161,10 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				if( debug ) {
 					debug_bw.write( Integer.toString( expanded.size() ) );
 					debug_bw.write( " " + recR.getTokenArray().length );
+					debug_bw.write( " " + ( Record.expandAllCount - debug_Count ) );
 					debug_bw.write( " " + ( System.nanoTime() - expandStartTime ) + "\n" );
+
+					debug_Count = Record.expandAllCount;
 				}
 
 				totalExpSize += expanded.size();
