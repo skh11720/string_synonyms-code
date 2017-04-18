@@ -273,7 +273,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Est_Join_2_searchTime", searchTime );
 			stat.add( "Est_Join_3_totalTime", duration );
 			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-			stat.add( "Stat_Count_ExpandAll", Record.expandAllCount );
+			stat.add( "Stat_Counter_ExpandAll", Record.expandAllCount );
 		}
 
 		return rslt;
