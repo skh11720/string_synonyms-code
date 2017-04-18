@@ -142,6 +142,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			boolean debug = true;
 			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "est_debug.txt" ) );
 			long debug_Count = 0;
+			long debug_IterCount = 0;
 
 			for( int i = 0; i < tableSearched.size(); ++i ) {
 				final Record recR = tableSearched.get( i );
@@ -187,15 +188,17 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					double time = System.nanoTime() - indexingStartTime;
 					debug_bw.write( "" + expanded.size() );
 					debug_bw.write( " " + recR.getTokenArray().length );
-					debug_bw.write( " " + ( rec2idx.getIterCount - debug_Count ) );
+					debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
+					debug_bw.write( " " + ( rec2idx.getCount - debug_Count ) );
 					debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
 					debug_bw.write( String.format( " %.2f", time / recR.getTokenArray().length ) );
-					debug_bw.write( String.format( " %.2f", time / ( rec2idx.getIterCount - debug_Count ) ) );
+					debug_bw.write( String.format( " %.2f", time / ( rec2idx.getCount - debug_Count ) ) );
 					debug_bw.write( " " + time );
 					debug_bw.write( " " + Math.pow( 2, recR.getNumApplicableRules() ) );
 					debug_bw.write( "\n" );
 
-					debug_Count = rec2idx.getIterCount;
+					debug_Count = rec2idx.getCount;
+					debug_IterCount = rec2idx.getIterCount;
 				}
 
 			}
