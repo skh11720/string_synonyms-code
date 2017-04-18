@@ -85,8 +85,9 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		array[ idx ] = curr;
 
 		// Expand array
-		if( ++size >= nextExpandSize )
+		if( ++size >= nextExpandSize ) {
 			resize( (int) ( array.length * 1.7 ) );
+		}
 
 		return removedValue;
 	}
@@ -189,7 +190,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	}
 
 	private int getIdx( int hash ) {
-		return Math.abs( hash % array.length );
+		return hash % array.length;
 	}
 
 	@Override
