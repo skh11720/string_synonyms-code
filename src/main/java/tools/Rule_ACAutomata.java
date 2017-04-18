@@ -149,8 +149,7 @@ public class Rule_ACAutomata {
 		for( int i = 0; i < startIdx; ++i ) {
 			final int t = tokens[ i ];
 			// adding a self rule
-			// TODO: use singleton to reduce memory
-			tmprslt[ i ].add( new Rule( t, t ) );
+			tmprslt[ i ].add( Rule.getSelfRule( t ) );
 		}
 		State curr = root;
 		int i = startIdx;

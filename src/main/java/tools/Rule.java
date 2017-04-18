@@ -1,6 +1,7 @@
 package tools;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,17 @@ public class Rule implements Comparable<Rule> {
 		this.hash = hash;
 	}
 
+	private static HashMap<Integer, Rule> selfRuleMap = new HashMap<Integer, Rule>();
+
+	public static Rule getSelfRule( int item ) {
+		Rule r = selfRuleMap.get( item );
+		if( r == null ) {
+			r = new Rule( item, item );
+			selfRuleMap.put( item, r );
+		}
+		return r;
+	}
+
 	public int[] getFrom() {
 		return from;
 	}
@@ -74,6 +86,10 @@ public class Rule implements Comparable<Rule> {
 
 	@Override
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
+
 		if( this == o )
 			return true;
 		Rule ro = (Rule) o;

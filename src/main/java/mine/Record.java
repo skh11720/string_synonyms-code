@@ -784,8 +784,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		int count = 0;
 		for( int i = 0; i < applicableRules.length; ++i ) {
 			for( Rule rule : applicableRules[ i ] ) {
-				if( rule.getFrom().length == 1 && rule.getTo().length == 1 && rule.getFrom()[ 0 ] == rule.getTo()[ 0 ] )
+				if( StaticFunctions.isSelfRule( rule ) ) {
 					continue;
+				}
 				++count;
 			}
 		}
@@ -924,6 +925,19 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			new_rec.expandAll( rslt, new_idx );
 		}
 	}
+
+	// public ArrayList<Record> expandAllWithoutTrie() {
+	// ArrayList<Record> rslt = new ArrayList<Record>();
+	// expandAllWithoutTrie( rslt, 0 );
+	// return rslt;
+	// }
+
+	// public void expandAllWithoutTrie( ArrayList<Record> rslt, int idx ) {
+	// // end condition
+	//
+	// Rule[] rules = applicableRules[ idx ];
+	//
+	// }
 
 	/**
 	 * Expand this record with given rule trie

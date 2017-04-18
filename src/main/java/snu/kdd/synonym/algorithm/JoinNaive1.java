@@ -29,7 +29,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	/**
 	 * Store the original index from expanded string
 	 */
-
 	Map<Record, ArrayList<Integer>> rec2idx;
 	RuleTrie ruletrie;
 
@@ -77,6 +76,50 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		this.writeResult( list );
 		writeTime.stop();
 		stat.add( writeTime );
+	}
+
+	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
+		// Index building
+		StopWatch idxTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		buildIndex( addStat );
+		idxTime.stopQuiet();
+		if( addStat ) {
+			stat.add( idxTime );
+		}
+
+		// Join
+		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
+		final List<IntegerPair> rslt = join( addStat );
+		joinTime.stopQuiet();
+		if( addStat ) {
+			stat.add( joinTime );
+			stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
+			stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
+		}
+
+		return rslt;
+	}
+
+	private void preprocess() {
+		stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+
+		long applicableRules = 0;
+		for( final Record t : tableSearched ) {
+			t.preprocessRules( automata, false );
+			applicableRules += t.getNumApplicableRules();
+			t.preprocessEstimatedRecords();
+		}
+		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+
+		applicableRules = 0;
+		for( final Record s : tableIndexed ) {
+			s.preprocessRules( automata, false );
+			applicableRules += s.getNumApplicableRules();
+			s.preprocessEstimatedRecords();
+		}
+		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+
+		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 	}
 
 	private void buildIndex( boolean addStat ) {
@@ -161,12 +204,12 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Stat_Size_Total_Index", idxsize );
 
 			stat.add( "Est_Index_1_expSize", totalExpSize );
-			stat.add( "Est_Index_2_expSizeEstimated", estimatedExpSize );
-			stat.add( "Est_Index_3_executeTimeRatio", Double.toString( alpha ) );
+			stat.add( "Est_Index_1_expSizeEstimated", estimatedExpSize );
+			stat.add( "Est_Index_1_executeTimeRatio", Double.toString( alpha ) );
 
-			stat.add( "Est_Index_1_expandTime", expandTime );
+			stat.add( "Est_Index_2_expandTime", expandTime );
 			stat.add( "Est_Index_2_indexingTime", indexingTime );
-			stat.add( "Est_Index_3_totalTime", duration );
+			stat.add( "Est_Index_2_totalTime", duration );
 
 			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		}
@@ -177,16 +220,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			rec2idx.clear();
 		}
 		rec2idx = null;
-	}
-
-	@Override
-	public String getName() {
-		return "JoinNaive1";
-	}
-
-	@Override
-	public String getVersion() {
-		return "1.0";
 	}
 
 	private List<IntegerPair> join( boolean addStat ) {
@@ -234,57 +267,22 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		beta = ( (double) duration ) / totalExpSize;
 
 		if( addStat ) {
-			stat.add( "Est_Join_3_totalTime", duration );
 			stat.add( "Est_Join_1_expandTime", expandTime );
 			stat.add( "Est_Join_2_searchTime", searchTime );
+			stat.add( "Est_Join_3_totalTime", duration );
 			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		}
 
 		return rslt;
 	}
 
-	private void preprocess() {
-		stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-
-		long applicableRules = 0;
-		for( final Record t : tableSearched ) {
-			t.preprocessRules( automata, false );
-			applicableRules += t.getNumApplicableRules();
-			t.preprocessEstimatedRecords();
-		}
-		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
-
-		applicableRules = 0;
-		for( final Record s : tableIndexed ) {
-			s.preprocessRules( automata, false );
-			applicableRules += s.getNumApplicableRules();
-			s.preprocessEstimatedRecords();
-		}
-		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
-
-		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+	@Override
+	public String getName() {
+		return "JoinNaive1";
 	}
 
-	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
-		// Index building
-		StopWatch idxTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		buildIndex( addStat );
-		idxTime.stopQuiet();
-		if( addStat ) {
-			stat.add( idxTime );
-		}
-
-		// Join
-		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
-		final List<IntegerPair> rslt = join( addStat );
-		joinTime.stopQuiet();
-		if( addStat ) {
-			stat.add( joinTime );
-			stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
-			stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
-		}
-
-		return rslt;
+	@Override
+	public String getVersion() {
+		return "1.0";
 	}
-
 }

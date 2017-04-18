@@ -33,12 +33,15 @@ public class RuleTrie {
 			if( curr.children != null && ( next = curr.children.get( tokens[ idx ] ) ) != null ) {
 				curr = next;
 				++idx;
-				if( curr.rules != null )
-					for( Rule rule : curr.rules )
+				if( curr.rules != null ) {
+					for( Rule rule : curr.rules ) {
 						rslt.add( rule );
+					}
+				}
 			}
-			else
+			else {
 				break;
+			}
 		}
 		return rslt;
 	}
