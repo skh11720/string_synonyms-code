@@ -8,7 +8,7 @@ dir="data_store/JiahengLu/splitted/"
 
 echo Setting USPS data with size $Size
 
-if [ ! -f $dir/$Size.txt ];
+if [ ! -f $dir/USPS_$Size.txt ];
 then
 	echo creating data in $dir with size $Size
 	mkdir -p $dir
