@@ -158,7 +158,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				assert ( threshold == -1 || expanded.size() <= threshold );
 
 				if( debug ) {
-					debug_bw.write( expanded.size() );
+					debug_bw.write( Integer.toString( expanded.size() ) );
 					debug_bw.write( " " );
 					debug_bw.write( " " + ( System.nanoTime() - expandStartTime ) + "\n" );
 				}
