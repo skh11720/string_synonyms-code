@@ -29,8 +29,8 @@ RUN_JoinHybridOpt=False
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
 
-RUN_DEBUG=True
-#RUN_DEBUG=False
+#RUN_DEBUG=True
+RUN_DEBUG=False
 
 for SIZE in ${SIZES[@]};
 do

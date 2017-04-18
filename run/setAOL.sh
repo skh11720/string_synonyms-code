@@ -1,6 +1,7 @@
 #!/bin/bash
 
-inputfile="data_store/aol/strings.txt"
+inputfile="data_store/aol/sort_cleaned_removed.txt"
+#inputfile="data_store/aol/strings.txt"
 
 Size=$1
 
