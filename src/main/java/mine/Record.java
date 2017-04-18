@@ -926,19 +926,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 	}
 
-	// public ArrayList<Record> expandAllWithoutTrie() {
-	// ArrayList<Record> rslt = new ArrayList<Record>();
-	// expandAllWithoutTrie( rslt, 0 );
-	// return rslt;
-	// }
-
-	// public void expandAllWithoutTrie( ArrayList<Record> rslt, int idx ) {
-	// // end condition
-	//
-	// Rule[] rules = applicableRules[ idx ];
-	//
-	// }
-
 	/**
 	 * Expand this record with given rule trie
 	 */
