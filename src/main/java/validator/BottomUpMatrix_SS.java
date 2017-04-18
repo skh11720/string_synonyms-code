@@ -29,6 +29,7 @@ public class BottomUpMatrix_SS extends Validator {
 	 * @param t
 	 * @return true if s can be transformed to t
 	 */
+	@Override
 	public int isEqual( Record s, Record t ) {
 		++checked;
 		/**
@@ -100,7 +101,7 @@ public class BottomUpMatrix_SS extends Validator {
 							continue;
 						else if( StaticFunctions.compare( rhs, 0, t.getTokenArray(), j - rhs.length, rhs.length ) == 0 ) {
 							matrix[ i ][ j ] = matrix[ i - lhs.length ][ j - rhs.length ];
-							if( !StaticFunctions.isSelfRule( rule ) )
+							if( !rule.isSelfRule() )
 								++matrix[ i ][ j ];
 							++Q;
 							break;

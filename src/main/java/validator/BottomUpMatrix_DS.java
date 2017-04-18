@@ -4,7 +4,6 @@ import java.util.HashSet;
 
 import mine.Record;
 import tools.Rule;
-import tools.StaticFunctions;
 
 public class BottomUpMatrix_DS extends Validator {
 	private static final Submatch EQUALMATCH = new Submatch( null, false, 0, 0 );
@@ -101,6 +100,7 @@ public class BottomUpMatrix_DS extends Validator {
 		}
 	}
 
+	@Override
 	public int isEqual( Record s, Record t ) {
 		++checked;
 		if( areSameString( s, t ) )
@@ -152,12 +152,12 @@ public class BottomUpMatrix_DS extends Validator {
 							++niterrules;
 							int[] lhs = rule.getFrom();
 							int[] rhs = rule.getTo();
-							HashSet<Submatch> prevmatches = (HashSet<Submatch>) dsmatrix[ i - lhs.length ][ j ];
+							HashSet<Submatch> prevmatches = dsmatrix[ i - lhs.length ][ j ];
 							if( prevmatches.isEmpty() )
 								continue;
 							for( Submatch match : prevmatches ) {
 								++nitermatches;
-								int nextNRules = match.nAppliedRules + ( StaticFunctions.isSelfRule( rule ) ? 0 : 1 );
+								int nextNRules = match.nAppliedRules + ( rule.isSelfRule() ? 0 : 1 );
 								// If previous match is 'equals', simply add current rule
 								if( match.rule == null ) {
 									dtmatrix[ i ][ j ].add( new Submatch( rule, true, 0, nextNRules ) );
@@ -222,12 +222,12 @@ public class BottomUpMatrix_DS extends Validator {
 							++niterrules;
 							int[] lhs = rule.getFrom();
 							int[] rhs = rule.getTo();
-							HashSet<Submatch> prevmatches = (HashSet<Submatch>) dtmatrix[ i ][ j - lhs.length ];
+							HashSet<Submatch> prevmatches = dtmatrix[ i ][ j - lhs.length ];
 							if( prevmatches.isEmpty() )
 								continue;
 							for( Submatch match : prevmatches ) {
 								++nitermatches;
-								int nextNRules = match.nAppliedRules + ( StaticFunctions.isSelfRule( rule ) ? 0 : 1 );
+								int nextNRules = match.nAppliedRules + ( rule.isSelfRule() ? 0 : 1 );
 								// If previous match is 'equals', do not apply this rule
 								// since a rule of s is always applied first.
 								if( match.rule == null )
