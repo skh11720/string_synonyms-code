@@ -221,6 +221,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Est_Index_2_totalTime", duration );
 
 			stat.add( "Est_Index_3_expandTimesLength", Double.toString( expandTimesLength ) );
+			stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / expandTimesLength ) );
 			stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
 
 			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
