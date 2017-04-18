@@ -159,10 +159,11 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				assert ( threshold == -1 || expanded.size() <= threshold );
 
 				if( debug ) {
-					debug_bw.write( Integer.toString( expanded.size() ) );
-					debug_bw.write( " " + recR.getTokenArray().length );
-					debug_bw.write( " " + ( Record.expandAllCount - debug_Count ) );
-					debug_bw.write( " " + ( System.nanoTime() - expandStartTime ) + "\n" );
+					double time = System.nanoTime() - expandStartTime;
+					debug_bw.write( Double.toString( time / expanded.size() ) );
+					debug_bw.write( " " + Double.toString( time / recR.getTokenArray().length ) );
+					debug_bw.write( " " + Double.toString( time / ( Record.expandAllCount - debug_Count ) ) );
+					debug_bw.write( " " + time + "\n" );
 
 					debug_Count = Record.expandAllCount;
 				}
