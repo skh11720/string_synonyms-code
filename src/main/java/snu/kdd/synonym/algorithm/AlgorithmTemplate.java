@@ -31,6 +31,7 @@ public abstract class AlgorithmTemplate {
 
 	// Stat container
 	protected StatContainer stat = null;
+	protected Runtime runtime = Runtime.getRuntime();
 
 	// String to integer mapping
 	protected Object2IntOpenHashMap<String> str2int;

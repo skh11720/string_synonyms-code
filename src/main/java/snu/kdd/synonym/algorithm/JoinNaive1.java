@@ -167,6 +167,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Est_Index_1_expandTime", expandTime );
 			stat.add( "Est_Index_2_indexingTime", indexingTime );
 			stat.add( "Est_Index_3_totalTime", duration );
+
+			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		}
 	}
 
@@ -187,7 +189,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		return "1.0";
 	}
 
-	private List<IntegerPair> join() {
+	private List<IntegerPair> join( boolean addStat ) {
 		final List<IntegerPair> rslt = new ArrayList<>();
 		final long starttime = System.nanoTime();
 		long totalExpSize = 0;
@@ -231,14 +233,19 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		final long duration = System.nanoTime() - starttime;
 		beta = ( (double) duration ) / totalExpSize;
 
-		stat.add( "Est_Join_3_totalTime", duration );
-		stat.add( "Est_Join_1_expandTime", expandTime );
-		stat.add( "Est_Join_2_searchTime", searchTime );
+		if( addStat ) {
+			stat.add( "Est_Join_3_totalTime", duration );
+			stat.add( "Est_Join_1_expandTime", expandTime );
+			stat.add( "Est_Join_2_searchTime", searchTime );
+			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		}
 
 		return rslt;
 	}
 
 	private void preprocess() {
+		stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+
 		long applicableRules = 0;
 		for( final Record t : tableSearched ) {
 			t.preprocessRules( automata, false );
@@ -254,6 +261,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			s.preprocessEstimatedRecords();
 		}
 		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+
+		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 	}
 
 	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
@@ -267,11 +276,10 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 		// Join
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
-		final List<IntegerPair> rslt = join();
+		final List<IntegerPair> rslt = join( addStat );
 		joinTime.stopQuiet();
 		if( addStat ) {
 			stat.add( joinTime );
-			// stat.addPrimary( "Naive Result size", rslt.size() );
 			stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
 			stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
 		}
