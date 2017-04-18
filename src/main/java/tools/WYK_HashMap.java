@@ -22,6 +22,8 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	public long getIterCount = 0;
 	public long putCount = 0;
 	public long resizeCount = 0;
+	public long removeCount = 0;
+	public long removeIterCount = 0;
 
 	public WYK_HashMap() {
 		this( 10 );
@@ -37,8 +39,9 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		this();
 		int size = Math.max( 10, (int) Math.ceil( c.size() / factor ) );
 		array = (Entry[]) Array.newInstance( Entry.class, size );
-		for( Map.Entry<? extends K, ? extends V> e : c.entrySet() )
+		for( Map.Entry<? extends K, ? extends V> e : c.entrySet() ) {
 			put( e.getKey(), e.getValue() );
+		}
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -99,6 +102,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	@Override
 	@SuppressWarnings( "unchecked" )
 	public V remove( Object o ) {
+		removeCount++;
 		K key = (K) o;
 
 		int hash = key.hashCode();
@@ -106,12 +110,15 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		Entry prev = null;
 		Entry curr = array[ idx ];
 		while( curr != null ) {
+			removeIterCount++;
 			if( curr.hash == hash && curr.key.equals( key ) ) {
 				// Current entry is the first element
-				if( prev == null )
+				if( prev == null ) {
 					array[ idx ] = curr.next;
-				else
+				}
+				else {
 					prev.next = curr.next;
+				}
 				--size;
 				return curr.value;
 			}

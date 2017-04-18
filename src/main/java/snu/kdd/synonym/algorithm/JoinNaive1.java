@@ -145,6 +145,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			long debug_IterCount = 0;
 			long debug_putCount = 0;
 			long debug_resizeCount = 0;
+			long debug_RemoveCount = 0;
+			long debug_RemoveIterCount = 0;
 
 			for( int i = 0; i < tableSearched.size(); ++i ) {
 				final Record recR = tableSearched.get( i );
@@ -199,12 +201,17 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_bw.write( " " + Math.pow( 2, recR.getNumApplicableRules() ) );
 					debug_bw.write( " " + ( rec2idx.putCount - debug_putCount ) );
 					debug_bw.write( " " + ( rec2idx.resizeCount - debug_resizeCount ) );
+					debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
+					debug_bw.write( " " + ( rec2idx.removeCount - debug_RemoveCount ) );
+					debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
 					debug_bw.write( "\n" );
 
 					debug_Count = rec2idx.getCount;
 					debug_IterCount = rec2idx.getIterCount;
 					debug_putCount = rec2idx.putCount;
 					debug_resizeCount = rec2idx.resizeCount;
+					debug_RemoveCount = rec2idx.removeCount;
+					debug_RemoveIterCount = rec2idx.removeIterCount;
 				}
 
 			}
