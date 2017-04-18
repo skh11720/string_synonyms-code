@@ -161,7 +161,8 @@ else
 	if [[ $RUN_DEBUG == "True" ]];
 	then
 		#samplings=( 0.01 )
-		samplings=( 0.001 0.003 0.01 0.03 )
+		samplings=( 0.003 )
+		#samplings=( 0.001 0.003 0.01 0.03 )
 		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
 		for sampling in "${samplings[@]}"; do
 			date
