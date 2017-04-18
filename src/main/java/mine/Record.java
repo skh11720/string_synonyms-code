@@ -913,8 +913,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	private void expandAll( ArrayList<Record> rslt, int idx, int[] t ) {
+		expandAllCount++;
+
 		if( idx == tokens.length ) {
-			expandAllCount++;
 			rslt.add( new Record( t ) );
 			return;
 		}

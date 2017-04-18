@@ -1,5 +1,7 @@
 package snu.kdd.synonym.algorithm;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,68 +137,64 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		long indexingTime = 0;
 
 		// DEBUG
-		// try {
-		// boolean debug = true;
-		// BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "est_debug.txt" ) );
+		try {
+			boolean debug = true;
+			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "est_debug.txt" ) );
 
-		for( int i = 0; i < tableSearched.size(); ++i ) {
-			final Record recR = tableSearched.get( i );
-			final long est = recR.getEstNumRecords();
+			for( int i = 0; i < tableSearched.size(); ++i ) {
+				final Record recR = tableSearched.get( i );
+				final long est = recR.getEstNumRecords();
 
-			if( threshold != -1 && est > threshold ) {
-				// if threshold is set (!= -1), index is built selectively for supporting hybrid algorithm
-				continue;
-			}
-
-			long expandStartTime = System.nanoTime();
-			// final List<Record> expanded = recR.expandAll( ruletrie );
-			final List<Record> expanded = recR.expandAll();
-			expandTime += System.nanoTime() - expandStartTime;
-
-			assert ( threshold == -1 || expanded.size() <= threshold );
-
-			// if( debug ) {
-			// if( expanded.size() != est ) {
-			// debug_bw.write( recR.toString() + "\n" );
-			// debug_bw.write( "expaneded: " + expanded.size() + "\n" );
-			// debug_bw.write( "estimated: " + est + "\n" );
-			// for( int x = 0; x < expanded.size(); x++ ) {
-			// debug_bw.write( expanded.get( x ).toString() + "\n" );
-			// }
-			// debug = false;
-			// }
-			// }
-
-			totalExpSize += expanded.size();
-			estimatedExpSize += est;
-
-			long indexingStartTime = System.nanoTime();
-			for( final Record exp : expanded ) {
-				ArrayList<Integer> list = rec2idx.get( exp );
-
-				if( list == null ) {
-					// new expression
-					list = new ArrayList<>( 5 );
-					rec2idx.put( exp, list );
-				}
-
-				// If current list already contains current record as the last element, skip adding
-				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
+				if( threshold != -1 && est > threshold ) {
+					// if threshold is set (!= -1), index is built selectively for supporting hybrid algorithm
 					continue;
 				}
-				list.add( i );
-				idxsize++;
+
+				long expandStartTime = System.nanoTime();
+				// final List<Record> expanded = recR.expandAll( ruletrie );
+				final List<Record> expanded = recR.expandAll();
+				expandTime += System.nanoTime() - expandStartTime;
+
+				assert ( threshold == -1 || expanded.size() <= threshold );
+
+				if( debug ) {
+					if( expanded.size() != est ) {
+						debug_bw.write( expanded.size() );
+						debug_bw.write( " " );
+						debug_bw.write( " " + ( System.nanoTime() - expandStartTime ) + "\n" );
+						debug = false;
+					}
+				}
+
+				totalExpSize += expanded.size();
+				estimatedExpSize += est;
+
+				long indexingStartTime = System.nanoTime();
+				for( final Record exp : expanded ) {
+					ArrayList<Integer> list = rec2idx.get( exp );
+
+					if( list == null ) {
+						// new expression
+						list = new ArrayList<>( 5 );
+						rec2idx.put( exp, list );
+					}
+
+					// If current list already contains current record as the last element, skip adding
+					if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
+						continue;
+					}
+					list.add( i );
+					idxsize++;
+				}
+				indexingTime += System.nanoTime() - indexingStartTime;
+				++count;
 			}
-			indexingTime += System.nanoTime() - indexingStartTime;
-			++count;
+			debug_bw.close();
 		}
-		// debug_bw.close();
-		// }
-		// catch( Exception e ) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// ((WYK_HashMap<Record, ArrayList<Integer>>) rec2idx).printStat();
+		catch( Exception e ) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		final long duration = System.nanoTime() - starttime;
 		alpha = ( (double) duration ) / totalExpSize;
 
