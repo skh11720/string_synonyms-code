@@ -20,6 +20,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 
 	public long getCount = 0;
 	public long getIterCount = 0;
+	public long putCount = 0;
 
 	public WYK_HashMap() {
 		this( 10 );
@@ -75,6 +76,8 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 
 	@Override
 	public V put( K key, V value ) {
+		putCount++;
+
 		V removedValue = remove( key );
 
 		int hash = key.hashCode();

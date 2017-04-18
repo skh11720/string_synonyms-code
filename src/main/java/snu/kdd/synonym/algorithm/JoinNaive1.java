@@ -222,6 +222,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 			stat.add( "Est_Index_2_idxSize", idxsize );
 			stat.add( "Est_Index_2_indexingTime", indexingTime );
+			stat.add( "Est_Index_2_rec2idx_getcount", rec2idx.getCount );
+			stat.add( "Est_Index_2_rec2idx_putcount", rec2idx.putCount );
 			stat.add( "Est_Index_2_totalTime", duration );
 
 			stat.add( "Est_Index_3_expandTimesLength", Double.toString( expandTimesLength ) );
