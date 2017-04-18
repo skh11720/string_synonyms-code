@@ -904,7 +904,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	/**
 	 * Expand this record with preprocessed rules
 	 */
-	@Deprecated
 	public ArrayList<Record> expandAll() {
 		ArrayList<Record> rslt = new ArrayList<Record>();
 		expandAll( rslt, 0, this.tokens );
