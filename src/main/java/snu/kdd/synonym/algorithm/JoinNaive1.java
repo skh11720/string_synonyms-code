@@ -1,9 +1,10 @@
 package snu.kdd.synonym.algorithm;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import mine.Record;
 import snu.kdd.synonym.data.DataInfo;
@@ -29,7 +30,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	/**
 	 * Store the original index from expanded string
 	 */
-	Map<Record, ArrayList<Integer>> rec2idx;
+	WYK_HashMap<Record, ArrayList<Integer>> rec2idx;
 	RuleTrie ruletrie;
 
 	public long threshold = Long.MAX_VALUE;
@@ -137,74 +138,73 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		long indexingTime = 0;
 
 		// TODO DEBUG
-		// try {
-		// boolean debug = true;
-		// BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "est_debug.txt" ) );
-		// long debug_Count = 0;
+		try {
+			boolean debug = true;
+			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "est_debug.txt" ) );
+			long debug_Count = 0;
 
-		for( int i = 0; i < tableSearched.size(); ++i ) {
-			final Record recR = tableSearched.get( i );
-			final long est = recR.getEstNumRecords();
+			for( int i = 0; i < tableSearched.size(); ++i ) {
+				final Record recR = tableSearched.get( i );
+				final long est = recR.getEstNumRecords();
 
-			if( threshold != -1 && est > threshold ) {
-				// if threshold is set (!= -1), index is built selectively for supporting hybrid algorithm
-				continue;
-			}
-
-			long expandStartTime = System.nanoTime();
-			// final List<Record> expanded = recR.expandAll( ruletrie );
-			final List<Record> expanded = recR.expandAll();
-			expandTime += System.nanoTime() - expandStartTime;
-
-			assert ( threshold == -1 || expanded.size() <= threshold );
-
-			// if( debug ) {
-			// double time = System.nanoTime() - expandStartTime;
-			// debug_bw.write( "" + expanded.size() );
-			// debug_bw.write( " " + recR.getTokenArray().length );
-			// debug_bw.write( " " + ( Record.expandAllCount - debug_Count ) );
-			// debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
-			// debug_bw.write( String.format( " %.2f", time / recR.getTokenArray().length ) );
-			// debug_bw.write( String.format( " %.2f", time / ( Record.expandAllCount - debug_Count ) ) );
-			// debug_bw.write( " " + time );
-			// debug_bw.write( " " + Math.pow( 2, recR.getNumApplicableRules() ) );
-			// debug_bw.write( "\n" );
-			//
-			// debug_Count = Record.expandAllCount;
-			// }
-
-			totalExpSize += expanded.size();
-			expandTimesLength += expanded.size() * recR.getTokenArray().length;
-			// estimatedExpSize += est;
-
-			long indexingStartTime = System.nanoTime();
-			for( final Record exp : expanded ) {
-				ArrayList<Integer> list = rec2idx.get( exp );
-
-				if( list == null ) {
-					// new expression
-					list = new ArrayList<>( 5 );
-					rec2idx.put( exp, list );
-				}
-
-				// If current list already contains current record as the last element, skip adding
-				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
+				if( threshold != -1 && est > threshold ) {
+					// if threshold is set (!= -1), index is built selectively for supporting hybrid algorithm
 					continue;
 				}
 
-				list.add( i );
-				idxsize++;
+				long expandStartTime = System.nanoTime();
+				// final List<Record> expanded = recR.expandAll( ruletrie );
+				final List<Record> expanded = recR.expandAll();
+				expandTime += System.nanoTime() - expandStartTime;
+
+				assert ( threshold == -1 || expanded.size() <= threshold );
+
+				totalExpSize += expanded.size();
+				expandTimesLength += expanded.size() * recR.getTokenArray().length;
+				// estimatedExpSize += est;
+
+				long indexingStartTime = System.nanoTime();
+				for( final Record exp : expanded ) {
+					ArrayList<Integer> list = rec2idx.get( exp );
+
+					if( list == null ) {
+						// new expression
+						list = new ArrayList<>( 5 );
+						rec2idx.put( exp, list );
+					}
+
+					// If current list already contains current record as the last element, skip adding
+					if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
+						continue;
+					}
+
+					list.add( i );
+					idxsize++;
+				}
+				indexingTime += System.nanoTime() - indexingStartTime;
+
+				if( debug ) {
+					double time = System.nanoTime() - expandStartTime;
+					debug_bw.write( "" + expanded.size() );
+					debug_bw.write( " " + recR.getTokenArray().length );
+					debug_bw.write( " " + ( rec2idx.getIterCount - debug_Count ) );
+					debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
+					debug_bw.write( String.format( " %.2f", time / recR.getTokenArray().length ) );
+					debug_bw.write( String.format( " %.2f", time / ( rec2idx.getIterCount - debug_Count ) ) );
+					debug_bw.write( " " + time );
+					debug_bw.write( " " + Math.pow( 2, recR.getNumApplicableRules() ) );
+					debug_bw.write( "\n" );
+
+					debug_Count = rec2idx.getIterCount;
+				}
+
 			}
-			indexingTime += System.nanoTime() - indexingStartTime;
+			debug_bw.close();
 		}
-		// debug_bw.close();
-		// }catch(
-		//
-		// Exception e)
-		// {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		catch( Exception e ) {
+			e.printStackTrace();
+		}
+
 		final long duration = System.nanoTime() - starttime;
 		alpha = ( (double) duration ) / totalExpSize;
 

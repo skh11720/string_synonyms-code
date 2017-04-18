@@ -18,6 +18,9 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	private double factor;
 	private int nextExpandSize;
 
+	public long getCount = 0;
+	public long getIterCount = 0;
+
 	public WYK_HashMap() {
 		this( 10 );
 	}
@@ -54,14 +57,15 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		return false;
 	}
 
+	@Override
 	@SuppressWarnings( "unchecked" )
 	public V get( Object o ) {
-		++count2;
+		++getCount;
 		K key = (K) o;
 		int hash = key.hashCode();
 		Entry curr = array[ getIdx( hash ) ];
 		while( curr != null ) {
-			++count;
+			++getIterCount;
 			if( curr.hash == hash && curr.key.equals( key ) )
 				return curr.value;
 			curr = curr.next;
@@ -69,6 +73,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		return null;
 	}
 
+	@Override
 	public V put( K key, V value ) {
 		V removedValue = remove( key );
 
@@ -86,6 +91,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		return removedValue;
 	}
 
+	@Override
 	@SuppressWarnings( "unchecked" )
 	public V remove( Object o ) {
 		K key = (K) o;
@@ -127,11 +133,13 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		int maxidx = -1;
 		for( int idx = 0; idx < array.length; ++idx ) {
 			Entry e = array[ idx ];
-			if( e == null )
+			if( e == null ) {
 				continue;
+			}
 			++nonemptyCounter;
-			if( e.next != null )
+			if( e.next != null ) {
 				++collisionCounter;
+			}
 			Entry curr = e;
 			int chainlength = 0;
 			while( curr != null ) {
@@ -151,12 +159,9 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		System.out.println( "max chain length : " + maxchainlength );
 		System.out.println( "max chain length entry : " + maxidx );
 		System.out.println( "occupied cell ratio : " + ratio3 );
-		System.out.println( "Iters in get() : " + count );
-		System.out.println( "Invocation of get() : " + count2 );
+		System.out.println( "Iters in get() : " + getIterCount );
+		System.out.println( "Invocation of get() : " + getCount );
 	}
-
-	private long count = 0;
-	private long count2 = 0;
 
 	/**
 	 * Expand the array with the given size
@@ -215,6 +220,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 			this.value = value;
 		}
 
+		@Override
 		public String toString() {
 			return key.toString() + ":" + value.toString();
 		}
