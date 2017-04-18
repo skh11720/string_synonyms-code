@@ -181,16 +181,13 @@ public abstract class AlgorithmTemplate {
 		}
 		preprocessTime.stopQuietAndAdd( stat );
 
-		// System.out.println( "Avg applicable rules : " + applicableRules + "/" + tableT.size() );
-		stat.add( "Stat_Avg applicable rules", applicableRules + "/" + tableSearched.size() );
+		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+		stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / tableSearched.size() ) );
 
 		preprocessTime.resetAndStart( "Result_2_2_Preprocess length time" );
 
-		// System.out.println( "Preprocessing with modified length" );
 		for( final Record rec : tableSearched ) {
 			rec.preprocessLengths();
-			// DEBUG
-			// rec.preprocessLastToken();
 		}
 
 		preprocessTime.stopQuietAndAdd( stat );
@@ -201,10 +198,10 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessEstimatedRecords();
 			long est = rec.getEstimatedEquiv();
 			if( maxTSize < est ) {
-				// System.out.println( "New Maximum Estimation " + rec.getID() + " " + est );
 				maxTSize = est;
 			}
 		}
+
 		stat.add( "Stat_maximum Size of Table T", maxTSize );
 
 		preprocessTime.stopQuietAndAdd( stat );
@@ -227,6 +224,7 @@ public abstract class AlgorithmTemplate {
 		// Preprocess each records in S
 		preprocessTime.resetAndStart( "Result_2_6_Preprocess records in S time" );
 		long maxSSize = 0;
+		applicableRules = 0;
 		for( final Record rec : tableIndexed ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 			rec.preprocessLengths();
@@ -234,7 +232,6 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessEstimatedRecords();
 			long est = rec.getEstimatedEquiv();
 			if( maxSSize < est ) {
-				// System.out.println( "New Maximum Estimation " + rec.getID() + " " + est );
 				maxSSize = est;
 			}
 
@@ -243,8 +240,12 @@ public abstract class AlgorithmTemplate {
 			}
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
+
+			applicableRules += rec.getNumApplicableRules();
 		}
 		stat.add( "Stat_maximum Size of Table S", maxSSize );
+		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+
 		preprocessTime.stopQuietAndAdd( stat );
 	}
 
