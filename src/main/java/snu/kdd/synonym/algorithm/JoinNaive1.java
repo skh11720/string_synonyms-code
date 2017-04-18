@@ -159,7 +159,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 				if( debug ) {
 					debug_bw.write( Integer.toString( expanded.size() ) );
-					debug_bw.write( " " );
+					debug_bw.write( " " + recR.getTokenArray().length );
 					debug_bw.write( " " + ( System.nanoTime() - expandStartTime ) + "\n" );
 				}
 
