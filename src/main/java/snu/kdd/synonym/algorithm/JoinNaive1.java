@@ -143,6 +143,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "est_debug.txt" ) );
 			long debug_Count = 0;
 			long debug_IterCount = 0;
+			long debug_putCount = 0;
 
 			for( int i = 0; i < tableSearched.size(); ++i ) {
 				final Record recR = tableSearched.get( i );
@@ -195,10 +196,12 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_bw.write( String.format( " %.2f", time / ( rec2idx.getCount - debug_Count ) ) );
 					debug_bw.write( " " + time );
 					debug_bw.write( " " + Math.pow( 2, recR.getNumApplicableRules() ) );
+					debug_bw.write( " " + ( rec2idx.putCount - debug_putCount ) );
 					debug_bw.write( "\n" );
 
 					debug_Count = rec2idx.getCount;
 					debug_IterCount = rec2idx.getIterCount;
+					debug_putCount = rec2idx.putCount;
 				}
 
 			}
