@@ -3,14 +3,19 @@
 outputPath=debug.txt
 LIBS=../target/Synonym.jar
 
+# AOL
+#SIZE=10000
+#inputfile_one=data_store/aol/splitted/$SIZE/data.txt
+#inputfile_two=data_store/aol/splitted/$SIZE/data.txt
+#rulefile=data_store/wordnet/rules.noun
 
-SIZE=10000
-inputfile_one=data_store/aol/splitted/$SIZE/data.txt
-inputfile_two=data_store/aol/splitted/$SIZE/data.txt
+# USPS
+SIZE=1000000
+inputfile_one=data_store/JiahengLu/splitted/USPS_$SIZE.txt
+inputfile_two=data_store/JiahengLu/splitted/USPS_$SIZE.txt
+rulefile=data_store/JiahengLu/USPS_rule.txt
 
-rulefile=data_store/wordnet/rules.noun
-
-recordId=19328
+recordId=3
 
 ./package.sh
 
