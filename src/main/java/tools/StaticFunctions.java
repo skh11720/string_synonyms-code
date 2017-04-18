@@ -1,8 +1,5 @@
 package tools;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -384,10 +381,10 @@ public class StaticFunctions {
 	// return rule.getFrom()[ 0 ] == rule.getTo()[ 0 ] && rule.getFrom().length == 1 && rule.getTo().length == 1;
 	// }
 
-	public static <T> void write2file( List<T> list, String filename ) throws IOException {
-		BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
-		for( T rec : list )
-			bw.write( rec.toString() + "\n" );
-		bw.close();
-	}
+	// public static <T> void write2file( List<T> list, String filename ) throws IOException {
+	// BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
+	// for( T rec : list )
+	// bw.write( rec.toString() + "\n" );
+	// bw.close();
+	// }
 }

@@ -127,9 +127,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		final long starttime = System.nanoTime();
 
 		long totalExpSize = 0;
-		long estimatedExpSize = 0;
+		// long estimatedExpSize = 0;
 		long idxsize = 0;
-		int count = 0;
+		// int count = 0;
 
 		double expandTimesLength = 0;
 
@@ -175,7 +175,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 			totalExpSize += expanded.size();
 			expandTimesLength += expanded.size() * recR.getTokenArray().length;
-			estimatedExpSize += est;
+			// estimatedExpSize += est;
 
 			long indexingStartTime = System.nanoTime();
 			for( final Record exp : expanded ) {
@@ -191,11 +191,11 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
 					continue;
 				}
+
 				list.add( i );
 				idxsize++;
 			}
 			indexingTime += System.nanoTime() - indexingStartTime;
-			++count;
 		}
 		// debug_bw.close();
 		// }catch(
@@ -209,20 +209,21 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		alpha = ( (double) duration ) / totalExpSize;
 
 		if( addStat ) {
-			stat.add( "Stat_Size_Indexed_Records", count );
+			// stat.add( "Stat_Size_Indexed_Records", count );
 			stat.add( "Stat_Size_Total_Index", idxsize );
 
 			stat.add( "Est_Index_1_expSize", totalExpSize );
-			stat.add( "Est_Index_1_expSizeEstimated", estimatedExpSize );
-			stat.add( "Est_Index_1_executeTimeRatio", Double.toString( alpha ) );
+			// stat.add( "Est_Index_1_expSizeEstimated", estimatedExpSize );
+			// stat.add( "Est_Index_1_executeTimeRatio", Double.toString( alpha ) );
+			stat.add( "Est_Index_1_expandTime", expandTime );
 
-			stat.add( "Est_Index_2_expandTime", expandTime );
+			stat.add( "Est_Index_2_idxSize", idxsize );
 			stat.add( "Est_Index_2_indexingTime", indexingTime );
 			stat.add( "Est_Index_2_totalTime", duration );
 
 			stat.add( "Est_Index_3_expandTimesLength", Double.toString( expandTimesLength ) );
 			stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / expandTimesLength ) );
-			stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
+			// stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
 
 			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		}
