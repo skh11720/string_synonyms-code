@@ -136,7 +136,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		long expandTime = 0;
 		long indexingTime = 0;
 
-		// DEBUG
+		// TODO DEBUG
 		try {
 			boolean debug = true;
 			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "est_debug.txt" ) );
@@ -158,12 +158,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				assert ( threshold == -1 || expanded.size() <= threshold );
 
 				if( debug ) {
-					if( expanded.size() != est ) {
-						debug_bw.write( expanded.size() );
-						debug_bw.write( " " );
-						debug_bw.write( " " + ( System.nanoTime() - expandStartTime ) + "\n" );
-						debug = false;
-					}
+					debug_bw.write( expanded.size() );
+					debug_bw.write( " " );
+					debug_bw.write( " " + ( System.nanoTime() - expandStartTime ) + "\n" );
 				}
 
 				totalExpSize += expanded.size();
