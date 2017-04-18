@@ -21,6 +21,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	public long getCount = 0;
 	public long getIterCount = 0;
 	public long putCount = 0;
+	public long resizeCount = 0;
 
 	public WYK_HashMap() {
 		this( 10 );
@@ -174,6 +175,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	 */
 	@SuppressWarnings( "unchecked" )
 	private void resize( int nextSize ) {
+		resizeCount++;
 		nextSize = Math.max( 10, nextSize );
 		Entry[] temp = array;
 		array = (Entry[]) Array.newInstance( Entry.class, nextSize );
