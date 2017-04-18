@@ -907,22 +907,41 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	@Deprecated
 	public ArrayList<Record> expandAll() {
 		ArrayList<Record> rslt = new ArrayList<Record>();
-		expandAll( rslt, 0 );
+		expandAll( rslt, 0, this.tokens );
 		return rslt;
 	}
 
-	private void expandAll( ArrayList<Record> rslt, int idx ) {
+	private void expandAll( ArrayList<Record> rslt, int idx, int[] t ) {
 		if( idx == tokens.length ) {
-			rslt.add( this );
+			rslt.add( new Record( t ) );
 			return;
 		}
 		Rule[] rules = applicableRules[ idx ];
+
 		for( Rule rule : rules ) {
-			Record new_rec = this;
-			if( !StaticFunctions.isSelfRule( rule ) )
-				new_rec = applyRule( rule, idx );
-			int new_idx = idx + rule.toSize();
-			new_rec.expandAll( rslt, new_idx );
+			if( StaticFunctions.isSelfRule( rule ) ) {
+				expandAll( rslt, idx + 1, t );
+			}
+			else {
+				int[] new_rec = new int[ t.length - rule.fromSize() + rule.toSize() ];
+
+				int rightSize = tokens.length - idx;
+				int rightMostSize = rightSize - rule.fromSize();
+
+				int k = 0;
+				for( int i = 0; i < t.length - rightSize; i++ ) {
+					new_rec[ k++ ] = t[ i ];
+				}
+				for( int i = 0; i < rule.toSize(); i++ ) {
+					new_rec[ k++ ] = rule.getTo()[ i ];
+				}
+				for( int i = t.length - rightMostSize; i < t.length; i++ ) {
+					new_rec[ k++ ] = t[ i ];
+				}
+
+				int new_idx = idx + rule.fromSize();
+				expandAll( rslt, new_idx, new_rec );
+			}
 		}
 	}
 
