@@ -160,9 +160,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 				if( debug ) {
 					double time = System.nanoTime() - expandStartTime;
-					debug_bw.write( String.format( "%0.2d", time / expanded.size() ) );
-					debug_bw.write( " " + String.format( "%0.2d", time / recR.getTokenArray().length ) );
-					debug_bw.write( " " + String.format( "%0.2d", time / ( Record.expandAllCount - debug_Count ) ) );
+					debug_bw.write( String.format( "%0.2f", time / expanded.size() ) );
+					debug_bw.write( " " + String.format( "%0.2f", time / recR.getTokenArray().length ) );
+					debug_bw.write( " " + String.format( "%0.2f", time / ( Record.expandAllCount - debug_Count ) ) );
 					debug_bw.write( " " + time + "\n" );
 
 					debug_Count = Record.expandAllCount;
