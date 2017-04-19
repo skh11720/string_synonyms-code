@@ -134,7 +134,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 		final long starttime = System.nanoTime();
 		int initialsize = (int) ( tableSearched.size() * avgTransformed / 2 );
-		System.out.println( "Hash Initial size " + initialsize );
+		stat.add( "Hash Initial size ", initialsize );
 		rec2idx = new WYK_HashMap<>( initialsize );
 
 		long totalExpSize = 0;
