@@ -920,7 +920,12 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 		for( Rule rule : rules ) {
 			if( rule.isSelfRule() ) {
-				expandAll( rslt, idx + 1, t );
+				if( idx + 1 == tokens.length ) {
+					rslt.add( new Record( t ) );
+				}
+				else {
+					expandAll( rslt, idx + 1, t );
+				}
 			}
 			else {
 				int newSize = t.length - rule.fromSize() + rule.toSize();
