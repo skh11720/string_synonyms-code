@@ -289,7 +289,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		try {
 			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_JOIN.txt" ) );
 			boolean debug = true;
-			long debug_Count = rec2idx.getCount;
+			long debug_Count = Record.expandAllCount;
 			long debug_IterCount = rec2idx.getIterCount;
 			long debug_putCount = rec2idx.putCount;
 			long debug_resizeCount = rec2idx.resizeCount;
