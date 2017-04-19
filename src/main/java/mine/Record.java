@@ -1040,6 +1040,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	public boolean equals( Object o ) {
 		if( o != null ) {
 			Record orec = (Record) o;
+
+			if( this == orec ) {
+				return true;
+			}
+
 			return StaticFunctions.compare( tokens, orec.tokens ) == 0;
 		}
 		else {
