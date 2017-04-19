@@ -24,6 +24,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	public long resizeCount = 0;
 	public long removeCount = 0;
 	public long removeIterCount = 0;
+	public long putRemovedCount = 0;
 
 	public WYK_HashMap() {
 		this( 10 );
@@ -114,6 +115,10 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		// Expand array
 		if( ++size >= nextExpandSize ) {
 			resize( (int) ( array.length * 1.7 ) );
+		}
+
+		if( removedValue != null ) {
+			putRemovedCount++;
 		}
 
 		return removedValue;

@@ -185,7 +185,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					if( list == null ) {
 						// new expression
 						list = new ArrayList<>( 5 );
-						rec2idx.putNonExist( exp, list );
+						rec2idx.put( exp, list );
 					}
 
 					// If current list already contains current record as the last element, skip adding
@@ -261,6 +261,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Counter_Index_Resize_Count", rec2idx.resizeCount );
 			stat.add( "Counter_Index_Remove_Count", rec2idx.removeCount );
 			stat.add( "Counter_Index_RemoveIter_Count", rec2idx.removeIterCount );
+			stat.add( "Counter_Index_PutRemoved_Count", rec2idx.putRemovedCount );
 		}
 	}
 
