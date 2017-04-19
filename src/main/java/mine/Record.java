@@ -36,6 +36,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	private static final int bigprime = 1645333507;
 
 	public static int expandAllCount = 0;
+	public static int expandAllIterCount = 0;
 
 	/**
 	 * Actual tokens
@@ -926,7 +927,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				expandAll( rslt, idx + 1, t );
 			}
 			else {
-				int[] new_rec = new int[ t.length - rule.fromSize() + rule.toSize() ];
+				int newSize = t.length - rule.fromSize() + rule.toSize();
+				expandAllIterCount += newSize;
+
+				int[] new_rec = new int[ newSize ];
 
 				int rightSize = tokens.length - idx;
 				int rightMostSize = rightSize - rule.fromSize();
