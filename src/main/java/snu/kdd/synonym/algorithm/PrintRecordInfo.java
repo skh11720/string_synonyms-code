@@ -105,12 +105,15 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		String Rfile = args[ 1 ];
 		String Sfile = args[ 2 ];
 		String outputPath = args[ 3 ];
+		boolean hybird = Boolean.parseBoolean( args[ 4 ] );
 
 		DataInfo dataInfo = new DataInfo( rulefile, Rfile, Sfile );
 
 		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath, dataInfo );
 
-		info.preprocess( true, -1, false );
+		if( hybird ) {
+			info.preprocess( true, -1, false );
+		}
 
 		info.printInfo( Integer.parseInt( args[ 4 ] ) );
 	}

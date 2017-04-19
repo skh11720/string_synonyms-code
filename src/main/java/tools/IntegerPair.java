@@ -15,6 +15,10 @@ public class IntegerPair {
 
 	@Override
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
+
 		IntegerPair oip = (IntegerPair) o;
 		return ( i1 == oip.i1 ) && ( i2 == oip.i2 );
 	}
