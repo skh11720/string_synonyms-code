@@ -262,6 +262,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Counter_Index_Remove_Count", rec2idx.removeCount );
 			stat.add( "Counter_Index_RemoveIter_Count", rec2idx.removeIterCount );
 			stat.add( "Counter_Index_PutRemoved_Count", rec2idx.putRemovedCount );
+			stat.add( "Counter_Index_RemoveFound_Count", rec2idx.removeFoundCount );
 		}
 	}
 

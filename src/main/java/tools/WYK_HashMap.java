@@ -25,6 +25,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	public long removeCount = 0;
 	public long removeIterCount = 0;
 	public long putRemovedCount = 0;
+	public long removeFoundCount = 0;
 
 	public WYK_HashMap() {
 		this( 10 );
@@ -154,6 +155,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 			removeIterCount++;
 			if( curr.hash == hash && curr.key.equals( key ) ) {
 				// Current entry is the first element
+				removeFoundCount++;
 				if( prev == null ) {
 					array[ idx ] = curr.next;
 				}
