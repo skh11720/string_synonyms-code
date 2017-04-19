@@ -61,6 +61,11 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 	}
 
 	public void printInfo( int id ) {
+		// TODO: DEBUG
+		for( int i = 0; i < tableSearched.size(); i++ ) {
+			System.out.println( tableSearched.get( i ) );
+		}
+
 		Record r = tableSearched.get( id );
 		System.out.println( r );
 
@@ -131,7 +136,6 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
-		// TODO Auto-generated method stub
 
 	}
 
