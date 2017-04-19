@@ -296,6 +296,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			long debug_RemoveCount = rec2idx.removeCount;
 			long debug_RemoveIterCount = rec2idx.removeIterCount;
 			long debug_gcCount = getGCCount();
+			long debug_expandIterCount = Record.expandAllIterCount;
 
 			for( int idxS = 0; idxS < tableIndexed.size(); ++idxS ) {
 				final Record recS = tableIndexed.get( idxS );
@@ -328,6 +329,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
 					debug_bw.write( " " + recS.getID() );
 					debug_bw.write( " " + ( gcCount - debug_gcCount ) );
+					debug_bw.write( " " + ( Record.expandAllIterCount - debug_expandIterCount ) );
 					debug_bw.write( "\n" );
 
 					debug_Count = Record.expandAllCount;
@@ -336,6 +338,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_resizeCount = rec2idx.resizeCount;
 					debug_RemoveCount = rec2idx.removeCount;
 					debug_RemoveIterCount = rec2idx.removeIterCount;
+					debug_expandIterCount = Record.expandAllIterCount;
 					debug_gcCount = gcCount;
 				}
 
