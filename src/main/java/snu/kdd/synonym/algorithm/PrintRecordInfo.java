@@ -112,6 +112,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath, dataInfo );
 
 		if( hybird ) {
+			System.out.println( "Preprocessing for hybrid" );
 			info.preprocess( true, -1, false );
 		}
 
