@@ -24,13 +24,15 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		Record.setRuleTrie( ruletrie );
 
 		this.stat = new StatContainer();
-		// this.preprocess( true, Integer.MAX_VALUE, false );
+		this.preprocess( true, Integer.MAX_VALUE, false );
 	}
 
 	@Override
 	protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
 		super.preprocess( compact, maxIndex, useAutomata );
+	}
 
+	private void hybridPreprocess() {
 		// Sort R and S with expanded sizes
 		Comparator<Record> cmp = new Comparator<Record>() {
 			@Override
@@ -73,8 +75,13 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 		for( int i = 0; i < length; i++ ) {
 			Rule[] rlist = r.getApplicableRules( i );
-			for( int x = 0; x < rlist.length; x++ ) {
-				System.out.println( rlist[ x ].toTextString( Record.strlist ) );
+			if( rlist != null ) {
+				for( int x = 0; x < rlist.length; x++ ) {
+					System.out.println( rlist[ x ].toTextString( Record.strlist ) );
+				}
+			}
+			else {
+				System.out.println( "Rule List null!" );
 			}
 		}
 
@@ -118,7 +125,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 		if( hybird ) {
 			System.out.println( "Preprocessing for hybrid" );
-			info.preprocess( true, -1, false );
+			info.hybridPreprocess();
 		}
 
 		info.printInfo( Integer.parseInt( args[ 4 ] ) );
