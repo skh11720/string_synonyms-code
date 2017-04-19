@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Specialized implementation of HashSet&lt;Integer, T&gt;.
  */
-public class WYK_HashMap<K, V> implements Map<K, V> {
+public class InvertedHashIndex<K, V> implements Map<K, V> {
 	private Entry[] array;
 	private int size;
 	private double factor;
@@ -25,17 +25,17 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	public long removeCount = 0;
 	public long removeIterCount = 0;
 
-	public WYK_HashMap() {
+	public InvertedHashIndex() {
 		this( 10 );
 	}
 
-	public WYK_HashMap( int initialCapacity ) {
+	public InvertedHashIndex( int initialCapacity ) {
 		factor = 0.5;
 		clear( initialCapacity );
 	}
 
 	@SuppressWarnings( "unchecked" )
-	public WYK_HashMap( Map<? extends K, ? extends V> c ) {
+	public InvertedHashIndex( Map<? extends K, ? extends V> c ) {
 		this();
 		int size = Math.max( 10, (int) Math.ceil( c.size() / factor ) );
 		array = (Entry[]) Array.newInstance( Entry.class, size );
@@ -102,7 +102,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	public V put( K key, V value ) {
 		putCount++;
 
-		// V removedValue = remove( key );
+		V removedValue = remove( key );
 
 		int hash = key.hashCode();
 		int idx = getIdx( hash );
@@ -116,8 +116,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 			resize( (int) ( array.length * 1.7 ) );
 		}
 
-		return null;
-		// return removedValue;
+		return removedValue;
 	}
 
 	@Override
