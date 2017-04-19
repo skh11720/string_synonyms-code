@@ -119,6 +119,22 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 		return removedValue;
 	}
 
+	public void putNonExist( K key, V value ) {
+		putCount++;
+
+		int hash = key.hashCode();
+		int idx = getIdx( hash );
+		Entry curr = new Entry( hash, key, value );
+		Entry next = array[ idx ];
+		curr.next = next;
+		array[ idx ] = curr;
+
+		// Expand array
+		if( ++size >= nextExpandSize ) {
+			resize( (int) ( array.length * 1.7 ) );
+		}
+	}
+
 	@Override
 	@SuppressWarnings( "unchecked" )
 	public V remove( Object o ) {
