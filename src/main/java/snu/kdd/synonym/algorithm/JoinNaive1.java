@@ -287,7 +287,14 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 		// TODO: Debug
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_JOIN.txt" ) );
+			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_JOIN.txt" ) );
+			boolean debug = true;
+			long debug_Count = rec2idx.getCount;
+			long debug_IterCount = rec2idx.getIterCount;
+			long debug_putCount = rec2idx.putCount;
+			long debug_resizeCount = rec2idx.resizeCount;
+			long debug_RemoveCount = rec2idx.removeCount;
+			long debug_RemoveIterCount = rec2idx.removeIterCount;
 
 			for( int idxS = 0; idxS < tableIndexed.size(); ++idxS ) {
 				final Record recS = tableIndexed.get( idxS );
@@ -301,6 +308,32 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				final List<Record> expanded = recS.expandAll();
 				expandTime += System.nanoTime() - expandStartTime;
 
+				if( debug ) {
+					double time = System.nanoTime() - expandStartTime;
+					debug_bw.write( "" + expanded.size() );
+					debug_bw.write( " " + recS.getTokenArray().length );
+					// debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
+					debug_bw.write( " " + ( rec2idx.getCount - debug_Count ) );
+					debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
+					debug_bw.write( String.format( " %.2f", time / recS.getTokenArray().length ) );
+					debug_bw.write( String.format( " %.2f", time / ( rec2idx.getCount - debug_Count ) ) );
+					debug_bw.write( " " + time );
+					debug_bw.write( " " + Math.pow( 2, recS.getNumApplicableRules() ) );
+					debug_bw.write( " " + ( rec2idx.putCount - debug_putCount ) );
+					debug_bw.write( " " + ( rec2idx.resizeCount - debug_resizeCount ) );
+					debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
+					debug_bw.write( " " + ( rec2idx.removeCount - debug_RemoveCount ) );
+					debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
+					debug_bw.write( "\n" );
+
+					debug_Count = rec2idx.getCount;
+					debug_IterCount = rec2idx.getIterCount;
+					debug_putCount = rec2idx.putCount;
+					debug_resizeCount = rec2idx.resizeCount;
+					debug_RemoveCount = rec2idx.removeCount;
+					debug_RemoveIterCount = rec2idx.removeIterCount;
+				}
+
 				totalExpSize += expanded.size();
 				final List<List<Integer>> candidates = new ArrayList<>( expanded.size() * 2 );
 
@@ -313,8 +346,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					candidates.add( overlapidx );
 				}
 
-				bw.write( candidates.toString() + "\n" );
-
 				if( !skipequiv ) {
 					final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
 					for( final Integer idx : union ) {
@@ -324,7 +355,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 				searchTime += System.nanoTime() - searchStartTime;
 			}
-			bw.close();
+			debug_bw.close();
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
