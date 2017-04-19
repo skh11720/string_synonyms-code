@@ -11,6 +11,7 @@ import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import snu.kdd.synonym.tools.Util;
 import tools.IntegerPair;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -88,6 +89,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		if( addStat ) {
 			stat.add( idxTime );
 		}
+
+		// TODO: DEBUG
+		Util.DEBUG_printIndexToFile( rec2idx );
 
 		// Join
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );

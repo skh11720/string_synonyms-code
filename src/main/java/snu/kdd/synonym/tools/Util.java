@@ -1,6 +1,9 @@
 package snu.kdd.synonym.tools;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -73,7 +76,20 @@ public class Util {
 			System.err.println( " : " + opt.getValue() );
 		}
 
-		System.err.println( index.replaceAll( ".", "=" ) );
+		System.err.println( new String( new char[ index.length() ] ).replace( "\0", "=" ) );
+	}
+
+	public static void DEBUG_printIndexToFile( Map<?, ?> map ) {
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_Index.txt" ) );
+			for( Object e : map.entrySet() ) {
+				bw.write( e.toString() + "\n" );
+			}
+			bw.close();
+		}
+		catch( Exception e ) {
+			e.printStackTrace();
+		}
 	}
 
 }
