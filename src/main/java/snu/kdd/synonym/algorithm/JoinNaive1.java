@@ -310,8 +310,20 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				final List<Record> expanded = recS.expandAll();
 				expandTime += System.nanoTime() - expandStartTime;
 
+				totalExpSize += expanded.size();
+				final List<List<Integer>> candidates = new ArrayList<>( expanded.size() * 2 );
+
+				long searchStartTime = System.nanoTime();
+				for( final Record exp : expanded ) {
+					final List<Integer> overlapidx = rec2idx.get( exp );
+					if( overlapidx == null ) {
+						continue;
+					}
+					candidates.add( overlapidx );
+				}
+
 				if( debug ) {
-					double time = System.nanoTime() - expandStartTime;
+					double time = System.nanoTime() - searchStartTime;
 					long gcCount = getGCCount();
 					debug_bw.write( "" + expanded.size() );
 					debug_bw.write( " " + recS.getTokenArray().length );
@@ -340,18 +352,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_RemoveIterCount = rec2idx.removeIterCount;
 					debug_expandIterCount = Record.expandAllIterCount;
 					debug_gcCount = gcCount;
-				}
-
-				totalExpSize += expanded.size();
-				final List<List<Integer>> candidates = new ArrayList<>( expanded.size() * 2 );
-
-				long searchStartTime = System.nanoTime();
-				for( final Record exp : expanded ) {
-					final List<Integer> overlapidx = rec2idx.get( exp );
-					if( overlapidx == null ) {
-						continue;
-					}
-					candidates.add( overlapidx );
 				}
 
 				if( !skipequiv ) {
