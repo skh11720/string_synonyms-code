@@ -1,5 +1,7 @@
 package snu.kdd.synonym.algorithm;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -283,38 +285,49 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		long expandTime = 0;
 		long searchTime = 0;
 
-		for( int idxS = 0; idxS < tableIndexed.size(); ++idxS ) {
-			final Record recS = tableIndexed.get( idxS );
-			final long est = recS.getEstNumRecords();
-			if( threshold != -1 && est > threshold ) {
-				continue;
-			}
+		// TODO: Debug
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_JOIN.txt" ) );
 
-			long expandStartTime = System.nanoTime();
-			// final List<Record> expanded = recS.expandAll( ruletrie );
-			final List<Record> expanded = recS.expandAll();
-			expandTime += System.nanoTime() - expandStartTime;
-
-			totalExpSize += expanded.size();
-			final List<List<Integer>> candidates = new ArrayList<>( expanded.size() * 2 );
-
-			long searchStartTime = System.nanoTime();
-			for( final Record exp : expanded ) {
-				final List<Integer> overlapidx = rec2idx.get( exp );
-				if( overlapidx == null ) {
+			for( int idxS = 0; idxS < tableIndexed.size(); ++idxS ) {
+				final Record recS = tableIndexed.get( idxS );
+				final long est = recS.getEstNumRecords();
+				if( threshold != -1 && est > threshold ) {
 					continue;
 				}
-				candidates.add( overlapidx );
-			}
 
-			if( !skipequiv ) {
-				final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-				for( final Integer idx : union ) {
-					rslt.add( new IntegerPair( idx, idxS ) );
+				long expandStartTime = System.nanoTime();
+				// final List<Record> expanded = recS.expandAll( ruletrie );
+				final List<Record> expanded = recS.expandAll();
+				expandTime += System.nanoTime() - expandStartTime;
+
+				totalExpSize += expanded.size();
+				final List<List<Integer>> candidates = new ArrayList<>( expanded.size() * 2 );
+
+				long searchStartTime = System.nanoTime();
+				for( final Record exp : expanded ) {
+					final List<Integer> overlapidx = rec2idx.get( exp );
+					if( overlapidx == null ) {
+						continue;
+					}
+					candidates.add( overlapidx );
 				}
-			}
 
-			searchTime += System.nanoTime() - searchStartTime;
+				bw.write( candidates.toString() + "\n" );
+
+				if( !skipequiv ) {
+					final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
+					for( final Integer idx : union ) {
+						rslt.add( new IntegerPair( idx, idxS ) );
+					}
+				}
+
+				searchTime += System.nanoTime() - searchStartTime;
+			}
+			bw.close();
+		}
+		catch( Exception e ) {
+			e.printStackTrace();
 		}
 
 		final long duration = System.nanoTime() - starttime;
