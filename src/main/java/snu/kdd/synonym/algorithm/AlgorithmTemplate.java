@@ -402,4 +402,17 @@ public abstract class AlgorithmTemplate {
 		stat.add( "Stat_Garbage_Collections_Time", garbageCollectionTime );
 	}
 
+	public long getGCCount() {
+		long totalGarbageCollections = 0;
+		for( GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans() ) {
+
+			long count = gc.getCollectionCount();
+
+			if( count >= 0 ) {
+				totalGarbageCollections += count;
+			}
+		}
+		return totalGarbageCollections;
+	}
+
 }

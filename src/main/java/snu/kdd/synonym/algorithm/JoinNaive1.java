@@ -295,6 +295,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			long debug_resizeCount = rec2idx.resizeCount;
 			long debug_RemoveCount = rec2idx.removeCount;
 			long debug_RemoveIterCount = rec2idx.removeIterCount;
+			long debug_gcCount = getGCCount();
 
 			for( int idxS = 0; idxS < tableIndexed.size(); ++idxS ) {
 				final Record recS = tableIndexed.get( idxS );
@@ -310,6 +311,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 				if( debug ) {
 					double time = System.nanoTime() - expandStartTime;
+					long gcCount = getGCCount();
 					debug_bw.write( "" + expanded.size() );
 					debug_bw.write( " " + recS.getTokenArray().length );
 					// debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
@@ -325,6 +327,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_bw.write( " " + ( rec2idx.removeCount - debug_RemoveCount ) );
 					debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
 					debug_bw.write( " " + recS.getID() );
+					debug_bw.write( " " + ( gcCount - debug_gcCount ) );
 					debug_bw.write( "\n" );
 
 					debug_Count = Record.expandAllCount;
@@ -333,6 +336,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_resizeCount = rec2idx.resizeCount;
 					debug_RemoveCount = rec2idx.removeCount;
 					debug_RemoveIterCount = rec2idx.removeIterCount;
+					debug_gcCount = gcCount;
 				}
 
 				totalExpSize += expanded.size();
