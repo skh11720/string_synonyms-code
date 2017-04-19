@@ -133,7 +133,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	}
 
 	private void buildIndex( boolean addStat ) {
-
 		final long starttime = System.nanoTime();
 		int initialsize = (int) ( tableSearched.size() * avgTransformed / 2 );
 		stat.add( "Auto_Hash_Initial_Size ", initialsize );
@@ -187,8 +186,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				if( list == null ) {
 					// new expression
 					list = new ArrayList<>( 5 );
-					// rec2idx.put( exp, list );
-					rec2idx.putNonExist( exp, list );
+					rec2idx.put( exp, list );
+					// rec2idx.putNonExist( exp, list );
 				}
 
 				// If current list already contains current record as the last element, skip adding
