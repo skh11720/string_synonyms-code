@@ -110,6 +110,18 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 				System.out.println( pair.toStrString() );
 			}
 		}
+
+		System.out.println( "Expanded strings" );
+		List<Record> expanded = r.expandAll( ruletrie );
+		for( Record e : expanded ) {
+			System.out.println( e );
+		}
+
+		System.out.println( "Expanded strings with new implementations" );
+		expanded = r.expandAll();
+		for( Record e : expanded ) {
+			System.out.println( e );
+		}
 	}
 
 	public static void main( String args[] ) throws IOException {
