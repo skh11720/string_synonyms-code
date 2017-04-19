@@ -1,7 +1,5 @@
 package snu.kdd.synonym.algorithm;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -287,90 +285,90 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		long searchTime = 0;
 
 		// TODO: Debug
-		try {
-			BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_JOIN.txt" ) );
-			boolean debug = true;
-			long debug_Count = Record.expandAllCount;
-			long debug_IterCount = rec2idx.getIterCount;
-			long debug_putCount = rec2idx.putCount;
-			long debug_resizeCount = rec2idx.resizeCount;
-			long debug_RemoveCount = rec2idx.removeCount;
-			long debug_RemoveIterCount = rec2idx.removeIterCount;
-			long debug_gcCount = getGCCount();
-			long debug_expandIterCount = Record.expandAllIterCount;
+		// try {
+		// BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_JOIN.txt" ) );
+		// boolean debug = true;
+		// long debug_Count = Record.expandAllCount;
+		// long debug_IterCount = rec2idx.getIterCount;
+		// long debug_putCount = rec2idx.putCount;
+		// long debug_resizeCount = rec2idx.resizeCount;
+		// long debug_RemoveCount = rec2idx.removeCount;
+		// long debug_RemoveIterCount = rec2idx.removeIterCount;
+		// long debug_gcCount = getGCCount();
+		// long debug_expandIterCount = Record.expandAllIterCount;
 
-			for( int idxS = 0; idxS < tableIndexed.size(); ++idxS ) {
-				final Record recS = tableIndexed.get( idxS );
-				final long est = recS.getEstNumRecords();
-				if( threshold != -1 && est > threshold ) {
+		for( int idxS = 0; idxS < tableIndexed.size(); ++idxS ) {
+			final Record recS = tableIndexed.get( idxS );
+			final long est = recS.getEstNumRecords();
+			if( threshold != -1 && est > threshold ) {
+				continue;
+			}
+
+			long expandStartTime = System.nanoTime();
+			// final List<Record> expanded = recS.expandAll( ruletrie );
+			final List<Record> expanded = recS.expandAll();
+			expandTime += System.nanoTime() - expandStartTime;
+
+			totalExpSize += expanded.size();
+			final Set<Integer> candidates = new HashSet<Integer>();
+
+			long searchStartTime = System.nanoTime();
+			for( final Record exp : expanded ) {
+				final List<Integer> overlapidx = rec2idx.get( exp );
+				if( overlapidx == null ) {
 					continue;
 				}
-
-				long expandStartTime = System.nanoTime();
-				// final List<Record> expanded = recS.expandAll( ruletrie );
-				final List<Record> expanded = recS.expandAll();
-				expandTime += System.nanoTime() - expandStartTime;
-
-				totalExpSize += expanded.size();
-				final Set<Integer> candidates = new HashSet<Integer>();
-
-				long searchStartTime = System.nanoTime();
-				for( final Record exp : expanded ) {
-					final List<Integer> overlapidx = rec2idx.get( exp );
-					if( overlapidx == null ) {
-						continue;
-					}
-					for( Integer i : overlapidx ) {
-						candidates.add( i );
-					}
+				for( Integer i : overlapidx ) {
+					candidates.add( i );
 				}
-
-				if( debug ) {
-					double time = System.nanoTime() - searchStartTime;
-					long gcCount = getGCCount();
-					debug_bw.write( "" + expanded.size() );
-					debug_bw.write( " " + recS.getTokenArray().length );
-					// debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
-					debug_bw.write( " " + ( Record.expandAllCount - debug_Count ) );
-					debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
-					debug_bw.write( String.format( " %.2f", time / recS.getTokenArray().length ) );
-					debug_bw.write( String.format( " %.2f", time / ( Record.expandAllCount - debug_Count ) ) );
-					debug_bw.write( " " + time );
-					debug_bw.write( " " + Math.pow( 2, recS.getNumApplicableRules() ) );
-					debug_bw.write( " " + ( rec2idx.putCount - debug_putCount ) );
-					debug_bw.write( " " + ( rec2idx.resizeCount - debug_resizeCount ) );
-					debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
-					debug_bw.write( " " + ( rec2idx.removeCount - debug_RemoveCount ) );
-					debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
-					debug_bw.write( " " + recS.getID() );
-					debug_bw.write( " " + ( gcCount - debug_gcCount ) );
-					debug_bw.write( " " + ( Record.expandAllIterCount - debug_expandIterCount ) );
-					debug_bw.write( "\n" );
-
-					debug_Count = Record.expandAllCount;
-					debug_IterCount = rec2idx.getIterCount;
-					debug_putCount = rec2idx.putCount;
-					debug_resizeCount = rec2idx.resizeCount;
-					debug_RemoveCount = rec2idx.removeCount;
-					debug_RemoveIterCount = rec2idx.removeIterCount;
-					debug_expandIterCount = Record.expandAllIterCount;
-					debug_gcCount = gcCount;
-				}
-
-				if( !skipequiv ) {
-					// final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-					for( final Integer idx : candidates ) {
-						rslt.add( new IntegerPair( idx, idxS ) );
-					}
-				}
-
-				searchTime += System.nanoTime() - searchStartTime;
 			}
-			debug_bw.close();
+
+			// if( debug ) {
+			// double time = System.nanoTime() - searchStartTime;
+			// long gcCount = getGCCount();
+			// debug_bw.write( "" + expanded.size() );
+			// debug_bw.write( " " + recS.getTokenArray().length );
+			// // debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
+			// debug_bw.write( " " + ( Record.expandAllCount - debug_Count ) );
+			// debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
+			// debug_bw.write( String.format( " %.2f", time / recS.getTokenArray().length ) );
+			// debug_bw.write( String.format( " %.2f", time / ( Record.expandAllCount - debug_Count ) ) );
+			// debug_bw.write( " " + time );
+			// debug_bw.write( " " + Math.pow( 2, recS.getNumApplicableRules() ) );
+			// debug_bw.write( " " + ( rec2idx.putCount - debug_putCount ) );
+			// debug_bw.write( " " + ( rec2idx.resizeCount - debug_resizeCount ) );
+			// debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
+			// debug_bw.write( " " + ( rec2idx.removeCount - debug_RemoveCount ) );
+			// debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
+			// debug_bw.write( " " + recS.getID() );
+			// debug_bw.write( " " + ( gcCount - debug_gcCount ) );
+			// debug_bw.write( " " + ( Record.expandAllIterCount - debug_expandIterCount ) );
+			// debug_bw.write( "\n" );
+			//
+			// debug_Count = Record.expandAllCount;
+			// debug_IterCount = rec2idx.getIterCount;
+			// debug_putCount = rec2idx.putCount;
+			// debug_resizeCount = rec2idx.resizeCount;
+			// debug_RemoveCount = rec2idx.removeCount;
+			// debug_RemoveIterCount = rec2idx.removeIterCount;
+			// debug_expandIterCount = Record.expandAllIterCount;
+			// debug_gcCount = gcCount;
+			// }
+
+			if( !skipequiv ) {
+				// final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
+				for( final Integer idx : candidates ) {
+					rslt.add( new IntegerPair( idx, idxS ) );
+				}
+			}
+
+			searchTime += System.nanoTime() - searchStartTime;
 		}
-		catch( Exception e ) {
-			e.printStackTrace();
-		}
+		// debug_bw.close();
+		// }
+		// catch( Exception e ) {
+		// e.printStackTrace();
+		// }
 
 		final long duration = System.nanoTime() - starttime;
 		beta = ( (double) duration ) / totalExpSize;
