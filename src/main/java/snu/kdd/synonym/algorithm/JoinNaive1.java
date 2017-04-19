@@ -2,11 +2,12 @@ package snu.kdd.synonym.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import mine.Record;
 import snu.kdd.synonym.data.DataInfo;
-import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
@@ -308,8 +309,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			expandTime += System.nanoTime() - expandStartTime;
 
 			totalExpSize += expanded.size();
-			final List<List<Integer>> candidates = new ArrayList<List<Integer>>();
-			// final Set<Integer> candidates = new HashSet<Integer>();
+			// final List<List<Integer>> candidates = new ArrayList<List<Integer>>();
+			final Set<Integer> candidates = new HashSet<Integer>();
 
 			long searchStartTime = System.nanoTime();
 			for( final Record exp : expanded ) {
@@ -318,10 +319,10 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					continue;
 				}
 
-				candidates.add( overlapidx );
-				// for( Integer i : overlapidx ) {
-				// candidates.add( i );
-				// }
+				// candidates.add( overlapidx );
+				for( Integer i : overlapidx ) {
+					candidates.add( i );
+				}
 			}
 
 			// if( debug ) {
@@ -357,9 +358,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			// }
 
 			if( !skipequiv ) {
-				final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-				// for( final Integer idx : candidates ) {
-				for( final Integer idx : union ) {
+				// final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
+				for( final Integer idx : candidates ) {
+					// for( final Integer idx : union ) {
 					rslt.add( new IntegerPair( idx, idxS ) );
 				}
 			}
