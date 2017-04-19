@@ -32,6 +32,22 @@ public class IntegerPair {
 	}
 
 	public String toStrString() {
-		return Record.strlist.get( i1 ) + " " + Record.strlist.get( i2 );
+		String s1;
+
+		if( i1 != Integer.MAX_VALUE ) {
+			s1 = Record.strlist.get( i1 );
+		}
+		else {
+			s1 = "EOL";
+		}
+
+		String s2;
+		if( i2 != Integer.MAX_VALUE ) {
+			s2 = Record.strlist.get( i2 );
+		}
+		else {
+			s2 = "EOL";
+		}
+		return s1 + " " + s2;
 	}
 }
