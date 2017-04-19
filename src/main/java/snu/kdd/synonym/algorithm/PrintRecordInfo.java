@@ -62,9 +62,9 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 	public void printInfo( int id ) {
 		// TODO: DEBUG
-		for( int i = 0; i < tableSearched.size(); i++ ) {
-			System.out.println( tableSearched.get( i ) );
-		}
+		// for( int i = 0; i < tableSearched.size(); i++ ) {
+		// System.out.println( tableSearched.get( i ) );
+		// }
 
 		Record r = tableSearched.get( id );
 		System.out.println( r );
