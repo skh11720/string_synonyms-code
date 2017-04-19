@@ -11,7 +11,6 @@ import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
-import snu.kdd.synonym.tools.Util;
 import tools.IntegerPair;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -90,8 +89,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( idxTime );
 		}
 
-		// TODO: DEBUG
-		Util.DEBUG_printIndexToFile( rec2idx );
+		// DEBUG
+		// Util.DEBUG_printIndexToFile( rec2idx );
 
 		// Join
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
@@ -328,6 +327,15 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stat.add( "Est_Join_3_totalTime", duration );
 			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 			stat.add( "Stat_Counter_ExpandAll", Record.expandAllCount );
+
+			stat.add( "Counter_Join_Get_Count", rec2idx.getCount );
+			stat.add( "Counter_Join_GetIter_Count", rec2idx.getIterCount );
+			stat.add( "Counter_Join_Put_Count", rec2idx.putCount );
+			stat.add( "Counter_Join_Resize_Count", rec2idx.resizeCount );
+			stat.add( "Counter_Join_Remove_Count", rec2idx.removeCount );
+			stat.add( "Counter_Join_RemoveIter_Count", rec2idx.removeIterCount );
+			stat.add( "Counter_Join_PutRemoved_Count", rec2idx.putRemovedCount );
+			stat.add( "Counter_Join_RemoveFound_Count", rec2idx.removeFoundCount );
 		}
 
 		return rslt;
