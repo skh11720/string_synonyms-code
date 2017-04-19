@@ -34,6 +34,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	RuleTrie ruletrie;
 
 	public long threshold = Long.MAX_VALUE;
+	public double avgTransformed = 1;
 
 	public JoinNaive1( AlgorithmTemplate o, StatContainer stat ) {
 		super( o );
@@ -113,19 +114,28 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
 
 		applicableRules = 0;
+		long estTransformed = 0;
 		for( final Record s : tableIndexed ) {
 			s.preprocessRules( automata, false );
 			applicableRules += s.getNumApplicableRules();
 			s.preprocessEstimatedRecords();
+
+			estTransformed += s.getEstNumRecords();
 		}
+		avgTransformed = estTransformed / (double) tableIndexed.size();
+
 		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+		stat.add( "Stat_Avg_Transformed_TableIndexed", Double.toString( avgTransformed ) );
 
 		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 	}
 
 	private void buildIndex( boolean addStat ) {
-		rec2idx = new WYK_HashMap<>( 1000000 );
+
 		final long starttime = System.nanoTime();
+		int initialsize = (int) ( tableSearched.size() * avgTransformed / 2 );
+		System.out.println( "Hash Initial size " + initialsize );
+		rec2idx = new WYK_HashMap<>( initialsize );
 
 		long totalExpSize = 0;
 		// long estimatedExpSize = 0;
