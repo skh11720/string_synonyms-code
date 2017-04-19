@@ -313,10 +313,10 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_bw.write( "" + expanded.size() );
 					debug_bw.write( " " + recS.getTokenArray().length );
 					// debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
-					debug_bw.write( " " + ( rec2idx.getCount - debug_Count ) );
+					debug_bw.write( " " + ( Record.expandAllCount - debug_Count ) );
 					debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
 					debug_bw.write( String.format( " %.2f", time / recS.getTokenArray().length ) );
-					debug_bw.write( String.format( " %.2f", time / ( rec2idx.getCount - debug_Count ) ) );
+					debug_bw.write( String.format( " %.2f", time / ( Record.expandAllCount - debug_Count ) ) );
 					debug_bw.write( " " + time );
 					debug_bw.write( " " + Math.pow( 2, recS.getNumApplicableRules() ) );
 					debug_bw.write( " " + ( rec2idx.putCount - debug_putCount ) );
@@ -327,7 +327,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_bw.write( " " + recS.getID() );
 					debug_bw.write( "\n" );
 
-					debug_Count = rec2idx.getCount;
+					debug_Count = Record.expandAllCount;
 					debug_IterCount = rec2idx.getIterCount;
 					debug_putCount = rec2idx.putCount;
 					debug_resizeCount = rec2idx.resizeCount;
