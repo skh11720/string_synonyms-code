@@ -324,6 +324,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 					debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
 					debug_bw.write( " " + ( rec2idx.removeCount - debug_RemoveCount ) );
 					debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
+					debug_bw.write( " " + recS.getID() );
 					debug_bw.write( "\n" );
 
 					debug_Count = rec2idx.getCount;
