@@ -254,6 +254,13 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			// stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
 
 			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+
+			stat.add( "Counter_Index_Get_Count", rec2idx.getCount );
+			stat.add( "Counter_Index_GetIter_Count", rec2idx.getIterCount );
+			stat.add( "Counter_Index_Put_Count", rec2idx.putCount );
+			stat.add( "Counter_Index_Resize_Count", rec2idx.resizeCount );
+			stat.add( "Counter_Index_Remove_Count", rec2idx.removeCount );
+			stat.add( "Counter_Index_RemoveIter_Count", rec2idx.removeIterCount );
 		}
 	}
 
