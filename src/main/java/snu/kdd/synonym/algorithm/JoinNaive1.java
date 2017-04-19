@@ -188,8 +188,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				if( list == null ) {
 					// new expression
 					list = new ArrayList<>( 5 );
-					rec2idx.put( exp, list );
-					// rec2idx.putNonExist( exp, list );
+					// rec2idx.put( exp, list );
+					rec2idx.putNonExist( exp, list );
 				}
 
 				// If current list already contains current record as the last element, skip adding
