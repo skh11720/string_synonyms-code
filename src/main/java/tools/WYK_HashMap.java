@@ -102,7 +102,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	public V put( K key, V value ) {
 		putCount++;
 
-		// V removedValue = remove( key );
+		V removedValue = remove( key );
 
 		int hash = key.hashCode();
 		int idx = getIdx( hash );
@@ -116,8 +116,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 			resize( (int) ( array.length * 1.7 ) );
 		}
 
-		return null;
-		// return removedValue;
+		return removedValue;
 	}
 
 	@Override
