@@ -89,7 +89,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
 		int invokesInitialized = 0;
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
 		for( Record rec : tableIndexed ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 
@@ -137,7 +137,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stepTime.stop();
 		}
 
-		stepTime.resetAndStart( "Indexing Time" );
+		stepTime.resetAndStart( "Result_3_2_Indexing Time" );
 		totalSigCount = 0;
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
@@ -238,7 +238,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stepTime.stop();
 		}
 
-		stepTime.resetAndStart( "Statistic Time" );
+		stepTime.resetAndStart( "Result_3_3_Statistic Time" );
 		int sum = 0;
 		int ones = 0;
 		long count = 0;
@@ -405,7 +405,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// bw.close();
 
 		if( writeResult ) {
-			stat.add( "Equiv Comparison", equivComparisons );
+			stat.add( "Stat_Equiv_Comparison", equivComparisons );
 		}
 
 		return rslt;
@@ -587,7 +587,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// Retrieve statistics
 		statistics();
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		if( singleside ) {
 			buildIndexSingleSide();
 		}
@@ -607,7 +607,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stepTime.stop();
 		}
 
-		stepTime.resetAndStart( "Join Total Time" );
+		stepTime.resetAndStart( "Result_3_Run_Time" );
 		Collection<IntegerPair> rslt = ( singleside ? joinSingleSide() : join( writeResult ) );
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
@@ -621,7 +621,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stat.add( "Sample_JoinMin Result", rslt.size() );
 		}
 		else {
+			stepTime.resetAndStart( "Result_4_Write_Time" );
 			this.writeResult( rslt );
+			stepTime.stopAndAdd( stat );
 		}
 
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
