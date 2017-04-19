@@ -916,16 +916,15 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	private void expandAll( ArrayList<Record> rslt, int idx, int[] t ) {
 		expandAllCount++;
 
+		if( idx == tokens.length ) {
+			rslt.add( new Record( t ) );
+			return;
+		}
 		Rule[] rules = applicableRules[ idx ];
 
 		for( Rule rule : rules ) {
 			if( rule.isSelfRule() ) {
-				if( idx + 1 == tokens.length ) {
-					rslt.add( new Record( t ) );
-				}
-				else {
-					expandAll( rslt, idx + 1, t );
-				}
+				expandAll( rslt, idx + 1, t );
 			}
 			else {
 				int newSize = t.length - rule.fromSize() + rule.toSize();
@@ -948,13 +947,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				}
 
 				int new_idx = idx + rule.fromSize();
-
-				if( new_idx == tokens.length ) {
-					rslt.add( new Record( t ) );
-				}
-				else {
-					expandAll( rslt, new_idx, new_rec );
-				}
+				expandAll( rslt, new_idx, new_rec );
 			}
 		}
 	}
