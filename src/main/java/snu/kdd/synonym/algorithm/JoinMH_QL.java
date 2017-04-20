@@ -40,6 +40,31 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		idComparator = new RecordIDComparator();
 	}
 
+	public void run() {
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		preprocess( compact, maxIndexLength, useAutomata );
+		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
+
+		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		stepTime.resetAndStart( "Result_3_1_Index_Building_Time" );
+		buildIndex();
+		stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		WYK_HashSet<IntegerPair> rslt = join();
+		stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
+
+		runTime.stopAndAdd( stat );
+		System.out.println( "Result " + rslt.size() );
+
+		stepTime.resetAndStart( "Result_4_Write_Time" );
+		writeResult( rslt );
+		stepTime.stopAndAdd( stat );
+	}
+
 	private void buildIndex() {
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "debug.txt" ) );
@@ -71,7 +96,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				}
 			}
 			stat.add( "Stat_Index_Size", elements );
-			System.out.println( "Idx size : " + elements );
+			System.out.println( "Index size : " + elements );
 
 			// computes the statistics of the indexes
 			String indexStr = "";
@@ -272,26 +297,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess( compact, maxIndexLength, useAutomata );
-		stepTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_3_1_Index_Building_Time" );
-		buildIndex();
-		stepTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
-		WYK_HashSet<IntegerPair> rslt = join();
-		stepTime.stopAndAdd( stat );
-
-		System.out.println( "Result " + rslt.size() );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult( rslt );
-		stepTime.stopAndAdd( stat );
-	}
-
 	@Override
 	public String getVersion() {
 		return "1.0";
@@ -317,9 +322,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		checker = params.getValidator();
 		exact2grams = params.isExact2Grams();
 
-		StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
 		run();
-		runTime.stopAndAdd( stat );
 
 		Validator.printStats();
 	}

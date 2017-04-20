@@ -67,6 +67,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		preprocess();
 		preprocessTime.stop();
 		stat.add( preprocessTime );
+		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 
 		final StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		final List<IntegerPair> list = runWithoutPreprocess( true );
@@ -129,7 +130,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
 		stat.add( "Stat_Avg_Transformed_TableIndexed", Double.toString( avgTransformed ) );
 
-		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 	}
 
 	private void buildIndex( boolean addStat ) {
