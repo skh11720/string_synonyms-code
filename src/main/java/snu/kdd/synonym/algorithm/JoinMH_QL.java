@@ -69,6 +69,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 	private void buildIndex() {
 		try {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
+			long debug_elements = 0;
 			long elements = 0;
 			// Build an index
 
@@ -99,8 +100,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 				// TODO DEBUG
 				bw.write( recordTime + " " );
-				bw.write( elements + " " );
+				bw.write( ( elements - debug_elements ) + " " );
 				bw.write( "\n" );
+				debug_elements = elements;
 			}
 			bw.close();
 
