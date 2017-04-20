@@ -35,7 +35,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	public int maxIndex = Integer.MAX_VALUE;
 	public boolean compact = true;
 	public boolean singleside = false;
-	public boolean exact2grams = false;
+	// public boolean exact2grams = false;
 
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
@@ -97,7 +97,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
 			for( Record rec : tableIndexed ) {
 				long recordStartTime = System.nanoTime();
-				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
+				List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 				long recordTime = System.nanoTime() - recordStartTime;
 
 				int searchmax = Math.min( available2Grams.size(), maxIndex );
@@ -174,7 +174,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 				// searchmax = Math.min( searchmax, invokes.size() );
 
-				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2GramsWithBound( searchmax );
+				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
 				for( Set<IntegerPair> set : available2Grams ) {
 					totalSigCount += set.size();
 				}
@@ -345,7 +345,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		long equivComparisons = 0;
 		// long lastTokenFiltered = 0;
 		for( Record recS : tableIndexed ) {
-			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
+			// List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
+			List<Set<IntegerPair>> available2Grams = recS.get2Grams();
 			// for (Set<IntegerPair> set : available2Grams)
 			// totalSigCount += set.size();
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
@@ -460,7 +461,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 		for( Record rec : tableSearched ) {
-			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
+			// List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
+			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
@@ -677,7 +679,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		skipChecking = params.isSkipChecking();
 		compact = params.isCompact();
 		checker = params.getValidator();
-		exact2grams = params.isExact2Grams();
+		// exact2grams = params.isExact2Grams();
 
 		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess( compact, maxIndex, useAutomata );

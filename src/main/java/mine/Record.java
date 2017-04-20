@@ -476,6 +476,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		return twograms;
 	}
 
+	@Deprecated
 	public List<Set<IntegerPair>> getExact2Grams() {
 		/* There are two type of 2 grams:
 		 * 1) two tokens are derived from different rules.
