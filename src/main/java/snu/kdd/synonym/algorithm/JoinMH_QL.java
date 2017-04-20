@@ -68,9 +68,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	private void buildIndex() {
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
-			long debug_elements = 0;
-			long debug_gcCount = getGCCount();
+			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
+			// long debug_elements = 0;
+			// long debug_gcCount = getGCCount();
 			long elements = 0;
 			// Build an index
 
@@ -80,7 +80,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 
 			for( Record rec : tableSearched ) {
-				long recordStartTime = System.nanoTime();
+				// long recordStartTime = System.nanoTime();
 				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( maxIndexLength );
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
@@ -97,17 +97,17 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 					elements += available2Grams.get( i ).size();
 				}
-				long recordTime = System.nanoTime() - recordStartTime;
-
-				// TODO DEBUG
-				bw.write( recordTime + " " );
-				bw.write( ( elements - debug_elements ) + " " );
-				bw.write( ( getGCCount() - debug_gcCount ) + " " );
-				bw.write( "\n" );
-				debug_elements = elements;
-				debug_gcCount = getGCCount();
+				// long recordTime = System.nanoTime() - recordStartTime;
+				//
+				// // TODO DEBUG
+				// bw.write( recordTime + " " );
+				// bw.write( ( elements - debug_elements ) + " " );
+				// bw.write( ( getGCCount() - debug_gcCount ) + " " );
+				// bw.write( "\n" );
+				// debug_elements = elements;
+				// debug_gcCount = getGCCount();
 			}
-			bw.close();
+			// bw.close();
 
 			stat.add( "Stat_Index_Size", elements );
 			System.out.println( "Index size : " + elements );
@@ -121,7 +121,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				int sum = 0;
 				long singlelistsize = 0;
 				long count = 0;
-				long sqsum = 0;
+				// long sqsum = 0;
 				for( Map.Entry<IntegerPair, List<IntIntRecordTriple>> entry : ithidx.entrySet() ) {
 					List<IntIntRecordTriple> list = entry.getValue();
 
@@ -131,7 +131,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					// bw.write( triple.toString() + "\n" );
 					// }
 
-					sqsum += list.size() * list.size();
+					// sqsum += list.size() * list.size();
 					if( list.size() == 1 ) {
 						++singlelistsize;
 						continue;
@@ -142,7 +142,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				System.out.println( i + "th Single value list size : " + singlelistsize );
 				System.out.println( i + "th iIdx size(w/o 1) : " + count );
 				System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-				System.out.println( i + "th Sqsum : " + sqsum );
+				// System.out.println( i + "th Sqsum : " + sqsum );
 
 				long totalCount = count + singlelistsize;
 				int exp = 0;
@@ -188,102 +188,123 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			candidateTimes[ i ] = StopWatch.getWatchStopped( "Result_3_2_2_Cand_" + i + " Time" );
 		}
 
-		// long lastTokenFiltered = 0;
-		for( int sid = 0; sid < tableIndexed.size(); sid++ ) {
-			Record recS = tableIndexed.get( sid );
-			Set<Record> candidates = new HashSet<Record>();
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
+			long debug_elements = 0;
+			long debug_gcCount = getGCCount();
+			long elements = 0;
 
-			// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-			List<Set<IntegerPair>> available2Grams = recS.get2GramsWithBound( maxIndexLength );
+			// long lastTokenFiltered = 0;
+			for( int sid = 0; sid < tableIndexed.size(); sid++ ) {
+				long recordStartTime = System.nanoTime();
+				Record recS = tableIndexed.get( sid );
+				Set<Record> candidates = new HashSet<Record>();
 
-			int[] range = recS.getCandidateLengths( recS.size() - 1 );
-			int boundary = Math.min( range[ 0 ], maxIndexLength );
-			for( int i = 0; i < boundary; ++i ) {
-				candidateTimes[ i ].start();
+				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
+				List<Set<IntegerPair>> available2Grams = recS.get2GramsWithBound( maxIndexLength );
 
-				// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
+				int[] range = recS.getCandidateLengths( recS.size() - 1 );
+				int boundary = Math.min( range[ 0 ], maxIndexLength );
+				for( int i = 0; i < boundary; ++i ) {
+					candidateTimes[ i ].start();
 
-				Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
+					// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
 
-				Set<Record> candidatesAppeared = new HashSet<Record>();
+					Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
 
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
+					Set<Record> candidatesAppeared = new HashSet<Record>();
 
-					List<IntIntRecordTriple> list = map.get( twogram );
-					if( list == null ) {
-						++count_empty[ i ];
-						continue;
-					}
-					cand_sum[ i ] += list.size();
-					++count_cand[ i ];
-					for( IntIntRecordTriple e : list ) {
-						if( StaticFunctions.overlap( e.min, e.max, range[ 0 ], range[ 1 ] ) ) {
-							// length filtering
-							if( i == 0 ) {
-								// last token filtering
-								// if( recS.shareLastToken( e.rec ) ) {
-								candidatesAppeared.add( e.rec );
-								// }
-								// else {
-								// lastTokenFiltered++;
-								// }
+					for( IntegerPair twogram : available2Grams.get( i ) ) {
+						elements++;
+						List<IntIntRecordTriple> list = map.get( twogram );
+						if( list == null ) {
+							++count_empty[ i ];
+							continue;
+						}
+						cand_sum[ i ] += list.size();
+						++count_cand[ i ];
+						for( IntIntRecordTriple e : list ) {
+							if( StaticFunctions.overlap( e.min, e.max, range[ 0 ], range[ 1 ] ) ) {
+								// length filtering
+								if( i == 0 ) {
+									// last token filtering
+									// if( recS.shareLastToken( e.rec ) ) {
+									candidatesAppeared.add( e.rec );
+									// }
+									// else {
+									// lastTokenFiltered++;
+									// }
+								}
+								else if( candidates.contains( e.rec ) ) {
+									// signature filtering
+									candidatesAppeared.add( e.rec );
+								}
 							}
-							else if( candidates.contains( e.rec ) ) {
-								// signature filtering
-								candidatesAppeared.add( e.rec );
+							else {
+								lengthFiltered++;
 							}
 						}
-						else {
-							lengthFiltered++;
-						}
+						cand_sum_afterprune[ i ] += candidatesAppeared.size();
+
 					}
-					cand_sum_afterprune[ i ] += candidatesAppeared.size();
+					candidates.clear();
+					Set<Record> temp = candidatesAppeared;
+					candidatesAppeared = candidates;
+					candidates = temp;
 
+					// if( i == 0 ) {
+					// Iterator<Record> itr = candidates.iterator();
+					// while( itr.hasNext() ) {
+					// Record rec = itr.next();
+					// if( !recS.shareLastToken( rec ) ) {
+					// itr.remove();
+					// lastTokenFiltered++;
+					// }
+					// }
+					// }
+
+					cand_sum_afterunion[ i ] += candidates.size();
+
+					candidateTimes[ i ].stopQuiet();
 				}
-				candidates.clear();
-				Set<Record> temp = candidatesAppeared;
-				candidatesAppeared = candidates;
-				candidates = temp;
 
-				// if( i == 0 ) {
-				// Iterator<Record> itr = candidates.iterator();
-				// while( itr.hasNext() ) {
-				// Record rec = itr.next();
-				// if( !recS.shareLastToken( rec ) ) {
-				// itr.remove();
-				// lastTokenFiltered++;
+				count += candidates.size();
+
+				// DEBUG
+				// if( candidates.size() != 1 ) {
+				// System.out.println( candidates.size() );
+				// for( int i = 0; i < boundary; i++ ) {
+				// for( IntegerPair twogram : available2Grams.get( i ) ) {
+				// System.out.println( twogram.toStrString() );
 				// }
 				// }
 				// }
 
-				cand_sum_afterunion[ i ] += candidates.size();
-
-				candidateTimes[ i ].stopQuiet();
-			}
-
-			count += candidates.size();
-
-			// DEBUG
-			// if( candidates.size() != 1 ) {
-			// System.out.println( candidates.size() );
-			// for( int i = 0; i < boundary; i++ ) {
-			// for( IntegerPair twogram : available2Grams.get( i ) ) {
-			// System.out.println( twogram.toStrString() );
-			// }
-			// }
-			// }
-
-			if( skipChecking ) {
-				continue;
-			}
-			equivTime.start();
-			for( Record recR : candidates ) {
-				int compare = checker.isEqual( recR, recS );
-				if( compare >= 0 ) {
-					rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
+				if( skipChecking ) {
+					continue;
 				}
+				equivTime.start();
+				for( Record recR : candidates ) {
+					int compare = checker.isEqual( recR, recS );
+					if( compare >= 0 ) {
+						rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
+					}
+				}
+				equivTime.stopQuiet();
+
+				long recordTime = System.nanoTime() - recordStartTime;
+
+				bw.write( recordTime + " " );
+				bw.write( ( elements - debug_elements ) + " " );
+				bw.write( ( getGCCount() - debug_gcCount ) + " " );
+				bw.write( "\n" );
+				debug_elements = elements;
+				debug_gcCount = getGCCount();
 			}
-			equivTime.stopQuiet();
+			bw.close();
+		}
+		catch( Exception e ) {
+			e.printStackTrace();
 		}
 
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
