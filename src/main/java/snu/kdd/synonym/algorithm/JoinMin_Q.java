@@ -1,6 +1,8 @@
 package snu.kdd.synonym.algorithm;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -89,217 +91,232 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
 		int invokesInitialized = 0;
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
-		for( Record rec : tableIndexed ) {
-			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 
-			int searchmax = Math.min( available2Grams.size(), maxIndex );
+			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
+			for( Record rec : tableIndexed ) {
+				long recordStartTime = System.nanoTime();
+				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
 
-			for( int i = invokesInitialized; i < searchmax; i++ ) {
-				invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
-			}
-			if( invokesInitialized < searchmax ) {
-				invokesInitialized = searchmax;
-			}
+				int searchmax = Math.min( available2Grams.size(), maxIndex );
 
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+				for( int i = invokesInitialized; i < searchmax; i++ ) {
+					invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
+				}
+				if( invokesInitialized < searchmax ) {
+					invokesInitialized = searchmax;
+				}
 
-				Set<IntegerPair> available = available2Grams.get( i );
-				totalSigCount += available.size();
-				for( IntegerPair twogram : available ) {
-					WrappedInteger count = curridx_invokes.get( twogram );
-					if( count == null ) {
-						// object ONE is shared to reduce memory usage
-						curridx_invokes.put( twogram, ONE );
-					}
-					else if( count == ONE ) {
-						count = new WrappedInteger( 2 );
-						curridx_invokes.put( twogram, count );
-					}
-					else {
-						count.increment();
+				for( int i = 0; i < searchmax; ++i ) {
+					Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+
+					Set<IntegerPair> available = available2Grams.get( i );
+					totalSigCount += available.size();
+					for( IntegerPair twogram : available ) {
+						WrappedInteger count = curridx_invokes.get( twogram );
+						if( count == null ) {
+							// object ONE is shared to reduce memory usage
+							curridx_invokes.put( twogram, ONE );
+						}
+						else if( count == ONE ) {
+							count = new WrappedInteger( 2 );
+							curridx_invokes.put( twogram, count );
+						}
+						else {
+							count.increment();
+						}
 					}
 				}
+
+				// DEBUG
+				long recordTime = System.nanoTime() - recordStartTime;
+				bw.write( recordTime + " " );
+				bw.write( available2Grams.size() );
+				bw.write( "\n" );
 			}
-		}
+			bw.close();
 
-		buildIndexTime1 = System.nanoTime() - starttime;
-		gamma = ( (double) buildIndexTime1 ) / totalSigCount;
-		System.out.println( "Step 1 Time : " + buildIndexTime1 );
-		System.out.println( "Gamma (buildTime / signature): " + gamma );
+			buildIndexTime1 = System.nanoTime() - starttime;
+			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
+			System.out.println( "Step 1 Time : " + buildIndexTime1 );
+			System.out.println( "Gamma (buildTime / signature): " + gamma );
 
-		if( writeResult ) {
-			stat.add( "Est_Index_1_Index_Count_Time", buildIndexTime1 );
-			stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( gamma ) );
-		}
+			if( writeResult ) {
+				stat.add( "Est_Index_1_Index_Count_Time", buildIndexTime1 );
+				stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( gamma ) );
+			}
 
-		starttime = System.nanoTime();
-		if( writeResult ) {
-			stepTime.stopAndAdd( stat );
-		}
-		else {
-			stepTime.stop();
-		}
-
-		stepTime.resetAndStart( "Result_3_2_Indexing Time" );
-		totalSigCount = 0;
-		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-
-		long predictCount = 0;
-		long indexedElements = 0;
-		for( Record rec : tableSearched ) {
-			int[] range = rec.getCandidateLengths( rec.size() - 1 );
-			int searchmax = maxIndex;
-
-			if( range[ 0 ] == 1 ) {
-				searchmax = 1;
+			starttime = System.nanoTime();
+			if( writeResult ) {
+				stepTime.stopAndAdd( stat );
 			}
 			else {
-				searchmax = Math.min( range[ 0 ] - 1, searchmax );
-			}
-			// searchmax = Math.min( searchmax, invokes.size() );
-
-			List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2GramsWithBound( searchmax );
-			for( Set<IntegerPair> set : available2Grams ) {
-				totalSigCount += set.size();
+				stepTime.stop();
 			}
 
-			int minIdx = -1;
-			int minInvokes = Integer.MAX_VALUE;
+			stepTime.resetAndStart( "Result_3_2_Indexing Time" );
+			totalSigCount = 0;
+			idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 
-			for( int i = 0; i < searchmax; ++i ) {
-				if( available2Grams.get( i ).isEmpty() ) {
-					continue;
+			long predictCount = 0;
+			long indexedElements = 0;
+			for( Record rec : tableSearched ) {
+				int[] range = rec.getCandidateLengths( rec.size() - 1 );
+				int searchmax = maxIndex;
+
+				if( range[ 0 ] == 1 ) {
+					searchmax = 1;
+				}
+				else {
+					searchmax = Math.min( range[ 0 ] - 1, searchmax );
+				}
+				// searchmax = Math.min( searchmax, invokes.size() );
+
+				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2GramsWithBound( searchmax );
+				for( Set<IntegerPair> set : available2Grams ) {
+					totalSigCount += set.size();
 				}
 
-				// There is no invocation count: this is the minimum point
+				int minIdx = -1;
+				int minInvokes = Integer.MAX_VALUE;
 
-				if( i >= invokes.size() ) {
-					minIdx = i;
-					minInvokes = 0;
-					break;
-				}
+				for( int i = 0; i < searchmax; ++i ) {
+					if( available2Grams.get( i ).isEmpty() ) {
+						continue;
+					}
 
-				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
-				if( curridx_invokes.size() == 0 ) {
-					minIdx = i;
-					minInvokes = 0;
-					break;
-				}
-				int invoke = 0;
+					// There is no invocation count: this is the minimum point
 
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					WrappedInteger count = curridx_invokes.get( twogram );
-					if( count != null ) {
-						// upper bound
-						invoke += count.get();
+					if( i >= invokes.size() ) {
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+
+					Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+					if( curridx_invokes.size() == 0 ) {
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+					int invoke = 0;
+
+					for( IntegerPair twogram : available2Grams.get( i ) ) {
+						WrappedInteger count = curridx_invokes.get( twogram );
+						if( count != null ) {
+							// upper bound
+							invoke += count.get();
+						}
+					}
+					if( invoke < minInvokes ) {
+						minIdx = i;
+						minInvokes = invoke;
 					}
 				}
-				if( invoke < minInvokes ) {
-					minIdx = i;
-					minInvokes = invoke;
+
+				predictCount += minInvokes;
+
+				Map<IntegerPair, List<Record>> curridx = idx.get( minIdx );
+				if( curridx == null ) {
+					curridx = new WYK_HashMap<IntegerPair, List<Record>>( 1000 );
+					// curridx = new HashMap<IntegerPair, List<Record>>();
+					idx.put( minIdx, curridx );
 				}
-			}
 
-			predictCount += minInvokes;
-
-			Map<IntegerPair, List<Record>> curridx = idx.get( minIdx );
-			if( curridx == null ) {
-				curridx = new WYK_HashMap<IntegerPair, List<Record>>( 1000 );
-				// curridx = new HashMap<IntegerPair, List<Record>>();
-				idx.put( minIdx, curridx );
-			}
-
-			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
-				// write2File(bw, minIdx, twogram, rec.getID());
-				if( true ) {
-					List<Record> list = curridx.get( twogram );
-					if( list == null ) {
-						list = new ArrayList<Record>();
-						curridx.put( twogram, list );
+				for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
+					// write2File(bw, minIdx, twogram, rec.getID());
+					if( true ) {
+						List<Record> list = curridx.get( twogram );
+						if( list == null ) {
+							list = new ArrayList<Record>();
+							curridx.put( twogram, list );
+						}
+						list.add( rec );
 					}
-					list.add( rec );
+				}
+				indexedElements += available2Grams.get( minIdx ).size();
+			}
+			System.out.println( "Idx size : " + indexedElements );
+			System.out.println( "Predict : " + predictCount );
+
+			buildIndexTime2 = System.nanoTime() - starttime;
+			System.out.println( "Step 2 Time : " + buildIndexTime2 );
+			delta = ( (double) buildIndexTime2 ) / totalSigCount;
+			System.out.println( "Delta (index build / signature ): " + delta );
+
+			if( writeResult ) {
+				stat.add( "Stat_JoinMin_Index Size", indexedElements );
+				stat.add( "Stat_Predicted_Comparison", predictCount );
+
+				stat.add( "Est_Index_2_Build_Index_Time", buildIndexTime2 );
+				stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( delta ) );
+				stepTime.stopAndAdd( stat );
+			}
+			else {
+				stepTime.stop();
+			}
+
+			stepTime.resetAndStart( "Result_3_3_Statistic Time" );
+			int sum = 0;
+			int ones = 0;
+			long count = 0;
+			///// Statistics
+			for( Map<IntegerPair, List<Record>> curridx : idx.values() ) {
+				WYK_HashMap<IntegerPair, List<Record>> tmp = (WYK_HashMap<IntegerPair, List<Record>>) curridx;
+				if( sum == 0 ) {
+					tmp.printStat();
+				}
+
+				for( List<Record> list : curridx.values() ) {
+					if( list.size() == 1 ) {
+						++ones;
+						continue;
+					}
+					sum++;
+					count += list.size();
 				}
 			}
-			indexedElements += available2Grams.get( minIdx ).size();
-		}
-		System.out.println( "Idx size : " + indexedElements );
-		System.out.println( "Predict : " + predictCount );
-
-		buildIndexTime2 = System.nanoTime() - starttime;
-		System.out.println( "Step 2 Time : " + buildIndexTime2 );
-		delta = ( (double) buildIndexTime2 ) / totalSigCount;
-		System.out.println( "Delta (index build / signature ): " + delta );
-
-		if( writeResult ) {
-			stat.add( "Stat_JoinMin_Index Size", indexedElements );
-			stat.add( "Stat_Predicted_Comparison", predictCount );
-
-			stat.add( "Est_Index_2_Build_Index_Time", buildIndexTime2 );
-			stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( delta ) );
-			stepTime.stopAndAdd( stat );
-		}
-		else {
-			stepTime.stop();
-		}
-
-		stepTime.resetAndStart( "Result_3_3_Statistic Time" );
-		int sum = 0;
-		int ones = 0;
-		long count = 0;
-		///// Statistics
-		for( Map<IntegerPair, List<Record>> curridx : idx.values() ) {
-			WYK_HashMap<IntegerPair, List<Record>> tmp = (WYK_HashMap<IntegerPair, List<Record>>) curridx;
-			if( sum == 0 ) {
-				tmp.printStat();
-			}
-
-			for( List<Record> list : curridx.values() ) {
-				if( list.size() == 1 ) {
-					++ones;
-					continue;
+			System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
+			System.out.println( "iIdx size(all) : " + ( count + ones ) );
+			System.out.println( "Rec per idx(all) : " + ( (double) ( count + ones ) ) / ( sum + ones ) );
+			System.out.println( "key-value pairs(w/o 1) : " + sum );
+			System.out.println( "iIdx size(w/o 1) : " + count );
+			System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+			System.out.println( "2Gram retrieval: " + Record.exectime );
+			///// Statistics
+			sum = 0;
+			ones = 0;
+			count = 0;
+			for( Map<IntegerPair, WrappedInteger> curridx : invokes ) {
+				WYK_HashMap<IntegerPair, WrappedInteger> tmp = (WYK_HashMap<IntegerPair, WrappedInteger>) curridx;
+				if( sum == 0 ) {
+					tmp.printStat();
 				}
-				sum++;
-				count += list.size();
-			}
-		}
-		System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
-		System.out.println( "iIdx size(all) : " + ( count + ones ) );
-		System.out.println( "Rec per idx(all) : " + ( (double) ( count + ones ) ) / ( sum + ones ) );
-		System.out.println( "key-value pairs(w/o 1) : " + sum );
-		System.out.println( "iIdx size(w/o 1) : " + count );
-		System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-		System.out.println( "2Gram retrieval: " + Record.exectime );
-		///// Statistics
-		sum = 0;
-		ones = 0;
-		count = 0;
-		for( Map<IntegerPair, WrappedInteger> curridx : invokes ) {
-			WYK_HashMap<IntegerPair, WrappedInteger> tmp = (WYK_HashMap<IntegerPair, WrappedInteger>) curridx;
-			if( sum == 0 ) {
-				tmp.printStat();
-			}
-			for( Entry<IntegerPair, WrappedInteger> list : curridx.entrySet() ) {
-				if( list.getValue().get() == 1 ) {
-					++ones;
-					continue;
+				for( Entry<IntegerPair, WrappedInteger> list : curridx.entrySet() ) {
+					if( list.getValue().get() == 1 ) {
+						++ones;
+						continue;
+					}
+					sum++;
+					count += list.getValue().get();
 				}
-				sum++;
-				count += list.getValue().get();
+			}
+			System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
+			System.out.println( "iIdx size(all) : " + ( count + ones ) );
+			System.out.println( "Rec per idx(all) : " + ( (double) ( count + ones ) ) / ( sum + ones ) );
+			System.out.println( "key-value pairs(w/o 1) : " + sum );
+			System.out.println( "iIdx size(w/o 1) : " + count );
+			System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+			if( writeResult ) {
+				stepTime.stopAndAdd( stat );
+			}
+			else {
+				stepTime.stop();
 			}
 		}
-		System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
-		System.out.println( "iIdx size(all) : " + ( count + ones ) );
-		System.out.println( "Rec per idx(all) : " + ( (double) ( count + ones ) ) / ( sum + ones ) );
-		System.out.println( "key-value pairs(w/o 1) : " + sum );
-		System.out.println( "iIdx size(w/o 1) : " + count );
-		System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-		if( writeResult ) {
-			stepTime.stopAndAdd( stat );
-		}
-		else {
-			stepTime.stop();
+		catch( Exception e ) {
+			e.printStackTrace();
 		}
 	}
 
