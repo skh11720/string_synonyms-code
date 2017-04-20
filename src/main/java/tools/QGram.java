@@ -13,6 +13,10 @@ public class QGram {
 
 	@Override
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
+
 		QGram oip = (QGram) o;
 
 		if( qgram.length == oip.qgram.length ) {

@@ -1,5 +1,7 @@
 package snu.kdd.synonym.algorithm;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,7 +26,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 	public boolean useAutomata = true;
 	public boolean skipChecking = false;
 	public boolean compact = false;
-	public boolean exact2grams = false;
 	RecordIDComparator idComparator;
 	public int maxIndexLength = 3;
 	static Validator checker;
@@ -67,7 +68,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	private void buildIndex() {
 		try {
-			// BufferedWriter bw = new BufferedWriter( new FileWriter( "debug.txt" ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 			long elements = 0;
 			// Build an index
 
@@ -77,8 +78,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 
 			for( Record rec : tableSearched ) {
-				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams()
-						: rec.get2GramsWithBound( maxIndexLength );
+				long recordStartTime = System.nanoTime();
+				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( maxIndexLength );
+				long recordTime = System.nanoTime() - recordStartTime;
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int boundary = Math.min( range[ 1 ], maxIndexLength );
@@ -94,7 +96,14 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 					elements += available2Grams.get( i ).size();
 				}
+
+				// TODO DEBUG
+				bw.write( recordTime + " " );
+				bw.write( available2Grams.size() + " " );
+				bw.write( "\n" );
 			}
+			bw.close();
+
 			stat.add( "Stat_Index_Size", elements );
 			System.out.println( "Index size : " + elements );
 
@@ -154,7 +163,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
-			System.exit( 1 );
 		}
 	}
 
@@ -181,8 +189,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			Set<Record> candidates = new HashSet<Record>();
 
 			// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams()
-					: recS.get2GramsWithBound( maxIndexLength );
+			List<Set<IntegerPair>> available2Grams = recS.get2GramsWithBound( maxIndexLength );
 
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
 			int boundary = Math.min( range[ 0 ], maxIndexLength );
@@ -273,6 +280,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 			equivTime.stopQuiet();
 		}
+
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
 		for( int i = 0; i < maxIndexLength; ++i ) {
 			System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );

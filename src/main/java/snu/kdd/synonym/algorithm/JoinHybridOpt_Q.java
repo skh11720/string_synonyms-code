@@ -219,13 +219,13 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		writeResult( rslt );
 	}
 
-	private long findThetaRevised( int maxThreshold ) {
+	private long findThetaRevised( int maxThreshold, int q ) {
 		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
 
 		// count qgrams for each that will be searched
 		for( Record rec : tableSearched ) {
 			// TODO : modify with qgrams
-			List<Set<QGram>> availableQGrams = rec.getQGrams();
+			List<Set<QGram>> availableQGrams = rec.getQGrams( q );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
 			for( int i = positionalQCountMap.size(); i < searchmax; i++ ) {
@@ -281,7 +281,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				}
 
 				// update count for JoinMin
-				List<Set<QGram>> availableQGrams = s.getQGrams();
+				List<Set<QGram>> availableQGrams = s.getQGrams( q );
 
 				for( int i = 0; i < availableQGrams.size(); i++ ) {
 					Set<QGram> qgrams = availableQGrams.get( i );
@@ -306,7 +306,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					break;
 				}
 
-				LongIntPair result = t.getMinimumIndexSize( positionalQCountMap, threshold );
+				LongIntPair result = t.getMinimumIndexSize( positionalQCountMap, threshold, q );
 				joinMinCandidateCount += result.l;
 			}
 

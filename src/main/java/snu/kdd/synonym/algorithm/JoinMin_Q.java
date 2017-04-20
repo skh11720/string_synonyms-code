@@ -130,7 +130,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					}
 				}
 
-				// DEBUG
+				// TODO DEBUG
 
 				bw.write( recordTime + " " );
 				bw.write( available2Grams.size() + " " );
