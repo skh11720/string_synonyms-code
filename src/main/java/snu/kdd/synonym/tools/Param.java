@@ -69,8 +69,8 @@ public class Param {
 				param.earlyeval = false;
 			if( cmd.hasOption( "noearlyprune" ) )
 				param.earlyprune = false;
-			// if( cmd.hasOption( "e2g" ) )
-			// param.exact2grams = true;
+			if( cmd.hasOption( "e2g" ) )
+				param.exact2grams = true;
 			if( cmd.hasOption( "nolengthfilter" ) )
 				param.useLengthFilter = false;
 			if( cmd.hasOption( "v" ) ) {
@@ -144,7 +144,7 @@ public class Param {
 	boolean earlyprune = true;
 	boolean earlyeval = true;
 	boolean useLengthFilter = true;
-	// boolean exact2grams = false;
+	boolean exact2grams = false;
 	int joinThreshold = Integer.MAX_VALUE;
 	double sampleratio = 0.01;
 	Validator validator;
@@ -182,9 +182,9 @@ public class Param {
 		return useLengthFilter;
 	}
 
-	// public boolean isExact2Grams() {
-	// return exact2grams;
-	// }
+	public boolean isExact2Grams() {
+		return exact2grams;
+	}
 
 	public int getJoinThreshold() {
 		return joinThreshold;
@@ -194,9 +194,9 @@ public class Param {
 		return validator;
 	}
 
-	public String[] getRemainingArgs() {
-		return remainingArgs;
-	}
+	// public String[] getRemainingArgs() {
+	// return remainingArgs;
+	// }
 
 	public double getSampleRatio() {
 		return sampleratio;

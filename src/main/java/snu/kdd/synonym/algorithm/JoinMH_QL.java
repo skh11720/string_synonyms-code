@@ -320,7 +320,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		skipChecking = params.isSkipChecking();
 		compact = params.isCompact();
 		checker = params.getValidator();
-		exact2grams = params.isExact2Grams();
+		// exact2grams = params.isExact2Grams();
 
 		run();
 
