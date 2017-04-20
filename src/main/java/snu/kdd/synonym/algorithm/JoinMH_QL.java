@@ -70,6 +70,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		try {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 			long debug_elements = 0;
+			long debug_gcCount = getGCCount();
 			long elements = 0;
 			// Build an index
 
@@ -101,8 +102,10 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				// TODO DEBUG
 				bw.write( recordTime + " " );
 				bw.write( ( elements - debug_elements ) + " " );
+				bw.write( ( getGCCount() - debug_gcCount ) + " " );
 				bw.write( "\n" );
 				debug_elements = elements;
+				debug_gcCount = getGCCount();
 			}
 			bw.close();
 
