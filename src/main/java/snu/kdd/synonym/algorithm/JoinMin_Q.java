@@ -98,6 +98,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			for( Record rec : tableIndexed ) {
 				long recordStartTime = System.nanoTime();
 				List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
+				long recordTime = System.nanoTime() - recordStartTime;
 
 				int searchmax = Math.min( available2Grams.size(), maxIndex );
 
@@ -130,7 +131,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 
 				// DEBUG
-				long recordTime = System.nanoTime() - recordStartTime;
+
 				bw.write( recordTime + " " );
 				bw.write( available2Grams.size() + " " );
 				bw.write( "\n" );
