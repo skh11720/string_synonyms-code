@@ -81,7 +81,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			for( Record rec : tableSearched ) {
 				long recordStartTime = System.nanoTime();
 				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( maxIndexLength );
-				long recordTime = System.nanoTime() - recordStartTime;
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int boundary = Math.min( range[ 1 ], maxIndexLength );
@@ -97,6 +96,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 					elements += available2Grams.get( i ).size();
 				}
+				long recordTime = System.nanoTime() - recordStartTime;
 
 				// TODO DEBUG
 				bw.write( recordTime + " " );
