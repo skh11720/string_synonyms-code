@@ -132,7 +132,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				// DEBUG
 				long recordTime = System.nanoTime() - recordStartTime;
 				bw.write( recordTime + " " );
-				bw.write( available2Grams.size() );
+				bw.write( available2Grams.size() + " " );
 				bw.write( "\n" );
 			}
 			bw.close();
