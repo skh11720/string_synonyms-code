@@ -99,7 +99,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 				// TODO DEBUG
 				bw.write( recordTime + " " );
-				bw.write( available2Grams.size() + " " );
+				bw.write( elements + " " );
 				bw.write( "\n" );
 			}
 			bw.close();
