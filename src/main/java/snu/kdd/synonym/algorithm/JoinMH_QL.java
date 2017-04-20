@@ -40,6 +40,31 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		idComparator = new RecordIDComparator();
 	}
 
+	public void run() {
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		preprocess( compact, maxIndexLength, useAutomata );
+		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
+
+		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		stepTime.resetAndStart( "Result_3_1_Index_Building_Time" );
+		buildIndex();
+		stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		WYK_HashSet<IntegerPair> rslt = join();
+		stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
+
+		runTime.stopAndAdd( stat );
+		System.out.println( "Result " + rslt.size() );
+
+		stepTime.resetAndStart( "Result_4_Write_Time" );
+		writeResult( rslt );
+		stepTime.stopAndAdd( stat );
+	}
+
 	private void buildIndex() {
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "debug.txt" ) );
@@ -70,8 +95,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					elements += available2Grams.get( i ).size();
 				}
 			}
-			stat.add( "Index Size", elements );
-			System.out.println( "Idx size : " + elements );
+			stat.add( "Stat_Index_Size", elements );
+			System.out.println( "Index size : " + elements );
 
 			// computes the statistics of the indexes
 			String indexStr = "";
@@ -123,7 +148,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				}
 			}
 
-			stat.add( "Index Size Per Position", indexStr );
+			stat.add( "Stat_Index_Size_Per_Position", indexStr );
 
 			// bw.close();
 		}
@@ -144,13 +169,13 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		int count_cand[] = new int[ maxIndexLength ];
 		int count_empty[] = new int[ maxIndexLength ];
 
-		StopWatch equivTime = StopWatch.getWatchStopped( "Equiv Checking Time" );
+		StopWatch equivTime = StopWatch.getWatchStopped( "Result_3_2_1_Equiv_Checking_Time" );
 		StopWatch[] candidateTimes = new StopWatch[ maxIndexLength ];
 		for( int i = 0; i < maxIndexLength; i++ ) {
-			candidateTimes[ i ] = StopWatch.getWatchStopped( "Cand" + i + " Time" );
+			candidateTimes[ i ] = StopWatch.getWatchStopped( "Result_3_2_2_Cand_" + i + " Time" );
 		}
 
-		long lastTokenFiltered = 0;
+		// long lastTokenFiltered = 0;
 		for( int sid = 0; sid < tableIndexed.size(); sid++ ) {
 			Record recS = tableIndexed.get( sid );
 			Set<Record> candidates = new HashSet<Record>();
@@ -248,10 +273,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 			equivTime.stopQuiet();
 		}
-		stat.add( "Last Token Filtered", lastTokenFiltered );
-		for(
-
-				int i = 0; i < maxIndexLength; ++i ) {
+		// stat.add( "Last Token Filtered", lastTokenFiltered );
+		for( int i = 0; i < maxIndexLength; ++i ) {
 			System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
 			System.out.println( "Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
@@ -259,9 +282,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		}
 
 		System.out.println( "comparisions : " + count );
-		stat.add( "Equiv Comparison", count );
 
-		stat.add( "Length Filtered", lengthFiltered );
+		stat.add( "Stat_Equiv_Comparison", count );
+		stat.add( "Stat_Length_Filtered", lengthFiltered );
 		stat.add( equivTime );
 
 		String candTimeStr = "";
@@ -270,32 +293,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 			candTimeStr = candTimeStr + ( candidateTimes[ i ].getTotalTime() ) + " ";
 		}
-		stat.add( "Candidate Times Per Index", candTimeStr );
+		stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 		return rslt;
-	}
-
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
-		preprocess( compact, maxIndexLength, useAutomata );
-		stepTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "BuildIndex Total Time" );
-		buildIndex();
-		stepTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Join Total Time" );
-		WYK_HashSet<IntegerPair> rslt = join();
-		stepTime.stopAndAdd( stat );
-
-		System.out.println( "Result " + rslt.size() );
-		System.out.println( "Set union items:" + StaticFunctions.union_item_counter );
-		System.out.println( "Set union cmps:" + StaticFunctions.union_cmp_counter );
-		System.out.println( "Set inter items:" + StaticFunctions.inter_item_counter );
-		System.out.println( "Set inter cmps:" + StaticFunctions.inter_cmp_counter );
-
-		stepTime.resetAndStart( "Result Write Time" );
-		writeResult( rslt );
-		stepTime.stopAndAdd( stat );
 	}
 
 	@Override
@@ -323,9 +322,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		checker = params.getValidator();
 		exact2grams = params.isExact2Grams();
 
-		StopWatch runTime = StopWatch.getWatchStarted( "Run Time" );
 		run();
-		runTime.stopAndAdd( stat );
 
 		Validator.printStats();
 	}

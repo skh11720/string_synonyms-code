@@ -490,8 +490,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( "Best threshold : " + best_theta + " with running time " + best_esttime );
 		System.out.println( Arrays.toString( best_esttimes ) );
 
-		stat.addPrimary( "Best Threshold", best_theta );
-		stat.add( "Best Estimated Time", best_esttime );
+		stat.addPrimary( "Auto_Best_Threshold", best_theta );
+		stat.add( "Auto_Best_Estimated_Time", best_esttime );
 
 		joinThreshold = best_theta;
 	}
