@@ -319,7 +319,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 		long count = 0;
 		long equivComparisons = 0;
-		long lastTokenFiltered = 0;
+		// long lastTokenFiltered = 0;
 		for( Record recS : tableIndexed ) {
 			List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
 			// for (Set<IntegerPair> set : available2Grams)
@@ -384,9 +384,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 			}
 		}
-		if( writeResult ) {
-			stat.add( "Last Token Filtered", lastTokenFiltered );
-		}
+
 		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 			System.out.println( "Prefix freq : " + freq );
@@ -405,6 +403,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// bw.close();
 
 		if( writeResult ) {
+			// stat.add( "Last Token Filtered", lastTokenFiltered );
 			stat.add( "Stat_Equiv_Comparison", equivComparisons );
 		}
 
@@ -587,7 +586,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// Retrieve statistics
 		statistics();
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		if( singleside ) {
 			buildIndexSingleSide();
 		}
@@ -607,7 +606,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stepTime.stop();
 		}
 
-		stepTime.resetAndStart( "Result_3_Run_Time" );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		Collection<IntegerPair> rslt = ( singleside ? joinSingleSide() : join( writeResult ) );
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
@@ -618,7 +617,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		System.out.println( "Result Size: " + rslt.size() );
 		if( !writeResult ) {
-			stat.add( "Sample_JoinMin Result", rslt.size() );
+			stat.add( "Sample_JoinMin_Result", rslt.size() );
 		}
 		else {
 			stepTime.resetAndStart( "Result_4_Write_Time" );
@@ -656,11 +655,11 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		checker = params.getValidator();
 		exact2grams = params.isExact2Grams();
 
-		StopWatch preprocessTime = StopWatch.getWatchStarted( "preprocessing time" );
+		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess( compact, maxIndex, useAutomata );
 		preprocessTime.stop();
 
-		StopWatch processTime = StopWatch.getWatchStarted( "processing time" );
+		StopWatch processTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		runWithoutPreprocess( true );
 		processTime.stop();
 
