@@ -196,14 +196,13 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 			// long lastTokenFiltered = 0;
 			for( int sid = 0; sid < tableIndexed.size(); sid++ ) {
-				long recordStartTime = System.nanoTime();
+
 				Record recS = tableIndexed.get( sid );
 				Set<Record> candidates = new HashSet<Record>();
 
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 				List<Set<IntegerPair>> available2Grams = recS.get2GramsWithBound( maxIndexLength );
-
-				long recordTime = System.nanoTime() - recordStartTime;
+				long recordStartTime = System.nanoTime();
 
 				int[] range = recS.getCandidateLengths( recS.size() - 1 );
 				int boundary = Math.min( range[ 0 ], maxIndexLength );
@@ -281,6 +280,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				// }
 				// }
 				// }
+
+				long recordTime = System.nanoTime() - recordStartTime;
 
 				if( skipChecking ) {
 					continue;
