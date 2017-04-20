@@ -298,6 +298,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				bw.write( recordTime + " " );
 				bw.write( ( elements - debug_elements ) + " " );
 				bw.write( ( getGCCount() - debug_gcCount ) + " " );
+				bw.write( candidates.size() + " " );
 				bw.write( "\n" );
 				debug_elements = elements;
 				debug_gcCount = getGCCount();
