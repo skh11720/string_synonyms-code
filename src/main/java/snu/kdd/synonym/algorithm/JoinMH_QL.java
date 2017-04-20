@@ -257,8 +257,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		}
 
 		System.out.println( "comparisions : " + count );
-		stat.add( "Stat_Equiv_Comparison", count );
 
+		stat.add( "Stat_Equiv_Comparison", count );
 		stat.add( "Stat_Length_Filtered", lengthFiltered );
 		stat.add( equivTime );
 
