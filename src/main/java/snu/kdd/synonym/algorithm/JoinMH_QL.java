@@ -203,6 +203,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 				List<Set<IntegerPair>> available2Grams = recS.get2GramsWithBound( maxIndexLength );
 
+				long recordTime = System.nanoTime() - recordStartTime;
+
 				int[] range = recS.getCandidateLengths( recS.size() - 1 );
 				int boundary = Math.min( range[ 0 ], maxIndexLength );
 				for( int i = 0; i < boundary; ++i ) {
@@ -291,8 +293,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 				}
 				equivTime.stopQuiet();
-
-				long recordTime = System.nanoTime() - recordStartTime;
 
 				bw.write( recordTime + " " );
 				bw.write( ( elements - debug_elements ) + " " );
