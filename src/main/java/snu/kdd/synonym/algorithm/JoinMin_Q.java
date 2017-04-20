@@ -129,6 +129,11 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		System.out.println( "Step 1 Time : " + buildIndexTime1 );
 		System.out.println( "Gamma (buildTime / signature): " + gamma );
 
+		if( writeResult ) {
+			stat.add( "Est_Index_1_Index_Count_Time", buildIndexTime1 );
+			stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( gamma ) );
+		}
+
 		starttime = System.nanoTime();
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
@@ -222,16 +227,17 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		System.out.println( "Idx size : " + indexedElements );
 		System.out.println( "Predict : " + predictCount );
 
-		if( writeResult ) {
-			stat.add( "Stat_JoinMin_Index Size", indexedElements );
-			stat.add( "Stat_Predicted_Comparison", predictCount );
-		}
-
 		buildIndexTime2 = System.nanoTime() - starttime;
 		System.out.println( "Step 2 Time : " + buildIndexTime2 );
 		delta = ( (double) buildIndexTime2 ) / totalSigCount;
 		System.out.println( "Delta (index build / signature ): " + delta );
+
 		if( writeResult ) {
+			stat.add( "Stat_JoinMin_Index Size", indexedElements );
+			stat.add( "Stat_Predicted_Comparison", predictCount );
+
+			stat.add( "Est_Index_2_Build_Index_Time", buildIndexTime2 );
+			stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( delta ) );
 			stepTime.stopAndAdd( stat );
 		}
 		else {
