@@ -245,7 +245,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	}
 
 	private int getIdx( int hash ) {
-		return hash % array.length;
+		return Math.abs( hash % array.length );
 	}
 
 	@Override
