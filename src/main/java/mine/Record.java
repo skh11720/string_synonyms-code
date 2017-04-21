@@ -521,7 +521,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			}
 			catch( Exception e ) {
 				e.printStackTrace();
-				System.out.println( "Record " + this );
+				System.out.println( "Record " + this + " id " + this.id + " " + getMaxLength() );
 			}
 		}
 
