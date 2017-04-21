@@ -1,8 +1,6 @@
 package snu.kdd.synonym.algorithm;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -92,13 +90,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		int invokesInitialized = 0;
 
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
+			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
 			for( Record rec : tableIndexed ) {
-				long recordStartTime = System.nanoTime();
+				// long recordStartTime = System.nanoTime();
 				List<Set<IntegerPair>> available2Grams = rec.get2Grams();
-				long recordTime = System.nanoTime() - recordStartTime;
+				// long recordTime = System.nanoTime() - recordStartTime;
 
 				int searchmax = Math.min( available2Grams.size(), maxIndex );
 
@@ -132,11 +130,11 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 				// TODO DEBUG
 
-				bw.write( recordTime + " " );
-				bw.write( available2Grams.size() + " " );
-				bw.write( "\n" );
+				// bw.write( recordTime + " " );
+				// bw.write( available2Grams.size() + " " );
+				// bw.write( "\n" );
 			}
-			bw.close();
+			// bw.close();
 
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
