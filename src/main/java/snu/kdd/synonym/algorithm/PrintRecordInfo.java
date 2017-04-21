@@ -86,6 +86,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			}
 		}
 
+		long startTime = System.nanoTime();
 		System.out.println( "\nTwoGram" );
 		List<Set<IntegerPair>> twogram = r.get2Grams();
 		for( int i = 0; i < twogram.size(); i++ ) {
@@ -94,6 +95,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 				System.out.println( pair.toStrString() );
 			}
 		}
+		System.out.println( "Time: " + ( System.nanoTime() - startTime ) );
 
 		for( int i = 0; i < r.getTokenArray().length; i++ ) {
 			System.out.println(
@@ -103,6 +105,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		System.out.println( "\nTwoGramWithBound " );
 		int[] range = r.getCandidateLengths( r.size() - 1 );
 
+		startTime = System.nanoTime();
 		System.out.println( "Range " + range[ 0 ] );
 		twogram = r.get2GramsWithBound( range[ 0 ] );
 		for( int i = 0; i < twogram.size(); i++ ) {
@@ -111,8 +114,10 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 				System.out.println( pair.toStrString() );
 			}
 		}
+		System.out.println( "Time: " + ( System.nanoTime() - startTime ) );
 
 		System.out.println( "\nQgram" );
+		startTime = System.nanoTime();
 		List<Set<QGram>> qgrams = r.getQGrams( 2 );
 		for( int i = 0; i < qgrams.size(); i++ ) {
 			System.out.println( "Position " + i );
@@ -120,6 +125,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 				System.out.println( qgram );
 			}
 		}
+		System.out.println( "Time: " + ( System.nanoTime() - startTime ) );
 
 		System.out.println( "\nExpanded strings with new implementations" );
 		List<Record> expanded = r.expandAll();
