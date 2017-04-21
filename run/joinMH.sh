@@ -5,13 +5,14 @@ outputPath=$4
 logdir=$5
 LIBS=$6
 j=$7
-project=$8
+qSize=$8
+project=$9
 
-ADDITIONAL="-n $j -compact -v TopDownHashSetSinglePathDS 0"
+ADDITIONAL="-n $j -qSize $qSize -v TopDownHashSetSinglePathDS 0"
 
 ALG=JoinMH
 
-if [[ $# -ne 8 ]];
+if [[ $# -ne 9 ]];
 then
 	echo 'illegal number of parameters: [$ALG]'
 	echo inputfile_one $1
@@ -21,11 +22,12 @@ then
 	echo logdir $5
 	echo LIBS $6
 	echo j $7
-	echo project $8
+	echo qSize $8
+	echo project $9
 else
 	echo $ALG with j=$j and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_$j
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
 		-algorithm $ALG \
-		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$j
+		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$j\_$qSize
 fi

@@ -106,18 +106,20 @@ else
 	#JoinMH
 	if [[ $RUN_JoinMH == "True" ]];
 	then
-		for j in {2..2..1}; do
-			date
-			./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $project
+		for j in {1..3..1}; do
+		#for j in {2..2..1}; do
+			for q in {2..4..1}; do
 
-			#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0
-			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinD2GramCompact$j"TopDownHashSet"; }
-			date
-
-			./compare.sh $PREV JoinMH_QL
+				date
+				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project
+				date
+				./compare.sh $PREV JoinMH_QL
+			done
 		done
 		PREV="JoinMH_QL"
 	fi
+	#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0
+	#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinD2GramCompact$j"TopDownHashSet"; }
 
 	#JoinHybridOpt
 	if [[ $RUN_JoinHybridOpt == "True" ]];
