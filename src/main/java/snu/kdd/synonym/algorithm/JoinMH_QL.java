@@ -163,6 +163,18 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 			stat.add( "Stat_Index_Size_Per_Position", indexStr );
 
+			for( int i = 0; i < idx.size(); i++ ) {
+				WYK_HashMap<QGram, List<IntIntRecordTriple>> index = (WYK_HashMap<QGram, List<IntIntRecordTriple>>) idx.get( i );
+				stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
+				stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
+				stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
+				stat.add( "Counter_Index_" + i + "_Resize_Count", index.resizeCount );
+				stat.add( "Counter_Index_" + i + "_Remove_Count", index.removeCount );
+				stat.add( "Counter_Index_" + i + "_RemoveIter_Count", index.removeIterCount );
+				stat.add( "Counter_Index_" + i + "_PutRemoved_Count", index.putRemovedCount );
+				stat.add( "Counter_Index_" + i + "_RemoveFound_Count", index.removeFoundCount );
+			}
+
 			// bw.close();
 		}
 		catch( Exception e ) {
