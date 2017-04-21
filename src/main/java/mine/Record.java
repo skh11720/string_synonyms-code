@@ -411,13 +411,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 				stack.add( new QGramEntry( q, startRule, t ) );
 
-				// DEBUG
-				System.out.println( "Start rule " + startRule.toTextString( Record.strlist ) );
-
 				while( !stack.isEmpty() ) {
 					QGramEntry entry = stack.pop();
-
-					System.out.println( "Entry " + entry.toString() );
 
 					if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
 						ArrayList<QGram> qgramList = entry.generateQGram( q );
@@ -435,8 +430,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 								minIndex = transformedLengths[ entry.startIndex - 1 ][ 0 ] + i;
 								maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
 							}
-
-							System.out.println( "qgram " + qgram + " min " + minIndex + " max " + maxIndex );
 
 							for( int p = minIndex; p <= maxIndex; p++ ) {
 								positionalQGram.get( p ).add( qgram );
@@ -466,7 +459,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public List<Set<QGram>> getQGrams( int q, int range ) {
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
-		for( int i = 0; i < getMaxLength(); i++ ) {
+		for( int i = 0; i < range && i < getMaxLength(); i++ ) {
 			positionalQGram.add( new HashSet<QGram>() );
 		}
 
@@ -501,7 +494,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 									maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
 								}
 
-								for( int p = minIndex; p <= range && p <= maxIndex; p++ ) {
+								for( int p = minIndex; p < range && p <= maxIndex; p++ ) {
 									positionalQGram.get( p ).add( qgram );
 								}
 							}
@@ -619,7 +612,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					}
 				}
 
-				if( eof ) {
+				if( !stop && eof ) {
 					for( ; idx < q; idx++ ) {
 						qgram[ idx ] = Integer.MAX_VALUE;
 					}
