@@ -414,7 +414,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				while( !stack.isEmpty() ) {
 					QGramEntry entry = stack.pop();
 
-					if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
+					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
 						ArrayList<QGram> qgramList = entry.generateQGram( q );
 
 						for( int i = 0; i < qgramList.size(); i++ ) {
@@ -448,7 +448,27 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 						else {
 							// add EOF
 							entry.eof = true;
-							stack.add( entry );
+
+							ArrayList<QGram> qgramList = entry.generateQGram( q );
+
+							for( int i = 0; i < qgramList.size(); i++ ) {
+								QGram qgram = qgramList.get( i );
+								int minIndex;
+								int maxIndex;
+
+								if( entry.startIndex == 0 ) {
+									minIndex = i;
+									maxIndex = i;
+								}
+								else {
+									minIndex = transformedLengths[ entry.startIndex - 1 ][ 0 ] + i;
+									maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
+								}
+
+								for( int p = minIndex; p <= maxIndex; p++ ) {
+									positionalQGram.get( p ).add( qgram );
+								}
+							}
 						}
 					}
 				}
@@ -477,7 +497,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					while( !stack.isEmpty() ) {
 						QGramEntry entry = stack.pop();
 
-						if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
+						if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
 							ArrayList<QGram> qgramList = entry.generateQGram( q );
 
 							for( int i = 0; i < qgramList.size(); i++ ) {
@@ -511,7 +531,27 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 							else {
 								// add EOF
 								entry.eof = true;
-								stack.add( entry );
+
+								ArrayList<QGram> qgramList = entry.generateQGram( q );
+
+								for( int i = 0; i < qgramList.size(); i++ ) {
+									QGram qgram = qgramList.get( i );
+									int minIndex;
+									int maxIndex;
+
+									if( entry.startIndex == 0 ) {
+										minIndex = i;
+										maxIndex = i;
+									}
+									else {
+										minIndex = transformedLengths[ entry.startIndex - 1 ][ 0 ] + i;
+										maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
+									}
+
+									for( int p = minIndex; p < range && p <= maxIndex; p++ ) {
+										positionalQGram.get( p ).add( qgram );
+									}
+								}
 							}
 						}
 					}
@@ -531,6 +571,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		int length = 0;
 		int rightMostIndex = 0;
 		int startIndex = -1;
+		int bothSize = 0;
 		boolean eof = false;
 
 		public QGramEntry( int q, Rule r, int idx ) {
@@ -539,6 +580,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			ruleList[ 0 ] = r;
 			length = r.toSize();
 			rightMostIndex = idx + r.fromSize();
+
+			bothSize = r.toSize() * 2;
 		}
 
 		@Override
@@ -573,10 +616,12 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			ruleList[ ruleCount - 1 ] = r;
 			length = entry.length + r.toSize();
 			rightMostIndex = entry.rightMostIndex + r.fromSize();
+
+			bothSize = ruleList[ 0 ].toSize() + ruleList[ ruleList.length - 1 ].toSize();
 		}
 
 		public int getBothRHSLength() {
-			return ruleList[ 0 ].toSize() + ruleList[ ruleList.length - 1 ].toSize();
+			return bothSize;
 		}
 
 		public ArrayList<QGram> generateQGram( int q ) {
