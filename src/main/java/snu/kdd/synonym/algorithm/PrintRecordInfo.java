@@ -112,7 +112,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			}
 		}
 
-		System.out.println( "Qgram" );
+		System.out.println( "\nQgram" );
 		List<Set<QGram>> qgrams = r.getQGrams( 2 );
 		for( int i = 0; i < qgrams.size(); i++ ) {
 			System.out.println( "Position " + i );
@@ -121,7 +121,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			}
 		}
 
-		System.out.println( "Expanded strings with new implementations" );
+		System.out.println( "\nExpanded strings with new implementations" );
 		List<Record> expanded = r.expandAll();
 		for( Record e : expanded ) {
 			System.out.println( e );
