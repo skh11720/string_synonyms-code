@@ -411,8 +411,13 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 				stack.add( new QGramEntry( q, startRule, t ) );
 
+				// DEBUG
+				System.out.println( "Start rule " + startRule.toTextString( Record.strlist ) );
+
 				while( !stack.isEmpty() ) {
 					QGramEntry entry = stack.pop();
+
+					System.out.println( "Entry " + entry.toString() );
 
 					if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
 						ArrayList<QGram> qgramList = entry.generateQGram( q );
@@ -474,12 +479,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 					stack.add( new QGramEntry( q, startRule, t ) );
 
-					// DEBUG
-					System.out.println( "Start rule " + startRule.toTextString( Record.strlist ) );
-
 					while( !stack.isEmpty() ) {
 						QGramEntry entry = stack.pop();
-						System.out.println( "Entry " + entry.toString() );
 
 						if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
 							ArrayList<QGram> qgramList = entry.generateQGram( q );
