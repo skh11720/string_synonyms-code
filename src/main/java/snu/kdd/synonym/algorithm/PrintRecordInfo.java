@@ -10,6 +10,7 @@ import mine.Record;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.IntegerPair;
+import tools.QGram;
 import tools.Rule;
 import tools.RuleTrie;
 
@@ -111,14 +112,17 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			}
 		}
 
-		System.out.println( "Expanded strings" );
-		List<Record> expanded = r.expandAll( ruletrie );
-		for( Record e : expanded ) {
-			System.out.println( e );
+		System.out.println( "Qgram" );
+		List<Set<QGram>> qgrams = r.getQGrams( 2 );
+		for( int i = 0; i < qgrams.size(); i++ ) {
+			System.out.println( "Position " + i );
+			for( QGram qgram : qgrams.get( i ) ) {
+				System.out.println( qgram );
+			}
 		}
 
 		System.out.println( "Expanded strings with new implementations" );
-		expanded = r.expandAll();
+		List<Record> expanded = r.expandAll();
 		for( Record e : expanded ) {
 			System.out.println( e );
 		}
