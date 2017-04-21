@@ -203,7 +203,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				Set<Record> candidates = new HashSet<Record>();
 
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-				List<Set<IntegerPair>> available2Grams = recS.get2GramsWithBound( maxIndexLength );
+				List<Set<QGram>> available2Grams = recS.getQGrams( qgramSize, maxIndexLength );
 
 				long recordStartTime = System.nanoTime();
 				int[] range = recS.getCandidateLengths( recS.size() - 1 );
@@ -217,9 +217,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 					Set<Record> candidatesAppeared = new HashSet<Record>();
 
-					for( IntegerPair twogram : available2Grams.get( i ) ) {
+					for( QGram qgram : available2Grams.get( i ) ) {
 						elements++;
-						List<IntIntRecordTriple> list = map.get( twogram );
+						List<IntIntRecordTriple> list = map.get( qgram );
 						if( list == null ) {
 							++count_empty[ i ];
 							continue;
