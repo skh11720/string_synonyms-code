@@ -555,6 +555,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				int[] to = ruleList[ i ].getTo();
 				for( int j = 0; j < to.length; j++ ) {
 					bld.append( to[ j ] );
+					bld.append( " " );
 				}
 				bld.append( "/" );
 			}
