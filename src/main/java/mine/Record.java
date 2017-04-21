@@ -458,6 +458,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	public List<Set<QGram>> getQGrams( int q, int range ) {
+
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
 		for( int i = 0; i < getMaxLength(); i++ ) {
 			positionalQGram.add( new HashSet<QGram>() );
@@ -466,56 +467,64 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		for( int t = 0; t < tokens.length; t++ ) {
 			Rule[] rules = applicableRules[ t ];
 
-			for( int r = 0; r < rules.length; r++ ) {
-				Rule startRule = rules[ r ];
+			try {
 
-				Stack<QGramEntry> stack = new Stack<QGramEntry>();
+				for( int r = 0; r < rules.length; r++ ) {
+					Rule startRule = rules[ r ];
 
-				stack.add( new QGramEntry( q, startRule, t ) );
+					Stack<QGramEntry> stack = new Stack<QGramEntry>();
 
-				while( !stack.isEmpty() ) {
-					QGramEntry entry = stack.pop();
+					stack.add( new QGramEntry( q, startRule, t ) );
 
-					if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
-						ArrayList<QGram> qgramList = entry.generateQGram( q );
+					while( !stack.isEmpty() ) {
+						QGramEntry entry = stack.pop();
 
-						for( int i = 0; i < qgramList.size(); i++ ) {
-							QGram qgram = qgramList.get( i );
-							int minIndex;
-							int maxIndex;
+						if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
+							ArrayList<QGram> qgramList = entry.generateQGram( q );
 
-							if( entry.startIndex == 0 ) {
-								minIndex = i;
-								maxIndex = i;
-							}
-							else {
-								minIndex = transformedLengths[ entry.startIndex - 1 ][ 0 ] + i;
-								maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
-							}
+							for( int i = 0; i < qgramList.size(); i++ ) {
+								QGram qgram = qgramList.get( i );
+								int minIndex;
+								int maxIndex;
 
-							for( int p = minIndex; p <= range && p <= maxIndex; p++ ) {
-								positionalQGram.get( p ).add( qgram );
-							}
-						}
-					}
-					else {
-						if( entry.rightMostIndex < tokens.length ) {
-							// append
-							if( entry.length < q + entry.getBothRHSLength() - 2 ) {
-								for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
-									stack.add( new QGramEntry( entry, nextRule ) );
+								if( entry.startIndex == 0 ) {
+									minIndex = i;
+									maxIndex = i;
+								}
+								else {
+									minIndex = transformedLengths[ entry.startIndex - 1 ][ 0 ] + i;
+									maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
+								}
+
+								for( int p = minIndex; p <= range && p <= maxIndex; p++ ) {
+									positionalQGram.get( p ).add( qgram );
 								}
 							}
 						}
 						else {
-							// add EOF
-							entry.eof = true;
-							stack.add( entry );
+							if( entry.rightMostIndex < tokens.length ) {
+								// append
+								if( entry.length < q + entry.getBothRHSLength() - 2 ) {
+									for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+										stack.add( new QGramEntry( entry, nextRule ) );
+									}
+								}
+							}
+							else {
+								// add EOF
+								entry.eof = true;
+								stack.add( entry );
+							}
 						}
 					}
 				}
 			}
+			catch( Exception e ) {
+				e.printStackTrace();
+				System.out.println( "Record " + this );
+			}
 		}
+
 		return positionalQGram;
 	}
 
