@@ -43,7 +43,7 @@ public class Param {
 		options.addOption( Option.builder( "s" ).hasArg( true ).desc( "Sampling ratio" ).build() );
 
 		// added by yjpark
-		options.addOption( "qSize", false, "Q gram size" );
+		options.addOption( "qSize", true, "Q gram size" );
 
 		argOptions = options;
 	}
