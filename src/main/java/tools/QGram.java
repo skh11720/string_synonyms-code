@@ -5,6 +5,8 @@ import java.util.List;
 public class QGram {
 	private static final int SHIFT_VAL = 314159;
 
+	public int hash = -1;
+
 	public int[] qgram;
 
 	public QGram( int[] qgram ) {
@@ -34,11 +36,17 @@ public class QGram {
 
 	@Override
 	public int hashCode() {
+		if( hash >= 0 )
+			return hash;
+
 		int hc = qgram.length;
 		for( int i = 0; i < qgram.length; i++ ) {
 			hc = hc * SHIFT_VAL + qgram[ i ];
 		}
-		return hc;
+
+		hash = Math.abs( hc );
+
+		return hash;
 	}
 
 	@Override
