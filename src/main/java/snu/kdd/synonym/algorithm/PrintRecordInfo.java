@@ -104,7 +104,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		int[] range = r.getCandidateLengths( r.size() - 1 );
 
 		System.out.println( "Range " + range[ 0 ] );
-		twogram = r.get2GramsWithBound( range[ 0 ] - 1 );
+		twogram = r.get2GramsWithBound( range[ 0 ] );
 		for( int i = 0; i < twogram.size(); i++ ) {
 			System.out.println( "Position " + i );
 			for( IntegerPair pair : twogram.get( i ) ) {
