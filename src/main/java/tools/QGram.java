@@ -54,7 +54,14 @@ public class QGram {
 	public String toStrString( List<String> strlist ) {
 		String str = "";
 		for( int i = 0; i < qgram.length; i++ ) {
-			str += strlist.get( qgram[ i ] ) + " ";
+			int id = qgram[ i ];
+
+			if( id == Integer.MAX_VALUE ) {
+				str += "EOF ";
+			}
+			else {
+				str += strlist.get( qgram[ i ] ) + " ";
+			}
 		}
 
 		return str;

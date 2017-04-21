@@ -397,7 +397,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public List<Set<QGram>> getQGrams( int q ) {
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
-		for( int i = 0; i < getMaxLength() - q + 1; i++ ) {
+		for( int i = 0; i < getMaxLength(); i++ ) {
 			positionalQGram.add( new HashSet<QGram>() );
 		}
 
@@ -409,12 +409,12 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 				Stack<QGramEntry> stack = new Stack<QGramEntry>();
 
-				stack.add( new QGramEntry( q, startRule, r ) );
+				stack.add( new QGramEntry( q, startRule, t ) );
 
 				while( !stack.isEmpty() ) {
 					QGramEntry entry = stack.pop();
 
-					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
+					if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
 						ArrayList<QGram> qgramList = entry.generateQGram( q );
 
 						for( int i = 0; i < qgramList.size(); i++ ) {
@@ -431,7 +431,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 								maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
 							}
 
-							for( int p = minIndex; p < maxIndex; p++ ) {
+							for( int p = minIndex; p <= maxIndex; p++ ) {
 								positionalQGram.get( p ).add( qgram );
 							}
 						}
@@ -445,6 +445,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 								}
 							}
 						}
+						else {
+							// add EOF
+							entry.eof = true;
+							stack.add( entry );
+						}
 					}
 				}
 			}
@@ -457,6 +462,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		int length = 0;
 		int rightMostIndex = 0;
 		int startIndex = -1;
+		boolean eof = false;
 
 		public QGramEntry( int q, Rule r, int idx ) {
 			startIndex = idx;
@@ -534,6 +540,13 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 							break;
 						}
 					}
+				}
+
+				if( eof ) {
+					for( ; idx < q; idx++ ) {
+						qgram[ idx ] = Integer.MAX_VALUE;
+					}
+					qgramList.add( new QGram( qgram ) );
 				}
 			}
 			return qgramList;
