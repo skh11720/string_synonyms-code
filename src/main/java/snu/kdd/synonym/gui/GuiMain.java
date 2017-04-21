@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -16,6 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
+import snu.kdd.synonym.algorithm.PrintRecordInfo;
 import snu.kdd.synonym.data.DataInfo;
 
 public class GuiMain extends JFrame {
@@ -45,9 +47,11 @@ public class GuiMain extends JFrame {
 	private final JButton btnJoinMin = new JButton( "JoinMin" );
 	private final JButton btnJoinHybridOpt = new JButton( "JoinHybridOpt" );
 	private final JButton btnJoinHybridThres = new JButton( "JoinHybridThres" );
+	private final JButton btnPrintInfo = new JButton( "PrintInfo" );
 
 	private JTextField sampleTextField;
 	private JTextField thresTextField;
+	private JTextField idTextField;
 
 	// private class createActionListener implements ActionListener {
 	// @Override
@@ -138,11 +142,29 @@ public class GuiMain extends JFrame {
 					btnJoinHybridOpt.setEnabled( true );
 					btnJoinHybridThres.setEnabled( true );
 					btnDebug.setEnabled( true );
+					btnPrintInfo.setEnabled( true );
 				}
 			}
 			else {
 				logArea.append( "Open command cancelled by user." + newline );
 			}
+		}
+	}
+
+	private class PrintInfoActionListener implements ActionListener {
+		@Override
+		public void actionPerformed( ActionEvent evt ) {
+
+			String id = idTextField.getText();
+			String arg = ruleFilePath + " " + dataFilePath + " " + dataFilePath + " " + " output " + id + " false";
+
+			try {
+				PrintRecordInfo.main( arg.split( " " ) );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 
@@ -231,18 +253,19 @@ public class GuiMain extends JFrame {
 		// btnRules.addActionListener( new showRuleListener() );
 
 		getContentPane().add( btnRules );
-		btnJoinNaive1.addActionListener( new RunAlgorithmActionListener() );
+		RunAlgorithmActionListener algorithmAction = new RunAlgorithmActionListener();
+		btnJoinNaive1.addActionListener( algorithmAction );
 		btnJoinNaive1.setEnabled( false );
-		btnJoinNaive1.setBounds( 12, 41, 120, 23 );
+		btnJoinNaive1.setBounds( 12, 43, 120, 23 );
 
 		getContentPane().add( btnJoinNaive1 );
-		btnJoinMH.addActionListener( new RunAlgorithmActionListener() );
+		btnJoinMH.addActionListener( algorithmAction );
 		btnJoinMH.setEnabled( false );
-		btnJoinMH.setBounds( 267, 41, 120, 23 );
+		btnJoinMH.setBounds( 267, 43, 120, 23 );
 
 		getContentPane().add( btnJoinMH );
 
-		btnJoinHybridOpt.addActionListener( new RunAlgorithmActionListener() );
+		btnJoinHybridOpt.addActionListener( algorithmAction );
 		btnJoinHybridOpt.setEnabled( false );
 		btnJoinHybridOpt.setBounds( 12, 74, 120, 23 );
 		getContentPane().add( btnJoinHybridOpt );
@@ -258,12 +281,12 @@ public class GuiMain extends JFrame {
 		DefaultCaret caret = (DefaultCaret) logArea.getCaret();
 		caret.setUpdatePolicy( DefaultCaret.ALWAYS_UPDATE );
 
-		btnJoinMin.addActionListener( new RunAlgorithmActionListener() );
+		btnJoinMin.addActionListener( algorithmAction );
 		btnJoinMin.setEnabled( false );
-		btnJoinMin.setBounds( 394, 41, 120, 23 );
+		btnJoinMin.setBounds( 394, 43, 120, 23 );
 		getContentPane().add( btnJoinMin );
 
-		chckbxVerbose.setBounds( 655, 41, 73, 23 );
+		chckbxVerbose.setBounds( 655, 43, 73, 23 );
 		getContentPane().add( chckbxVerbose );
 
 		sampleTextField = new JTextField();
@@ -272,13 +295,13 @@ public class GuiMain extends JFrame {
 		getContentPane().add( sampleTextField );
 		sampleTextField.setColumns( 10 );
 
-		JLabel lblMinsup = new JLabel( "Sampling" );
-		lblMinsup.setBounds( 276, 79, 58, 15 );
-		getContentPane().add( lblMinsup );
+		JLabel lblSampling = new JLabel( "Sampling" );
+		lblSampling.setBounds( 276, 79, 58, 15 );
+		getContentPane().add( lblSampling );
 
-		JLabel lblGap = new JLabel( "Thres" );
-		lblGap.setBounds( 398, 79, 33, 15 );
-		getContentPane().add( lblGap );
+		JLabel lblThres = new JLabel( "Thres" );
+		lblThres.setBounds( 398, 79, 33, 15 );
+		getContentPane().add( lblThres );
 
 		thresTextField = new JTextField();
 		thresTextField.setText( "3" );
@@ -299,16 +322,31 @@ public class GuiMain extends JFrame {
 		btnJoinHybridThres.setEnabled( false );
 		btnJoinHybridThres.setBounds( 139, 74, 120, 23 );
 		getContentPane().add( btnJoinHybridThres );
-		btnJoinHybridThres.addActionListener( new RunAlgorithmActionListener() );
+		btnJoinHybridThres.addActionListener( algorithmAction );
 
 		btnJoinNaive2.setEnabled( false );
-		btnJoinNaive2.setBounds( 139, 41, 120, 23 );
+		btnJoinNaive2.setBounds( 139, 43, 120, 23 );
 		getContentPane().add( btnJoinNaive2 );
 
 		btnDebug.setEnabled( false );
-		btnDebug.addActionListener( new RunAlgorithmActionListener() );
-		btnDebug.setBounds( 523, 41, 120, 23 );
+		btnDebug.addActionListener( algorithmAction );
+		btnDebug.setBounds( 523, 43, 120, 23 );
 		getContentPane().add( btnDebug );
+
+		btnPrintInfo.setEnabled( false );
+		btnPrintInfo.setBounds( 523, 74, 120, 23 );
+		btnPrintInfo.addActionListener( new PrintInfoActionListener() );
+		getContentPane().add( btnPrintInfo );
+
+		JLabel lblRecordId = new JLabel( "ID" );
+		lblRecordId.setBounds( 655, 77, 33, 15 );
+		getContentPane().add( lblRecordId );
+
+		idTextField = new JTextField();
+		idTextField.setText( "0" );
+		idTextField.setColumns( 10 );
+		idTextField.setBounds( 700, 74, 48, 21 );
+		getContentPane().add( idTextField );
 	}
 
 	public static void main( String args[] ) {

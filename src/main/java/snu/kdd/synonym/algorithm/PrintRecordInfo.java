@@ -139,7 +139,8 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		String Rfile = args[ 1 ];
 		String Sfile = args[ 2 ];
 		String outputPath = args[ 3 ];
-		boolean hybird = Boolean.parseBoolean( args[ 4 ] );
+		int recordId = Integer.parseInt( args[ 4 ] );
+		boolean hybird = Boolean.parseBoolean( args[ 5 ] );
 
 		DataInfo dataInfo = new DataInfo( rulefile, Rfile, Sfile );
 
@@ -150,7 +151,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 			info.hybridPreprocess();
 		}
 
-		info.printInfo( Integer.parseInt( args[ 4 ] ) );
+		info.printInfo( recordId );
 	}
 
 	@Override
