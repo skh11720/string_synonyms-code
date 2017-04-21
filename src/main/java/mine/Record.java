@@ -466,6 +466,27 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			rightMostIndex = idx + r.fromSize();
 		}
 
+		@Override
+		public String toString() {
+			StringBuilder bld = new StringBuilder();
+
+			bld.append( "[" );
+			for( int i = 0; i < ruleList.length; i++ ) {
+				int[] to = ruleList[ i ].getTo();
+				for( int j = 0; j < to.length; j++ ) {
+					bld.append( to[ j ] );
+				}
+				bld.append( "/" );
+			}
+			bld.append( "], s: " );
+
+			bld.append( startIndex );
+			bld.append( ", r: " );
+			bld.append( rightMostIndex );
+
+			return bld.toString();
+		}
+
 		public QGramEntry( QGramEntry entry, Rule r ) {
 			startIndex = entry.startIndex;
 			int ruleCount = entry.ruleList.length + 1;

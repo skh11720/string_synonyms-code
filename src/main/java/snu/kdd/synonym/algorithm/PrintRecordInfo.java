@@ -142,7 +142,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		int recordId = Integer.parseInt( args[ 4 ] );
 		boolean hybird = Boolean.parseBoolean( args[ 5 ] );
 
-		DataInfo dataInfo = new DataInfo( rulefile, Rfile, Sfile );
+		DataInfo dataInfo = new DataInfo( Rfile, Sfile, rulefile );
 
 		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath, dataInfo );
 

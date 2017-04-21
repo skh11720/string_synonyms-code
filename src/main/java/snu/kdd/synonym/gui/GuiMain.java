@@ -156,7 +156,7 @@ public class GuiMain extends JFrame {
 		public void actionPerformed( ActionEvent evt ) {
 
 			String id = idTextField.getText();
-			String arg = ruleFilePath + " " + dataFilePath + " " + dataFilePath + " " + " output " + id + " false";
+			String arg = ruleFilePath + " " + dataFilePath + " " + dataFilePath + " output " + id + " false";
 
 			try {
 				PrintRecordInfo.main( arg.split( " " ) );
