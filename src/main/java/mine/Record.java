@@ -436,6 +436,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 								maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
 							}
 
+							System.out.println( "min " + minIndex + " max " + maxIndex );
+
 							for( int p = minIndex; p <= maxIndex; p++ ) {
 								positionalQGram.get( p ).add( qgram );
 							}
