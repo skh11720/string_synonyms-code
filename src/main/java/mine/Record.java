@@ -457,6 +457,68 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		return positionalQGram;
 	}
 
+	public List<Set<QGram>> getQGrams( int q, int range ) {
+		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
+		for( int i = 0; i < getMaxLength(); i++ ) {
+			positionalQGram.add( new HashSet<QGram>() );
+		}
+
+		for( int t = 0; t < tokens.length; t++ ) {
+			Rule[] rules = applicableRules[ t ];
+
+			for( int r = 0; r < rules.length; r++ ) {
+				Rule startRule = rules[ r ];
+
+				Stack<QGramEntry> stack = new Stack<QGramEntry>();
+
+				stack.add( new QGramEntry( q, startRule, t ) );
+
+				while( !stack.isEmpty() ) {
+					QGramEntry entry = stack.pop();
+
+					if( entry.eof || ( entry.length >= q + entry.getBothRHSLength() - 2 ) ) {
+						ArrayList<QGram> qgramList = entry.generateQGram( q );
+
+						for( int i = 0; i < qgramList.size(); i++ ) {
+							QGram qgram = qgramList.get( i );
+							int minIndex;
+							int maxIndex;
+
+							if( entry.startIndex == 0 ) {
+								minIndex = i;
+								maxIndex = i;
+							}
+							else {
+								minIndex = transformedLengths[ entry.startIndex - 1 ][ 0 ] + i;
+								maxIndex = transformedLengths[ entry.startIndex - 1 ][ 1 ] + i;
+							}
+
+							for( int p = minIndex; p <= range && p <= maxIndex; p++ ) {
+								positionalQGram.get( p ).add( qgram );
+							}
+						}
+					}
+					else {
+						if( entry.rightMostIndex < tokens.length ) {
+							// append
+							if( entry.length < q + entry.getBothRHSLength() - 2 ) {
+								for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+									stack.add( new QGramEntry( entry, nextRule ) );
+								}
+							}
+						}
+						else {
+							// add EOF
+							entry.eof = true;
+							stack.add( entry );
+						}
+					}
+				}
+			}
+		}
+		return positionalQGram;
+	}
+
 	public static class QGramEntry {
 		Rule[] ruleList;
 		int length = 0;

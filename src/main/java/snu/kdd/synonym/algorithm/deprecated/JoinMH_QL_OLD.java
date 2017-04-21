@@ -1,4 +1,4 @@
-package snu.kdd.synonym.algorithm;
+package snu.kdd.synonym.algorithm.deprecated;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -10,41 +10,42 @@ import java.util.Map;
 import java.util.Set;
 
 import mine.Record;
+import mine.RecordIDComparator;
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
-import tools.QGram;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
 import tools.WYK_HashSet;
 import validator.Validator;
 
-public class JoinMH_QL extends AlgorithmTemplate {
-	// RecordIDComparator idComparator;
-
+@Deprecated
+public class JoinMH_QL_OLD extends AlgorithmTemplate {
+	public boolean useAutomata = true;
+	public boolean skipChecking = false;
+	public boolean compact = false;
+	RecordIDComparator idComparator;
 	public int maxIndexLength = 3;
-	public int qgramSize = 2;
-
 	static Validator checker;
-
 	/**
 	 * Key: twogram<br/>
 	 * Value IntervalTree Key: length of record (min, max)<br/>
 	 * Value IntervalTree Value: record
 	 */
+	List<Map<IntegerPair, List<IntIntRecordTriple>>> idx;
 
-	List<Map<QGram, List<IntIntRecordTriple>>> idx;
-
-	public JoinMH_QL( String rulefile, String Rfile, String Sfile, String outFile, DataInfo dataInfo ) throws IOException {
+	public JoinMH_QL_OLD( String rulefile, String Rfile, String Sfile, String outFile, DataInfo dataInfo ) throws IOException {
 		super( rulefile, Rfile, Sfile, outFile, dataInfo );
+		idComparator = new RecordIDComparator();
 	}
 
 	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess( false, maxIndexLength, false );
+		preprocess( compact, maxIndexLength, useAutomata );
 		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		stepTime.stopAndAdd( stat );
 
@@ -75,24 +76,24 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			long elements = 0;
 			// Build an index
 
-			idx = new ArrayList<Map<QGram, List<IntIntRecordTriple>>>();
+			idx = new ArrayList<Map<IntegerPair, List<IntIntRecordTriple>>>();
 			for( int i = 0; i < maxIndexLength; ++i ) {
-				idx.add( new WYK_HashMap<QGram, List<IntIntRecordTriple>>() );
+				idx.add( new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>() );
 			}
 
 			for( Record rec : tableIndexed ) {
 				// long recordStartTime = System.nanoTime();
-				List<Set<QGram>> available2Grams = rec.getQGrams( qgramSize, maxIndexLength );
+				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( maxIndexLength );
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int boundary = Math.min( range[ 1 ], maxIndexLength );
 				for( int i = 0; i < boundary; ++i ) {
-					Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
-					for( QGram qgram : available2Grams.get( i ) ) {
-						List<IntIntRecordTriple> list = map.get( qgram );
+					Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
+					for( IntegerPair twogram : available2Grams.get( i ) ) {
+						List<IntIntRecordTriple> list = map.get( twogram );
 						if( list == null ) {
 							list = new ArrayList<IntIntRecordTriple>();
-							map.put( qgram, list );
+							map.put( twogram, list );
 						}
 						list.add( new IntIntRecordTriple( range[ 0 ], range[ 1 ], rec ) );
 					}
@@ -116,14 +117,14 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			// computes the statistics of the indexes
 			String indexStr = "";
 			for( int i = 0; i < maxIndexLength; ++i ) {
-				Map<QGram, List<IntIntRecordTriple>> ithidx = idx.get( i );
+				Map<IntegerPair, List<IntIntRecordTriple>> ithidx = idx.get( i );
 				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
 				// Statistics
 				int sum = 0;
 				long singlelistsize = 0;
 				long count = 0;
 				// long sqsum = 0;
-				for( Map.Entry<QGram, List<IntIntRecordTriple>> entry : ithidx.entrySet() ) {
+				for( Map.Entry<IntegerPair, List<IntIntRecordTriple>> entry : ithidx.entrySet() ) {
 					List<IntIntRecordTriple> list = entry.getValue();
 
 					// bw.write( "Key " + Record.strlist.get( entry.getKey().i1 ) + " " + Record.strlist.get( entry.getKey().i2 )
@@ -213,7 +214,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 					// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
 
-					Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
+					Map<IntegerPair, List<IntIntRecordTriple>> map = idx.get( i );
 
 					Set<Record> candidatesAppeared = new HashSet<Record>();
 
@@ -284,6 +285,10 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				// }
 				// }
 
+				if( skipChecking ) {
+					continue;
+				}
+
 				equivTime.start();
 				for( Record recR : candidates ) {
 					int compare = checker.isEqual( recR, recS );
@@ -348,10 +353,13 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		Param params = Param.parseArgs( args, stat );
 
 		maxIndexLength = params.getMaxIndex();
-		qgramSize = params.getQGramSize();
 
 		// Setup parameters
+		useAutomata = params.isUseACAutomata();
+		skipChecking = params.isSkipChecking();
+		compact = params.isCompact();
 		checker = params.getValidator();
+		// exact2grams = params.isExact2Grams();
 
 		run();
 

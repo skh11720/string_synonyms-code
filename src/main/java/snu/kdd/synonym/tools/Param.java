@@ -30,6 +30,7 @@ public class Param {
 		options.addOption( "noearlyeval", false, "Do not use early evaluation strategies" );
 		options.addOption( "noearlyprune", false, "Do not use early pruning strategies" );
 		options.addOption( "nolengthfilter", false, "Do not use length filter strategies" );
+
 		options.addOption(
 				Option.builder( "v" )
 						.argName( "VALIDATOR" ).desc( "BottomUpMatrixDS: \n" + "BottomUpMatrixSS: \n" + "BottomUpQueue: \n"
@@ -40,6 +41,10 @@ public class Param {
 				.desc( "If number of expanded record is less of equal to T," + " use naive method (for hybrid algorithms only)" )
 				.numberOfArgs( 1 ).build() );
 		options.addOption( Option.builder( "s" ).hasArg( true ).desc( "Sampling ratio" ).build() );
+
+		// added by yjpark
+		options.addOption( "qSize", false, "Q gram size" );
+
 		argOptions = options;
 	}
 
@@ -82,6 +87,11 @@ public class Param {
 				param.joinThreshold = Integer.parseInt( cmd.getOptionValue( "joinExpandThreshold" ) );
 			if( cmd.hasOption( "s" ) )
 				param.sampleratio = Double.parseDouble( cmd.getOptionValue( "s" ) );
+
+			if( cmd.hasOption( "qSize" ) ) {
+				param.qgramSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
+			}
+
 			// Wrap up
 			switch( vname ) {
 			case BottomUpMatrixDS:
@@ -149,6 +159,7 @@ public class Param {
 	double sampleratio = 0.01;
 	Validator validator;
 	String[] remainingArgs;
+	int qgramSize = 2;
 
 	public boolean isUseACAutomata() {
 		return useACAutomata;
@@ -197,6 +208,10 @@ public class Param {
 	// public String[] getRemainingArgs() {
 	// return remainingArgs;
 	// }
+
+	public int getQGramSize() {
+		return qgramSize;
+	}
 
 	public double getSampleRatio() {
 		return sampleratio;
