@@ -1,7 +1,5 @@
 package snu.kdd.synonym.algorithm;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -190,10 +188,10 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		}
 
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
-			long debug_elements = 0;
-			long debug_gcCount = getGCCount();
-			long elements = 0;
+			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
+			// long debug_elements = 0;
+			// long debug_gcCount = getGCCount();
+			// long elements = 0;
 
 			// long lastTokenFiltered = 0;
 
@@ -205,7 +203,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 				List<Set<QGram>> available2Grams = recS.getQGrams( qgramSize, maxIndexLength );
 
-				long recordStartTime = System.nanoTime();
+				// long recordStartTime = System.nanoTime();
 				int[] range = recS.getCandidateLengths( recS.size() - 1 );
 				int boundary = Math.min( range[ 0 ], maxIndexLength );
 				for( int i = 0; i < boundary; ++i ) {
@@ -218,7 +216,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					Set<Record> candidatesAppeared = new HashSet<Record>();
 
 					for( QGram qgram : available2Grams.get( i ) ) {
-						elements++;
+						// elements++;
 						List<IntIntRecordTriple> list = map.get( qgram );
 						if( list == null ) {
 							++count_empty[ i ];
@@ -270,7 +268,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 					candidateTimes[ i ].stopQuiet();
 				}
-				long recordTime = System.nanoTime() - recordStartTime;
+				// long recordTime = System.nanoTime() - recordStartTime;
 
 				count += candidates.size();
 
@@ -293,15 +291,15 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				}
 				equivTime.stopQuiet();
 
-				bw.write( recordTime + " " );
-				bw.write( ( elements - debug_elements ) + " " );
-				bw.write( ( getGCCount() - debug_gcCount ) + " " );
-				bw.write( candidates.size() + " " );
-				bw.write( "\n" );
-				debug_elements = elements;
-				debug_gcCount = getGCCount();
+				// bw.write( recordTime + " " );
+				// bw.write( ( elements - debug_elements ) + " " );
+				// bw.write( ( getGCCount() - debug_gcCount ) + " " );
+				// bw.write( candidates.size() + " " );
+				// bw.write( "\n" );
+				// debug_elements = elements;
+				// debug_gcCount = getGCCount();
 			}
-			bw.close();
+			// bw.close();
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
