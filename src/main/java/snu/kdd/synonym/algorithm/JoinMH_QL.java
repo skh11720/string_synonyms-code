@@ -79,7 +79,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				idx.add( new WYK_HashMap<IntegerPair, List<IntIntRecordTriple>>() );
 			}
 
-			for( Record rec : tableSearched ) {
+			for( Record rec : tableIndexed ) {
 				// long recordStartTime = System.nanoTime();
 				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( maxIndexLength );
 
@@ -195,14 +195,16 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			long elements = 0;
 
 			// long lastTokenFiltered = 0;
-			for( int sid = 0; sid < tableIndexed.size(); sid++ ) {
 
-				Record recS = tableIndexed.get( sid );
+			for( int sid = 0; sid < tableSearched.size(); sid++ ) {
+
+				Record recS = tableSearched.get( sid );
 				Set<Record> candidates = new HashSet<Record>();
 
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 				List<Set<IntegerPair>> available2Grams = recS.get2GramsWithBound( maxIndexLength );
 
+				long recordStartTime = System.nanoTime();
 				int[] range = recS.getCandidateLengths( recS.size() - 1 );
 				int boundary = Math.min( range[ 0 ], maxIndexLength );
 				for( int i = 0; i < boundary; ++i ) {
@@ -267,6 +269,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 					candidateTimes[ i ].stopQuiet();
 				}
+				long recordTime = System.nanoTime() - recordStartTime;
 
 				count += candidates.size();
 
@@ -284,7 +287,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					continue;
 				}
 
-				long recordStartTime = System.nanoTime();
 				equivTime.start();
 				for( Record recR : candidates ) {
 					int compare = checker.isEqual( recR, recS );
@@ -293,7 +295,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 				}
 				equivTime.stopQuiet();
-				long recordTime = System.nanoTime() - recordStartTime;
 
 				bw.write( recordTime + " " );
 				bw.write( ( elements - debug_elements ) + " " );
