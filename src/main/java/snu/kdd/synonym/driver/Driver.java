@@ -12,6 +12,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.algorithm.CheckQGram;
 import snu.kdd.synonym.algorithm.JoinHybridOpt;
 import snu.kdd.synonym.algorithm.JoinHybridOpt_Q;
 import snu.kdd.synonym.algorithm.JoinHybridThres_Q;
@@ -49,7 +50,17 @@ public class Driver {
 	}
 
 	private enum AlgorithmName {
-		JoinNaive1, JoinNaive2, JoinMH, JoinMH_OLD, JoinMin, JoinMin_OLD, JoinHybridThres, JoinHybridOpt, SIJoin, DebugAlg
+		JoinNaive1,
+		JoinNaive2,
+		JoinMH,
+		JoinMH_OLD,
+		JoinMin,
+		JoinMin_OLD,
+		JoinHybridThres,
+		JoinHybridOpt,
+		SIJoin,
+		DebugAlg,
+		CheckQGram
 	}
 
 	public static CommandLine parseInput( String args[] ) throws ParseException {
@@ -123,6 +134,10 @@ public class Driver {
 			break;
 		case JoinMin_OLD:
 			alg = new JoinMin_Q_OLD( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			break;
+
+		case CheckQGram:
+			alg = new CheckQGram( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 
 		default:
