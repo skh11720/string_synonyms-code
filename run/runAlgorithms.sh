@@ -93,14 +93,19 @@ else
 	#JoinMin
 	if [[ $RUN_JoinMin == "True" ]];
 	then
-		date
-		./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
-		#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
-		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
-		date
+		for q in {1..3..1}; do
+			date
+			./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project
+			#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
+			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
+			date
 
-		./compare.sh $PREV JoinMin_Q
-		PREV="JoinMin_Q"
+			./compare.sh $PREV JoinMin_Q
+			PREV="JoinMin_Q"
+		done
+
+		./joinMin_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
+		./compare.sh $PREV JoinMin_Q_OLD
 	fi
 
 	#JoinMH
@@ -108,7 +113,7 @@ else
 	then
 		for j in {1..3..1}; do
 		#for j in {2..2..1}; do
-			for q in {2..4..1}; do
+			for q in {1..3..1}; do
 
 				date
 				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project
