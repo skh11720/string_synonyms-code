@@ -93,7 +93,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 
-			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
+			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableIndexed ) {
 				long recordStartTime = System.nanoTime();
 				List<Set<IntegerPair>> available2Grams = rec.get2Grams();
@@ -156,7 +156,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 				stepTime.stop();
 			}
 
-			stepTime.resetAndStart( "Result_3_2_Indexing Time" );
+			stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
 			totalSigCount = 0;
 			idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
 

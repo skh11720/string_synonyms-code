@@ -155,7 +155,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				stepTime.stop();
 			}
 
-			stepTime.resetAndStart( "Result_3_1_2_Indexing Time" );
+			stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
 			totalSigCount = 0;
 			idx = new WYK_HashMap<Integer, Map<QGram, List<Record>>>();
 
