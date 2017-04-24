@@ -584,7 +584,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			int iterMaxIndex = max + i;
 
 			for( int p = iterMinIndex; p <= iterMaxIndex; p++ ) {
-				if( p > range ) {
+				if( p >= range ) {
 					break;
 				}
 				qgrams.get( p ).add( qgram );
