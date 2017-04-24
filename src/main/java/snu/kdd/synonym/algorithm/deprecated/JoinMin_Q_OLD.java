@@ -88,15 +88,16 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 		// Count Invokes per each (token, loc) pair
 		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
 		int invokesInitialized = 0;
+		long get2GramTime = 0;
 
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
 			for( Record rec : tableIndexed ) {
-				// long recordStartTime = System.nanoTime();
+				long recordStartTime = System.nanoTime();
 				List<Set<IntegerPair>> available2Grams = rec.get2Grams();
-				// long recordTime = System.nanoTime() - recordStartTime;
+				get2GramTime += System.nanoTime() - recordStartTime;
 
 				int searchmax = Math.min( available2Grams.size(), maxIndex );
 
@@ -135,6 +136,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 				// bw.write( "\n" );
 			}
 			// bw.close();
+			stat.add( "Est_Index_0_GetQGramTime", get2GramTime );
 
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
@@ -245,7 +247,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 			System.out.println( "Delta (index build / signature ): " + delta );
 
 			if( writeResult ) {
-				stat.add( "Stat_JoinMin_Index Size", indexedElements );
+				stat.add( "Stat_JoinMin_Index_Size", indexedElements );
 				stat.add( "Stat_Predicted_Comparison", predictCount );
 
 				stat.add( "Est_Index_2_Build_Index_Time", buildIndexTime2 );

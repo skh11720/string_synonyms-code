@@ -87,15 +87,16 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// Count Invokes per each (token, loc) pair
 		List<Map<QGram, WrappedInteger>> invokes = new ArrayList<Map<QGram, WrappedInteger>>();
 		int invokesInitialized = 0;
+		long getQGramTime = 0;
 
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableSearched ) {
-				// long recordStartTime = System.nanoTime();
+				long recordStartTime = System.nanoTime();
 				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize );
-				// long recordTime = System.nanoTime() - recordStartTime;
+				getQGramTime += System.nanoTime() - recordStartTime;
 
 				int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
@@ -134,6 +135,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				// bw.write( "\n" );
 			}
 			// bw.close();
+			stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
 
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
