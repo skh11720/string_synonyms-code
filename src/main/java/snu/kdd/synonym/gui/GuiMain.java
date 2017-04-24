@@ -190,7 +190,7 @@ public class GuiMain extends JFrame {
 			}
 			else if( command.equals( "JoinMH" ) ) {
 				arg = arg + " -algorithm JoinMH -additional";
-				additional = "-n 2 -compact -v TopDownHashSetSinglePathDS 0";
+				additional = "-n 2 -qSize 2 -compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinDebug" ) ) {
 				String sample = sampleTextField.getText();
@@ -199,7 +199,7 @@ public class GuiMain extends JFrame {
 			}
 			else if( command.equals( "JoinMin" ) ) {
 				arg = arg + " -algorithm JoinMin -additional";
-				additional = "-compact -v TopDownHashSetSinglePathDS 0";
+				additional = "-qSize 2 -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinHybridOpt" ) ) {
 				String sample = sampleTextField.getText();
