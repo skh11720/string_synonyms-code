@@ -421,6 +421,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				maxIndex = transformedLengths[ t - 1 ][ 1 ];
 			}
 
+			if( minIndex > range ) {
+				break;
+			}
+
 			// try {
 			for( int r = 0; r < rules.length; r++ ) {
 				Rule startRule = rules[ r ];
@@ -440,8 +444,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 							// append
 
 							entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
-							for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
-								stack.add( new QGramEntry( entry, nextRule ) );
+
+							if( minIndex + entry.builtPosition < range ) {
+								for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+									stack.add( new QGramEntry( entry, nextRule ) );
+								}
 							}
 
 						}

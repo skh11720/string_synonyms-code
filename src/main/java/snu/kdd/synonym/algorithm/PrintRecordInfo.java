@@ -127,6 +127,17 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		}
 		System.out.println( "Time: " + ( System.nanoTime() - startTime ) );
 
+		System.out.println( "\nQgramWithBound" );
+		startTime = System.nanoTime();
+		qgrams = r.getQGrams( 2, range[ 0 ] );
+		for( int i = 0; i < qgrams.size(); i++ ) {
+			System.out.println( "Position " + i );
+			for( QGram qgram : qgrams.get( i ) ) {
+				System.out.println( qgram.toStrString( Record.strlist ) );
+			}
+		}
+		System.out.println( "Time: " + ( System.nanoTime() - startTime ) );
+
 		System.out.println( "\nExpanded strings with new implementations" );
 		List<Record> expanded = r.expandAll();
 		for( Record e : expanded ) {
