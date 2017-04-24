@@ -20,6 +20,8 @@ import snu.kdd.synonym.algorithm.JoinMin_Q;
 import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.algorithm.JoinNaive2;
 import snu.kdd.synonym.algorithm.SIJoin;
+import snu.kdd.synonym.algorithm.deprecated.JoinMH_QL_OLD;
+import snu.kdd.synonym.algorithm.deprecated.JoinMin_Q_OLD;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -47,7 +49,7 @@ public class Driver {
 	}
 
 	private enum AlgorithmName {
-		JoinNaive1, JoinNaive2, JoinMH, JoinMin, JoinHybridThres, JoinHybridOpt, SIJoin, DebugAlg
+		JoinNaive1, JoinNaive2, JoinMH, JoinMH_OLD, JoinMin, JoinMin_OLD, JoinHybridThres, JoinHybridOpt, SIJoin, DebugAlg
 	}
 
 	public static CommandLine parseInput( String args[] ) throws ParseException {
@@ -99,6 +101,7 @@ public class Driver {
 		case JoinMH:
 			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
+
 		case DebugAlg:
 			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
@@ -114,6 +117,14 @@ public class Driver {
 		case SIJoin:
 			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
+
+		case JoinMH_OLD:
+			alg = new JoinMH_QL_OLD( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			break;
+		case JoinMin_OLD:
+			alg = new JoinMin_Q_OLD( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			break;
+
 		default:
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp( "[OPTIONS]", argOptions, true );
