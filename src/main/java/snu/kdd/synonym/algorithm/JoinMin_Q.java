@@ -86,8 +86,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// Build an index
 		// Count Invokes per each (token, loc) pair
 		List<Map<QGram, WrappedInteger>> invokes = new ArrayList<Map<QGram, WrappedInteger>>();
-		int invokesInitialized = 0;
 		long getQGramTime = 0;
+		long countIndexingTime = 0;
 
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
@@ -96,15 +96,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			for( Record rec : tableSearched ) {
 				long recordStartTime = System.nanoTime();
 				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize );
-				getQGramTime += System.nanoTime() - recordStartTime;
+				long recordMidTime = System.nanoTime();
+				getQGramTime += recordMidTime - recordStartTime;
 
 				int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
-				for( int i = invokesInitialized; i < searchmax; i++ ) {
+				for( int i = invokes.size(); i < searchmax; i++ ) {
 					invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
-				}
-				if( invokesInitialized < searchmax ) {
-					invokesInitialized = searchmax;
 				}
 
 				for( int i = 0; i < searchmax; ++i ) {
@@ -128,6 +126,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					}
 				}
 
+				countIndexingTime += System.nanoTime() - recordMidTime;
+
 				// TODO DEBUG
 
 				// bw.write( recordTime + " " );
@@ -135,7 +135,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				// bw.write( "\n" );
 			}
 			// bw.close();
-			stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
 
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
@@ -143,6 +142,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			System.out.println( "Gamma (buildTime / signature): " + gamma );
 
 			if( writeResult ) {
+				stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
+				stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
+
 				stat.add( "Est_Index_1_Index_Count_Time", buildIndexTime1 );
 				stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( gamma ) );
 			}

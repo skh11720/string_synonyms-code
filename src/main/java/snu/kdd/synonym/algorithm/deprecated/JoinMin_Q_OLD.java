@@ -89,6 +89,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
 		int invokesInitialized = 0;
 		long get2GramTime = 0;
+		long countIndexingTime = 0;
 
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
@@ -97,7 +98,8 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 			for( Record rec : tableIndexed ) {
 				long recordStartTime = System.nanoTime();
 				List<Set<IntegerPair>> available2Grams = rec.get2Grams();
-				get2GramTime += System.nanoTime() - recordStartTime;
+				long recordMidTime = System.nanoTime();
+				get2GramTime += recordMidTime - recordStartTime;
 
 				int searchmax = Math.min( available2Grams.size(), maxIndex );
 
@@ -129,6 +131,8 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 					}
 				}
 
+				countIndexingTime += System.nanoTime() - recordMidTime;
+
 				// TODO DEBUG
 
 				// bw.write( recordTime + " " );
@@ -136,7 +140,6 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 				// bw.write( "\n" );
 			}
 			// bw.close();
-			stat.add( "Est_Index_0_GetQGramTime", get2GramTime );
 
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
@@ -144,6 +147,9 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 			System.out.println( "Gamma (buildTime / signature): " + gamma );
 
 			if( writeResult ) {
+				stat.add( "Est_Index_0_GetQGramTime", get2GramTime );
+				stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
+
 				stat.add( "Est_Index_1_Index_Count_Time", buildIndexTime1 );
 				stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( gamma ) );
 			}
