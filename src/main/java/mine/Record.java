@@ -397,7 +397,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public List<Set<QGram>> getQGrams( int q ) {
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
-		for( int i = 0; i < getMaxLength(); i++ ) {
+		int maxLength = getMaxLength();
+		for( int i = 0; i < maxLength; i++ ) {
 			positionalQGram.add( new HashSet<QGram>() );
 		}
 
@@ -480,7 +481,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public List<Set<QGram>> getQGrams( int q, int range ) {
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
-		for( int i = 0; i < range && i < getMaxLength(); i++ ) {
+
+		int maxLength = Integer.max( range, getMaxLength() );
+		for( int i = 0; i < maxLength; i++ ) {
 			positionalQGram.add( new HashSet<QGram>() );
 		}
 
@@ -512,8 +515,9 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
 						ArrayList<QGram> qgramList = entry.generateQGram( q );
+						int qSize = qgramList.size();
 
-						for( int i = 0; i < qgramList.size(); i++ ) {
+						for( int i = 0; i < qSize; i++ ) {
 							QGram qgram = qgramList.get( i );
 							int iterMinIndex = minIndex + i;
 							int iterMaxIndex = maxIndex + i;
