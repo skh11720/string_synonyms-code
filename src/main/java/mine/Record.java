@@ -397,6 +397,73 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public static long exectime = 0;
 
+	public List<Set<QGram>> getQGrams( int q ) {
+		getQGramCount++;
+		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
+
+		int maxLength = getMaxLength();
+		for( int i = 0; i < maxLength; i++ ) {
+			positionalQGram.add( new WYK_HashSet<QGram>( 30 ) );
+		}
+
+		for( int t = 0; t < tokens.length; t++ ) {
+			Rule[] rules = applicableRules[ t ];
+
+			int minIndex;
+			int maxIndex;
+
+			if( t == 0 ) {
+				minIndex = 0;
+				maxIndex = 0;
+			}
+			else {
+				minIndex = transformedLengths[ t - 1 ][ 0 ];
+				maxIndex = transformedLengths[ t - 1 ][ 1 ];
+			}
+
+			// try {
+			for( int r = 0; r < rules.length; r++ ) {
+				Rule startRule = rules[ r ];
+
+				Stack<QGramEntry> stack = new Stack<QGramEntry>();
+
+				stack.add( new QGramEntry( q, startRule, t ) );
+
+				while( !stack.isEmpty() ) {
+					QGramEntry entry = stack.pop();
+
+					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
+						entry.generateQGram( q, positionalQGram, minIndex, maxIndex );
+					}
+					else {
+						if( entry.rightMostIndex < tokens.length ) {
+							// append
+
+							entry.generateQGram( q, positionalQGram, minIndex, maxIndex );
+
+							for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+								stack.add( new QGramEntry( entry, nextRule ) );
+							}
+
+						}
+						else {
+							// add EOF
+							entry.eof = true;
+							entry.generateQGram( q, positionalQGram, minIndex, maxIndex );
+						}
+					}
+				}
+			}
+			// }
+			// catch( Exception e ) {
+			// e.printStackTrace();
+			// System.out.println( "Record " + this + " id " + this.id + " " + getMaxLength() );
+			// }
+		}
+
+		return positionalQGram;
+	}
+
 	public List<Set<QGram>> getQGrams( int q, int range ) {
 		getQGramCount++;
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
@@ -524,6 +591,67 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			return bothSize;
 		}
 
+		public void generateQGram( int q, List<Set<QGram>> qgrams, int min, int max ) {
+			if( !eof && length < q ) {
+				return;
+			}
+
+			Rule firstRule = ruleList[ 0 ];
+
+			int[] to = firstRule.getTo();
+			int firstRuleToSize = to.length;
+
+			int lastSize;
+
+			if( eof ) {
+				lastSize = firstRuleToSize;
+			}
+			else {
+				lastSize = Integer.min( length - q + 1, firstRuleToSize );
+			}
+
+			int i = builtPosition;
+			for( ; i < lastSize; i++ ) {
+				int[] qgram = new int[ q ];
+				int idx = 0;
+				boolean stop = false;
+
+				// set first rule part
+				for( int p = i; p < firstRuleToSize; p++ ) {
+					qgram[ idx++ ] = to[ p ];
+					if( idx == q ) {
+						addQGram( new QGram( qgram ), qgrams, min, max, i );
+						stop = true;
+						break;
+					}
+				}
+
+				for( int r = 1; !stop && r < ruleList.length; r++ ) {
+					Rule otherRule = ruleList[ r ];
+
+					int[] otherRuleTo = otherRule.getTo();
+					int otherRuleToSize = otherRuleTo.length;
+
+					for( int p = 0; p < otherRuleToSize; p++ ) {
+						qgram[ idx++ ] = otherRuleTo[ p ];
+						if( idx == q ) {
+							addQGram( new QGram( qgram ), qgrams, min, max, i );
+							stop = true;
+							break;
+						}
+					}
+				}
+
+				if( !stop ) {
+					for( ; idx < q; idx++ ) {
+						qgram[ idx ] = Integer.MAX_VALUE;
+					}
+					addQGram( new QGram( qgram ), qgrams, min, max, i );
+				}
+			}
+			builtPosition = i;
+		}
+
 		// range : inclusive
 		public void generateQGram( int q, List<Set<QGram>> qgrams, int min, int max, int range ) {
 			if( !eof && length < q ) {
@@ -595,6 +723,15 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					break;
 				}
 
+				qgrams.get( p ).add( qgram );
+			}
+		}
+
+		public void addQGram( QGram qgram, List<Set<QGram>> qgrams, int min, int max, int i ) {
+			int iterMinIndex = min + i;
+			int iterMaxIndex = max + i;
+
+			for( int p = iterMinIndex; p <= iterMaxIndex; p++ ) {
 				qgrams.get( p ).add( qgram );
 			}
 		}

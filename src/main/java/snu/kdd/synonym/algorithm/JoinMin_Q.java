@@ -96,7 +96,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableSearched ) {
 				long recordStartTime = System.nanoTime();
-				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize, Integer.MAX_VALUE );
+				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize );
 				long recordMidTime = System.nanoTime();
 				getQGramTime += recordMidTime - recordStartTime;
 
@@ -349,7 +349,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// long lastTokenFiltered = 0;
 		for( Record recS : tableSearched ) {
 			// List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
-			List<Set<QGram>> availableQGrams = recS.getQGrams( qSize, Integer.MAX_VALUE );
+			List<Set<QGram>> availableQGrams = recS.getQGrams( qSize );
 			// for (Set<IntegerPair> set : available2Grams)
 			// totalSigCount += set.size();
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
