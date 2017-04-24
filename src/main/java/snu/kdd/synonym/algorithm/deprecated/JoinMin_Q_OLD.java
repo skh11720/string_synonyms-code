@@ -435,6 +435,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 		if( writeResult ) {
 			// stat.add( "Last Token Filtered", lastTokenFiltered );
 			stat.add( "Stat_Equiv_Comparison", equivComparisons );
+			stat.add( "Stat_getQGramCount", Record.get2GramCount );
 		}
 
 		return rslt;

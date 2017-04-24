@@ -430,6 +430,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		if( writeResult ) {
 			// stat.add( "Last Token Filtered", lastTokenFiltered );
 			stat.add( "Stat_Equiv_Comparison", equivComparisons );
+			stat.add( "Stat_getQGramCount", Record.getQGramCount );
 		}
 
 		return rslt;

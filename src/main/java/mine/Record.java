@@ -38,6 +38,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public static int expandAllCount = 0;
 	public static int expandAllIterCount = 0;
+	public static int getQGramCount = 0;
+	public static int get2GramCount = 0;
 
 	/**
 	 * Actual tokens
@@ -396,6 +398,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	public static long exectime = 0;
 
 	public List<Set<QGram>> getQGrams( int q ) {
+		getQGramCount++;
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
 		int maxLength = getMaxLength();
 		for( int i = 0; i < maxLength; i++ ) {
@@ -702,6 +705,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	 * Returns all available (actually, superset) 2 grams
 	 */
 	public List<Set<IntegerPair>> get2Grams() {
+		get2GramCount++;
 		long start = System.nanoTime();
 		/* There are two type of 2 grams:
 		 * 1) two tokens are derived from different rules.
@@ -840,6 +844,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			else {
 				range = getCandidateLengths( i - 1 );
 			}
+
 			for( Rule headrule : headrules ) {
 				// Retrieve another prefix rules
 				Rule[] tailrules = getApplicableRules( i + headrule.getFrom().length );
