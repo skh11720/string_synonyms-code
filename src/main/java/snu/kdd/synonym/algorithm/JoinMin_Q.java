@@ -95,7 +95,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableSearched ) {
 				long recordStartTime = System.nanoTime();
-				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize );
+				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize, Integer.MAX_VALUE );
 				long recordMidTime = System.nanoTime();
 				getQGramTime += recordMidTime - recordStartTime;
 
@@ -165,13 +165,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			long indexedElements = 0;
 			for( Record rec : tableIndexed ) {
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
-				int searchmax = maxIndex;
+				int searchmax;
 
 				if( range[ 0 ] == 1 ) {
 					searchmax = 1;
 				}
 				else {
-					searchmax = Math.min( range[ 0 ] - 1, searchmax );
+					searchmax = Math.min( range[ 0 ] - 1, maxIndex );
 				}
 				// searchmax = Math.min( searchmax, invokes.size() );
 
@@ -346,7 +346,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// long lastTokenFiltered = 0;
 		for( Record recS : tableSearched ) {
 			// List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
-			List<Set<QGram>> availableQGrams = recS.getQGrams( qSize );
+			List<Set<QGram>> availableQGrams = recS.getQGrams( qSize, Integer.MAX_VALUE );
 			// for (Set<IntegerPair> set : available2Grams)
 			// totalSigCount += set.size();
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
