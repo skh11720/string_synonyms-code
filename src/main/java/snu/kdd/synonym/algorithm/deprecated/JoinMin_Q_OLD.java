@@ -335,6 +335,8 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 			stat.add( "Counter_Index_0_RemoveIter_Count", idx.removeIterCount );
 			stat.add( "Counter_Index_0_PutRemoved_Count", idx.putRemovedCount );
 			stat.add( "Counter_Index_0_RemoveFound_Count", idx.removeFoundCount );
+			stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
+			stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
 		}
 	}
 

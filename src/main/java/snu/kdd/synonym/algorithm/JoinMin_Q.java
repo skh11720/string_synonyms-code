@@ -21,6 +21,7 @@ import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
+import tools.WYK_HashSet;
 import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
 import wrapped.WrappedInteger;
@@ -330,6 +331,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stat.add( "Counter_Index_0_RemoveIter_Count", idx.removeIterCount );
 			stat.add( "Counter_Index_0_PutRemoved_Count", idx.putRemovedCount );
 			stat.add( "Counter_Index_0_RemoveFound_Count", idx.removeFoundCount );
+			stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
+			stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
 		}
 	}
 

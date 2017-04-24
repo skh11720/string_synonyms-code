@@ -11,6 +11,9 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 	private double factor;
 	private int nextExpandSize;
 
+	public static long collision = 0;
+	public static long resize = 0;
+
 	public WYK_HashSet() {
 		factor = 0.5;
 		clear( 10 );
@@ -55,6 +58,7 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 			if( curr.hash == hash && curr.record.equals( key ) )
 				return true;
 			curr = curr.next;
+			collision++;
 		}
 		return false;
 	}
@@ -116,6 +120,8 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 	 */
 	@SuppressWarnings( "unchecked" )
 	private void resize( int nextSize ) {
+		resize++;
+
 		nextSize = Math.max( 10, nextSize );
 		Entry[] temp = array;
 		array = (Entry[]) Array.newInstance( Entry.class, nextSize );
@@ -246,6 +252,7 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 			this.record = record;
 		}
 
+		@Override
 		public String toString() {
 			return record.toString();
 		}
