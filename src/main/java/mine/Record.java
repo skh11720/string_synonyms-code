@@ -404,6 +404,18 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		for( int t = 0; t < tokens.length; t++ ) {
 			Rule[] rules = applicableRules[ t ];
 
+			int minIndex;
+			int maxIndex;
+
+			if( t == 0 ) {
+				minIndex = 0;
+				maxIndex = 0;
+			}
+			else {
+				minIndex = transformedLengths[ t - 1 ][ 0 ];
+				maxIndex = transformedLengths[ t - 1 ][ 1 ];
+			}
+
 			// try {
 			for( int r = 0; r < rules.length; r++ ) {
 				Rule startRule = rules[ r ];
@@ -411,18 +423,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				Stack<QGramEntry> stack = new Stack<QGramEntry>();
 
 				stack.add( new QGramEntry( q, startRule, t ) );
-
-				int minIndex;
-				int maxIndex;
-
-				if( r == 0 ) {
-					minIndex = 0;
-					maxIndex = 0;
-				}
-				else {
-					minIndex = transformedLengths[ r - 1 ][ 0 ];
-					maxIndex = transformedLengths[ r - 1 ][ 1 ];
-				}
 
 				while( !stack.isEmpty() ) {
 					QGramEntry entry = stack.pop();
@@ -436,12 +436,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 							int iterMaxIndex = maxIndex + i;
 
 							for( int p = iterMinIndex; p <= iterMaxIndex; p++ ) {
-								try {
-									positionalQGram.get( p ).add( qgram );
-								}
-								catch( Exception e ) {
-									System.out.println( "DEBUG " + id );
-								}
+								positionalQGram.get( p ).add( qgram );
 							}
 						}
 					}
@@ -492,6 +487,18 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		for( int t = 0; t < tokens.length; t++ ) {
 			Rule[] rules = applicableRules[ t ];
 
+			int minIndex;
+			int maxIndex;
+
+			if( t == 0 ) {
+				minIndex = 0;
+				maxIndex = 0;
+			}
+			else {
+				minIndex = transformedLengths[ t - 1 ][ 0 ];
+				maxIndex = transformedLengths[ t - 1 ][ 1 ];
+			}
+
 			// try {
 			for( int r = 0; r < rules.length; r++ ) {
 				Rule startRule = rules[ r ];
@@ -499,18 +506,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				Stack<QGramEntry> stack = new Stack<QGramEntry>();
 
 				stack.add( new QGramEntry( q, startRule, t ) );
-
-				int minIndex;
-				int maxIndex;
-
-				if( r == 0 ) {
-					minIndex = 0;
-					maxIndex = 0;
-				}
-				else {
-					minIndex = transformedLengths[ r - 1 ][ 0 ];
-					maxIndex = transformedLengths[ r - 1 ][ 1 ];
-				}
 
 				while( !stack.isEmpty() ) {
 					QGramEntry entry = stack.pop();
