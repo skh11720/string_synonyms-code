@@ -581,7 +581,21 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			length = r.toSize();
 			rightMostIndex = idx + r.fromSize();
 
-			bothSize = r.toSize() * 2;
+			bothSize = length * 2;
+		}
+
+		public QGramEntry( QGramEntry entry, Rule r ) {
+			startIndex = entry.startIndex;
+			int ruleCount = entry.ruleList.length + 1;
+			ruleList = new Rule[ ruleCount ];
+			for( int i = 0; i < ruleCount - 1; i++ ) {
+				ruleList[ i ] = entry.ruleList[ i ];
+			}
+			ruleList[ ruleCount - 1 ] = r;
+			length = entry.length + r.toSize();
+			rightMostIndex = entry.rightMostIndex + r.fromSize();
+
+			bothSize = ruleList[ 0 ].toSize() + r.toSize();
 		}
 
 		@Override
@@ -606,20 +620,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			return bld.toString();
 		}
 
-		public QGramEntry( QGramEntry entry, Rule r ) {
-			startIndex = entry.startIndex;
-			int ruleCount = entry.ruleList.length + 1;
-			ruleList = new Rule[ ruleCount ];
-			for( int i = 0; i < ruleCount - 1; i++ ) {
-				ruleList[ i ] = entry.ruleList[ i ];
-			}
-			ruleList[ ruleCount - 1 ] = r;
-			length = entry.length + r.toSize();
-			rightMostIndex = entry.rightMostIndex + r.fromSize();
-
-			bothSize = ruleList[ 0 ].toSize() + ruleList[ ruleList.length - 1 ].toSize();
-		}
-
 		public int getBothRHSLength() {
 			return bothSize;
 		}
@@ -627,15 +627,16 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		public ArrayList<QGram> generateQGram( int q ) {
 			Rule firstRule = ruleList[ 0 ];
 			ArrayList<QGram> qgramList = new ArrayList<QGram>();
-			for( int i = 0; i < firstRule.toSize(); i++ ) {
+			int[] to = firstRule.getTo();
+			int firstRuleToSize = to.length;
+
+			for( int i = 0; i < firstRuleToSize; i++ ) {
 				int[] qgram = new int[ q ];
-
 				int idx = 0;
-
 				boolean stop = false;
 
 				// set first rule part
-				for( int p = i; p < firstRule.toSize(); p++ ) {
+				for( int p = i; p < firstRuleToSize; p++ ) {
 					qgram[ idx++ ] = firstRule.getTo()[ p ];
 					if( idx == q ) {
 						qgramList.add( new QGram( qgram ) );
@@ -647,8 +648,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				for( int r = 1; !stop && r < ruleList.length; r++ ) {
 					Rule otherRule = ruleList[ r ];
 
-					for( int p = 0; p < otherRule.toSize(); p++ ) {
-						qgram[ idx++ ] = otherRule.getTo()[ p ];
+					int[] otherRuleTo = otherRule.getTo();
+					int otherRuleToSize = otherRuleTo.length;
+
+					for( int p = 0; p < otherRuleToSize; p++ ) {
+						qgram[ idx++ ] = otherRuleTo[ p ];
 						if( idx == q ) {
 							qgramList.add( new QGram( qgram ) );
 							stop = true;
