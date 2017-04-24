@@ -193,9 +193,11 @@ public class GuiMain extends JFrame {
 				additional = "-n 2 -qSize 2 -compact -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinDebug" ) ) {
-				String sample = sampleTextField.getText();
-				arg = arg + " -algorithm DebugAlg -additional";
-				additional = "-compact -v TopDownHashSetSinglePathDS 0 -s " + sample;
+				// String sample = sampleTextField.getText();
+				// arg = arg + " -algorithm DebugAlg -additional";
+				// additional = "-compact -v TopDownHashSetSinglePathDS 0 -s " + sample;
+				arg = arg + " -algorithm JoinMin_OLD -additional";
+				additional = "-qSize 2 -v TopDownHashSetSinglePathDS 0";
 			}
 			else if( command.equals( "JoinMin" ) ) {
 				arg = arg + " -algorithm JoinMin -additional";

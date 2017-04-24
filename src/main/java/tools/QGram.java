@@ -21,6 +21,10 @@ public class QGram {
 
 		QGram oip = (QGram) o;
 
+		if( hashCode() != oip.hashCode() ) {
+			return false;
+		}
+
 		if( qgram.length == oip.qgram.length ) {
 			for( int i = 0; i < qgram.length; i++ ) {
 				if( qgram[ i ] != oip.qgram[ i ] ) {
