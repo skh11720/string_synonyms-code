@@ -1,8 +1,6 @@
 package snu.kdd.synonym.algorithm;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,11 +16,11 @@ import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
+import tools.QGram;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
-import tools.WYK_HashSet;
 import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.Validator;
 import wrapped.WrappedInteger;
@@ -32,7 +30,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	public boolean skipChecking = false;
 	public int maxIndex = Integer.MAX_VALUE;
 	public boolean compact = true;
-	public boolean singleside = false;
+	// public boolean singleside = false;
+	public int qSize = 0;
 	// public boolean exact2grams = false;
 
 	RecordIDComparator idComparator;
@@ -44,7 +43,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	 * Key: (2gram, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
-	Map<Integer, Map<IntegerPair, List<Record>>> idx;
+	Map<Integer, Map<QGram, List<Record>>> idx;
 
 	private long buildIndexTime1;
 	private long buildIndexTime2;
@@ -86,41 +85,41 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
+		List<Map<QGram, WrappedInteger>> invokes = new ArrayList<Map<QGram, WrappedInteger>>();
 		int invokesInitialized = 0;
 
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
-			for( Record rec : tableIndexed ) {
+			for( Record rec : tableSearched ) {
 				// long recordStartTime = System.nanoTime();
-				List<Set<IntegerPair>> available2Grams = rec.get2Grams();
+				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize );
 				// long recordTime = System.nanoTime() - recordStartTime;
 
-				int searchmax = Math.min( available2Grams.size(), maxIndex );
+				int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
 				for( int i = invokesInitialized; i < searchmax; i++ ) {
-					invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
+					invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
 				}
 				if( invokesInitialized < searchmax ) {
 					invokesInitialized = searchmax;
 				}
 
 				for( int i = 0; i < searchmax; ++i ) {
-					Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+					Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
 
-					Set<IntegerPair> available = available2Grams.get( i );
+					Set<QGram> available = availableQGrams.get( i );
 					totalSigCount += available.size();
-					for( IntegerPair twogram : available ) {
-						WrappedInteger count = curridx_invokes.get( twogram );
+					for( QGram qgram : available ) {
+						WrappedInteger count = curridx_invokes.get( qgram );
 						if( count == null ) {
 							// object ONE is shared to reduce memory usage
-							curridx_invokes.put( twogram, ONE );
+							curridx_invokes.put( qgram, ONE );
 						}
 						else if( count == ONE ) {
 							count = new WrappedInteger( 2 );
-							curridx_invokes.put( twogram, count );
+							curridx_invokes.put( qgram, count );
 						}
 						else {
 							count.increment();
@@ -156,11 +155,11 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 			stepTime.resetAndStart( "Result_3_2_Indexing Time" );
 			totalSigCount = 0;
-			idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
+			idx = new WYK_HashMap<Integer, Map<QGram, List<Record>>>();
 
 			long predictCount = 0;
 			long indexedElements = 0;
-			for( Record rec : tableSearched ) {
+			for( Record rec : tableIndexed ) {
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int searchmax = maxIndex;
 
@@ -172,8 +171,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 				// searchmax = Math.min( searchmax, invokes.size() );
 
-				List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
-				for( Set<IntegerPair> set : available2Grams ) {
+				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
+				for( Set<QGram> set : availableQGrams ) {
 					totalSigCount += set.size();
 				}
 
@@ -181,7 +180,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				int minInvokes = Integer.MAX_VALUE;
 
 				for( int i = 0; i < searchmax; ++i ) {
-					if( available2Grams.get( i ).isEmpty() ) {
+					if( availableQGrams.get( i ).isEmpty() ) {
 						continue;
 					}
 
@@ -193,7 +192,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 						break;
 					}
 
-					Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
+					Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
 					if( curridx_invokes.size() == 0 ) {
 						minIdx = i;
 						minInvokes = 0;
@@ -201,7 +200,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					}
 					int invoke = 0;
 
-					for( IntegerPair twogram : available2Grams.get( i ) ) {
+					for( QGram twogram : availableQGrams.get( i ) ) {
 						WrappedInteger count = curridx_invokes.get( twogram );
 						if( count != null ) {
 							// upper bound
@@ -216,25 +215,25 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 				predictCount += minInvokes;
 
-				Map<IntegerPair, List<Record>> curridx = idx.get( minIdx );
+				Map<QGram, List<Record>> curridx = idx.get( minIdx );
 				if( curridx == null ) {
-					curridx = new WYK_HashMap<IntegerPair, List<Record>>( 1000 );
+					curridx = new WYK_HashMap<QGram, List<Record>>( 1000 );
 					// curridx = new HashMap<IntegerPair, List<Record>>();
 					idx.put( minIdx, curridx );
 				}
 
-				for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
+				for( QGram qgram : availableQGrams.get( minIdx ) ) {
 					// write2File(bw, minIdx, twogram, rec.getID());
 					if( true ) {
-						List<Record> list = curridx.get( twogram );
+						List<Record> list = curridx.get( qgram );
 						if( list == null ) {
 							list = new ArrayList<Record>();
-							curridx.put( twogram, list );
+							curridx.put( qgram, list );
 						}
 						list.add( rec );
 					}
 				}
-				indexedElements += available2Grams.get( minIdx ).size();
+				indexedElements += availableQGrams.get( minIdx ).size();
 			}
 			System.out.println( "Idx size : " + indexedElements );
 			System.out.println( "Predict : " + predictCount );
@@ -261,8 +260,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			int ones = 0;
 			long count = 0;
 			///// Statistics
-			for( Map<IntegerPair, List<Record>> curridx : idx.values() ) {
-				WYK_HashMap<IntegerPair, List<Record>> tmp = (WYK_HashMap<IntegerPair, List<Record>>) curridx;
+			for( Map<QGram, List<Record>> curridx : idx.values() ) {
+				WYK_HashMap<QGram, List<Record>> tmp = (WYK_HashMap<QGram, List<Record>>) curridx;
 				if( sum == 0 ) {
 					tmp.printStat();
 				}
@@ -287,12 +286,12 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			sum = 0;
 			ones = 0;
 			count = 0;
-			for( Map<IntegerPair, WrappedInteger> curridx : invokes ) {
-				WYK_HashMap<IntegerPair, WrappedInteger> tmp = (WYK_HashMap<IntegerPair, WrappedInteger>) curridx;
+			for( Map<QGram, WrappedInteger> curridx : invokes ) {
+				WYK_HashMap<QGram, WrappedInteger> tmp = (WYK_HashMap<QGram, WrappedInteger>) curridx;
 				if( sum == 0 ) {
 					tmp.printStat();
 				}
-				for( Entry<IntegerPair, WrappedInteger> list : curridx.entrySet() ) {
+				for( Entry<QGram, WrappedInteger> list : curridx.entrySet() ) {
 					if( list.getValue().get() == 1 ) {
 						++ones;
 						continue;
@@ -319,18 +318,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 	}
 
-	static ByteBuffer buffer = ByteBuffer.allocate( 16 );
-
-	@SuppressWarnings( "unused" )
-	private static void write2File( BufferedOutputStream bos, int idx, IntegerPair twogram, int id ) throws IOException {
-		buffer.clear();
-		buffer.putInt( idx );
-		buffer.putInt( twogram.i1 );
-		buffer.putInt( twogram.i2 );
-		buffer.putInt( id );
-		bos.write( buffer.array() );
-	}
-
 	private List<IntegerPair> join( boolean writeResult ) {
 		// BufferedWriter bw = new BufferedWriter( new FileWriter( "join.txt" ) );
 
@@ -342,23 +329,23 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		long count = 0;
 		long equivComparisons = 0;
 		// long lastTokenFiltered = 0;
-		for( Record recS : tableIndexed ) {
+		for( Record recS : tableSearched ) {
 			// List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
-			List<Set<IntegerPair>> available2Grams = recS.get2Grams();
+			List<Set<QGram>> availableQGrams = recS.getQGrams( qSize );
 			// for (Set<IntegerPair> set : available2Grams)
 			// totalSigCount += set.size();
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
-			int searchmax = Math.min( available2Grams.size(), maxIndex );
+			int searchmax = Math.min( availableQGrams.size(), maxIndex );
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<IntegerPair, List<Record>> curridx = idx.get( i );
+				Map<QGram, List<Record>> curridx = idx.get( i );
 				if( curridx == null ) {
 					continue;
 				}
 
 				Set<Record> candidates = new HashSet<Record>();
 
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					List<Record> tree = curridx.get( twogram );
+				for( QGram qgram : availableQGrams.get( i ) ) {
+					List<Record> tree = curridx.get( qgram );
 
 					if( tree == null ) {
 						continue;
@@ -434,131 +421,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 	}
 
-	private void buildIndexSingleSide() {
-		long elements = 0;
-		long predictCount = 0;
-		// Build an index
-		// Count Invokes per each (twogram, loc) pair
-		Map<Integer, Map<IntegerPair, Integer>> invokes = new WYK_HashMap<Integer, Map<IntegerPair, Integer>>();
-		for( Record rec : tableIndexed ) {
-			for( int i = 0; i < rec.size(); ++i ) {
-				Map<IntegerPair, Integer> curridx_invokes = invokes.get( i );
-				if( curridx_invokes == null ) {
-					curridx_invokes = new WYK_HashMap<IntegerPair, Integer>();
-					invokes.put( i, curridx_invokes );
-				}
-				IntegerPair twogram = rec.getOriginal2Gram( i );
-				Integer count = curridx_invokes.get( twogram );
-				if( count == null )
-					count = 1;
-				else
-					count += 1;
-				curridx_invokes.put( twogram, count );
-			}
-		}
-
-		idx = new WYK_HashMap<Integer, Map<IntegerPair, List<Record>>>();
-		for( Record rec : tableSearched ) {
-			// List<Set<IntegerPair>> available2Grams = exact2grams ? rec.getExact2Grams() : rec.get2Grams();
-			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
-			int[] range = rec.getCandidateLengths( rec.size() - 1 );
-			int minIdx = -1;
-			int minInvokes = Integer.MAX_VALUE;
-			int searchmax = Math.min( range[ 0 ], maxIndex );
-			for( int i = 0; i < searchmax; ++i ) {
-				int invoke = 0;
-				Map<IntegerPair, Integer> curridx_invokes = invokes.get( i );
-				// There is no invocation count: this is the minimum point
-				if( curridx_invokes == null ) {
-					minIdx = i;
-					minInvokes = 0;
-					break;
-				}
-				for( IntegerPair twogram : available2Grams.get( i ) ) {
-					Integer count = curridx_invokes.get( twogram );
-					if( count != null )
-						invoke += count;
-				}
-				if( invoke < minInvokes ) {
-					minIdx = i;
-					minInvokes = invoke;
-				}
-			}
-
-			predictCount += minInvokes;
-
-			Map<IntegerPair, List<Record>> curridx = idx.get( minIdx );
-			if( curridx == null ) {
-				curridx = new WYK_HashMap<IntegerPair, List<Record>>();
-				idx.put( minIdx, curridx );
-			}
-			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
-				List<Record> list = curridx.get( twogram );
-				if( list == null ) {
-					list = new ArrayList<Record>();
-					curridx.put( twogram, list );
-				}
-				list.add( rec );
-			}
-			elements += available2Grams.get( minIdx ).size();
-		}
-		System.out.println( "Predict : " + predictCount );
-		System.out.println( "Idx size : " + elements );
-
-		///// Statistics
-		int sum = 0;
-		long count = 0;
-		for( Map<IntegerPair, List<Record>> curridx : idx.values() ) {
-			for( List<Record> list : curridx.values() ) {
-				if( list.size() == 1 )
-					continue;
-				sum++;
-				count += list.size();
-			}
-		}
-		System.out.println( "iIdx size : " + count );
-		System.out.println( "Rec per idx : " + ( (double) count ) / sum );
-	}
-
-	private WYK_HashSet<IntegerPair> joinSingleSide() {
-		WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
-
-		long appliedRules_sum = 0;
-		for( Record recS : tableIndexed ) {
-			int minlength = recS.getMinLength();
-			int maxlength = recS.getMaxLength();
-			for( int i = 0; i < recS.size(); ++i ) {
-				Map<IntegerPair, List<Record>> curridx = idx.get( i );
-				if( curridx == null )
-					continue;
-				IntegerPair twogram = recS.getOriginal2Gram( i );
-				List<Record> candidatesList = new ArrayList<Record>();
-				List<Record> tree = curridx.get( twogram );
-
-				if( tree == null ) {
-					continue;
-				}
-				for( Record e : tree ) {
-					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), minlength, maxlength ) )
-						candidatesList.add( e );
-				}
-				if( skipChecking ) {
-					continue;
-				}
-				for( Record recR : candidatesList ) {
-					int compare = checker.isEqual( recR, recS );
-					if( compare >= 0 ) {
-						rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
-						appliedRules_sum += compare;
-					}
-				}
-			}
-		}
-		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-
-		return rslt;
-	}
-
 	public void statistics() {
 		long strlengthsum = 0;
 		long strmaxinvsearchrangesum = 0;
@@ -611,18 +473,14 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		statistics();
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		if( singleside ) {
-			buildIndexSingleSide();
+
+		try {
+			buildIndex( writeResult );
 		}
-		else {
-			try {
-				buildIndex( writeResult );
-			}
-			catch( Exception e ) {
-				e.printStackTrace();
-				System.exit( 0 );
-			}
+		catch( Exception e ) {
+			e.printStackTrace();
 		}
+
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
 		}
@@ -631,7 +489,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
-		Collection<IntegerPair> rslt = ( singleside ? joinSingleSide() : join( writeResult ) );
+		Collection<IntegerPair> rslt = join( writeResult );
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
 		}
@@ -677,6 +535,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		skipChecking = params.isSkipChecking();
 		compact = params.isCompact();
 		checker = params.getValidator();
+		qSize = params.getQGramSize();
 		// exact2grams = params.isExact2Grams();
 
 		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
