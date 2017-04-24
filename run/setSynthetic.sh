@@ -48,8 +48,8 @@ else
 	java -cp $CLASSPATH snu.kdd.synonym.data.Generator -d $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataOne $dir
 fi
 
-rm $dir/current_data_one
-ln -s ../$datadir1 $dir/current_data_one
+#rm $dir/current_data_one
+#ln -s ../$datadir1 $dir/current_data_one
 
 datadir2=`java -cp $CLASSPATH snu.kdd.synonym.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataTwo $dir`
 
@@ -62,5 +62,5 @@ else
 	java -cp $CLASSPATH snu.kdd.synonym.data.Generator -d $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataTwo $dir
 fi
 
-rm $dir/current_data_two
-ln -s ../$datadir2 $dir/current_data_two
+#rm $dir/current_data_two
+#ln -s ../$datadir2 $dir/current_data_two

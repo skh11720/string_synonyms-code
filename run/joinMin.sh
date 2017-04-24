@@ -6,7 +6,7 @@ logdir=$5
 LIBS=$6
 project=$7
 
-ADDITIONAL="-compact -v TopDownHashSetSinglePathDS 0"
+ADDITIONAL="-v TopDownHashSetSinglePathDS 0"
 
 ALG=JoinMin
 
