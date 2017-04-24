@@ -43,7 +43,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	 * Key: (2gram, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
-	Map<Integer, Map<QGram, List<Record>>> idx;
+	WYK_HashMap<Integer, Map<QGram, List<Record>>> idx;
 
 	private long buildIndexTime1;
 	private long buildIndexTime2;
@@ -91,7 +91,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		try {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 
-			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Count_Time" );
+			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableSearched ) {
 				// long recordStartTime = System.nanoTime();
 				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize );
@@ -153,7 +153,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				stepTime.stop();
 			}
 
-			stepTime.resetAndStart( "Result_3_2_Indexing Time" );
+			stepTime.resetAndStart( "Result_3_1_2_Indexing Time" );
 			totalSigCount = 0;
 			idx = new WYK_HashMap<Integer, Map<QGram, List<Record>>>();
 
@@ -244,7 +244,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			System.out.println( "Delta (index build / signature ): " + delta );
 
 			if( writeResult ) {
-				stat.add( "Stat_JoinMin_Index Size", indexedElements );
+				stat.add( "Stat_JoinMin_Index_Size", indexedElements );
 				stat.add( "Stat_Predicted_Comparison", predictCount );
 
 				stat.add( "Est_Index_2_Build_Index_Time", buildIndexTime2 );
@@ -315,6 +315,17 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
+		}
+
+		if( writeResult ) {
+			stat.add( "Counter_Index_0_Get_Count", idx.getCount );
+			stat.add( "Counter_Index_0_GetIter_Count", idx.getIterCount );
+			stat.add( "Counter_Index_0_Put_Count", idx.putCount );
+			stat.add( "Counter_Index_0_Resize_Count", idx.resizeCount );
+			stat.add( "Counter_Index_0_Remove_Count", idx.removeCount );
+			stat.add( "Counter_Index_0_RemoveIter_Count", idx.removeIterCount );
+			stat.add( "Counter_Index_0_PutRemoved_Count", idx.putRemovedCount );
+			stat.add( "Counter_Index_0_RemoveFound_Count", idx.removeFoundCount );
 		}
 	}
 
