@@ -483,6 +483,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	public List<Set<QGram>> getQGrams( int q, int range ) {
+		getQGramCount++;
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
 
 		int maxLength = Integer.max( range, getMaxLength() );
@@ -726,6 +727,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	// maxStartPos exclusive
 	public List<Set<IntegerPair>> get2GramsWithBound( int maxStartPos ) {
+		get2GramCount++;
 		long start = System.nanoTime();
 		/* There are two type of 2 grams:
 		 * 1) two tokens are derived from different rules.
