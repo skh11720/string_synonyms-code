@@ -4,14 +4,13 @@ rulefile=$3
 outputPath=$4
 logdir=$5
 LIBS=$6
-qSize=$7
-project=$8
+project=$7
 
-ADDITIONAL="-qSize $qSize -v TopDownHashSetSinglePathDS 0"
+ADDITIONAL="-v TopDownHashSetSinglePathDS 0"
 
-ALG=JoinMin
+ALG=JoinMin_OLD
 
-if [[ $# -ne 8 ]];
+if [[ $# -ne 7 ]];
 then
 	echo 'illegal number of parameters: [$ALG]'
 	echo 1 $1
@@ -21,7 +20,6 @@ then
 	echo 5 $5
 	echo 6 $6
 	echo 7 $7
-	echo 8 $8
 else
 	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
