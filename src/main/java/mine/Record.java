@@ -421,7 +421,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				maxIndex = transformedLengths[ t - 1 ][ 1 ];
 			}
 
-			if( minIndex > range ) {
+			if( minIndex >= range ) {
 				break;
 			}
 
