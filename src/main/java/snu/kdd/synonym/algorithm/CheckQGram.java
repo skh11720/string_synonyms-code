@@ -1,6 +1,7 @@
 package snu.kdd.synonym.algorithm;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -68,24 +69,24 @@ public class CheckQGram extends AlgorithmTemplate {
 		// }
 
 		int error = 0;
-		// for( Record r : tableSearched ) {
-		// // System.out.println( "Checking " + r.getID() );
-		// List<Set<IntegerPair>> twogramList = r.get2Grams();
-		//
-		// List<Set<QGram>> qgrams = r.getQGrams( 2 );
-		//
-		// error += checkEquality( -1, r, twogramList, qgrams );
-		//
-		// int length = twogramList.size();
-		//
-		// for( int i = 0; i < length; i++ ) {
-		// twogramList = r.get2GramsWithBound( i );
-		// qgrams = r.getQGrams( 2, i );
-		//
-		// error += checkEquality( i, r, twogramList, qgrams );
-		// }
-		//
-		// }
+		for( Record r : tableSearched ) {
+			// System.out.println( "Checking " + r.getID() );
+			List<Set<IntegerPair>> twogramList = r.get2Grams();
+
+			List<Set<QGram>> qgrams = r.getQGrams( 2 );
+
+			error += checkEquality( -1, r, twogramList, qgrams );
+
+			int length = twogramList.size();
+
+			for( int i = 0; i < length; i++ ) {
+				twogramList = r.get2GramsWithBound( i );
+				qgrams = r.getQGrams( 2, i );
+
+				error += checkEquality( i, r, twogramList, qgrams );
+			}
+
+		}
 		System.out.println( "Error: " + error );
 		System.out.println( "Done" );
 	}
@@ -100,7 +101,7 @@ public class CheckQGram extends AlgorithmTemplate {
 
 		int count = 0;
 		for( int i = 0; i < length; i++ ) {
-			Set<IntegerPair> twograms = twogramList.get( i );
+			Collection<IntegerPair> twograms = twogramList.get( i );
 			for( QGram qgram : qgrams.get( i ) ) {
 				IntegerPair twogram = new IntegerPair( qgram.qgram[ 0 ], qgram.qgram[ 1 ] );
 

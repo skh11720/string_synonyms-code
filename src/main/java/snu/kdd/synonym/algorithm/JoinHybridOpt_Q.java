@@ -225,7 +225,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// count qgrams for each that will be searched
 		for( Record rec : tableSearched ) {
 			// TODO : modify with qgrams
-			List<Set<QGram>> availableQGrams = rec.getQGrams( q, Integer.MAX_VALUE );
+			List<Set<QGram>> availableQGrams = rec.getQGrams( q );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
 			for( int i = positionalQCountMap.size(); i < searchmax; i++ ) {
