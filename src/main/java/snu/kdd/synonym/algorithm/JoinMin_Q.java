@@ -374,11 +374,20 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		long equivComparisons = 0;
 		long getQGramTime = 0;
 		// long lastTokenFiltered = 0;
+
 		for( Record recS : tableSearched ) {
 
-			long qgramStart = System.nanoTime();
+			long qgramStart = 0;
+
+			if( DEBUG.ON ) {
+				qgramStart = System.nanoTime();
+			}
+
 			List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
-			getQGramTime += System.nanoTime() - qgramStart;
+
+			if( DEBUG.ON ) {
+				getQGramTime += System.nanoTime() - qgramStart;
+			}
 
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
@@ -416,21 +425,29 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 				equivComparisons += candidates.size();
 				for( Record recR : candidates ) {
-					long ruleiters = Validator.niterrules;
-					long reccalls = Validator.recursivecalls;
-					long entryiters = Validator.niterentry;
+					long ruleiters = 0;
+					long reccalls = 0;
+					long entryiters = 0;
+
+					if( DEBUG.ON ) {
+						ruleiters = Validator.niterrules;
+						reccalls = Validator.recursivecalls;
+						entryiters = Validator.niterentry;
+					}
 
 					long st = System.nanoTime();
 					int compare = checker.isEqual( recR, recS );
 					long duration = System.nanoTime() - st;
 
-					ruleiters = Validator.niterrules - ruleiters;
-					reccalls = Validator.recursivecalls - reccalls;
-					entryiters = Validator.niterentry - entryiters;
+					if( DEBUG.ON ) {
+						ruleiters = Validator.niterrules - ruleiters;
+						reccalls = Validator.recursivecalls - reccalls;
+						entryiters = Validator.niterentry - entryiters;
 
-					// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
-					// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
-					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+						// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
+						// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
+						// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+					}
 
 					joinTime += duration;
 					if( compare >= 0 ) {
@@ -441,28 +458,31 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			}
 		}
 
-		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-			System.out.println( "Prefix freq : " + freq );
-			System.out.println( "Prefix sumlength : " + sumlength );
-		}
-		candExtractTime = System.nanoTime() - Record.exectime - starttime - joinTime;
-		double weight = count;
-		if( weight == 0 ) {
+		if( count == 0 ) {
 			// To avoid NaN
-			weight = 1;
+			count = 1;
 		}
-		System.out.println( "Est weight : " + weight );
-		System.out.println( "Cand extract time : " + candExtractTime );
-		System.out.println( "Join time : " + joinTime );
-		epsilon = ( joinTime ) / weight;
-		// bw.close();
+		epsilon = joinTime / count;
 
-		if( writeResult ) {
-			// stat.add( "Last Token Filtered", lastTokenFiltered );
-			stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
-			stat.add( "Stat_Equiv_Comparison", equivComparisons );
-			stat.add( "Stat_getQGramCount", Record.getQGramCount );
+		if( DEBUG.ON ) {
+			System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
+			if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
+				System.out.println( "Prefix freq : " + freq );
+				System.out.println( "Prefix sumlength : " + sumlength );
+			}
+
+			candExtractTime = System.nanoTime() - Record.exectime - starttime - joinTime;
+
+			System.out.println( "Est weight : " + count );
+			System.out.println( "Cand extract time : " + candExtractTime );
+			System.out.println( "Join time : " + joinTime );
+
+			if( writeResult ) {
+				// stat.add( "Last Token Filtered", lastTokenFiltered );
+				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
+				stat.add( "Stat_Equiv_Comparison", equivComparisons );
+				stat.add( "Stat_getQGramCount", Record.getQGramCount );
+			}
 		}
 
 		return rslt;

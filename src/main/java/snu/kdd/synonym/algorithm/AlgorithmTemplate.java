@@ -19,6 +19,7 @@ import mine.Record;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import tools.DEBUG;
 import tools.IntegerPair;
 import tools.Rule;
 import tools.Rule_ACAutomata;
@@ -170,59 +171,91 @@ public abstract class AlgorithmTemplate {
 
 	protected void preprocess( boolean compact, int maxIndex, boolean computeAutomataPerRecord ) {
 		// builds an automata of the set of rules
-		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
+		StopWatch preprocessTime = null;
+
+		if( DEBUG.ON ) {
+			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
+		}
+
 		final Rule_ACAutomata automata = new Rule_ACAutomata( getRulelist() );
 
 		long applicableRules = 0;
+
 		// Preprocess each records in R
 		for( final Record rec : tableSearched ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
-			applicableRules += rec.getNumApplicableRules();
+
+			if( DEBUG.ON ) {
+				applicableRules += rec.getNumApplicableRules();
+			}
 		}
-		preprocessTime.stopQuietAndAdd( stat );
 
-		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
-		stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / tableSearched.size() ) );
+		if( DEBUG.ON ) {
+			preprocessTime.stopQuietAndAdd( stat );
+			stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+			stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / tableSearched.size() ) );
 
-		preprocessTime.resetAndStart( "Result_2_2_Preprocess length time" );
+			preprocessTime.resetAndStart( "Result_2_2_Preprocess length time" );
+		}
 
 		for( final Record rec : tableSearched ) {
 			rec.preprocessLengths();
 		}
 
-		preprocessTime.stopQuietAndAdd( stat );
+		if( DEBUG.ON ) {
+			preprocessTime.stopQuietAndAdd( stat );
 
-		preprocessTime.resetAndStart( "Result_2_3_Preprocess est record time" );
+			preprocessTime.resetAndStart( "Result_2_3_Preprocess est record time" );
+		}
+
 		long maxTSize = 0;
 		for( final Record rec : tableSearched ) {
 			rec.preprocessEstimatedRecords();
-			long est = rec.getEstimatedEquiv();
-			if( maxTSize < est ) {
-				maxTSize = est;
+
+			if( DEBUG.ON ) {
+				long est = rec.getEstimatedEquiv();
+
+				if( maxTSize < est ) {
+					maxTSize = est;
+				}
 			}
 		}
 
-		stat.add( "Stat_maximum Size of Table T", maxTSize );
+		if( DEBUG.ON ) {
+			stat.add( "Stat_maximum Size of Table T", maxTSize );
 
-		preprocessTime.stopQuietAndAdd( stat );
-
-		if( !compact ) {
-			preprocessTime.resetAndStart( "Result_2_4_Preprocess token time" );
-			for( final Record rec : tableSearched ) {
-				rec.preprocessAvailableTokens( maxIndex );
-			}
 			preprocessTime.stopQuietAndAdd( stat );
 		}
 
-		preprocessTime.resetAndStart( "Result_2_5_Preprocess early pruning time" );
+		if( !compact ) {
+			if( DEBUG.ON ) {
+				preprocessTime.resetAndStart( "Result_2_4_Preprocess token time" );
+			}
+			for( final Record rec : tableSearched ) {
+				rec.preprocessAvailableTokens( maxIndex );
+			}
+
+			if( DEBUG.ON ) {
+				preprocessTime.stopQuietAndAdd( stat );
+			}
+		}
+
+		if( DEBUG.ON ) {
+			preprocessTime.resetAndStart( "Result_2_5_Preprocess early pruning time" );
+		}
+
 		for( final Record rec : tableSearched ) {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 		}
-		preprocessTime.stopQuietAndAdd( stat );
 
-		// Preprocess each records in S
-		preprocessTime.resetAndStart( "Result_2_6_Preprocess records in S time" );
+		if( DEBUG.ON ) {
+			preprocessTime.stopQuietAndAdd( stat );
+
+			// Preprocess each records in S
+			preprocessTime.resetAndStart( "Result_2_6_Preprocess records in S time" );
+		}
+
 		long maxSSize = 0;
 		applicableRules = 0;
 		for( final Record rec : tableIndexed ) {
@@ -230,10 +263,6 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessLengths();
 			// rec.preprocessLastToken();
 			rec.preprocessEstimatedRecords();
-			long est = rec.getEstimatedEquiv();
-			if( maxSSize < est ) {
-				maxSSize = est;
-			}
 
 			if( !compact ) {
 				rec.preprocessAvailableTokens( maxIndex );
@@ -241,12 +270,21 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 
-			applicableRules += rec.getNumApplicableRules();
-		}
-		stat.add( "Stat_maximum Size of Table S", maxSSize );
-		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+			if( DEBUG.ON ) {
+				applicableRules += rec.getNumApplicableRules();
 
-		preprocessTime.stopQuietAndAdd( stat );
+				long est = rec.getEstimatedEquiv();
+				if( maxSSize < est ) {
+					maxSSize = est;
+				}
+			}
+		}
+		if( DEBUG.ON ) {
+			stat.add( "Stat_maximum Size of Table S", maxSSize );
+			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+
+			preprocessTime.stopQuietAndAdd( stat );
+		}
 	}
 
 	public void printStat() {
