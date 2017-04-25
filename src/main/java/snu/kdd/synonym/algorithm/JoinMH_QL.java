@@ -79,13 +79,13 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 			for( Record rec : tableIndexed ) {
 				// long recordStartTime = System.nanoTime();
-				List<Set<QGram>> available2Grams = rec.getQGrams( qgramSize, maxIndexLength );
+				List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize, maxIndexLength );
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int boundary = Math.min( range[ 1 ], maxIndexLength );
 				for( int i = 0; i < boundary; ++i ) {
 					Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
-					for( QGram qgram : available2Grams.get( i ) ) {
+					for( QGram qgram : availableQGrams.get( i ) ) {
 						List<IntIntRecordTriple> list = map.get( qgram );
 						if( list == null ) {
 							list = new ArrayList<IntIntRecordTriple>();
@@ -93,7 +93,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 						}
 						list.add( new IntIntRecordTriple( range[ 0 ], range[ 1 ], rec ) );
 					}
-					elements += available2Grams.get( i ).size();
+					elements += availableQGrams.get( i ).size();
 				}
 				// long recordTime = System.nanoTime() - recordStartTime;
 				//
@@ -212,7 +212,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				Set<Record> candidates = new HashSet<Record>();
 
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-				List<Set<QGram>> available2Grams = recS.getQGrams( qgramSize, maxIndexLength );
+				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxIndexLength );
 
 				// long recordStartTime = System.nanoTime();
 				int[] range = recS.getCandidateLengths( recS.size() - 1 );
@@ -226,7 +226,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 					Set<Record> candidatesAppeared = new HashSet<Record>();
 
-					for( QGram qgram : available2Grams.get( i ) ) {
+					for( QGram qgram : availableQGrams.get( i ) ) {
 						// elements++;
 						List<IntIntRecordTriple> list = map.get( qgram );
 						if( list == null ) {

@@ -224,8 +224,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		// count qgrams for each that will be searched
 		for( Record rec : tableSearched ) {
-			// TODO : modify with qgrams
-			List<Set<QGram>> availableQGrams = rec.getQGrams( q );
+			List<List<QGram>> availableQGrams = rec.getQGrams( q );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
 			for( int i = positionalQCountMap.size(); i < searchmax; i++ ) {
@@ -235,7 +234,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<QGram, CountEntry> currPositionalCount = positionalQCountMap.get( i );
 
-				Set<QGram> positionalQGram = availableQGrams.get( i );
+				List<QGram> positionalQGram = availableQGrams.get( i );
 				for( QGram qgram : positionalQGram ) {
 					CountEntry count = currPositionalCount.get( qgram );
 
@@ -281,10 +280,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				}
 
 				// update count for JoinMin
-				List<Set<QGram>> availableQGrams = s.getQGrams( q, Integer.MAX_VALUE );
+				List<List<QGram>> availableQGrams = s.getQGrams( q, Integer.MAX_VALUE );
 
 				for( int i = 0; i < availableQGrams.size(); i++ ) {
-					Set<QGram> qgrams = availableQGrams.get( i );
+					List<QGram> qgrams = availableQGrams.get( i );
 					Map<QGram, CountEntry> currPositionalCount = positionalQCountMap.get( i );
 					for( QGram qg : qgrams ) {
 						CountEntry entry = currPositionalCount.get( qg );

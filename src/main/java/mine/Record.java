@@ -397,7 +397,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public static long exectime = 0;
 
-	public List<Set<QGram>> getQGrams( int q ) {
+	public List<List<QGram>> getQGrams( int q ) {
 		getQGramCount++;
 		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
 
@@ -461,7 +461,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			// }
 		}
 
-		List<Set<QGram>> resultQGram = new ArrayList<Set<QGram>>();
+		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
 
 		for( int i = 0; i < positionalQGram.size(); i++ ) {
 			List<QGram> pQGram = positionalQGram.get( i );
@@ -469,20 +469,24 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			// WYK_HashSet.DEBUG = true;
 			// System.out.println( "Add " + pQGram.size() );
 			Set<QGram> sQGram = new WYK_HashSet<QGram>( pQGram.size() * 2 + 2 );
+			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
 
 			for( QGram qgram : pQGram ) {
-				sQGram.add( qgram );
+				boolean added = sQGram.add( qgram );
+				if( added ) {
+					lQGram.add( qgram );
+				}
 			}
 
 			// WYK_HashSet.DEBUG = false;
 
-			resultQGram.add( sQGram );
+			resultQGram.add( lQGram );
 		}
 
 		return resultQGram;
 	}
 
-	public List<Set<QGram>> getQGrams( int q, int range ) {
+	public List<List<QGram>> getQGrams( int q, int range ) {
 		getQGramCount++;
 		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
 
@@ -560,7 +564,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			// }
 		}
 
-		List<Set<QGram>> resultQGram = new ArrayList<Set<QGram>>();
+		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
 
 		for( int i = 0; i < positionalQGram.size(); i++ ) {
 			List<QGram> pQGram = positionalQGram.get( i );
@@ -568,14 +572,18 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			// WYK_HashSet.DEBUG = true;
 			// System.out.println( "Add " + pQGram.size() );
 			Set<QGram> sQGram = new WYK_HashSet<QGram>( pQGram.size() * 2 + 2 );
+			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
 
 			for( QGram qgram : pQGram ) {
-				sQGram.add( qgram );
+				boolean added = sQGram.add( qgram );
+				if( added ) {
+					lQGram.add( qgram );
+				}
 			}
 
 			// WYK_HashSet.DEBUG = false;
 
-			resultQGram.add( sQGram );
+			resultQGram.add( lQGram );
 		}
 
 		return resultQGram;
@@ -792,13 +800,13 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	public LongIntPair getMinimumIndexSize( List<Map<QGram, CountEntry>> positionalQCountMap, long threshold, int q ) {
 
 		boolean isLarge = this.getEstNumRecords() > threshold;
-		List<Set<QGram>> positionalQGrams = this.getQGrams( q );
+		List<List<QGram>> positionalQGrams = this.getQGrams( q );
 
 		int minIndex = 0;
 		long minCount = Long.MAX_VALUE;
 
 		for( int i = 0; i < positionalQGrams.size(); i++ ) {
-			Set<QGram> qgrams = positionalQGrams.get( i );
+			List<QGram> qgrams = positionalQGrams.get( i );
 			Map<QGram, CountEntry> currentCountMap = positionalQCountMap.get( i );
 
 			long count = 0;

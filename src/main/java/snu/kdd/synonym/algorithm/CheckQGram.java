@@ -73,7 +73,7 @@ public class CheckQGram extends AlgorithmTemplate {
 			// System.out.println( "Checking " + r.getID() );
 			List<Set<IntegerPair>> twogramList = r.get2Grams();
 
-			List<Set<QGram>> qgrams = r.getQGrams( 2 );
+			List<List<QGram>> qgrams = r.getQGrams( 2 );
 
 			error += checkEquality( -1, r, twogramList, qgrams );
 
@@ -91,7 +91,7 @@ public class CheckQGram extends AlgorithmTemplate {
 		System.out.println( "Done" );
 	}
 
-	public int checkEquality( int idx, Record r, List<Set<IntegerPair>> twogramList, List<Set<QGram>> qgrams ) {
+	public int checkEquality( int idx, Record r, List<Set<IntegerPair>> twogramList, List<List<QGram>> qgrams ) {
 		int length = twogramList.size();
 
 		if( length != qgrams.size() ) {
