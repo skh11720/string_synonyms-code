@@ -17,7 +17,6 @@ import tools.IntegerPair;
 import tools.QGram;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
-import tools.WYK_HashSet;
 import validator.Validator;
 
 public class JoinMH_QL extends AlgorithmTemplate {
@@ -53,7 +52,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
-		WYK_HashSet<IntegerPair> rslt = join();
+		ArrayList<IntegerPair> rslt = join();
 		stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		stepTime.stopAndAdd( stat );
 
@@ -182,8 +181,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		}
 	}
 
-	private WYK_HashSet<IntegerPair> join() {
-		WYK_HashSet<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
+	private ArrayList<IntegerPair> join() {
+		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long count = 0;
 		long lengthFiltered = 0;
 
