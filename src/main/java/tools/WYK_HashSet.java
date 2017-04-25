@@ -1,6 +1,7 @@
 package tools;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -175,7 +176,11 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 		}
 
 		nextExpandSize = (int) ( array.length * factor );
+	}
 
+	public void emptyAll() {
+		Arrays.fill( array, null );
+		this.size = 0;
 	}
 
 	@Override
