@@ -14,7 +14,7 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 	public static long collision = 0;
 	public static long resize = 0;
 
-	// public static boolean DEBUG = false;
+	public static boolean DEBUG = false;
 
 	public WYK_HashSet() {
 		factor = 0.5;
@@ -122,9 +122,9 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 	 */
 	@SuppressWarnings( "unchecked" )
 	private void resize( int nextSize ) {
-		// if( DEBUG ) {
-		// System.out.println( "DEBUG: resize from " + nextExpandSize + "(" + size + ") to " + nextSize );
-		// }
+		if( DEBUG ) {
+			System.out.println( "DEBUG: resize from " + nextExpandSize + "(" + size + ") to " + nextSize );
+		}
 
 		resize++;
 
@@ -170,9 +170,9 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 		array = (Entry[]) Array.newInstance( Entry.class, size );
 		this.size = 0;
 
-		// if( DEBUG ) {
-		// System.out.println( "ArrayLength " + array.length + " " + factor + " " + (int) ( array.length * factor ) );
-		// }
+		if( DEBUG ) {
+			System.out.println( "ArrayLength " + array.length + " " + factor + " " + (int) ( array.length * factor ) );
+		}
 
 		nextExpandSize = (int) ( array.length * factor );
 

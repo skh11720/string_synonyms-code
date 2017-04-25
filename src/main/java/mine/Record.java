@@ -471,6 +471,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			}
 		}
 
+		WYK_HashSet.DEBUG = true;
 		Set<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
 
 		for( int i = 0; i < positionalQGram.size(); i++ ) {
@@ -488,6 +489,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 			resultQGram.add( lQGram );
 		}
+		WYK_HashSet.DEBUG = false;
 
 		return resultQGram;
 	}
