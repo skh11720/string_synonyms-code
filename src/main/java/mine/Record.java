@@ -474,7 +474,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		Set<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
 
 		for( int i = 0; i < positionalQGram.size(); i++ ) {
-			resultQGram.clear();
+			sQGram.clear();
 
 			List<QGram> pQGram = positionalQGram.get( i );
 			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
