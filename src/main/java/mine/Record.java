@@ -489,7 +489,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			}
 
 			if( minIndex > range ) {
-				break;
+				continue;
 			}
 
 			// try {
@@ -740,7 +740,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	public LongIntPair getMinimumIndexSize( List<Map<QGram, CountEntry>> positionalQCountMap, long threshold, int q ) {
 
 		boolean isLarge = this.getEstNumRecords() > threshold;
-		List<Set<QGram>> positionalQGrams = this.getQGrams( q, Integer.MAX_VALUE );
+		List<Set<QGram>> positionalQGrams = this.getQGrams( q );
 
 		int minIndex = 0;
 		long minCount = Long.MAX_VALUE;

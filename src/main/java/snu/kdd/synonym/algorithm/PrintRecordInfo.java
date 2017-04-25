@@ -107,7 +107,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 		startTime = System.nanoTime();
 		// System.out.println( "Range " + range[ 0 ] );
-		twogram = r.get2GramsWithBound( 3 );
+		twogram = r.get2GramsWithBound( 5 );
 		for( int i = 0; i < twogram.size(); i++ ) {
 			System.out.println( "Position " + i );
 			for( IntegerPair pair : twogram.get( i ) ) {
@@ -129,7 +129,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 		System.out.println( "\nQgramWithBound" );
 		startTime = System.nanoTime();
-		qgrams = r.getQGrams( 2, 3 );
+		qgrams = r.getQGrams( 2, 5 );
 		for( int i = 0; i < qgrams.size(); i++ ) {
 			System.out.println( "Position " + i );
 			for( QGram qgram : qgrams.get( i ) ) {
