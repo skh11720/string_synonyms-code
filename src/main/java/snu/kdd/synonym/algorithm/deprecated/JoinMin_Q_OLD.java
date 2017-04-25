@@ -350,10 +350,13 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 		long count = 0;
 		long equivComparisons = 0;
+		long getQGramTime = 0;
 		// long lastTokenFiltered = 0;
 		for( Record recS : tableIndexed ) {
 			// List<Set<IntegerPair>> available2Grams = exact2grams ? recS.getExact2Grams() : recS.get2Grams();
+			long qgramStart = System.nanoTime();
 			List<Set<IntegerPair>> available2Grams = recS.get2Grams();
+			getQGramTime += System.nanoTime() - qgramStart;
 			// for (Set<IntegerPair> set : available2Grams)
 			// totalSigCount += set.size();
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
@@ -436,6 +439,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 
 		if( writeResult ) {
 			// stat.add( "Last Token Filtered", lastTokenFiltered );
+			stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
 			stat.add( "Stat_Equiv_Comparison", equivComparisons );
 			stat.add( "Stat_getQGramCount", Record.get2GramCount );
 		}
