@@ -27,6 +27,7 @@ import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
+import tools.DEBUG;
 
 public class Driver {
 
@@ -101,7 +102,12 @@ public class Driver {
 		AlgorithmName algorithm = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
-		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
+
+		StopWatch initializeTime = null;
+		if( DEBUG.ON ) {
+			initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
+		}
+
 		switch( algorithm ) {
 		case JoinNaive1:
 			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
@@ -153,7 +159,10 @@ public class Driver {
 		if( dataOnePath.equals( dataTwoPath ) ) {
 			alg.setSelfJoin( true );
 		}
-		initializeTime.stopAndAdd( stat );
+
+		if( DEBUG.ON ) {
+			initializeTime.stopAndAdd( stat );
+		}
 
 		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
 

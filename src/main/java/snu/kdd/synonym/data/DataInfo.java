@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import snu.kdd.synonym.tools.JSONUtil;
+import tools.DEBUG;
 
 public class DataInfo {
 	// int avgRecLen;
@@ -74,7 +75,11 @@ public class DataInfo {
 		String dataOne = dataOnePath.substring( dataOnePath.lastIndexOf( "/" ) + 1 );
 		String oneInfoFilePath = dataOnePath.substring( 0, dataOnePath.lastIndexOf( "/" ) + 1 ) + dataOne + "_info.json";
 		name = dataOne;
-		System.out.println( "One info file path " + oneInfoFilePath );
+
+		if( DEBUG.ON ) {
+			System.out.println( "One info file path " + oneInfoFilePath );
+		}
+
 		oneInfoFile = new File( oneInfoFilePath );
 		infoFileOneExists = oneInfoFile.exists();
 		if( infoFileOneExists ) {
@@ -90,7 +95,10 @@ public class DataInfo {
 			twoInfoFile = new File( twoInfoFilePath );
 			infoFileTwoExists = twoInfoFile.exists();
 
-			System.out.println( "Two info file path " + twoInfoFilePath );
+			if( DEBUG.ON ) {
+				System.out.println( "Two info file path " + twoInfoFilePath );
+			}
+
 			if( infoFileTwoExists ) {
 				loadFromFile( twoInfoFile, 2 );
 			}
@@ -108,7 +116,11 @@ public class DataInfo {
 		String rule = rulePath.substring( rulePath.lastIndexOf( "/" ) + 1 );
 		String ruleInfoFilePath = rulePath.substring( 0, rulePath.lastIndexOf( "/" ) + 1 ) + rule + "_ruleinfo.json";
 		ruleInfoFile = new File( ruleInfoFilePath );
-		System.out.println( "Rule info file path " + ruleInfoFilePath );
+
+		if( DEBUG.ON ) {
+			System.out.println( "Rule info file path " + ruleInfoFilePath );
+		}
+
 		infoRuleExists = ruleInfoFile.exists();
 		if( infoRuleExists ) {
 			loadFromFile( ruleInfoFile, 0 );

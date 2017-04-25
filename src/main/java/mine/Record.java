@@ -12,6 +12,7 @@ import java.util.Stack;
 import sigmod13.RecordInterface;
 import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.algorithm.JoinHybridOpt_Q.CountEntry;
+import tools.DEBUG;
 import tools.IntegerPair;
 import tools.IntegerSet;
 import tools.LongIntPair;
@@ -300,7 +301,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				}
 
 				if( size < 0 ) {
-					System.out.println( "Too many generalizations: " + id + " size " + size );
+					if( DEBUG.ON ) {
+						System.out.println( "Too many generalizations: " + id + " size " + size );
+					}
+
 					return;
 				}
 			}

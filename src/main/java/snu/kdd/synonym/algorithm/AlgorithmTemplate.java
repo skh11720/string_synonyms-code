@@ -348,7 +348,10 @@ public abstract class AlgorithmTemplate {
 		stat.addPrimary( "Final Result Size", rslt.size() );
 
 		try {
-			System.out.println( "Writing results " + rslt.size() );
+			if( DEBUG.ON ) {
+				System.out.println( "Writing results " + rslt.size() );
+			}
+
 			final BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
 			for( final IntegerPair ip : rslt ) {
 				final Record r = tableSearched.get( ip.i1 );
