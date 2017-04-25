@@ -412,7 +412,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 		int maxLength = getMaxLength();
 		for( int i = 0; i < maxLength; i++ ) {
-			positionalQGram.add( new WYK_HashSet<QGram>( maxRuleLength * maxRuleLength * 2 ) );
+			positionalQGram.add( new WYK_HashSet<QGram>( maxRuleLength * maxRuleLength * 10 ) );
 		}
 
 		for( int t = 0; t < tokens.length; t++ ) {
@@ -488,7 +488,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 		int maxLength = Integer.min( range, getMaxLength() );
 		for( int i = 0; i < maxLength; i++ ) {
-			positionalQGram.add( new WYK_HashSet<QGram>( maxRuleLength * maxRuleLength * 2 ) );
+			positionalQGram.add( new WYK_HashSet<QGram>( maxRuleLength * maxRuleLength * 10 ) );
 		}
 
 		for( int t = 0; t < tokens.length; t++ ) {
