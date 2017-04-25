@@ -650,7 +650,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			}
 		}
 
-		if( !writeResult ) {
+		if( writeResult ) {
 			if( DEBUG.ON ) {
 				stepTime.resetAndStart( "Result_4_Write_Time" );
 			}
