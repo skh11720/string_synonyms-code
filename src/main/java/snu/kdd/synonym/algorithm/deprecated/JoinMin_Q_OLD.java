@@ -1,5 +1,7 @@
 package snu.kdd.synonym.algorithm.deprecated;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,7 +93,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 		long countIndexingTime = 0;
 
 		try {
-			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est_old.txt" ) );
 
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableIndexed ) {
@@ -134,11 +136,11 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 
 				// TODO DEBUG
 
-				// bw.write( recordTime + " " );
-				// bw.write( available2Grams.size() + " " );
-				// bw.write( "\n" );
+				bw.write( recordMidTime - recordStartTime + " " );
+				bw.write( available2Grams.size() + " " );
+				bw.write( "\n" );
 			}
-			// bw.close();
+			bw.close();
 
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
