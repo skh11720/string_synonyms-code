@@ -734,17 +734,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			int iterMinIndex = min + i;
 			int iterMaxIndex = max + i;
 
-			boolean used = false;
-
 			for( int p = iterMinIndex; p <= iterMaxIndex; p++ ) {
 				if( p >= range ) {
-					if( !used ) {
-						System.out.println( p + " " + iterMinIndex + " " + min + " " + i + " enumerated "
-								+ qgram.toStrString( Record.strlist ) );
-					}
 					break;
 				}
-				used = true;
 
 				qgrams.get( p ).add( qgram );
 			}
