@@ -162,7 +162,7 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 	@SuppressWarnings( "unchecked" )
 	private void clear( int size ) {
 		array = (Entry[]) Array.newInstance( Entry.class, size );
-		size = 0;
+		this.size = 0;
 		nextExpandSize = (int) ( array.length * factor );
 
 	}
