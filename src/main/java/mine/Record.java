@@ -399,20 +399,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public List<Set<QGram>> getQGrams( int q ) {
 		getQGramCount++;
-		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
-
-		// DEBUG
-		int maxRuleLength = 0;
-		for( int i = 0; i < tokens.length; i++ ) {
-			int length = applicableRules[ i ].length;
-			if( maxRuleLength < length ) {
-				maxRuleLength = length;
-			}
-		}
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
 
 		int maxLength = getMaxLength();
 		for( int i = 0; i < maxLength; i++ ) {
-			positionalQGram.add( new WYK_HashSet<QGram>( maxRuleLength * maxRuleLength * 3 ) );
+			positionalQGram.add( new ArrayList<QGram>( 30 ) );
 		}
 
 		for( int t = 0; t < tokens.length; t++ ) {
@@ -470,7 +461,16 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			// }
 		}
 
-		return positionalQGram;
+		List<Set<QGram>> resultQGram = new ArrayList<Set<QGram>>();
+
+		for( int i = 0; i < positionalQGram.size(); i++ ) {
+			List<QGram> pQGram = positionalQGram.get( i );
+			Set<QGram> sQGram = new WYK_HashSet<QGram>( pQGram.size() * 2 );
+			sQGram.addAll( pQGram );
+			resultQGram.add( sQGram );
+		}
+
+		return resultQGram;
 	}
 
 	public List<Set<QGram>> getQGrams( int q, int range ) {
@@ -618,7 +618,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			return bothSize;
 		}
 
-		public void generateQGram( int q, List<Set<QGram>> qgrams, int min, int max ) {
+		public void generateQGram( int q, List<List<QGram>> qgrams, int min, int max ) {
 			if( !eof && length < q ) {
 				return;
 			}
@@ -761,7 +761,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			}
 		}
 
-		public void addQGram( QGram qgram, List<Set<QGram>> qgrams, int min, int max, int i ) {
+		public void addQGram( QGram qgram, List<List<QGram>> qgrams, int min, int max, int i ) {
 			int iterMinIndex = min + i;
 			int iterMaxIndex = max + i;
 
