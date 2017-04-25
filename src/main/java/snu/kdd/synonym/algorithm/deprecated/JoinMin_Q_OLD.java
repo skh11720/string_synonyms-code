@@ -3,7 +3,6 @@ package snu.kdd.synonym.algorithm.deprecated;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -367,7 +366,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 					continue;
 				}
 
-				Set<Record> candidates = new HashSet<Record>();
+				Set<Record> candidates = new WYK_HashSet<Record>();
 
 				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					List<Record> tree = curridx.get( twogram );
@@ -661,6 +660,9 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_4_Write_Time" );
 			this.writeResult( rslt );
 			stepTime.stopAndAdd( stat );
+
+			stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
+			stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
 		}
 
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {

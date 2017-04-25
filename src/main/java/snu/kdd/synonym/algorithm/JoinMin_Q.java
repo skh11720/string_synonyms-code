@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -138,7 +137,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				bw.write( qgramCount + " " );
 				bw.write( "\n" );
 			}
-			// bw.close();
+			bw.close();
 
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
@@ -365,7 +364,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					continue;
 				}
 
-				Set<Record> candidates = new HashSet<Record>();
+				Set<Record> candidates = new WYK_HashSet<Record>();
 
 				for( QGram qgram : availableQGrams.get( i ) ) {
 					List<Record> tree = curridx.get( qgram );
@@ -530,6 +529,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_4_Write_Time" );
 			this.writeResult( rslt );
 			stepTime.stopAndAdd( stat );
+
+			stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
+			stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
 		}
 
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {

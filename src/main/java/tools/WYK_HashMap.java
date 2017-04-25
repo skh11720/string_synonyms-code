@@ -27,6 +27,9 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	public long putRemovedCount = 0;
 	public long removeFoundCount = 0;
 
+	public static long resize = 0;
+	public static long collision = 0;
+
 	public WYK_HashMap() {
 		this( 10 );
 	}
@@ -60,6 +63,7 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 			if( curr.hash == hash && curr.key.equals( key ) )
 				return true;
 			curr = curr.next;
+			collision++;
 		}
 		return false;
 	}
@@ -226,6 +230,8 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	@SuppressWarnings( "unchecked" )
 	private void resize( int nextSize ) {
 		resizeCount++;
+		resize++;
+
 		nextSize = Math.max( 10, nextSize );
 		Entry[] temp = array;
 		array = (Entry[]) Array.newInstance( Entry.class, nextSize );
