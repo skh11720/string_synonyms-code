@@ -663,6 +663,9 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 
 			stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
 			stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
+
+			stat.add( "Counter_Final_2_MapCollision", WYK_HashMap.collision );
+			stat.add( "Counter_Final_2_MapResize", WYK_HashMap.resize );
 		}
 
 		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
