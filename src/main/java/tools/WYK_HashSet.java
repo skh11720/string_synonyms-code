@@ -169,6 +169,11 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 	private void clear( int size ) {
 		array = (Entry[]) Array.newInstance( Entry.class, size );
 		this.size = 0;
+
+		if( DEBUG ) {
+			System.out.println( "ArrayLength " + array.length + " " + factor + " " + (int) ( array.length * factor ) );
+		}
+
 		nextExpandSize = (int) ( array.length * factor );
 
 	}
