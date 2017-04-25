@@ -463,12 +463,20 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
 
-		for( int i = 0; i < positionalQGram.size(); i++ ) {
-			List<QGram> pQGram = positionalQGram.get( i );
+		int maxSize = 0;
+		for( int i = 0; i < maxLength; i++ ) {
+			int size = positionalQGram.get( i ).size();
+			if( maxSize < size ) {
+				maxSize = size;
+			}
+		}
 
-			// WYK_HashSet.DEBUG = true;
-			// System.out.println( "Add " + pQGram.size() );
-			Set<QGram> sQGram = new WYK_HashSet<QGram>( pQGram.size() * 2 + 2 );
+		Set<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
+
+		for( int i = 0; i < positionalQGram.size(); i++ ) {
+			resultQGram.clear();
+
+			List<QGram> pQGram = positionalQGram.get( i );
 			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
 
 			for( QGram qgram : pQGram ) {
@@ -477,8 +485,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					lQGram.add( qgram );
 				}
 			}
-
-			// WYK_HashSet.DEBUG = false;
 
 			resultQGram.add( lQGram );
 		}
@@ -566,12 +572,20 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
 
+		int maxSize = 0;
+		for( int i = 0; i < maxLength; i++ ) {
+			int size = positionalQGram.get( i ).size();
+			if( maxSize < size ) {
+				maxSize = size;
+			}
+		}
+
+		Set<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
+
 		for( int i = 0; i < positionalQGram.size(); i++ ) {
+			sQGram.clear();
 			List<QGram> pQGram = positionalQGram.get( i );
 
-			// WYK_HashSet.DEBUG = true;
-			// System.out.println( "Add " + pQGram.size() );
-			Set<QGram> sQGram = new WYK_HashSet<QGram>( pQGram.size() * 2 + 2 );
 			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
 
 			for( QGram qgram : pQGram ) {
@@ -580,8 +594,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					lQGram.add( qgram );
 				}
 			}
-
-			// WYK_HashSet.DEBUG = false;
 
 			resultQGram.add( lQGram );
 		}
