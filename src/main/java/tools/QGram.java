@@ -3,7 +3,9 @@ package tools;
 import java.util.List;
 
 public class QGram {
-	private static final int SHIFT_VAL = 314159;
+	// private static final int SHIFT_VAL = 314159;
+	// private static final int SHIFT_VAL = 199807;
+	private static final int SHIFT_VAL = 314161;
 
 	public int hash = -1;
 
