@@ -468,7 +468,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 			WYK_HashSet.DEBUG = true;
 			System.out.println( "Add " + pQGram.size() );
-			Set<QGram> sQGram = new WYK_HashSet<QGram>( pQGram.size() * 2 + 1 );
+			Set<QGram> sQGram = new WYK_HashSet<QGram>( pQGram.size() * 2 + 2 );
 
 			for( QGram qgram : pQGram ) {
 				sQGram.add( qgram );
