@@ -16,6 +16,7 @@ import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import tools.DEBUG;
 import tools.IntegerPair;
 import tools.QGram;
 import tools.Rule;
@@ -96,10 +97,19 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableSearched ) {
-				long recordStartTime = System.nanoTime();
+				long recordStartTime = 0;
+				long recordMidTime = 0;
+
+				if( DEBUG.ON ) {
+					recordStartTime = System.nanoTime();
+				}
+
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
-				long recordMidTime = System.nanoTime();
-				getQGramTime += recordMidTime - recordStartTime;
+
+				if( DEBUG.ON ) {
+					recordMidTime = System.nanoTime();
+					getQGramTime += recordMidTime - recordStartTime;
+				}
 
 				int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
@@ -130,7 +140,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 				totalSigCount += qgramCount;
 
-				countIndexingTime += System.nanoTime() - recordMidTime;
+				if( DEBUG.ON ) {
+					countIndexingTime += System.nanoTime() - recordMidTime;
+				}
 
 				// TODO DEBUG
 				bw.write( recordMidTime - recordStartTime + " " );
@@ -141,23 +153,29 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
-			System.out.println( "Step 1 Time : " + buildIndexTime1 );
-			System.out.println( "Gamma (buildTime / signature): " + gamma );
 
-			if( writeResult ) {
-				stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
-				stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
+			if( DEBUG.ON ) {
+				System.out.println( "Step 1 Time : " + buildIndexTime1 );
+				System.out.println( "Gamma (buildTime / signature): " + gamma );
 
-				stat.add( "Est_Index_1_Index_Count_Time", buildIndexTime1 );
-				stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( gamma ) );
+				if( writeResult ) {
+					stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
+					stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
+
+					stat.add( "Est_Index_1_Index_Count_Time", buildIndexTime1 );
+					stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( gamma ) );
+				}
 			}
 
 			starttime = System.nanoTime();
-			if( writeResult ) {
-				stepTime.stopAndAdd( stat );
-			}
-			else {
-				stepTime.stop();
+
+			if( DEBUG.ON ) {
+				if( writeResult ) {
+					stepTime.stopAndAdd( stat );
+				}
+				else {
+					stepTime.stop();
+				}
 			}
 
 			stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
@@ -242,99 +260,105 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 				indexedElements += availableQGrams.get( minIdx ).size();
 			}
-			System.out.println( "Idx size : " + indexedElements );
-			System.out.println( "Predict : " + predictCount );
 
 			buildIndexTime2 = System.nanoTime() - starttime;
-			System.out.println( "Step 2 Time : " + buildIndexTime2 );
 			delta = ( (double) buildIndexTime2 ) / totalSigCount;
-			System.out.println( "Delta (index build / signature ): " + delta );
 
-			if( writeResult ) {
-				stat.add( "Stat_JoinMin_Index_Size", indexedElements );
-				stat.add( "Stat_Predicted_Comparison", predictCount );
+			if( DEBUG.ON ) {
+				System.out.println( "Idx size : " + indexedElements );
+				System.out.println( "Predict : " + predictCount );
+				System.out.println( "Step 2 Time : " + buildIndexTime2 );
+				System.out.println( "Delta (index build / signature ): " + delta );
 
-				stat.add( "Est_Index_2_Build_Index_Time", buildIndexTime2 );
-				stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( delta ) );
-				stepTime.stopAndAdd( stat );
-			}
-			else {
-				stepTime.stop();
-			}
+				if( writeResult ) {
+					stat.add( "Stat_JoinMin_Index_Size", indexedElements );
+					stat.add( "Stat_Predicted_Comparison", predictCount );
 
-			stepTime.resetAndStart( "Result_3_3_Statistic Time" );
-			int sum = 0;
-			int ones = 0;
-			long count = 0;
-			///// Statistics
-			for( Map<QGram, List<Record>> curridx : idx.values() ) {
-				WYK_HashMap<QGram, List<Record>> tmp = (WYK_HashMap<QGram, List<Record>>) curridx;
-				if( sum == 0 ) {
-					tmp.printStat();
+					stat.add( "Est_Index_2_Build_Index_Time", buildIndexTime2 );
+					stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( delta ) );
+					stepTime.stopAndAdd( stat );
+				}
+				else {
+					stepTime.stop();
 				}
 
-				for( List<Record> list : curridx.values() ) {
-					if( list.size() == 1 ) {
-						++ones;
-						continue;
+				stepTime.resetAndStart( "Result_3_3_Statistic Time" );
+
+				int sum = 0;
+				int ones = 0;
+				long count = 0;
+				///// Statistics
+				for( Map<QGram, List<Record>> curridx : idx.values() ) {
+					WYK_HashMap<QGram, List<Record>> tmp = (WYK_HashMap<QGram, List<Record>>) curridx;
+					if( sum == 0 ) {
+						tmp.printStat();
 					}
-					sum++;
-					count += list.size();
-				}
-			}
-			System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
-			System.out.println( "iIdx size(all) : " + ( count + ones ) );
-			System.out.println( "Rec per idx(all) : " + ( (double) ( count + ones ) ) / ( sum + ones ) );
-			System.out.println( "key-value pairs(w/o 1) : " + sum );
-			System.out.println( "iIdx size(w/o 1) : " + count );
-			System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-			System.out.println( "2Gram retrieval: " + Record.exectime );
-			///// Statistics
-			sum = 0;
-			ones = 0;
-			count = 0;
-			for( Map<QGram, WrappedInteger> curridx : invokes ) {
-				WYK_HashMap<QGram, WrappedInteger> tmp = (WYK_HashMap<QGram, WrappedInteger>) curridx;
-				if( sum == 0 ) {
-					tmp.printStat();
-				}
-				for( Entry<QGram, WrappedInteger> list : curridx.entrySet() ) {
-					if( list.getValue().get() == 1 ) {
-						++ones;
-						continue;
+
+					for( List<Record> list : curridx.values() ) {
+						if( list.size() == 1 ) {
+							++ones;
+							continue;
+						}
+						sum++;
+						count += list.size();
 					}
-					sum++;
-					count += list.getValue().get();
 				}
-			}
-			System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
-			System.out.println( "iIdx size(all) : " + ( count + ones ) );
-			System.out.println( "Rec per idx(all) : " + ( (double) ( count + ones ) ) / ( sum + ones ) );
-			System.out.println( "key-value pairs(w/o 1) : " + sum );
-			System.out.println( "iIdx size(w/o 1) : " + count );
-			System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-			if( writeResult ) {
-				stepTime.stopAndAdd( stat );
-			}
-			else {
-				stepTime.stop();
+				System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
+				System.out.println( "iIdx size(all) : " + ( count + ones ) );
+				System.out.println( "Rec per idx(all) : " + ( (double) ( count + ones ) ) / ( sum + ones ) );
+				System.out.println( "key-value pairs(w/o 1) : " + sum );
+				System.out.println( "iIdx size(w/o 1) : " + count );
+				System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+				System.out.println( "2Gram retrieval: " + Record.exectime );
+				///// Statistics
+				sum = 0;
+				ones = 0;
+				count = 0;
+				for( Map<QGram, WrappedInteger> curridx : invokes ) {
+					WYK_HashMap<QGram, WrappedInteger> tmp = (WYK_HashMap<QGram, WrappedInteger>) curridx;
+					if( sum == 0 ) {
+						tmp.printStat();
+					}
+					for( Entry<QGram, WrappedInteger> list : curridx.entrySet() ) {
+						if( list.getValue().get() == 1 ) {
+							++ones;
+							continue;
+						}
+						sum++;
+						count += list.getValue().get();
+					}
+				}
+				System.out.println( "key-value pairs(all) : " + ( sum + ones ) );
+				System.out.println( "iIdx size(all) : " + ( count + ones ) );
+				System.out.println( "Rec per idx(all) : " + ( (double) ( count + ones ) ) / ( sum + ones ) );
+				System.out.println( "key-value pairs(w/o 1) : " + sum );
+				System.out.println( "iIdx size(w/o 1) : " + count );
+				System.out.println( "Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+				if( writeResult ) {
+					stepTime.stopAndAdd( stat );
+				}
+				else {
+					stepTime.stop();
+				}
 			}
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
 		}
 
-		if( writeResult ) {
-			stat.add( "Counter_Index_0_Get_Count", idx.getCount );
-			stat.add( "Counter_Index_0_GetIter_Count", idx.getIterCount );
-			stat.add( "Counter_Index_0_Put_Count", idx.putCount );
-			stat.add( "Counter_Index_0_Resize_Count", idx.resizeCount );
-			stat.add( "Counter_Index_0_Remove_Count", idx.removeCount );
-			stat.add( "Counter_Index_0_RemoveIter_Count", idx.removeIterCount );
-			stat.add( "Counter_Index_0_PutRemoved_Count", idx.putRemovedCount );
-			stat.add( "Counter_Index_0_RemoveFound_Count", idx.removeFoundCount );
-			stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
-			stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
+		if( DEBUG.ON ) {
+			if( writeResult ) {
+				stat.add( "Counter_Index_0_Get_Count", idx.getCount );
+				stat.add( "Counter_Index_0_GetIter_Count", idx.getIterCount );
+				stat.add( "Counter_Index_0_Put_Count", idx.putCount );
+				stat.add( "Counter_Index_0_Resize_Count", idx.resizeCount );
+				stat.add( "Counter_Index_0_Remove_Count", idx.removeCount );
+				stat.add( "Counter_Index_0_RemoveIter_Count", idx.removeIterCount );
+				stat.add( "Counter_Index_0_PutRemoved_Count", idx.putRemovedCount );
+				stat.add( "Counter_Index_0_RemoveFound_Count", idx.removeFoundCount );
+				stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
+				stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
+			}
 		}
 	}
 
@@ -485,19 +509,30 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	}
 
 	public void run() {
-		long startTime = System.nanoTime();
+		long startTime = 0;
+
+		if( DEBUG.ON ) {
+			startTime = System.nanoTime();
+		}
+
 		preprocess( compact, maxIndex, useAutomata );
-		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		System.out.print( "Preprocess finished time " + ( System.nanoTime() - startTime ) );
+
+		if( DEBUG.ON ) {
+			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			System.out.print( "Preprocess finished time " + ( System.nanoTime() - startTime ) );
+		}
 
 		runWithoutPreprocess( true );
 	}
 
 	public void runWithoutPreprocess( boolean writeResult ) {
 		// Retrieve statistics
-		statistics();
+		StopWatch stepTime = null;
+		if( DEBUG.ON ) {
+			statistics();
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		}
 
 		try {
 			buildIndex( writeResult );
@@ -506,45 +541,44 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			e.printStackTrace();
 		}
 
-		if( writeResult ) {
-			stepTime.stopAndAdd( stat );
-			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		}
-		else {
-			stepTime.stop();
+		if( DEBUG.ON ) {
+			if( writeResult ) {
+				stepTime.stopAndAdd( stat );
+				stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			}
+			else {
+				stepTime.stop();
+			}
+			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		}
 
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		Collection<IntegerPair> rslt = join( writeResult );
-		if( writeResult ) {
-			stepTime.stopAndAdd( stat );
-		}
-		else {
-			stepTime.stop();
-		}
 
-		System.out.println( "Result Size: " + rslt.size() );
-		if( !writeResult ) {
-			stat.add( "Sample_JoinMin_Result", rslt.size() );
-		}
-		else {
-			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		if( DEBUG.ON ) {
+			if( writeResult ) {
+				stepTime.stopAndAdd( stat );
+			}
+			else {
+				stepTime.stop();
+			}
 
-			stepTime.resetAndStart( "Result_4_Write_Time" );
-			this.writeResult( rslt );
-			stepTime.stopAndAdd( stat );
+			System.out.println( "Result Size: " + rslt.size() );
+			if( !writeResult ) {
+				stat.add( "Sample_JoinMin_Result", rslt.size() );
+			}
+			else {
+				stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 
-			stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
-			stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
+				stepTime.resetAndStart( "Result_4_Write_Time" );
+				this.writeResult( rslt );
+				stepTime.stopAndAdd( stat );
 
-			stat.add( "Counter_Final_2_MapCollision", WYK_HashMap.collision );
-			stat.add( "Counter_Final_2_MapResize", WYK_HashMap.resize );
-		}
+				stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
+				stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
 
-		if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
-			System.out.println( "Prev entry count : " + TopDownHashSetSinglePath_DS_SharedPrefix.prevEntryCount );
-			System.out.println(
-					"Effective prev entry count : " + TopDownHashSetSinglePath_DS_SharedPrefix.effectivePrevEntryCount );
+				stat.add( "Counter_Final_2_MapCollision", WYK_HashMap.collision );
+				stat.add( "Counter_Final_2_MapResize", WYK_HashMap.resize );
+			}
 		}
 	}
 
@@ -572,17 +606,23 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		qSize = params.getQGramSize();
 		// exact2grams = params.isExact2Grams();
 
-		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		StopWatch preprocessTime = null;
+		if( DEBUG.ON ) {
+			preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		}
 		preprocess( compact, maxIndex, useAutomata );
-		preprocessTime.stop();
 
-		StopWatch processTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		if( DEBUG.ON ) {
+			preprocessTime.stopAndAdd( stat );
+
+			preprocessTime.resetAndStart( "Result_3_Run_Time" );
+		}
+
 		runWithoutPreprocess( true );
-		processTime.stop();
 
-		Validator.printStats();
-
-		stat.add( preprocessTime );
-		stat.add( processTime );
+		if( DEBUG.ON ) {
+			preprocessTime.stopAndAdd( stat );
+			Validator.printStats();
+		}
 	}
 }
