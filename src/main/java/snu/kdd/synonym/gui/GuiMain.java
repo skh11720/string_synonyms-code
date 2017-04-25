@@ -17,7 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
-import snu.kdd.synonym.algorithm.PrintRecordInfo;
+import snu.kdd.synonym.algorithm.CheckQGram;
 import snu.kdd.synonym.data.DataInfo;
 
 public class GuiMain extends JFrame {
@@ -159,8 +159,8 @@ public class GuiMain extends JFrame {
 			String arg = ruleFilePath + " " + dataFilePath + " " + dataFilePath + " output " + id + " false";
 
 			try {
-				PrintRecordInfo.main( arg.split( " " ) );
-				// CheckQGram.main( arg.split( " " ) );
+				// PrintRecordInfo.main( arg.split( " " ) );
+				CheckQGram.main( arg.split( " " ) );
 			}
 			catch( IOException e ) {
 				e.printStackTrace();
