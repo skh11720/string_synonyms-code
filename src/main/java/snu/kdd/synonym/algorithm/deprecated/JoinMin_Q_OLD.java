@@ -111,11 +111,12 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 					invokesInitialized = searchmax;
 				}
 
+				long qgramCount = 0;
 				for( int i = 0; i < searchmax; ++i ) {
 					Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
 
 					Set<IntegerPair> available = available2Grams.get( i );
-					totalSigCount += available.size();
+					qgramCount += available.size();
 					for( IntegerPair twogram : available ) {
 						WrappedInteger count = curridx_invokes.get( twogram );
 						if( count == null ) {
@@ -131,13 +132,14 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 						}
 					}
 				}
+				totalSigCount += qgramCount;
 
 				countIndexingTime += System.nanoTime() - recordMidTime;
 
 				// TODO DEBUG
 
 				bw.write( recordMidTime - recordStartTime + " " );
-				bw.write( available2Grams.size() + " " );
+				bw.write( qgramCount + " " );
 				bw.write( "\n" );
 			}
 			bw.close();
