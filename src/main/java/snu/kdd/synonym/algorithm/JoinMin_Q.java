@@ -369,8 +369,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		long starttime = System.nanoTime() - Record.exectime;
 		// long totalSigCount = 0;
 
-		long appliedRules_sum = 0;
 		long count = 0;
+
+		long appliedRules_sum = 0;
 		long equivComparisons = 0;
 		long getQGramTime = 0;
 		// long lastTokenFiltered = 0;
