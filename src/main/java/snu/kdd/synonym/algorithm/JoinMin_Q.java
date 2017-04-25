@@ -1,5 +1,7 @@
 package snu.kdd.synonym.algorithm;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,7 +93,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		long countIndexingTime = 0;
 
 		try {
-			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableSearched ) {
@@ -106,11 +108,12 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
 				}
 
+				long qgramCount = 0;
 				for( int i = 0; i < searchmax; ++i ) {
 					Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
 
 					Set<QGram> available = availableQGrams.get( i );
-					totalSigCount += available.size();
+					qgramCount += available.size();
 					for( QGram qgram : available ) {
 						WrappedInteger count = curridx_invokes.get( qgram );
 						if( count == null ) {
@@ -126,14 +129,14 @@ public class JoinMin_Q extends AlgorithmTemplate {
 						}
 					}
 				}
+				totalSigCount += qgramCount;
 
 				countIndexingTime += System.nanoTime() - recordMidTime;
 
 				// TODO DEBUG
-
-				// bw.write( recordTime + " " );
-				// bw.write( available2Grams.size() + " " );
-				// bw.write( "\n" );
+				bw.write( recordMidTime - recordStartTime + " " );
+				bw.write( qgramCount + " " );
+				bw.write( "\n" );
 			}
 			// bw.close();
 
