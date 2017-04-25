@@ -484,20 +484,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public List<Set<QGram>> getQGrams( int q, int range ) {
 		getQGramCount++;
-		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
-
-		// DEBUG
-		int maxRuleLength = 0;
-		for( int i = 0; i < tokens.length; i++ ) {
-			int length = applicableRules[ i ].length;
-			if( maxRuleLength < length ) {
-				maxRuleLength = length;
-			}
-		}
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
 
 		int maxLength = Integer.min( range, getMaxLength() );
 		for( int i = 0; i < maxLength; i++ ) {
-			positionalQGram.add( new WYK_HashSet<QGram>( maxRuleLength * maxRuleLength * 3 ) );
+			positionalQGram.add( new ArrayList<QGram>( 30 ) );
 		}
 
 		for( int t = 0; t < tokens.length; t++ ) {
@@ -569,7 +560,25 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			// }
 		}
 
-		return positionalQGram;
+		List<Set<QGram>> resultQGram = new ArrayList<Set<QGram>>();
+
+		for( int i = 0; i < positionalQGram.size(); i++ ) {
+			List<QGram> pQGram = positionalQGram.get( i );
+
+			// WYK_HashSet.DEBUG = true;
+			// System.out.println( "Add " + pQGram.size() );
+			Set<QGram> sQGram = new WYK_HashSet<QGram>( pQGram.size() * 2 + 2 );
+
+			for( QGram qgram : pQGram ) {
+				sQGram.add( qgram );
+			}
+
+			// WYK_HashSet.DEBUG = false;
+
+			resultQGram.add( sQGram );
+		}
+
+		return resultQGram;
 	}
 
 	public static class QGramEntry {
@@ -690,7 +699,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 
 		// range : inclusive
-		public void generateQGram( int q, List<Set<QGram>> qgrams, int min, int max, int range ) {
+		public void generateQGram( int q, List<List<QGram>> qgrams, int min, int max, int range ) {
 			if( !eof && length < q ) {
 				return;
 			}
@@ -757,7 +766,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			builtPosition = i;
 		}
 
-		public void addQGram( QGram qgram, List<Set<QGram>> qgrams, int min, int max, int i, int range ) {
+		public void addQGram( QGram qgram, List<List<QGram>> qgrams, int min, int max, int i, int range ) {
 			int iterMinIndex = min + i;
 			int iterMaxIndex = max + i;
 
