@@ -397,13 +397,13 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public static long exectime = 0;
 
-	public List<Set<QGram>> getQGrams( int q ) {
+	public List<List<QGram>> getQGrams( int q ) {
 		getQGramCount++;
-		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
 
 		int maxLength = getMaxLength();
 		for( int i = 0; i < maxLength; i++ ) {
-			positionalQGram.add( new WYK_HashSet<QGram>( 30 ) );
+			positionalQGram.add( new ArrayList<QGram>( 30 ) );
 		}
 
 		for( int t = 0; t < tokens.length; t++ ) {
@@ -591,7 +591,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			return bothSize;
 		}
 
-		public void generateQGram( int q, List<Set<QGram>> qgrams, int min, int max ) {
+		public void generateQGram( int q, List<List<QGram>> qgrams, int min, int max ) {
 			if( !eof && length < q ) {
 				return;
 			}
@@ -727,7 +727,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			}
 		}
 
-		public void addQGram( QGram qgram, List<Set<QGram>> qgrams, int min, int max, int i ) {
+		public void addQGram( QGram qgram, List<List<QGram>> qgrams, int min, int max, int i ) {
 			int iterMinIndex = min + i;
 			int iterMaxIndex = max + i;
 
@@ -740,13 +740,13 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	public LongIntPair getMinimumIndexSize( List<Map<QGram, CountEntry>> positionalQCountMap, long threshold, int q ) {
 
 		boolean isLarge = this.getEstNumRecords() > threshold;
-		List<Set<QGram>> positionalQGrams = this.getQGrams( q );
+		List<List<QGram>> positionalQGrams = this.getQGrams( q );
 
 		int minIndex = 0;
 		long minCount = Long.MAX_VALUE;
 
 		for( int i = 0; i < positionalQGrams.size(); i++ ) {
-			Set<QGram> qgrams = positionalQGrams.get( i );
+			List<QGram> qgrams = positionalQGrams.get( i );
 			Map<QGram, CountEntry> currentCountMap = positionalQCountMap.get( i );
 
 			long count = 0;

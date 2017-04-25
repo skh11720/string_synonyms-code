@@ -96,7 +96,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 			for( Record rec : tableSearched ) {
 				long recordStartTime = System.nanoTime();
-				List<Set<QGram>> availableQGrams = rec.getQGrams( qSize );
+				List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 				long recordMidTime = System.nanoTime();
 				getQGramTime += recordMidTime - recordStartTime;
 
@@ -109,7 +109,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				for( int i = 0; i < searchmax; ++i ) {
 					Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
 
-					Set<QGram> available = availableQGrams.get( i );
+					List<QGram> available = availableQGrams.get( i );
 					totalSigCount += available.size();
 					for( QGram qgram : available ) {
 						WrappedInteger count = curridx_invokes.get( qgram );
@@ -351,7 +351,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		for( Record recS : tableSearched ) {
 
 			long qgramStart = System.nanoTime();
-			List<Set<QGram>> availableQGrams = recS.getQGrams( qSize );
+			List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
 			getQGramTime += System.nanoTime() - qgramStart;
 
 			int[] range = recS.getCandidateLengths( recS.size() - 1 );
