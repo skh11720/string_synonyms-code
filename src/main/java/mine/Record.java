@@ -401,9 +401,18 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		getQGramCount++;
 		List<Set<QGram>> positionalQGram = new ArrayList<Set<QGram>>();
 
+		// DEBUG
+		int maxRuleLength = 0;
+		for( int i = 0; i < tokens.length; i++ ) {
+			int length = applicableRules[ i ].length;
+			if( maxRuleLength < length ) {
+				maxRuleLength = length;
+			}
+		}
+
 		int maxLength = getMaxLength();
 		for( int i = 0; i < maxLength; i++ ) {
-			positionalQGram.add( new WYK_HashSet<QGram>( 30 ) );
+			positionalQGram.add( new WYK_HashSet<QGram>( maxRuleLength * maxRuleLength * 2 ) );
 		}
 
 		for( int t = 0; t < tokens.length; t++ ) {
