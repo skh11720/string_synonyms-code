@@ -487,6 +487,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	public void run() {
 		long startTime = System.nanoTime();
 		preprocess( compact, maxIndex, useAutomata );
+		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		System.out.print( "Preprocess finished time " + ( System.nanoTime() - startTime ) );
 
 		runWithoutPreprocess( true );
@@ -507,6 +508,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
+			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		}
 		else {
 			stepTime.stop();
@@ -526,6 +528,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stat.add( "Sample_JoinMin_Result", rslt.size() );
 		}
 		else {
+			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+
 			stepTime.resetAndStart( "Result_4_Write_Time" );
 			this.writeResult( rslt );
 			stepTime.stopAndAdd( stat );
