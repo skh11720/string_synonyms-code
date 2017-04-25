@@ -14,6 +14,8 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 	public static long collision = 0;
 	public static long resize = 0;
 
+	public static boolean DEBUG = false;
+
 	public WYK_HashSet() {
 		factor = 0.5;
 		clear( 10 );
@@ -120,6 +122,10 @@ public class WYK_HashSet<T> implements Iterable<T>, Collection<T>, Set<T> {
 	 */
 	@SuppressWarnings( "unchecked" )
 	private void resize( int nextSize ) {
+		if( DEBUG ) {
+			System.out.println( "DEBUG: resize from " + nextExpandSize + "(" + size + ") to " + nextSize );
+		}
+
 		resize++;
 
 		nextSize = Math.max( 10, nextSize );
