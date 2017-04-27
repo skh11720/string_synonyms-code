@@ -885,6 +885,16 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Sample
 		Random rn = new Random( 0 );
 
+		int smallTableSize = Integer.min( tableSearched.size(), tableIndexed.size() );
+
+		if( sampleratio * smallTableSize < 1 ) {
+			// too low sample ratio
+			System.out.println( "Too low sample ratio" );
+			System.err.println( "Too low sample ratio" );
+
+			sampleratio = 10.0 / smallTableSize;
+		}
+
 		List<Record> sampleTlist = new ArrayList<Record>();
 		List<Record> sampleSlist = new ArrayList<Record>();
 		for( Record r : tableSearched ) {
