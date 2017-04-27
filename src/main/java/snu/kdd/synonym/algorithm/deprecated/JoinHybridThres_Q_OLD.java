@@ -1,4 +1,4 @@
-package snu.kdd.synonym.algorithm;
+package snu.kdd.synonym.algorithm.deprecated;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,13 +13,13 @@ import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
+import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.IntegerComparator;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
-import tools.QGram;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
@@ -34,7 +34,8 @@ import wrapped.WrappedInteger;
  * if two strings are equivalent.
  * Utilize only one index by sorting records according to their expanded size.
  */
-public class JoinHybridThres_Q extends AlgorithmTemplate {
+@Deprecated
+public class JoinHybridThres_Q_OLD extends AlgorithmTemplate {
 	static boolean useAutomata = true;
 	static boolean skipChecking = false;
 	static int maxIndex = Integer.MAX_VALUE;
@@ -42,8 +43,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	static int joinThreshold;
 	static boolean singleside;
 	static Validator checker;
-
-	private int qSize = -1;
 
 	// long lastTokenFiltered = 0;
 
@@ -58,7 +57,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	 * Index of the records in R for the strings in S which has more than
 	 * 'threshold' 1-expandable strings
 	 */
-	List<Map<QGram, List<Record>>> idx;
+	List<Map<IntegerPair, List<Record>>> idx;
 
 	/**
 	 * List of 1-expandable strings
@@ -66,7 +65,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	Map<Record, List<Integer>> setR;
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinHybridThres_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
+	public JoinHybridThres_Q_OLD( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
 			throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 		idComparator = new RecordIDComparator();
@@ -80,27 +79,27 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long SL_TH_elements = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		List<Map<QGram, WrappedInteger>> invokes = new ArrayList<Map<QGram, WrappedInteger>>();
+		List<Map<IntegerPair, WrappedInteger>> invokes = new ArrayList<Map<IntegerPair, WrappedInteger>>();
 		int invokesInitialized = 0;
-		idx = new ArrayList<Map<QGram, List<Record>>>();
+		idx = new ArrayList<Map<IntegerPair, List<Record>>>();
 
 		// Actually, tableT
 		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
 
 		for( Record rec : tableIndexed ) {
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
-			int searchmax = Math.min( availableQGrams.size(), maxIndex );
+			List<Set<IntegerPair>> available2Grams = rec.get2Grams();
+			int searchmax = Math.min( available2Grams.size(), maxIndex );
 
 			for( int i = invokesInitialized; i < searchmax; i++ ) {
-				invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
+				invokes.add( new WYK_HashMap<IntegerPair, WrappedInteger>() );
 				invokesInitialized = searchmax;
 			}
 
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
+				Map<IntegerPair, WrappedInteger> curridx_invokes = invokes.get( i );
 
-				List<QGram> available = availableQGrams.get( i );
-				for( QGram twogram : available ) {
+				Set<IntegerPair> available = available2Grams.get( i );
+				for( IntegerPair twogram : available ) {
 					WrappedInteger count = curridx_invokes.get( twogram );
 					if( count == null ) {
 						curridx_invokes.put( twogram, ONE );
@@ -130,21 +129,21 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			int searchmax = Math.min( range[ 0 ], maxIndex );
 			int[] invokearr = new int[ searchmax ];
 
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
+			List<Set<IntegerPair>> available2Grams = rec.get2GramsWithBound( searchmax );
 
 			for( int i = idx.size(); i < searchmax; i++ ) {
-				idx.add( new WYK_HashMap<QGram, List<Record>>() );
+				idx.add( new WYK_HashMap<IntegerPair, List<Record>>() );
 			}
 
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, WrappedInteger> curr_invokes = invokes.get( i );
+				Map<IntegerPair, WrappedInteger> curr_invokes = invokes.get( i );
 				if( curr_invokes == null ) {
 					minIdx = i;
 					minInvokes = 0;
 					break;
 				}
 				int invoke = 0;
-				for( QGram twogram : availableQGrams.get( i ) ) {
+				for( IntegerPair twogram : available2Grams.get( i ) ) {
 					WrappedInteger count = curr_invokes.get( twogram );
 					if( count != null )
 						invoke += count.get();
@@ -156,9 +155,9 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				invokearr[ i ] = invoke;
 			}
 
-			Map<QGram, List<Record>> curr_idx = idx.get( minIdx );
+			Map<IntegerPair, List<Record>> curr_idx = idx.get( minIdx );
 
-			for( QGram twogram : availableQGrams.get( minIdx ) ) {
+			for( IntegerPair twogram : available2Grams.get( minIdx ) ) {
 				List<Record> list = curr_idx.get( twogram );
 				if( list == null ) {
 					list = new ArrayList<Record>();
@@ -166,7 +165,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				}
 				list.add( rec );
 			}
-			elements += availableQGrams.get( minIdx ).size();
+			elements += available2Grams.get( minIdx ).size();
 		}
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
@@ -180,7 +179,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	}
 
 	private void clearJoinMinIndex() {
-		for( Map<QGram, List<Record>> map : idx )
+		for( Map<IntegerPair, List<Record>> map : idx )
 			map.clear();
 		idx.clear();
 	}
@@ -191,14 +190,10 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		setR = new HashMap<Record, List<Integer>>();
 		for( int i = 0; i < tableSearched.size(); ++i ) {
 			Record rec = tableSearched.get( i );
-
 			assert ( rec != null );
-
-			if( rec.getEstNumRecords() > joinThreshold ) {
+			if( rec.getEstNumRecords() > joinThreshold )
 				continue;
-			}
-
-			List<Record> expanded = rec.expandAll();
+			List<Record> expanded = rec.expandAll( ruletrie );
 			assert ( expanded.size() <= joinThreshold );
 			assert ( !expanded.isEmpty() );
 			for( Record expR : expanded ) {
@@ -282,12 +277,12 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private int searchEquivsByDynamicIndex( Record s, List<Map<QGram, List<Record>>> idx, List<IntegerPair> rslt ) {
+	private int searchEquivsByDynamicIndex( Record s, List<Map<IntegerPair, List<Record>>> idx, List<IntegerPair> rslt ) {
 		boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
 
 		int appliedRules_sum = 0;
 		int idxSize = idx.size();
-		List<List<QGram>> available2Grams = s.getQGrams( qSize, idxSize );
+		List<Set<IntegerPair>> available2Grams = s.get2GramsWithBound( idxSize );
 		int[] range = s.getCandidateLengths( s.size() - 1 );
 		int searchmax = Math.min( available2Grams.size(), maxIndex );
 		for( int i = 0; i < searchmax; ++i ) {
@@ -295,10 +290,10 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				break;
 			}
 
-			Map<QGram, List<Record>> curr_idx = idx.get( i );
+			Map<IntegerPair, List<Record>> curr_idx = idx.get( i );
 
 			Set<Record> candidates = new HashSet<Record>();
-			for( QGram twogram : available2Grams.get( i ) ) {
+			for( IntegerPair twogram : available2Grams.get( i ) ) {
 				List<Record> tree = curr_idx.get( twogram );
 
 				if( tree == null ) {
@@ -338,7 +333,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 	private void searchEquivsByNaive1Expansion( Record s, List<IntegerPair> rslt ) {
 		ArrayList<List<Integer>> candidates = new ArrayList<List<Integer>>();
-		ArrayList<Record> expanded = s.expandAll();
+		ArrayList<Record> expanded = s.expandAll( ruletrie );
 		for( Record exp : expanded ) {
 			List<Integer> list = setR.get( exp );
 			if( list == null ) {
@@ -448,7 +443,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "1.1";
+		return "1.0";
 	}
 
 	@Override

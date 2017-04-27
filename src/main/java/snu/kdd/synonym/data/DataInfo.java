@@ -233,6 +233,11 @@ public class DataInfo {
 			br = new BufferedReader( new FileReader( file ) );
 			line = br.readLine();
 
+			if( line == null ) {
+				br.close();
+				return;
+			}
+
 			int count = Integer.parseInt( line.replaceAll( "\"", "" ).split( " " )[ 1 ] );
 
 			if( type == 0 ) {
