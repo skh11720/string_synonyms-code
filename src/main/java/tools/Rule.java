@@ -13,7 +13,7 @@ public class Rule implements Comparable<Rule> {
 
 	public Rule( String str, Map<String, Integer> str2int ) {
 		int hash = 0;
-		String[] pstr = str.split( "," );
+		String[] pstr = str.split( ", " );
 		String[] fpstr = pstr[ 0 ].trim().split( " " );
 		from = new int[ fpstr.length ];
 		for( int i = 0; i < fpstr.length; ++i ) {
