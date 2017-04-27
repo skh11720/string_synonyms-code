@@ -62,12 +62,8 @@ public class CheckQGram extends AlgorithmTemplate {
 		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
 	}
 
+	@SuppressWarnings( "deprecation" )
 	public void printInfo( int id ) {
-		// TODO: DEBUG
-		// for( int i = 0; i < tableSearched.size(); i++ ) {
-		// System.out.println( tableSearched.get( i ) );
-		// }
-
 		int error = 0;
 		for( Record r : tableSearched ) {
 			// System.out.println( "Checking " + r.getID() );

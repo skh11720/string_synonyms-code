@@ -851,6 +851,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	/**
 	 * Returns all available (actually, superset) 2 grams
 	 */
+	@Deprecated
 	public List<Set<IntegerPair>> get2Grams() {
 		get2GramCount++;
 		long start = System.nanoTime();
@@ -872,6 +873,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	// maxStartPos exclusive
+	@Deprecated
 	public List<Set<IntegerPair>> get2GramsWithBound( int maxStartPos ) {
 		get2GramCount++;
 		long start = System.nanoTime();

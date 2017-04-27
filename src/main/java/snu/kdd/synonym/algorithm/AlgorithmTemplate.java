@@ -25,7 +25,7 @@ import tools.Rule;
 import tools.Rule_ACAutomata;
 
 public abstract class AlgorithmTemplate {
-	protected String outputfile;
+	public String outputfile;
 
 	// Rule
 	protected List<Rule> rulelist;

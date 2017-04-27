@@ -13,7 +13,6 @@ import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.CheckQGram;
-import snu.kdd.synonym.algorithm.JoinHybridOpt;
 import snu.kdd.synonym.algorithm.JoinHybridOpt_Q;
 import snu.kdd.synonym.algorithm.JoinHybridThres_Q;
 import snu.kdd.synonym.algorithm.JoinMH_QL;
@@ -129,7 +128,7 @@ public class Driver {
 			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case JoinHybridOpt:
-			alg = new JoinHybridOpt( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case SIJoin:
 			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );

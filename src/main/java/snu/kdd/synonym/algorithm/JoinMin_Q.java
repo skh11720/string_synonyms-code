@@ -82,6 +82,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		this.stat = stat;
 	}
 
+	@SuppressWarnings( "unused" )
 	private void buildIndex( boolean writeResult ) throws IOException {
 		long starttime = System.nanoTime();
 		long totalSigCount = 0;
@@ -370,6 +371,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 	}
 
+	@SuppressWarnings( "unused" )
 	private List<IntegerPair> join( boolean writeResult ) {
 		BufferedWriter bw = null;
 

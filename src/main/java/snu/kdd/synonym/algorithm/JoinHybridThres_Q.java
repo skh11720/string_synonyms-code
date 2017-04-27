@@ -469,6 +469,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		joinThreshold = params.getJoinThreshold();
 		singleside = params.isSingleside();
 		checker = params.getValidator();
+		qSize = params.getQGramSize();
 
 		this.run();
 		Validator.printStats();
