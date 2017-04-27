@@ -32,6 +32,11 @@ echo RUN_JoinHybridThres $RUN_JoinHybridThres
 echo RUN_DEBUG $RUN_DEBUG
 echo "--------------------------------------"
 
+if [[ $# -ne 14 ]];
+then
+	echo 'illegal number of parameters'
+else
+
 PREV="None"
 if [ $# -ne 14 ];
 then
@@ -190,4 +195,5 @@ else
 	fi
 
 	./upload.sh
+fi
 fi
