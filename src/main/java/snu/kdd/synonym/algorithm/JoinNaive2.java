@@ -30,6 +30,7 @@ public class JoinNaive2 extends AlgorithmTemplate {
 			rec2idx.put( tableSearched.get( i ), i );
 	}
 
+	@SuppressWarnings( "deprecation" )
 	private List<IntegerPair> join() {
 		automata = new Rule_ACAutomata( getRulelist() );
 		ruletrie = new RuleTrie( getRulelist() );

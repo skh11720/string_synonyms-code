@@ -40,6 +40,7 @@ import wrapped.WrappedInteger;
  * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
  * index in order to find the best execution time.
  */
+@Deprecated
 public class JoinHybridOpt_Q_OLD extends AlgorithmTemplate {
 	static boolean useAutomata = true;
 	static boolean skipChecking = false;
