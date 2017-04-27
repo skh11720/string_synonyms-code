@@ -293,7 +293,7 @@ public class JoinMH_QL_OLD extends AlgorithmTemplate {
 				for( Record recR : candidates ) {
 					int compare = checker.isEqual( recR, recS );
 					if( compare >= 0 ) {
-						rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
+						rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 					}
 				}
 				equivTime.stopQuiet();
