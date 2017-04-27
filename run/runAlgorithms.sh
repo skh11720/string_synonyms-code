@@ -148,7 +148,7 @@ else
 				./compare.sh $PREV JoinHybridOpt_Q
 			done
 		done
-		PREV="JoinHybridOpt"
+		PREV="JoinHybridOpt_Q"
 	fi
 
 	#JoinHybridThres
