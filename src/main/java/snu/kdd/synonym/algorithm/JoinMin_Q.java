@@ -481,7 +481,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 					joinTime += duration;
 					if( compare >= 0 ) {
-						rslt.add( new IntegerPair( recR.getID(), recS.getID() ) );
+						rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 						appliedRules_sum += compare;
 					}
 				}
