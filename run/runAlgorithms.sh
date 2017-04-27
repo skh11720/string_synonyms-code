@@ -93,7 +93,7 @@ else
 	#JoinMin
 	if [[ $RUN_JoinMin == "True" ]];
 	then
-		for q in {1..3..1}; do
+		for q in {2..2..1}; do
 			date
 			./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project
 			#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
@@ -101,8 +101,8 @@ else
 			date
 
 			./compare.sh $PREV JoinMin_Q
-			PREV="JoinMin_Q"
 		done
+		PREV="JoinMin_Q"
 
 		./joinMin_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
 		./compare.sh $PREV JoinMin_Q_OLD
@@ -111,15 +111,19 @@ else
 	#JoinMH
 	if [[ $RUN_JoinMH == "True" ]];
 	then
-		for j in {1..3..1}; do
-		#for j in {2..2..1}; do
-			for q in {1..3..1}; do
+		#for j in {1..3..1}; do
+		for j in {2..2..1}; do
+			for q in {2..2..1};do
+			#for q in {1..3..1}; do
 
 				date
 				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project
 				date
 				./compare.sh $PREV JoinMH_QL
 			done
+
+			./joinMH_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $project
+			./compare.sh $PREV JoinMH_QL_OLD
 		done
 		PREV="JoinMH_QL"
 	fi

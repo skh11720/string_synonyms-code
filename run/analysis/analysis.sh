@@ -1,6 +1,6 @@
 #!/bin/bash
 
 
-cp Debug_est.txt est_debug.txt
-python corrcoef_joinmin.py
+cp JoinMin_Join_Debug.txt est_debug.txt
+python corrcoef_joinmin_q.py
 gnuplot scatter.plot
