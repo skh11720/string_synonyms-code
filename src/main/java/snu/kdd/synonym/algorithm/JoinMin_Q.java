@@ -105,13 +105,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				long recordStartTime = 0;
 				long recordMidTime = 0;
 
-				if( DEBUG.ON ) {
+				if( DEBUG.JoinMinON ) {
 					recordStartTime = System.nanoTime();
 				}
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 
-				if( DEBUG.ON ) {
+				if( DEBUG.JoinMinON ) {
 					recordMidTime = System.nanoTime();
 					getQGramTime += recordMidTime - recordStartTime;
 				}
@@ -145,7 +145,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 				}
 				totalSigCount += qgramCount;
 
-				if( DEBUG.ON ) {
+				if( DEBUG.JoinMinON ) {
 					countIndexingTime += System.nanoTime() - recordMidTime;
 				}
 
@@ -163,7 +163,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			buildIndexTime1 = System.nanoTime() - starttime;
 			gamma = ( (double) buildIndexTime1 ) / totalSigCount;
 
-			if( DEBUG.ON ) {
+			if( DEBUG.JoinMinON ) {
 				System.out.println( "Step 1 Time : " + buildIndexTime1 );
 				System.out.println( "Gamma (buildTime / signature): " + gamma );
 
@@ -178,7 +178,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 			starttime = System.nanoTime();
 
-			if( DEBUG.ON ) {
+			if( DEBUG.JoinMinON ) {
 				if( writeResult ) {
 					stepTime.stopAndAdd( stat );
 				}
@@ -273,7 +273,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			buildIndexTime2 = System.nanoTime() - starttime;
 			delta = ( (double) buildIndexTime2 ) / totalSigCount;
 
-			if( DEBUG.ON ) {
+			if( DEBUG.JoinMinON ) {
 				System.out.println( "Idx size : " + indexedElements );
 				System.out.println( "Predict : " + predictCount );
 				System.out.println( "Step 2 Time : " + buildIndexTime2 );
@@ -355,7 +355,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			e.printStackTrace();
 		}
 
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			if( writeResult ) {
 				stat.add( "Counter_Index_0_Get_Count", idx.getCount );
 				stat.add( "Counter_Index_0_GetIter_Count", idx.getIterCount );
@@ -400,13 +400,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			long joinStartTime = 0;
 			long qgramCount = 0;
 
-			if( DEBUG.ON ) {
+			if( DEBUG.JoinMinON ) {
 				qgramStartTime = System.nanoTime();
 			}
 
 			List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
 
-			if( DEBUG.ON ) {
+			if( DEBUG.JoinMinON ) {
 				getQGramTime += System.nanoTime() - qgramStartTime;
 			}
 
@@ -459,7 +459,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					long reccalls = 0;
 					long entryiters = 0;
 
-					if( DEBUG.ON ) {
+					if( DEBUG.JoinMinON ) {
 						ruleiters = Validator.niterrules;
 						reccalls = Validator.recursivecalls;
 						entryiters = Validator.niterentry;
@@ -469,7 +469,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 					int compare = checker.isEqual( recR, recS );
 					long duration = System.nanoTime() - st;
 
-					if( DEBUG.ON ) {
+					if( DEBUG.JoinMinON ) {
 						ruleiters = Validator.niterrules - ruleiters;
 						reccalls = Validator.recursivecalls - reccalls;
 						entryiters = Validator.niterentry - entryiters;
@@ -516,7 +516,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 		epsilon = joinTime / count;
 
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
 			if( checker.getClass() == TopDownHashSetSinglePath_DS_SharedPrefix.class ) {
 				System.out.println( "Prefix freq : " + freq );
@@ -592,13 +592,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	public void run() {
 		long startTime = 0;
 
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			startTime = System.nanoTime();
 		}
 
 		preprocess( compact, maxIndex, useAutomata );
 
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 			System.out.print( "Preprocess finished time " + ( System.nanoTime() - startTime ) );
 		}
@@ -609,7 +609,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	public void runWithoutPreprocess( boolean writeResult ) {
 		// Retrieve statistics
 		StopWatch stepTime = null;
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			statistics();
 
 			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
@@ -622,7 +622,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			e.printStackTrace();
 		}
 
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			if( writeResult ) {
 				stepTime.stopAndAdd( stat );
 				stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
@@ -635,7 +635,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		Collection<IntegerPair> rslt = join( writeResult );
 
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			if( writeResult ) {
 				stepTime.stopAndAdd( stat );
 				stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
@@ -653,13 +653,13 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 
 		if( writeResult ) {
-			if( DEBUG.ON ) {
+			if( DEBUG.JoinMinON ) {
 				stepTime.resetAndStart( "Result_4_Write_Time" );
 			}
 
 			this.writeResult( rslt );
 
-			if( DEBUG.ON ) {
+			if( DEBUG.JoinMinON ) {
 				stepTime.stopAndAdd( stat );
 			}
 		}
@@ -690,12 +690,12 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		// exact2grams = params.isExact2Grams();
 
 		StopWatch preprocessTime = null;
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		}
 		preprocess( compact, maxIndex, useAutomata );
 
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			preprocessTime.stopAndAdd( stat );
 
 			preprocessTime.resetAndStart( "Result_3_Run_Time" );
@@ -703,7 +703,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 
 		runWithoutPreprocess( true );
 
-		if( DEBUG.ON ) {
+		if( DEBUG.JoinMinON ) {
 			preprocessTime.stopAndAdd( stat );
 			Validator.printStats();
 		}

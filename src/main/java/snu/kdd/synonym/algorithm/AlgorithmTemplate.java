@@ -173,7 +173,7 @@ public abstract class AlgorithmTemplate {
 		// builds an automata of the set of rules
 		StopWatch preprocessTime = null;
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
 		}
 
@@ -185,12 +185,12 @@ public abstract class AlgorithmTemplate {
 		for( final Record rec : tableSearched ) {
 			rec.preprocessRules( automata, computeAutomataPerRecord );
 
-			if( DEBUG.ON ) {
+			if( DEBUG.AlgorithmON ) {
 				applicableRules += rec.getNumApplicableRules();
 			}
 		}
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			preprocessTime.stopQuietAndAdd( stat );
 			stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
 			stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / tableSearched.size() ) );
@@ -202,7 +202,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessLengths();
 		}
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			preprocessTime.stopQuietAndAdd( stat );
 
 			preprocessTime.resetAndStart( "Result_2_3_Preprocess est record time" );
@@ -212,7 +212,7 @@ public abstract class AlgorithmTemplate {
 		for( final Record rec : tableSearched ) {
 			rec.preprocessEstimatedRecords();
 
-			if( DEBUG.ON ) {
+			if( DEBUG.AlgorithmON ) {
 				long est = rec.getEstimatedEquiv();
 
 				if( maxTSize < est ) {
@@ -221,26 +221,26 @@ public abstract class AlgorithmTemplate {
 			}
 		}
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			stat.add( "Stat_maximum Size of Table T", maxTSize );
 
 			preprocessTime.stopQuietAndAdd( stat );
 		}
 
 		if( !compact ) {
-			if( DEBUG.ON ) {
+			if( DEBUG.AlgorithmON ) {
 				preprocessTime.resetAndStart( "Result_2_4_Preprocess token time" );
 			}
 			for( final Record rec : tableSearched ) {
 				rec.preprocessAvailableTokens( maxIndex );
 			}
 
-			if( DEBUG.ON ) {
+			if( DEBUG.AlgorithmON ) {
 				preprocessTime.stopQuietAndAdd( stat );
 			}
 		}
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			preprocessTime.resetAndStart( "Result_2_5_Preprocess early pruning time" );
 		}
 
@@ -249,7 +249,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessSuffixApplicableRules();
 		}
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			preprocessTime.stopQuietAndAdd( stat );
 
 			// Preprocess each records in S
@@ -270,7 +270,7 @@ public abstract class AlgorithmTemplate {
 			rec.preprocessSearchRanges();
 			rec.preprocessSuffixApplicableRules();
 
-			if( DEBUG.ON ) {
+			if( DEBUG.AlgorithmON ) {
 				applicableRules += rec.getNumApplicableRules();
 
 				long est = rec.getEstimatedEquiv();
@@ -279,7 +279,7 @@ public abstract class AlgorithmTemplate {
 				}
 			}
 		}
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			stat.add( "Stat_maximum Size of Table S", maxSSize );
 			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
 
@@ -348,7 +348,7 @@ public abstract class AlgorithmTemplate {
 		stat.addPrimary( "Final Result Size", rslt.size() );
 
 		try {
-			if( DEBUG.ON ) {
+			if( DEBUG.AlgorithmON ) {
 				System.out.println( "Writing results " + rslt.size() );
 			}
 

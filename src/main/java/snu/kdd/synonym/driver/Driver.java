@@ -103,7 +103,7 @@ public class Driver {
 		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
 
 		StopWatch initializeTime = null;
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
 		}
 
@@ -159,7 +159,7 @@ public class Driver {
 			alg.setSelfJoin( true );
 		}
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			initializeTime.stopAndAdd( stat );
 		}
 

@@ -304,7 +304,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				}
 
 				if( size < 0 ) {
-					if( DEBUG.ON ) {
+					if( DEBUG.AlgorithmON ) {
 						System.out.println( "Too many generalizations: " + id + " size " + size );
 					}
 

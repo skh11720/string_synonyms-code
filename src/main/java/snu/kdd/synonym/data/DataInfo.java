@@ -76,7 +76,7 @@ public class DataInfo {
 		String oneInfoFilePath = dataOnePath.substring( 0, dataOnePath.lastIndexOf( "/" ) + 1 ) + dataOne + "_info.json";
 		name = dataOne;
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			System.out.println( "One info file path " + oneInfoFilePath );
 		}
 
@@ -95,7 +95,7 @@ public class DataInfo {
 			twoInfoFile = new File( twoInfoFilePath );
 			infoFileTwoExists = twoInfoFile.exists();
 
-			if( DEBUG.ON ) {
+			if( DEBUG.AlgorithmON ) {
 				System.out.println( "Two info file path " + twoInfoFilePath );
 			}
 
@@ -117,7 +117,7 @@ public class DataInfo {
 		String ruleInfoFilePath = rulePath.substring( 0, rulePath.lastIndexOf( "/" ) + 1 ) + rule + "_ruleinfo.json";
 		ruleInfoFile = new File( ruleInfoFilePath );
 
-		if( DEBUG.ON ) {
+		if( DEBUG.AlgorithmON ) {
 			System.out.println( "Rule info file path " + ruleInfoFilePath );
 		}
 
