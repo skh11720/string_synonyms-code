@@ -136,15 +136,17 @@ else
 		#samplings=( 0.01 )
 		samplings=( 0.001 0.003 0.01 0.03 )
 		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
-		for sampling in "${samplings[@]}"; do
-			date
-			./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
+		for q in {2..2..1}; do
+			for sampling in "${samplings[@]}"; do
+				date
+				./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $q $project
 
-			#echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling
-			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logHybrid2GramWithOptTheta3_$sampling; }
-			date
+				#echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling
+				#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logHybrid2GramWithOptTheta3_$sampling; }
+				date
 
-			./compare.sh $PREV JoinHybridOpt
+				./compare.sh $PREV JoinHybridOpt
+			done
 		done
 		PREV="JoinHybridOpt"
 	fi
@@ -155,15 +157,17 @@ else
 		#thresholds=( 170 )
 		thresholds=( 3 10 30 100 )
 		#thresholds=( 3 10 30 100 300 1000 )
-		for threshold in "${thresholds[@]}"; do
-			date
-			./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $project
+		for q in {2..2..1}; do
+			for threshold in "${thresholds[@]}"; do
+				date
+				./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $q $project
 
-			#echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold
-			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold > $dir"/"logHybrid2GramA3_$threshold; }
-			date
+				#echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold
+				#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold > $dir"/"logHybrid2GramA3_$threshold; }
+				date
 
-			./compare.sh $PREV JoinHybridThres_Q
+				./compare.sh $PREV JoinHybridThres_Q
+			done
 		done
 		PREV="JoinHybridThres_Q"
 	fi
