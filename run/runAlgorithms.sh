@@ -32,6 +32,11 @@ echo RUN_JoinHybridThres $RUN_JoinHybridThres
 echo RUN_DEBUG $RUN_DEBUG
 echo "--------------------------------------"
 
+if [[ $# -ne 14 ]];
+then
+	echo 'illegal number of parameters'
+else
+
 PREV="None"
 if [ $# -ne 14 ];
 then
@@ -145,10 +150,10 @@ else
 				#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logHybrid2GramWithOptTheta3_$sampling; }
 				date
 
-				./compare.sh $PREV JoinHybridOpt
+				./compare.sh $PREV JoinHybridOpt_Q
 			done
 		done
-		PREV="JoinHybridOpt"
+		PREV="JoinHybridOpt_Q"
 	fi
 
 	#JoinHybridThres
@@ -190,4 +195,5 @@ else
 	fi
 
 	./upload.sh
+fi
 fi
