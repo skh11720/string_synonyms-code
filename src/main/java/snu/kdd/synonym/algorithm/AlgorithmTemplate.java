@@ -76,7 +76,7 @@ public abstract class AlgorithmTemplate {
 		String line;
 		while( ( line = br.readLine() ) != null ) {
 			ruleCount++;
-			final String[] pstr = line.split( "(,| |\t)+" );
+			final String[] pstr = line.split( "(, | |\t)+" );
 			for( final String str : pstr ) {
 				getID( str );
 			}
