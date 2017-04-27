@@ -21,6 +21,7 @@ public class WrappedInteger implements Comparable<WrappedInteger> {
 		--i;
 	}
 
+	@Override
 	public int compareTo( WrappedInteger o ) {
 		return Integer.compare( i, o.i );
 	}
@@ -31,6 +32,9 @@ public class WrappedInteger implements Comparable<WrappedInteger> {
 
 	@Override
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
 		return ( o.getClass() == WrappedInteger.class ) && ( i == ( (WrappedInteger) o ).i );
 	}
 

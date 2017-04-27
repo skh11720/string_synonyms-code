@@ -28,7 +28,7 @@ public abstract class Algorithm {
 	protected List<Rule> rulelist;
 
 	// Stat container
-	protected StatContainer stat = null;
+	protected StatContainer stat;
 
 	public abstract String getVersion();
 
@@ -192,11 +192,5 @@ public abstract class Algorithm {
 			strlist.add( str );
 		}
 		return str2int.getInt( str );
-	}
-
-	public void printStat() {
-		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
-		stat.printResult();
-		System.out.println( "==============" + this.getName().replaceAll( ".", "=" ) + "====================" );
 	}
 }

@@ -17,8 +17,12 @@ public class Pair<T extends Comparable<T>> implements Comparable<Pair<T>> {
 		hash = rec1.hashCode() + rec2.hashCode() ^ 0x1f1f1f1f;
 	}
 
+	@Override
 	@SuppressWarnings( "unchecked" )
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
 		Pair<T> sirp = (Pair<T>) o;
 		if( hash != sirp.hash )
 			return false;
@@ -27,6 +31,7 @@ public class Pair<T extends Comparable<T>> implements Comparable<Pair<T>> {
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
 		return hash;
 	}

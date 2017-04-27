@@ -152,7 +152,7 @@ public class Parameters {
 	int joinThreshold = Integer.MAX_VALUE;
 	double sampleratio = 0.01;
 	Validator validator;
-	String[] remainingArgs;
+	// String[] remainingArgs;
 
 	String inputX;
 	String inputY;
@@ -201,10 +201,6 @@ public class Parameters {
 
 	public Validator getValidator() {
 		return validator;
-	}
-
-	public String[] getRemainingArgs() {
-		return remainingArgs;
 	}
 
 	public String getInputX() {

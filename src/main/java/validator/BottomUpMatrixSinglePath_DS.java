@@ -29,6 +29,9 @@ public class BottomUpMatrixSinglePath_DS extends Validator {
 
 		@Override
 		public boolean equals( Object o ) {
+			if( o == null ) {
+				return false;
+			}
 			if( o.getClass() != Submatch.class )
 				return false;
 			Submatch os = (Submatch) o;
@@ -77,6 +80,7 @@ public class BottomUpMatrixSinglePath_DS extends Validator {
 		}
 	}
 
+	@Override
 	public int isEqual( Record x, Record y ) {
 		++checked;
 		if( areSameString( x, y ) )

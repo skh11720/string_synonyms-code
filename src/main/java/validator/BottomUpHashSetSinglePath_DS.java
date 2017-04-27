@@ -45,6 +45,9 @@ public class BottomUpHashSetSinglePath_DS extends Validator {
 
 		@Override
 		public boolean equals( Object o ) {
+			if( o == null ) {
+				return false;
+			}
 			if( o.getClass() != Submatch.class )
 				return false;
 			Submatch os = (Submatch) o;
@@ -86,6 +89,7 @@ public class BottomUpHashSetSinglePath_DS extends Validator {
 	 */
 	private static HashSet<Submatch> My = new HashSet<Submatch>();
 
+	@Override
 	public int isEqual( Record x, Record y ) {
 		++checked;
 		if( areSameString( x, y ) )

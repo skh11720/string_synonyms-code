@@ -208,12 +208,18 @@ class RuleGainPair {
 		this.rule = rule;
 	}
 
+	@Override
 	public int hashCode() {
 		return rule.hashCode();
 	}
 
+	@Override
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
+
 		RuleGainPair rgp = (RuleGainPair) o;
-		return rule.equals( rgp );
+		return rule.equals( rgp.rule );
 	}
 }

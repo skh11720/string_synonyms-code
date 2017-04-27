@@ -78,7 +78,13 @@ public class Sanitizer {
 			File folder = new File( indir );
 			BufferedWriter bw = new BufferedWriter( new FileWriter( out ) );
 			// Process every file in the given directory
-			for( File file : folder.listFiles() ) {
+			File[] fileList = folder.listFiles();
+			if( fileList == null ) {
+				bw.close();
+				return;
+			}
+
+			for( File file : fileList ) {
 				BufferedReader br = new BufferedReader( new FileReader( file ) );
 				lastfile = file;
 				// Skip the first line since it represents the schema
@@ -96,7 +102,9 @@ public class Sanitizer {
 			e.printStackTrace();
 		}
 		catch( java.lang.ArrayIndexOutOfBoundsException e ) {
-			System.out.println( "Filename: " + lastfile.toString() );
+			if( lastfile != null ) {
+				System.out.println( "Filename: " + lastfile.toString() );
+			}
 			System.out.println( "String: " + laststr );
 			throw e;
 		}

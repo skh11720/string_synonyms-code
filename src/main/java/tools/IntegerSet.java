@@ -265,6 +265,10 @@ public class IntegerSet implements Iterable<Integer>, Set<Integer> {
 
 	@Override
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
+
 		IntegerSet is = (IntegerSet) o;
 		if( is.size != size )
 			return false;
@@ -293,6 +297,7 @@ public class IntegerSet implements Iterable<Integer>, Set<Integer> {
 				next = new Entry( o.next );
 		}
 
+		@Override
 		public String toString() {
 			return Integer.toString( record );
 		}

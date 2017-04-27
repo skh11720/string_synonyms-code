@@ -109,6 +109,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		ruletrie = new RuleTrie( rulelist );
 	}
 
+	@SuppressWarnings( "deprecation" )
 	private void buildJoinMinIndex() throws Exception {
 		Runtime runtime = Runtime.getRuntime();
 
@@ -261,7 +262,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		}
 	}
 
-	@SuppressWarnings( "unused" )
+	@SuppressWarnings( { "unused", "deprecation" } )
 	private void checkLongestIndex() {
 		Comparator<Entry<IntegerPair, WrappedInteger>> cmp = new Comparator<Entry<IntegerPair, WrappedInteger>>() {
 			@Override
@@ -331,8 +332,9 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 
 		long time2 = System.currentTimeMillis();
 		for( Record s : tableS ) {
-			if( s.getEstNumRecords() > joinThreshold )
+			if( s.getEstNumRecords() > joinThreshold ) {
 				appliedRules_sum += searchEquivsByDynamicIndex( s, SL_TH_idx, rslt );
+			}
 		}
 		time2 = System.currentTimeMillis() - time2;
 
@@ -353,6 +355,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		return rslt;
 	}
 
+	@SuppressWarnings( "deprecation" )
 	private int searchEquivsByDynamicIndex( Record s, Map<Integer, Map<IntegerPair, List<Record>>> idx, List<IntegerPair> rslt ) {
 		int appliedRules_sum = 0;
 		List<Set<IntegerPair>> available2Grams = s.get2Grams();
@@ -395,6 +398,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		}
 	}
 
+	@SuppressWarnings( "deprecation" )
 	private void searchEquivsByNaive1Expansion( Record s, List<IntegerPair> rslt ) {
 		ArrayList<List<Integer>> candidates = new ArrayList<List<Integer>>();
 		ArrayList<Record> expanded = s.expandAll( ruletrie );
@@ -589,6 +593,7 @@ public class Hybrid2GramWithOptTheta2 extends Algorithm {
 		System.out.println( "Epsilon : " + epsilon );
 	}
 
+	@SuppressWarnings( "deprecation" )
 	private void findTheta( int max_theta ) {
 		// Find the best threshold
 		long starttime = System.nanoTime();

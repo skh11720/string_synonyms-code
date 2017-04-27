@@ -53,6 +53,10 @@ public class BottomUpQueue_DS extends Validator {
 
 		@Override
 		public boolean equals( Object o ) {
+			if( o == null ) {
+				return false;
+			}
+
 			QueueEntry me = (QueueEntry) o;
 			if( me.idx1 != idx1 || me.idx2 != idx2 )
 				return false;
@@ -72,6 +76,7 @@ public class BottomUpQueue_DS extends Validator {
 	/**
 	 * Returns the number of applied rules if matched. -1 otherwise.
 	 */
+	@Override
 	public int isEqual( Record r, Record t ) {
 		// Increase counter
 		++checked;

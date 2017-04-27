@@ -37,6 +37,9 @@ public class BottomUpMatrix_DS extends Validator {
 
 		@Override
 		public boolean equals( Object o ) {
+			if( o == null ) {
+				return false;
+			}
 			if( o.getClass() != Submatch.class )
 				return false;
 			Submatch os = (Submatch) o;

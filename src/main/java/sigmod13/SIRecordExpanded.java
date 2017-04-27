@@ -22,6 +22,7 @@ public class SIRecordExpanded implements SIRecord.Expanded {
 		expandedTokens = new IntegerSet( rec.expandedTokens );
 	}
 
+	@Override
 	public SIRecord toRecord() {
 		return new SIRecord( this );
 	}
@@ -50,6 +51,9 @@ public class SIRecordExpanded implements SIRecord.Expanded {
 
 	@Override
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
 		SIRecordExpanded sire = (SIRecordExpanded) o;
 		if( hashCode() != sire.hashCode() )
 			return false;

@@ -60,6 +60,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 		applicableRules = emptyRules;
 	}
 
+	@Override
 	public int getID() {
 		return id;
 	}
@@ -150,6 +151,9 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 
 	@Override
 	public boolean equals( Object o ) {
+		if( o == null ) {
+			return false;
+		}
 		return id == ( (SIRecord) o ).id;
 	}
 

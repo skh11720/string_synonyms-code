@@ -60,6 +60,9 @@ public class TopDownHashSetSinglePath_DS_SharedPrefix extends Validator {
 
 		@Override
 		public boolean equals( Object o ) {
+			if( o == null ) {
+				return false;
+			}
 			if( o.getClass() != Submatch.class )
 				return false;
 			Submatch os = (Submatch) o;
@@ -129,6 +132,7 @@ public class TopDownHashSetSinglePath_DS_SharedPrefix extends Validator {
 	private static Record prevX = null;
 	private static Record prevY = null;
 
+	@Override
 	public int isEqual( Record x, Record y ) {
 		++checked;
 		timestamp = System.nanoTime();
