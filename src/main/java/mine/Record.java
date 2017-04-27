@@ -117,10 +117,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public Record( int id, String str, Map<String, Integer> str2int ) {
 		this.id = id;
-		String[] pstr = str.split( "[ |\t]+" );
+		String[] pstr = str.split( "( |\t)+" );
 		tokens = new int[ pstr.length ];
 		for( int i = 0; i < pstr.length; ++i ) {
-			tokens[ i ] = str2int.get( pstr[ i ] );
+			int token = str2int.get( pstr[ i ] );
+			tokens[ i ] = token;
 		}
 	}
 
