@@ -145,7 +145,7 @@ else
 				#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logHybrid2GramWithOptTheta3_$sampling; }
 				date
 
-				./compare.sh $PREV JoinHybridOpt
+				./compare.sh $PREV JoinHybridOpt_Q
 			done
 		done
 		PREV="JoinHybridOpt"
