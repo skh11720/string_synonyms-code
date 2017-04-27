@@ -5,13 +5,14 @@ outputPath=$4
 logdir=$5
 LIBS=$6
 sample=$7
-project=$8
+qsize=$8
+project=$9
 
-ADDITIONAL="-s $sample -compact -v TopDownHashSetSinglePathDS 0"
+ADDITIONAL="-qSize $qsize -s $sample -v TopDownHashSetSinglePathDS 0"
 
 ALG=JoinHybridOpt
 
-if [[ $# -ne 8 ]];
+if [[ $# -ne 9 ]];
 then
 	echo 'illegal number of parameters [$ALG]'
 	echo 1 $1
@@ -22,6 +23,7 @@ then
 	echo 6 $6
 	echo 7 $7
 	echo 8 $8
+	echo 9 $9
 else
 	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG\_$sample
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
