@@ -119,15 +119,17 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		this.id = id;
 		String[] pstr = str.split( "[ |\t]+" );
 		tokens = new int[ pstr.length ];
-		for( int i = 0; i < pstr.length; ++i )
+		for( int i = 0; i < pstr.length; ++i ) {
 			tokens[ i ] = str2int.get( pstr[ i ] );
+		}
 	}
 
 	public Record( Record o ) {
 		id = -1;
 		tokens = new int[ o.tokens.length ];
-		for( int i = 0; i < tokens.length; ++i )
+		for( int i = 0; i < tokens.length; ++i ) {
 			tokens[ i ] = o.tokens[ i ];
+		}
 	}
 
 	public void preprocessRules( Rule_ACAutomata automata, boolean buildtrie ) {

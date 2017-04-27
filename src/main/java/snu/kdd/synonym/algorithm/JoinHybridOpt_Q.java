@@ -923,6 +923,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		joinmininst.maxIndex = maxIndex;
 		joinmininst.compact = compact;
 		JoinMin_Q.checker = checker;
+		joinmininst.qSize = qSize;
 		joinmininst.outputfile = null;
 		try {
 			System.out.println( "Joinmininst run" );
