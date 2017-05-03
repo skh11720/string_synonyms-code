@@ -826,9 +826,9 @@ public class JoinHybridOpt_Q_OLD extends AlgorithmTemplate {
 		catch( Exception e ) {
 			e.printStackTrace();
 		}
-		gamma = joinmininst.gamma;
-		delta = joinmininst.delta;
-		epsilon = joinmininst.epsilon;
+		gamma = joinmininst.getGamma();
+		delta = joinmininst.getDelta();
+		epsilon = joinmininst.getEpsilon();
 		System.out.println( "Bigram computation time : " + Record.exectime );
 		Validator.printStats();
 

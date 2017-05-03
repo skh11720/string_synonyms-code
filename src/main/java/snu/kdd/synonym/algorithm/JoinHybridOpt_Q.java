@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +15,7 @@ import java.util.Set;
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.data.DataInfo;
-import snu.kdd.synonym.tools.IntegerComparator;
+import snu.kdd.synonym.tools.NaiveIndex;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
@@ -133,7 +132,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	/**
 	 * List of 1-expandable strings
 	 */
-	Map<Record, List<Integer>> setR;
+	NaiveIndex naiveIndex;
 	/**
 	 * Estimated number of comparisons
 	 */
@@ -688,38 +687,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	}
 
 	private void buildNaiveIndex() {
-		// Build 1-expanded set for every record in R
-		int count = 0;
-		setR = new HashMap<Record, List<Integer>>();
-		for( int i = 0; i < tableSearched.size(); ++i ) {
-			Record rec = tableSearched.get( i );
-			assert ( rec != null );
-			if( rec.getEstNumRecords() > joinThreshold )
-				continue;
-			List<Record> expanded = rec.expandAll();
-			assert ( expanded.size() <= joinThreshold );
-			assert ( !expanded.isEmpty() );
-			for( Record expR : expanded ) {
-				List<Integer> list = setR.get( expR );
-				if( list == null ) {
-					list = new ArrayList<Integer>( 5 );
-					setR.put( expR, list );
-				}
-
-				if( !list.isEmpty() && list.get( list.size() - 1 ) == i ) {
-					continue;
-				}
-
-				list.add( i );
-			}
-			++count;
-		}
-		long idxsize = 0;
-		for( List<Integer> list : setR.values() ) {
-			idxsize += list.size();
-		}
-		System.out.println( count + " records are 1-expanded and indexed" );
-		System.out.println( "Total index size: " + idxsize );
+		naiveIndex = NaiveIndex.buildIndex( tableIndexed, joinThreshold / 2, stat, joinThreshold, false );
 	}
 
 	private void clearJoinMinIndex() {
@@ -762,7 +730,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				continue;
 			}
 			else {
-				searchEquivsByNaive1Expansion( s, rslt );
+				naiveIndex.joinOneRecord( s, rslt );
 				naiveSearch++;
 			}
 		}
@@ -824,22 +792,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 		}
 		return appliedRules_sum;
-	}
-
-	private void searchEquivsByNaive1Expansion( Record s, List<IntegerPair> rslt ) {
-		ArrayList<List<Integer>> candidates = new ArrayList<List<Integer>>();
-		ArrayList<Record> expanded = s.expandAll();
-		for( Record exp : expanded ) {
-			List<Integer> list = setR.get( exp );
-			if( list == null ) {
-				continue;
-			}
-			candidates.add( list );
-		}
-		List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-		for( Integer idx : union ) {
-			rslt.add( new IntegerPair( idx, s.getID() ) );
-		}
 	}
 
 	public void statistics() {
@@ -943,9 +895,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		catch( Exception e ) {
 			e.printStackTrace();
 		}
-		gamma = joinmininst.gamma;
-		delta = joinmininst.delta;
-		epsilon = joinmininst.epsilon;
+		gamma = joinmininst.getGamma();
+		delta = joinmininst.getDelta();
+		epsilon = joinmininst.getEpsilon();
 		System.out.println( "Bigram computation time : " + Record.exectime );
 		Validator.printStats();
 
