@@ -537,8 +537,8 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
 		naiveinst.threshold = 100;
 		naiveinst.runWithoutPreprocess( false );
-		alpha = naiveinst.alpha;
-		beta = naiveinst.beta;
+		alpha = naiveinst.getAlpha();
+		beta = naiveinst.getBeta();
 
 		// Infer gamma, delta and epsilon
 		JoinMin joinmininst = new JoinMin( this, stat );
