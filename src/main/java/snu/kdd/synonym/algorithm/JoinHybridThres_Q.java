@@ -95,16 +95,16 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		}
 
 		// the last element has the most estimtated num records
-		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
+		long maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			Record t = tableIndexed.get( i );
 			t.setID( i );
 		}
-		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
+		long maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
-		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
-		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
+		System.out.println( "Max Indexed expanded size : " + maxIndexedEstNumRecords );
+		System.out.println( "Max Searched expanded size : " + maxSearchedEstNumRecords );
 	}
 
 	private void buildJoinMinIndex() {

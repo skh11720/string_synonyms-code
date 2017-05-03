@@ -175,7 +175,7 @@ public class NaiveIndex {
 		// final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
 		for( final Integer idx : candidates ) {
 			// for( final Integer idx : union ) {
-			rslt.add( new IntegerPair( idx, recS.getID() ) );
+			rslt.add( new IntegerPair( recS.getID(), idx ) );
 		}
 	}
 

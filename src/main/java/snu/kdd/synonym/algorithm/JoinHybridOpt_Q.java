@@ -847,29 +847,29 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			sampleratio = 10.0 / smallTableSize;
 		}
 
-		List<Record> sampleTlist = new ArrayList<Record>();
-		List<Record> sampleSlist = new ArrayList<Record>();
+		List<Record> sampleSearchedList = new ArrayList<Record>();
+		List<Record> sampleIndexedList = new ArrayList<Record>();
 		for( Record r : tableSearched ) {
 			if( rn.nextDouble() < sampleratio ) {
-				sampleTlist.add( r );
+				sampleSearchedList.add( r );
 			}
 		}
 		for( Record s : tableIndexed ) {
 			if( rn.nextDouble() < sampleratio ) {
-				sampleSlist.add( s );
+				sampleIndexedList.add( s );
 			}
 		}
 		List<Record> tmpR = tableSearched;
 		List<Record> tmpS = tableIndexed;
 
-		tableSearched = sampleTlist;
-		tableIndexed = sampleSlist;
+		tableSearched = sampleSearchedList;
+		tableIndexed = sampleIndexedList;
 
-		System.out.println( sampleTlist.size() + " T records are sampled" );
-		System.out.println( sampleSlist.size() + " S records are sampled" );
+		System.out.println( sampleSearchedList.size() + " Searched records are sampled" );
+		System.out.println( sampleIndexedList.size() + " Indexed records are sampled" );
 
-		stat.add( "Stat_Sample T size", sampleTlist.size() );
-		stat.add( "Stat_Sample S size", sampleSlist.size() );
+		stat.add( "Stat_Sample Searched size", sampleSearchedList.size() );
+		stat.add( "Stat_Sample Indexed size", sampleIndexedList.size() );
 
 		// Infer alpha and beta
 		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
