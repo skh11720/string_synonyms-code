@@ -786,7 +786,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			for( Record recR : candidates ) {
 				int compare = checker.isEqual( recR, s );
 				if( compare >= 0 ) {
-					rslt.add( new IntegerPair( recR.getID(), s.getID() ) );
+					rslt.add( new IntegerPair( s.getID(), recR.getID() ) );
 					appliedRules_sum += compare;
 				}
 			}
