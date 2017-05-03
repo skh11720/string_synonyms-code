@@ -346,7 +346,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Prefix sums
 		long currSLExpSize = 0;
 		long currTLExpSize = 0;
-		while( sidx < tableSearched.size() || tidx < tableIndexed.size() ) {
+		while( sidx < tableIndexed.size() || tidx < tableSearched.size() ) {
 			if( theta > max_theta ) {
 				break;
 			}
@@ -354,8 +354,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			// Estimate new running time
 			// Modify SL_TH_invokes, SL_TH_idx
-			while( tidx < tableIndexed.size() ) {
-				Record t = tableIndexed.get( tidx++ );
+			while( tidx < tableSearched.size() ) {
+				Record t = tableSearched.get( tidx++ );
 				long expSize = t.getEstNumRecords();
 
 				if( expSize > theta ) {
@@ -411,8 +411,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 
 			// Modify both indexes
-			while( sidx < tableSearched.size() ) {
-				Record s = tableSearched.get( sidx++ );
+			while( sidx < tableIndexed.size() ) {
+				Record s = tableIndexed.get( sidx++ );
 				long expSize = s.getEstNumRecords();
 				if( expSize > theta ) {
 					next_theta = Math.min( next_theta, expSize );
