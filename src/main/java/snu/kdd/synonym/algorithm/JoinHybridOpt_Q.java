@@ -512,7 +512,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		ArrayList<Integer> countPerPosition = new ArrayList<Integer>();
 
-		for( Record rec : tableIndexed ) {
+		for( Record rec : tableSearched ) {
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
@@ -581,7 +581,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// BufferedWriter bw = new BufferedWriter( new FileWriter( "MinIndex.txt" ) );
 		// boolean debug = false;
 
-		for( Record rec : tableSearched ) {
+		for( Record rec : tableIndexed ) {
 
 			// if( rec.getID() < 100 ) {
 			// debug = true;
@@ -709,7 +709,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableIndexed ) {
+		for( Record s : tableSearched ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
 		stat.add( "Stat_Join_AppliedRules Sum", appliedRules_sum );
@@ -725,7 +725,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
-		for( Record s : tableIndexed ) {
+		for( Record s : tableSearched ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
 				continue;
 			}

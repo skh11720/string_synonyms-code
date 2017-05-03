@@ -121,7 +121,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		// Actually, tableT
 		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
 
-		for( Record rec : tableIndexed ) {
+		for( Record rec : tableSearched ) {
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
@@ -157,7 +157,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "Indexing Time" );
 		// Actually, tableS
-		for( Record rec : tableSearched ) {
+		for( Record rec : tableIndexed ) {
 			int[] range = rec.getCandidateLengths( rec.size() - 1 );
 			int minIdx = -1;
 			int minInvokes = Integer.MAX_VALUE;
@@ -243,7 +243,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		stepTime.resetAndStart( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
 		// lastTokenFiltered = 0;
-		for( Record s : tableIndexed ) {
+		for( Record s : tableSearched ) {
 			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
@@ -262,7 +262,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		stepTime.resetAndStart( "SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
-		for( Record s : tableIndexed ) {
+		for( Record s : tableSearched ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
 				continue;
 			}
