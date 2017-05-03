@@ -73,6 +73,41 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		ruletrie = new RuleTrie( rulelist );
 	}
 
+	@Override
+	protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
+		super.preprocess( compact, maxIndex, useAutomata );
+
+		// Sort R and S with expanded sizes
+		Comparator<Record> cmp = new Comparator<Record>() {
+			@Override
+			public int compare( Record o1, Record o2 ) {
+				long est1 = o1.getEstNumRecords();
+				long est2 = o2.getEstNumRecords();
+				return Long.compare( est1, est2 );
+			}
+		};
+		Collections.sort( tableSearched, cmp );
+		Collections.sort( tableIndexed, cmp );
+
+		// Reassign ID
+		for( int i = 0; i < tableSearched.size(); ++i ) {
+			Record s = tableSearched.get( i );
+			s.setID( i );
+		}
+
+		// the last element has the most estimtated num records
+		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
+
+		for( int i = 0; i < tableIndexed.size(); ++i ) {
+			Record t = tableIndexed.get( i );
+			t.setID( i );
+		}
+		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
+
+		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
+		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
+	}
+
 	private void buildJoinMinIndex() {
 		Runtime runtime = Runtime.getRuntime();
 
@@ -389,39 +424,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.println( "Maximum str length: " + maxstrlength );
 		System.out.println( "Average rhs length: " + rhslengthsum + "/" + rules );
 		System.out.println( "Maximum rhs length: " + maxrhslength );
-	}
-
-	@Override
-	protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
-		super.preprocess( compact, maxIndex, useAutomata );
-
-		// Sort R and S with expanded sizes
-		Comparator<Record> cmp = new Comparator<Record>() {
-			@Override
-			public int compare( Record o1, Record o2 ) {
-				long est1 = o1.getEstNumRecords();
-				long est2 = o2.getEstNumRecords();
-				return Long.compare( est1, est2 );
-			}
-		};
-		Collections.sort( tableSearched, cmp );
-		Collections.sort( tableIndexed, cmp );
-
-		// Reassign ID
-		for( int i = 0; i < tableSearched.size(); ++i ) {
-			Record s = tableSearched.get( i );
-			s.setID( i );
-		}
-		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
-
-		for( int i = 0; i < tableIndexed.size(); ++i ) {
-			Record t = tableIndexed.get( i );
-			t.setID( i );
-		}
-		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
-
-		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
-		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
 	}
 
 	public void run() {
