@@ -16,6 +16,10 @@ public class NaiveIndex {
 
 	public WYK_HashMap<Record, ArrayList<Integer>> idx;
 
+	long expandTime = 0;
+	long searchTime = 0;
+	long totalExpSize = 0;
+
 	NaiveIndex( int initialSize ) {
 		idx = new WYK_HashMap<Record, ArrayList<Integer>>( initialSize );
 	}
@@ -58,10 +62,6 @@ public class NaiveIndex {
 	public List<IntegerPair> join( List<Record> tableSearched, StatContainer stat, long threshold, boolean addStat ) {
 		final List<IntegerPair> rslt = new ArrayList<>();
 		final long starttime = System.nanoTime();
-		long totalExpSize = 0;
-
-		long expandTime = 0;
-		long searchTime = 0;
 
 		// try {
 		// BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_JOIN.txt" ) );
@@ -82,67 +82,8 @@ public class NaiveIndex {
 				continue;
 			}
 
-			long expandStartTime = System.nanoTime();
-			// final List<Record> expanded = recS.expandAll( ruletrie );
-			final List<Record> expanded = recS.expandAll();
-			expandTime += System.nanoTime() - expandStartTime;
+			joinOneRecord( recS, rslt );
 
-			totalExpSize += expanded.size();
-			// final List<List<Integer>> candidates = new ArrayList<List<Integer>>();
-			final Set<Integer> candidates = new HashSet<Integer>();
-
-			long searchStartTime = System.nanoTime();
-			for( final Record exp : expanded ) {
-				final List<Integer> overlapidx = idx.get( exp );
-				if( overlapidx == null ) {
-					continue;
-				}
-
-				// candidates.add( overlapidx );
-				for( Integer i : overlapidx ) {
-					candidates.add( i );
-				}
-			}
-
-			// if( debug ) {
-			// double time = System.nanoTime() - searchStartTime;
-			// long gcCount = getGCCount();
-			// debug_bw.write( "" + expanded.size() );
-			// debug_bw.write( " " + recS.getTokenArray().length );
-			// // debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
-			// debug_bw.write( " " + ( Record.expandAllCount - debug_Count ) );
-			// debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
-			// debug_bw.write( String.format( " %.2f", time / recS.getTokenArray().length ) );
-			// debug_bw.write( String.format( " %.2f", time / ( Record.expandAllCount - debug_Count ) ) );
-			// debug_bw.write( " " + time );
-			// debug_bw.write( " " + Math.pow( 2, recS.getNumApplicableRules() ) );
-			// debug_bw.write( " " + ( rec2idx.putCount - debug_putCount ) );
-			// debug_bw.write( " " + ( rec2idx.resizeCount - debug_resizeCount ) );
-			// debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
-			// debug_bw.write( " " + ( rec2idx.removeCount - debug_RemoveCount ) );
-			// debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
-			// debug_bw.write( " " + recS.getID() );
-			// debug_bw.write( " " + ( gcCount - debug_gcCount ) );
-			// debug_bw.write( " " + ( Record.expandAllIterCount - debug_expandIterCount ) );
-			// debug_bw.write( "\n" );
-			//
-			// debug_Count = Record.expandAllCount;
-			// debug_IterCount = rec2idx.getIterCount;
-			// debug_putCount = rec2idx.putCount;
-			// debug_resizeCount = rec2idx.resizeCount;
-			// debug_RemoveCount = rec2idx.removeCount;
-			// debug_RemoveIterCount = rec2idx.removeIterCount;
-			// debug_expandIterCount = Record.expandAllIterCount;
-			// debug_gcCount = gcCount;
-			// }
-
-			// final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
-			for( final Integer idx : candidates ) {
-				// for( final Integer idx : union ) {
-				rslt.add( new IntegerPair( idx, idxS ) );
-			}
-
-			searchTime += System.nanoTime() - searchStartTime;
 		}
 		// debug_bw.close();
 		// }
@@ -173,6 +114,69 @@ public class NaiveIndex {
 		}
 
 		return rslt;
+	}
+
+	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+		long expandStartTime = System.nanoTime();
+		// final List<Record> expanded = recS.expandAll( ruletrie );
+		final List<Record> expanded = recS.expandAll();
+		expandTime += System.nanoTime() - expandStartTime;
+
+		totalExpSize += expanded.size();
+		// final List<List<Integer>> candidates = new ArrayList<List<Integer>>();
+		final Set<Integer> candidates = new HashSet<Integer>();
+
+		long searchStartTime = System.nanoTime();
+		for( final Record exp : expanded ) {
+			final List<Integer> overlapidx = idx.get( exp );
+			if( overlapidx == null ) {
+				continue;
+			}
+
+			// candidates.add( overlapidx );
+			for( Integer i : overlapidx ) {
+				candidates.add( i );
+			}
+		}
+		searchTime += System.nanoTime() - searchStartTime;
+
+		// if( debug ) {
+		// double time = System.nanoTime() - searchStartTime;
+		// long gcCount = getGCCount();
+		// debug_bw.write( "" + expanded.size() );
+		// debug_bw.write( " " + recS.getTokenArray().length );
+		// // debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
+		// debug_bw.write( " " + ( Record.expandAllCount - debug_Count ) );
+		// debug_bw.write( String.format( " %.2f", time / expanded.size() ) );
+		// debug_bw.write( String.format( " %.2f", time / recS.getTokenArray().length ) );
+		// debug_bw.write( String.format( " %.2f", time / ( Record.expandAllCount - debug_Count ) ) );
+		// debug_bw.write( " " + time );
+		// debug_bw.write( " " + Math.pow( 2, recS.getNumApplicableRules() ) );
+		// debug_bw.write( " " + ( rec2idx.putCount - debug_putCount ) );
+		// debug_bw.write( " " + ( rec2idx.resizeCount - debug_resizeCount ) );
+		// debug_bw.write( " " + ( rec2idx.getIterCount - debug_IterCount ) );
+		// debug_bw.write( " " + ( rec2idx.removeCount - debug_RemoveCount ) );
+		// debug_bw.write( " " + ( rec2idx.removeIterCount - debug_RemoveIterCount ) );
+		// debug_bw.write( " " + recS.getID() );
+		// debug_bw.write( " " + ( gcCount - debug_gcCount ) );
+		// debug_bw.write( " " + ( Record.expandAllIterCount - debug_expandIterCount ) );
+		// debug_bw.write( "\n" );
+		//
+		// debug_Count = Record.expandAllCount;
+		// debug_IterCount = rec2idx.getIterCount;
+		// debug_putCount = rec2idx.putCount;
+		// debug_resizeCount = rec2idx.resizeCount;
+		// debug_RemoveCount = rec2idx.removeCount;
+		// debug_RemoveIterCount = rec2idx.removeIterCount;
+		// debug_expandIterCount = Record.expandAllIterCount;
+		// debug_gcCount = gcCount;
+		// }
+
+		// final List<Integer> union = StaticFunctions.union( candidates, new IntegerComparator() );
+		for( final Integer idx : candidates ) {
+			// for( final Integer idx : union ) {
+			rslt.add( new IntegerPair( idx, recS.getID() ) );
+		}
 	}
 
 	public static NaiveIndex buildIndex( List<Record> tableIndexed, double avgTransformed, StatContainer stat, long threshold,
