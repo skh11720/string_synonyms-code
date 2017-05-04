@@ -138,8 +138,8 @@ else
 	#JoinHybridOpt
 	if [[ $RUN_JoinHybridOpt == "True" ]];
 	then
-		#samplings=( 0.01 )
-		samplings=( 0.001 0.003 0.01 0.03 )
+		samplings=( 0.01 )
+		#samplings=( 0.001 0.003 0.01 0.03 )
 		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
 		for q in {2..2..1}; do
 			for sampling in "${samplings[@]}"; do
@@ -159,9 +159,10 @@ else
 	#JoinHybridThres
 	if [[ $RUN_JoinHybridThres == "True" ]];
 	then
-		#thresholds=( 170 )
-		thresholds=( 3 10 30 100 )
-		#thresholds=( 3 10 30 100 300 1000 )
+		#thresholds=( 10 )
+		#thresholds=( 3 10 30 100 )
+		#thresholds=( 0 1 3 10 1000  )
+		thresholds=( 0 10 100 1000 10000 10000000 )
 		for q in {2..2..1}; do
 			for threshold in "${thresholds[@]}"; do
 				date

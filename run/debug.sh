@@ -24,16 +24,23 @@ hybrid=False
 #rulefile=/home/kddlab/wooyekim/Synonym/JiahengLu/rule.txt
 
 # Removed AOL
-nId=8
-inputfile_one=/home/kddlab/wooyekim/Synonym/AOL_Sample/removed/sample${nId}removed
-inputfile_two=/home/kddlab/wooyekim/Synonym/AOL_Sample/removed/sample${nId}removed
-rulefile=/home/kddlab/wooyekim/Synonym/wordnet/deduplicated_rules.noun
+#nId=8
+#inputfile_one=/home/kddlab/wooyekim/Synonym/AOL_Sample/removed/sample${nId}removed
+#inputfile_two=/home/kddlab/wooyekim/Synonym/AOL_Sample/removed/sample${nId}removed
+#rulefile=/home/kddlab/wooyekim/Synonym/wordnet/deduplicated_rules.noun
 
 #inputfile_two=data_store/data/1000000_5_3000_1.0_0.0_1/data.txt
 #inputfile_one=data_store/data/1000000_5_3000_1.0_0.0_2/data.txt
 #rulefile=data_store/rule/30000_2_2_200000_0.0_0/rule.txt
 
-recordId=3
+#SPROT
+SIZE=1000000
+inputfile_one=data_store/sprot/splitted/SPROT_$SIZE.txt
+inputfile_two=data_store/sprot/splitted/SPROT_$SIZE.txt
+rulefile=data_store/sprot/rule.txt
+
+
+recordId=14274
 
 ./package.sh
 
