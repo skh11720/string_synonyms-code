@@ -26,6 +26,7 @@ public class EstimateJoinMin extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
+		this.stat = stat;
 		joinMin.run( args, stat );
 
 		double sampleratio = 0.1;
