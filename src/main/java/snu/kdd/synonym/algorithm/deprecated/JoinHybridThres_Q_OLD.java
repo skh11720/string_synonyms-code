@@ -293,6 +293,7 @@ public class JoinHybridThres_Q_OLD extends AlgorithmTemplate {
 			Map<IntegerPair, List<Record>> curr_idx = idx.get( i );
 
 			Set<Record> candidates = new HashSet<Record>();
+
 			for( IntegerPair twogram : available2Grams.get( i ) ) {
 				List<Record> tree = curr_idx.get( twogram );
 

@@ -269,24 +269,18 @@ public class JoinMinIndex {
 			qgramStartTime = System.nanoTime();
 		}
 
-		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
+		List<List<QGram>> availableQGrams = recS.getQGrams( qSize, idx.size() - 1 );
 
 		if( DEBUG.JoinMinON ) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
-		}
-
-		int[] range = recS.getCandidateLengths( recS.size() - 1 );
-		int searchmax = Integer.min( availableQGrams.size(), idx.size() - 1 );
-
-		if( DEBUG.JoinMinJoinOn ) {
 			joinStartTime = System.nanoTime();
 		}
 
+		int[] range = recS.getCandidateLengths( recS.size() - 1 );
+		int searchmax = availableQGrams.size();
+
 		for( int i = 0; i < searchmax; ++i ) {
 			Map<QGram, List<Record>> curridx = idx.get( i );
-			if( curridx == null ) {
-				continue;
-			}
 
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
@@ -303,7 +297,7 @@ public class JoinMinIndex {
 
 				for( Record e : tree ) {
 					if( !isUpperRecord && e.getEstNumRecords() <= threshold ) {
-						continue;
+						break;
 					}
 					else if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
 						candidates.add( e );
