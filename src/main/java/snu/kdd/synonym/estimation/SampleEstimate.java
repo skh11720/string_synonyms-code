@@ -84,7 +84,6 @@ public class SampleEstimate {
 	}
 
 	public void estimateJoinMin( AlgorithmTemplate o, StatContainer stat, Validator checker, int qSize ) {
-
 		o.tableSearched = sampleSearchedList;
 		o.tableIndexed = sampleIndexedList;
 
@@ -118,6 +117,10 @@ public class SampleEstimate {
 		stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
 		stat.add( "Const_Delta", String.format( "%.2f", delta ) );
 		stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
+
+		// Restore tables
+		o.tableSearched = originalSearched;
+		o.tableIndexed = originalIndexed;
 	}
 
 	public void estimateWithSample( StatContainer stat, AlgorithmTemplate o, Validator checker, int qSize ) {
