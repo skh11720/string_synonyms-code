@@ -21,4 +21,5 @@ do
 
 	./EstimateNaive.sh $inputfile_one $inputfile_two $rulefile  output logs $LIBS EST_USPS
 	./EstimateJoinMin.sh $inputfile_one $inputfile_two $rulefile  output logs $LIBS 2 EST_AOL
+	./upload.sh
 done
