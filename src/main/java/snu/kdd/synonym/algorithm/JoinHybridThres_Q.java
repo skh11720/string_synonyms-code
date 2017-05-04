@@ -120,11 +120,11 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		int initialSize;
 
 		if( joinThreshold > 1 ) {
-			if( joinThreshold * tableIndexed.size() / 2.0 < 1e9 ) {
+			if( joinThreshold * tableIndexed.size() / 2.0 < 1e8 ) {
 				initialSize = joinThreshold / 2;
 			}
 			else {
-				initialSize = (int) ( 1e9 * 2.0 / tableIndexed.size() );
+				initialSize = (int) ( 1e8 * 2.0 / tableIndexed.size() );
 			}
 		}
 		else {
