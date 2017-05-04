@@ -26,7 +26,7 @@ public class EstimateJoinNaive extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
-		double sampleratio = Double.parseDouble( args[ 0 ] );
+		double sampleratio = 0.1;
 		SampleEstimate estimate = new SampleEstimate( joinNaive.tableSearched, joinNaive.tableIndexed, sampleratio );
 
 		estimate.estimateNaive( joinNaive, stat );
