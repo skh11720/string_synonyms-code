@@ -339,7 +339,14 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 					}
 
 					for( Entry<IntegerPair, List<Record>> entry : map.entrySet() ) {
-						debug_bw.write( entry.getKey() + " " + entry.getValue() + "\n" );
+						debug_bw.write( entry.getKey().toString() );
+
+						List<Record> list = entry.getValue();
+
+						for( int idx = 0; idx < list.size(); idx++ ) {
+							debug_bw.write( " " + list.get( idx ).getID() );
+						}
+						debug_bw.write( "\n" );
 					}
 				}
 

@@ -598,7 +598,14 @@ public class JoinMinIndex {
 				WYK_HashMap<QGram, List<Record>> map = idx.get( i );
 
 				for( Entry<QGram, List<Record>> entry : map.entrySet() ) {
-					bw.write( entry.getKey() + " " + entry.getValue() + "\n" );
+					bw.write( entry.getKey().toString() );
+
+					List<Record> list = entry.getValue();
+
+					for( int idx = 0; idx < list.size(); idx++ ) {
+						bw.write( " " + list.get( idx ).getID() );
+					}
+					bw.write( "\n" );
 				}
 			}
 
