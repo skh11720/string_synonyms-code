@@ -52,6 +52,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	 * 'threshold' 1-expandable strings
 	 */
 	JoinMinIndex joinMinIdx;
+	boolean joinMinRequired = true;
 
 	/**
 	 * List of 1-expandable strings
@@ -87,14 +88,18 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			s.setID( i );
 		}
 
-		// the last element has the most estimtated num records
-		long maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
-
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			Record t = tableIndexed.get( i );
 			t.setID( i );
 		}
+
+		// the last element has the most estimtated num records
+		long maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 		long maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
+
+		if( maxSearchedEstNumRecords > joinThreshold && maxIndexedEstNumRecords > joinThreshold ) {
+			joinMinRequired = false;
+		}
 
 		System.out.println( "Max Indexed expanded size : " + maxIndexedEstNumRecords );
 		System.out.println( "Max Searched expanded size : " + maxSearchedEstNumRecords );
@@ -136,21 +141,25 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 		long startTime = System.currentTimeMillis();
 		StopWatch stepTime = StopWatch.getWatchStarted( "JoinMin Index Building Time" );
-		buildJoinMinIndex();
+		if( joinMinRequired ) {
+			buildJoinMinIndex();
+		}
 		stepTime.stopAndAdd( stat );
 		System.out.print( "Building JoinMin Index finished " + ( System.currentTimeMillis() - startTime ) );
 
 		stepTime.resetAndStart( "SearchEquiv JoinMin Time" );
 		long time1 = System.currentTimeMillis();
 		// lastTokenFiltered = 0;
-		for( Record s : tableSearched ) {
-			joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
+		if( joinMinRequired ) {
+			for( Record s : tableSearched ) {
+				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
+			}
+			clearJoinMinIndex();
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
 		stat.add( "AppliedRules Sum", joinMinIdx.appliedRulesSum );
 		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
-		clearJoinMinIndex();
 
 		startTime = System.currentTimeMillis();
 		stepTime.resetAndStart( "Naive Index Building Time" );

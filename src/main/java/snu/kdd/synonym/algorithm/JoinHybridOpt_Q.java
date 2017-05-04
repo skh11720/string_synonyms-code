@@ -74,54 +74,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	 * return len * 4 + 16;
 	 * } */
 
-	class Directory {
-		List<Record> list;
-		int SHsize;
-
-		Directory() {
-			list = new ArrayList<Record>();
-			SHsize = 0;
-		}
-	}
-
-	class IndexEntry {
-		List<Record> smallList;
-		List<Record> largeList;
-
-		IndexEntry() {
-			smallList = new ArrayList<Record>();
-			largeList = new ArrayList<Record>();
-		}
-	}
-
-	public static class CountEntry {
-		public int smallListSize;
-		public int largeListSize;
-
-		CountEntry() {
-			smallListSize = 0;
-			largeListSize = 0;
-		}
-
-		CountEntry( int small, int large ) {
-			smallListSize = small;
-			largeListSize = large;
-		}
-
-		void increaseLarge() {
-			largeListSize++;
-		}
-
-		void fromLargeToSmall() {
-			largeListSize--;
-			smallListSize++;
-		}
-	}
-
 	/**
 	 * Key: (token, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
+
 	/**
 	 * Index of the records in S
 	 * (SL x TH)
@@ -148,36 +105,21 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	}
 
 	@Override
-	protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
-		super.preprocess( compact, maxIndex, useAutomata );
+	public void run( String[] args, StatContainer stat ) {
+		this.stat = stat;
 
-		// Sort R and S with expanded sizes
-		Comparator<Record> cmp = new Comparator<Record>() {
-			@Override
-			public int compare( Record o1, Record o2 ) {
-				long est1 = o1.getEstNumRecords();
-				long est2 = o2.getEstNumRecords();
-				return Long.compare( est1, est2 );
-			}
-		};
-		Collections.sort( tableSearched, cmp );
-		Collections.sort( tableIndexed, cmp );
+		Param params = Param.parseArgs( args, stat );
+		// Setup parameters
+		useAutomata = params.isUseACAutomata();
+		skipChecking = params.isSkipChecking();
+		maxIndex = params.getMaxIndex();
+		compact = params.isCompact();
+		singleside = params.isSingleside();
+		checker = params.getValidator();
+		qSize = params.getQGramSize();
 
-		// Reassign ID
-		for( int i = 0; i < tableSearched.size(); ++i ) {
-			Record t = tableSearched.get( i );
-			t.setID( i );
-		}
-		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
-
-		for( int i = 0; i < tableIndexed.size(); ++i ) {
-			Record s = tableIndexed.get( i );
-			s.setID( i );
-		}
-		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
-
-		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
-		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
+		run( params.getSampleRatio() );
+		Validator.printStats();
 	}
 
 	public void run( double sampleratio ) {
@@ -218,6 +160,39 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
 
 		writeResult( rslt );
+	}
+
+	@Override
+	protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
+		super.preprocess( compact, maxIndex, useAutomata );
+
+		// Sort R and S with expanded sizes
+		Comparator<Record> cmp = new Comparator<Record>() {
+			@Override
+			public int compare( Record o1, Record o2 ) {
+				long est1 = o1.getEstNumRecords();
+				long est2 = o2.getEstNumRecords();
+				return Long.compare( est1, est2 );
+			}
+		};
+		Collections.sort( tableSearched, cmp );
+		Collections.sort( tableIndexed, cmp );
+
+		// Reassign ID
+		for( int i = 0; i < tableSearched.size(); ++i ) {
+			Record t = tableSearched.get( i );
+			t.setID( i );
+		}
+		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
+
+		for( int i = 0; i < tableIndexed.size(); ++i ) {
+			Record s = tableIndexed.get( i );
+			s.setID( i );
+		}
+		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
+
+		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
+		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
 	}
 
 	private long findThetaRevised( int maxThreshold, int q ) {
@@ -346,7 +321,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// Prefix sums
 		long currSLExpSize = 0;
 		long currTLExpSize = 0;
-		while( sidx < tableIndexed.size() || tidx < tableSearched.size() ) {
+
+		int tableIndexedSize = tableIndexed.size();
+		int tableSearchedSize = tableSearched.size();
+		while( sidx < tableIndexedSize || tidx < tableSearchedSize ) {
 			if( theta > max_theta ) {
 				break;
 			}
@@ -354,7 +332,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			// Estimate new running time
 			// Modify SL_TH_invokes, SL_TH_idx
-			while( tidx < tableSearched.size() ) {
+			while( tidx < tableSearchedSize ) {
 				Record t = tableSearched.get( tidx++ );
 				long expSize = t.getEstNumRecords();
 
@@ -411,7 +389,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 
 			// Modify both indexes
-			while( sidx < tableIndexed.size() ) {
+			while( sidx < tableIndexedSize ) {
 				Record s = tableIndexed.get( sidx++ );
 				long expSize = s.getEstNumRecords();
 				if( expSize > theta ) {
@@ -686,15 +664,15 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private void buildNaiveIndex() {
-		naiveIndex = NaiveIndex.buildIndex( tableIndexed, joinThreshold / 2, stat, joinThreshold, false );
-	}
-
 	private void clearJoinMinIndex() {
 		for( Map<QGram, Directory> map : idx ) {
 			map.clear();
 		}
 		idx.clear();
+	}
+
+	private void buildNaiveIndex() {
+		naiveIndex = NaiveIndex.buildIndex( tableIndexed, joinThreshold / 2, stat, joinThreshold, false );
 	}
 
 	/**
@@ -928,21 +906,48 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		return "JoinHybridOpt_Q";
 	}
 
-	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
+	class Directory {
+		List<Record> list;
+		int SHsize;
 
-		Param params = Param.parseArgs( args, stat );
-		// Setup parameters
-		useAutomata = params.isUseACAutomata();
-		skipChecking = params.isSkipChecking();
-		maxIndex = params.getMaxIndex();
-		compact = params.isCompact();
-		singleside = params.isSingleside();
-		checker = params.getValidator();
-		qSize = params.getQGramSize();
-
-		run( params.getSampleRatio() );
-		Validator.printStats();
+		Directory() {
+			list = new ArrayList<Record>();
+			SHsize = 0;
+		}
 	}
+
+	class IndexEntry {
+		List<Record> smallList;
+		List<Record> largeList;
+
+		IndexEntry() {
+			smallList = new ArrayList<Record>();
+			largeList = new ArrayList<Record>();
+		}
+	}
+
+	public static class CountEntry {
+		public int smallListSize;
+		public int largeListSize;
+
+		CountEntry() {
+			smallListSize = 0;
+			largeListSize = 0;
+		}
+
+		CountEntry( int small, int large ) {
+			smallListSize = small;
+			largeListSize = large;
+		}
+
+		void increaseLarge() {
+			largeListSize++;
+		}
+
+		void fromLargeToSmall() {
+			largeListSize--;
+			smallListSize++;
+		}
+	}
+
 }
