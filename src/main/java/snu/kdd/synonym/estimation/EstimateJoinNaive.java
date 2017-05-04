@@ -26,12 +26,12 @@ public class EstimateJoinNaive extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
+		joinNaive.run( args, stat );
+
 		double sampleratio = 0.1;
 		SampleEstimate estimate = new SampleEstimate( joinNaive.tableSearched, joinNaive.tableIndexed, sampleratio );
 
 		estimate.estimateNaive( joinNaive, stat );
-
-		joinNaive.run( args, stat );
 
 		System.out.println( "Estimate Index: " + joinNaive.idx.estimatedIndexTime( estimate.alpha ) );
 		System.out.println( "Actual Index  : " + joinNaive.idx.indexTime );
