@@ -5,26 +5,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.data.DataInfo;
+import snu.kdd.synonym.tools.JoinMinIndex;
 import snu.kdd.synonym.tools.NaiveIndex;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.IntegerPair;
-import tools.QGram;
 import tools.Rule;
 import tools.RuleTrie;
 import tools.StaticFunctions;
-import tools.WYK_HashMap;
 import validator.Validator;
-import wrapped.WrappedInteger;
 
 /**
  * Given threshold, if a record has more than 'threshold' 1-expandable strings,
@@ -57,13 +51,12 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	 * Index of the records in R for the strings in S which has more than
 	 * 'threshold' 1-expandable strings
 	 */
-	List<Map<QGram, List<Record>>> idx;
+	JoinMinIndex joinMinIdx;
 
 	/**
 	 * List of 1-expandable strings
 	 */
 	NaiveIndex naiveIndex;
-	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
 	public JoinHybridThres_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
 			throws IOException {
@@ -108,115 +101,13 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	}
 
 	private void buildJoinMinIndex() {
-		Runtime runtime = Runtime.getRuntime();
-
-		long elements = 0;
-		long SL_TH_elements = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		List<Map<QGram, WrappedInteger>> invokes = new ArrayList<Map<QGram, WrappedInteger>>();
-		int invokesInitialized = 0;
-		idx = new ArrayList<Map<QGram, List<Record>>>();
-
-		// Actually, tableT
-		StopWatch stepTime = StopWatch.getWatchStarted( "Index Count Time" );
-
-		for( Record rec : tableSearched ) {
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
-			int searchmax = Math.min( availableQGrams.size(), maxIndex );
-
-			for( int i = invokesInitialized; i < searchmax; i++ ) {
-				invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
-				invokesInitialized = searchmax;
-			}
-
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
-
-				List<QGram> available = availableQGrams.get( i );
-				for( QGram twogram : available ) {
-					WrappedInteger count = curridx_invokes.get( twogram );
-					if( count == null ) {
-						curridx_invokes.put( twogram, ONE );
-					}
-					else if( count == ONE ) {
-						count = new WrappedInteger( 2 );
-						curridx_invokes.put( twogram, count );
-					}
-					else {
-						count.increment();
-					}
-				}
-			}
-		}
-
-		System.out.println( "Bigram retrieval : " + Record.exectime );
-		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
-
-		stepTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Indexing Time" );
-		// Actually, tableS
-		for( Record rec : tableIndexed ) {
-			int[] range = rec.getCandidateLengths( rec.size() - 1 );
-			int minIdx = -1;
-			int minInvokes = Integer.MAX_VALUE;
-			int searchmax = Math.min( range[ 0 ], maxIndex );
-			int[] invokearr = new int[ searchmax ];
-
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
-
-			for( int i = idx.size(); i < searchmax; i++ ) {
-				idx.add( new WYK_HashMap<QGram, List<Record>>() );
-			}
-
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, WrappedInteger> curr_invokes = invokes.get( i );
-				if( curr_invokes == null ) {
-					minIdx = i;
-					minInvokes = 0;
-					break;
-				}
-				int invoke = 0;
-				for( QGram twogram : availableQGrams.get( i ) ) {
-					WrappedInteger count = curr_invokes.get( twogram );
-					if( count != null )
-						invoke += count.get();
-				}
-				if( invoke < minInvokes ) {
-					minIdx = i;
-					minInvokes = invoke;
-				}
-				invokearr[ i ] = invoke;
-			}
-
-			Map<QGram, List<Record>> curr_idx = idx.get( minIdx );
-
-			for( QGram twogram : availableQGrams.get( minIdx ) ) {
-				List<Record> list = curr_idx.get( twogram );
-				if( list == null ) {
-					list = new ArrayList<Record>();
-					curr_idx.put( twogram, list );
-				}
-				list.add( rec );
-			}
-			elements += availableQGrams.get( minIdx ).size();
-		}
-		System.out.println( "Bigram retrieval : " + Record.exectime );
-		System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used" );
-
-		System.out.println( "SH_T idx size : " + elements );
-		System.out.println( "SL_TH idx size : " + SL_TH_elements );
-		System.out.println( WrappedInteger.count + " Wrapped Integers" );
-		for( int i = 0; i < idx.size(); i++ ) {
-			System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
-		}
+		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true );
 	}
 
 	private void clearJoinMinIndex() {
-		for( Map<QGram, List<Record>> map : idx )
-			map.clear();
-		idx.clear();
+		joinMinIdx.clear();
 	}
 
 	private void buildNaiveIndex() {
@@ -244,10 +135,10 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long time1 = System.currentTimeMillis();
 		// lastTokenFiltered = 0;
 		for( Record s : tableSearched ) {
-			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+			joinMinIdx.joinRecord( s, rslt, true, null, checker );
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
-		stat.add( "AppliedRules Sum", appliedRules_sum );
+		stat.add( "AppliedRules Sum", joinMinIdx.appliedRulesSum );
 		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
@@ -280,60 +171,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.println( "SL_TL : " + time2 );
 
 		return rslt;
-	}
-
-	private int searchEquivsByDynamicIndex( Record s, List<Map<QGram, List<Record>>> idx, List<IntegerPair> rslt ) {
-		boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
-
-		int appliedRules_sum = 0;
-		int idxSize = idx.size();
-		List<List<QGram>> available2Grams = s.getQGrams( qSize, idxSize );
-		int[] range = s.getCandidateLengths( s.size() - 1 );
-		int searchmax = Math.min( available2Grams.size(), maxIndex );
-		for( int i = 0; i < searchmax; ++i ) {
-			if( i >= idx.size() ) {
-				break;
-			}
-
-			Map<QGram, List<Record>> curr_idx = idx.get( i );
-
-			Set<Record> candidates = new HashSet<Record>();
-			for( QGram twogram : available2Grams.get( i ) ) {
-				List<Record> tree = curr_idx.get( twogram );
-
-				if( tree == null ) {
-					continue;
-				}
-
-				for( int j = tree.size() - 1; j >= 0; --j ) {
-					Record rec = tree.get( j );
-					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold ) {
-						continue;
-					}
-					else if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						// if( s.shareLastToken( rec ) ) {
-						candidates.add( rec );
-						// }
-						// else {
-						// lastTokenFiltered++;
-						// }
-					}
-				}
-			}
-
-			if( skipChecking ) {
-				continue;
-			}
-
-			for( Record recR : candidates ) {
-				int compare = checker.isEqual( recR, s );
-				if( compare >= 0 ) {
-					rslt.add( new IntegerPair( s.getID(), recR.getID() ) );
-					appliedRules_sum += compare;
-				}
-			}
-		}
-		return appliedRules_sum;
 	}
 
 	public void statistics() {

@@ -257,6 +257,13 @@ public class JoinMinIndex {
 		}
 	}
 
+	public void clear() {
+		for( int i = 0; i < idx.size(); i++ ) {
+			idx.get( i ).clear();
+		}
+		idx.clear();
+	}
+
 	public static JoinMinIndex buildIndex( List<Record> tableSearched, List<Record> tableIndexed, int maxIndex, int qSize,
 			StatContainer stat, boolean writeResult ) {
 		long starttime = System.nanoTime();
