@@ -112,7 +112,16 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 	private void buildNaiveIndex() {
 		// Build 1-expanded set for every record in R
-		naiveIndex = NaiveIndex.buildIndex( tableIndexed, joinThreshold / 2, stat, joinThreshold, true );
+		int initialSize;
+
+		if( joinThreshold != 0 ) {
+			initialSize = joinThreshold / 2;
+		}
+		else {
+			initialSize = 1;
+		}
+
+		naiveIndex = NaiveIndex.buildIndex( tableIndexed, initialSize, stat, joinThreshold, true );
 	}
 
 	/**
