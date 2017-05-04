@@ -36,7 +36,11 @@ public class JoinMinIndex {
 	public long appliedRulesSum;
 
 	long getQGramTime;
-	long count;
+	long comparisonCount;
+
+	public double joinTime;
+	public double indexTime;
+	public double countTime;
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
@@ -117,7 +121,7 @@ public class JoinMinIndex {
 		for( Record recS : tableSearched ) {
 			joinRecord( recS, rslt, writeResult, bw, checker );
 		}
-		long joinTime = System.nanoTime() - joinStartTime;
+		joinTime = System.nanoTime() - joinStartTime;
 
 		if( DEBUG.JoinMinJoinOn ) {
 			try {
@@ -128,17 +132,17 @@ public class JoinMinIndex {
 			}
 		}
 
-		if( count == 0 ) {
+		if( comparisonCount == 0 ) {
 			// To avoid NaN
-			count = 1;
+			comparisonCount = 1;
 		}
 
-		epsilon = joinTime / count;
+		epsilon = joinTime / comparisonCount;
 
 		if( DEBUG.JoinMinON ) {
 			System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
 
-			System.out.println( "Est weight : " + count );
+			System.out.println( "Est weight : " + comparisonCount );
 
 			System.out.println( "Join time : " + joinTime );
 
@@ -206,7 +210,7 @@ public class JoinMinIndex {
 				for( Record e : tree ) {
 					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
 						candidates.add( e );
-						count++;
+						comparisonCount++;
 					}
 				}
 			}
@@ -304,7 +308,7 @@ public class JoinMinIndex {
 					}
 					else if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
 						candidates.add( e );
-						count++;
+						comparisonCount++;
 					}
 				}
 			}
@@ -444,18 +448,18 @@ public class JoinMinIndex {
 				bw.close();
 			}
 
-			long buildIndexTime1 = System.nanoTime() - starttime;
-			idx.gamma = ( (double) buildIndexTime1 ) / idx.searchedTotalSigCount;
+			idx.countTime = System.nanoTime() - starttime;
+			idx.gamma = idx.countTime / idx.searchedTotalSigCount;
 
 			if( DEBUG.JoinMinON ) {
-				System.out.println( "Step 1 Time : " + buildIndexTime1 );
+				System.out.println( "Step 1 Time : " + idx.countTime );
 				System.out.println( "Gamma (buildTime / signature): " + idx.gamma );
 
 				if( writeResult ) {
 					stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
 					stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
 
-					stat.add( "Est_Index_1_Index_Count_Time", buildIndexTime1 );
+					stat.add( "Est_Index_1_Index_Count_Time", idx.countTime );
 					stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( idx.gamma ) );
 				}
 			}
@@ -543,20 +547,20 @@ public class JoinMinIndex {
 				indexedElements += availableQGrams.get( minIdx ).size();
 			}
 
-			long buildIndexTime2 = System.nanoTime() - starttime;
-			idx.delta = ( (double) buildIndexTime2 ) / idx.indexedTotalSigCount;
+			idx.indexTime = System.nanoTime() - starttime;
+			idx.delta = idx.indexTime / idx.indexedTotalSigCount;
 
 			if( DEBUG.JoinMinON ) {
 				System.out.println( "Idx size : " + indexedElements );
 				System.out.println( "Predict : " + predictCount );
-				System.out.println( "Step 2 Time : " + buildIndexTime2 );
+				System.out.println( "Step 2 Time : " + idx.indexTime );
 				System.out.println( "Delta (index build / signature ): " + idx.delta );
 
 				if( writeResult ) {
 					stat.add( "Stat_JoinMin_Index_Size", indexedElements );
 					stat.add( "Stat_Predicted_Comparison", predictCount );
 
-					stat.add( "Est_Index_2_Build_Index_Time", buildIndexTime2 );
+					stat.add( "Est_Index_2_Build_Index_Time", idx.indexTime );
 					stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( idx.delta ) );
 					stepTime.stopAndAdd( stat );
 				}
@@ -614,5 +618,17 @@ public class JoinMinIndex {
 		catch( IOException e ) {
 			e.printStackTrace();
 		}
+	}
+
+	public double estimatedCountTime( double gamma ) {
+		return gamma * searchedTotalSigCount;
+	}
+
+	public double estimatedIndexTime( double delta ) {
+		return delta * indexedTotalSigCount;
+	}
+
+	public double estimatedJoinTime( double epsilon ) {
+		return epsilon * comparisonCount;
 	}
 }

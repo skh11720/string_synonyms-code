@@ -35,11 +35,15 @@ public class EstimateJoinNaive extends AlgorithmTemplate {
 
 		estimate.estimateNaive( joinNaive, stat );
 
-		stat.add( "Est_Index_Estimate", joinNaive.idx.estimatedIndexTime( estimate.alpha ) );
-		stat.add( "Est_Index_Actual", joinNaive.idx.indexTime );
+		stat.add( "Cost_Index_Estimate", joinNaive.idx.estimatedIndexTime( estimate.alpha ) );
+		stat.add( "Cost_Index_Actual", joinNaive.idx.indexTime );
 
-		stat.add( "Est_Join_Estimate", joinNaive.idx.estimatedJoinTime( estimate.beta ) );
-		stat.add( "Est_Join_Actual", joinNaive.idx.joinTime );
+		stat.add( "Cost_Join_Estimate", joinNaive.idx.estimatedJoinTime( estimate.beta ) );
+		stat.add( "Cost_Join_Actual", joinNaive.idx.joinTime );
+
+		stat.add( "Cost_ALL_Estimate",
+				joinNaive.idx.estimatedIndexTime( estimate.alpha ) + joinNaive.idx.estimatedJoinTime( estimate.beta ) );
+		stat.add( "Cost_ALL_Actual", joinNaive.idx.indexTime + joinNaive.idx.joinTime );
 
 	}
 

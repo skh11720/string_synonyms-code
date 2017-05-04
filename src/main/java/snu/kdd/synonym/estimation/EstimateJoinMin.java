@@ -26,18 +26,25 @@ public class EstimateJoinMin extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args, StatContainer stat ) {
+		joinMin.run( args, stat );
+
 		double sampleratio = Double.parseDouble( args[ 0 ] );
 		SampleEstimate estimate = new SampleEstimate( joinMin.tableSearched, joinMin.tableIndexed, sampleratio );
 
-		// estimate.estimateJoinMin( joinMin, stat, );
+		estimate.estimateJoinMin( joinMin, stat, joinMin.checker, joinMin.qSize );
 
-		joinMin.run( args, stat );
+		stat.add( "Cost_Count_Estimate", joinMin.idx.estimatedCountTime( estimate.gamma ) );
+		stat.add( "Cost_Count_Actual", joinMin.idx.countTime );
 
-		// System.out.println( "Estimate Index: " + joinMin.idx.estimatedIndexTime( estimate.alpha ) );
-		// System.out.println( "Actual Index : " + joinMin.idx.indexTime );
-		//
-		// System.out.println( "Estimate Join : " + joinMin.idx.estimatedJoinTime( estimate.beta ) );
-		// System.out.println( "Actual Join : " + joinMin.idx.joinTime );
+		stat.add( "Cost_Index_Estimate", joinMin.idx.estimatedIndexTime( estimate.delta ) );
+		stat.add( "Cost_Index_Actual", joinMin.idx.indexTime );
+
+		stat.add( "Cost_Join_Estimate", joinMin.idx.estimatedJoinTime( estimate.epsilon ) );
+		stat.add( "Cost_Join_Actual", joinMin.idx.joinTime );
+
+		stat.add( "Cost_ALL_Estimate", joinMin.idx.estimatedCountTime( estimate.gamma )
+				+ joinMin.idx.estimatedIndexTime( estimate.delta ) + joinMin.idx.estimatedJoinTime( estimate.epsilon ) );
+		stat.add( "Cost_ALL_Actual", joinMin.idx.countTime + joinMin.idx.indexTime + joinMin.idx.joinTime );
 
 	}
 
