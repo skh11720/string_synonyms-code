@@ -45,18 +45,15 @@ public class NaiveIndex {
 		return idx.get( expanded );
 	}
 
-	public void addStat( StatContainer stat ) {
-		stat.add( "Est_Index_2_rec2idx_getcount", idx.getCount );
-		stat.add( "Est_Index_2_rec2idx_putcount", idx.putCount );
-
-		stat.add( "Counter_Index_Get_Count", idx.getCount );
-		stat.add( "Counter_Index_GetIter_Count", idx.getIterCount );
-		stat.add( "Counter_Index_Put_Count", idx.putCount );
-		stat.add( "Counter_Index_Resize_Count", idx.resizeCount );
-		stat.add( "Counter_Index_Remove_Count", idx.removeCount );
-		stat.add( "Counter_Index_RemoveIter_Count", idx.removeIterCount );
-		stat.add( "Counter_Index_PutRemoved_Count", idx.putRemovedCount );
-		stat.add( "Counter_Index_RemoveFound_Count", idx.removeFoundCount );
+	public void addStat( StatContainer stat, String prefix ) {
+		stat.add( prefix + "_Get_Count", idx.getCount );
+		stat.add( prefix + "_GetIter_Count", idx.getIterCount );
+		stat.add( prefix + "_Put_Count", idx.putCount );
+		stat.add( prefix + "_Resize_Count", idx.resizeCount );
+		stat.add( prefix + "_Remove_Count", idx.removeCount );
+		stat.add( prefix + "_RemoveIter_Count", idx.removeIterCount );
+		stat.add( prefix + "_PutRemoved_Count", idx.putRemovedCount );
+		stat.add( prefix + "_RemoveFound_Count", idx.removeFoundCount );
 	}
 
 	public List<IntegerPair> join( List<Record> tableSearched, StatContainer stat, long threshold, boolean addStat ) {
@@ -102,15 +99,6 @@ public class NaiveIndex {
 			Runtime runtime = Runtime.getRuntime();
 			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 			stat.add( "Stat_Counter_ExpandAll", Record.expandAllCount );
-
-			stat.add( "Counter_Join_Get_Count", idx.getCount );
-			stat.add( "Counter_Join_GetIter_Count", idx.getIterCount );
-			stat.add( "Counter_Join_Put_Count", idx.putCount );
-			stat.add( "Counter_Join_Resize_Count", idx.resizeCount );
-			stat.add( "Counter_Join_Remove_Count", idx.removeCount );
-			stat.add( "Counter_Join_RemoveIter_Count", idx.removeIterCount );
-			stat.add( "Counter_Join_PutRemoved_Count", idx.putRemovedCount );
-			stat.add( "Counter_Join_RemoveFound_Count", idx.removeFoundCount );
 		}
 
 		return rslt;
@@ -285,7 +273,7 @@ public class NaiveIndex {
 			stat.add( "Est_Index_2_idxSize", idxsize );
 			stat.add( "Est_Index_2_indexingTime", indexingTime );
 
-			naiveIndex.addStat( stat );
+			naiveIndex.addStat( stat, "Counter_Index" );
 			stat.add( "Est_Index_2_totalTime", duration );
 
 			stat.add( "Est_Index_3_expandTimesLength", Double.toString( expandTimesLength ) );
