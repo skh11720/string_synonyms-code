@@ -271,7 +271,7 @@ public class JoinMinIndex {
 			qgramStartTime = System.nanoTime();
 		}
 
-		List<List<QGram>> availableQGrams = recS.getQGrams( qSize, idx.size() - 1 );
+		List<List<QGram>> availableQGrams = recS.getQGrams( qSize, idx.size() );
 
 		if( DEBUG.JoinMinON ) {
 			joinStartTime = System.nanoTime();

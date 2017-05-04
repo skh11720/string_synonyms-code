@@ -146,7 +146,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		}
 
 		// DEBUG
-		idx.DebugWriteToFile( "DEBUG_INDEX.txt" );
+		// idx.DebugWriteToFile( "DEBUG_INDEX.txt" );
 
 		Collection<IntegerPair> rslt = idx.join( tableSearched, writeResult, stat, checker );
 
