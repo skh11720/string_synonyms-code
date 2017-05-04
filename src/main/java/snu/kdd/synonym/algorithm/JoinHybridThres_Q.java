@@ -135,7 +135,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long time1 = System.currentTimeMillis();
 		// lastTokenFiltered = 0;
 		for( Record s : tableSearched ) {
-			joinMinIdx.joinRecord( s, rslt, true, null, checker );
+			joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
 		stat.add( "AppliedRules Sum", joinMinIdx.appliedRulesSum );

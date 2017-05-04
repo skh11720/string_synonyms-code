@@ -257,6 +257,109 @@ public class JoinMinIndex {
 		}
 	}
 
+	public void joinRecordThres( Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker,
+			int threshold ) {
+		long qgramStartTime = 0;
+		long joinStartTime = 0;
+		long qgramCount = 0;
+
+		boolean isUpperRecord = recS.getEstNumRecords() > threshold;
+
+		if( DEBUG.JoinMinON ) {
+			qgramStartTime = System.nanoTime();
+		}
+
+		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
+
+		if( DEBUG.JoinMinON ) {
+			getQGramTime += System.nanoTime() - qgramStartTime;
+		}
+
+		int[] range = recS.getCandidateLengths( recS.size() - 1 );
+		int searchmax = Integer.min( availableQGrams.size(), idx.size() - 1 );
+
+		if( DEBUG.JoinMinJoinOn ) {
+			joinStartTime = System.nanoTime();
+		}
+
+		for( int i = 0; i < searchmax; ++i ) {
+			Map<QGram, List<Record>> curridx = idx.get( i );
+			if( curridx == null ) {
+				continue;
+			}
+
+			Set<Record> candidates = new WYK_HashSet<Record>();
+
+			for( QGram qgram : availableQGrams.get( i ) ) {
+				if( DEBUG.JoinMinJoinOn ) {
+					qgramCount++;
+				}
+
+				List<Record> tree = curridx.get( qgram );
+
+				if( tree == null ) {
+					continue;
+				}
+
+				for( Record e : tree ) {
+					if( !isUpperRecord && e.getEstNumRecords() <= threshold ) {
+						continue;
+					}
+					else if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+						candidates.add( e );
+						count++;
+					}
+				}
+			}
+
+			equivComparisons += candidates.size();
+			for( Record recR : candidates ) {
+				long ruleiters = 0;
+				long reccalls = 0;
+				long entryiters = 0;
+
+				if( DEBUG.JoinMinON ) {
+					ruleiters = Validator.niterrules;
+					reccalls = Validator.recursivecalls;
+					entryiters = Validator.niterentry;
+				}
+
+				long st = System.nanoTime();
+				int compare = checker.isEqual( recR, recS );
+				long duration = System.nanoTime() - st;
+
+				if( DEBUG.JoinMinON ) {
+					ruleiters = Validator.niterrules - ruleiters;
+					reccalls = Validator.recursivecalls - reccalls;
+					entryiters = Validator.niterentry - entryiters;
+
+					// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
+					// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
+					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+				}
+
+				joinTime += duration;
+				if( compare >= 0 ) {
+					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+					appliedRulesSum += compare;
+				}
+			}
+		}
+
+		if( DEBUG.JoinMinJoinOn ) {
+			long joinTime = System.nanoTime() - joinStartTime;
+
+			try {
+				bw.write( "" + qgramCount );
+				bw.write( " " + joinTime );
+				bw.write( "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public void clear() {
 		for( int i = 0; i < idx.size(); i++ ) {
 			idx.get( i ).clear();
