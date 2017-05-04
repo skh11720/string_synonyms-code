@@ -41,10 +41,10 @@ public abstract class AlgorithmTemplate {
 	protected List<String> strlist;
 
 	// Table S
-	protected List<Record> tableSearched;
+	public List<Record> tableSearched;
 
 	// Table T
-	protected List<Record> tableIndexed;
+	public List<Record> tableIndexed;
 
 	private boolean selfJoin = false;
 

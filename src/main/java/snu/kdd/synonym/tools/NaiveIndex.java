@@ -18,7 +18,8 @@ public class NaiveIndex {
 
 	long expandTime = 0;
 	long searchTime = 0;
-	long totalExpSize = 0;
+	double totalExp = 0;
+	double totalExpLength = 0;
 
 	NaiveIndex( int initialSize ) {
 		idx = new WYK_HashMap<Record, ArrayList<Integer>>( initialSize );
@@ -80,8 +81,8 @@ public class NaiveIndex {
 			}
 
 			joinOneRecord( recS, rslt );
-
 		}
+
 		// debug_bw.close();
 		// }
 		// catch( Exception e ) {
@@ -89,7 +90,7 @@ public class NaiveIndex {
 		// }
 
 		final long duration = System.nanoTime() - starttime;
-		beta = ( (double) duration ) / totalExpSize;
+		beta = ( duration ) / totalExp;
 
 		if( addStat ) {
 			stat.add( "Est_Join_1_expandTime", expandTime );
@@ -110,7 +111,7 @@ public class NaiveIndex {
 		final List<Record> expanded = recS.expandAll();
 		expandTime += System.nanoTime() - expandStartTime;
 
-		totalExpSize += expanded.size();
+		totalExp += expanded.size();
 		// final List<List<Integer>> candidates = new ArrayList<List<Integer>>();
 		final Set<Integer> candidates = new HashSet<Integer>();
 
@@ -167,8 +168,8 @@ public class NaiveIndex {
 		}
 	}
 
-	public double estimatedExecutionTime() {
-		double estimatedTime = 0;
+	public double estimatedExecutionTimeAfterJoin( double alpha, double beta ) {
+		double estimatedTime = alpha * totalExpLength + beta * totalExp;
 
 		return estimatedTime;
 	}
@@ -180,18 +181,16 @@ public class NaiveIndex {
 		stat.add( "Auto_Hash_Initial_Size ", initialsize );
 		NaiveIndex naiveIndex = new NaiveIndex( initialsize );
 
-		long totalExpSize = 0;
+		long totalExpLength = 0;
 		// long estimatedExpSize = 0;
 
-		@SuppressWarnings( "unused" )
 		long idxsize = 0;
 		// int count = 0;
 
-		@SuppressWarnings( "unused" )
-		double expandTimesLength = 0;
+		double totalExp = 0;
 
 		long expandTime = 0;
-		@SuppressWarnings( "unused" )
+
 		long indexingTime = 0;
 
 		// try {
@@ -224,8 +223,8 @@ public class NaiveIndex {
 				expandTime += System.nanoTime() - expandStartTime;
 			}
 
-			totalExpSize += expanded.size();
-			expandTimesLength += expanded.size() * recR.getTokenArray().length;
+			totalExpLength += expanded.size() * recR.getTokenArray().length;
+			totalExp += expanded.size();
 
 			long indexingStartTime = System.nanoTime();
 			for( final Record exp : expanded ) {
@@ -269,14 +268,15 @@ public class NaiveIndex {
 		// }
 
 		final long duration = System.nanoTime() - starttime;
-		naiveIndex.alpha = ( (double) duration ) / totalExpSize;
+		naiveIndex.alpha = ( (double) duration ) / totalExpLength;
+		naiveIndex.totalExpLength = totalExpLength;
 
 		if( DEBUG.NaiveON ) {
 			if( addStat ) {
 				// stat.add( "Stat_Size_Indexed_Records", count );
 				stat.add( "Stat_Size_Total_Index", idxsize );
 
-				stat.add( "Est_Index_1_expSize", totalExpSize );
+				stat.add( "Est_Index_1_expSize", Double.toString( totalExp ) );
 				// stat.add( "Est_Index_1_expSizeEstimated", estimatedExpSize );
 				// stat.add( "Est_Index_1_executeTimeRatio", Double.toString( alpha ) );
 				stat.add( "Est_Index_1_expandTime", expandTime );
@@ -287,8 +287,8 @@ public class NaiveIndex {
 				naiveIndex.addStat( stat, "Counter_Index" );
 				stat.add( "Est_Index_2_totalTime", duration );
 
-				stat.add( "Est_Index_3_expandTimesLength", Double.toString( expandTimesLength ) );
-				stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / expandTimesLength ) );
+				stat.add( "Est_Index_3_expandTimesLength", Double.toString( totalExpLength ) );
+				stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / totalExpLength ) );
 				// stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
 
 				Runtime runtime = Runtime.getRuntime();

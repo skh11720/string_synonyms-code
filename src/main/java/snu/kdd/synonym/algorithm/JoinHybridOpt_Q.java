@@ -9,12 +9,12 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.data.DataInfo;
+import snu.kdd.synonym.estimation.SampleEstimate;
 import snu.kdd.synonym.tools.NaiveIndex;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
@@ -53,16 +53,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	int joinThreshold = 0;
 
-	// alpha: Naive indexing time per transformed strings of table T
-	double alpha;
-	// beta: Navie join time per transformed strings of table S
-	double beta;
-	// gamma: JoinMin counting twogram time per twograms of table S
-	double gamma;
-	// delta: JoinMin indexing time per twograms of table T
-	double delta;
-	// epsilon: JoinMin join time per candidate of table S
-	double epsilon;
+	SampleEstimate estimate;
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 	private static final CountEntry ZERO_ONE = new CountEntry( 0, 1 );
@@ -449,9 +440,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 
 			long[] esttimes = new long[ 4 ];
-			esttimes[ 0 ] = (long) ( alpha * currSLExpSize );
-			esttimes[ 1 ] = (long) ( beta * currTLExpSize );
-			esttimes[ 2 ] = (long) ( epsilon * est_cmps );
+			esttimes[ 0 ] = (long) ( estimate.alpha * currSLExpSize );
+			esttimes[ 1 ] = (long) ( estimate.beta * currTLExpSize );
+			esttimes[ 2 ] = (long) ( estimate.epsilon * est_cmps );
 			long esttime = esttimes[ 0 ] + esttimes[ 1 ] + esttimes[ 2 ];
 			if( esttime < best_esttime ) {
 				best_theta = (int) theta;
@@ -813,87 +804,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	private void findConstants( double sampleratio ) {
 		// Sample
-		Random rn = new Random( 0 );
-
-		int smallTableSize = Integer.min( tableSearched.size(), tableIndexed.size() );
-
-		if( sampleratio * smallTableSize < 1 ) {
-			// too low sample ratio
-			System.out.println( "Too low sample ratio" );
-			System.err.println( "Too low sample ratio" );
-
-			sampleratio = 10.0 / smallTableSize;
-		}
-
-		List<Record> sampleSearchedList = new ArrayList<Record>();
-		List<Record> sampleIndexedList = new ArrayList<Record>();
-		for( Record r : tableSearched ) {
-			if( rn.nextDouble() < sampleratio ) {
-				sampleSearchedList.add( r );
-			}
-		}
-		for( Record s : tableIndexed ) {
-			if( rn.nextDouble() < sampleratio ) {
-				sampleIndexedList.add( s );
-			}
-		}
-		List<Record> tmpR = tableSearched;
-		List<Record> tmpS = tableIndexed;
-
-		tableSearched = sampleSearchedList;
-		tableIndexed = sampleIndexedList;
-
-		System.out.println( sampleSearchedList.size() + " Searched records are sampled" );
-		System.out.println( sampleIndexedList.size() + " Indexed records are sampled" );
-
-		stat.add( "Stat_Sample Searched size", sampleSearchedList.size() );
-		stat.add( "Stat_Sample Indexed size", sampleIndexedList.size() );
-
-		// Infer alpha and beta
-		JoinNaive1 naiveinst = new JoinNaive1( this, stat );
-		naiveinst.threshold = 100;
-		naiveinst.runWithoutPreprocess( false );
-		alpha = naiveinst.getAlpha();
-		beta = naiveinst.getBeta();
-
-		// Infer gamma, delta and epsilon
-		JoinMin_Q joinmininst = new JoinMin_Q( this, stat );
-		joinmininst.useAutomata = useAutomata;
-		joinmininst.skipChecking = skipChecking;
-		joinmininst.maxIndex = maxIndex;
-		joinmininst.compact = compact;
-		JoinMin_Q.checker = checker;
-		joinmininst.qSize = qSize;
-		joinmininst.outputfile = null;
-		try {
-			System.out.println( "Joinmininst run" );
-			joinmininst.runWithoutPreprocess( false );
-			System.out.println( "Joinmininst run done" );
-		}
-		catch( Exception e ) {
-			e.printStackTrace();
-		}
-		gamma = joinmininst.getGamma();
-		delta = joinmininst.getDelta();
-		epsilon = joinmininst.getEpsilon();
-		System.out.println( "Bigram computation time : " + Record.exectime );
-		Validator.printStats();
-
-		// Restore tables
-		tableSearched = tmpR;
-		tableIndexed = tmpS;
-
-		System.out.println( "Alpha : " + alpha );
-		System.out.println( "Beta : " + beta );
-		System.out.println( "Gamma : " + gamma );
-		System.out.println( "Delta : " + delta );
-		System.out.println( "Epsilon : " + epsilon );
-
-		stat.add( "Const_Alpha", String.format( "%.2f", alpha ) );
-		stat.add( "Const_Beta", String.format( "%.2f", beta ) );
-		stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
-		stat.add( "Const_Delta", String.format( "%.2f", delta ) );
-		stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
+		estimate = new SampleEstimate( tableSearched, tableIndexed, sampleratio );
+		estimate.estimateWithSample( stat, this, checker, qSize );
 	}
 
 	@Override
