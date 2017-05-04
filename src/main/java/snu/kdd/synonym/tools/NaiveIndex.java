@@ -21,6 +21,9 @@ public class NaiveIndex {
 	double totalExp = 0;
 	double totalExpLength = 0;
 
+	public double indexTime = 0;
+	public double joinTime = 0;
+
 	NaiveIndex( int initialSize ) {
 		idx = new WYK_HashMap<Record, ArrayList<Integer>>( initialSize );
 	}
@@ -89,13 +92,13 @@ public class NaiveIndex {
 		// e.printStackTrace();
 		// }
 
-		final long duration = System.nanoTime() - starttime;
-		beta = ( duration ) / totalExp;
+		joinTime = System.nanoTime() - starttime;
+		beta = joinTime / totalExp;
 
 		if( addStat ) {
 			stat.add( "Est_Join_1_expandTime", expandTime );
 			stat.add( "Est_Join_2_searchTime", searchTime );
-			stat.add( "Est_Join_3_totalTime", duration );
+			stat.add( "Est_Join_3_totalTime", Double.toString( joinTime ) );
 
 			Runtime runtime = Runtime.getRuntime();
 			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
@@ -168,10 +171,16 @@ public class NaiveIndex {
 		}
 	}
 
-	public double estimatedExecutionTimeAfterJoin( double alpha, double beta ) {
-		double estimatedTime = alpha * totalExpLength + beta * totalExp;
+	public double estimatedIndexTime( double alpha ) {
+		return alpha * totalExpLength;
+	}
 
-		return estimatedTime;
+	public double estimatedJoinTime( double beta ) {
+		return beta * totalExp;
+	}
+
+	public double estimatedExecutionTimeAfterJoin( double alpha, double beta ) {
+		return estimatedIndexTime( alpha ) + estimatedJoinTime( beta );
 	}
 
 	public static NaiveIndex buildIndex( List<Record> tableIndexed, double avgTransformed, StatContainer stat, long threshold,
@@ -267,8 +276,8 @@ public class NaiveIndex {
 		// e.printStackTrace();
 		// }
 
-		final long duration = System.nanoTime() - starttime;
-		naiveIndex.alpha = ( (double) duration ) / totalExpLength;
+		naiveIndex.indexTime = System.nanoTime() - starttime;
+		naiveIndex.alpha = naiveIndex.indexTime / totalExpLength;
 		naiveIndex.totalExpLength = totalExpLength;
 
 		if( DEBUG.NaiveON ) {
@@ -285,7 +294,7 @@ public class NaiveIndex {
 				stat.add( "Est_Index_2_indexingTime", indexingTime );
 
 				naiveIndex.addStat( stat, "Counter_Index" );
-				stat.add( "Est_Index_2_totalTime", duration );
+				stat.add( "Est_Index_2_totalTime", Double.toString( naiveIndex.indexTime ) );
 
 				stat.add( "Est_Index_3_expandTimesLength", Double.toString( totalExpLength ) );
 				stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / totalExpLength ) );

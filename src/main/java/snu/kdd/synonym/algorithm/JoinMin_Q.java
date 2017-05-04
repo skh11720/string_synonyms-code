@@ -36,7 +36,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	 * Key: (2gram, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
-	JoinMinIndex idx;
+	public JoinMinIndex idx;
 
 	public JoinMin_Q( String rulefile, String Rfile, String Sfile, String outputFile, DataInfo dataInfo ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputFile, dataInfo );

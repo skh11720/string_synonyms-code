@@ -24,11 +24,13 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	/**
 	 * Store the original index from expanded string
 	 */
-	NaiveIndex idx;
+	public NaiveIndex idx;
 	RuleTrie ruletrie;
 
 	public long threshold = Long.MAX_VALUE;
 	public double avgTransformed = 1;
+
+	public double executionTime;
 
 	public JoinNaive1( AlgorithmTemplate o, StatContainer stat ) {
 		super( o );

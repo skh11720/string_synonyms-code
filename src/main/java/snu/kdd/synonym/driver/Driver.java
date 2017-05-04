@@ -23,6 +23,8 @@ import snu.kdd.synonym.algorithm.SIJoin;
 import snu.kdd.synonym.algorithm.deprecated.JoinMH_QL_OLD;
 import snu.kdd.synonym.algorithm.deprecated.JoinMin_Q_OLD;
 import snu.kdd.synonym.data.DataInfo;
+import snu.kdd.synonym.estimation.EstimateJoinMin;
+import snu.kdd.synonym.estimation.EstimateJoinNaive;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
@@ -60,7 +62,9 @@ public class Driver {
 		JoinHybridOpt,
 		SIJoin,
 		DebugAlg,
-		CheckQGram
+		CheckQGram,
+		EstimateNaive,
+		EstimateJoinMin,
 	}
 
 	public static CommandLine parseInput( String args[] ) throws ParseException {
@@ -143,6 +147,13 @@ public class Driver {
 
 		case CheckQGram:
 			alg = new CheckQGram( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			break;
+
+		case EstimateNaive:
+			alg = new EstimateJoinNaive( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			break;
+		case EstimateJoinMin:
+			alg = new EstimateJoinMin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 
 		default:

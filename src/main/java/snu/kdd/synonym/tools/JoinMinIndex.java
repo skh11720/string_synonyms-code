@@ -32,7 +32,7 @@ public class JoinMinIndex {
 	public long searchedTotalSigCount;
 	public long indexedTotalSigCount;
 	public long equivComparisons;
-	public long joinTime;
+	public long actualJoinTime;
 	public long appliedRulesSum;
 
 	long getQGramTime;
@@ -237,7 +237,7 @@ public class JoinMinIndex {
 					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
 				}
 
-				joinTime += duration;
+				actualJoinTime += duration;
 				if( compare >= 0 ) {
 					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 					appliedRulesSum += compare;
@@ -334,7 +334,7 @@ public class JoinMinIndex {
 					// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
 					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
 					long duration = System.nanoTime() - st;
-					joinTime += duration;
+					actualJoinTime += duration;
 				}
 
 				if( compare >= 0 ) {
