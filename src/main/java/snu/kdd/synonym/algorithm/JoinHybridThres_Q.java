@@ -122,15 +122,14 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		// Build 1-expanded set for every record in R
 		int initialSize;
 
-		if( joinThreshold > 1 ) {
-			if( joinThreshold * tableIndexed.size() / 2.0 < 1e8 ) {
-				initialSize = joinThreshold / 2;
-			}
-			else {
-				initialSize = (int) ( 1e8 * 2.0 / tableIndexed.size() );
-			}
+		if( joinThreshold * tableIndexed.size() / 2.0 < 1e8 ) {
+			initialSize = joinThreshold / 2;
 		}
 		else {
+			initialSize = (int) ( 1e8 * 2.0 / tableIndexed.size() );
+		}
+
+		if( initialSize == 0 ) {
 			initialSize = 1;
 		}
 
