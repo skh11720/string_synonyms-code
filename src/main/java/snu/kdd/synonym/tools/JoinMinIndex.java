@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -272,8 +273,8 @@ public class JoinMinIndex {
 		List<List<QGram>> availableQGrams = recS.getQGrams( qSize, idx.size() - 1 );
 
 		if( DEBUG.JoinMinON ) {
-			getQGramTime += System.nanoTime() - qgramStartTime;
 			joinStartTime = System.nanoTime();
+			getQGramTime += joinStartTime - qgramStartTime;
 		}
 
 		int[] range = recS.getCandidateLengths( recS.size() - 1 );
@@ -282,7 +283,7 @@ public class JoinMinIndex {
 		for( int i = 0; i < searchmax; ++i ) {
 			Map<QGram, List<Record>> curridx = idx.get( i );
 
-			Set<Record> candidates = new WYK_HashSet<Record>();
+			Set<Record> candidates = new HashSet<Record>();
 
 			for( QGram qgram : availableQGrams.get( i ) ) {
 				if( DEBUG.JoinMinJoinOn ) {
@@ -312,16 +313,16 @@ public class JoinMinIndex {
 				long ruleiters = 0;
 				long reccalls = 0;
 				long entryiters = 0;
+				long st = 0;
 
 				if( DEBUG.JoinMinON ) {
 					ruleiters = Validator.niterrules;
 					reccalls = Validator.recursivecalls;
 					entryiters = Validator.niterentry;
+					st = System.nanoTime();
 				}
 
-				long st = System.nanoTime();
 				int compare = checker.isEqual( recR, recS );
-				long duration = System.nanoTime() - st;
 
 				if( DEBUG.JoinMinON ) {
 					ruleiters = Validator.niterrules - ruleiters;
@@ -331,9 +332,10 @@ public class JoinMinIndex {
 					// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
 					// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
 					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+					long duration = System.nanoTime() - st;
+					joinTime += duration;
 				}
 
-				joinTime += duration;
 				if( compare >= 0 ) {
 					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 					appliedRulesSum += compare;

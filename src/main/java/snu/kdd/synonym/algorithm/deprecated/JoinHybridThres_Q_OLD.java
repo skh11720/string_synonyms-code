@@ -283,8 +283,10 @@ public class JoinHybridThres_Q_OLD extends AlgorithmTemplate {
 		int appliedRules_sum = 0;
 		int idxSize = idx.size();
 		List<Set<IntegerPair>> available2Grams = s.get2GramsWithBound( idxSize );
+
 		int[] range = s.getCandidateLengths( s.size() - 1 );
 		int searchmax = Math.min( available2Grams.size(), maxIndex );
+
 		for( int i = 0; i < searchmax; ++i ) {
 			if( i >= idx.size() ) {
 				break;
