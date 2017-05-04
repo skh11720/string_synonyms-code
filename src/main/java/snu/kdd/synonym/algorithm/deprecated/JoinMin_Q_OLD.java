@@ -331,7 +331,12 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 				BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_OLD_Index.txt" ) );
 
 				for( int i = 0; i < idx.size(); i++ ) {
+					debug_bw.write( i + "-th index" );
 					Map<IntegerPair, List<Record>> map = idx.get( i );
+
+					if( map == null ) {
+						continue;
+					}
 
 					for( Entry<IntegerPair, List<Record>> entry : map.entrySet() ) {
 						debug_bw.write( entry.getKey() + " " + entry.getValue() );

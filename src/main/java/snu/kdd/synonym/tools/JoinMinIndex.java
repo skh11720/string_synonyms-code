@@ -594,6 +594,7 @@ public class JoinMinIndex {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
 
 			for( int i = 0; i < idx.size(); i++ ) {
+				bw.write( i + "-th index" );
 				WYK_HashMap<QGram, List<Record>> map = idx.get( i );
 
 				for( Entry<QGram, List<Record>> entry : map.entrySet() ) {
