@@ -9,7 +9,7 @@ dir=logs
 #SIZES=( 1500000 2000000 2500000 )
 #SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
 #SIZES=( 1000 3000 10000 30000 100000 300000 1000000 3000000 5000000 )
-SIZES=( 1000 3000 10000 30000 )
+SIZES=( 1000 3000 )
 
 for SIZE in ${SIZES[@]};
 do
@@ -22,4 +22,5 @@ do
 	outputPath=output
 
 	./EstimateNaive.sh $inputfile_one $inputfile_two $rulefile  output logs $LIBS EST_AOL
+	./EstimateJoinMin.sh $inputfile_one $inputfile_two $rulefile  output logs $LIBS 2 EST_AOL
 done
