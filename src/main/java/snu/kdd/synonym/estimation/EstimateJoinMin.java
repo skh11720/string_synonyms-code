@@ -28,10 +28,10 @@ public class EstimateJoinMin extends AlgorithmTemplate {
 	public void run( String[] args, StatContainer stat ) {
 		joinMin.run( args, stat );
 
-		double sampleratio = Double.parseDouble( args[ 0 ] );
+		double sampleratio = 0.1;
 		SampleEstimate estimate = new SampleEstimate( joinMin.tableSearched, joinMin.tableIndexed, sampleratio );
 
-		estimate.estimateJoinMin( joinMin, stat, joinMin.checker, joinMin.qSize );
+		estimate.estimateJoinMin( joinMin, stat, JoinMin_Q.checker, joinMin.qSize );
 
 		stat.add( "Cost_Count_Estimate", joinMin.idx.estimatedCountTime( estimate.gamma ) );
 		stat.add( "Cost_Count_Actual", joinMin.idx.countTime );
