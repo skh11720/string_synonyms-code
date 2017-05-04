@@ -1,8 +1,7 @@
 package snu.kdd.synonym.algorithm;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -16,6 +15,7 @@ import mine.Record;
 import sigmod13.SI_Tree;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
+import tools.IntegerPair;
 import tools.Pair;
 
 public class SIJoin extends AlgorithmTemplate {
@@ -41,10 +41,12 @@ public class SIJoin extends AlgorithmTemplate {
 
 		// br.readLine();
 
-		join( treeR, treeS, 1 );
+		List<IntegerPair> rslt = join( treeR, treeS, 1 );
+
+		writeResult( rslt );
 	}
 
-	public void join( SI_Tree<Record> treeR, SI_Tree<Record> treeS, double threshold ) {
+	public List<IntegerPair> join( SI_Tree<Record> treeR, SI_Tree<Record> treeS, double threshold ) {
 		long startTime = System.currentTimeMillis();
 
 		List<Pair<Record>> candidates = treeR.join( treeS, threshold );
@@ -60,19 +62,12 @@ public class SIJoin extends AlgorithmTemplate {
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		System.out.println( "Similar pairs : " + candidates.size() );
 
-		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
-			for( Pair<Record> ip : candidates ) {
-				if( isSelfJoin() && ip.rec1.getID() == ip.rec2.getID() ) {
-					continue;
-				}
-				bw.write( ip.rec1.toString( strlist ) + "\t==\t" + ip.rec2.toString( strlist ) + "\n" );
-			}
-			bw.close();
+		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
+
+		for( Pair<Record> ip : candidates ) {
+			rslt.add( new IntegerPair( ip.rec1.getID(), ip.rec2.getID() ) );
 		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
+		return rslt;
 	}
 
 	/**
