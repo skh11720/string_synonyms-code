@@ -178,7 +178,7 @@ public class JoinMinIndex {
 		}
 
 		int[] range = recS.getCandidateLengths( recS.size() - 1 );
-		int searchmax = Integer.min( availableQGrams.size(), idx.size() - 1 );
+		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 
 		if( DEBUG.JoinMinJoinOn ) {
 			joinStartTime = System.nanoTime();

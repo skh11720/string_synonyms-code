@@ -327,34 +327,34 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 
 			// DEBUG
 
-			try {
-				BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_OLD_Index.txt" ) );
-
-				for( int i = 0; i < idx.size() + 5; i++ ) {
-					debug_bw.write( i + "-th index\n" );
-					Map<IntegerPair, List<Record>> map = idx.get( i );
-
-					if( map == null ) {
-						continue;
-					}
-
-					for( Entry<IntegerPair, List<Record>> entry : map.entrySet() ) {
-						debug_bw.write( entry.getKey().toString() );
-
-						List<Record> list = entry.getValue();
-
-						for( int idx = 0; idx < list.size(); idx++ ) {
-							debug_bw.write( " " + list.get( idx ).getID() );
-						}
-						debug_bw.write( "\n" );
-					}
-				}
-
-				debug_bw.close();
-			}
-			catch( IOException e ) {
-				e.printStackTrace();
-			}
+			// try {
+			// BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_OLD_Index.txt" ) );
+			//
+			// for( int i = 0; i < idx.size() + 1; i++ ) {
+			// debug_bw.write( i + "-th index\n" );
+			// Map<IntegerPair, List<Record>> map = idx.get( i );
+			//
+			// if( map == null ) {
+			// continue;
+			// }
+			//
+			// for( Entry<IntegerPair, List<Record>> entry : map.entrySet() ) {
+			// debug_bw.write( entry.getKey().toString() );
+			//
+			// List<Record> list = entry.getValue();
+			//
+			// for( int idx = 0; idx < list.size(); idx++ ) {
+			// debug_bw.write( " " + list.get( idx ).getID() );
+			// }
+			// debug_bw.write( "\n" );
+			// }
+			// }
+			//
+			// debug_bw.close();
+			// }
+			// catch( IOException e ) {
+			// e.printStackTrace();
+			// }
 
 		}
 		catch( Exception e ) {
