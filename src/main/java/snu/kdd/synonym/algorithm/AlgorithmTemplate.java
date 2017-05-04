@@ -356,11 +356,10 @@ public abstract class AlgorithmTemplate {
 			for( final IntegerPair ip : rslt ) {
 				final Record r = tableSearched.get( ip.i1 );
 				final Record s = tableIndexed.get( ip.i2 );
-				if( selfJoin && r.equals( s ) ) {
-					continue;
-				}
-				bw.write( tableSearched.get( ip.i1 ).toString( strlist ) + "\t==\t"
-						+ tableIndexed.get( ip.i2 ).toString( strlist ) + "\n" );
+				// if( selfJoin && r.equals( s ) ) {
+				// continue;
+				// }
+				bw.write( r.toString( strlist ) + "\t==\t" + s.toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}
