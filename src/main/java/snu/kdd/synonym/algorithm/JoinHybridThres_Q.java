@@ -99,6 +99,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 		if( maxSearchedEstNumRecords < joinThreshold && maxIndexedEstNumRecords < joinThreshold ) {
 			joinMinRequired = false;
+			joinThreshold = Integer.max( (int) maxSearchedEstNumRecords, (int) maxIndexedEstNumRecords ) + 1;
 		}
 
 		System.out.println( "Max Indexed expanded size : " + maxIndexedEstNumRecords );

@@ -167,6 +167,12 @@ public class NaiveIndex {
 		}
 	}
 
+	public double estimatedExecutionTime() {
+		double estimatedTime = 0;
+
+		return estimatedTime;
+	}
+
 	public static NaiveIndex buildIndex( List<Record> tableIndexed, double avgTransformed, StatContainer stat, long threshold,
 			boolean addStat ) {
 		final long starttime = System.nanoTime();
@@ -176,12 +182,16 @@ public class NaiveIndex {
 
 		long totalExpSize = 0;
 		// long estimatedExpSize = 0;
+
+		@SuppressWarnings( "unused" )
 		long idxsize = 0;
 		// int count = 0;
 
+		@SuppressWarnings( "unused" )
 		double expandTimesLength = 0;
 
 		long expandTime = 0;
+		@SuppressWarnings( "unused" )
 		long indexingTime = 0;
 
 		// try {
@@ -261,28 +271,29 @@ public class NaiveIndex {
 		final long duration = System.nanoTime() - starttime;
 		naiveIndex.alpha = ( (double) duration ) / totalExpSize;
 
-		if( addStat ) {
-			// stat.add( "Stat_Size_Indexed_Records", count );
-			stat.add( "Stat_Size_Total_Index", idxsize );
+		if( DEBUG.NaiveON ) {
+			if( addStat ) {
+				// stat.add( "Stat_Size_Indexed_Records", count );
+				stat.add( "Stat_Size_Total_Index", idxsize );
 
-			stat.add( "Est_Index_1_expSize", totalExpSize );
-			// stat.add( "Est_Index_1_expSizeEstimated", estimatedExpSize );
-			// stat.add( "Est_Index_1_executeTimeRatio", Double.toString( alpha ) );
-			stat.add( "Est_Index_1_expandTime", expandTime );
+				stat.add( "Est_Index_1_expSize", totalExpSize );
+				// stat.add( "Est_Index_1_expSizeEstimated", estimatedExpSize );
+				// stat.add( "Est_Index_1_executeTimeRatio", Double.toString( alpha ) );
+				stat.add( "Est_Index_1_expandTime", expandTime );
 
-			stat.add( "Est_Index_2_idxSize", idxsize );
-			stat.add( "Est_Index_2_indexingTime", indexingTime );
+				stat.add( "Est_Index_2_idxSize", idxsize );
+				stat.add( "Est_Index_2_indexingTime", indexingTime );
 
-			naiveIndex.addStat( stat, "Counter_Index" );
-			stat.add( "Est_Index_2_totalTime", duration );
+				naiveIndex.addStat( stat, "Counter_Index" );
+				stat.add( "Est_Index_2_totalTime", duration );
 
-			stat.add( "Est_Index_3_expandTimesLength", Double.toString( expandTimesLength ) );
-			stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / expandTimesLength ) );
-			// stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
+				stat.add( "Est_Index_3_expandTimesLength", Double.toString( expandTimesLength ) );
+				stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / expandTimesLength ) );
+				// stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
 
-			Runtime runtime = Runtime.getRuntime();
-			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-
+				Runtime runtime = Runtime.getRuntime();
+				stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			}
 		}
 
 		return naiveIndex;
