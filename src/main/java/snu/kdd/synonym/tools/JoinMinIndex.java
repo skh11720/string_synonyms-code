@@ -295,7 +295,8 @@ public class JoinMinIndex {
 					continue;
 				}
 
-				for( Record e : tree ) {
+				for( int idx = tree.size() - 1; idx >= 0; idx-- ) {
+					Record e = tree.get( idx );
 					if( !isUpperRecord && e.getEstNumRecords() <= threshold ) {
 						break;
 					}
