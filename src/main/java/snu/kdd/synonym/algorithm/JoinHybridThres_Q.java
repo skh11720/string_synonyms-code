@@ -155,7 +155,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		int naiveSearch = 0;
 		for( Record s : tableSearched ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
-				continue;
+				break;
 			}
 			else {
 				naiveIndex.joinOneRecord( s, rslt );
