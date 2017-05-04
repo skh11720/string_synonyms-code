@@ -160,9 +160,10 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
 			}
 			clearJoinMinIndex();
+			stat.add( "AppliedRules Sum", joinMinIdx.appliedRulesSum );
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
-		stat.add( "AppliedRules Sum", joinMinIdx.appliedRulesSum );
+
 		stepTime.stopAndAdd( stat );
 		time1 = System.currentTimeMillis() - time1;
 
