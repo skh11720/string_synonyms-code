@@ -61,6 +61,11 @@ public class StatContainer {
 		valueList.add( Long.toString( value ) );
 	}
 
+	public void add( String name, double value ) {
+		nameList.add( name );
+		valueList.add( Double.toString( value ) );
+	}
+
 	public void add( String name, String value ) {
 		nameList.add( name );
 		valueList.add( value );
