@@ -145,6 +145,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		}
 
+		// DEBUG
+		idx.DebugWriteToFile( "DEBUG_INDEX.txt" );
+
 		Collection<IntegerPair> rslt = idx.join( tableSearched, writeResult, stat, checker );
 
 		if( DEBUG.JoinMinON ) {

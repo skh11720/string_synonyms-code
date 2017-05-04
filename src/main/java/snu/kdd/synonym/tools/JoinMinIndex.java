@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import mine.Record;
@@ -586,5 +587,24 @@ public class JoinMinIndex {
 		}
 
 		return idx;
+	}
+
+	public void DebugWriteToFile( String filename ) {
+		try {
+			BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
+
+			for( int i = 0; i < idx.size(); i++ ) {
+				WYK_HashMap<QGram, List<Record>> map = idx.get( i );
+
+				for( Entry<QGram, List<Record>> entry : map.entrySet() ) {
+					bw.write( entry.getKey() + " " + entry.getValue() );
+				}
+			}
+
+			bw.close();
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
 	}
 }
