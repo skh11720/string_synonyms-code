@@ -330,7 +330,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 			try {
 				BufferedWriter debug_bw = new BufferedWriter( new FileWriter( "DEBUG_OLD_Index.txt" ) );
 
-				for( int i = 0; i < idx.size(); i++ ) {
+				for( int i = 0; i < idx.size() + 5; i++ ) {
 					debug_bw.write( i + "-th index\n" );
 					Map<IntegerPair, List<Record>> map = idx.get( i );
 
