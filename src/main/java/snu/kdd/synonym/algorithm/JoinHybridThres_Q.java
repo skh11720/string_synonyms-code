@@ -189,6 +189,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			}
 		}
 		stat.add( "Naive search count", naiveSearch );
+		naiveIndex.addStat( stat, "Counter_Join" );
 		stepTime.stopAndAdd( stat );
 		time2 = System.currentTimeMillis() - time2;
 
@@ -239,7 +240,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	}
 
 	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Preprocess Total Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess( compact, maxIndex, useAutomata );
 		stepTime.stopAndAdd( stat );
 		System.out.print( "Preprocess finished" );
