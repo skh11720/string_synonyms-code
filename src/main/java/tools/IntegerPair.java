@@ -32,7 +32,7 @@ public class IntegerPair {
 
 	@Override
 	public String toString() {
-		return String.format( "%d,%d", i1, i2 );
+		return String.format( "%d %d ", i1, i2 );
 	}
 
 	public String toStrString() {
