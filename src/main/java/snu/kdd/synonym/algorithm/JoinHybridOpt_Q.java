@@ -15,6 +15,7 @@ import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.estimation.SampleEstimate;
+import snu.kdd.synonym.tools.JoinMinIndex;
 import snu.kdd.synonym.tools.NaiveIndex;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
@@ -82,6 +83,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	 * List of 1-expandable strings
 	 */
 	NaiveIndex naiveIndex;
+	JoinMinIndex joinMinIdx;
 	/**
 	 * Estimated number of comparisons
 	 */
@@ -131,7 +133,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "Result_5_JoinMin_Index_Build_Time" );
 		try {
-			buildJoinMinIndex();
+			buildPrevJoinMinIndex();
 			// checkLongestIndex();
 		}
 		catch( Exception e ) {
@@ -277,7 +279,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				joinMinCandidateCount += result.l;
 			}
 
-			double estimatedExecutionTime = getEstimatedTime( naiveExpSize, joinMinCandidateCount );
+			double estimatedExecutionTime = 0;
 
 			if( bestEstimatedTime > estimatedExecutionTime ) {
 				bestEstimatedTime = estimatedExecutionTime;
@@ -286,10 +288,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		return bestThreshold;
-	}
-
-	private double getEstimatedTime( long naiveExpSize, long joinMinCandidateCount ) {
-		return 0;
 	}
 
 	private void findTheta( int max_theta ) {
@@ -475,6 +473,12 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	}
 
 	private void buildJoinMinIndex() {
+		// Build an index
+		// Count Invokes per each (token, loc) pair
+		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true );
+	}
+
+	private void buildPrevJoinMinIndex() {
 		Runtime runtime = Runtime.getRuntime();
 
 		long elements = 0;
@@ -682,20 +686,22 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	 * @return
 	 */
 	private ArrayList<IntegerPair> join() {
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
-		long appliedRules_sum = 0;
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
+		if( joinMinRequired ) {
+			buildJoinMinIndex();
+		}
+		stepTime.stopAndAdd( stat );
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_1_SearchEquiv_JoinMin_Time" );
-		long time1 = System.currentTimeMillis();
+		stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
+
+		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		if( joinMinRequired ) {
 			for( Record s : tableSearched ) {
-				appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
 			}
 		}
-		stat.add( "Stat_Join_AppliedRules Sum", appliedRules_sum );
 		System.out.println( "After JoinMin Result: " + rslt.size() );
 		stepTime.stopAndAdd( stat );
-		time1 = System.currentTimeMillis() - time1;
 		clearJoinMinIndex();
 
 		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
@@ -703,7 +709,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
-		long time2 = System.currentTimeMillis();
+
 		int naiveSearch = 0;
 		for( Record s : tableSearched ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
@@ -716,11 +722,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 		stat.add( "Stat_Naive search count", naiveSearch );
 		stepTime.stopAndAdd( stat );
-		time2 = System.currentTimeMillis() - time2;
-
-		System.out.println( "Stat_Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-		System.out.println( "SH_T + SL_TH : " + time1 );
-		System.out.println( "SL_TL : " + time2 );
 
 		return rslt;
 	}

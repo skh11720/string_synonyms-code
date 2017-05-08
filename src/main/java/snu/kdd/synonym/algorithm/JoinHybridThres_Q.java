@@ -144,20 +144,16 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	 * @return
 	 */
 	private ArrayList<IntegerPair> join() {
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
-		long appliedRules_sum = 0;
 
-		long startTime = System.currentTimeMillis();
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMinRequired ) {
 			buildJoinMinIndex();
 		}
 		stepTime.stopAndAdd( stat );
-		System.out.print( "Building JoinMin Index finished " + ( System.currentTimeMillis() - startTime ) );
 
 		stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
-		long time1 = System.currentTimeMillis();
-		// lastTokenFiltered = 0;
+
+		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		if( joinMinRequired ) {
 			for( Record s : tableSearched ) {
 				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
@@ -168,17 +164,14 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
 
 		stepTime.stopAndAdd( stat );
-		time1 = System.currentTimeMillis() - time1;
 
-		startTime = System.currentTimeMillis();
 		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		buildNaiveIndex();
 		stepTime.stopAndAdd( stat );
 		System.out.print( "Building Naive Index finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
 		stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
-		long time2 = System.currentTimeMillis();
+
 		int naiveSearch = 0;
 		for( Record s : tableSearched ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
@@ -192,11 +185,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		stat.add( "Naive search count", naiveSearch );
 		naiveIndex.addStat( stat, "Counter_Join" );
 		stepTime.stopAndAdd( stat );
-		time2 = System.currentTimeMillis() - time2;
-
-		System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-		System.out.println( "SH_T + SL_TH : " + time1 );
-		System.out.println( "SL_TL : " + time2 );
 
 		return rslt;
 	}
