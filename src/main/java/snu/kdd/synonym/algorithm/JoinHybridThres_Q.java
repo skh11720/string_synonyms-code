@@ -14,6 +14,7 @@ import snu.kdd.synonym.tools.NaiveIndex;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import tools.DEBUG;
 import tools.IntegerPair;
 import tools.Rule;
 import tools.RuleTrie;
@@ -189,7 +190,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	public void statistics() {
+	private void statistics() {
 		long strlengthsum = 0;
 		long strmaxinvsearchrangesum = 0;
 		int strs = 0;
@@ -235,9 +236,11 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.print( "Preprocess finished" );
 
 		// Retrieve statistics
-		stepTime.resetAndStart( "Result_3_Statistics_Time" );
-		statistics();
-		stepTime.stopAndAdd( stat );
+		if( DEBUG.JoinHybridON ) {
+			stepTime.resetAndStart( "Result_3_Statistics_Time" );
+			statistics();
+			stepTime.stopAndAdd( stat );
+		}
 
 		stepTime.resetAndStart( "Result_7_Join_Time" );
 		Collection<IntegerPair> rslt = join();

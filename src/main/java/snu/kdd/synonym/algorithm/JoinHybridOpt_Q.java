@@ -20,6 +20,7 @@ import snu.kdd.synonym.tools.NaiveIndex;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import tools.DEBUG;
 import tools.IntegerPair;
 import tools.LongIntPair;
 import tools.QGram;
@@ -77,7 +78,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	 * (SL x TH)
 	 */
 	List<Map<QGram, Directory>> idx;
-	List<Map<QGram, WrappedInteger>> T_invokes;
 
 	/**
 	 * List of 1-expandable strings
@@ -122,9 +122,12 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		// Retrieve statistics
-		stepTime.resetAndStart( "Result_3_Statistics_Time" );
-		statistics();
-		stepTime.stopAndAdd( stat );
+
+		if( DEBUG.JoinHybridON ) {
+			stepTime.resetAndStart( "Result_3_Statistics_Time" );
+			statistics();
+			stepTime.stopAndAdd( stat );
+		}
 
 		// Estimate constants
 		stepTime.resetAndStart( "Result_4_Find_Constants_Time" );
@@ -132,18 +135,15 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_5_JoinMin_Index_Build_Time" );
-		try {
-			buildPrevJoinMinIndex();
-			// checkLongestIndex();
-		}
-		catch( Exception e ) {
-			e.printStackTrace();
-		}
+
+		List<Map<QGram, WrappedInteger>> invokes = buildPrevJoinMinIndex();
+		// checkLongestIndex();
+
 		stepTime.stopAndAdd( stat );
 
 		// Modify index to get optimal theta
 		stepTime.resetAndStart( "Result_6_Find_Theta_Time" );
-		findTheta( Integer.MAX_VALUE );
+		findTheta( invokes, Integer.MAX_VALUE );
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_7_Join_Time" );
@@ -290,7 +290,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		return bestThreshold;
 	}
 
-	private void findTheta( int max_theta ) {
+	private void findTheta( List<Map<QGram, WrappedInteger>> invokes, int max_theta ) {
 		// Find the best threshold
 		int best_theta = 0;
 		long best_esttime = Long.MAX_VALUE;
@@ -412,7 +412,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				for( int i = 0; i < s.getMinLength(); ++i ) {
 					int sum_invokes = 0;
 					for( QGram curr_qgram : qgrams.get( i ) ) {
-						WrappedInteger count = T_invokes.get( i ).get( curr_qgram );
+						WrappedInteger count = invokes.get( i ).get( curr_qgram );
 						if( count != null )
 							sum_invokes += count.get();
 					}
@@ -478,15 +478,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true );
 	}
 
-	private void buildPrevJoinMinIndex() {
-		Runtime runtime = Runtime.getRuntime();
+	private List<Map<QGram, WrappedInteger>> buildPrevJoinMinIndex() {
 
 		long elements = 0;
 		est_cmps = 0;
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		T_invokes = new ArrayList<Map<QGram, WrappedInteger>>();
-		int invokesInitialized = 0;
+		List<Map<QGram, WrappedInteger>> invokes = new ArrayList<Map<QGram, WrappedInteger>>();
+
 		idx = new ArrayList<Map<QGram, Directory>>();
 
 		// Actually, tableT
@@ -498,16 +497,13 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
-			for( int i = invokesInitialized; i < searchmax; i++ ) {
-				T_invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
+			for( int i = invokes.size(); i < searchmax; i++ ) {
+				invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
 				countPerPosition.add( 0 );
-			}
-			if( invokesInitialized < searchmax ) {
-				invokesInitialized = searchmax;
 			}
 
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, WrappedInteger> curridx_invokes = T_invokes.get( i );
+				Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
 
 				List<QGram> available = availableQGrams.get( i );
 				for( QGram qgram : available ) {
@@ -552,7 +548,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		System.out.println( "Bigram retrieval : " + Record.exectime );
 		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
-		stat.add( "Mem_After_Counting_Bigrams", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stat.add( "Mem_1_After_Counting_Bigrams", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
@@ -590,7 +586,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			// }
 
 			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, WrappedInteger> curr_invokes = T_invokes.get( i );
+				Map<QGram, WrappedInteger> curr_invokes = invokes.get( i );
 				if( curr_invokes == null ) {
 					// there is no twogram in T with position i
 					minIdx = i;
@@ -654,7 +650,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
 		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
 
-		stat.add( "Mem_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stat.add( "Mem_2_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		stat.add( "Stat_Predicted_Comparisons", est_cmps );
 		stat.add( "Stat_JoinMin_Index_Size", elements );
 		stat.add( "Stat_Wrapped Integers", WrappedInteger.count );
@@ -666,6 +662,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 		}
 		stepTime.stopAndAdd( stat );
+
+		return invokes;
 	}
 
 	private void clearJoinMinIndex() {
