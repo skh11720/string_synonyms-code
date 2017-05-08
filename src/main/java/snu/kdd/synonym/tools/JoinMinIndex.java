@@ -49,7 +49,7 @@ public class JoinMinIndex {
 		idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 		this.qSize = qSize;
 
-		if( DEBUG.JoinMinON ) {
+		if( DEBUG.JoinMinIndexCountON ) {
 			countPerPosition = new ArrayList<Integer>();
 		}
 	}
@@ -83,14 +83,16 @@ public class JoinMinIndex {
 			removeFoundCount += map.removeFoundCount;
 		}
 
-		for( int i = 0; i < countPerPosition.size(); i++ ) {
-			stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
-		}
+		if( DEBUG.JoinMinIndexCountON ) {
+			for( int i = 0; i < countPerPosition.size(); i++ ) {
+				stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
+			}
 
-		for( int i = 0; i < idx.size(); i++ ) {
-			if( idx.get( i ).size() != 0 ) {
-				// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
-				stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
+			for( int i = 0; i < idx.size(); i++ ) {
+				if( idx.get( i ).size() != 0 ) {
+					// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+					stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
+				}
 			}
 		}
 
@@ -425,7 +427,7 @@ public class JoinMinIndex {
 				for( int i = invokes.size(); i < searchmax; i++ ) {
 					invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
 
-					if( DEBUG.JoinMinON ) {
+					if( DEBUG.JoinMinIndexCountON ) {
 						idx.countPerPosition.add( 0 );
 					}
 				}
@@ -451,7 +453,7 @@ public class JoinMinIndex {
 						}
 					}
 
-					if( DEBUG.JoinMinON ) {
+					if( DEBUG.JoinMinIndexCountON ) {
 						int newSize = idx.countPerPosition.get( i ) + available.size();
 
 						idx.countPerPosition.set( i, newSize );
