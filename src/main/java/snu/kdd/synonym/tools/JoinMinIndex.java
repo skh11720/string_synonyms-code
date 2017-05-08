@@ -57,10 +57,6 @@ public class JoinMinIndex {
 	public void setIndex( int position ) {
 		while( idx.size() <= position ) {
 			idx.add( new WYK_HashMap<QGram, List<Record>>() );
-
-			if( DEBUG.JoinMinON ) {
-				countPerPosition.add( 0 );
-			}
 		}
 	}
 
@@ -428,6 +424,10 @@ public class JoinMinIndex {
 
 				for( int i = invokes.size(); i < searchmax; i++ ) {
 					invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
+
+					if( DEBUG.JoinMinON ) {
+						idx.countPerPosition.add( 0 );
+					}
 				}
 
 				long qgramCount = 0;
