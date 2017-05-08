@@ -58,6 +58,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 	private static final CountEntry ZERO_ONE = new CountEntry( 0, 1 );
 	private static final int RECORD_CLASS_BYTES = 64;
+	private boolean joinMinRequired = true;
 
 	/* private int intarrbytes(int len) {
 	 * // Accurate bytes in 64bit machine is:
@@ -462,6 +463,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stat.addPrimary( "Auto_Best_Threshold", best_theta );
 		stat.add( "Auto_Best_Estimated_Time", best_esttime );
 
+		long maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
+		long maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
+
+		if( maxSearchedEstNumRecords < joinThreshold && maxIndexedEstNumRecords < joinThreshold ) {
+			joinMinRequired = false;
+			// joinThreshold = Integer.max( (int) maxSearchedEstNumRecords, (int) maxIndexedEstNumRecords ) + 1;
+		}
+
 		joinThreshold = best_theta;
 	}
 
@@ -678,8 +687,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		long time1 = System.currentTimeMillis();
-		for( Record s : tableSearched ) {
-			appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+		if( joinMinRequired ) {
+			for( Record s : tableSearched ) {
+				appliedRules_sum += searchEquivsByDynamicIndex( s, idx, rslt );
+			}
 		}
 		stat.add( "Stat_Join_AppliedRules Sum", appliedRules_sum );
 		System.out.println( "After JoinMin Result: " + rslt.size() );
