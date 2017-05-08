@@ -6,10 +6,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import mine.Record;
 import mine.RecordIDComparator;
@@ -69,17 +67,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	 * } */
 
 	/**
-	 * Key: (token, index) pair<br/>
-	 * Value: (min, max, record) triple
-	 */
-
-	/**
-	 * Index of the records in S
-	 * (SL x TH)
-	 */
-	List<Map<QGram, Directory>> idx;
-
-	/**
 	 * List of 1-expandable strings
 	 */
 	NaiveIndex naiveIndex;
@@ -135,15 +122,13 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_5_JoinMin_Index_Build_Time" );
-
-		List<Map<QGram, WrappedInteger>> invokes = buildPrevJoinMinIndex();
 		// checkLongestIndex();
 
 		stepTime.stopAndAdd( stat );
 
 		// Modify index to get optimal theta
 		stepTime.resetAndStart( "Result_6_Find_Theta_Time" );
-		findTheta( invokes, Integer.MAX_VALUE );
+		findTheta( Integer.MAX_VALUE );
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_7_Join_Time" );
@@ -290,7 +275,133 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		return bestThreshold;
 	}
 
-	private void findTheta( List<Map<QGram, WrappedInteger>> invokes, int max_theta ) {
+	private void findTheta( int max_theta ) {
+		long elements = 0;
+		est_cmps = 0;
+		// Build an index
+		// Count Invokes per each (token, loc) pair
+		List<Map<QGram, WrappedInteger>> invokes = new ArrayList<Map<QGram, WrappedInteger>>();
+
+		List<Map<QGram, Directory>> idx = new ArrayList<Map<QGram, Directory>>();
+
+		// Actually, tableT
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_5_1_Index Count Time" );
+
+		ArrayList<Integer> countPerPosition = new ArrayList<Integer>();
+
+		for( Record rec : tableSearched ) {
+			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
+			int searchmax = Math.min( availableQGrams.size(), maxIndex );
+
+			for( int i = invokes.size(); i < searchmax; i++ ) {
+				invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
+				countPerPosition.add( 0 );
+			}
+
+			for( int i = 0; i < searchmax; ++i ) {
+				Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
+
+				List<QGram> available = availableQGrams.get( i );
+				for( QGram qgram : available ) {
+					WrappedInteger count = curridx_invokes.get( qgram );
+					if( count == null ) {
+						curridx_invokes.put( qgram, ONE );
+					}
+					else if( count == ONE ) {
+						count = new WrappedInteger( 2 );
+						curridx_invokes.put( qgram, count );
+					}
+					else {
+						count.increment();
+					}
+				}
+
+				int newSize = countPerPosition.get( i ) + available.size();
+
+				countPerPosition.set( i, newSize );
+			}
+		}
+
+		for( int i = 0; i < countPerPosition.size(); i++ ) {
+			stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
+		}
+
+		System.out.println( "Bigram retrieval : " + Record.exectime );
+		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
+		stat.add( "Mem_1_After_Counting_Bigrams", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
+		// Actually, tableS
+
+		for( Record rec : tableIndexed ) {
+			int[] range = rec.getCandidateLengths( rec.size() - 1 );
+			int minIdx = -1;
+			int minInvokes = Integer.MAX_VALUE;
+			int searchmax = Math.min( range[ 0 ], maxIndex );
+
+			List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
+
+			for( int i = idx.size(); i < searchmax; i++ ) {
+				idx.add( new WYK_HashMap<QGram, Directory>() );
+			}
+
+			for( int i = 0; i < searchmax; ++i ) {
+				Map<QGram, WrappedInteger> curr_invokes = invokes.get( i );
+				if( curr_invokes == null ) {
+					// there is no twogram in T with position i
+					minIdx = i;
+					minInvokes = 0;
+					break;
+				}
+				int invoke = 0;
+
+				for( QGram qgram : availableQGrams.get( i ) ) {
+					WrappedInteger count = curr_invokes.get( qgram );
+
+					if( count != null ) {
+						// upper bound
+						invoke += count.get();
+					}
+				}
+
+				if( invoke < minInvokes ) {
+					minIdx = i;
+					minInvokes = invoke;
+				}
+			}
+
+			Map<QGram, Directory> curr_idx = idx.get( minIdx );
+
+			for( QGram qgram : availableQGrams.get( minIdx ) ) {
+				Directory dir = curr_idx.get( qgram );
+				if( dir == null ) {
+					dir = new Directory();
+					curr_idx.put( qgram, dir );
+				}
+				dir.list.add( rec );
+			}
+			elements += availableQGrams.get( minIdx ).size();
+			est_cmps += minInvokes;
+		}
+
+		System.out.println( "Bigram retrieval : " + Record.exectime );
+		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
+		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
+
+		stat.add( "Mem_2_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stat.add( "Stat_Predicted_Comparisons", est_cmps );
+		stat.add( "Stat_JoinMin_Index_Size", elements );
+		stat.add( "Stat_Wrapped Integers", WrappedInteger.count );
+
+		for( int i = 0; i < idx.size(); i++ ) {
+			if( idx.get( i ).size() != 0 ) {
+				// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+				stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
+			}
+		}
+		stepTime.stopAndAdd( stat );
+
 		// Find the best threshold
 		int best_theta = 0;
 		long best_esttime = Long.MAX_VALUE;
@@ -478,201 +589,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true );
 	}
 
-	private List<Map<QGram, WrappedInteger>> buildPrevJoinMinIndex() {
-
-		long elements = 0;
-		est_cmps = 0;
-		// Build an index
-		// Count Invokes per each (token, loc) pair
-		List<Map<QGram, WrappedInteger>> invokes = new ArrayList<Map<QGram, WrappedInteger>>();
-
-		idx = new ArrayList<Map<QGram, Directory>>();
-
-		// Actually, tableT
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_5_1_Index Count Time" );
-
-		ArrayList<Integer> countPerPosition = new ArrayList<Integer>();
-
-		for( Record rec : tableSearched ) {
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
-			int searchmax = Math.min( availableQGrams.size(), maxIndex );
-
-			for( int i = invokes.size(); i < searchmax; i++ ) {
-				invokes.add( new WYK_HashMap<QGram, WrappedInteger>() );
-				countPerPosition.add( 0 );
-			}
-
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, WrappedInteger> curridx_invokes = invokes.get( i );
-
-				List<QGram> available = availableQGrams.get( i );
-				for( QGram qgram : available ) {
-					WrappedInteger count = curridx_invokes.get( qgram );
-					if( count == null ) {
-						curridx_invokes.put( qgram, ONE );
-					}
-					else if( count == ONE ) {
-						count = new WrappedInteger( 2 );
-						curridx_invokes.put( qgram, count );
-					}
-					else {
-						count.increment();
-					}
-				}
-
-				int newSize = countPerPosition.get( i ) + available.size();
-
-				countPerPosition.set( i, newSize );
-			}
-		}
-
-		// DEBUG
-		// {
-		// try {
-		// for( int i = 0; i < T_invokes.size(); i++ ) {
-		// BufferedWriter bw = new BufferedWriter( new FileWriter( "DEBUG_T_invokes" + i + ".txt" ) );
-		// for( Entry<IntegerPair, WrappedInteger> entry : T_invokes.get( i ).entrySet() ) {
-		// bw.write( entry.getKey() + " " + entry.getValue() + "\n" );
-		// }
-		// bw.close();
-		// }
-		// }
-		// catch( Exception e ) {
-		// e.printStackTrace();
-		// }
-		// }
-
-		for( int i = 0; i < countPerPosition.size(); i++ ) {
-			stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
-		}
-
-		System.out.println( "Bigram retrieval : " + Record.exectime );
-		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
-		stat.add( "Mem_1_After_Counting_Bigrams", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		stepTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
-		// Actually, tableS
-
-		// TODO DEBUG
-		// try {
-		// BufferedWriter bw = new BufferedWriter( new FileWriter( "MinIndex.txt" ) );
-		// boolean debug = false;
-
-		for( Record rec : tableIndexed ) {
-
-			// if( rec.getID() < 100 ) {
-			// debug = true;
-			// bw.write( "Item " + rec.toString() );
-			//
-			// }
-			// else {
-			// debug = false;
-			// }
-
-			int[] range = rec.getCandidateLengths( rec.size() - 1 );
-			int minIdx = -1;
-			int minInvokes = Integer.MAX_VALUE;
-			int searchmax = Math.min( range[ 0 ], maxIndex );
-
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
-
-			for( int i = idx.size(); i < searchmax; i++ ) {
-				idx.add( new WYK_HashMap<QGram, Directory>() );
-			}
-
-			// if( debug ) {
-			// bw.write( "Search max : " + searchmax + "\n" );
-			// }
-
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, WrappedInteger> curr_invokes = invokes.get( i );
-				if( curr_invokes == null ) {
-					// there is no twogram in T with position i
-					minIdx = i;
-					minInvokes = 0;
-					break;
-				}
-				int invoke = 0;
-
-				for( QGram qgram : availableQGrams.get( i ) ) {
-					WrappedInteger count = curr_invokes.get( qgram );
-
-					// if( debug ) {
-					// if( count != null ) {
-					// bw.write( twogram + ":" + count + "\n" );
-					// }
-					// else {
-					// bw.write( twogram + ":null\n" );
-					// }
-					// }
-
-					if( count != null ) {
-						// upper bound
-						invoke += count.get();
-					}
-				}
-				// if( debug ) {
-				// bw.write( "count " + i + ":" + invoke + "\n" );
-				// }
-				if( invoke < minInvokes ) {
-					minIdx = i;
-					minInvokes = invoke;
-				}
-			}
-
-			// if( debug ) {
-			// bw.write( "min " + minIdx + " " + minInvokes + "\n" );
-			// }
-
-			Map<QGram, Directory> curr_idx = idx.get( minIdx );
-
-			for( QGram qgram : availableQGrams.get( minIdx ) ) {
-				Directory dir = curr_idx.get( qgram );
-				if( dir == null ) {
-					dir = new Directory();
-					curr_idx.put( qgram, dir );
-				}
-				dir.list.add( rec );
-			}
-			elements += availableQGrams.get( minIdx ).size();
-			est_cmps += minInvokes;
-		}
-		// bw.close();
-		// }catch(
-		//
-		// IOException e)
-		// {
-		// e.printStackTrace();
-		// }
-
-		System.out.println( "Bigram retrieval : " + Record.exectime );
-		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
-		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
-
-		stat.add( "Mem_2_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		stat.add( "Stat_Predicted_Comparisons", est_cmps );
-		stat.add( "Stat_JoinMin_Index_Size", elements );
-		stat.add( "Stat_Wrapped Integers", WrappedInteger.count );
-
-		for( int i = 0; i < idx.size(); i++ ) {
-			if( idx.get( i ).size() != 0 ) {
-				// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
-				stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
-			}
-		}
-		stepTime.stopAndAdd( stat );
-
-		return invokes;
-	}
-
-	private void clearJoinMinIndex() {
-		for( Map<QGram, Directory> map : idx ) {
-			map.clear();
-		}
-		idx.clear();
-	}
-
 	private void buildNaiveIndex() {
 		naiveIndex = NaiveIndex.buildIndex( tableIndexed, joinThreshold / 2, stat, joinThreshold, false );
 	}
@@ -700,7 +616,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 		System.out.println( "After JoinMin Result: " + rslt.size() );
 		stepTime.stopAndAdd( stat );
-		clearJoinMinIndex();
 
 		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		buildNaiveIndex();
@@ -722,55 +637,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		return rslt;
-	}
-
-	private int searchEquivsByDynamicIndex( Record s, List<Map<QGram, Directory>> idx, List<IntegerPair> rslt ) {
-		boolean is_TH_record = s.getEstNumRecords() > joinThreshold;
-
-		int appliedRules_sum = 0;
-		int idxSize = idx.size();
-		List<List<QGram>> availableQGrams = s.getQGrams( qSize, idxSize );
-		int[] range = s.getCandidateLengths( s.size() - 1 );
-		int searchmax = Math.min( availableQGrams.size(), maxIndex );
-		for( int i = 0; i < searchmax; ++i ) {
-			if( i >= idx.size() ) {
-				break;
-			}
-
-			Map<QGram, Directory> curr_idx = idx.get( i );
-
-			Set<Record> candidates = new HashSet<Record>();
-			for( QGram twogram : availableQGrams.get( i ) ) {
-				Directory tree = curr_idx.get( twogram );
-
-				if( tree == null ) {
-					continue;
-				}
-
-				for( int j = tree.list.size() - 1; j >= 0; --j ) {
-					Record rec = tree.list.get( j );
-					if( !is_TH_record && rec.getEstNumRecords() <= joinThreshold ) {
-						continue;
-					}
-					if( StaticFunctions.overlap( rec.getMinLength(), rec.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						candidates.add( rec );
-					}
-				}
-			}
-
-			if( skipChecking ) {
-				continue;
-			}
-
-			for( Record recR : candidates ) {
-				int compare = checker.isEqual( recR, s );
-				if( compare >= 0 ) {
-					rslt.add( new IntegerPair( s.getID(), recR.getID() ) );
-					appliedRules_sum += compare;
-				}
-			}
-		}
-		return appliedRules_sum;
 	}
 
 	public void statistics() {
