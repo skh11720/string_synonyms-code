@@ -123,7 +123,7 @@ public class JoinMinIndex {
 	public List<IntegerPair> join( List<Record> tableSearched, boolean writeResult, StatContainer stat, Validator checker ) {
 		BufferedWriter bw = null;
 
-		if( DEBUG.JoinMinJoinOn ) {
+		if( DEBUG.JoinMinJoinON ) {
 			try {
 				bw = new BufferedWriter( new FileWriter( "JoinMin_Join_Debug.txt" ) );
 			}
@@ -143,7 +143,7 @@ public class JoinMinIndex {
 		}
 		joinTime = System.nanoTime() - joinStartTime;
 
-		if( DEBUG.JoinMinJoinOn ) {
+		if( DEBUG.JoinMinJoinON ) {
 			try {
 				bw.close();
 			}
@@ -174,7 +174,7 @@ public class JoinMinIndex {
 			}
 		}
 
-		if( DEBUG.JoinMinJoinOn ) {
+		if( DEBUG.JoinMinJoinON ) {
 			try {
 				bw.close();
 			}
@@ -204,7 +204,7 @@ public class JoinMinIndex {
 		int[] range = recS.getCandidateLengths( recS.size() - 1 );
 		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 
-		if( DEBUG.JoinMinJoinOn ) {
+		if( DEBUG.JoinMinJoinON ) {
 			joinStartTime = System.nanoTime();
 		}
 
@@ -217,7 +217,7 @@ public class JoinMinIndex {
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
 			for( QGram qgram : availableQGrams.get( i ) ) {
-				if( DEBUG.JoinMinJoinOn ) {
+				if( DEBUG.JoinMinJoinON ) {
 					qgramCount++;
 				}
 
@@ -269,7 +269,7 @@ public class JoinMinIndex {
 			}
 		}
 
-		if( DEBUG.JoinMinJoinOn ) {
+		if( DEBUG.JoinMinJoinON ) {
 			long joinTime = System.nanoTime() - joinStartTime;
 
 			try {
@@ -311,7 +311,7 @@ public class JoinMinIndex {
 			Set<Record> candidates = new HashSet<Record>();
 
 			for( QGram qgram : availableQGrams.get( i ) ) {
-				if( DEBUG.JoinMinJoinOn ) {
+				if( DEBUG.JoinMinJoinON ) {
 					qgramCount++;
 				}
 
@@ -368,7 +368,7 @@ public class JoinMinIndex {
 			}
 		}
 
-		if( DEBUG.JoinMinJoinOn ) {
+		if( DEBUG.JoinMinJoinON ) {
 			long joinTime = System.nanoTime() - joinStartTime;
 
 			try {
@@ -404,7 +404,7 @@ public class JoinMinIndex {
 		try {
 			BufferedWriter bw = null;
 
-			if( DEBUG.JoinMinIndexOn ) {
+			if( DEBUG.JoinMinIndexON ) {
 				bw = new BufferedWriter( new FileWriter( "JoinMin_Index_Debug.txt" ) );
 			}
 
@@ -451,7 +451,7 @@ public class JoinMinIndex {
 						}
 					}
 
-					if( DEBUG.JoinMinIndexOn ) {
+					if( DEBUG.JoinMinON ) {
 						int newSize = idx.countPerPosition.get( i ) + available.size();
 
 						idx.countPerPosition.set( i, newSize );
@@ -463,14 +463,14 @@ public class JoinMinIndex {
 					countIndexingTime += System.nanoTime() - recordMidTime;
 				}
 
-				if( DEBUG.JoinMinIndexOn ) {
+				if( DEBUG.JoinMinIndexON ) {
 					bw.write( recordMidTime - recordStartTime + " " );
 					bw.write( qgramCount + " " );
 					bw.write( "\n" );
 				}
 			}
 
-			if( DEBUG.JoinMinIndexOn ) {
+			if( DEBUG.JoinMinIndexON ) {
 				bw.close();
 			}
 
