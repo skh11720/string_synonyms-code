@@ -22,6 +22,7 @@ import wrapped.WrappedInteger;
 
 public class JoinMinIndex {
 	ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
+	ArrayList<Integer> countPerPosition = null;
 
 	public double gamma;
 	public double delta;
@@ -47,11 +48,19 @@ public class JoinMinIndex {
 	public JoinMinIndex( int qSize ) {
 		idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 		this.qSize = qSize;
+
+		if( DEBUG.JoinMinON ) {
+			countPerPosition = new ArrayList<Integer>();
+		}
 	}
 
 	public void setIndex( int position ) {
 		while( idx.size() <= position ) {
 			idx.add( new WYK_HashMap<QGram, List<Record>>() );
+
+			if( DEBUG.JoinMinON ) {
+				countPerPosition.add( 0 );
+			}
 		}
 	}
 
@@ -76,6 +85,17 @@ public class JoinMinIndex {
 			removeIterCount += map.removeIterCount;
 			putRemovedCount += map.putRemovedCount;
 			removeFoundCount += map.removeFoundCount;
+		}
+
+		for( int i = 0; i < countPerPosition.size(); i++ ) {
+			stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
+		}
+
+		for( int i = 0; i < idx.size(); i++ ) {
+			if( idx.get( i ).size() != 0 ) {
+				// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+				stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
+			}
 		}
 
 		stat.add( "Counter_Index_0_Get_Count", getCount );
@@ -154,7 +174,7 @@ public class JoinMinIndex {
 			}
 		}
 
-		if( DEBUG.JoinMinIndexOn ) {
+		if( DEBUG.JoinMinJoinOn ) {
 			try {
 				bw.close();
 			}
@@ -429,6 +449,12 @@ public class JoinMinIndex {
 						else {
 							count.increment();
 						}
+					}
+
+					if( DEBUG.JoinMinIndexOn ) {
+						int newSize = idx.countPerPosition.get( i ) + available.size();
+
+						idx.countPerPosition.set( i, newSize );
 					}
 				}
 				idx.searchedTotalSigCount += qgramCount;

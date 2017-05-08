@@ -148,14 +148,14 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long appliedRules_sum = 0;
 
 		long startTime = System.currentTimeMillis();
-		StopWatch stepTime = StopWatch.getWatchStarted( "JoinMin Index Building Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMinRequired ) {
 			buildJoinMinIndex();
 		}
 		stepTime.stopAndAdd( stat );
 		System.out.print( "Building JoinMin Index finished " + ( System.currentTimeMillis() - startTime ) );
 
-		stepTime.resetAndStart( "SearchEquiv JoinMin Time" );
+		stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		long time1 = System.currentTimeMillis();
 		// lastTokenFiltered = 0;
 		if( joinMinRequired ) {
@@ -171,13 +171,13 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		time1 = System.currentTimeMillis() - time1;
 
 		startTime = System.currentTimeMillis();
-		stepTime.resetAndStart( "Naive Index Building Time" );
+		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		buildNaiveIndex();
 		stepTime.stopAndAdd( stat );
 		System.out.print( "Building Naive Index finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 
-		stepTime.resetAndStart( "SearchEquiv Naive Time" );
+		stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
 		long time2 = System.currentTimeMillis();
 		int naiveSearch = 0;
 		for( Record s : tableSearched ) {
@@ -247,11 +247,11 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		System.out.print( "Preprocess finished" );
 
 		// Retrieve statistics
-		stepTime.resetAndStart( "Statistics Time" );
+		stepTime.resetAndStart( "Result_3_Statistics_Time" );
 		statistics();
 		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Join Total Time" );
+		stepTime.resetAndStart( "Result_7_Join_Time" );
 		Collection<IntegerPair> rslt = join();
 		stepTime.stopAndAdd( stat );
 		System.out.print( "Join finished" );
