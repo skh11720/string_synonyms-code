@@ -138,8 +138,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		// Modify index to get optimal theta
 		stepTime.resetAndStart( "Result_6_Find_Theta_Time" );
-		joinThreshold = findTheta( Integer.MAX_VALUE );
-		// joinThreshold = findThetaRevised( Integer.MAX_VALUE );
+		// joinThreshold = findTheta( Integer.MAX_VALUE );
+		joinThreshold = findThetaRevised( Integer.MAX_VALUE );
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_7_Join_Time" );
@@ -219,7 +219,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 	}
 
-	private long findThetaRevised( int maxThreshold ) {
+	private int findThetaRevised( int maxThreshold ) {
 		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
 
 		// count qgrams for each that will be searched
@@ -256,7 +256,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		// since both tables are sorted with est num records, the two values are minimum est num records in both tables
-		long threshold = 1;
+		int threshold = 1;
 
 		long bestThreshold = Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords );
 		double bestEstimatedTime = estimate.getEstimateNaive( totalExpLengthNaiveIndex, totalExpNaiveJoin );
@@ -432,7 +432,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			threshold = threshold / 10;
 		}
 
-		return bestThreshold;
+		if( bestThreshold > Integer.MAX_VALUE ) {
+			return Integer.MAX_VALUE;
+		}
+
+		return (int) bestThreshold;
 	}
 
 	private int findTheta( int max_theta ) {
