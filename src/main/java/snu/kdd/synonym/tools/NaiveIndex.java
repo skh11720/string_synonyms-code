@@ -184,6 +184,10 @@ public class NaiveIndex {
 		// e.printStackTrace();
 		// }
 
+		if( totalExpLength == 0 ) {
+			totalExpLength = 1;
+		}
+
 		naiveIndex.indexTime = System.nanoTime() - starttime;
 		naiveIndex.alpha = naiveIndex.indexTime / totalExpLength;
 		naiveIndex.totalExpLength = totalExpLength;
