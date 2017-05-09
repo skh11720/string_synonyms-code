@@ -200,7 +200,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 		maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
-		// DEBUG
 		if( DEBUG.JoinHybridON ) {
 			for( int i = 0; i < 4; i++ ) {
 				stat.add( "Preprocess_ExpLength_" + i, partialExpLengthNaiveIndex[ i ] );
@@ -235,11 +234,12 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					CountEntry count = currPositionalCount.get( qgram );
 
 					if( count == null ) {
+						count = new CountEntry();
 						currPositionalCount.put( qgram, count );
 					}
-					else {
-						count.increase( rec.getEstNumRecords() );
-					}
+
+					count.increase( rec.getEstNumRecords() );
+
 				}
 			}
 
@@ -251,6 +251,12 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		long bestThreshold = Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords );
 		double bestEstimatedTime = estimate.getEstimateNaive( totalExpLengthNaiveIndex, totalExpNaiveJoin );
+
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Est_Theta_4_1_NaiveTime", bestEstimatedTime );
+			stat.add( "Est_Theta_4_2_JoinMinTime", 0 );
+			stat.add( "Est_Theta_4_3_TotalTime", bestEstimatedTime );
+		}
 
 		int startThresIndex;
 		if( bestThreshold > 1000 ) {
