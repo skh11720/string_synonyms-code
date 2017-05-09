@@ -19,6 +19,7 @@ import mine.Record;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import snu.kdd.synonym.tools.Util;
 import tools.DEBUG;
 import tools.IntegerPair;
 import tools.Rule;
@@ -49,8 +50,6 @@ public abstract class AlgorithmTemplate {
 	private boolean selfJoin = false;
 
 	protected AlgorithmTemplate( AlgorithmTemplate o ) {
-		System.out.println( "Initialize with o " + o.getName() );
-
 		this.str2int = o.str2int;
 		this.strlist = o.strlist;
 		this.tableSearched = o.tableSearched;
@@ -349,7 +348,7 @@ public abstract class AlgorithmTemplate {
 
 		try {
 			if( DEBUG.AlgorithmON ) {
-				System.out.println( "Writing results " + rslt.size() );
+				Util.printLog( "Writing results " + rslt.size() );
 			}
 
 			final BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
@@ -367,7 +366,7 @@ public abstract class AlgorithmTemplate {
 		}
 		catch( final Exception e ) {
 			e.printStackTrace();
-			System.out.println( "Error: " + e.getMessage() );
+			Util.printLog( "Error: " + e.getMessage() );
 		}
 	}
 
@@ -437,8 +436,8 @@ public abstract class AlgorithmTemplate {
 			}
 		}
 
-		System.out.println( "Total Garbage Collections: " + totalGarbageCollections );
-		System.out.println( "Total Garbage Collection Time (ms): " + garbageCollectionTime );
+		Util.printLog( "Total Garbage Collections: " + totalGarbageCollections );
+		Util.printLog( "Total Garbage Collection Time (ms): " + garbageCollectionTime );
 
 		stat.add( "Stat_Garbage_Collections", totalGarbageCollections );
 		stat.add( "Stat_Garbage_Collections_Time", garbageCollectionTime );

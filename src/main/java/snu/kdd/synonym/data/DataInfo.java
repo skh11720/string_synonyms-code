@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import snu.kdd.synonym.tools.JSONUtil;
+import snu.kdd.synonym.tools.Util;
 import tools.DEBUG;
 
 public class DataInfo {
@@ -77,7 +78,7 @@ public class DataInfo {
 		name = dataOne;
 
 		if( DEBUG.AlgorithmON ) {
-			System.out.println( "One info file path " + oneInfoFilePath );
+			Util.printLog( "One info file path " + oneInfoFilePath );
 		}
 
 		oneInfoFile = new File( oneInfoFilePath );
@@ -96,7 +97,7 @@ public class DataInfo {
 			infoFileTwoExists = twoInfoFile.exists();
 
 			if( DEBUG.AlgorithmON ) {
-				System.out.println( "Two info file path " + twoInfoFilePath );
+				Util.printLog( "Two info file path " + twoInfoFilePath );
 			}
 
 			if( infoFileTwoExists ) {
@@ -118,7 +119,7 @@ public class DataInfo {
 		ruleInfoFile = new File( ruleInfoFilePath );
 
 		if( DEBUG.AlgorithmON ) {
-			System.out.println( "Rule info file path " + ruleInfoFilePath );
+			Util.printLog( "Rule info file path " + ruleInfoFilePath );
 		}
 
 		infoRuleExists = ruleInfoFile.exists();

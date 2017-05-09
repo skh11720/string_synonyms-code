@@ -18,6 +18,7 @@ import snu.kdd.synonym.tools.NaiveIndex;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import snu.kdd.synonym.tools.Util;
 import tools.DEBUG;
 import tools.IntegerPair;
 import tools.QGram;
@@ -146,8 +147,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		Collection<IntegerPair> rslt = join();
 		stepTime.stopAndAdd( stat );
 
-		System.out.println( "Result size: " + rslt.size() );
-		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
+		Util.printLog( "Result size: " + rslt.size() );
+		Util.printLog( "Union counter: " + StaticFunctions.union_cmp_counter );
 
 		writeResult( rslt );
 	}
@@ -490,8 +491,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
 		}
 
-		System.out.println( "Bigram retrieval : " + Record.exectime );
-		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
+		Util.printLog( "Bigram retrieval : " + Record.exectime );
+		// Util.printLog( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
 		stat.add( "Mem_1_After_Counting_Bigrams", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		stepTime.stopAndAdd( stat );
 
@@ -549,8 +550,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			est_cmps += minInvokes;
 		}
 
-		System.out.println( "Bigram retrieval : " + Record.exectime );
-		// System.out.println( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
+		Util.printLog( "Bigram retrieval : " + Record.exectime );
+		// Util.printLog( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
 		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
 
 		stat.add( "Mem_2_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
@@ -560,7 +561,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		for( int i = 0; i < idx.size(); i++ ) {
 			if( idx.get( i ).size() != 0 ) {
-				// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+				// Util.printLog( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
 				stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
 			}
 		}
@@ -709,7 +710,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				qgrams.clear();
 			}
 			if( memcost > memlimit_expandedS ) {
-				System.out.println( "Memory budget exceeds at " + theta );
+				Util.printLog( "Memory budget exceeds at " + theta );
 				break;
 			}
 
@@ -724,14 +725,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				best_esttimes = esttimes;
 			}
 			if( theta == 10 || theta == 30 || theta == 100 || theta == 300 || theta == 1000 || theta == 3000 ) {
-				System.out.println( "T=" + theta + " : esttime " + esttime );
-				System.out.println( Arrays.toString( esttimes ) );
-				System.out.println( "Mem : " + memcost + " / " + memlimit_expandedS );
+				Util.printLog( "T=" + theta + " : esttime " + esttime );
+				Util.printLog( Arrays.toString( esttimes ) );
+				Util.printLog( "Mem : " + memcost + " / " + memlimit_expandedS );
 			}
 			theta = next_theta;
 		}
-		System.out.println( "Best threshold : " + best_theta + " with running time " + best_esttime );
-		System.out.println( Arrays.toString( best_esttimes ) );
+		Util.printLog( "Best threshold : " + best_theta + " with running time " + best_esttime );
+		Util.printLog( Arrays.toString( best_esttimes ) );
 
 		stat.addPrimary( "Auto_Best_Threshold", best_theta );
 		stat.add( "Auto_Best_Estimated_Time", best_esttime );
@@ -775,7 +776,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
 			}
 		}
-		System.out.println( "After JoinMin Result: " + rslt.size() );
+		Util.printLog( "After JoinMin Result: " + rslt.size() );
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
@@ -832,11 +833,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			maxrhslength = Math.max( maxrhslength, length );
 		}
 
-		System.out.println( "Average str length: " + strlengthsum + "/" + strs );
-		System.out.println( "Average maxinvsearchrange: " + strmaxinvsearchrangesum + "/" + strs );
-		System.out.println( "Maximum str length: " + maxstrlength );
-		System.out.println( "Average rhs length: " + rhslengthsum + "/" + rules );
-		System.out.println( "Maximum rhs length: " + maxrhslength );
+		Util.printLog( "Average str length: " + strlengthsum + "/" + strs );
+		Util.printLog( "Average maxinvsearchrange: " + strmaxinvsearchrangesum + "/" + strs );
+		Util.printLog( "Maximum str length: " + maxstrlength );
+		Util.printLog( "Average rhs length: " + rhslengthsum + "/" + rules );
+		Util.printLog( "Maximum rhs length: " + maxrhslength );
 	}
 
 	private void findConstants( double sampleratio ) {
