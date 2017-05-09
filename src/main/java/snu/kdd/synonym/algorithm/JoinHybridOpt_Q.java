@@ -185,6 +185,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			partialExpNaiveJoin[ currentIdx ] += est;
 		}
 
+		currentIdx = 0;
+		nextThreshold = 10;
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			Record s = tableIndexed.get( i );
 			s.setID( i );
@@ -192,7 +194,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			double est = s.getEstNumRecords() * s.getTokenArray().length;
 			totalExpLengthNaiveIndex += est;
 
-			while( currentIdx != 3 && est >= nextThreshold ) {
+			while( currentIdx != 3 && s.getEstNumRecords() >= nextThreshold ) {
 				nextThreshold *= 10;
 				currentIdx++;
 			}
