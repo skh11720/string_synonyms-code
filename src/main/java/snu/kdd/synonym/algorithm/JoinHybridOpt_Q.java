@@ -254,9 +254,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		if( DEBUG.JoinHybridON ) {
 			stat.add( "Est_Theta_Start_Threshold", bestThreshold );
-			stat.add( "Est_Theta_4_1_NaiveTime", bestEstimatedTime );
-			stat.add( "Est_Theta_4_2_JoinMinTime", 0 );
-			stat.add( "Est_Theta_4_3_TotalTime", bestEstimatedTime );
+			stat.add( "Est_Theta_3_1_NaiveTime", bestEstimatedTime );
+			stat.add( "Est_Theta_3_2_JoinMinTime", 0 );
+			stat.add( "Est_Theta_3_3_TotalTime", bestEstimatedTime );
 		}
 
 		int startThresIndex;
