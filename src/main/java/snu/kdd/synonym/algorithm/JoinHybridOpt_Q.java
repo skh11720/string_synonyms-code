@@ -196,7 +196,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				nextThreshold *= 10;
 				currentIdx++;
 			}
-			partialExpLengthNaiveIndex[ currentIdx ] = est;
+			partialExpLengthNaiveIndex[ currentIdx ] += est;
 		}
 
 		maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
@@ -205,8 +205,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// DEBUG
 		if( DEBUG.JoinHybridON ) {
 			for( int i = 0; i < 4; i++ ) {
-				stat.add( "Preprocess_explength_" + i, partialExpLengthNaiveIndex[ i ] );
-				stat.add( "Preprocess_exp_" + i, partialExpNaiveJoin[ i ] );
+				stat.add( "Preprocess_ExpLength_" + i, partialExpLengthNaiveIndex[ i ] );
+				stat.add( "Preprocess_Exp_" + i, partialExpNaiveJoin[ i ] );
 			}
 			stat.add( "Preprocess_ExpLength_Total", totalExpLengthNaiveIndex );
 			stat.add( "Preprocess_Exp_Total", totalExpNaiveJoin );
