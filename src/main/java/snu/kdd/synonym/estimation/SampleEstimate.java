@@ -105,7 +105,7 @@ public class SampleEstimate {
 		gamma = joinmininst.getGamma();
 		delta = joinmininst.getDelta();
 		epsilon = joinmininst.getEpsilon();
-		System.out.println( "Bigram computation time : " + Record.exectime );
+
 		Validator.printStats();
 
 		Util.printLog( "Gamma : " + gamma );
