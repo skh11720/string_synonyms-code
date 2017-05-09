@@ -120,11 +120,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		// Retrieve statistics
 
-		if( DEBUG.JoinHybridON ) {
-			stepTime.resetAndStart( "Result_3_Statistics_Time" );
-			statistics();
-			stepTime.stopAndAdd( stat );
-		}
+		// if( DEBUG.JoinHybridON ) {
+		// stepTime.resetAndStart( "Result_3_Statistics_Time" );
+		// statistics();
+		// stepTime.stopAndAdd( stat );
+		// }
 
 		// Estimate constants
 		stepTime.resetAndStart( "Result_4_Find_Constants_Time" );
