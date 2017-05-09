@@ -11,6 +11,7 @@ import java.util.Stack;
 
 import sigmod13.RecordInterface;
 import sigmod13.filter.ITF_Filter;
+import snu.kdd.synonym.tools.Util;
 import tools.DEBUG;
 import tools.IntegerPair;
 import tools.IntegerSet;
@@ -303,7 +304,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 				if( size < 0 ) {
 					if( DEBUG.AlgorithmON ) {
-						System.out.println( "Too many generalizations: " + id + " size " + size );
+						Util.printLog( "Too many generalizations: " + id + " size " + size );
 					}
 
 					return;
@@ -311,16 +312,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			}
 			est[ i ] = size;
 		}
-
-		// if( est[ est.length - 1 ] > 10000 ) {
-		// System.out.println( "[Warning] Many generalizations: " + id + " size " + est[ est.length - 1 ] );
-		// System.out.println( this.toString() );
-		// for( int i = 0; i < tokens.length; ++i ) {
-		// for( Rule rule : applicableRules[ i ] ) {
-		// System.out.println( rule.toTextString( strlist ) );
-		// }
-		// }
-		// }
 	}
 
 	public void preprocessSearchRanges() {
@@ -459,11 +450,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					}
 				}
 			}
-			// }
-			// catch( Exception e ) {
-			// e.printStackTrace();
-			// System.out.println( "Record " + this + " id " + this.id + " " + getMaxLength() );
-			// }
 		}
 
 		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
@@ -570,11 +556,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 					}
 				}
 			}
-			// }
-			// catch( Exception e ) {
-			// e.printStackTrace();
-			// System.out.println( "Record " + this + " id " + this.id + " " + getMaxLength() );
-			// }
 		}
 
 		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
