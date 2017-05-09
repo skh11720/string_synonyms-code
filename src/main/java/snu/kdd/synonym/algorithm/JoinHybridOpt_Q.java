@@ -60,12 +60,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	private static final int RECORD_CLASS_BYTES = 64;
 	private boolean joinMinRequired = true;
 
-	/* private int intarrbytes(int len) {
-	 * // Accurate bytes in 64bit machine is:
-	 * // ceil(4 * len / 8) * 8 + 16
-	 * return len * 4 + 16;
-	 * } */
-
 	/**
 	 * List of 1-expandable strings
 	 */
@@ -82,9 +76,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	private double partialExpLengthNaiveIndex[];
 	private double partialExpNaiveJoin[];
-
-	private double partialSigCountIndexed[];
-	private double paritalSigCountSearched[];
 
 	private long maxSearchedEstNumRecords;
 	private long maxIndexedEstNumRecords;
@@ -224,7 +215,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
 
 		// count qgrams for each that will be searched
-		paritalSigCountSearched = new double[ 4 ];
 		double totalSigCountSearched = 0;
 
 		for( Record rec : tableSearched ) {
@@ -282,7 +272,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		// estimate time if only naive algorithm is used
 
 		int indexedIdx = tableIndexed.size() - 1;
-		int searchedIdx = tableSearched.size() - 1;
 
 		double indexedTotalSigCount = 0;
 
@@ -422,8 +411,13 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 
 			double joinminTime = estimate.getEstimateJoinMin( 0, 0, fixedInvokes + variableInvokes );
-
 			double totalTime = naiveTime + joinminTime;
+
+			if( DEBUG.JoinHybridON ) {
+				stat.add( "Est_Theta_1_NaiveTime", naiveTime );
+				stat.add( "Est_Theta_2_JoinMinTime", joinminTime );
+				stat.add( "Est_Theta_3_TotalTime", totalTime );
+			}
 
 			if( bestEstimatedTime > totalTime ) {
 				bestEstimatedTime = totalTime;
@@ -432,6 +426,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			threshold = threshold / 10;
 		}
+
+		stat.add( "Auto_Best_Threshold", bestThreshold );
 
 		if( bestThreshold > Integer.MAX_VALUE ) {
 			return Integer.MAX_VALUE;

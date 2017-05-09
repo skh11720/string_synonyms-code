@@ -98,9 +98,9 @@ public class SampleEstimate {
 		joinmininst.qSize = qSize;
 		joinmininst.outputfile = null;
 
-		System.out.println( "Joinmininst run" );
+		Util.printLog( "Joinmininst run" );
 		joinmininst.runWithoutPreprocess( false );
-		System.out.println( "Joinmininst run done" );
+		Util.printLog( "Joinmininst run done" );
 
 		gamma = joinmininst.getGamma();
 		delta = joinmininst.getDelta();
