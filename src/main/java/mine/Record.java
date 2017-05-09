@@ -391,6 +391,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			return new IntegerPair( token, Integer.MAX_VALUE );
 	}
 
+	@Deprecated
 	public static long exectime = 0;
 
 	public List<List<QGram>> getQGrams( int q ) {

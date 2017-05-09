@@ -9,6 +9,7 @@ import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.JoinMin_Q;
 import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.tools.StatContainer;
+import snu.kdd.synonym.tools.Util;
 import validator.Validator;
 
 public class SampleEstimate {
@@ -37,8 +38,8 @@ public class SampleEstimate {
 
 		if( sampleratio * smallTableSize < 1 ) {
 			// too low sample ratio
-			System.out.println( "Too low sample ratio" );
-			System.err.println( "Too low sample ratio" );
+			Util.printLog( "Too low sample ratio" );
+			Util.printLog( "Too low sample ratio" );
 
 			sampleratio = 10.0 / smallTableSize;
 		}
@@ -54,8 +55,8 @@ public class SampleEstimate {
 			}
 		}
 
-		System.out.println( sampleSearchedList.size() + " Searched records are sampled" );
-		System.out.println( sampleIndexedList.size() + " Indexed records are sampled" );
+		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
+		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
 
 		originalSearched = tableSearched;
 		originalIndexed = tableIndexed;
@@ -76,8 +77,8 @@ public class SampleEstimate {
 		o.tableSearched = originalSearched;
 		o.tableIndexed = originalIndexed;
 
-		System.out.println( "Alpha : " + alpha );
-		System.out.println( "Beta : " + beta );
+		Util.printLog( "Alpha : " + alpha );
+		Util.printLog( "Beta : " + beta );
 
 		stat.add( "Const_Alpha", String.format( "%.2f", alpha ) );
 		stat.add( "Const_Beta", String.format( "%.2f", beta ) );
@@ -107,9 +108,9 @@ public class SampleEstimate {
 		System.out.println( "Bigram computation time : " + Record.exectime );
 		Validator.printStats();
 
-		System.out.println( "Gamma : " + gamma );
-		System.out.println( "Delta : " + delta );
-		System.out.println( "Epsilon : " + epsilon );
+		Util.printLog( "Gamma : " + gamma );
+		Util.printLog( "Delta : " + delta );
+		Util.printLog( "Epsilon : " + epsilon );
 
 		stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
 		stat.add( "Const_Delta", String.format( "%.2f", delta ) );
