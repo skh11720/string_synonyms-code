@@ -155,12 +155,17 @@ public class JoinMinIndex {
 			comparisonCount = 1;
 		}
 
+		if( predictCount == 0 ) {
+			Util.printLog( "Warning: predictCount is zero" );
+			predictCount = 1;
+		}
 		epsilon = joinTime / predictCount;
 
 		if( DEBUG.JoinMinON ) {
 			Util.printLog( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
 			Util.printLog( "Est weight : " + comparisonCount );
 			Util.printLog( "Join time : " + joinTime );
+			Util.printLog( "Epsilon : " + epsilon );
 
 			if( writeResult ) {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
