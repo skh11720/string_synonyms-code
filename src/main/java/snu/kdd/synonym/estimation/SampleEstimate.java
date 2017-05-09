@@ -96,14 +96,11 @@ public class SampleEstimate {
 		JoinMin_Q.checker = checker;
 		joinmininst.qSize = qSize;
 		joinmininst.outputfile = null;
-		try {
-			System.out.println( "Joinmininst run" );
-			joinmininst.runWithoutPreprocess( false );
-			System.out.println( "Joinmininst run done" );
-		}
-		catch( Exception e ) {
-			e.printStackTrace();
-		}
+
+		System.out.println( "Joinmininst run" );
+		joinmininst.runWithoutPreprocess( false );
+		System.out.println( "Joinmininst run done" );
+
 		gamma = joinmininst.getGamma();
 		delta = joinmininst.getDelta();
 		epsilon = joinmininst.getEpsilon();

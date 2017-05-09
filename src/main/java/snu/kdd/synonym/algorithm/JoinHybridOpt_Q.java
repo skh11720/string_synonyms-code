@@ -20,7 +20,6 @@ import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import tools.DEBUG;
 import tools.IntegerPair;
-import tools.LongIntPair;
 import tools.QGram;
 import tools.Rule;
 import tools.RuleTrie;
@@ -56,7 +55,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	SampleEstimate estimate;
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
-	private static final CountEntry ZERO_ONE = new CountEntry( 0, 1 );
+
 	private static final int RECORD_CLASS_BYTES = 64;
 	private boolean joinMinRequired = true;
 
@@ -75,8 +74,16 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	 * Estimated number of comparisons
 	 */
 	long est_cmps;
-
 	long memlimit_expandedS;
+
+	private double totalExpLengthNaiveIndex = 0;
+	private double totalExpNaiveJoin = 0;
+
+	private double partialExpLengthNaiveIndex[];
+	private double partialExpNaiveJoin[];
+
+	private long maxSearchedEstNumRecords;
+	private long maxIndexedEstNumRecords;
 
 	public JoinHybridOpt_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
 			throws IOException {
@@ -157,29 +164,61 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		Collections.sort( tableSearched, cmp );
 		Collections.sort( tableIndexed, cmp );
 
-		// Reassign ID
+		// Reassign ID and collect statistics for join naive
+		partialExpLengthNaiveIndex = new double[ 4 ];
+		partialExpNaiveJoin = new double[ 4 ];
+
+		int currentIdx = 0;
+		int nextThreshold = 10;
+
 		for( int i = 0; i < tableSearched.size(); ++i ) {
 			Record t = tableSearched.get( i );
 			t.setID( i );
+
+			double est = t.getEstNumRecords();
+			totalExpNaiveJoin += est;
+
+			while( currentIdx != 3 && est >= nextThreshold ) {
+				nextThreshold *= 10;
+				currentIdx++;
+			}
+			partialExpNaiveJoin[ currentIdx ] += est;
 		}
-		long maxTEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			Record s = tableIndexed.get( i );
 			s.setID( i );
-		}
-		long maxSEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
-		System.out.println( "Max S expanded size : " + maxSEstNumRecords );
-		System.out.println( "Max T expanded size : " + maxTEstNumRecords );
+			double est = s.getEstNumRecords() * s.getTokenArray().length;
+			totalExpLengthNaiveIndex += est;
+
+			while( currentIdx != 3 && est >= nextThreshold ) {
+				nextThreshold *= 10;
+				currentIdx++;
+			}
+			partialExpLengthNaiveIndex[ currentIdx ] = est;
+		}
+
+		maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
+		maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
+
+		// DEBUG
+		if( DEBUG.JoinHybridON ) {
+			for( int i = 0; i < 4; i++ ) {
+				stat.add( "Preprocess_explength_" + i, partialExpLengthNaiveIndex[ i ] );
+				stat.add( "Preprocess_exp_" + i, partialExpNaiveJoin[ i ] );
+			}
+			stat.add( "Preprocess_ExpLength_Total", totalExpLengthNaiveIndex );
+			stat.add( "Preprocess_Exp_Total", totalExpNaiveJoin );
+		}
 	}
 
-	private long findThetaRevised( int maxThreshold, int q ) {
+	private long findThetaRevised( int maxThreshold ) {
 		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
 
 		// count qgrams for each that will be searched
 		for( Record rec : tableSearched ) {
-			List<List<QGram>> availableQGrams = rec.getQGrams( q );
+			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
 
 			for( int i = positionalQCountMap.size(); i < searchmax; i++ ) {
@@ -194,82 +233,37 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					CountEntry count = currPositionalCount.get( qgram );
 
 					if( count == null ) {
-						currPositionalCount.put( qgram, ZERO_ONE );
-					}
-					else if( count == ZERO_ONE ) {
-						count = new CountEntry( 0, 2 );
 						currPositionalCount.put( qgram, count );
 					}
 					else {
-						count.increaseLarge();
+						count.increase( rec.getEstNumRecords() );
 					}
 				}
 			}
 		}
-
-		long bestThreshold = 0;
-		double bestEstimatedTime = Double.MAX_VALUE;
-
-		// TODO : compute estimated time of JoinMin only
-
 		// since both tables are sorted with est num records, the two values are minimum est num records in both tables
-		long threshold = Math.min( tableSearched.get( 0 ).getEstNumRecords(), tableIndexed.get( 0 ).getEstNumRecords() );
+		long threshold = 1;
 
-		int idSearched = 0;
-		int idIndexed = 0;
-		long naiveExpSize = 0;
+		long bestThreshold = Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords );
+		double bestEstimatedTime = estimate.alpha * totalExpLengthNaiveIndex + estimate.beta * totalExpNaiveJoin;
 
-		while( idSearched < tableSearched.size() ) {
+		// estimate time if only naive algorithm is used
+
+		double diffExpNaiveJoin = 0;
+		double diffExpLengthNaiveIndex = 0;
+
+		int indexedIdx = tableIndexed.size() - 1;
+		int searchedIdx = tableSearched.size() - 1;
+
+		for( int thresholdExponent = 0; thresholdExponent < 4; thresholdExponent++ ) {
+			threshold = threshold * 10;
 			if( threshold > maxThreshold ) {
 				System.out.println( "Stop searching due to maxTheta" );
 				break;
 			}
+			
+			double naiveTime = 
 
-			// iterate through tableSearched
-			while( idSearched < tableSearched.size() ) {
-				Record s = tableSearched.get( idSearched );
-				long expSize = s.getEstNumRecords();
-
-				if( expSize > threshold ) {
-					break;
-				}
-
-				// update count for JoinMin
-				List<List<QGram>> availableQGrams = s.getQGrams( q, Integer.MAX_VALUE );
-
-				for( int i = 0; i < availableQGrams.size(); i++ ) {
-					List<QGram> qgrams = availableQGrams.get( i );
-					Map<QGram, CountEntry> currPositionalCount = positionalQCountMap.get( i );
-					for( QGram qg : qgrams ) {
-						CountEntry entry = currPositionalCount.get( qg );
-						entry.fromLargeToSmall();
-					}
-				}
-
-				// update count for JoinNaive
-				naiveExpSize += expSize;
-			}
-
-			// iterate through tableIndexed to count candidate when join two tables
-			long joinMinCandidateCount = 0;
-			while( idIndexed < tableIndexed.size() ) {
-				Record t = tableIndexed.get( idIndexed );
-				long expSize = t.getEstNumRecords();
-
-				if( expSize > threshold ) {
-					break;
-				}
-
-				LongIntPair result = t.getMinimumIndexSize( positionalQCountMap, threshold, q );
-				joinMinCandidateCount += result.l;
-			}
-
-			double estimatedExecutionTime = 0;
-
-			if( bestEstimatedTime > estimatedExecutionTime ) {
-				bestEstimatedTime = estimatedExecutionTime;
-				bestThreshold = threshold;
-			}
 		}
 
 		return bestThreshold;
@@ -572,9 +566,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stat.addPrimary( "Auto_Best_Threshold", best_theta );
 		stat.add( "Auto_Best_Estimated_Time", best_esttime );
 
-		long maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
-		long maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
-
 		if( maxSearchedEstNumRecords < joinThreshold && maxIndexedEstNumRecords < joinThreshold ) {
 			joinMinRequired = false;
 			// joinThreshold = Integer.max( (int) maxSearchedEstNumRecords, (int) maxIndexedEstNumRecords ) + 1;
@@ -704,38 +695,34 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 	}
 
-	class IndexEntry {
-		List<Record> smallList;
-		List<Record> largeList;
-
-		IndexEntry() {
-			smallList = new ArrayList<Record>();
-			largeList = new ArrayList<Record>();
-		}
-	}
-
 	public static class CountEntry {
-		public int smallListSize;
-		public int largeListSize;
+		public int count[];
 
 		CountEntry() {
-			smallListSize = 0;
-			largeListSize = 0;
+			// 0 : 1 ~ 10
+			// 1 : 11 ~ 100
+			// 2 : 101 ~ 1000
+			// 3 : 1001 ~ infinity
+			count = new int[ 4 ];
 		}
 
-		CountEntry( int small, int large ) {
-			smallListSize = small;
-			largeListSize = large;
+		public void increase( long exp ) {
+			count[ getIndex( exp ) ]++;
 		}
 
-		void increaseLarge() {
-			largeListSize++;
+		private int getIndex( long number ) {
+			if( number <= 10 ) {
+				return 0;
+			}
+			else if( number <= 100 ) {
+				return 1;
+			}
+			else if( number <= 1000 ) {
+				return 2;
+			}
+			return 3;
 		}
 
-		void fromLargeToSmall() {
-			largeListSize--;
-			smallListSize++;
-		}
 	}
 
 }

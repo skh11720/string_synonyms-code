@@ -11,11 +11,9 @@ import java.util.Stack;
 
 import sigmod13.RecordInterface;
 import sigmod13.filter.ITF_Filter;
-import snu.kdd.synonym.algorithm.JoinHybridOpt_Q.CountEntry;
 import tools.DEBUG;
 import tools.IntegerPair;
 import tools.IntegerSet;
-import tools.LongIntPair;
 import tools.QGram;
 import tools.Rule;
 import tools.RuleTrie;
@@ -816,39 +814,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				qgrams.get( p ).add( qgram );
 			}
 		}
-	}
-
-	public LongIntPair getMinimumIndexSize( List<Map<QGram, CountEntry>> positionalQCountMap, long threshold, int q ) {
-
-		boolean isLarge = this.getEstNumRecords() > threshold;
-		List<List<QGram>> positionalQGrams = this.getQGrams( q );
-
-		int minIndex = 0;
-		long minCount = Long.MAX_VALUE;
-
-		for( int i = 0; i < positionalQGrams.size(); i++ ) {
-			List<QGram> qgrams = positionalQGrams.get( i );
-			Map<QGram, CountEntry> currentCountMap = positionalQCountMap.get( i );
-
-			long count = 0;
-			for( QGram qgram : qgrams ) {
-				CountEntry entry = currentCountMap.get( qgram );
-
-				if( isLarge ) {
-					count += entry.largeListSize + entry.smallListSize;
-				}
-				else {
-					count += entry.largeListSize;
-				}
-			}
-
-			if( minCount > count ) {
-				minCount = count;
-				minIndex = i;
-			}
-		}
-
-		return new LongIntPair( minCount, minIndex );
 	}
 
 	/**
