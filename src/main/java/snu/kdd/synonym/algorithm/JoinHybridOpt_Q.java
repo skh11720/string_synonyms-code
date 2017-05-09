@@ -414,9 +414,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			double totalTime = naiveTime + joinminTime;
 
 			if( DEBUG.JoinHybridON ) {
-				stat.add( "Est_Theta_1_" + thresholdExponent + "NaiveTime", naiveTime );
-				stat.add( "Est_Theta_2_" + thresholdExponent + "JoinMinTime", joinminTime );
-				stat.add( "Est_Theta_3_" + thresholdExponent + "TotalTime", totalTime );
+				stat.add( "Est_Theta_" + thresholdExponent + "_1_NaiveTime", naiveTime );
+				stat.add( "Est_Theta_" + thresholdExponent + "_2_JoinMinTime", joinminTime );
+				stat.add( "Est_Theta_" + thresholdExponent + "_3_TotalTime", totalTime );
 			}
 
 			if( bestEstimatedTime > totalTime ) {
