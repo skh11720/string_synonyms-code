@@ -25,6 +25,9 @@ public class NaiveIndex {
 	public double joinTime = 0;
 
 	NaiveIndex( int initialSize ) {
+		if( initialSize < 10 ) {
+			initialSize = 10;
+		}
 		idx = new WYK_HashMap<Record, ArrayList<Integer>>( initialSize );
 	}
 
