@@ -10,6 +10,7 @@ import snu.kdd.synonym.tools.JoinMinIndex;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import snu.kdd.synonym.tools.Util;
 import tools.DEBUG;
 import tools.IntegerPair;
 import tools.Rule;
@@ -23,8 +24,8 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	public boolean skipChecking = false;
 	public int maxIndex = Integer.MAX_VALUE;
 	public boolean compact = true;
-	// public boolean singleside = false;
 	public int qSize = 0;
+	// public boolean singleside = false;
 	// public boolean exact2grams = false;
 
 	RecordIDComparator idComparator;
@@ -94,11 +95,11 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			maxrhslength = Math.max( maxrhslength, length );
 		}
 
-		System.out.println( "Average str length: " + strlengthsum + "/" + strs );
-		System.out.println( "Average maxinvsearchrange: " + strmaxinvsearchrangesum + "/" + strs );
-		System.out.println( "Maximum str length: " + maxstrlength );
-		System.out.println( "Average rhs length: " + rhslengthsum + "/" + rules );
-		System.out.println( "Maximum rhs length: " + maxrhslength );
+		Util.printLog( "Average str length: " + strlengthsum + "/" + strs );
+		Util.printLog( "Average maxinvsearchrange: " + strmaxinvsearchrangesum + "/" + strs );
+		Util.printLog( "Maximum str length: " + maxstrlength );
+		Util.printLog( "Average rhs length: " + rhslengthsum + "/" + rules );
+		Util.printLog( "Maximum rhs length: " + maxrhslength );
 	}
 
 	public void run() {
@@ -123,7 +124,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		StopWatch stepTime = null;
 		if( DEBUG.JoinMinON ) {
 			statistics();
-
 			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		}
 
@@ -144,9 +144,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			}
 			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		}
-
-		// DEBUG
-		// idx.DebugWriteToFile( "DEBUG_INDEX.txt" );
 
 		Collection<IntegerPair> rslt = idx.join( tableSearched, writeResult, stat, checker );
 
@@ -202,7 +199,6 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		compact = params.isCompact();
 		checker = params.getValidator();
 		qSize = params.getQGramSize();
-		// exact2grams = params.isExact2Grams();
 
 		StopWatch preprocessTime = null;
 		if( DEBUG.JoinMinON ) {
