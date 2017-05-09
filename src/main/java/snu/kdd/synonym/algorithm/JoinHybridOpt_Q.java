@@ -261,8 +261,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				System.out.println( "Stop searching due to maxTheta" );
 				break;
 			}
-			
-			double naiveTime = 
+
+			double naiveTime;
 
 		}
 
