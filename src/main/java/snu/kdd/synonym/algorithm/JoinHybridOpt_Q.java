@@ -82,6 +82,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	private double partialExpLengthNaiveIndex[];
 	private double partialExpNaiveJoin[];
 
+	private double partialSigCountIndexed[];
+	private double paritalSigCountSearched[];
+
 	private long maxSearchedEstNumRecords;
 	private long maxIndexedEstNumRecords;
 
@@ -135,7 +138,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		// Modify index to get optimal theta
 		stepTime.resetAndStart( "Result_6_Find_Theta_Time" );
-		findTheta( Integer.MAX_VALUE );
+		joinThreshold = findTheta( Integer.MAX_VALUE );
+		// joinThreshold = findThetaRevised( Integer.MAX_VALUE );
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_7_Join_Time" );
@@ -219,6 +223,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
 
 		// count qgrams for each that will be searched
+		paritalSigCountSearched = new double[ 4 ];
+		double totalSigCountSearched = 0;
+
 		for( Record rec : tableSearched ) {
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 			int searchmax = Math.min( availableQGrams.size(), maxIndex );
@@ -227,10 +234,12 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				positionalQCountMap.add( new WYK_HashMap<QGram, CountEntry>() );
 			}
 
+			long qgramCount = 0;
 			for( int i = 0; i < searchmax; ++i ) {
 				Map<QGram, CountEntry> currPositionalCount = positionalQCountMap.get( i );
 
 				List<QGram> positionalQGram = availableQGrams.get( i );
+				qgramCount += positionalQGram.size();
 				for( QGram qgram : positionalQGram ) {
 					CountEntry count = currPositionalCount.get( qgram );
 
@@ -242,36 +251,191 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					}
 				}
 			}
+
+			totalSigCountSearched += qgramCount;
 		}
+
 		// since both tables are sorted with est num records, the two values are minimum est num records in both tables
 		long threshold = 1;
 
 		long bestThreshold = Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords );
-		double bestEstimatedTime = estimate.alpha * totalExpLengthNaiveIndex + estimate.beta * totalExpNaiveJoin;
+		double bestEstimatedTime = estimate.getEstimateNaive( totalExpLengthNaiveIndex, totalExpNaiveJoin );
+
+		int startThresIndex;
+		if( bestThreshold > 1000 ) {
+			startThresIndex = 2;
+			threshold = 1000;
+		}
+		else if( bestThreshold > 100 ) {
+			startThresIndex = 1;
+			threshold = 100;
+		}
+		else if( bestThreshold > 10 ) {
+			startThresIndex = 0;
+			threshold = 10;
+		}
+		else {
+			startThresIndex = -1;
+		}
 
 		// estimate time if only naive algorithm is used
-
-		double diffExpNaiveJoin = 0;
-		double diffExpLengthNaiveIndex = 0;
 
 		int indexedIdx = tableIndexed.size() - 1;
 		int searchedIdx = tableSearched.size() - 1;
 
-		for( int thresholdExponent = 0; thresholdExponent < 4; thresholdExponent++ ) {
-			threshold = threshold * 10;
-			if( threshold > maxThreshold ) {
-				System.out.println( "Stop searching due to maxTheta" );
-				break;
+		double indexedTotalSigCount = 0;
+
+		double fixedInvokes = 0;
+
+		for( int thresholdExponent = startThresIndex; thresholdExponent >= 0; thresholdExponent-- ) {
+
+			// estimate naive time
+			double diffExpNaiveJoin = partialExpNaiveJoin[ thresholdExponent ];
+			double diffExpLengthNaiveIndex = partialExpLengthNaiveIndex[ thresholdExponent ];
+
+			for( int i = 0; i < thresholdExponent; i++ ) {
+				diffExpNaiveJoin += partialExpNaiveJoin[ i ];
+				diffExpLengthNaiveIndex += partialExpLengthNaiveIndex[ i ];
 			}
 
-			double naiveTime;
+			double naiveTime = estimate.getEstimateNaive( diffExpLengthNaiveIndex, diffExpNaiveJoin );
 
+			// estimate joinmin time
+
+			// process records with large expanded sizes
+			int recordIdx = indexedIdx;
+
+			for( ; recordIdx >= 0; recordIdx-- ) {
+				Record rec = tableIndexed.get( recordIdx );
+
+				if( rec.getEstNumRecords() <= threshold ) {
+					break;
+				}
+
+				int[] range = rec.getCandidateLengths( rec.size() - 1 );
+				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
+
+				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
+				for( List<QGram> set : availableQGrams ) {
+					indexedTotalSigCount += set.size();
+				}
+
+				int minIdx = 0;
+				double minInvokes = Double.MAX_VALUE;
+
+				for( int i = 0; i < searchmax; ++i ) {
+					if( availableQGrams.get( i ).isEmpty() ) {
+						continue;
+					}
+
+					// There is no invocation count: this is the minimum point
+					if( i >= positionalQCountMap.size() ) {
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+
+					Map<QGram, CountEntry> curridx_invokes = positionalQCountMap.get( i );
+					if( curridx_invokes.size() == 0 ) {
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+
+					int invoke = 0;
+
+					for( QGram qgram : availableQGrams.get( i ) ) {
+						CountEntry count = curridx_invokes.get( qgram );
+						if( count != null ) {
+							// upper bound
+							invoke += count.total;
+						}
+					}
+					if( invoke < minInvokes ) {
+						minIdx = i;
+						minInvokes = invoke;
+					}
+				}
+
+				// TODO : build index with minIdx
+				fixedInvokes += minInvokes;
+			}
+
+			indexedIdx = recordIdx;
+
+			double variableInvokes = 0;
+			for( ; recordIdx >= 0; recordIdx-- ) {
+				Record rec = tableIndexed.get( recordIdx );
+
+				if( rec.getEstNumRecords() <= threshold ) {
+					break;
+				}
+
+				int[] range = rec.getCandidateLengths( rec.size() - 1 );
+				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
+
+				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
+				for( List<QGram> set : availableQGrams ) {
+					indexedTotalSigCount += set.size();
+				}
+
+				int minIdx = 0;
+				double minInvokes = Double.MAX_VALUE;
+
+				for( int i = 0; i < searchmax; ++i ) {
+					if( availableQGrams.get( i ).isEmpty() ) {
+						continue;
+					}
+
+					// There is no invocation count: this is the minimum point
+					if( i >= positionalQCountMap.size() ) {
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+
+					Map<QGram, CountEntry> curridx_invokes = positionalQCountMap.get( i );
+					if( curridx_invokes.size() == 0 ) {
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+
+					int invoke = 0;
+
+					for( QGram qgram : availableQGrams.get( i ) ) {
+						CountEntry count = curridx_invokes.get( qgram );
+						if( count != null ) {
+							// upper bound
+							for( int c = thresholdExponent + 1; c < 4; c++ ) {
+								invoke += count.count[ c ];
+							}
+						}
+					}
+					if( invoke < minInvokes ) {
+						minIdx = i;
+						minInvokes = invoke;
+					}
+				}
+				variableInvokes += minInvokes;
+			}
+
+			double joinminTime = estimate.getEstimateJoinMin( 0, 0, fixedInvokes + variableInvokes );
+
+			double totalTime = naiveTime + joinminTime;
+
+			if( bestEstimatedTime > totalTime ) {
+				bestEstimatedTime = totalTime;
+				bestThreshold = threshold;
+			}
+
+			threshold = threshold / 10;
 		}
 
 		return bestThreshold;
 	}
 
-	private void findTheta( int max_theta ) {
+	private int findTheta( int max_theta ) {
 		long elements = 0;
 		est_cmps = 0;
 		// Build an index
@@ -573,7 +737,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			// joinThreshold = Integer.max( (int) maxSearchedEstNumRecords, (int) maxIndexedEstNumRecords ) + 1;
 		}
 
-		joinThreshold = best_theta;
+		return best_theta;
 	}
 
 	private void buildJoinMinIndex() {
@@ -699,6 +863,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	public static class CountEntry {
 		public int count[];
+		public int total;
 
 		CountEntry() {
 			// 0 : 1 ~ 10
@@ -710,6 +875,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		public void increase( long exp ) {
 			count[ getIndex( exp ) ]++;
+			total++;
 		}
 
 		private int getIndex( long number ) {

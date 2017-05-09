@@ -124,4 +124,12 @@ public class SampleEstimate {
 		estimateNaive( o, stat );
 		estimateJoinMin( o, stat, checker, qSize );
 	}
+
+	public double getEstimateNaive( double totalExpLengthIndex, double totalExpJoin ) {
+		return alpha * totalExpLengthIndex + beta * totalExpJoin;
+	}
+
+	public double getEstimateJoinMin( double A, double B, double C ) {
+		return gamma * A + delta * B + epsilon * C;
+	}
 }

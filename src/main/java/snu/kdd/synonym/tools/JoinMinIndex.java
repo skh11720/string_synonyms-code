@@ -44,6 +44,7 @@ public class JoinMinIndex {
 	public double countTime;
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
+	private long predictCount;
 
 	public JoinMinIndex( int qSize ) {
 		idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
@@ -155,7 +156,7 @@ public class JoinMinIndex {
 			comparisonCount = 1;
 		}
 
-		epsilon = joinTime / comparisonCount;
+		epsilon = joinTime / predictCount;
 
 		if( DEBUG.JoinMinON ) {
 			System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
@@ -505,10 +506,9 @@ public class JoinMinIndex {
 
 			stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
 
-			@SuppressWarnings( "unused" )
-			long predictCount = 0;
-			@SuppressWarnings( "unused" )
+			idx.predictCount = 0;
 			long indexedElements = 0;
+
 			for( Record rec : tableIndexed ) {
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 				int searchmax = Math.min( range[ 0 ], invokes.size() );
@@ -527,7 +527,6 @@ public class JoinMinIndex {
 					}
 
 					// There is no invocation count: this is the minimum point
-
 					if( i >= invokes.size() ) {
 						minIdx = i;
 						minInvokes = 0;
@@ -555,7 +554,7 @@ public class JoinMinIndex {
 					}
 				}
 
-				predictCount += minInvokes;
+				idx.predictCount += minInvokes;
 
 				idx.setIndex( minIdx );
 
@@ -572,13 +571,13 @@ public class JoinMinIndex {
 
 			if( DEBUG.JoinMinON ) {
 				System.out.println( "Idx size : " + indexedElements );
-				System.out.println( "Predict : " + predictCount );
+				System.out.println( "Predict : " + idx.predictCount );
 				System.out.println( "Step 2 Time : " + idx.indexTime );
 				System.out.println( "Delta (index build / signature ): " + idx.delta );
 
 				if( writeResult ) {
 					stat.add( "Stat_JoinMin_Index_Size", indexedElements );
-					stat.add( "Stat_Predicted_Comparison", predictCount );
+					stat.add( "Stat_Predicted_Comparison", idx.predictCount );
 
 					stat.add( "Est_Index_2_Build_Index_Time", idx.indexTime );
 					stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( idx.delta ) );
@@ -649,6 +648,6 @@ public class JoinMinIndex {
 	}
 
 	public double estimatedJoinTime( double epsilon ) {
-		return epsilon * comparisonCount;
+		return epsilon * predictCount;
 	}
 }
