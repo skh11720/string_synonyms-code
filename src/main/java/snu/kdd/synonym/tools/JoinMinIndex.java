@@ -91,7 +91,6 @@ public class JoinMinIndex {
 
 			for( int i = 0; i < idx.size(); i++ ) {
 				if( idx.get( i ).size() != 0 ) {
-					// System.out.println( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
 					stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
 				}
 			}
@@ -159,11 +158,9 @@ public class JoinMinIndex {
 		epsilon = joinTime / predictCount;
 
 		if( DEBUG.JoinMinON ) {
-			System.out.println( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
-
-			System.out.println( "Est weight : " + comparisonCount );
-
-			System.out.println( "Join time : " + joinTime );
+			Util.printLog( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
+			Util.printLog( "Est weight : " + comparisonCount );
+			Util.printLog( "Join time : " + joinTime );
 
 			if( writeResult ) {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
@@ -481,8 +478,8 @@ public class JoinMinIndex {
 			idx.gamma = idx.countTime / idx.searchedTotalSigCount;
 
 			if( DEBUG.JoinMinON ) {
-				System.out.println( "Step 1 Time : " + idx.countTime );
-				System.out.println( "Gamma (buildTime / signature): " + idx.gamma );
+				Util.printLog( "Step 1 Time : " + idx.countTime );
+				Util.printLog( "Gamma (buildTime / signature): " + idx.gamma );
 
 				if( writeResult ) {
 					stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
@@ -570,10 +567,10 @@ public class JoinMinIndex {
 			idx.delta = idx.indexTime / idx.indexedTotalSigCount;
 
 			if( DEBUG.JoinMinON ) {
-				System.out.println( "Idx size : " + indexedElements );
-				System.out.println( "Predict : " + idx.predictCount );
-				System.out.println( "Step 2 Time : " + idx.indexTime );
-				System.out.println( "Delta (index build / signature ): " + idx.delta );
+				Util.printLog( "Idx size : " + indexedElements );
+				Util.printLog( "Predict : " + idx.predictCount );
+				Util.printLog( "Step 2 Time : " + idx.indexTime );
+				Util.printLog( "Delta (index build / signature ): " + idx.delta );
 
 				if( writeResult ) {
 					stat.add( "Stat_JoinMin_Index_Size", indexedElements );
