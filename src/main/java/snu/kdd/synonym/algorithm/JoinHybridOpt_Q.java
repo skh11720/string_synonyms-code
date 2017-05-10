@@ -264,7 +264,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			stat.add( "Const_Beta_JoinTime_3", String.format( "%.2f", totalExpNaiveJoin * estimate.beta ) );
 			stat.add( "Const_Beta_TotalExp_3", String.format( "%.2f", totalExpNaiveJoin ) );
 
-			stat.add( "Const_Alpha_JoinTime_3", String.format( "%.2f", totalExpLengthNaiveIndex * estimate.alpha ) );
+			stat.add( "Const_Alpha_IndexTime_3", String.format( "%.2f", totalExpLengthNaiveIndex * estimate.alpha ) );
 			stat.add( "Const_Alpha_ExpLength_3", String.format( "%.2f", totalExpLengthNaiveIndex ) );
 		}
 
@@ -310,7 +310,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				stat.add( "Const_Beta_JoinTime_" + thresholdExponent, String.format( "%.2f", diffExpNaiveJoin * estimate.beta ) );
 				stat.add( "Const_Beta_TotalExp_" + thresholdExponent, String.format( "%.2f", diffExpNaiveJoin ) );
 
-				stat.add( "Const_Alpha_JoinTime_" + thresholdExponent,
+				stat.add( "Const_Alpha_IndexTime_" + thresholdExponent,
 						String.format( "%.2f", diffExpLengthNaiveIndex * estimate.alpha ) );
 				stat.add( "Const_Alpha_ExpLength_" + thresholdExponent, String.format( "%.2f", diffExpLengthNaiveIndex ) );
 			}
@@ -831,6 +831,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		if( DEBUG.JoinHybridON ) {
 			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
+			stat.add( "Const_Alpha_IndexTime_Actual", String.format( "%.2f", naiveIndex.indexTime ) );
 			stat.add( "Const_Alpha_ExpLength_Actual", String.format( "%.2f", naiveIndex.totalExpLength ) );
 
 			stepTime.stopAndAdd( stat );
