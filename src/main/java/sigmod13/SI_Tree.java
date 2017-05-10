@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import sigmod13.filter.ITF_Filter;
+import tools.DEBUG;
 import tools.IntegerMap;
 import tools.Pair;
 import tools.StaticFunctions;
@@ -266,10 +267,12 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 				}
 			}
 		}
-		System.out.println( "Comparisons : " + count );
-		System.out.println( "set_union_count: " + set_union_count );
-		System.out.println( "set_union_sum: " + set_union_sum );
-		System.out.println( "set_union_setsize_sum: " + set_union_setsize_sum );
+		if( DEBUG.SIJoinON ) {
+			System.out.println( "Comparisons : " + count );
+			System.out.println( "set_union_count: " + set_union_count );
+			System.out.println( "set_union_sum: " + set_union_sum );
+			System.out.println( "set_union_setsize_sum: " + set_union_setsize_sum );
+		}
 		return results;
 	}
 
