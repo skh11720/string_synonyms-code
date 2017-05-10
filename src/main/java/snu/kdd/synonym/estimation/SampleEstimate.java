@@ -102,8 +102,10 @@ public class SampleEstimate {
 		o.tableSearched = sampleSearchedList;
 		o.tableIndexed = sampleIndexedList;
 
-		stat.add( "Stat_Sample Searched size", sampleSearchedList.size() );
-		stat.add( "Stat_Sample Indexed size", sampleIndexedList.size() );
+		if( DEBUG.SampleStatOn ) {
+			stat.add( "Stat_Sample Searched size", sampleSearchedList.size() );
+			stat.add( "Stat_Sample Indexed size", sampleIndexedList.size() );
+		}
 
 		// Infer gamma, delta and epsilon
 		JoinMin_Q joinmininst = new JoinMin_Q( o, stat );
