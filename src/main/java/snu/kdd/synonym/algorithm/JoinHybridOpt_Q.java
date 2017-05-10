@@ -342,6 +342,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					}
 				}
 
+				// TODO: build index with minIdx
+				@SuppressWarnings( "unused" )
 				int minIdx = 0;
 				double minInvokes = Double.MAX_VALUE;
 
