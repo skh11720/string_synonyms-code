@@ -12,6 +12,7 @@ import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import tools.DEBUG;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
 import tools.QGram;
@@ -40,28 +41,46 @@ public class JoinMH_QL extends AlgorithmTemplate {
 	}
 
 	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		StopWatch stepTime = null;
+		StopWatch runTime = null;
+
+		if( DEBUG.JoinMHOn ) {
+			stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		}
+
 		preprocess( false, maxIndexLength, false );
-		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		stepTime.stopAndAdd( stat );
 
-		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime.resetAndStart( "Result_3_1_Index_Building_Time" );
+		if( DEBUG.JoinMHOn ) {
+			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_3_1_Index_Building_Time" );
+			runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		}
+
 		buildIndex();
-		stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		if( DEBUG.JoinMHOn ) {
+			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		}
+
 		ArrayList<IntegerPair> rslt = join();
-		stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		stepTime.stopAndAdd( stat );
 
-		runTime.stopAndAdd( stat );
-		System.out.println( "Result " + rslt.size() );
+		if( DEBUG.JoinMHOn ) {
+			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Result_4_Write_Time" );
+			runTime.stopAndAdd( stat );
+			System.out.println( "Result " + rslt.size() );
+			stepTime.resetAndStart( "Result_4_Write_Time" );
+		}
+
 		writeResult( rslt );
-		stepTime.stopAndAdd( stat );
+
+		if( DEBUG.JoinMHOn ) {
+			stepTime.stopAndAdd( stat );
+		}
 	}
 
 	private void buildIndex() {
@@ -69,6 +88,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			// BufferedWriter bw = new BufferedWriter( new FileWriter( "Debug_est.txt" ) );
 			// long debug_elements = 0;
 			// long debug_gcCount = getGCCount();
+			@SuppressWarnings( "unused" )
 			long elements = 0;
 			// Build an index
 
@@ -107,16 +127,24 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			}
 			// bw.close();
 
-			stat.add( "Stat_Index_Size", elements );
-			System.out.println( "Index size : " + elements );
+			if( DEBUG.JoinMHOn ) {
+				stat.add( "Stat_Index_Size", elements );
+				System.out.println( "Index size : " + elements );
+			}
 
 			// computes the statistics of the indexes
 			String indexStr = "";
 			for( int i = 0; i < maxIndexLength; ++i ) {
 				Map<QGram, List<IntIntRecordTriple>> ithidx = idx.get( i );
-				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
+
+				if( DEBUG.JoinMHOn ) {
+					System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
+				}
+
 				// Statistics
+				@SuppressWarnings( "unused" )
 				int sum = 0;
+
 				long singlelistsize = 0;
 				long count = 0;
 				// long sqsum = 0;
@@ -137,10 +165,13 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					sum++;
 					count += list.size();
 				}
-				System.out.println( i + "th Single value list size : " + singlelistsize );
-				System.out.println( i + "th iIdx size(w/o 1) : " + count );
-				System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-				// System.out.println( i + "th Sqsum : " + sqsum );
+
+				if( DEBUG.JoinMHOn ) {
+					System.out.println( i + "th Single value list size : " + singlelistsize );
+					System.out.println( i + "th iIdx size(w/o 1) : " + count );
+					System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+					// System.out.println( i + "th Sqsum : " + sqsum );
+				}
 
 				long totalCount = count + singlelistsize;
 				int exp = 0;
@@ -160,21 +191,22 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				}
 			}
 
-			stat.add( "Stat_Index_Size_Per_Position", indexStr );
+			if( DEBUG.JoinMHOn ) {
+				stat.add( "Stat_Index_Size_Per_Position", indexStr );
 
-			for( int i = 0; i < idx.size(); i++ ) {
-				WYK_HashMap<QGram, List<IntIntRecordTriple>> index = (WYK_HashMap<QGram, List<IntIntRecordTriple>>) idx.get( i );
-				stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
-				stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
-				stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
-				stat.add( "Counter_Index_" + i + "_Resize_Count", index.resizeCount );
-				stat.add( "Counter_Index_" + i + "_Remove_Count", index.removeCount );
-				stat.add( "Counter_Index_" + i + "_RemoveIter_Count", index.removeIterCount );
-				stat.add( "Counter_Index_" + i + "_PutRemoved_Count", index.putRemovedCount );
-				stat.add( "Counter_Index_" + i + "_RemoveFound_Count", index.removeFoundCount );
+				for( int i = 0; i < idx.size(); i++ ) {
+					WYK_HashMap<QGram, List<IntIntRecordTriple>> index = (WYK_HashMap<QGram, List<IntIntRecordTriple>>) idx
+							.get( i );
+					stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
+					stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
+					stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
+					stat.add( "Counter_Index_" + i + "_Resize_Count", index.resizeCount );
+					stat.add( "Counter_Index_" + i + "_Remove_Count", index.removeCount );
+					stat.add( "Counter_Index_" + i + "_RemoveIter_Count", index.removeIterCount );
+					stat.add( "Counter_Index_" + i + "_PutRemoved_Count", index.putRemovedCount );
+					stat.add( "Counter_Index_" + i + "_RemoveFound_Count", index.removeFoundCount );
+				}
 			}
-
-			// bw.close();
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
@@ -183,7 +215,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	private ArrayList<IntegerPair> join() {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		@SuppressWarnings( "unused" )
 		long count = 0;
+		@SuppressWarnings( "unused" )
 		long lengthFiltered = 0;
 
 		long cand_sum[] = new long[ maxIndexLength ];
@@ -316,27 +350,31 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			e.printStackTrace();
 		}
 
-		// stat.add( "Last Token Filtered", lastTokenFiltered );
-		for( int i = 0; i < maxIndexLength; ++i ) {
-			System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
-			System.out.println( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
-			System.out.println( "Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
-			System.out.println( "Empty candidates : " + count_empty[ i ] );
+		if( DEBUG.JoinMHOn ) {
+			// stat.add( "Last Token Filtered", lastTokenFiltered );
+			for( int i = 0; i < maxIndexLength; ++i ) {
+				System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
+				System.out.println(
+						"Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
+				System.out.println(
+						"Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
+				System.out.println( "Empty candidates : " + count_empty[ i ] );
+			}
+
+			System.out.println( "comparisions : " + count );
+
+			stat.add( "Stat_Equiv_Comparison", count );
+			stat.add( "Stat_Length_Filtered", lengthFiltered );
+			stat.add( equivTime );
+
+			String candTimeStr = "";
+			for( int i = 0; i < maxIndexLength; i++ ) {
+				candidateTimes[ i ].printTotal();
+
+				candTimeStr = candTimeStr + ( candidateTimes[ i ].getTotalTime() ) + " ";
+			}
+			stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 		}
-
-		System.out.println( "comparisions : " + count );
-
-		stat.add( "Stat_Equiv_Comparison", count );
-		stat.add( "Stat_Length_Filtered", lengthFiltered );
-		stat.add( equivTime );
-
-		String candTimeStr = "";
-		for( int i = 0; i < maxIndexLength; i++ ) {
-			candidateTimes[ i ].printTotal();
-
-			candTimeStr = candTimeStr + ( candidateTimes[ i ].getTotalTime() ) + " ";
-		}
-		stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 		return rslt;
 	}
 

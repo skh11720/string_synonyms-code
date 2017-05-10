@@ -138,16 +138,23 @@ public class NaiveIndex {
 			boolean addStat ) {
 		final long starttime = System.nanoTime();
 		int initialsize = (int) ( tableIndexed.size() * avgTransformed / 2 );
-		stat.add( "Auto_Hash_Initial_Size ", initialsize );
+
+		if( DEBUG.NaiveON ) {
+			stat.add( "Auto_Hash_Initial_Size ", initialsize );
+		}
+
 		NaiveIndex naiveIndex = new NaiveIndex( initialsize );
 
 		long totalExpLength = 0;
 
-		long idxsize = 0;
-
+		@SuppressWarnings( "unused" )
 		double totalExp = 0;
-		long expandTime = 0;
+		@SuppressWarnings( "unused" )
+		long idxsize = 0;
+		@SuppressWarnings( "unused" )
 		long indexingTime = 0;
+
+		long expandTime = 0;
 
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			final Record recR = tableIndexed.get( i );

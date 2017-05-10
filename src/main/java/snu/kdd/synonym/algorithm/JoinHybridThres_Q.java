@@ -145,14 +145,19 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	 * @return
 	 */
 	private ArrayList<IntegerPair> join() {
+		StopWatch stepTime = null;
+		if( DEBUG.JoinHybridON ) {
+			stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
+		}
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMinRequired ) {
 			buildJoinMinIndex();
 		}
-		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
+		if( DEBUG.JoinHybridON ) {
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
+		}
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		if( joinMinRequired ) {
@@ -164,15 +169,20 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
 
-		stepTime.stopAndAdd( stat );
+		if( DEBUG.JoinHybridON ) {
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
+		}
 
-		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		buildNaiveIndex();
-		stepTime.stopAndAdd( stat );
-		System.out.print( "Building Naive Index finished" );
 
-		stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
+		if( DEBUG.JoinHybridON ) {
+			System.out.print( "Building Naive Index finished" );
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
+		}
 
+		@SuppressWarnings( "unused" )
 		int naiveSearch = 0;
 		for( Record s : tableSearched ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
@@ -183,9 +193,12 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
-		stat.add( "Naive search count", naiveSearch );
-		naiveIndex.addStat( stat, "Counter_Join" );
-		stepTime.stopAndAdd( stat );
+
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Naive search count", naiveSearch );
+			naiveIndex.addStat( stat, "Counter_Join" );
+			stepTime.stopAndAdd( stat );
+		}
 
 		return rslt;
 	}
