@@ -328,7 +328,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				}
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
-				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
+
+				// TODO Debug
+				// int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
+				int searchmax = range[ 0 ];
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
 				if( thresholdExponent == startThresIndex ) {
@@ -383,12 +386,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			for( ; recordIdx >= 0; recordIdx-- ) {
 				Record rec = tableIndexed.get( recordIdx );
 
-				if( rec.getEstNumRecords() <= threshold ) {
-					break;
-				}
-
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
-				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
+				// TODO DEBUG
+				// int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
+				int searchmax = range[ 0 ];
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
 				if( thresholdExponent == startThresIndex ) {

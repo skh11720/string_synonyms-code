@@ -513,7 +513,10 @@ public class JoinMinIndex {
 
 			for( Record rec : tableIndexed ) {
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
+
+				// TODO DEBUG
 				int searchmax = Math.min( range[ 0 ], invokes.size() );
+				// int searchmax = range[ 0 ];
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
 				for( List<QGram> set : availableQGrams ) {
