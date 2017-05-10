@@ -165,7 +165,10 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
 			}
 			clearJoinMinIndex();
-			stat.add( "AppliedRules Sum", joinMinIdx.appliedRulesSum );
+
+			if( DEBUG.JoinHybridON ) {
+				stat.add( "AppliedRules Sum", joinMinIdx.appliedRulesSum );
+			}
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
 

@@ -8,6 +8,7 @@ import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.NaiveIndex;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import tools.DEBUG;
 import tools.IntegerPair;
 import tools.RuleTrie;
 import tools.Rule_ACAutomata;
@@ -58,58 +59,84 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		this.stat = stat;
 		this.threshold = Long.valueOf( args[ 0 ] );
 
-		stat.addPrimary( "cmd_threshold", threshold );
+		StopWatch stepTime = null;
+		if( DEBUG.NaiveON ) {
+			stat.addPrimary( "cmd_threshold", threshold );
+			stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		}
 
-		final StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
-		preprocessTime.stop();
-		stat.add( preprocessTime );
-		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 
-		final StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		if( DEBUG.NaiveON ) {
+			stepTime.stopAndAdd( stat );
+			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			stepTime.resetAndStart( "Result_3_Run_Time" );
+		}
+
 		final List<IntegerPair> list = runWithoutPreprocess( true );
-		runTime.stop();
-		stat.add( runTime );
 
-		final StopWatch writeTime = StopWatch.getWatchStarted( "Result_4_Write_Time" );
+		if( DEBUG.NaiveON ) {
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_4_Write_Time" );
+		}
+
 		this.writeResult( list );
-		writeTime.stop();
-		stat.add( writeTime );
+
+		if( DEBUG.NaiveON ) {
+			stepTime.stopAndAdd( stat );
+		}
 	}
 
 	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
 		// Index building
-		StopWatch idxTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		StopWatch stepTime = null;
+		if( DEBUG.NaiveON ) {
+			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		}
+
 		idx = NaiveIndex.buildIndex( tableIndexed, avgTransformed, stat, threshold, addStat );
-		idxTime.stopQuiet();
-		if( addStat ) {
-			stat.add( idxTime );
+
+		if( DEBUG.NaiveON ) {
+			stepTime.stopQuiet();
+			if( addStat ) {
+				stat.add( stepTime );
+			}
+			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		}
 
 		// Join
-		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 		final List<IntegerPair> rslt = idx.join( tableSearched, stat, threshold, addStat );
-		joinTime.stopQuiet();
-		if( addStat ) {
-			stat.add( joinTime );
-			stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
-			stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
-			idx.addStat( stat, "Counter_Join" );
+
+		if( DEBUG.NaiveON ) {
+			stepTime.stopQuiet();
+			if( addStat ) {
+				stat.add( stepTime );
+
+				stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
+				stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
+				idx.addStat( stat, "Counter_Join" );
+			}
 		}
 
 		return rslt;
 	}
 
 	private void preprocess() {
-		stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		if( DEBUG.NaiveON ) {
+			stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		}
 
+		@SuppressWarnings( "unused" )
 		long applicableRules = 0;
 		for( final Record t : tableSearched ) {
 			t.preprocessRules( automata, false );
 			applicableRules += t.getNumApplicableRules();
 			t.preprocessEstimatedRecords();
 		}
-		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+
+		if( DEBUG.NaiveON ) {
+			stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+		}
 
 		applicableRules = 0;
 		long estTransformed = 0;
@@ -122,8 +149,10 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		}
 		avgTransformed = estTransformed / (double) tableIndexed.size();
 
-		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
-		stat.add( "Stat_Avg_Transformed_TableIndexed", Double.toString( avgTransformed ) );
+		if( DEBUG.NaiveON ) {
+			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+			stat.add( "Stat_Avg_Transformed_TableIndexed", Double.toString( avgTransformed ) );
+		}
 	}
 
 	public double getAlpha() {

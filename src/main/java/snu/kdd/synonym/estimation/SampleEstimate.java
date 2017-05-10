@@ -10,6 +10,7 @@ import snu.kdd.synonym.algorithm.JoinMin_Q;
 import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.Util;
+import tools.DEBUG;
 import validator.Validator;
 
 public class SampleEstimate {
@@ -64,8 +65,10 @@ public class SampleEstimate {
 			}
 		}
 
-		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
-		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
+		if( DEBUG.SampleStatOn ) {
+			Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
+			Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
+		}
 
 		originalSearched = tableSearched;
 		originalIndexed = tableIndexed;
@@ -86,11 +89,13 @@ public class SampleEstimate {
 		o.tableSearched = originalSearched;
 		o.tableIndexed = originalIndexed;
 
-		Util.printLog( "Alpha : " + alpha );
-		Util.printLog( "Beta : " + beta );
+		if( DEBUG.SampleStatOn ) {
+			Util.printLog( "Alpha : " + alpha );
+			Util.printLog( "Beta : " + beta );
 
-		stat.add( "Const_Alpha", String.format( "%.2f", alpha ) );
-		stat.add( "Const_Beta", String.format( "%.2f", beta ) );
+			stat.add( "Const_Alpha", String.format( "%.2f", alpha ) );
+			stat.add( "Const_Beta", String.format( "%.2f", beta ) );
+		}
 	}
 
 	public void estimateJoinMin( AlgorithmTemplate o, StatContainer stat, Validator checker, int qSize ) {
@@ -107,9 +112,15 @@ public class SampleEstimate {
 		joinmininst.qSize = qSize;
 		joinmininst.outputfile = null;
 
-		Util.printLog( "Joinmininst run" );
+		if( DEBUG.SampleStatOn ) {
+			Util.printLog( "Joinmininst run" );
+		}
+
 		joinmininst.runWithoutPreprocess( false );
-		Util.printLog( "Joinmininst run done" );
+
+		if( DEBUG.SampleStatOn ) {
+			Util.printLog( "Joinmininst run done" );
+		}
 
 		gamma = joinmininst.getGamma();
 		delta = joinmininst.getDelta();
@@ -117,16 +128,18 @@ public class SampleEstimate {
 
 		Validator.printStats();
 
-		Util.printLog( "Gamma : " + gamma );
-		Util.printLog( "Delta : " + delta );
-		Util.printLog( "Epsilon : " + epsilon );
+		if( DEBUG.SampleStatOn ) {
+			Util.printLog( "Gamma : " + gamma );
+			Util.printLog( "Delta : " + delta );
+			Util.printLog( "Epsilon : " + epsilon );
 
-		stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
-		stat.add( "Const_Delta", String.format( "%.2f", delta ) );
-		stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
+			stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
+			stat.add( "Const_Delta", String.format( "%.2f", delta ) );
+			stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
 
-		// TODO DEBUG
-		stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.epsilonPrime ) );
+			// TODO DEBUG
+			stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.epsilonPrime ) );
+		}
 
 		// Restore tables
 		o.tableSearched = originalSearched;
