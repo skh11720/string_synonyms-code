@@ -163,10 +163,16 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		// Line 1 : Initialize
 		List<Pair<T>> results = new ArrayList<Pair<T>>();
 		// Union하는 set의 평균 개수 및 동시에 union하는 set의 개수
+
+		@SuppressWarnings( "unused" )
 		long set_union_count = 0;
+		@SuppressWarnings( "unused" )
 		long set_union_sum = 0;
+		@SuppressWarnings( "unused" )
 		long set_union_setsize_sum = 0;
+
 		// Number of comparisions
+		@SuppressWarnings( "unused" )
 		long count = 0;
 
 		// Line 2 : For all the combinations of fence entries
