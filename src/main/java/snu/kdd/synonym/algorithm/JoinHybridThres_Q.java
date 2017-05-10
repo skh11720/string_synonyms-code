@@ -116,7 +116,8 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	private void buildJoinMinIndex() {
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		joinMinIdx = JoinMinIndex.buildIndexThreshold( tableSearched, tableIndexed, maxIndex, qSize, stat, true, joinThreshold );
+		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true );
+		// joinMinIdx = JoinMinIndex.buildIndexThreshold( tableSearched, tableIndexed, maxIndex, qSize, stat, true, joinThreshold );
 	}
 
 	private void clearJoinMinIndex() {
@@ -170,7 +171,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			clearJoinMinIndex();
 
 			if( DEBUG.JoinHybridON ) {
-				stat.add( "AppliedRules Sum", joinMinIdx.appliedRulesSum );
+				stat.add( "Count_AppliedRules_Sum", joinMinIdx.appliedRulesSum );
 			}
 		}
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
