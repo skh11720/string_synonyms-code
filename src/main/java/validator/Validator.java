@@ -2,6 +2,7 @@ package validator;
 
 import mine.Record;
 import snu.kdd.synonym.tools.Util;
+import tools.DEBUG;
 
 public abstract class Validator {
 	public static long checked;
@@ -28,14 +29,16 @@ public abstract class Validator {
 	}
 
 	public static void printStats() {
-		Util.printLog( "Comparisons: " + Validator.checked );
-		Util.printLog( "Total recursive calls: " + Validator.recursivecalls );
-		Util.printLog( "Total iter entries: " + Validator.niterentry );
-		Util.printLog( "Total iter rules: " + Validator.niterrules );
-		Util.printLog( "Total iter matches: " + Validator.nitermatches );
-		Util.printLog( "Total iter tokens: " + Validator.nitertokens );
-		Util.printLog( "Early evaled: " + Validator.earlyevaled );
-		Util.printLog( "Early stopped: " + Validator.earlystopped );
-		Util.printLog( "Length filtered: " + Validator.filtered );
+		if( DEBUG.ValidateON ) {
+			Util.printLog( "Comparisons: " + Validator.checked );
+			Util.printLog( "Total recursive calls: " + Validator.recursivecalls );
+			Util.printLog( "Total iter entries: " + Validator.niterentry );
+			Util.printLog( "Total iter rules: " + Validator.niterrules );
+			Util.printLog( "Total iter matches: " + Validator.nitermatches );
+			Util.printLog( "Total iter tokens: " + Validator.nitertokens );
+			Util.printLog( "Early evaled: " + Validator.earlyevaled );
+			Util.printLog( "Early stopped: " + Validator.earlystopped );
+			Util.printLog( "Length filtered: " + Validator.filtered );
+		}
 	}
 }

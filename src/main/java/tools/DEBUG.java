@@ -15,4 +15,6 @@ public class DEBUG {
 	public static final boolean JoinMHOn = false;
 
 	public static final boolean SampleStatOn = false;
+
+	public static final boolean ValidateON = false;
 }
