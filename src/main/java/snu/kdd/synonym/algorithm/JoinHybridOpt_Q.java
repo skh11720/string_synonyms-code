@@ -182,6 +182,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				currentIdx++;
 			}
 			partialExpNaiveJoin[ currentIdx ] += est;
+
+			// DEBUG
+			if( est < 0 ) {
+				System.out.println( "Error: Est " + est + " i " + i + " out of " + tableSearched.size() );
+			}
 		}
 
 		currentIdx = 0;
