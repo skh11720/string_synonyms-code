@@ -80,11 +80,15 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	private long maxSearchedEstNumRecords;
 	private long maxIndexedEstNumRecords;
 
+	private DataInfo dataInfo;
+
 	public JoinHybridOpt_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
 			throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
+
+		this.dataInfo = dataInfo;
 	}
 
 	@Override
@@ -925,7 +929,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	private void findConstants( double sampleratio ) {
 		// Sample
-		estimate = new SampleEstimate( tableSearched, tableIndexed, sampleratio );
+		estimate = new SampleEstimate( tableSearched, tableIndexed, sampleratio, dataInfo.isSelfJoin() );
 		estimate.estimateWithSample( stat, this, checker, qSize );
 	}
 

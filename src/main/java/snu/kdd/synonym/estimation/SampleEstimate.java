@@ -31,7 +31,8 @@ public class SampleEstimate {
 	List<Record> sampleSearchedList = new ArrayList<Record>();
 	List<Record> sampleIndexedList = new ArrayList<Record>();
 
-	public SampleEstimate( final List<Record> tableSearched, final List<Record> tableIndexed, double sampleratio ) {
+	public SampleEstimate( final List<Record> tableSearched, final List<Record> tableIndexed, double sampleratio,
+			boolean isSelfJoin ) {
 		Random rn = new Random( 0 );
 
 		int smallTableSize = Integer.min( tableSearched.size(), tableIndexed.size() );
@@ -49,9 +50,17 @@ public class SampleEstimate {
 				sampleSearchedList.add( r );
 			}
 		}
-		for( Record s : tableIndexed ) {
-			if( rn.nextDouble() < sampleratio ) {
-				sampleIndexedList.add( s );
+
+		if( isSelfJoin ) {
+			for( Record r : sampleSearchedList ) {
+				sampleIndexedList.add( r );
+			}
+		}
+		else {
+			for( Record s : tableIndexed ) {
+				if( rn.nextDouble() < sampleratio ) {
+					sampleIndexedList.add( s );
+				}
 			}
 		}
 

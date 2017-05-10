@@ -90,7 +90,7 @@ public class DataInfo {
 		oneSize = new File( dataOnePath ).length();
 		size += oneSize;
 
-		if( !dataOnePath.equals( dataTwoPath ) ) {
+		if( !isSelfJoin() ) {
 			String dataTwo = dataTwoPath.substring( dataTwoPath.lastIndexOf( "/" ) + 1 );
 			String twoInfoFilePath = dataTwoPath.substring( 0, dataTwoPath.lastIndexOf( "/" ) + 1 ) + dataTwo + "_info.json";
 			twoInfoFile = new File( twoInfoFilePath );
@@ -209,6 +209,10 @@ public class DataInfo {
 		catch( IOException e ) {
 			e.printStackTrace();
 		}
+	}
+
+	public boolean isSelfJoin() {
+		return dataOnePath.equals( dataTwoPath );
 	}
 
 	public void saveToFile( String fileName ) {

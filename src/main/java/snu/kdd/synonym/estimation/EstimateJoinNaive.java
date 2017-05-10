@@ -17,12 +17,14 @@ public class EstimateJoinNaive extends AlgorithmTemplate {
 	 */
 
 	JoinNaive1 joinNaive;
+	DataInfo dataInfo;
 
 	public EstimateJoinNaive( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
 			throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
 
 		joinNaive = new JoinNaive1( rulefile, Rfile, Sfile, outputfile, dataInfo );
+		this.dataInfo = dataInfo;
 	}
 
 	@Override
@@ -31,7 +33,8 @@ public class EstimateJoinNaive extends AlgorithmTemplate {
 
 		preprocess();
 		double sampleratio = 0.01;
-		SampleEstimate estimate = new SampleEstimate( joinNaive.tableSearched, joinNaive.tableIndexed, sampleratio );
+		SampleEstimate estimate = new SampleEstimate( joinNaive.tableSearched, joinNaive.tableIndexed, sampleratio,
+				dataInfo.isSelfJoin() );
 
 		joinNaive.threshold = Long.valueOf( args[ 0 ] );
 		joinNaive.stat = stat;
