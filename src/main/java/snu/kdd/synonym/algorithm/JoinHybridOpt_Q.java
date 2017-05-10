@@ -789,8 +789,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		if( DEBUG.JoinHybridON ) {
-			stat.add( "Const_Gamma_Actual", joinMinIdx.gamma );
-			stat.add( "Const_Delta_Actual", joinMinIdx.delta );
+			if( joinMinRequired ) {
+				stat.add( "Const_Gamma_Actual", joinMinIdx.gamma );
+				stat.add( "Const_Delta_Actual", joinMinIdx.delta );
+			}
 			stepTime.stopAndAdd( stat );
 
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
