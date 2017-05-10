@@ -443,13 +443,17 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			double totalTime = naiveTime + joinminTime;
 
 			if( DEBUG.JoinHybridON ) {
-				stat.add( "Const_Epsilon_JoinTime_" + thresholdExponent,
-						String.format( "%.2f", ( fixedInvokes + variableInvokes ) * estimate.epsilon ) );
-				stat.add( "Const_Epsilon_Predict_" + thresholdExponent, String.format( "%.2f", fixedInvokes + variableInvokes ) );
+				stat.add( "Const_Gamma_CountTime_" + thresholdExponent,
+						String.format( "%.2f", searchedTotalSigCount * estimate.gamma ) );
+				stat.add( "Const_Gamma_SearchedSigCount" + thresholdExponent, String.format( "%.2f", searchedTotalSigCount ) );
 
 				stat.add( "Const_Delta_IndexTime_" + thresholdExponent,
 						String.format( "%.2f", indexedTotalSigCount * estimate.delta ) );
 				stat.add( "Const_Delta_IndexSigCount_" + thresholdExponent, String.format( "%.2f", indexedTotalSigCount ) );
+
+				stat.add( "Const_Epsilon_JoinTime_" + thresholdExponent,
+						String.format( "%.2f", ( fixedInvokes + variableInvokes ) * estimate.epsilon ) );
+				stat.add( "Const_Epsilon_Predict_" + thresholdExponent, String.format( "%.2f", fixedInvokes + variableInvokes ) );
 
 				stat.add( "Est_Theta_" + thresholdExponent + "_1_NaiveTime", naiveTime );
 				stat.add( "Est_Theta_" + thresholdExponent + "_2_JoinMinTime", joinminTime );
@@ -814,8 +818,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		if( DEBUG.JoinHybridON ) {
 			if( joinMinRequired ) {
 				stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
-				stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
+				stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
+				stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
 
+				stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
+				stat.add( "Const_Delta_IndexedSigCount_Actual", String.format( "%.2f", joinMinIdx.indexedTotalSigCount ) );
 				stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
 			}
 			stepTime.stopAndAdd( stat );
@@ -835,6 +842,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
 			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
 			stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
+			stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}
