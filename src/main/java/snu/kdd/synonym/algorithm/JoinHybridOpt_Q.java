@@ -843,6 +843,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			// TODO DEBUG
 			stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
+			stat.add( "Const_EpsilonPrime_Comparison_Actual", String.format( "%.2f", joinMinIdx.comparisonCount ) );
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}
