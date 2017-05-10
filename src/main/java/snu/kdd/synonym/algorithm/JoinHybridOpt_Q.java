@@ -195,7 +195,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			Record s = tableIndexed.get( i );
 			s.setID( i );
 
-			double est = s.getEstNumRecords() * s.getTokenArray().length;
+			double est = (double) s.getEstNumRecords() * (double) s.getTokenArray().length;
 			totalExpLengthNaiveIndex += est;
 
 			while( currentIdx != 3 && s.getEstNumRecords() >= nextThreshold ) {
