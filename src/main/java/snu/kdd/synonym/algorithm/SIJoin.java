@@ -15,6 +15,7 @@ import mine.Record;
 import sigmod13.SI_Tree;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.StatContainer;
+import tools.DEBUG;
 import tools.IntegerPair;
 import tools.Pair;
 
@@ -33,12 +34,14 @@ public class SIJoin extends AlgorithmTemplate {
 
 		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, tableSearched );
 		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, tableIndexed );
-		System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );
-		System.out.println( "Sig size : " + treeR.sigsize );
 
-		System.out.print( "Building SI-Tree finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		if( DEBUG.SIJoinON ) {
+			System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );
+			System.out.println( "Sig size : " + treeR.sigsize );
 
+			System.out.print( "Building SI-Tree finished" );
+			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		}
 		// br.readLine();
 
 		List<IntegerPair> rslt = join( treeR, treeS, 1 );
@@ -51,16 +54,19 @@ public class SIJoin extends AlgorithmTemplate {
 
 		List<Pair<Record>> candidates = treeR.join( treeS, threshold );
 		// long counter = treeR.join(treeS, threshold);
-		System.out.print( "Retrieveing candidates finished" );
 
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.out.println( "Candidates : " + candidates.size() );
+		if( DEBUG.SIJoinON ) {
+			System.out.print( "Retrieveing candidates finished" );
 
-		startTime = System.currentTimeMillis();
+			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+			System.out.println( "Candidates : " + candidates.size() );
 
-		System.out.print( "Validating finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		System.out.println( "Similar pairs : " + candidates.size() );
+			startTime = System.currentTimeMillis();
+
+			System.out.print( "Validating finished" );
+			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+			System.out.println( "Similar pairs : " + candidates.size() );
+		}
 
 		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
@@ -89,8 +95,12 @@ public class SIJoin extends AlgorithmTemplate {
 
 		long startTime = System.currentTimeMillis();
 		SIJoin inst = new SIJoin( Rfile, Sfile, Rulefile, outputfile, dataInfo );
-		System.out.print( "Constructor finished" );
-		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+
+		if( DEBUG.SIJoinON ) {
+			System.out.print( "Constructor finished" );
+			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
+		}
+
 		inst.run();
 	}
 

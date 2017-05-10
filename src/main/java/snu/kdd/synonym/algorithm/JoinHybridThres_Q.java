@@ -103,10 +103,13 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			joinThreshold = Integer.max( (int) maxSearchedEstNumRecords, (int) maxIndexedEstNumRecords ) + 1;
 		}
 
-		System.out.println( "Max Indexed expanded size : " + maxIndexedEstNumRecords );
-		System.out.println( "Max Searched expanded size : " + maxSearchedEstNumRecords );
-		if( joinMinRequired ) {
-			System.out.println( "JoinMin is not requied" );
+		if( DEBUG.JoinHybridON ) {
+			System.out.println( "Max Indexed expanded size : " + maxIndexedEstNumRecords );
+			System.out.println( "Max Searched expanded size : " + maxSearchedEstNumRecords );
+
+			if( joinMinRequired ) {
+				System.out.println( "JoinMin is not requied" );
+			}
 		}
 	}
 
