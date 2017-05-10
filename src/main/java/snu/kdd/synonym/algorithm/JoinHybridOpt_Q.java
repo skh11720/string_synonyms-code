@@ -787,9 +787,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		if( joinMinRequired ) {
 			buildJoinMinIndex();
 		}
-		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Const_Gamma_Actual", joinMinIdx.gamma );
+			stat.add( "Const_Delta_Actual", joinMinIdx.delta );
+			stepTime.stopAndAdd( stat );
+
+			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
+		}
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		if( joinMinRequired ) {
@@ -797,14 +802,22 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
 			}
 		}
-		Util.printLog( "After JoinMin Result: " + rslt.size() );
-		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
+		if( DEBUG.JoinHybridON ) {
+			Util.printLog( "After JoinMin Result: " + rslt.size() );
+			stepTime.stopAndAdd( stat );
+
+			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
+		}
+
 		buildNaiveIndex();
-		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Const_Alpha_Actual", naiveIndex.alpha );
+
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
+		}
 
 		int naiveSearch = 0;
 		for( Record s : tableSearched ) {
@@ -816,8 +829,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
-		stat.add( "Stat_Naive search count", naiveSearch );
-		stepTime.stopAndAdd( stat );
+
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Stat_Naive search count", naiveSearch );
+			stepTime.stopAndAdd( stat );
+		}
 
 		return rslt;
 	}
