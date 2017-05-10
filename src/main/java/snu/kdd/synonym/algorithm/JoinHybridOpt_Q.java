@@ -329,9 +329,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 
-				// TODO Debug
-				// int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
-				int searchmax = range[ 0 ];
+				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
 				if( thresholdExponent == startThresIndex ) {
@@ -387,9 +385,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				Record rec = tableIndexed.get( recordIdx );
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
-				// TODO DEBUG
-				// int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
-				int searchmax = range[ 0 ];
+				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
 				if( thresholdExponent == startThresIndex ) {
@@ -844,6 +840,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
 			stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
 			stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
+
+			// TODO DEBUG
+			stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}

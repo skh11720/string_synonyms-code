@@ -116,6 +116,9 @@ public class SampleEstimate {
 		stat.add( "Const_Delta", String.format( "%.2f", delta ) );
 		stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
 
+		// TODO DEBUG
+		stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.epsilonPrime ) );
+
 		// Restore tables
 		o.tableSearched = originalSearched;
 		o.tableIndexed = originalIndexed;

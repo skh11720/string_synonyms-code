@@ -27,6 +27,7 @@ public class JoinMinIndex {
 	public double gamma;
 	public double delta;
 	public double epsilon;
+	public double epsilonPrime;
 
 	private int qSize;
 
@@ -37,7 +38,7 @@ public class JoinMinIndex {
 	public long appliedRulesSum;
 
 	long getQGramTime;
-	long comparisonCount;
+	public long comparisonCount;
 
 	public double joinTime;
 	public double indexTime;
@@ -160,6 +161,9 @@ public class JoinMinIndex {
 			predictCount = 1;
 		}
 		epsilon = joinTime / predictCount;
+
+		// DEBUG
+		epsilonPrime = joinTime / comparisonCount;
 
 		if( DEBUG.JoinMinON ) {
 			Util.printLog( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
@@ -514,9 +518,7 @@ public class JoinMinIndex {
 			for( Record rec : tableIndexed ) {
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 
-				// TODO DEBUG
 				int searchmax = Math.min( range[ 0 ], invokes.size() );
-				// int searchmax = range[ 0 ];
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
 				for( List<QGram> set : availableQGrams ) {
