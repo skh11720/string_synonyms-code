@@ -316,8 +316,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
-				for( List<QGram> set : availableQGrams ) {
-					indexedTotalSigCount += set.size();
+				if( thresholdExponent == startThresIndex ) {
+					for( List<QGram> set : availableQGrams ) {
+						indexedTotalSigCount += set.size();
+					}
 				}
 
 				int minIdx = 0;
@@ -357,7 +359,6 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					}
 				}
 
-				// TODO : build index with minIdx
 				fixedInvokes += minInvokes;
 			}
 
@@ -375,8 +376,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
 
 				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
-				for( List<QGram> set : availableQGrams ) {
-					indexedTotalSigCount += set.size();
+				if( thresholdExponent == startThresIndex ) {
+					for( List<QGram> set : availableQGrams ) {
+						indexedTotalSigCount += set.size();
+					}
 				}
 
 				int minIdx = 0;
