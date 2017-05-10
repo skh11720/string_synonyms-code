@@ -300,6 +300,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			double naiveTime = estimate.getEstimateNaive( diffExpLengthNaiveIndex, diffExpNaiveJoin );
 
+			if( DEBUG.JoinHybridON ) {
+				stat.add( "Const_Beta_JoinTime", String.format( "%.2f", diffExpNaiveJoin * estimate.beta ) );
+				stat.add( "Const_Beta_TotalExp", String.format( "%.2f", diffExpNaiveJoin ) );
+			}
+
 			// estimate joinmin time
 
 			// process records with large expanded sizes
@@ -815,7 +820,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		buildNaiveIndex();
 
 		if( DEBUG.JoinHybridON ) {
-			stat.add( "Const_Alpha_Actual", naiveIndex.alpha );
+			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
 
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
@@ -833,7 +838,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		if( DEBUG.JoinHybridON ) {
-			stat.add( "Const_Beta_Actual", naiveIndex.joinTime / naiveIndex.totalExp );
+			stat.add( "Const_Beta_Actual", String.format( "%.2f", naiveIndex.joinTime / naiveIndex.totalExp ) );
+			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", naiveIndex.joinTime ) );
+			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
 
 			stat.add( "Stat_Naive search count", naiveSearch );
 			stepTime.stopAndAdd( stat );
