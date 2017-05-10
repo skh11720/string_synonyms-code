@@ -848,7 +848,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
-		long joinTime = System.nanoTime() - starttime;
+		double joinTime = System.nanoTime() - starttime;
 
 		if( DEBUG.JoinHybridON ) {
 			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinTime / naiveIndex.totalExp ) );
