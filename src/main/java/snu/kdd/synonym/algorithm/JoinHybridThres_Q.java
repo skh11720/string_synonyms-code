@@ -98,7 +98,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		long maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 		long maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
-		if( maxSearchedEstNumRecords < joinThreshold && maxIndexedEstNumRecords < joinThreshold ) {
+		if( maxSearchedEstNumRecords <= joinThreshold && maxIndexedEstNumRecords <= joinThreshold ) {
 			joinMinRequired = false;
 			joinThreshold = Integer.max( (int) maxSearchedEstNumRecords, (int) maxIndexedEstNumRecords ) + 1;
 		}

@@ -130,7 +130,7 @@ public class SampleEstimate {
 		return alpha * totalExpLengthIndex + beta * totalExpJoin;
 	}
 
-	public double getEstimateJoinMin( double A, double B, double C ) {
-		return gamma * A + delta * B + epsilon * C;
+	public double getEstimateJoinMin( double searchedTotalSigCount, double indexedTotalSigCount, double estimatedInvokes ) {
+		return gamma * searchedTotalSigCount + delta * indexedTotalSigCount + epsilon * estimatedInvokes;
 	}
 }

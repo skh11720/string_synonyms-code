@@ -132,6 +132,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_6_Find_Theta_Time" );
 		// joinThreshold = findTheta( Integer.MAX_VALUE );
 		joinThreshold = findThetaRevised( Integer.MAX_VALUE );
+		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
+			joinMinRequired = false;
+		}
 		stepTime.stopAndAdd( stat );
 
 		stepTime.resetAndStart( "Result_7_Join_Time" );
@@ -214,7 +217,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
 
 		// count qgrams for each that will be searched
-		double totalSigCountSearched = 0;
+		double searchedTotalSigCount = 0;
 
 		for( Record rec : tableSearched ) {
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
@@ -243,7 +246,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				}
 			}
 
-			totalSigCountSearched += qgramCount;
+			searchedTotalSigCount += qgramCount;
 		}
 
 		// since both tables are sorted with est num records, the two values are minimum est num records in both tables
@@ -417,7 +420,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				variableInvokes += minInvokes;
 			}
 
-			double joinminTime = estimate.getEstimateJoinMin( 0, 0, fixedInvokes + variableInvokes );
+			double joinminTime = estimate.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
+					fixedInvokes + variableInvokes );
 			double totalTime = naiveTime + joinminTime;
 
 			if( DEBUG.JoinHybridON ) {
@@ -443,6 +447,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		return (int) bestThreshold;
 	}
 
+	@Deprecated
 	private int findTheta( int max_theta ) {
 		long elements = 0;
 		est_cmps = 0;
@@ -453,7 +458,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		List<Map<QGram, Directory>> idx = new ArrayList<Map<QGram, Directory>>();
 
 		// Actually, tableT
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_5_1_Index Count Time" );
+		StopWatch stepTime = null;
+
+		if( DEBUG.JoinHybridON ) {
+			stepTime = StopWatch.getWatchStarted( "Result_5_1_Index Count Time" );
+		}
 
 		ArrayList<Integer> countPerPosition = new ArrayList<Integer>();
 
@@ -490,16 +499,20 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 		}
 
-		for( int i = 0; i < countPerPosition.size(); i++ ) {
-			stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
+		if( DEBUG.JoinHybridON ) {
+			for( int i = 0; i < countPerPosition.size(); i++ ) {
+				stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
+			}
 		}
 
-		Util.printLog( "Bigram retrieval : " + Record.exectime );
-		// Util.printLog( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
-		stat.add( "Mem_1_After_Counting_Bigrams", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		stepTime.stopAndAdd( stat );
+		if( DEBUG.JoinHybridON ) {
+			// Util.printLog( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for counting bigrams" );
+			stat.add( "Mem_1_After_Counting_Bigrams", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Result_5_2_Indexing Time" );
+			stepTime.resetAndStart( "Result_5_2_Indexing Time" );
+		}
+
 		// Actually, tableS
 
 		for( Record rec : tableIndexed ) {
@@ -553,22 +566,24 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			est_cmps += minInvokes;
 		}
 
-		Util.printLog( "Bigram retrieval : " + Record.exectime );
 		// Util.printLog( ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 + "MB used for JoinMinIdx" );
 		memlimit_expandedS = (long) ( runtime.freeMemory() * 0.8 );
 
-		stat.add( "Mem_2_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		stat.add( "Stat_Predicted_Comparisons", est_cmps );
-		stat.add( "Stat_JoinMin_Index_Size", elements );
-		stat.add( "Stat_Wrapped Integers", WrappedInteger.count );
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Mem_2_After_JoinMin", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			stat.add( "Stat_Predicted_Comparisons", est_cmps );
+			stat.add( "Stat_JoinMin_Index_Size", elements );
+			stat.add( "Stat_Wrapped Integers", WrappedInteger.count );
 
-		for( int i = 0; i < idx.size(); i++ ) {
-			if( idx.get( i ).size() != 0 ) {
-				// Util.printLog( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
-				stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
+			for( int i = 0; i < idx.size(); i++ ) {
+				if( idx.get( i ).size() != 0 ) {
+					// Util.printLog( "JoinMin idx " + i + " size: " + idx.get( i ).size() );
+					stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
+				}
 			}
+
+			stepTime.stopAndAdd( stat );
 		}
-		stepTime.stopAndAdd( stat );
 
 		// Find the best threshold
 		int best_theta = 0;
