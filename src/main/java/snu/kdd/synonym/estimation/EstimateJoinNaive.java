@@ -49,7 +49,7 @@ public class EstimateJoinNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "EstimateNaive1";
+		return "EstimateJoinMin";
 	}
 
 	@Override
