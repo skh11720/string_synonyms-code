@@ -822,7 +822,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
 
 				stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
-				stat.add( "Const_Delta_IndexedSigCount_Actual", String.format( "%.2f", joinMinIdx.indexedTotalSigCount ) );
+				stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
 				stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
 			}
 			stepTime.stopAndAdd( stat );
