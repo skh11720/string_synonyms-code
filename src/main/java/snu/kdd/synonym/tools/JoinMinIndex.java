@@ -44,7 +44,7 @@ public class JoinMinIndex {
 	public double countTime;
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
-	private long predictCount;
+	public long predictCount;
 
 	public JoinMinIndex( int qSize ) {
 		idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();

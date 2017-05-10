@@ -809,21 +809,23 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				stat.add( "Const_Delta_Actual", joinMinIdx.delta );
 			}
 			stepTime.stopAndAdd( stat );
-
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		}
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		long joinstart = System.nanoTime();
 		if( joinMinRequired ) {
 			for( Record s : tableSearched ) {
 				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
 			}
 		}
+		double joinminJointime = System.nanoTime() - joinstart;
 
 		if( DEBUG.JoinHybridON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
+			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
+			stat.add( "Const_Epsilon_Predict_Actual", String.format( "%.2f", joinMinIdx.predictCount ) );
 			stepTime.stopAndAdd( stat );
-
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}
 
