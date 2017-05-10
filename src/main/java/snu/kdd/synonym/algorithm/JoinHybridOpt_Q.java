@@ -824,7 +824,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		if( DEBUG.JoinHybridON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
 			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
-			stat.add( "Const_Epsilon_Predict_Actual", String.format( "%.2f", joinMinIdx.predictCount ) );
+			stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}
