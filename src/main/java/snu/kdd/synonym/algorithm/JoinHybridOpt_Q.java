@@ -833,6 +833,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		if( DEBUG.JoinHybridON ) {
+			stat.add( "Const_Beta_Actual", naiveIndex.joinTime / naiveIndex.totalExp );
+
 			stat.add( "Stat_Naive search count", naiveSearch );
 			stepTime.stopAndAdd( stat );
 		}
