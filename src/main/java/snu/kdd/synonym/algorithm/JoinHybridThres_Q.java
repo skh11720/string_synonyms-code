@@ -246,25 +246,32 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	}
 
 	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess( compact, maxIndex, useAutomata );
-		stepTime.stopAndAdd( stat );
-		System.out.print( "Preprocess finished" );
-
-		// Retrieve statistics
+		StopWatch stepTime = null;
 		if( DEBUG.JoinHybridON ) {
+			stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		}
+
+		preprocess( compact, maxIndex, useAutomata );
+
+		if( DEBUG.JoinHybridON ) {
+			stepTime.stopAndAdd( stat );
+			System.out.print( "Preprocess finished" );
+
 			stepTime.resetAndStart( "Result_3_Statistics_Time" );
 			statistics();
 			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_Join_Time" );
 		}
 
-		stepTime.resetAndStart( "Result_7_Join_Time" );
 		Collection<IntegerPair> rslt = join();
-		stepTime.stopAndAdd( stat );
-		System.out.print( "Join finished" );
 
-		System.out.println( "Result time " + rslt.size() );
-		System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
+		if( DEBUG.JoinHybridON ) {
+			stepTime.stopAndAdd( stat );
+			System.out.print( "Join finished" );
+
+			System.out.println( "Result time " + rslt.size() );
+			System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
+		}
 
 		writeResult( rslt );
 	}

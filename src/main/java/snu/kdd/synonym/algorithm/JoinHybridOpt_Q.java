@@ -470,7 +470,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			threshold = threshold / 10;
 		}
 
-		stat.add( "Auto_Best_Threshold", bestThreshold );
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Auto_Best_Threshold", bestThreshold );
+		}
 
 		if( bestThreshold > Integer.MAX_VALUE ) {
 			return Integer.MAX_VALUE;

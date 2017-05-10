@@ -80,14 +80,16 @@ public class NaiveIndex {
 		joinTime = System.nanoTime() - starttime;
 		beta = joinTime / totalExp;
 
-		if( addStat ) {
-			stat.add( "Est_Join_1_expandTime", expandTime );
-			stat.add( "Est_Join_2_searchTime", searchTime );
-			stat.add( "Est_Join_3_totalTime", Double.toString( joinTime ) );
+		if( DEBUG.NaiveON ) {
+			if( addStat ) {
+				stat.add( "Est_Join_1_expandTime", expandTime );
+				stat.add( "Est_Join_2_searchTime", searchTime );
+				stat.add( "Est_Join_3_totalTime", Double.toString( joinTime ) );
 
-			Runtime runtime = Runtime.getRuntime();
-			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-			stat.add( "Stat_Counter_ExpandAll", Record.expandAllCount );
+				Runtime runtime = Runtime.getRuntime();
+				stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+				stat.add( "Stat_Counter_ExpandAll", Record.expandAllCount );
+			}
 		}
 
 		return rslt;
