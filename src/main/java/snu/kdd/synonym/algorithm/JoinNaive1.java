@@ -19,7 +19,7 @@ import tools.StaticFunctions;
 public class JoinNaive1 extends AlgorithmTemplate {
 	public boolean skipequiv = false;
 
-	Rule_ACAutomata automata;
+	public Rule_ACAutomata automata;
 
 	/**
 	 * Store the original index from expanded string
@@ -85,9 +85,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		if( addStat ) {
 			stat.add( idxTime );
 		}
-
-		// DEBUG
-		// Util.DEBUG_printIndexToFile( rec2idx );
 
 		// Join
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );

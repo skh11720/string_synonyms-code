@@ -32,7 +32,7 @@ public abstract class AlgorithmTemplate {
 	protected List<Rule> rulelist;
 
 	// Stat container
-	protected StatContainer stat = null;
+	public StatContainer stat = null;
 	protected Runtime runtime = Runtime.getRuntime();
 
 	// String to integer mapping

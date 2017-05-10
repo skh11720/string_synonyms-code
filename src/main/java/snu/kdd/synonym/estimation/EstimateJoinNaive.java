@@ -2,6 +2,7 @@ package snu.kdd.synonym.estimation;
 
 import java.io.IOException;
 
+import mine.Record;
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.data.DataInfo;
@@ -28,10 +29,13 @@ public class EstimateJoinNaive extends AlgorithmTemplate {
 	public void run( String[] args, StatContainer stat ) {
 		this.stat = stat;
 
-		joinNaive.run( args, stat );
-
-		double sampleratio = 0.1;
+		preprocess();
+		double sampleratio = 0.01;
 		SampleEstimate estimate = new SampleEstimate( joinNaive.tableSearched, joinNaive.tableIndexed, sampleratio );
+
+		joinNaive.threshold = Long.valueOf( args[ 0 ] );
+		joinNaive.stat = stat;
+		joinNaive.runWithoutPreprocess( true );
 
 		estimate.estimateNaive( joinNaive, stat );
 
@@ -45,6 +49,32 @@ public class EstimateJoinNaive extends AlgorithmTemplate {
 				joinNaive.idx.estimatedIndexTime( estimate.alpha ) + joinNaive.idx.estimatedJoinTime( estimate.beta ) );
 		stat.add( "Cost_ALL_Actual", joinNaive.idx.indexTime + joinNaive.idx.joinTime );
 
+	}
+
+	private void preprocess() {
+		stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+
+		long applicableRules = 0;
+		for( final Record t : tableSearched ) {
+			t.preprocessRules( joinNaive.automata, false );
+			applicableRules += t.getNumApplicableRules();
+			t.preprocessEstimatedRecords();
+		}
+		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+
+		applicableRules = 0;
+		long estTransformed = 0;
+		for( final Record s : tableIndexed ) {
+			s.preprocessRules( joinNaive.automata, false );
+			applicableRules += s.getNumApplicableRules();
+			s.preprocessEstimatedRecords();
+
+			estTransformed += s.getEstNumRecords();
+		}
+		joinNaive.avgTransformed = estTransformed / (double) tableIndexed.size();
+
+		stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+		stat.add( "Stat_Avg_Transformed_TableIndexed", Double.toString( joinNaive.avgTransformed ) );
 	}
 
 	@Override
