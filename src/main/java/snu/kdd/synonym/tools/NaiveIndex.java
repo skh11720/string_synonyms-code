@@ -19,7 +19,7 @@ public class NaiveIndex {
 	long expandTime = 0;
 	long searchTime = 0;
 	public double totalExp = 0;
-	double totalExpLength = 0;
+	public double totalExpLength = 0;
 
 	public double indexTime = 0;
 	public double joinTime = 0;

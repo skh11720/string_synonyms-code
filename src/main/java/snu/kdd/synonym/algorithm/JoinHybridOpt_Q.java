@@ -260,6 +260,12 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			stat.add( "Est_Theta_3_1_NaiveTime", bestEstimatedTime );
 			stat.add( "Est_Theta_3_2_JoinMinTime", 0 );
 			stat.add( "Est_Theta_3_3_TotalTime", bestEstimatedTime );
+
+			stat.add( "Const_Beta_JoinTime_3", String.format( "%.2f", totalExpNaiveJoin * estimate.beta ) );
+			stat.add( "Const_Beta_TotalExp_3", String.format( "%.2f", totalExpNaiveJoin ) );
+
+			stat.add( "Const_Alpha_JoinTime_3", String.format( "%.2f", totalExpLengthNaiveIndex * estimate.alpha ) );
+			stat.add( "Const_Alpha_ExpLength_3", String.format( "%.2f", totalExpLengthNaiveIndex ) );
 		}
 
 		int startThresIndex;
@@ -301,8 +307,12 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			double naiveTime = estimate.getEstimateNaive( diffExpLengthNaiveIndex, diffExpNaiveJoin );
 
 			if( DEBUG.JoinHybridON ) {
-				stat.add( "Const_Beta_JoinTime", String.format( "%.2f", diffExpNaiveJoin * estimate.beta ) );
-				stat.add( "Const_Beta_TotalExp", String.format( "%.2f", diffExpNaiveJoin ) );
+				stat.add( "Const_Beta_JoinTime_" + thresholdExponent, String.format( "%.2f", diffExpNaiveJoin * estimate.beta ) );
+				stat.add( "Const_Beta_TotalExp_" + thresholdExponent, String.format( "%.2f", diffExpNaiveJoin ) );
+
+				stat.add( "Const_Alpha_JoinTime_" + thresholdExponent,
+						String.format( "%.2f", diffExpLengthNaiveIndex * estimate.alpha ) );
+				stat.add( "Const_Alpha_ExpLength_" + thresholdExponent, String.format( "%.2f", diffExpLengthNaiveIndex ) );
 			}
 
 			// estimate joinmin time
@@ -821,12 +831,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		if( DEBUG.JoinHybridON ) {
 			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
+			stat.add( "Const_Alpha_ExpLength_Actual", String.format( "%.2f", naiveIndex.totalExpLength ) );
 
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
 		}
 
 		int naiveSearch = 0;
+		long starttime = System.nanoTime();
 		for( Record s : tableSearched ) {
 			if( s.getEstNumRecords() > joinThreshold ) {
 				continue;
@@ -836,10 +848,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
+		long joinTime = System.nanoTime() - starttime;
 
 		if( DEBUG.JoinHybridON ) {
-			stat.add( "Const_Beta_Actual", String.format( "%.2f", naiveIndex.joinTime / naiveIndex.totalExp ) );
-			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", naiveIndex.joinTime ) );
+			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinTime / naiveIndex.totalExp ) );
+			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
 			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
 
 			stat.add( "Stat_Naive search count", naiveSearch );
