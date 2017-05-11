@@ -997,13 +997,27 @@ public class JoinMinIndex {
 					idx.put( minIdx, qgram, rec );
 				}
 
-				for( QGram qgram : availableQGrams.get( minTwoIdx ) ) {
-					idx.put( minTwoIdx, qgram, rec );
+				if( minTwoIdx != -1 ) {
+					for( QGram qgram : availableQGrams.get( minTwoIdx ) ) {
+						idx.put( minTwoIdx, qgram, rec );
+					}
+				}
+				else {
+					for( QGram qgram : availableQGrams.get( minIdx ) ) {
+						// write2File(bw, minIdx, twogram, rec.getID());
+						idx.put( minIdx, qgram, rec );
+					}
 				}
 
 				if( DEBUG.JoinMinON ) {
 					indexedElements += availableQGrams.get( minIdx ).size();
-					indexedElements += availableQGrams.get( minTwoIdx ).size();
+
+					if( minTwoIdx != -1 ) {
+						indexedElements += availableQGrams.get( minTwoIdx ).size();
+					}
+					else {
+						indexedElements += availableQGrams.get( minIdx ).size();
+					}
 				}
 			}
 
