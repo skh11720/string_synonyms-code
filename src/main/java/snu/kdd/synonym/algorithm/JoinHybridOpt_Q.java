@@ -274,6 +274,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 			stat.add( "Const_Alpha_IndexTime_3", String.format( "%.2f", totalExpLengthNaiveIndex * estimate.alpha ) );
 			stat.add( "Const_Alpha_ExpLength_3", String.format( "%.2f", totalExpLengthNaiveIndex ) );
+
+			Util.printLog( "ThresholdId: " + bestThreshold );
+			Util.printLog( "Naive Time: " + bestEstimatedTime );
+			Util.printLog( "JoinMin Time: " + 0 );
+			Util.printLog( "Total Time: " + bestEstimatedTime );
 		}
 
 		int startThresIndex;
@@ -461,6 +466,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				stat.add( "Est_Theta_" + thresholdExponent + "_1_NaiveTime", naiveTime );
 				stat.add( "Est_Theta_" + thresholdExponent + "_2_JoinMinTime", joinminTime );
 				stat.add( "Est_Theta_" + thresholdExponent + "_3_TotalTime", totalTime );
+
+				Util.printLog( "ThresholdId: " + thresholdExponent );
+				Util.printLog( "Naive Time: " + naiveTime );
+				Util.printLog( "JoinMin Time: " + joinminTime );
+				Util.printLog( "Total Time: " + totalTime );
 			}
 
 			if( bestEstimatedTime > totalTime ) {
