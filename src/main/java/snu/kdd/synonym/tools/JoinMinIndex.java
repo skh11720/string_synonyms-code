@@ -1003,7 +1003,7 @@ public class JoinMinIndex {
 				if( minTwoIdx != -1 ) {
 					// System.out.println( "Rec: " + rec + " has no minTwoIdx" );
 					for( QGram qgram : availableQGrams.get( minTwoIdx ) ) {
-						bw.write( "2 " + minIdx + ", " + qgram + " : " + rec + "\n" );
+						bw.write( "2 " + minTwoIdx + ", " + qgram + " : " + rec + "\n" );
 						idx.put( minTwoIdx, qgram, rec );
 					}
 				}
