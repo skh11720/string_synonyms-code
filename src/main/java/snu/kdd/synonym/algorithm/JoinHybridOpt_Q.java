@@ -528,12 +528,14 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		if( DEBUG.JoinHybridON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
 			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
-			stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
-			stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
+			if( joinMinRequired ) {
+				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
+				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
 
-			// TODO DEBUG
-			stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
-			stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+				// TODO DEBUG
+				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
+				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}
