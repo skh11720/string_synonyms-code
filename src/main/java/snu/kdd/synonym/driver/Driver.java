@@ -125,7 +125,7 @@ public class Driver {
 			break;
 
 		case DebugAlg:
-			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case JoinMin:
 			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
