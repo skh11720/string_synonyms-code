@@ -141,6 +141,10 @@ public class NaiveIndex {
 		final long starttime = System.nanoTime();
 		int initialsize = (int) ( tableIndexed.size() * avgTransformed / 2 );
 
+		if( initialsize > 10000 ) {
+			initialsize = 10000;
+		}
+
 		if( DEBUG.NaiveON ) {
 			stat.add( "Auto_Hash_Initial_Size ", initialsize );
 		}
