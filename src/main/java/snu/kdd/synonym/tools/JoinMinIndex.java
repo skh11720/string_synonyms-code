@@ -918,6 +918,10 @@ public class JoinMinIndex {
 			idx.predictCount = 0;
 			long indexedElements = 0;
 
+			if( DEBUG.PrintIndexON ) {
+				bw = new BufferedWriter( new FileWriter( "debug_index.txt" ) );
+			}
+
 			for( Record rec : tableIndexed ) {
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 
@@ -992,19 +996,21 @@ public class JoinMinIndex {
 				idx.setIndex( minTwoIdx );
 
 				for( QGram qgram : availableQGrams.get( minIdx ) ) {
-					// write2File(bw, minIdx, twogram, rec.getID());
+					bw.write( minIdx + "," + qgram + " : " + rec + "\n" );
 					idx.put( minIdx, qgram, rec );
 				}
 
 				if( minTwoIdx != -1 ) {
 					// System.out.println( "Rec: " + rec + " has no minTwoIdx" );
 					for( QGram qgram : availableQGrams.get( minTwoIdx ) ) {
+						bw.write( minIdx + "," + qgram + " : " + rec + "\n" );
 						idx.put( minTwoIdx, qgram, rec );
 					}
 				}
 				else {
 					for( QGram qgram : availableQGrams.get( minIdx ) ) {
 						// write2File(bw, minIdx, twogram, rec.getID());
+						bw.write( minIdx + "," + qgram + " : " + rec + "\n" );
 						idx.put( minIdx, qgram, rec );
 					}
 				}
@@ -1019,6 +1025,10 @@ public class JoinMinIndex {
 						indexedElements += availableQGrams.get( minIdx ).size();
 					}
 				}
+			}
+
+			if( DEBUG.PrintIndexON ) {
+				bw.close();
 			}
 
 			idx.indexTime = System.nanoTime() - starttime;
