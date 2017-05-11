@@ -23,6 +23,7 @@ import wrapped.WrappedInteger;
 public class JoinMinIndex {
 	ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
 	ArrayList<Integer> countPerPosition = null;
+	WYK_HashSet<Integer> bypassSet = null;
 
 	public double gamma;
 	public double delta;
@@ -382,14 +383,16 @@ public class JoinMinIndex {
 			joinStartTime = System.nanoTime();
 		}
 
+		Set<Record> oneCandidates = new WYK_HashSet<Record>();
+		Set<Record> twoCandidates = new WYK_HashSet<Record>();
+
 		for( int i = 0; i < searchmax; ++i ) {
 			Map<QGram, List<Record>> curridx = idx.get( i );
 			if( curridx == null ) {
 				continue;
 			}
 
-			Set<Record> oneCandidates = new WYK_HashSet<Record>();
-			Set<Record> twoCandidates = new WYK_HashSet<Record>();
+			Set<Record> candidates = new WYK_HashSet<Record>();
 
 			for( QGram qgram : availableQGrams.get( i ) ) {
 				if( DEBUG.JoinMinJoinON ) {
@@ -404,48 +407,55 @@ public class JoinMinIndex {
 
 				for( Record e : tree ) {
 					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						if( oneCandidates.contains( e ) ) {
-							twoCandidates.add( e );
-						}
-						else {
-							oneCandidates.add( e );
-						}
+						candidates.add( e );
 						comparisonCount++;
 					}
 				}
 			}
 
-			equivComparisons += twoCandidates.size();
-			for( Record recR : twoCandidates ) {
-				long ruleiters = 0;
-				long reccalls = 0;
-				long entryiters = 0;
-
-				if( DEBUG.JoinMinON ) {
-					ruleiters = Validator.niterrules;
-					reccalls = Validator.recursivecalls;
-					entryiters = Validator.niterentry;
+			for( Record e : candidates ) {
+				if( oneCandidates.contains( e ) ) {
+					twoCandidates.add( e );
 				}
-
-				long st = System.nanoTime();
-				int compare = checker.isEqual( recR, recS );
-				long duration = System.nanoTime() - st;
-
-				if( DEBUG.JoinMinON ) {
-					ruleiters = Validator.niterrules - ruleiters;
-					reccalls = Validator.recursivecalls - reccalls;
-					entryiters = Validator.niterentry - entryiters;
-
-					// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
-					// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
-					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+				else if( bypassSet.contains( e.getID() ) ) {
+					twoCandidates.add( e );
 				}
-
-				actualJoinTime += duration;
-				if( compare >= 0 ) {
-					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
-					appliedRulesSum += compare;
+				else {
+					oneCandidates.add( e );
 				}
+			}
+		}
+
+		equivComparisons += twoCandidates.size();
+		for( Record recR : twoCandidates ) {
+			long ruleiters = 0;
+			long reccalls = 0;
+			long entryiters = 0;
+
+			if( DEBUG.JoinMinON ) {
+				ruleiters = Validator.niterrules;
+				reccalls = Validator.recursivecalls;
+				entryiters = Validator.niterentry;
+			}
+
+			long st = System.nanoTime();
+			int compare = checker.isEqual( recR, recS );
+			long duration = System.nanoTime() - st;
+
+			if( DEBUG.JoinMinON ) {
+				ruleiters = Validator.niterrules - ruleiters;
+				reccalls = Validator.recursivecalls - reccalls;
+				entryiters = Validator.niterentry - entryiters;
+
+				// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
+				// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
+				// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+			}
+
+			actualJoinTime += duration;
+			if( compare >= 0 ) {
+				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+				appliedRulesSum += compare;
 			}
 		}
 
@@ -922,6 +932,8 @@ public class JoinMinIndex {
 				bw = new BufferedWriter( new FileWriter( "debug_index.txt" ) );
 			}
 
+			idx.bypassSet = new WYK_HashSet();
+
 			for( Record rec : tableIndexed ) {
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
 
@@ -1008,11 +1020,7 @@ public class JoinMinIndex {
 					}
 				}
 				else {
-					for( QGram qgram : availableQGrams.get( minIdx ) ) {
-						// write2File(bw, minIdx, twogram, rec.getID());
-						bw.write( "3 " + minIdx + ", " + qgram + " : " + rec + "\n" );
-						idx.put( minIdx, qgram, rec );
-					}
+					idx.bypassSet.add( rec.getID() );
 				}
 
 				if( DEBUG.JoinMinON ) {
