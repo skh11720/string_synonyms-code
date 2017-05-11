@@ -996,21 +996,21 @@ public class JoinMinIndex {
 				idx.setIndex( minTwoIdx );
 
 				for( QGram qgram : availableQGrams.get( minIdx ) ) {
-					bw.write( minIdx + "," + qgram + " : " + rec + "\n" );
+					bw.write( "1 " + minIdx + ", " + qgram + " : " + rec + "\n" );
 					idx.put( minIdx, qgram, rec );
 				}
 
 				if( minTwoIdx != -1 ) {
 					// System.out.println( "Rec: " + rec + " has no minTwoIdx" );
 					for( QGram qgram : availableQGrams.get( minTwoIdx ) ) {
-						bw.write( minIdx + "," + qgram + " : " + rec + "\n" );
+						bw.write( "2 " + minIdx + ", " + qgram + " : " + rec + "\n" );
 						idx.put( minTwoIdx, qgram, rec );
 					}
 				}
 				else {
 					for( QGram qgram : availableQGrams.get( minIdx ) ) {
 						// write2File(bw, minIdx, twogram, rec.getID());
-						bw.write( minIdx + "," + qgram + " : " + rec + "\n" );
+						bw.write( "3 " + minIdx + ", " + qgram + " : " + rec + "\n" );
 						idx.put( minIdx, qgram, rec );
 					}
 				}
