@@ -993,11 +993,11 @@ public class JoinMinIndex {
 
 				for( QGram qgram : availableQGrams.get( minIdx ) ) {
 					// write2File(bw, minIdx, twogram, rec.getID());
-
 					idx.put( minIdx, qgram, rec );
 				}
 
 				if( minTwoIdx != -1 ) {
+					System.out.println( "Rec: " + rec + " has no minTwoIdx" );
 					for( QGram qgram : availableQGrams.get( minTwoIdx ) ) {
 						idx.put( minTwoIdx, qgram, rec );
 					}
