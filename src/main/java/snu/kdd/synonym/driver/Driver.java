@@ -16,6 +16,7 @@ import snu.kdd.synonym.algorithm.CheckQGram;
 import snu.kdd.synonym.algorithm.JoinHybridOpt_Q;
 import snu.kdd.synonym.algorithm.JoinHybridThres_Q;
 import snu.kdd.synonym.algorithm.JoinMH_QL;
+import snu.kdd.synonym.algorithm.JoinMinTwo_Q;
 import snu.kdd.synonym.algorithm.JoinMin_Q;
 import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.algorithm.JoinNaive2;
@@ -57,6 +58,7 @@ public class Driver {
 		JoinMH,
 		JoinMH_OLD,
 		JoinMin,
+		JoinMinTwo,
 		JoinMin_OLD,
 		JoinHybridThres,
 		JoinHybridOpt,
@@ -127,6 +129,9 @@ public class Driver {
 			break;
 		case JoinMin:
 			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			break;
+		case JoinMinTwo:
+			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
 			break;
 		case JoinHybridThres:
 			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
