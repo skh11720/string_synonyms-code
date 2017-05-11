@@ -463,7 +463,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				stat.add( "Est_Theta_" + thresholdExponent + "_2_JoinMinTime", joinminTime );
 				stat.add( "Est_Theta_" + thresholdExponent + "_3_TotalTime", totalTime );
 
-				Util.printLog( "ThresholdId: " + Math.pow( 10, thresholdExponent + 1 ) );
+				Util.printLog( "ThresholdId: " + threshold );
 				Util.printLog( "Naive Time: " + naiveTime );
 				Util.printLog( "JoinMin Time: " + joinminTime );
 				Util.printLog( "Total Time: " + totalTime );
