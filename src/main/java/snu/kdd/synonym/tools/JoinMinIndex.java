@@ -968,14 +968,14 @@ public class JoinMinIndex {
 
 					for( QGram twogram : availableQGrams.get( i ) ) {
 						WrappedInteger count = curridx_invokes.get( twogram );
-						if( count != null ) {
-							// upper bound
-							invoke += count.get();
-						}
+
+						// upper bound
+						invoke += count.get();
 					}
+
 					if( invoke < minInvokes ) {
 						minTwoIdx = minIdx;
-						minTwoInvokes = invoke;
+						minTwoInvokes = minInvokes;
 
 						minIdx = i;
 						minInvokes = invoke;
@@ -997,7 +997,7 @@ public class JoinMinIndex {
 				}
 
 				if( minTwoIdx != -1 ) {
-					System.out.println( "Rec: " + rec + " has no minTwoIdx" );
+					// System.out.println( "Rec: " + rec + " has no minTwoIdx" );
 					for( QGram qgram : availableQGrams.get( minTwoIdx ) ) {
 						idx.put( minTwoIdx, qgram, rec );
 					}
