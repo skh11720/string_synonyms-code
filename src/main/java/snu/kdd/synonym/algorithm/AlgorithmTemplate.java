@@ -352,6 +352,7 @@ public abstract class AlgorithmTemplate {
 			}
 
 			final BufferedWriter bw = new BufferedWriter( new FileWriter( outputfile ) );
+			bw.write( rslt.size() + "\n" );
 			for( final IntegerPair ip : rslt ) {
 				final Record r = tableSearched.get( ip.i1 );
 				final Record s = tableIndexed.get( ip.i2 );
