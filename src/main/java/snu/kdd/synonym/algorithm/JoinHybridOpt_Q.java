@@ -172,8 +172,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		Collections.sort( tableIndexed, cmp );
 
 		// Reassign ID and collect statistics for join naive
-		partialExpLengthNaiveIndex = new double[ 4 ];
-		partialExpNaiveJoin = new double[ 4 ];
+		partialExpLengthNaiveIndex = new double[ 3 ];
+		partialExpNaiveJoin = new double[ 3 ];
 
 		int currentIdx = 0;
 		int nextThreshold = 10;
@@ -201,7 +201,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			double est = (double) s.getEstNumRecords() * (double) s.getTokenArray().length;
 			totalExpLengthNaiveIndex += est;
 
-			while( currentIdx != 3 && s.getEstNumRecords() >= nextThreshold ) {
+			while( currentIdx != 2 && s.getEstNumRecords() >= nextThreshold ) {
 				nextThreshold *= 10;
 				currentIdx++;
 			}
@@ -212,7 +212,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
 		if( DEBUG.JoinHybridON ) {
-			for( int i = 0; i < 4; i++ ) {
+			for( int i = 0; i < 3; i++ ) {
 				stat.add( "Preprocess_ExpLength_" + i, partialExpLengthNaiveIndex[ i ] );
 				stat.add( "Preprocess_Exp_" + i, partialExpNaiveJoin[ i ] );
 			}
@@ -269,11 +269,11 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			stat.add( "Est_Theta_3_2_JoinMinTime", 0 );
 			stat.add( "Est_Theta_3_3_TotalTime", bestEstimatedTime );
 
-			stat.add( "Const_Beta_JoinTime_3", String.format( "%.2f", totalExpNaiveJoin * estimate.beta ) );
-			stat.add( "Const_Beta_TotalExp_3", String.format( "%.2f", totalExpNaiveJoin ) );
+			stat.add( "Const_Beta_JoinTime_2", String.format( "%.2f", totalExpNaiveJoin * estimate.beta ) );
+			stat.add( "Const_Beta_TotalExp_2", String.format( "%.2f", totalExpNaiveJoin ) );
 
-			stat.add( "Const_Alpha_IndexTime_3", String.format( "%.2f", totalExpLengthNaiveIndex * estimate.alpha ) );
-			stat.add( "Const_Alpha_ExpLength_3", String.format( "%.2f", totalExpLengthNaiveIndex ) );
+			stat.add( "Const_Alpha_IndexTime_2", String.format( "%.2f", totalExpLengthNaiveIndex * estimate.alpha ) );
+			stat.add( "Const_Alpha_ExpLength_2", String.format( "%.2f", totalExpLengthNaiveIndex ) );
 
 			Util.printLog( "ThresholdId: " + bestThreshold );
 			Util.printLog( "Naive Time: " + bestEstimatedTime );
@@ -282,11 +282,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		int startThresIndex;
-		if( bestThreshold > 1000 ) {
-			startThresIndex = 2;
-			threshold = 1000;
-		}
-		else if( bestThreshold > 100 ) {
+		if( bestThreshold > 100 ) {
 			startThresIndex = 1;
 			threshold = 100;
 		}
@@ -434,7 +430,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 						CountEntry count = curridx_invokes.get( qgram );
 						if( count != null ) {
 							// upper bound
-							for( int c = thresholdExponent + 1; c < 4; c++ ) {
+							for( int c = thresholdExponent + 1; c < 3; c++ ) {
 								invoke += count.count[ c ];
 							}
 						}
@@ -660,9 +656,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		CountEntry() {
 			// 0 : 1 ~ 10
 			// 1 : 11 ~ 100
-			// 2 : 101 ~ 1000
-			// 3 : 1001 ~ infinity
-			count = new int[ 4 ];
+			// 2 : 101 ~ infinity
+			count = new int[ 3 ];
 		}
 
 		public void increase( long exp ) {
@@ -677,10 +672,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			else if( number <= 100 ) {
 				return 1;
 			}
-			else if( number <= 1000 ) {
+			else {
 				return 2;
 			}
-			return 3;
 		}
 
 	}
