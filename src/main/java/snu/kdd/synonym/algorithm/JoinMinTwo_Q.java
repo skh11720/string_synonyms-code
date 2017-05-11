@@ -179,12 +179,12 @@ public class JoinMinTwo_Q extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "1.2";
+		return "1.0";
 	}
 
 	@Override
 	public String getName() {
-		return "JoinMin_Q";
+		return "JoinMinTwo_Q";
 	}
 
 	@Override
