@@ -99,6 +99,12 @@ public class NaiveIndex {
 	}
 
 	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+		boolean debug = false;
+
+		if( recS.equals( "create new screennames " ) ) {
+			debug = true;
+		}
+
 		long expandStartTime = System.nanoTime();
 		// final List<Record> expanded = recS.expandAll( ruletrie );
 		final List<Record> expanded = recS.expandAll();
@@ -113,6 +119,10 @@ public class NaiveIndex {
 			final List<Integer> overlapidx = idx.get( exp );
 			if( overlapidx == null ) {
 				continue;
+			}
+
+			if( debug ) {
+				System.out.println( exp + " " + overlapidx );
 			}
 
 			// candidates.add( overlapidx );
