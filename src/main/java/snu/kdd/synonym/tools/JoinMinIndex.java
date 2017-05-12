@@ -594,7 +594,7 @@ public class JoinMinIndex {
 		try {
 			BufferedWriter bw = null;
 
-			if( DEBUG.JoinMinIndexON ) {
+			if( DEBUG.PrintIndexON ) {
 				bw = new BufferedWriter( new FileWriter( "JoinMin_Index_Debug.txt" ) );
 			}
 
@@ -657,14 +657,14 @@ public class JoinMinIndex {
 					countIndexingTime += System.nanoTime() - recordMidTime;
 				}
 
-				if( DEBUG.JoinMinIndexON ) {
+				if( DEBUG.PrintIndexON ) {
 					bw.write( recordMidTime - recordStartTime + " " );
 					bw.write( qgramCount + " " );
 					bw.write( "\n" );
 				}
 			}
 
-			if( DEBUG.JoinMinIndexON ) {
+			if( DEBUG.PrintIndexON ) {
 				bw.close();
 			}
 
@@ -822,7 +822,7 @@ public class JoinMinIndex {
 		try {
 			BufferedWriter bw = null;
 
-			if( DEBUG.JoinMinIndexON ) {
+			if( DEBUG.PrintIndexON ) {
 				bw = new BufferedWriter( new FileWriter( "JoinMin_Index_Debug.txt" ) );
 			}
 
@@ -885,14 +885,14 @@ public class JoinMinIndex {
 					countIndexingTime += System.nanoTime() - recordMidTime;
 				}
 
-				if( DEBUG.JoinMinIndexON ) {
+				if( DEBUG.PrintIndexON ) {
 					bw.write( recordMidTime - recordStartTime + " " );
 					bw.write( qgramCount + " " );
 					bw.write( "\n" );
 				}
 			}
 
-			if( DEBUG.JoinMinIndexON ) {
+			if( DEBUG.PrintIndexON ) {
 				bw.close();
 			}
 
