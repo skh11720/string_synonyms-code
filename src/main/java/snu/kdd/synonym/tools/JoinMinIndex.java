@@ -276,10 +276,10 @@ public class JoinMinIndex {
 		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
 
 		// DEBUG
-		boolean debug = false;
-		if( recS.toString().equals( "create new screennames " ) ) {
-			debug = true;
-		}
+		// boolean debug = false;
+		// if( recS.toString().equals( "create new screennames " ) ) {
+		// debug = true;
+		// }
 
 		if( DEBUG.JoinMinON ) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
@@ -305,9 +305,9 @@ public class JoinMinIndex {
 					qgramCount++;
 				}
 
-				if( debug ) {
-					System.out.println( "D " + qgram );
-				}
+				// if( debug ) {
+				// System.out.println( "D " + qgram );
+				// }
 
 				List<Record> tree = curridx.get( qgram );
 
@@ -317,9 +317,9 @@ public class JoinMinIndex {
 
 				for( Record e : tree ) {
 					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						if( debug ) {
-							System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
-						}
+						// if( debug ) {
+						// System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
+						// }
 						candidates.add( e );
 						comparisonCount++;
 					}
@@ -341,10 +341,10 @@ public class JoinMinIndex {
 				long st = System.nanoTime();
 				int compare = checker.isEqual( recR, recS );
 
-				if( debug ) {
-					System.out.println( "comp " + recR.toString() + " " + recR.getID() + " " + recS.toString() + " "
-							+ recS.getID() + " " + compare );
-				}
+				// if( debug ) {
+				// System.out.println( "comp " + recR.toString() + " " + recR.getID() + " " + recS.toString() + " "
+				// + recS.getID() + " " + compare );
+				// }
 
 				long duration = System.nanoTime() - st;
 
@@ -360,9 +360,9 @@ public class JoinMinIndex {
 
 				actualJoinTime += duration;
 				if( compare >= 0 ) {
-					if( debug ) {
-						System.out.println( "E " + recR.toString() + "(" + recR.getID() + ")" );
-					}
+					// if( debug ) {
+					// System.out.println( "E " + recR.toString() + "(" + recR.getID() + ")" );
+					// }
 
 					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 					appliedRulesSum += compare;
@@ -511,10 +511,10 @@ public class JoinMinIndex {
 		List<List<QGram>> availableQGrams = recS.getQGrams( qSize, idx.size() );
 
 		// DEBUG
-		boolean debug = false;
-		if( recS.toString().equals( "create new screennames " ) ) {
-			debug = true;
-		}
+		// boolean debug = false;
+		// if( recS.toString().equals( "create new screennames " ) ) {
+		// debug = true;
+		// }
 
 		if( DEBUG.JoinMinON ) {
 			joinStartTime = System.nanoTime();
@@ -534,9 +534,9 @@ public class JoinMinIndex {
 					qgramCount++;
 				}
 
-				if( debug ) {
-					System.out.println( "D " + qgram );
-				}
+				// if( debug ) {
+				// System.out.println( "D " + qgram );
+				// }
 
 				List<Record> tree = curridx.get( qgram );
 
@@ -550,9 +550,9 @@ public class JoinMinIndex {
 						break;
 					}
 					else if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						if( debug ) {
-							System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
-						}
+						// if( debug ) {
+						// System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
+						// }
 						candidates.add( e );
 						comparisonCount++;
 					}
@@ -982,7 +982,7 @@ public class JoinMinIndex {
 				bw = new BufferedWriter( new FileWriter( "debug_indextwo.txt" ) );
 			}
 
-			idx.bypassSet = new WYK_HashSet();
+			idx.bypassSet = new WYK_HashSet<Integer>();
 
 			for( Record rec : tableIndexed ) {
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
