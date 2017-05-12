@@ -39,7 +39,7 @@ public class NaiveIndex {
 
 		if( list == null ) {
 			// new expression
-			list = new ArrayList<>( 5 );
+			list = new ArrayList<Integer>( 5 );
 			idx.putNonExist( expanded, list );
 		}
 
@@ -204,7 +204,7 @@ public class NaiveIndex {
 
 				if( DEBUG.PrintNaiveIndexON ) {
 					try {
-						bw.write( recR + " -> " + exp + "\n" );
+						bw.write( recR + "(" + i + ") -> " + exp + "\n" );
 					}
 					catch( IOException e ) {
 						e.printStackTrace();
@@ -216,11 +216,6 @@ public class NaiveIndex {
 			indexingTime += System.nanoTime() - indexingStartTime;
 
 		}
-		// debug_bw.close();
-		// }
-		// catch( Exception e ) {
-		// e.printStackTrace();
-		// }
 
 		if( DEBUG.PrintNaiveIndexON ) {
 			try {
