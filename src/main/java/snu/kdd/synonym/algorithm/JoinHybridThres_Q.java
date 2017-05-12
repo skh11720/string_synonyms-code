@@ -278,11 +278,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
 		}
 
-		// TODO DEBUG
-		for( IntegerPair pair : rslt ) {
-			System.out.println( pair.toString() );
-		}
-
 		writeResult( rslt );
 	}
 

@@ -99,11 +99,11 @@ public class NaiveIndex {
 	}
 
 	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
-		boolean debug = false;
+		// boolean debug = false;
 
-		if( recS.toString().equals( "create new screennames " ) ) {
-			debug = true;
-		}
+		// if( recS.toString().equals( "create new screennames " ) ) {
+		// debug = true;
+		// }
 
 		long expandStartTime = System.nanoTime();
 		// final List<Record> expanded = recS.expandAll( ruletrie );
@@ -121,9 +121,9 @@ public class NaiveIndex {
 				continue;
 			}
 
-			if( debug ) {
-				System.out.println( exp + " " + overlapidx );
-			}
+			// if( debug ) {
+			// System.out.println( exp + " " + overlapidx );
+			// }
 
 			// candidates.add( overlapidx );
 			for( Integer i : overlapidx ) {
@@ -133,9 +133,9 @@ public class NaiveIndex {
 		searchTime += System.nanoTime() - searchStartTime;
 
 		for( final Integer idx : candidates ) {
-			if( debug ) {
-				System.out.println( recS.getID() + " " + idx );
-			}
+			// if( debug ) {
+			// System.out.println( recS.getID() + " " + idx );
+			// }
 			rslt.add( new IntegerPair( recS.getID(), idx ) );
 		}
 	}
