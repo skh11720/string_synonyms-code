@@ -361,7 +361,7 @@ public abstract class AlgorithmTemplate {
 				// continue;
 				// }
 
-				bw.write( r.toString( strlist ) + "(" + ip.i1 + ")\t==\t" + s.toString( strlist ) + "(" + ip.i2 + ")\n" );
+				bw.write( r.toString( strlist ) + "\t==\t" + s.toString( strlist ) + "\n" );
 			}
 			bw.close();
 		}
