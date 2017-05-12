@@ -4,10 +4,10 @@ rulefile=$3
 outputPath=$4
 logdir=$5
 LIBS=$6
-sample=$7
+qSize=$7
 project=$8
 
-ADDITIONAL="-s $sample -compact -v TopDownHashSetSinglePathDS 0"
+ADDITIONAL="-qSize $qSize -v TopDownHashSetSinglePathDS 0"
 
 ALG=DebugAlg
 
