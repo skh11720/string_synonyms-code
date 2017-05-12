@@ -14,8 +14,8 @@ LIBS=../target/Synonym.jar
 
 dir=logs
 
-#RUN_Naive1=True
-RUN_Naive1=False
+RUN_Naive1=True
+#RUN_Naive1=False
 
 #RUN_Naive2=True
 RUN_Naive2=False
@@ -38,8 +38,8 @@ RUN_JoinHybridThres=True
 #RUN_DEBUG=True
 RUN_DEBUG=False
 
-#IDS=( 11 )
-IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
+IDS=( 8 )
+#IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
 for nId in ${IDS[@]};
 do
 	project=usps_sample_$nId
