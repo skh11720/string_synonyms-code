@@ -276,10 +276,10 @@ public class JoinMinIndex {
 		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
 
 		// DEBUG
-		boolean debug = false;
-		if( recS.toString().equals( "kelly blue book " ) ) {
-			debug = true;
-		}
+		// boolean debug = false;
+		// if( recS.toString().equals( "kelly blue book " ) ) {
+		// debug = true;
+		// }
 
 		if( DEBUG.JoinMinON ) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
@@ -305,9 +305,9 @@ public class JoinMinIndex {
 					qgramCount++;
 				}
 
-				if( debug ) {
-					System.out.println( "D " + qgram );
-				}
+				// if( debug ) {
+				// System.out.println( "D " + qgram );
+				// }
 
 				List<Record> tree = curridx.get( qgram );
 
@@ -317,9 +317,9 @@ public class JoinMinIndex {
 
 				for( Record e : tree ) {
 					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						if( debug ) {
-							System.out.println( "C " + e.toString() );
-						}
+						// if( debug ) {
+						// System.out.println( "C " + e.toString() );
+						// }
 						candidates.add( e );
 						comparisonCount++;
 					}
@@ -354,9 +354,9 @@ public class JoinMinIndex {
 
 				actualJoinTime += duration;
 				if( compare >= 0 ) {
-					if( debug ) {
-						System.out.println( "E " + recR.toString() );
-					}
+					// if( debug ) {
+					// System.out.println( "E " + recR.toString() );
+					// }
 
 					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 					appliedRulesSum += compare;
