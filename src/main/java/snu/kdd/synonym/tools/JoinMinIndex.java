@@ -354,6 +354,10 @@ public class JoinMinIndex {
 
 				actualJoinTime += duration;
 				if( compare >= 0 ) {
+					if( debug ) {
+						System.out.println( "E " + recR.toString() );
+					}
+
 					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 					appliedRulesSum += compare;
 				}
