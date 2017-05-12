@@ -175,11 +175,6 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			}
 		}
 
-		// TODO DEBUG
-		for( IntegerPair pair : rslt ) {
-			System.out.println( pair.toString() );
-		}
-
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
 
 		if( DEBUG.JoinHybridON ) {
@@ -281,6 +276,11 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 
 			System.out.println( "Result time " + rslt.size() );
 			System.out.println( "Union counter: " + StaticFunctions.union_cmp_counter );
+		}
+
+		// TODO DEBUG
+		for( IntegerPair pair : rslt ) {
+			System.out.println( pair.toString() );
 		}
 
 		writeResult( rslt );
