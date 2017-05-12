@@ -1427,8 +1427,13 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			if( this == orec ) {
 				return true;
 			}
-
-			return StaticFunctions.compare( tokens, orec.tokens ) == 0;
+			if( id == orec.id ) {
+				if( id == -1 ) {
+					return StaticFunctions.compare( tokens, orec.tokens ) == 0;
+				}
+				return true;
+			}
+			return false;
 		}
 		else {
 			return false;
