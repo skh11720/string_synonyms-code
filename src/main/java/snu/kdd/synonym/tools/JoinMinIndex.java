@@ -504,6 +504,12 @@ public class JoinMinIndex {
 
 		List<List<QGram>> availableQGrams = recS.getQGrams( qSize, idx.size() );
 
+		// DEBUG
+		boolean debug = false;
+		if( recS.toString().equals( "create new screennames " ) ) {
+			debug = true;
+		}
+
 		if( DEBUG.JoinMinON ) {
 			joinStartTime = System.nanoTime();
 			getQGramTime += joinStartTime - qgramStartTime;
@@ -522,6 +528,10 @@ public class JoinMinIndex {
 					qgramCount++;
 				}
 
+				if( debug ) {
+					System.out.println( "D " + qgram );
+				}
+
 				List<Record> tree = curridx.get( qgram );
 
 				if( tree == null ) {
@@ -534,6 +544,9 @@ public class JoinMinIndex {
 						break;
 					}
 					else if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+						if( debug ) {
+							System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
+						}
 						candidates.add( e );
 						comparisonCount++;
 					}
