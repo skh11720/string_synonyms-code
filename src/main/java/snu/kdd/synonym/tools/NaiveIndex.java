@@ -133,6 +133,9 @@ public class NaiveIndex {
 		searchTime += System.nanoTime() - searchStartTime;
 
 		for( final Integer idx : candidates ) {
+			if( debug ) {
+				System.out.println( recS.getID() + " " + idx );
+			}
 			rslt.add( new IntegerPair( recS.getID(), idx ) );
 		}
 	}
