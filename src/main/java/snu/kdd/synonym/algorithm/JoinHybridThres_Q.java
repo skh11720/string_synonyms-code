@@ -174,6 +174,12 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 				stat.add( "Count_AppliedRules_Sum", joinMinIdx.appliedRulesSum );
 			}
 		}
+
+		// TODO DEBUG
+		for( IntegerPair pair : rslt ) {
+			System.out.println( pair.toString() );
+		}
+
 		// stat.add( "Last Token Filtered", lastTokenFiltered );
 
 		if( DEBUG.JoinHybridON ) {
