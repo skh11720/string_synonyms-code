@@ -95,6 +95,11 @@ public class NaiveIndex {
 			}
 		}
 
+		// TODO DEBUG
+		for( IntegerPair pair : rslt ) {
+			System.out.println( pair.toString() );
+		}
+
 		return rslt;
 	}
 
