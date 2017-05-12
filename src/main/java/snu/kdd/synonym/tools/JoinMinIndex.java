@@ -594,7 +594,7 @@ public class JoinMinIndex {
 		try {
 			BufferedWriter bw = null;
 
-			if( DEBUG.PrintIndexON ) {
+			if( DEBUG.JoinMinIndexON ) {
 				bw = new BufferedWriter( new FileWriter( "JoinMin_Index_Debug.txt" ) );
 			}
 
@@ -657,14 +657,14 @@ public class JoinMinIndex {
 					countIndexingTime += System.nanoTime() - recordMidTime;
 				}
 
-				if( DEBUG.PrintIndexON ) {
+				if( DEBUG.JoinMinIndexON ) {
 					bw.write( recordMidTime - recordStartTime + " " );
 					bw.write( qgramCount + " " );
 					bw.write( "\n" );
 				}
 			}
 
-			if( DEBUG.PrintIndexON ) {
+			if( DEBUG.JoinMinIndexON ) {
 				bw.close();
 			}
 
@@ -693,6 +693,12 @@ public class JoinMinIndex {
 				else {
 					stepTime.stop();
 				}
+			}
+
+			BufferedWriter bw_index = null;
+
+			if( DEBUG.PrintIndexON ) {
+				bw_index = new BufferedWriter( new FileWriter( "JoinMin_Index_Content.txt" ) );
 			}
 
 			stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
@@ -753,6 +759,10 @@ public class JoinMinIndex {
 				for( QGram qgram : availableQGrams.get( minIdx ) ) {
 					// write2File(bw, minIdx, twogram, rec.getID());
 
+					if( DEBUG.PrintIndexON ) {
+						bw_index.write( minIdx + ", " + qgram + " : " + rec + "\n" );
+					}
+
 					idx.put( minIdx, qgram, rec );
 				}
 
@@ -791,6 +801,10 @@ public class JoinMinIndex {
 					stepTime.stop();
 				}
 			}
+
+			if( DEBUG.PrintIndexON ) {
+				bw_index.close();
+			}
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
@@ -822,7 +836,7 @@ public class JoinMinIndex {
 		try {
 			BufferedWriter bw = null;
 
-			if( DEBUG.PrintIndexON ) {
+			if( DEBUG.JoinMinIndexON ) {
 				bw = new BufferedWriter( new FileWriter( "JoinMin_Index_Debug.txt" ) );
 			}
 
@@ -885,14 +899,14 @@ public class JoinMinIndex {
 					countIndexingTime += System.nanoTime() - recordMidTime;
 				}
 
-				if( DEBUG.PrintIndexON ) {
+				if( DEBUG.JoinMinIndexON ) {
 					bw.write( recordMidTime - recordStartTime + " " );
 					bw.write( qgramCount + " " );
 					bw.write( "\n" );
 				}
 			}
 
-			if( DEBUG.PrintIndexON ) {
+			if( DEBUG.JoinMinIndexON ) {
 				bw.close();
 			}
 
@@ -929,7 +943,7 @@ public class JoinMinIndex {
 			long indexedElements = 0;
 
 			if( DEBUG.PrintIndexON ) {
-				bw = new BufferedWriter( new FileWriter( "debug_index.txt" ) );
+				bw = new BufferedWriter( new FileWriter( "debug_indextwo.txt" ) );
 			}
 
 			idx.bypassSet = new WYK_HashSet();
