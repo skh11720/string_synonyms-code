@@ -19,5 +19,5 @@ public class DEBUG {
 	public static final boolean SampleStatOn = false;
 
 	public static final boolean ValidateON = false;
-	public static final boolean PrintIndexON = false;
+	public static final boolean PrintIndexON = true;
 }
