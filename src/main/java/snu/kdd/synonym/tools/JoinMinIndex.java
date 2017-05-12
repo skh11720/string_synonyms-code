@@ -340,6 +340,11 @@ public class JoinMinIndex {
 
 				long st = System.nanoTime();
 				int compare = checker.isEqual( recR, recS );
+
+				if( debug ) {
+					System.out.println( "comp " + recR.toString() + " " + recR.getID() + " " + recS.toString() + " " recS.getID() + " " + compare );
+				}
+
 				long duration = System.nanoTime() - st;
 
 				if( DEBUG.JoinMinON ) {
