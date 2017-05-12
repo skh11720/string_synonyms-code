@@ -101,7 +101,7 @@ public class NaiveIndex {
 	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		boolean debug = false;
 
-		if( recS.equals( "create new screennames " ) ) {
+		if( recS.toString().equals( "create new screennames " ) ) {
 			debug = true;
 		}
 
