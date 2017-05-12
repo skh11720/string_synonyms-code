@@ -1,5 +1,8 @@
 package snu.kdd.synonym.tools;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -149,6 +152,16 @@ public class NaiveIndex {
 			stat.add( "Auto_Hash_Initial_Size ", initialsize );
 		}
 
+		BufferedWriter bw = null;
+		if( DEBUG.PrintNaiveIndexON ) {
+			try {
+				bw = new BufferedWriter( new FileWriter( "Naive_index.txt" ) );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+
 		NaiveIndex naiveIndex = new NaiveIndex( initialsize );
 
 		long totalExpLength = 0;
@@ -189,6 +202,15 @@ public class NaiveIndex {
 			for( final Record exp : expanded ) {
 				naiveIndex.add( exp, i );
 
+				if( DEBUG.PrintNaiveIndexON ) {
+					try {
+						bw.write( recR + " -> " + exp + "\n" );
+					}
+					catch( IOException e ) {
+						e.printStackTrace();
+					}
+				}
+
 				idxsize++;
 			}
 			indexingTime += System.nanoTime() - indexingStartTime;
@@ -199,6 +221,15 @@ public class NaiveIndex {
 		// catch( Exception e ) {
 		// e.printStackTrace();
 		// }
+
+		if( DEBUG.PrintNaiveIndexON ) {
+			try {
+				bw.close();
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
 
 		if( totalExpLength == 0 ) {
 			totalExpLength = 1;

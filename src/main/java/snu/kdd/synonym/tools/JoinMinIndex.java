@@ -714,7 +714,7 @@ public class JoinMinIndex {
 
 			BufferedWriter bw_index = null;
 
-			if( DEBUG.PrintIndexON ) {
+			if( DEBUG.PrintJoinMinIndexON ) {
 				bw_index = new BufferedWriter( new FileWriter( "JoinMin_Index_Content.txt" ) );
 			}
 
@@ -776,7 +776,7 @@ public class JoinMinIndex {
 				for( QGram qgram : availableQGrams.get( minIdx ) ) {
 					// write2File(bw, minIdx, twogram, rec.getID());
 
-					if( DEBUG.PrintIndexON ) {
+					if( DEBUG.PrintJoinMinIndexON ) {
 						bw_index.write( minIdx + ", " + qgram + " : " + rec + "\n" );
 					}
 
@@ -819,7 +819,7 @@ public class JoinMinIndex {
 				}
 			}
 
-			if( DEBUG.PrintIndexON ) {
+			if( DEBUG.PrintJoinMinIndexON ) {
 				bw_index.close();
 			}
 		}
@@ -959,7 +959,7 @@ public class JoinMinIndex {
 			idx.predictCount = 0;
 			long indexedElements = 0;
 
-			if( DEBUG.PrintIndexON ) {
+			if( DEBUG.PrintJoinMinIndexON ) {
 				bw = new BufferedWriter( new FileWriter( "debug_indextwo.txt" ) );
 			}
 
@@ -1039,7 +1039,7 @@ public class JoinMinIndex {
 				idx.setIndex( minTwoIdx );
 
 				for( QGram qgram : availableQGrams.get( minIdx ) ) {
-					if( DEBUG.PrintIndexON ) {
+					if( DEBUG.PrintJoinMinIndexON ) {
 						bw.write( "1 " + minIdx + ", " + qgram + " : " + rec + "\n" );
 					}
 					idx.put( minIdx, qgram, rec );
@@ -1048,7 +1048,7 @@ public class JoinMinIndex {
 				if( minTwoIdx != -1 ) {
 					// System.out.println( "Rec: " + rec + " has no minTwoIdx" );
 					for( QGram qgram : availableQGrams.get( minTwoIdx ) ) {
-						if( DEBUG.PrintIndexON ) {
+						if( DEBUG.PrintJoinMinIndexON ) {
 							bw.write( "2 " + minTwoIdx + ", " + qgram + " : " + rec + "\n" );
 						}
 						idx.put( minTwoIdx, qgram, rec );
@@ -1070,7 +1070,7 @@ public class JoinMinIndex {
 				}
 			}
 
-			if( DEBUG.PrintIndexON ) {
+			if( DEBUG.PrintJoinMinIndexON ) {
 				bw.close();
 			}
 

@@ -19,5 +19,7 @@ public class DEBUG {
 	public static final boolean SampleStatOn = false;
 
 	public static final boolean ValidateON = false;
-	public static final boolean PrintIndexON = true;
+	public static final boolean PrintJoinMinIndexON = true;
+
+	public static final boolean PrintNaiveIndexON = true;
 }
