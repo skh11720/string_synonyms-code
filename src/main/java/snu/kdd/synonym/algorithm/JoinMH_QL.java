@@ -2,7 +2,6 @@ package snu.kdd.synonym.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -245,7 +244,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			for( int sid = 0; sid < tableSearched.size(); sid++ ) {
 
 				Record recS = tableSearched.get( sid );
-				Set<Record> candidates = new HashSet<Record>();
+				Set<Record> candidates = new WYK_HashSet<Record>();
 
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxIndexLength );
@@ -260,7 +259,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 					Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
 
-					Set<Record> candidatesAppeared = new HashSet<Record>();
+					Set<Record> candidatesAppeared = new WYK_HashSet<Record>();
 
 					for( QGram qgram : availableQGrams.get( i ) ) {
 						// elements++;
