@@ -6,7 +6,7 @@ public class DEBUG {
 	public static final boolean NaiveON = false;
 	public static final boolean SIJoinON = false;
 
-	public static final boolean JoinMinON = false;
+	public static final boolean JoinMinON = true;
 	public static final boolean JoinMinIndexON = false;
 	public static final boolean JoinMinJoinON = false;
 	public static final boolean JoinMinIndexCountON = false;
