@@ -357,9 +357,9 @@ public abstract class AlgorithmTemplate {
 				final Record r = tableSearched.get( ip.i1 );
 				final Record s = tableIndexed.get( ip.i2 );
 
-				// if( selfJoin && r.equals( s ) ) {
-				// continue;
-				// }
+				if( selfJoin && r.equals( s ) ) {
+					continue;
+				}
 
 				bw.write( r.toString( strlist ) + "\t==\t" + s.toString( strlist ) + "\n" );
 			}
