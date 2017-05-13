@@ -40,6 +40,7 @@ public class JoinMinIndex {
 
 	long getQGramTime;
 	public long comparisonCount;
+	public long lengthFiltered;
 
 	public double joinTime;
 	public double indexTime;
@@ -172,6 +173,7 @@ public class JoinMinIndex {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
 				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
 				stat.add( "Stat_Equiv_Comparison", equivComparisons );
+				stat.add( "Stat_Length_Filtered", lengthFiltered );
 				stat.add( "Stat_getQGramCount", Record.getQGramCount );
 				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime );
 			}
@@ -204,7 +206,6 @@ public class JoinMinIndex {
 		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		long appliedRules_sum = 0;
-		long equivComparisons = 0;
 
 		long joinStartTime = System.nanoTime();
 		for( Record recS : tableSearched ) {
@@ -245,6 +246,7 @@ public class JoinMinIndex {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
 				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
 				stat.add( "Stat_Equiv_Comparison", equivComparisons );
+				stat.add( "Stat_Length_Filtered", lengthFiltered );
 				stat.add( "Stat_getQGramCount", Record.getQGramCount );
 				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime / 1000000 );
 			}
@@ -320,6 +322,9 @@ public class JoinMinIndex {
 						// }
 						candidates.add( e );
 						comparisonCount++;
+					}
+					else {
+						lengthFiltered++;
 					}
 				}
 			}
@@ -430,6 +435,9 @@ public class JoinMinIndex {
 					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
 						candidates.add( e );
 						comparisonCount++;
+					}
+					else {
+						lengthFiltered++;
 					}
 				}
 			}
@@ -553,6 +561,9 @@ public class JoinMinIndex {
 						// }
 						candidates.add( e );
 						comparisonCount++;
+					}
+					else {
+						lengthFiltered++;
 					}
 				}
 			}
