@@ -102,23 +102,6 @@ public class JoinMinTwo_Q extends AlgorithmTemplate {
 		Util.printLog( "Maximum rhs length: " + maxrhslength );
 	}
 
-	public void run() {
-		long startTime = 0;
-
-		if( DEBUG.JoinMinON ) {
-			startTime = System.nanoTime();
-		}
-
-		preprocess( compact, maxIndex, useAutomata );
-
-		if( DEBUG.JoinMinON ) {
-			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-			System.out.print( "Preprocess finished time " + ( System.nanoTime() - startTime ) );
-		}
-
-		runWithoutPreprocess( true );
-	}
-
 	public void runWithoutPreprocess( boolean writeResult ) {
 		// Retrieve statistics
 		StopWatch stepTime = null;
@@ -209,6 +192,7 @@ public class JoinMinTwo_Q extends AlgorithmTemplate {
 		if( DEBUG.JoinMinON ) {
 			preprocessTime.stopAndAdd( stat );
 
+			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 			preprocessTime.resetAndStart( "Result_3_Run_Time" );
 		}
 

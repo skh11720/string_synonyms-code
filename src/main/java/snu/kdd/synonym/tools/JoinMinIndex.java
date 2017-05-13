@@ -35,7 +35,7 @@ public class JoinMinIndex {
 	public long searchedTotalSigCount;
 	public long indexedTotalSigCount;
 	public long equivComparisons;
-	public long actualJoinTime;
+	public long comparisonTime;
 	public long appliedRulesSum;
 
 	long getQGramTime;
@@ -173,6 +173,7 @@ public class JoinMinIndex {
 				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
 				stat.add( "Stat_Equiv_Comparison", equivComparisons );
 				stat.add( "Stat_getQGramCount", Record.getQGramCount );
+				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime );
 			}
 		}
 
@@ -245,6 +246,7 @@ public class JoinMinIndex {
 				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
 				stat.add( "Stat_Equiv_Comparison", equivComparisons );
 				stat.add( "Stat_getQGramCount", Record.getQGramCount );
+				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime );
 			}
 		}
 
@@ -354,7 +356,7 @@ public class JoinMinIndex {
 					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
 				}
 
-				actualJoinTime += duration;
+				comparisonTime += duration;
 				if( compare >= 0 ) {
 					// if( debug ) {
 					// System.out.println( "E " + recR.toString() + "(" + recR.getID() + ")" );
@@ -471,7 +473,7 @@ public class JoinMinIndex {
 				// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
 			}
 
-			actualJoinTime += duration;
+			comparisonTime += duration;
 			if( compare >= 0 ) {
 				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 				appliedRulesSum += compare;
@@ -580,7 +582,7 @@ public class JoinMinIndex {
 					// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
 					// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
 					long duration = System.nanoTime() - st;
-					actualJoinTime += duration;
+					comparisonTime += duration;
 				}
 
 				if( compare >= 0 ) {
