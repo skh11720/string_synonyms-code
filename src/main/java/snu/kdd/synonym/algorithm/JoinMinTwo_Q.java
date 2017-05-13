@@ -157,6 +157,8 @@ public class JoinMinTwo_Q extends AlgorithmTemplate {
 
 				stat.add( "Counter_Final_2_MapCollision", WYK_HashMap.collision );
 				stat.add( "Counter_Final_2_MapResize", WYK_HashMap.resize );
+
+				stat.add( "Counter_EqivComparisons", idx.equivComparisons );
 			}
 			else {
 				stat.add( "Sample_JoinMin_Result", rslt.size() );
