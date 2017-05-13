@@ -175,7 +175,7 @@ public class JoinMinIndex {
 				stat.add( "Stat_Equiv_Comparison", equivComparisons );
 				stat.add( "Stat_Length_Filtered", lengthFiltered );
 				stat.add( "Stat_getQGramCount", Record.getQGramCount );
-				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime );
+				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime / 1000000 );
 			}
 		}
 
