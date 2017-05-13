@@ -134,9 +134,6 @@ public class JoinMinIndex {
 
 		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
-		long appliedRules_sum = 0;
-		long equivComparisons = 0;
-
 		long joinStartTime = System.nanoTime();
 		for( Record recS : tableSearched ) {
 			joinRecord( recS, rslt, writeResult, bw, checker );
@@ -167,7 +164,6 @@ public class JoinMinIndex {
 		epsilonPrime = joinTime / comparisonCount;
 
 		if( DEBUG.JoinMinON ) {
-			Util.printLog( "Avg applied rules : " + appliedRules_sum + "/" + rslt.size() );
 			Util.printLog( "Est weight : " + comparisonCount );
 			Util.printLog( "Join time : " + joinTime );
 			Util.printLog( "Epsilon : " + epsilon );
