@@ -1052,7 +1052,7 @@ public class JoinMinIndex {
 					}
 				}
 
-				idx.predictCount += minInvokes + minTwoInvokes;
+				idx.predictCount += minInvokes;
 
 				idx.setIndex( minIdx );
 				idx.setIndex( minTwoIdx );
