@@ -109,8 +109,8 @@ else
 		done
 		PREV="JoinMin_Q"
 
-		./joinMin_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
-		./compare.sh $PREV JoinMin_Q_OLD
+		#./joinMin_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
+		#./compare.sh $PREV JoinMin_Q_OLD
 	fi
 
 	#JoinMH
@@ -127,8 +127,8 @@ else
 				./compare.sh $PREV JoinMH_QL
 			done
 
-			./joinMH_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $project
-			./compare.sh $PREV JoinMH_QL_OLD
+			#./joinMH_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $project
+			#./compare.sh $PREV JoinMH_QL_OLD
 		done
 		PREV="JoinMH_QL"
 	fi
@@ -159,10 +159,10 @@ else
 	#JoinHybridThres
 	if [[ $RUN_JoinHybridThres == "True" ]];
 	then
-		#thresholds=( 10 )
+		thresholds=( 1 )
 		#thresholds=( 3 10 30 100 )
-		#thresholds=( 0 1 3 10 1000  )
-		thresholds=( 0 10 100 1000 10000 10000000 )
+		#thresholds=( 0 1 3 10 100  )
+		#thresholds=( 0 10 100 1000 10000 10000000 )
 		for q in {2..2..1}; do
 			for threshold in "${thresholds[@]}"; do
 				date
@@ -181,18 +181,14 @@ else
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
-		#samplings=( 0.01 )
-		samplings=( 0.003 )
-		#samplings=( 0.001 0.003 0.01 0.03 )
-		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
-		for sampling in "${samplings[@]}"; do
+		for q in {2..2..1}; do
 			date
-			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $project
+			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project
 			date
 
-			./compare.sh $PREV JoinHybridOpt_Q
+			./compare.sh $PREV JoinMinTwo_Q
 		done
-		PREV="JoinHybridOpt_Q"
+		PREV="JoinMinTwo_Q"
 	fi
 
 	./upload.sh
