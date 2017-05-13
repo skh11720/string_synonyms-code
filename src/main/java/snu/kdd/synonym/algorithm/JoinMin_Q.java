@@ -192,6 +192,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 		if( DEBUG.JoinMinON ) {
 			preprocessTime.stopAndAdd( stat );
 
+			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 			preprocessTime.resetAndStart( "Result_3_Run_Time" );
 		}
 
