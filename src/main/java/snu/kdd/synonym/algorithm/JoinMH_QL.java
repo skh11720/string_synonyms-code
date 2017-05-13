@@ -12,12 +12,14 @@ import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
+import snu.kdd.synonym.tools.Util;
 import tools.DEBUG;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
 import tools.QGram;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
+import tools.WYK_HashSet;
 import validator.Validator;
 
 public class JoinMH_QL extends AlgorithmTemplate {
@@ -353,15 +355,21 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		if( DEBUG.JoinMHOn ) {
 			// stat.add( "Last Token Filtered", lastTokenFiltered );
 			for( int i = 0; i < maxIndexLength; ++i ) {
-				System.out.println( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
-				System.out.println(
-						"Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
-				System.out.println(
-						"Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
-				System.out.println( "Empty candidates : " + count_empty[ i ] );
+				Util.printLog( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
+				Util.printLog( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
+				Util.printLog( "Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
+				Util.printLog( "Empty candidates : " + count_empty[ i ] );
 			}
 
-			System.out.println( "comparisions : " + count );
+			Util.printLog( "comparisions : " + count );
+
+			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+
+			stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
+			stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
+
+			stat.add( "Counter_Final_2_MapCollision", WYK_HashMap.collision );
+			stat.add( "Counter_Final_2_MapResize", WYK_HashMap.resize );
 
 			stat.add( "Stat_Equiv_Comparison", count );
 			stat.add( "Stat_Length_Filtered", lengthFiltered );
