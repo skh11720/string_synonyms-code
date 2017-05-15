@@ -11,6 +11,7 @@ import java.util.Map;
 import mine.Record;
 import mine.RecordIDComparator;
 import snu.kdd.synonym.data.DataInfo;
+import snu.kdd.synonym.estimation.CountEntry;
 import snu.kdd.synonym.estimation.SampleEstimate;
 import snu.kdd.synonym.tools.JoinMinIndex;
 import snu.kdd.synonym.tools.NaiveIndex;
@@ -132,7 +133,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		// joinThreshold = findTheta( Integer.MAX_VALUE );
-		joinThreshold = findThetaRevised( Integer.MAX_VALUE );
+		joinThreshold = estimate.findTheta( Integer.MAX_VALUE, qSize, maxIndex, stat, totalExpLengthNaiveIndex, totalExpNaiveJoin,
+				partialExpLengthNaiveIndex, partialExpNaiveJoin );
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
 			joinMinRequired = false;
 		}
@@ -648,35 +650,4 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			SHsize = 0;
 		}
 	}
-
-	public static class CountEntry {
-		public int count[];
-		public int total;
-
-		CountEntry() {
-			// 0 : 1 ~ 10
-			// 1 : 11 ~ 100
-			// 2 : 101 ~ infinity
-			count = new int[ 3 ];
-		}
-
-		public void increase( long exp ) {
-			count[ getIndex( exp ) ]++;
-			total++;
-		}
-
-		private int getIndex( long number ) {
-			if( number <= 10 ) {
-				return 0;
-			}
-			else if( number <= 100 ) {
-				return 1;
-			}
-			else {
-				return 2;
-			}
-		}
-
-	}
-
 }

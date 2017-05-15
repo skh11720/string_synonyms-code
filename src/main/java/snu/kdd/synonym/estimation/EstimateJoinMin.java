@@ -37,7 +37,7 @@ public class EstimateJoinMin extends AlgorithmTemplate {
 		SampleEstimate estimate = new SampleEstimate( joinMin.tableSearched, joinMin.tableIndexed, sampleratio,
 				dataInfo.isSelfJoin() );
 
-		estimate.estimateJoinMin( joinMin, stat, JoinMin_Q.checker, joinMin.qSize );
+		estimate.estimateJoinMin( joinMin, stat, joinMin.checker, joinMin.qSize );
 
 		stat.add( "Cost_Count_Estimate", joinMin.idx.estimatedCountTime( estimate.gamma ) );
 		stat.add( "Cost_Count_Actual", joinMin.idx.countTime );

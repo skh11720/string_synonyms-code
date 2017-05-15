@@ -2,6 +2,7 @@ package snu.kdd.synonym.estimation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import mine.Record;
@@ -11,6 +12,8 @@ import snu.kdd.synonym.algorithm.JoinNaive1;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.Util;
 import tools.DEBUG;
+import tools.QGram;
+import tools.WYK_HashMap;
 import validator.Validator;
 
 public class SampleEstimate {
@@ -26,6 +29,8 @@ public class SampleEstimate {
 	// epsilon: JoinMin join time per candidate of table S
 	public double epsilon;
 
+	public double sampleRatio;
+
 	List<Record> originalSearched;
 	List<Record> originalIndexed;
 
@@ -37,6 +42,7 @@ public class SampleEstimate {
 		Random rn = new Random( 0 );
 
 		int smallTableSize = Integer.min( tableSearched.size(), tableIndexed.size() );
+		this.sampleRatio = sampleratio;
 
 		if( sampleratio * smallTableSize < 1 ) {
 			// too low sample ratio
@@ -110,7 +116,7 @@ public class SampleEstimate {
 		// Infer gamma, delta and epsilon
 		JoinMin_Q joinmininst = new JoinMin_Q( o, stat );
 
-		JoinMin_Q.checker = checker;
+		joinmininst.checker = checker;
 		joinmininst.qSize = qSize;
 		joinmininst.outputfile = null;
 
@@ -159,5 +165,274 @@ public class SampleEstimate {
 
 	public double getEstimateJoinMin( double searchedTotalSigCount, double indexedTotalSigCount, double estimatedInvokes ) {
 		return gamma * searchedTotalSigCount + delta * indexedTotalSigCount + epsilon * estimatedInvokes;
+	}
+
+	public int findTheta( int maxThreshold, int qSize, int maxIndex, StatContainer stat, double totalExpLengthNaiveIndex,
+			double totalExpNaiveJoin, double[] partialExpLengthNaiveIndex, double[] partialExpNaiveJoin ) {
+		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
+
+		// count qgrams for each that will be searched
+		double searchedTotalSigCount = 0;
+
+		for( Record rec : sampleSearchedList ) {
+			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
+			int searchmax = Math.min( availableQGrams.size(), maxIndex );
+
+			for( int i = positionalQCountMap.size(); i < searchmax; i++ ) {
+				positionalQCountMap.add( new WYK_HashMap<QGram, CountEntry>() );
+			}
+
+			long qgramCount = 0;
+			for( int i = 0; i < searchmax; ++i ) {
+				Map<QGram, CountEntry> currPositionalCount = positionalQCountMap.get( i );
+
+				List<QGram> positionalQGram = availableQGrams.get( i );
+				qgramCount += positionalQGram.size();
+				for( QGram qgram : positionalQGram ) {
+					CountEntry count = currPositionalCount.get( qgram );
+
+					if( count == null ) {
+						count = new CountEntry();
+						currPositionalCount.put( qgram, count );
+					}
+
+					count.increase( rec.getEstNumRecords() );
+
+				}
+			}
+
+			searchedTotalSigCount += qgramCount;
+		}
+
+		// since both tables are sorted with est num records, the two values are minimum est num records in both tables
+		int threshold = 1;
+
+		long maxSearchedEstNumRecords = sampleSearchedList.get( sampleSearchedList.size() - 1 ).getEstNumRecords();
+		long maxIndexedEstNumRecords = sampleIndexedList.get( sampleIndexedList.size() - 1 ).getEstExpandCost();
+
+		long bestThreshold = Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords );
+		double bestEstimatedTime = getEstimateNaive( totalExpLengthNaiveIndex, totalExpNaiveJoin );
+
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Est_Theta_Start_Threshold", bestThreshold );
+			stat.add( "Est_Theta_3_1_NaiveTime", bestEstimatedTime );
+			stat.add( "Est_Theta_3_2_JoinMinTime", 0 );
+			stat.add( "Est_Theta_3_3_TotalTime", bestEstimatedTime );
+
+			stat.add( "Const_Beta_JoinTime_2", String.format( "%.2f", totalExpNaiveJoin * beta ) );
+			stat.add( "Const_Beta_TotalExp_2", String.format( "%.2f", totalExpNaiveJoin ) );
+
+			stat.add( "Const_Alpha_IndexTime_2", String.format( "%.2f", totalExpLengthNaiveIndex * alpha ) );
+			stat.add( "Const_Alpha_ExpLength_2", String.format( "%.2f", totalExpLengthNaiveIndex ) );
+
+			Util.printLog( "ThresholdId: " + bestThreshold );
+			Util.printLog( "Naive Time: " + bestEstimatedTime );
+			Util.printLog( "JoinMin Time: " + 0 );
+			Util.printLog( "Total Time: " + bestEstimatedTime );
+		}
+
+		int startThresIndex;
+		if( bestThreshold > 100 ) {
+			startThresIndex = 1;
+			threshold = 100;
+		}
+		else if( bestThreshold > 10 ) {
+			startThresIndex = 0;
+			threshold = 10;
+		}
+		else {
+			startThresIndex = -1;
+		}
+
+		// estimate time if only naive algorithm is used
+
+		int indexedIdx = sampleIndexedList.size() - 1;
+
+		double indexedTotalSigCount = 0;
+
+		double fixedInvokes = 0;
+
+		for( int thresholdExponent = startThresIndex; thresholdExponent >= 0; thresholdExponent-- ) {
+
+			// estimate naive time
+			double diffExpNaiveJoin = partialExpNaiveJoin[ thresholdExponent ];
+			double diffExpLengthNaiveIndex = partialExpLengthNaiveIndex[ thresholdExponent ];
+
+			for( int i = 0; i < thresholdExponent; i++ ) {
+				diffExpNaiveJoin += partialExpNaiveJoin[ i ];
+				diffExpLengthNaiveIndex += partialExpLengthNaiveIndex[ i ];
+			}
+
+			double naiveTime = getEstimateNaive( diffExpLengthNaiveIndex, diffExpNaiveJoin );
+
+			if( DEBUG.JoinHybridON ) {
+				stat.add( "Const_Beta_JoinTime_" + thresholdExponent, String.format( "%.2f", diffExpNaiveJoin * beta ) );
+				stat.add( "Const_Beta_TotalExp_" + thresholdExponent, String.format( "%.2f", diffExpNaiveJoin ) );
+
+				stat.add( "Const_Alpha_IndexTime_" + thresholdExponent,
+						String.format( "%.2f", diffExpLengthNaiveIndex * alpha ) );
+				stat.add( "Const_Alpha_ExpLength_" + thresholdExponent, String.format( "%.2f", diffExpLengthNaiveIndex ) );
+			}
+
+			// estimate joinmin time
+
+			// process records with large expanded sizes
+			int recordIdx = indexedIdx;
+
+			for( ; recordIdx >= 0; recordIdx-- ) {
+				Record rec = sampleIndexedList.get( recordIdx );
+
+				if( rec.getEstNumRecords() <= threshold ) {
+					break;
+				}
+
+				int[] range = rec.getCandidateLengths( rec.size() - 1 );
+
+				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
+
+				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
+				if( thresholdExponent == startThresIndex ) {
+					for( List<QGram> set : availableQGrams ) {
+						indexedTotalSigCount += set.size();
+					}
+				}
+
+				// TODO: build index with minIdx
+				@SuppressWarnings( "unused" )
+				int minIdx = 0;
+				double minInvokes = Double.MAX_VALUE;
+
+				for( int i = 0; i < searchmax; ++i ) {
+					if( availableQGrams.get( i ).isEmpty() ) {
+						continue;
+					}
+
+					// There is no invocation count: this is the minimum point
+					if( i >= positionalQCountMap.size() ) {
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+
+					Map<QGram, CountEntry> curridx_invokes = positionalQCountMap.get( i );
+					if( curridx_invokes.size() == 0 ) {
+						minIdx = i;
+						minInvokes = 0;
+						break;
+					}
+
+					int invoke = 0;
+
+					for( QGram qgram : availableQGrams.get( i ) ) {
+						CountEntry count = curridx_invokes.get( qgram );
+						if( count != null ) {
+							// upper bound
+							invoke += count.total;
+						}
+					}
+					if( invoke < minInvokes ) {
+						minIdx = i;
+						minInvokes = invoke;
+					}
+				}
+
+				fixedInvokes += minInvokes;
+			}
+
+			indexedIdx = recordIdx;
+
+			double variableInvokes = 0;
+			for( ; recordIdx >= 0; recordIdx-- ) {
+				Record rec = sampleIndexedList.get( recordIdx );
+
+				int[] range = rec.getCandidateLengths( rec.size() - 1 );
+				int searchmax = Math.min( range[ 0 ], positionalQCountMap.size() );
+
+				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
+				if( thresholdExponent == startThresIndex ) {
+					for( List<QGram> set : availableQGrams ) {
+						indexedTotalSigCount += set.size();
+					}
+				}
+
+				double minInvokes = Double.MAX_VALUE;
+
+				for( int i = 0; i < searchmax; ++i ) {
+					if( availableQGrams.get( i ).isEmpty() ) {
+						continue;
+					}
+
+					// There is no invocation count: this is the minimum point
+					if( i >= positionalQCountMap.size() ) {
+						minInvokes = 0;
+						break;
+					}
+
+					Map<QGram, CountEntry> curridx_invokes = positionalQCountMap.get( i );
+					if( curridx_invokes.size() == 0 ) {
+						minInvokes = 0;
+						break;
+					}
+
+					int invoke = 0;
+
+					for( QGram qgram : availableQGrams.get( i ) ) {
+						CountEntry count = curridx_invokes.get( qgram );
+						if( count != null ) {
+							// upper bound
+							for( int c = thresholdExponent + 1; c < 3; c++ ) {
+								invoke += count.count[ c ];
+							}
+						}
+					}
+					if( invoke < minInvokes ) {
+						minInvokes = invoke;
+					}
+				}
+				variableInvokes += minInvokes;
+			}
+
+			double joinminTime = getEstimateJoinMin( searchedTotalSigCount / sampleRatio, indexedTotalSigCount / sampleRatio,
+					( fixedInvokes + variableInvokes ) / sampleRatio );
+			double totalTime = naiveTime + joinminTime;
+
+			if( DEBUG.JoinHybridON ) {
+				stat.add( "Const_Gamma_CountTime_" + thresholdExponent, String.format( "%.2f", searchedTotalSigCount * gamma ) );
+				stat.add( "Const_Gamma_SearchedSigCount" + thresholdExponent, String.format( "%.2f", searchedTotalSigCount ) );
+
+				stat.add( "Const_Delta_IndexTime_" + thresholdExponent, String.format( "%.2f", indexedTotalSigCount * delta ) );
+				stat.add( "Const_Delta_IndexSigCount_" + thresholdExponent, String.format( "%.2f", indexedTotalSigCount ) );
+
+				stat.add( "Const_Epsilon_JoinTime_" + thresholdExponent,
+						String.format( "%.2f", ( fixedInvokes + variableInvokes ) * epsilon ) );
+				stat.add( "Const_Epsilon_Predict_" + thresholdExponent, String.format( "%.2f", fixedInvokes + variableInvokes ) );
+
+				stat.add( "Est_Theta_" + thresholdExponent + "_1_NaiveTime", naiveTime );
+				stat.add( "Est_Theta_" + thresholdExponent + "_2_JoinMinTime", joinminTime );
+				stat.add( "Est_Theta_" + thresholdExponent + "_3_TotalTime", totalTime );
+
+				Util.printLog( "ThresholdId: " + threshold );
+				Util.printLog( "Naive Time: " + naiveTime );
+				Util.printLog( "JoinMin Time: " + joinminTime );
+				Util.printLog( "Total Time: " + totalTime );
+			}
+
+			if( bestEstimatedTime > totalTime ) {
+				bestEstimatedTime = totalTime;
+				bestThreshold = threshold;
+			}
+
+			threshold = threshold / 10;
+		}
+
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Auto_Best_Threshold", bestThreshold );
+		}
+
+		if( bestThreshold > 500 ) {
+			return 500;
+		}
+
+		return (int) bestThreshold;
 	}
 }

@@ -31,7 +31,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	RecordIDComparator idComparator;
 	RuleTrie ruletrie;
 
-	public static Validator checker;
+	public Validator checker;
 
 	/**
 	 * Key: (2gram, index) pair<br/>

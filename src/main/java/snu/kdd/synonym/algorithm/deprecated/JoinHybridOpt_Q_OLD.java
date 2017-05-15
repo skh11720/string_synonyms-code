@@ -816,7 +816,7 @@ public class JoinHybridOpt_Q_OLD extends AlgorithmTemplate {
 		joinmininst.skipChecking = skipChecking;
 		joinmininst.maxIndex = maxIndex;
 		joinmininst.compact = compact;
-		JoinMin_Q.checker = checker;
+		joinmininst.checker = checker;
 		joinmininst.outputfile = null;
 		try {
 			System.out.println( "Joinmininst run" );
