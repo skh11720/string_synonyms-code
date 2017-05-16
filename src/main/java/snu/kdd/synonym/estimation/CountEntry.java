@@ -27,7 +27,7 @@ public class CountEntry {
 			}
 			powerOf10 *= 10;
 		}
-		return countMax;
+		return countMax - 1;
 	}
 
 }
