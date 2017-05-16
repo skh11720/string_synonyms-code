@@ -184,7 +184,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			double est = t.getEstNumRecords();
 			totalExpNaiveJoin += est;
 
-			while( currentIdx != CountEntry.countMax && est >= nextThreshold ) {
+			while( currentIdx != CountEntry.countMax - 1 && est >= nextThreshold ) {
 				nextThreshold *= 10;
 				currentIdx++;
 			}
@@ -200,7 +200,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			double est = (double) s.getEstNumRecords() * (double) s.getTokenArray().length;
 			totalExpLengthNaiveIndex += est;
 
-			while( currentIdx != CountEntry.countMax && s.getEstNumRecords() >= nextThreshold ) {
+			while( currentIdx != CountEntry.countMax - 1 && s.getEstNumRecords() >= nextThreshold ) {
 				nextThreshold *= 10;
 				currentIdx++;
 			}
