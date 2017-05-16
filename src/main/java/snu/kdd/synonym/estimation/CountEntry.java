@@ -18,7 +18,7 @@ public class CountEntry {
 		total++;
 	}
 
-	private int getIndex( long number ) {
+	public static int getIndex( long number ) {
 		int powerOf10 = 10;
 
 		for( int i = 0; i < countMax - 1; i++ ) {

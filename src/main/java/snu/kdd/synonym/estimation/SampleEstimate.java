@@ -229,18 +229,8 @@ public class SampleEstimate {
 			Util.printLog( "Total Time: " + bestEstimatedTime );
 		}
 
-		int startThresIndex;
-		if( bestThreshold > 100 ) {
-			startThresIndex = 1;
-			threshold = 100;
-		}
-		else if( bestThreshold > 10 ) {
-			startThresIndex = 0;
-			threshold = 10;
-		}
-		else {
-			startThresIndex = -1;
-		}
+		int startThresIndex = CountEntry.getIndex( bestThreshold ) - 1;
+		threshold = (int) Math.pow( 10, startThresIndex + 1 );
 
 		// estimate time if only naive algorithm is used
 
