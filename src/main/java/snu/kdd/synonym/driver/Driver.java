@@ -49,6 +49,7 @@ public class Driver {
 
 		options.addOption( "check", false, "Check results" );
 		options.addOption( "additional", true, "Additional input arguments" );
+		options.addOption( "oneSideJoin", false, "One side join" );
 		argOptions = options;
 	}
 
