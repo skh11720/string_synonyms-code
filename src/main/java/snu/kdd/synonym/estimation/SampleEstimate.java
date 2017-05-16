@@ -213,9 +213,9 @@ public class SampleEstimate {
 
 		if( DEBUG.JoinHybridON ) {
 			stat.add( "Est_Theta_Start_Threshold", bestThreshold );
-			stat.add( "Est_Theta_3_1_NaiveTime", bestEstimatedTime );
-			stat.add( "Est_Theta_3_2_JoinMinTime", 0 );
-			stat.add( "Est_Theta_3_3_TotalTime", bestEstimatedTime );
+			stat.add( "Est_Theta_" + CountEntry.countMax + "_1_NaiveTime", bestEstimatedTime );
+			stat.add( "Est_Theta_" + CountEntry.countMax + "_2_JoinMinTime", 0 );
+			stat.add( "Est_Theta_" + CountEntry.countMax + "_3_TotalTime", bestEstimatedTime );
 
 			stat.add( "Const_Beta_JoinTime_2", String.format( "%.2f", totalExpNaiveJoin * beta ) );
 			stat.add( "Const_Beta_TotalExp_2", String.format( "%.2f", totalExpNaiveJoin ) );
