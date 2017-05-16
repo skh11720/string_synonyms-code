@@ -423,9 +423,9 @@ public class SampleEstimate {
 			threshold = threshold / 10;
 		}
 
-		if( bestThreshold > 10000 ) {
-			bestThreshold = 10000;
-		}
+		// if( bestThreshold > 10000 ) {
+		// bestThreshold = 10000;
+		// }
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		return (int) bestThreshold;
 	}
