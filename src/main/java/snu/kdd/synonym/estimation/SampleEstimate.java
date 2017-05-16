@@ -168,7 +168,8 @@ public class SampleEstimate {
 	}
 
 	public int findTheta( int maxThreshold, int qSize, int maxIndex, StatContainer stat, double totalExpLengthNaiveIndex,
-			double totalExpNaiveJoin, double[] partialExpLengthNaiveIndex, double[] partialExpNaiveJoin ) {
+			double totalExpNaiveJoin, double[] partialExpLengthNaiveIndex, double[] partialExpNaiveJoin,
+			long maxIndexedEstNumRecords, long maxSearchedEstNumRecords ) {
 		List<Map<QGram, CountEntry>> positionalQCountMap = new ArrayList<Map<QGram, CountEntry>>();
 
 		// count qgrams for each that will be searched
@@ -206,9 +207,6 @@ public class SampleEstimate {
 
 		// since both tables are sorted with est num records, the two values are minimum est num records in both tables
 		int threshold = 1;
-
-		long maxSearchedEstNumRecords = sampleSearchedList.get( sampleSearchedList.size() - 1 ).getEstNumRecords();
-		long maxIndexedEstNumRecords = sampleIndexedList.get( sampleIndexedList.size() - 1 ).getEstExpandCost();
 
 		long bestThreshold = Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords );
 		double bestEstimatedTime = getEstimateNaive( totalExpLengthNaiveIndex, totalExpNaiveJoin );
