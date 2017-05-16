@@ -46,7 +46,12 @@ public class SampleEstimate {
 
 		if( sampleratio > 1 ) {
 			// fixed number of samples
-			this.sampleRatio = sampleratio / smallTableSize;
+			if( sampleratio > smallTableSize ) {
+				this.sampleRatio = 1;
+			}
+			else {
+				this.sampleRatio = sampleratio / smallTableSize;
+			}
 		}
 
 		if( this.sampleRatio * smallTableSize < 1 ) {
