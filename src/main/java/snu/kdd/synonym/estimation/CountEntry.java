@@ -4,7 +4,7 @@ public class CountEntry {
 	public int count[];
 	public int total;
 
-	public static int countMax = 3;
+	public static int countMax = 4;
 
 	public CountEntry() {
 		// 0 : 1 ~ 10
