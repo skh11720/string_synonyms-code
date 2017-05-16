@@ -44,16 +44,21 @@ public class SampleEstimate {
 		int smallTableSize = Integer.min( tableSearched.size(), tableIndexed.size() );
 		this.sampleRatio = sampleratio;
 
-		if( sampleratio * smallTableSize < 1 ) {
+		if( sampleratio > 1 ) {
+			// fixed number of samples
+			this.sampleRatio = sampleratio / smallTableSize;
+		}
+
+		if( this.sampleRatio * smallTableSize < 1 ) {
 			// too low sample ratio
 			Util.printLog( "Too low sample ratio" );
 			Util.printLog( "Too low sample ratio" );
 
-			sampleratio = 10.0 / smallTableSize;
+			this.sampleRatio = 10.0 / smallTableSize;
 		}
 
 		for( Record r : tableSearched ) {
-			if( rn.nextDouble() < sampleratio ) {
+			if( rn.nextDouble() < this.sampleRatio ) {
 				sampleSearchedList.add( r );
 			}
 		}
@@ -65,7 +70,7 @@ public class SampleEstimate {
 		}
 		else {
 			for( Record s : tableIndexed ) {
-				if( rn.nextDouble() < sampleratio ) {
+				if( rn.nextDouble() < this.sampleRatio ) {
 					sampleIndexedList.add( s );
 				}
 			}
