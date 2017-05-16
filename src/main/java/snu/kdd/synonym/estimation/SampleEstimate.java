@@ -425,14 +425,10 @@ public class SampleEstimate {
 			threshold = threshold / 10;
 		}
 
-		if( DEBUG.JoinHybridON ) {
-			stat.add( "Auto_Best_Threshold", bestThreshold );
+		if( bestThreshold > 10000 ) {
+			bestThreshold = 10000;
 		}
-
-		if( bestThreshold > 500 ) {
-			return 500;
-		}
-
+		stat.add( "Auto_Best_Threshold", bestThreshold );
 		return (int) bestThreshold;
 	}
 }
