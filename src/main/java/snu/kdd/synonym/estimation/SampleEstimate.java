@@ -220,8 +220,8 @@ public class SampleEstimate {
 			stat.add( "Const_Beta_JoinTime_2", String.format( "%.2f", totalExpNaiveJoin * beta ) );
 			stat.add( "Const_Beta_TotalExp_2", String.format( "%.2f", totalExpNaiveJoin ) );
 
-			stat.add( "Const_Alpha_IndexTime_2", String.format( "%.2f", totalExpLengthNaiveIndex * alpha ) );
-			stat.add( "Const_Alpha_ExpLength_2", String.format( "%.2f", totalExpLengthNaiveIndex ) );
+			stat.add( "Const_Alpha_IndexTime_" + CountEntry.countMax, String.format( "%.2f", totalExpLengthNaiveIndex * alpha ) );
+			stat.add( "Const_Alpha_ExpLength_" + CountEntry.countMax, String.format( "%.2f", totalExpLengthNaiveIndex ) );
 
 			Util.printLog( "ThresholdId: " + bestThreshold );
 			Util.printLog( "Naive Time: " + bestEstimatedTime );
