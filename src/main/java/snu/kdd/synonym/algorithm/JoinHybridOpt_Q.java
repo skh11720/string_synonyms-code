@@ -177,7 +177,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		Collections.sort( tableIndexed, cmp );
 
 		if( DEBUG.JoinHybridON ) {
-			stat.add( "Result_2_1_Preprocess_Sorting_Time", System.currentTimeMillis() - sortTime );
+			stat.add( "Result_2_7_Preprocess_Sorting_Time", System.currentTimeMillis() - sortTime );
 		}
 
 		// Reassign ID and collect statistics for join naive
