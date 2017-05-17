@@ -3,6 +3,8 @@ package snu.kdd.synonym.algorithm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import mine.Record;
@@ -157,16 +159,16 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		super.preprocess( compact, maxIndex, useAutomata );
 
 		// Sort R and S with expanded sizes
-		// Comparator<Record> cmp = new Comparator<Record>() {
-		// @Override
-		// public int compare( Record o1, Record o2 ) {
-		// long est1 = o1.getEstNumRecords();
-		// long est2 = o2.getEstNumRecords();
-		// return Long.compare( est1, est2 );
-		// }
-		// };
+		Comparator<Record> cmp = new Comparator<Record>() {
+			@Override
+			public int compare( Record o1, Record o2 ) {
+				long est1 = o1.getEstNumRecords();
+				long est2 = o2.getEstNumRecords();
+				return Long.compare( est1, est2 );
+			}
+		};
 		// Collections.sort( tableSearched, cmp );
-		// Collections.sort( tableIndexed, cmp );
+		Collections.sort( tableIndexed, cmp );
 
 		// Reassign ID and collect statistics for join naive
 		partialExpLengthNaiveIndex = new double[ CountEntry.countMax ];
@@ -195,8 +197,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			partialExpNaiveJoin[ idx ] += est;
 		}
 
-		// currentIdx = 0;
-		// nextThreshold = 10;
+		int currentIdx = 0;
+		int nextThreshold = 10;
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			Record s = tableIndexed.get( i );
 			s.setID( i );
@@ -205,21 +207,21 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			double estLength = (double) s.getEstNumRecords() * (double) s.getTokenArray().length;
 			totalExpLengthNaiveIndex += estLength;
 
-			if( maxIndexedEstNumRecords < est ) {
-				maxIndexedEstNumRecords = est;
-			}
-
-			// while( currentIdx != CountEntry.countMax - 1 && s.getEstNumRecords() >= nextThreshold ) {
-			// nextThreshold *= 10;
-			// currentIdx++;
+			// if( maxIndexedEstNumRecords < est ) {
+			// maxIndexedEstNumRecords = est;
 			// }
+
+			while( currentIdx != CountEntry.countMax - 1 && s.getEstNumRecords() >= nextThreshold ) {
+				nextThreshold *= 10;
+				currentIdx++;
+			}
 
 			int idx = CountEntry.getIndex( est );
 			partialExpLengthNaiveIndex[ idx ] += estLength;
 		}
 
 		// maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
-		// maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
+		maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
 		if( DEBUG.JoinHybridON ) {
 			for( int i = 0; i < CountEntry.countMax; i++ ) {
