@@ -167,49 +167,51 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 				return Long.compare( est1, est2 );
 			}
 		};
-		// Collections.sort( tableSearched, cmp );
+
+		long sortTime;
+		if( DEBUG.JoinHybridON ) {
+			sortTime = System.currentTimeMillis();
+		}
+
+		Collections.sort( tableSearched, cmp );
 		Collections.sort( tableIndexed, cmp );
+
+		if( DEBUG.JoinHybridON ) {
+			stat.add( "Result_2_1_Preprocess_Sorting_Time", System.currentTimeMillis() - sortTime );
+		}
 
 		// Reassign ID and collect statistics for join naive
 		partialExpLengthNaiveIndex = new double[ CountEntry.countMax ];
 		partialExpNaiveJoin = new double[ CountEntry.countMax ];
 
-		// int currentIdx = 0;
-		// int nextThreshold = 10;
+		int currentIdx = 0;
+		int nextThreshold = 10;
 
 		for( int i = 0; i < tableSearched.size(); ++i ) {
 			Record t = tableSearched.get( i );
-			// t.setID( i );
+			t.setID( i );
 
 			long est = t.getEstNumRecords();
 			totalExpNaiveJoin += est;
 
-			if( maxSearchedEstNumRecords < est ) {
-				maxSearchedEstNumRecords = est;
+			while( currentIdx != CountEntry.countMax - 1 && est >= nextThreshold ) {
+				nextThreshold *= 10;
+				currentIdx++;
 			}
-
-			// while( currentIdx != CountEntry.countMax - 1 && est >= nextThreshold ) {
-			// nextThreshold *= 10;
-			// currentIdx++;
-			// }
 
 			int idx = CountEntry.getIndex( est );
 			partialExpNaiveJoin[ idx ] += est;
 		}
 
-		int currentIdx = 0;
-		int nextThreshold = 10;
+		currentIdx = 0;
+		nextThreshold = 10;
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			Record s = tableIndexed.get( i );
-			// s.setID( i );
+			s.setID( i );
 
 			long est = s.getEstNumRecords();
 			double estLength = (double) s.getEstNumRecords() * (double) s.getTokenArray().length;
 			totalExpLengthNaiveIndex += estLength;
-
-			// if( maxIndexedEstNumRecords < est ) {
-			// maxIndexedEstNumRecords = est;
-			// }
 
 			while( currentIdx != CountEntry.countMax - 1 && s.getEstNumRecords() >= nextThreshold ) {
 				nextThreshold *= 10;
@@ -220,7 +222,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			partialExpLengthNaiveIndex[ idx ] += estLength;
 		}
 
-		// maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
+		maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
 		maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
 
 		if( DEBUG.JoinHybridON ) {
