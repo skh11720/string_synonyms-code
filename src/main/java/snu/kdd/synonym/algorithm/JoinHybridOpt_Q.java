@@ -179,7 +179,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 		for( int i = 0; i < tableSearched.size(); ++i ) {
 			Record t = tableSearched.get( i );
-			t.setID( i );
+			// t.setID( i );
 
 			long est = t.getEstNumRecords();
 			totalExpNaiveJoin += est;
@@ -201,7 +201,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		int nextThreshold = 10;
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			Record s = tableIndexed.get( i );
-			s.setID( i );
+			// s.setID( i );
 
 			long est = s.getEstNumRecords();
 			double estLength = (double) s.getEstNumRecords() * (double) s.getTokenArray().length;
