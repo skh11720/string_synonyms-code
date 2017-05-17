@@ -553,7 +553,7 @@ public class JoinMinIndex {
 				for( int idx = tree.size() - 1; idx >= 0; idx-- ) {
 					Record e = tree.get( idx );
 					if( !isUpperRecord && e.getEstNumRecords() <= threshold ) {
-						break;
+						continue;
 					}
 					else if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
 						// if( debug ) {
