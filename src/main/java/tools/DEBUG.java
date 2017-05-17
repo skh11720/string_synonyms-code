@@ -1,7 +1,7 @@
 package tools;
 
 public class DEBUG {
-	public static final boolean AlgorithmON = false;
+	public static final boolean AlgorithmON = true;
 
 	public static final boolean NaiveON = false;
 	public static final boolean SIJoinON = false;
