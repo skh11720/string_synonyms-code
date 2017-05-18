@@ -502,7 +502,10 @@ public class SampleEstimate {
 				indexedTotalSigCount += qgrams.size();
 
 				for( QGram qgram : qgrams ) {
-					comparison += curridxInvokes.get( qgram ).largeListSize;
+					BinaryCountEntry entry = curridxInvokes.get( qgram );
+					if( entry != null ) {
+						comparison += entry.largeListSize;
+					}
 				}
 
 				if( minComparison > comparison ) {
