@@ -623,13 +623,11 @@ public class SampleEstimate {
 
 			Util.printLog( "T: " + currentThreshold + " nT: " + nextThreshold + " NT: " + naiveEstimation + " JT: "
 					+ joinminEstimation );
-			currentThreshold = nextThreshold;
 
 			if( bestEstTime > joinminEstimation + naiveEstimation ) {
 				bestEstTime = joinminEstimation + naiveEstimation;
 
 				if( currentThreshold < Integer.MAX_VALUE ) {
-
 					bestThreshold = (int) currentThreshold;
 				}
 				else {
@@ -638,6 +636,8 @@ public class SampleEstimate {
 
 				Util.printLog( "New Best " + bestThreshold );
 			}
+
+			currentThreshold = nextThreshold;
 		}
 
 		// if( bestThreshold > 10000 ) {
