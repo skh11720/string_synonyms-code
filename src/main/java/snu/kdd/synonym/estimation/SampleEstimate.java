@@ -594,7 +594,7 @@ public class SampleEstimate {
 			long nextThreshold;
 
 			if( nextThresholdIndexed == -1 && nextThresholdSearched == -1 ) {
-				nextThreshold = Long.MAX_VALUE;
+				nextThreshold = maxThreshold + 1;
 			}
 			else if( nextThresholdIndexed == -1 ) {
 				nextThreshold = nextThresholdSearched;
@@ -609,7 +609,7 @@ public class SampleEstimate {
 			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 			double joinminEstimation = 0;
 
-			if( nextThreshold == Long.MAX_VALUE ) {
+			if( nextThreshold == maxThreshold + 1 ) {
 				// we compute difference of joinmin estimation time.
 				// estimation time of building joinmin index is not added even if it utilizes joinmin index
 				// in this case we do not use joinmin index and thus the execution time of building joinmin index is <b>subtracted</b>
