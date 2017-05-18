@@ -505,7 +505,7 @@ public class SampleEstimate {
 					comparison += curridxInvokes.get( qgram ).largeListSize;
 				}
 
-				if( minComparison < comparison ) {
+				if( minComparison > comparison ) {
 					minComparison = comparison;
 					minIndex = position;
 				}
