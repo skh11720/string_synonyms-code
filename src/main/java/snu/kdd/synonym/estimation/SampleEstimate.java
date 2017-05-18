@@ -531,7 +531,9 @@ public class SampleEstimate {
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		int prevAddedIndex = -1;
 
-		while( currentThreshold < maxThreshold ) {
+		Util.printLog( "MaxThreshold " + maxThreshold );
+
+		while( currentThreshold <= maxThreshold ) {
 			long nextThresholdIndexed = -1;
 			long nextThresholdSearched = -1;
 
@@ -562,6 +564,7 @@ public class SampleEstimate {
 					}
 				}
 			}
+			Util.printLog( "searchedIdx " + searchedIdx );
 
 			double removedComparison = 0;
 
