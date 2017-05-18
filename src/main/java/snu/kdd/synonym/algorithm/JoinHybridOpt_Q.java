@@ -130,8 +130,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		}
 
 		// joinThreshold = findTheta( Integer.MAX_VALUE );
-		joinThreshold = estimate.findTheta( Integer.MAX_VALUE, qSize, maxIndex, stat, totalExpLengthNaiveIndex, totalExpNaiveJoin,
-				partialExpLengthNaiveIndex, partialExpNaiveJoin, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
+		// joinThreshold = estimate.findTheta( qSize, maxIndex, stat, totalExpLengthNaiveIndex, totalExpNaiveJoin,
+		// partialExpLengthNaiveIndex, partialExpNaiveJoin, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
+
+		joinThreshold = estimate.findThetaUnrestricted( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
 			joinMinRequired = false;
 		}
