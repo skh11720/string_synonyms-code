@@ -624,9 +624,16 @@ public class SampleEstimate {
 
 			if( bestEstTime > joinminEstimation + naiveEstimation ) {
 				bestEstTime = joinminEstimation + naiveEstimation;
-				bestThreshold = (int) currentThreshold;
 
-				Util.printLog( "New Best" );
+				if( currentThreshold < Integer.MAX_VALUE ) {
+
+					bestThreshold = (int) currentThreshold;
+				}
+				else {
+					currentThreshold = Integer.MAX_VALUE;
+				}
+
+				Util.printLog( "New Best " + bestThreshold );
 			}
 		}
 
