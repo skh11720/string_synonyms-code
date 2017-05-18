@@ -521,7 +521,10 @@ public class SampleEstimate {
 			Map<QGram, BinaryCountEntry> minInvokes = invokes.get( minIndex );
 
 			for( QGram qgram : availableQGrams.get( minIndex ) ) {
-				list.add( minInvokes.get( qgram ) );
+				BinaryCountEntry entry = minInvokes.get( qgram );
+				if( entry != null ) {
+					list.add( entry );
+				}
 			}
 
 			indexedPositions.add( list );
