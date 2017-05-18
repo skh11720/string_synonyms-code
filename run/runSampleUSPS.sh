@@ -32,13 +32,14 @@ RUN_JoinMH=False
 RUN_JoinHybridOpt=True
 #RUN_JoinHybridOpt=False
 
-RUN_JoinHybridThres=True
-#RUN_JoinHybridThres=False
+#RUN_JoinHybridThres=True
+RUN_JoinHybridThres=False
 
 #RUN_DEBUG=True
 RUN_DEBUG=False
 
-IDS=( 8 )
+IDS=( 11 )
+#IDS=( 8 9 10 11 )
 #IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
 for nId in ${IDS[@]};
 do

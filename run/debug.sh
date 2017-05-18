@@ -40,7 +40,7 @@ rulefile=data_store/wordnet/rules.noun
 #rulefile=data_store/sprot/rule.txt
 
 
-recordId=106407
+recordId=133786
 
 ./package.sh
 
