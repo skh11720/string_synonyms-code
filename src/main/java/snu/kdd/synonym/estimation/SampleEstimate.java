@@ -539,6 +539,11 @@ public class SampleEstimate {
 
 		Util.printLog( "MaxThreshold " + maxThreshold );
 
+		boolean stop = false;
+		if( maxThreshold == Long.MAX_VALUE ) {
+			stop = true;
+		}
+
 		while( currentThreshold <= maxThreshold ) {
 			long nextThresholdIndexed = -1;
 			long nextThresholdSearched = -1;
@@ -600,6 +605,9 @@ public class SampleEstimate {
 			long nextThreshold;
 
 			if( nextThresholdIndexed == -1 && nextThresholdSearched == -1 ) {
+				if( stop ) {
+					break;
+				}
 				nextThreshold = maxThreshold + 1;
 			}
 			else if( nextThresholdIndexed == -1 ) {
