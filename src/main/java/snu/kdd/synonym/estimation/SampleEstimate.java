@@ -658,6 +658,7 @@ public class SampleEstimate {
 		// bestThreshold = 10000;
 		// }
 		stat.add( "Auto_Best_Threshold", bestThreshold );
+		stat.add( "Auto_BestEst_Time", bestEstTime );
 		return bestThreshold;
 	}
 }
