@@ -103,10 +103,10 @@ public class NaiveIndex {
 	}
 
 	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
-		boolean debug = false;
-		if( recS.toString().equals( "david almeroth Road cicchetto ALASKA 48939 " ) ) {
-			debug = true;
-		}
+		// boolean debug = false;
+		// if( recS.toString().equals( "david almeroth Road cicchetto ALASKA 48939 " ) ) {
+		// debug = true;
+		// }
 
 		long expandStartTime = System.nanoTime();
 		// final List<Record> expanded = recS.expandAll( ruletrie );
@@ -120,18 +120,18 @@ public class NaiveIndex {
 		long searchStartTime = System.nanoTime();
 		for( final Record exp : expanded ) {
 
-			if( debug ) {
-				System.out.println( exp );
-			}
+			// if( debug ) {
+			// System.out.println( exp );
+			// }
 
 			final List<Integer> overlapidx = idx.get( exp );
 			if( overlapidx == null ) {
 				continue;
 			}
 
-			if( debug ) {
-				System.out.println( exp + " " + overlapidx );
-			}
+			// if( debug ) {
+			// System.out.println( exp + " " + overlapidx );
+			// }
 
 			// candidates.add( overlapidx );
 			for( Integer i : overlapidx ) {
@@ -255,7 +255,7 @@ public class NaiveIndex {
 					}
 				}
 
-				naiveIndex.add( recR, i );
+				naiveIndex.add( new Record( recR ), i );
 			}
 
 			indexingTime += System.nanoTime() - indexingStartTime;
@@ -268,10 +268,6 @@ public class NaiveIndex {
 			catch( IOException e ) {
 				e.printStackTrace();
 			}
-
-			System.out.println( "index" );
-			System.out.println( naiveIndex.idx );
-			System.out.println( "index" );
 		}
 
 		if( totalExpLength == 0 ) {
