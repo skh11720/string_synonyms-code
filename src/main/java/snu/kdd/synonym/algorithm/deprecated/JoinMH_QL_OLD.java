@@ -38,8 +38,9 @@ public class JoinMH_QL_OLD extends AlgorithmTemplate {
 	 */
 	List<Map<IntegerPair, List<IntIntRecordTriple>>> idx;
 
-	public JoinMH_QL_OLD( String rulefile, String Rfile, String Sfile, String outFile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outFile, dataInfo, false );
+	public JoinMH_QL_OLD( String rulefile, String Rfile, String Sfile, String outFile, DataInfo dataInfo, StatContainer stat )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outFile, dataInfo, false, stat );
 		idComparator = new RecordIDComparator();
 	}
 
@@ -347,9 +348,7 @@ public class JoinMH_QL_OLD extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
-
+	public void run( String[] args ) {
 		Param params = Param.parseArgs( args, stat );
 
 		maxIndexLength = params.getMaxIndex();

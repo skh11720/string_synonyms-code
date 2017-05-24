@@ -64,9 +64,9 @@ public class JoinHybridThres extends AlgorithmTemplate {
 	Map<Record, List<Integer>> setR;
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinHybridThres( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
-			throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo, false );
+	public JoinHybridThres( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo,
+			StatContainer stat ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, false, stat );
 		idComparator = new RecordIDComparator();
 		idReverseComparator = new RecordIDReverseComparator();
 		ruletrie = new RuleTrie( rulelist );
@@ -432,7 +432,8 @@ public class JoinHybridThres extends AlgorithmTemplate {
 		DataInfo dataInfo = new DataInfo( Rulefile, Rfile, Sfile );
 
 		long startTime = System.currentTimeMillis();
-		JoinHybridThres inst = new JoinHybridThres( Rulefile, Rfile, Sfile, outputfile, dataInfo );
+		StatContainer stat = new StatContainer();
+		JoinHybridThres inst = new JoinHybridThres( Rulefile, Rfile, Sfile, outputfile, dataInfo, stat );
 		System.out.print( "Constructor finished" );
 		System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		inst.run();
@@ -450,9 +451,7 @@ public class JoinHybridThres extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
-
+	public void run( String[] args ) {
 		Param params = Param.parseArgs( args, stat );
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();

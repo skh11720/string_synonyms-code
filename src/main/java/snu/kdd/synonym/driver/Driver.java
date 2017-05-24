@@ -117,50 +117,50 @@ public class Driver {
 
 		switch( algorithm ) {
 		case JoinNaive1:
-			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
+			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 		case JoinNaive2:
-			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
+			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 		case JoinMH:
-			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
+			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 
 		case DebugAlg:
-			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
+			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 		case JoinMin:
-			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
+			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 		case JoinMinTwo:
-			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
+			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 		case JoinHybridThres:
-			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
+			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 		case JoinHybridOpt:
-			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
+			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 		case SIJoin:
-			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, stat );
 			break;
 
 		case JoinMH_OLD:
-			alg = new JoinMH_QL_OLD( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinMH_QL_OLD( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, stat );
 			break;
 		case JoinMin_OLD:
-			alg = new JoinMin_Q_OLD( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinMin_Q_OLD( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, stat );
 			break;
 
 		case CheckQGram:
-			alg = new CheckQGram( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new CheckQGram( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, stat );
 			break;
 
 		case EstimateNaive:
-			alg = new EstimateJoinNaive( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new EstimateJoinNaive( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, stat );
 			break;
 		case EstimateJoinMin:
-			alg = new EstimateJoinMin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new EstimateJoinMin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, stat );
 			break;
 
 		default:
@@ -181,7 +181,7 @@ public class Driver {
 			initializeTime.stopAndAdd( stat );
 		}
 
-		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ), stat );
+		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ) );
 
 		totalTime.stop();
 

@@ -19,19 +19,18 @@ public class EstimateJoinMin extends AlgorithmTemplate {
 
 	DataInfo dataInfo;
 
-	public EstimateJoinMin( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
-			throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo, false );
+	public EstimateJoinMin( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo,
+			StatContainer stat ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, false, stat );
 
-		joinMin = new JoinMin_Q( rulefile, Rfile, Sfile, outputfile, dataInfo, false );
+		joinMin = new JoinMin_Q( rulefile, Rfile, Sfile, outputfile, dataInfo, false, stat );
 
 		this.dataInfo = dataInfo;
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
-		joinMin.run( args, stat );
+	public void run( String[] args ) {
+		joinMin.run( args );
 
 		double sampleratio = 0.1;
 		SampleEstimate estimate = new SampleEstimate( joinMin.tableSearched, joinMin.tableIndexed, sampleratio,

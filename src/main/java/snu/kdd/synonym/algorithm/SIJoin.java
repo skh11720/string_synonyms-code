@@ -20,8 +20,9 @@ import tools.IntegerPair;
 import tools.Pair;
 
 public class SIJoin extends AlgorithmTemplate {
-	public SIJoin( String rulefile, String DBR_file, String DBS_file, String outputFile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, DBR_file, DBS_file, outputFile, dataInfo, false );
+	public SIJoin( String rulefile, String DBR_file, String DBS_file, String outputFile, DataInfo dataInfo, StatContainer stat )
+			throws IOException {
+		super( rulefile, DBR_file, DBS_file, outputFile, dataInfo, false, stat );
 	}
 
 	public void run() throws IOException {
@@ -94,7 +95,8 @@ public class SIJoin extends AlgorithmTemplate {
 		DataInfo dataInfo = new DataInfo( Rulefile, Rfile, Sfile );
 
 		long startTime = System.currentTimeMillis();
-		SIJoin inst = new SIJoin( Rfile, Sfile, Rulefile, outputfile, dataInfo );
+		StatContainer stat = new StatContainer();
+		SIJoin inst = new SIJoin( Rfile, Sfile, Rulefile, outputfile, dataInfo, stat );
 
 		if( DEBUG.SIJoinON ) {
 			System.out.print( "Constructor finished" );
@@ -141,9 +143,7 @@ public class SIJoin extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
-
+	public void run( String[] args ) {
 		try {
 			this.run();
 		}

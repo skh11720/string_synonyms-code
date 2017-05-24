@@ -23,9 +23,9 @@ public class JoinNaive2 extends AlgorithmTemplate {
 
 	static int threshold = 1000;
 
-	public JoinNaive2( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo, boolean joinOneSide )
-			throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo, joinOneSide );
+	public JoinNaive2( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo, boolean joinOneSide,
+			StatContainer stat ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, joinOneSide, stat );
 		rec2idx = new HashMap<Record, Integer>();
 		for( int i = 0; i < tableSearched.size(); ++i )
 			rec2idx.put( tableSearched.get( i ), i );
@@ -84,8 +84,7 @@ public class JoinNaive2 extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
+	public void run( String[] args ) {
 		this.run();
 	}
 }

@@ -59,8 +59,9 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
-	public JoinMin_Q_OLD( String rulefile, String Rfile, String Sfile, String outputFile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputFile, dataInfo, false );
+	public JoinMin_Q_OLD( String rulefile, String Rfile, String Sfile, String outputFile, DataInfo dataInfo, StatContainer stat )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outputFile, dataInfo, false, stat );
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
@@ -718,9 +719,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
-
+	public void run( String[] args ) {
 		Param params = Param.parseArgs( args, stat );
 
 		// Setup parameters

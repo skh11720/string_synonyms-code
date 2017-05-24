@@ -37,9 +37,9 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	List<Map<QGram, List<IntIntRecordTriple>>> idx;
 
-	public JoinMH_QL( String rulefile, String Rfile, String Sfile, String outFile, DataInfo dataInfo, boolean joinOneSide )
-			throws IOException {
-		super( rulefile, Rfile, Sfile, outFile, dataInfo, joinOneSide );
+	public JoinMH_QL( String rulefile, String Rfile, String Sfile, String outFile, DataInfo dataInfo, boolean joinOneSide,
+			StatContainer stat ) throws IOException {
+		super( rulefile, Rfile, Sfile, outFile, dataInfo, joinOneSide, stat );
 	}
 
 	public void run() {
@@ -397,9 +397,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
-
+	public void run( String[] args ) {
 		Param params = Param.parseArgs( args, stat );
 
 		maxIndexLength = params.getMaxIndex();

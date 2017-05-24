@@ -29,8 +29,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	RuleTrie ruletrie;
 
 	public long threshold = Long.MAX_VALUE;
-	public double avgTransformed = 1;
 
+	public double avgTransformed = 1;
 	public double executionTime;
 
 	public JoinNaive1( AlgorithmTemplate o, StatContainer stat ) {
@@ -43,9 +43,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		this.stat = stat;
 	}
 
-	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo, boolean oneSideJoin )
-			throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo, oneSideJoin );
+	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo, boolean oneSideJoin,
+			StatContainer stat ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, oneSideJoin, stat );
 
 		// build an ac automata / a trie from rule lists
 		automata = new Rule_ACAutomata( getRulelist() );
@@ -53,11 +53,10 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
+	public void run( String[] args ) {
 		if( args.length != 1 ) {
 			System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold>" );
 		}
-		this.stat = stat;
 		this.threshold = Long.valueOf( args[ 0 ] );
 
 		StopWatch stepTime = null;

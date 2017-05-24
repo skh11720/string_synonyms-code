@@ -61,7 +61,8 @@ public abstract class AlgorithmTemplate {
 
 	// Initialize rules and tables
 	protected AlgorithmTemplate( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo info,
-			boolean oneSideJoin ) throws IOException {
+			boolean oneSideJoin, StatContainer stat ) throws IOException {
+		this.stat = stat;
 		this.oneSideJoin = oneSideJoin;
 
 		str2int = new Object2IntOpenHashMap<>();
@@ -322,7 +323,7 @@ public abstract class AlgorithmTemplate {
 		}
 	}
 
-	public abstract void run( String[] args, StatContainer stat );
+	public abstract void run( String[] args );
 
 	public void setRulelist( List<Rule> rulelist ) {
 		this.rulelist = rulelist;

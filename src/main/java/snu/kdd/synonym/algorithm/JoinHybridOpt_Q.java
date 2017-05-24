@@ -76,8 +76,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	private DataInfo dataInfo;
 
 	public JoinHybridOpt_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo,
-			boolean joinOneSide ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo, joinOneSide );
+			boolean joinOneSide, StatContainer stat ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, joinOneSide, stat );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 
@@ -85,9 +85,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
-
+	public void run( String[] args ) {
 		Param params = Param.parseArgs( args, stat );
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();

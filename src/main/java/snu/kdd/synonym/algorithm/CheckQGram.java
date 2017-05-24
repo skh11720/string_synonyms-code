@@ -17,8 +17,9 @@ import tools.RuleTrie;
 public class CheckQGram extends AlgorithmTemplate {
 	RuleTrie ruletrie;
 
-	public CheckQGram( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputPath, dataInfo, false );
+	public CheckQGram( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo dataInfo, StatContainer stat )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outputPath, dataInfo, false, stat );
 
 		ruletrie = new RuleTrie( getRulelist() );
 		Record.setRuleTrie( ruletrie );
@@ -126,8 +127,8 @@ public class CheckQGram extends AlgorithmTemplate {
 		boolean hybird = Boolean.parseBoolean( args[ 5 ] );
 
 		DataInfo dataInfo = new DataInfo( Rfile, Sfile, rulefile );
-
-		CheckQGram info = new CheckQGram( rulefile, Rfile, Sfile, outputPath, dataInfo );
+		StatContainer stat = new StatContainer();
+		CheckQGram info = new CheckQGram( rulefile, Rfile, Sfile, outputPath, dataInfo, stat );
 
 		if( hybird ) {
 			System.out.println( "Preprocessing for hybrid" );
@@ -148,7 +149,7 @@ public class CheckQGram extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
+	public void run( String[] args ) {
 
 	}
 

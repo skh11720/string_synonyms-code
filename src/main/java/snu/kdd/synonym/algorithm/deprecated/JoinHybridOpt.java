@@ -106,8 +106,9 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 
 	long memlimit_expandedS;
 
-	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo, false );
+	public JoinHybridOpt( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo, StatContainer stat )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, false, stat );
 		idComparator = new RecordIDComparator();
 		idReverseComparator = new RecordIDReverseComparator();
 		ruletrie = new RuleTrie( rulelist );
@@ -747,9 +748,7 @@ public class JoinHybridOpt extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( String[] args, StatContainer stat ) {
-		this.stat = stat;
-
+	public void run( String[] args ) {
 		Param params = Param.parseArgs( args, stat );
 		// Setup parameters
 		useAutomata = params.isUseACAutomata();
