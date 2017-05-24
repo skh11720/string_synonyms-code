@@ -74,7 +74,7 @@ public class NaiveIndex {
 		for( int idxS = 0; idxS < tableSearched.size(); ++idxS ) {
 			final Record recS = tableSearched.get( idxS );
 
-			if( oneSideJoin ) {
+			if( !oneSideJoin ) {
 				final long est = recS.getEstNumRecords();
 				if( threshold != -1 && est > threshold ) {
 					continue;
