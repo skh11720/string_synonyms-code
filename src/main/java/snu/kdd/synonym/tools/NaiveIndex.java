@@ -129,9 +129,9 @@ public class NaiveIndex {
 				continue;
 			}
 
-			// if( debug ) {
-			// System.out.println( exp + " " + overlapidx );
-			// }
+			if( debug ) {
+				System.out.println( exp + " " + overlapidx );
+			}
 
 			// candidates.add( overlapidx );
 			for( Integer i : overlapidx ) {
