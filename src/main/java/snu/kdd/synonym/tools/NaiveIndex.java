@@ -179,7 +179,6 @@ public class NaiveIndex {
 
 		long totalExpLength = 0;
 
-		@SuppressWarnings( "unused" )
 		double totalExp = 0;
 		@SuppressWarnings( "unused" )
 		long idxsize = 0;
@@ -190,11 +189,14 @@ public class NaiveIndex {
 
 		for( int i = 0; i < tableIndexed.size(); ++i ) {
 			final Record recR = tableIndexed.get( i );
-			final long est = recR.getEstNumRecords();
 
-			if( threshold != -1 && est > threshold ) {
-				// if threshold is set (!= -1), index is built selectively for supporting hybrid algorithm
-				continue;
+			if( !oneSideJoin ) {
+				final long est = recR.getEstNumRecords();
+
+				if( threshold != -1 && est > threshold ) {
+					// if threshold is set (!= -1), index is built selectively for supporting hybrid algorithm
+					continue;
+				}
 			}
 
 			long expandStartTime;
@@ -202,15 +204,19 @@ public class NaiveIndex {
 				expandStartTime = System.nanoTime();
 			}
 
-			final List<Record> expanded = recR.expandAll();
+			List<Record> expanded = null;
 
 			if( DEBUG.NaiveON ) {
 				expandTime += System.nanoTime() - expandStartTime;
 			}
 
 			if( !oneSideJoin ) {
+				expanded = recR.expandAll();
 				totalExpLength += expanded.size() * recR.getTokenArray().length;
-				totalExp += expanded.size();
+
+				if( DEBUG.NaiveON ) {
+					totalExp += expanded.size();
+				}
 			}
 
 			long indexingStartTime = System.nanoTime();
