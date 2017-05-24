@@ -3,7 +3,7 @@ package tools;
 public class DEBUG {
 	public static final boolean AlgorithmON = false;
 
-	public static final boolean NaiveON = false;
+	public static final boolean NaiveON = true;
 	public static final boolean SIJoinON = false;
 
 	public static final boolean JoinMinON = false;
@@ -20,5 +20,5 @@ public class DEBUG {
 	public static final boolean ValidateON = false;
 
 	public static final boolean PrintJoinMinIndexON = false;
-	public static final boolean PrintNaiveIndexON = false;
+	public static final boolean PrintNaiveIndexON = true;
 }
