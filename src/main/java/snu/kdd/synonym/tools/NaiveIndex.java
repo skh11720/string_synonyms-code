@@ -104,7 +104,7 @@ public class NaiveIndex {
 
 	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		boolean debug = false;
-		if( recS.toString().equals( "judas iscariot calliari Road burbach SC 76788 " ) ) {
+		if( recS.toString().equals( "david almeroth Road cicchetto ALASKA 48939 " ) ) {
 			debug = true;
 		}
 
