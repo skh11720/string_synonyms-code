@@ -60,7 +60,7 @@ public class JoinMin_Q_OLD extends AlgorithmTemplate {
 	private static final WrappedInteger ONE = new WrappedInteger( 1 );
 
 	public JoinMin_Q_OLD( String rulefile, String Rfile, String Sfile, String outputFile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputFile, dataInfo );
+		super( rulefile, Rfile, Sfile, outputFile, dataInfo, false );
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();

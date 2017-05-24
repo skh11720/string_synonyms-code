@@ -17,9 +17,9 @@ import tools.RuleTrie;
 public class PrintRecordInfo extends AlgorithmTemplate {
 	RuleTrie ruletrie;
 
-	protected PrintRecordInfo( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo dataInfo )
-			throws IOException {
-		super( rulefile, Rfile, Sfile, outputPath, dataInfo );
+	protected PrintRecordInfo( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo dataInfo,
+			boolean joinOneSide ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputPath, dataInfo, joinOneSide );
 
 		ruletrie = new RuleTrie( getRulelist() );
 		Record.setRuleTrie( ruletrie );
@@ -156,7 +156,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 		DataInfo dataInfo = new DataInfo( Rfile, Sfile, rulefile );
 
-		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath, dataInfo );
+		PrintRecordInfo info = new PrintRecordInfo( rulefile, Rfile, Sfile, outputPath, dataInfo, false );
 
 		if( hybird ) {
 			System.out.println( "Preprocessing for hybrid" );

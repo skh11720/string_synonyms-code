@@ -21,7 +21,7 @@ import tools.Pair;
 
 public class SIJoin extends AlgorithmTemplate {
 	public SIJoin( String rulefile, String DBR_file, String DBS_file, String outputFile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, DBR_file, DBS_file, outputFile, dataInfo );
+		super( rulefile, DBR_file, DBS_file, outputFile, dataInfo, false );
 	}
 
 	public void run() throws IOException {

@@ -18,7 +18,7 @@ public class CheckQGram extends AlgorithmTemplate {
 	RuleTrie ruletrie;
 
 	public CheckQGram( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputPath, dataInfo );
+		super( rulefile, Rfile, Sfile, outputPath, dataInfo, false );
 
 		ruletrie = new RuleTrie( getRulelist() );
 		Record.setRuleTrie( ruletrie );

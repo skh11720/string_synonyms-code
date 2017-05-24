@@ -49,7 +49,7 @@ public class Driver {
 
 		options.addOption( "check", false, "Check results" );
 		options.addOption( "additional", true, "Additional input arguments" );
-		options.addOption( "oneSideJoin", false, "One side join" );
+		options.addOption( "oneSideJoin", true, "One side join" );
 		argOptions = options;
 	}
 
@@ -98,6 +98,7 @@ public class Driver {
 		String dataOnePath = cmd.getOptionValue( "dataOnePath" );
 		String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
 		String outputPath = cmd.getOptionValue( "outputPath" );
+		Boolean oneSideJoin = Boolean.parseBoolean( cmd.getOptionValue( "oneSideJoin" ) );
 
 		DataInfo dataInfo = new DataInfo( dataOnePath, dataTwoPath, rulePath );
 
@@ -116,29 +117,29 @@ public class Driver {
 
 		switch( algorithm ) {
 		case JoinNaive1:
-			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinNaive1( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
 			break;
 		case JoinNaive2:
-			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinNaive2( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
 			break;
 		case JoinMH:
-			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinMH_QL( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
 			break;
 
 		case DebugAlg:
-			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
 			break;
 		case JoinMin:
-			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
 			break;
 		case JoinMinTwo:
-			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
 			break;
 		case JoinHybridThres:
-			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinHybridThres_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
 			break;
 		case JoinHybridOpt:
-			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );
+			alg = new JoinHybridOpt_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin );
 			break;
 		case SIJoin:
 			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo );

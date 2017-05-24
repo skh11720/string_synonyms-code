@@ -39,7 +39,7 @@ public class JoinMH_QL_OLD extends AlgorithmTemplate {
 	List<Map<IntegerPair, List<IntIntRecordTriple>>> idx;
 
 	public JoinMH_QL_OLD( String rulefile, String Rfile, String Sfile, String outFile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outFile, dataInfo );
+		super( rulefile, Rfile, Sfile, outFile, dataInfo, false );
 		idComparator = new RecordIDComparator();
 	}
 

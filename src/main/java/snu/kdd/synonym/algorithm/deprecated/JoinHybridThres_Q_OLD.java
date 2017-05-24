@@ -67,7 +67,7 @@ public class JoinHybridThres_Q_OLD extends AlgorithmTemplate {
 
 	public JoinHybridThres_Q_OLD( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
 			throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, false );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 	}

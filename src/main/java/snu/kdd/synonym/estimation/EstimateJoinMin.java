@@ -21,9 +21,9 @@ public class EstimateJoinMin extends AlgorithmTemplate {
 
 	public EstimateJoinMin( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
 			throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, false );
 
-		joinMin = new JoinMin_Q( rulefile, Rfile, Sfile, outputfile, dataInfo );
+		joinMin = new JoinMin_Q( rulefile, Rfile, Sfile, outputfile, dataInfo, false );
 
 		this.dataInfo = dataInfo;
 	}

@@ -75,9 +75,9 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	private DataInfo dataInfo;
 
-	public JoinHybridOpt_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
-			throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
+	public JoinHybridOpt_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo,
+			boolean joinOneSide ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, joinOneSide );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 

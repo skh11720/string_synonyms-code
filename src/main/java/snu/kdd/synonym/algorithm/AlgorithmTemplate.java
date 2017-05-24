@@ -48,6 +48,7 @@ public abstract class AlgorithmTemplate {
 	public List<Record> tableIndexed;
 
 	private boolean selfJoin = false;
+	protected boolean oneSideJoin = false;
 
 	protected AlgorithmTemplate( AlgorithmTemplate o ) {
 		this.str2int = o.str2int;
@@ -59,8 +60,9 @@ public abstract class AlgorithmTemplate {
 	}
 
 	// Initialize rules and tables
-	protected AlgorithmTemplate( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo info )
-			throws IOException {
+	protected AlgorithmTemplate( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo info,
+			boolean oneSideJoin ) throws IOException {
+		this.oneSideJoin = oneSideJoin;
 
 		str2int = new Object2IntOpenHashMap<>();
 		str2int.defaultReturnValue( -1 );

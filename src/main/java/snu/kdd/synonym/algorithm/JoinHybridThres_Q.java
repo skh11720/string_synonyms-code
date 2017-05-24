@@ -60,9 +60,9 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	 */
 	NaiveIndex naiveIndex;
 
-	public JoinHybridThres_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo )
-			throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
+	public JoinHybridThres_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo,
+			boolean joinOneSide ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, joinOneSide );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 	}

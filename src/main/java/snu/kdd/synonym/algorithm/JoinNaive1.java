@@ -43,8 +43,9 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		this.stat = stat;
 	}
 
-	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo );
+	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo, boolean oneSideJoin )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, oneSideJoin );
 
 		// build an ac automata / a trie from rule lists
 		automata = new Rule_ACAutomata( getRulelist() );

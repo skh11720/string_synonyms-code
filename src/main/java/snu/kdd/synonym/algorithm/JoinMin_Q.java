@@ -39,8 +39,9 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	 */
 	public JoinMinIndex idx;
 
-	public JoinMin_Q( String rulefile, String Rfile, String Sfile, String outputFile, DataInfo dataInfo ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputFile, dataInfo );
+	public JoinMin_Q( String rulefile, String Rfile, String Sfile, String outputFile, DataInfo dataInfo, boolean joinOneSide )
+			throws IOException {
+		super( rulefile, Rfile, Sfile, outputFile, dataInfo, joinOneSide );
 
 		Record.setStrList( strlist );
 		idComparator = new RecordIDComparator();
