@@ -66,15 +66,19 @@ public class NaiveIndex {
 		stat.add( prefix + "_RemoveFound_Count", idx.removeFoundCount );
 	}
 
-	public List<IntegerPair> join( List<Record> tableSearched, StatContainer stat, long threshold, boolean addStat ) {
+	public List<IntegerPair> join( List<Record> tableSearched, StatContainer stat, long threshold, boolean addStat,
+			boolean oneSideJoin ) {
 		final List<IntegerPair> rslt = new ArrayList<>();
 		final long starttime = System.nanoTime();
 
 		for( int idxS = 0; idxS < tableSearched.size(); ++idxS ) {
 			final Record recS = tableSearched.get( idxS );
-			final long est = recS.getEstNumRecords();
-			if( threshold != -1 && est > threshold ) {
-				continue;
+
+			if( oneSideJoin ) {
+				final long est = recS.getEstNumRecords();
+				if( threshold != -1 && est > threshold ) {
+					continue;
+				}
 			}
 
 			joinOneRecord( recS, rslt );

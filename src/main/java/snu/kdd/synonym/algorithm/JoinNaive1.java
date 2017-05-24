@@ -156,7 +156,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		}
 
 		// Join
-		final List<IntegerPair> rslt = idx.join( tableSearched, stat, threshold, addStat );
+		final List<IntegerPair> rslt = idx.join( tableSearched, stat, threshold, addStat, oneSideJoin );
 
 		if( DEBUG.NaiveON ) {
 			stepTime.stopQuiet();
