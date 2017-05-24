@@ -268,6 +268,10 @@ public class NaiveIndex {
 			catch( IOException e ) {
 				e.printStackTrace();
 			}
+
+			System.out.println( "index" );
+			System.out.println( naiveIndex.idx );
+			System.out.println( "index" );
 		}
 
 		if( totalExpLength == 0 ) {
