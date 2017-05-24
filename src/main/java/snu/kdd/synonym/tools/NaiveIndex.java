@@ -242,6 +242,15 @@ public class NaiveIndex {
 				}
 			}
 			else {
+				if( DEBUG.PrintNaiveIndexON ) {
+					try {
+						bw.write( recR + "(" + i + ") -> " + recR + "\n" );
+					}
+					catch( IOException e ) {
+						e.printStackTrace();
+					}
+				}
+
 				naiveIndex.add( recR, i );
 			}
 
