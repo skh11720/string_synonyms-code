@@ -89,9 +89,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 			if( !oneSideJoin ) {
 				s.preprocessEstimatedRecords();
+				estTransformed += s.getEstNumRecords();
 			}
-
-			estTransformed += s.getEstNumRecords();
 		}
 
 		if( !oneSideJoin ) {
