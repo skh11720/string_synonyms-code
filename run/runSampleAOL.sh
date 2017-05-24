@@ -40,9 +40,9 @@ RUN_DEBUG=False
 
 
 #IDS=( 11 )
-IDS=( 8 9 10 11 )
+#IDS=( 8 9 10 11 )
 #IDS=( 6 7 8 )
-#IDS=( 1 2 3 4 5 )
+IDS=( 1 2 3 4 5 6 7 )
 #IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
 for nId in ${IDS[@]};
 do

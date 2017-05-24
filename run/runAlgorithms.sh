@@ -12,6 +12,7 @@ RUN_JoinMH=${11}
 RUN_JoinHybridOpt=${12}
 RUN_JoinHybridThres=${13}
 RUN_DEBUG=${14}
+oneSide=${15}
 
 LIBS=../target/Synonym.jar
 
@@ -30,18 +31,15 @@ echo RUN_JoinMH $RUN_JoinMH
 echo RUN_JoinHybridOpt $RUN_JoinHybridOpt
 echo RUN_JoinHybridThres $RUN_JoinHybridThres
 echo RUN_DEBUG $RUN_DEBUG
+echo ondSide $oneSide
 echo "--------------------------------------"
 
-if [[ $# -ne 14 ]];
-then
-	echo 'illegal number of parameters'
-else
+if [[ $# -ne 15 ]];
+	then
+		echo 'illegal number of parameters'
+	else
 
-PREV="None"
-if [ $# -ne 14 ];
-then
-	echo 'check number of parameters'
-else
+	PREV="None"
 	if [ ! -d 'logs' ];
 	then
 		mkdir logs
@@ -57,11 +55,16 @@ else
 		mkdir result
 	fi
 
+	if [ ! -d 'output' ];
+	then
+		mkdir output
+	fi
+
 	#JoinNaive1
 	if [[ $RUN_Naive1 == "True" ]];
 	then
 		date
-		./joinNaive1.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
+		./joinNaive1.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
 
 		#echo java -Xmx8G -Xms4G -cp $LIBS mine.Naive1 $inputfile_one $inputfile_two $rulefile -1
 		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.Naive1 $inputfile_one $inputfile_two $rulefile -1 > $dir"/"logNaive1; }
@@ -73,7 +76,7 @@ else
 	if [[ $RUN_Naive2 == "True" ]];
 	then
 		date
-		./joinNaive2.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
+		./joinNaive2.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
 		#echo java -Xmx8G -Xms4G -cp $LIBS mine.Naive2 $inputfile_one $inputfile_two $rulefile
 		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.Naive2 $inputfile_one $inputfile_two $rulefile > $dir"/"logNaive2; }
 		date
@@ -86,7 +89,7 @@ else
 	if [[ $RUN_SIJoin == "True" ]];
 	then
 		date
-		./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
+		./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
 		#echo java -Xmx8G -Xms4G -cp $LIBS sigmod13.modified.SI_Join_Modified $inputfile_one $inputfile_two $rulefile
 		#{ time java -Xmx8G -Xms4G -cp $LIBS sigmod13.modified.SI_Join_Modified $inputfile_one $inputfile_two $rulefile rslt_sijoin.txt > $dir"/"logSIJoin; }
 		date
@@ -100,7 +103,7 @@ else
 	then
 		for q in {2..2..1}; do
 			date
-			./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project
+			./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project $oneSide
 			#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
 			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
 			date
@@ -122,7 +125,7 @@ else
 			#for q in {1..3..1}; do
 
 				date
-				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project
+				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide
 				date
 				./compare.sh $PREV JoinMH_QL
 			done
@@ -145,7 +148,7 @@ else
 		for q in {2..2..1}; do
 			for sampling in "${samplings[@]}"; do
 				date
-				./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $q $project
+				./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $q $project $oneSide
 
 				#echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling
 				#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logHybrid2GramWithOptTheta3_$sampling; }
@@ -170,7 +173,7 @@ else
 		for q in {2..2..1}; do
 			for threshold in "${thresholds[@]}"; do
 				date
-				./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $q $project
+				./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $q $project $oneSide
 
 				#echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold
 				#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold > $dir"/"logHybrid2GramA3_$threshold; }
@@ -187,7 +190,7 @@ else
 	then
 		for q in {2..2..1}; do
 			date
-			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project
+			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project $oneSide
 			date
 
 			./compare.sh $PREV JoinMinTwo_Q
@@ -196,5 +199,4 @@ else
 	fi
 
 	./upload.sh
-fi
 fi

@@ -5,14 +5,15 @@ outputPath=$4
 logdir=$5
 LIBS=$6
 project=$7
+oneSide=$8
 
 ADDITIONAL="-1"
 
 ALG=JoinNaive1
 
-if [[ $# -ne 7 ]];
+if [[ $# -ne 8 ]];
 then
-	echo 'illegal number of parameters: [$ALG]'
+	echo illegal number of parameters: [$ALG]
 	echo 1 $1
 	echo 2 $2
 	echo 3 $3
@@ -20,6 +21,7 @@ then
 	echo 5 $5
 	echo 6 $6
 	echo 7 $7
+	echo oneSide $oneSide
 else
 	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
