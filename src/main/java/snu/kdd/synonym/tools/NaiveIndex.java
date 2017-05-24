@@ -103,11 +103,10 @@ public class NaiveIndex {
 	}
 
 	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
-		// boolean debug = false;
-
-		// if( recS.toString().equals( "create new screennames " ) ) {
-		// debug = true;
-		// }
+		boolean debug = false;
+		if( recS.toString().equals( "judas iscariot calliari Road burbach SC 76788 " ) ) {
+			debug = true;
+		}
 
 		long expandStartTime = System.nanoTime();
 		// final List<Record> expanded = recS.expandAll( ruletrie );
@@ -120,6 +119,11 @@ public class NaiveIndex {
 
 		long searchStartTime = System.nanoTime();
 		for( final Record exp : expanded ) {
+
+			if( debug ) {
+				System.out.println( exp );
+			}
+
 			final List<Integer> overlapidx = idx.get( exp );
 			if( overlapidx == null ) {
 				continue;
