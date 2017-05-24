@@ -139,7 +139,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 			initialSize = 1;
 		}
 
-		naiveIndex = NaiveIndex.buildIndex( tableIndexed, initialSize, stat, joinThreshold, true );
+		naiveIndex = NaiveIndex.buildIndex( tableIndexed, initialSize, stat, joinThreshold, true, oneSideJoin );
 	}
 
 	/**

@@ -153,7 +153,7 @@ public class NaiveIndex {
 	}
 
 	public static NaiveIndex buildIndex( List<Record> tableIndexed, double avgTransformed, StatContainer stat, long threshold,
-			boolean addStat ) {
+			boolean addStat, boolean oneSideJoin ) {
 		final long starttime = System.nanoTime();
 		int initialsize = (int) ( tableIndexed.size() * avgTransformed / 2 );
 
@@ -208,26 +208,34 @@ public class NaiveIndex {
 				expandTime += System.nanoTime() - expandStartTime;
 			}
 
-			totalExpLength += expanded.size() * recR.getTokenArray().length;
-			totalExp += expanded.size();
+			if( !oneSideJoin ) {
+				totalExpLength += expanded.size() * recR.getTokenArray().length;
+				totalExp += expanded.size();
+			}
 
 			long indexingStartTime = System.nanoTime();
-			for( final Record exp : expanded ) {
-				naiveIndex.add( exp, i );
 
-				if( DEBUG.PrintNaiveIndexON ) {
-					try {
-						bw.write( recR + "(" + i + ") -> " + exp + "\n" );
+			if( !oneSideJoin ) {
+				for( final Record exp : expanded ) {
+					naiveIndex.add( exp, i );
+
+					if( DEBUG.PrintNaiveIndexON ) {
+						try {
+							bw.write( recR + "(" + i + ") -> " + exp + "\n" );
+						}
+						catch( IOException e ) {
+							e.printStackTrace();
+						}
 					}
-					catch( IOException e ) {
-						e.printStackTrace();
-					}
+
+					idxsize++;
 				}
-
-				idxsize++;
 			}
-			indexingTime += System.nanoTime() - indexingStartTime;
+			else {
+				naiveIndex.add( recR, i );
+			}
 
+			indexingTime += System.nanoTime() - indexingStartTime;
 		}
 
 		if( DEBUG.PrintNaiveIndexON ) {

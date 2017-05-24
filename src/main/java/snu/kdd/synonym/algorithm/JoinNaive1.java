@@ -52,6 +52,58 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		ruletrie = new RuleTrie( getRulelist() );
 	}
 
+	private void preprocess() {
+		if( DEBUG.NaiveON ) {
+			stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		}
+
+		long applicableRules = 0;
+
+		for( final Record t : tableSearched ) {
+			t.preprocessRules( automata, false );
+
+			if( DEBUG.NaiveON ) {
+				applicableRules += t.getNumApplicableRules();
+			}
+
+			if( !oneSideJoin ) {
+				t.preprocessEstimatedRecords();
+			}
+		}
+
+		if( DEBUG.NaiveON ) {
+			stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+		}
+
+		if( DEBUG.NaiveON ) {
+			applicableRules = 0;
+		}
+
+		long estTransformed = 0;
+		for( final Record s : tableIndexed ) {
+			s.preprocessRules( automata, false );
+
+			if( DEBUG.NaiveON ) {
+				applicableRules += s.getNumApplicableRules();
+			}
+
+			if( !oneSideJoin ) {
+				s.preprocessEstimatedRecords();
+			}
+
+			estTransformed += s.getEstNumRecords();
+		}
+
+		if( !oneSideJoin ) {
+			avgTransformed = estTransformed / (double) tableIndexed.size();
+		}
+
+		if( DEBUG.NaiveON ) {
+			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
+			stat.add( "Stat_Avg_Transformed_TableIndexed", Double.toString( avgTransformed ) );
+		}
+	}
+
 	@Override
 	public void run( String[] args ) {
 		if( args.length != 1 ) {
@@ -94,7 +146,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		}
 
-		idx = NaiveIndex.buildIndex( tableIndexed, avgTransformed, stat, threshold, addStat );
+		idx = NaiveIndex.buildIndex( tableIndexed, avgTransformed, stat, threshold, addStat, oneSideJoin );
 
 		if( DEBUG.NaiveON ) {
 			stepTime.stopQuiet();
@@ -119,40 +171,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		}
 
 		return rslt;
-	}
-
-	private void preprocess() {
-		if( DEBUG.NaiveON ) {
-			stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		}
-
-		@SuppressWarnings( "unused" )
-		long applicableRules = 0;
-		for( final Record t : tableSearched ) {
-			t.preprocessRules( automata, false );
-			applicableRules += t.getNumApplicableRules();
-			t.preprocessEstimatedRecords();
-		}
-
-		if( DEBUG.NaiveON ) {
-			stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
-		}
-
-		applicableRules = 0;
-		long estTransformed = 0;
-		for( final Record s : tableIndexed ) {
-			s.preprocessRules( automata, false );
-			applicableRules += s.getNumApplicableRules();
-			s.preprocessEstimatedRecords();
-
-			estTransformed += s.getEstNumRecords();
-		}
-		avgTransformed = estTransformed / (double) tableIndexed.size();
-
-		if( DEBUG.NaiveON ) {
-			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
-			stat.add( "Stat_Avg_Transformed_TableIndexed", Double.toString( avgTransformed ) );
-		}
 	}
 
 	public double getAlpha() {

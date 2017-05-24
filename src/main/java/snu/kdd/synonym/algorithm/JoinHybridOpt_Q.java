@@ -241,7 +241,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	}
 
 	private void buildNaiveIndex() {
-		naiveIndex = NaiveIndex.buildIndex( tableIndexed, joinThreshold / 2, stat, joinThreshold, false );
+		naiveIndex = NaiveIndex.buildIndex( tableIndexed, joinThreshold / 2, stat, joinThreshold, false, oneSideJoin );
 	}
 
 	/**
