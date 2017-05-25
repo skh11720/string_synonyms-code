@@ -141,10 +141,39 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 					int i = 0;
 					for( ; i < items.length - qgramSize + 1; i++ ) {
+
+						if( i >= maxIndexLength )
+							break;
+
 						int[] qgramArray = new int[ qgramSize ];
 
 						for( int j = 0; j < qgramSize; j++ ) {
 							qgramArray[ j ] = items[ i + j ];
+						}
+
+						QGram qgram = new QGram( qgramArray );
+
+						Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
+
+						List<IntIntRecordTriple> list = map.get( qgram );
+						if( list == null ) {
+							list = new ArrayList<IntIntRecordTriple>();
+							map.put( qgram, list );
+						}
+						list.add( new IntIntRecordTriple( range[ 0 ], range[ 1 ], rec ) );
+
+						elements += 1;
+					}
+
+					for( ; i < maxIndexLength; i++ ) {
+						int[] qgramArray = new int[ qgramSize ];
+						for( int j = 0; j < qgramSize; j++ ) {
+							if( i + j < items.length ) {
+								qgramArray[ j ] = items[ i + j ];
+							}
+							else {
+								qgramArray[ j ] = Integer.MAX_VALUE;
+							}
 						}
 
 						QGram qgram = new QGram( qgramArray );
