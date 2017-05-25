@@ -42,6 +42,21 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		super( rulefile, Rfile, Sfile, outFile, dataInfo, joinOneSide, stat );
 	}
 
+	@Override
+	public void run( String[] args ) {
+		Param params = Param.parseArgs( args, stat );
+
+		maxIndexLength = params.getMaxIndex();
+		qgramSize = params.getQGramSize();
+
+		// Setup parameters
+		checker = params.getValidator();
+
+		run();
+
+		Validator.printStats();
+	}
+
 	public void run() {
 		StopWatch stepTime = null;
 		StopWatch runTime = null;
@@ -101,22 +116,52 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 			for( Record rec : tableIndexed ) {
 				// long recordStartTime = System.nanoTime();
-				List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize, maxIndexLength );
 
 				int[] range = rec.getCandidateLengths( rec.size() - 1 );
-				int boundary = Math.min( range[ 1 ], maxIndexLength );
-				for( int i = 0; i < boundary; ++i ) {
-					Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
-					for( QGram qgram : availableQGrams.get( i ) ) {
+
+				if( !oneSideJoin ) {
+					List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize, maxIndexLength );
+
+					int boundary = Math.min( range[ 1 ], maxIndexLength );
+					for( int i = 0; i < boundary; ++i ) {
+						Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
+						for( QGram qgram : availableQGrams.get( i ) ) {
+							List<IntIntRecordTriple> list = map.get( qgram );
+							if( list == null ) {
+								list = new ArrayList<IntIntRecordTriple>();
+								map.put( qgram, list );
+							}
+							list.add( new IntIntRecordTriple( range[ 0 ], range[ 1 ], rec ) );
+						}
+						elements += availableQGrams.get( i ).size();
+					}
+				}
+				else {
+					int[] items = rec.getTokenArray();
+
+					int i = 0;
+					for( ; i < items.length - qgramSize + 1; i++ ) {
+						int[] qgramArray = new int[ qgramSize ];
+
+						for( int j = 0; j < qgramSize; j++ ) {
+							qgramArray[ j ] = items[ i + j ];
+						}
+
+						QGram qgram = new QGram( qgramArray );
+
+						Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
+
 						List<IntIntRecordTriple> list = map.get( qgram );
 						if( list == null ) {
 							list = new ArrayList<IntIntRecordTriple>();
 							map.put( qgram, list );
 						}
 						list.add( new IntIntRecordTriple( range[ 0 ], range[ 1 ], rec ) );
+
+						elements += 1;
 					}
-					elements += availableQGrams.get( i ).size();
 				}
+
 				// long recordTime = System.nanoTime() - recordStartTime;
 				//
 				// // TODO DEBUG
@@ -132,68 +177,65 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			if( DEBUG.JoinMHOn ) {
 				stat.add( "Stat_Index_Size", elements );
 				System.out.println( "Index size : " + elements );
-			}
 
-			// computes the statistics of the indexes
-			String indexStr = "";
-			for( int i = 0; i < maxIndexLength; ++i ) {
-				Map<QGram, List<IntIntRecordTriple>> ithidx = idx.get( i );
+				// computes the statistics of the indexes
+				String indexStr = "";
+				for( int i = 0; i < maxIndexLength; ++i ) {
+					Map<QGram, List<IntIntRecordTriple>> ithidx = idx.get( i );
 
-				if( DEBUG.JoinMHOn ) {
-					System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
-				}
-
-				// Statistics
-				@SuppressWarnings( "unused" )
-				int sum = 0;
-
-				long singlelistsize = 0;
-				long count = 0;
-				// long sqsum = 0;
-				for( Map.Entry<QGram, List<IntIntRecordTriple>> entry : ithidx.entrySet() ) {
-					List<IntIntRecordTriple> list = entry.getValue();
-
-					// bw.write( "Key " + Record.strlist.get( entry.getKey().i1 ) + " " + Record.strlist.get( entry.getKey().i2 )
-					// + "\n" );
-					// for( IntIntRecordTriple triple : list ) {
-					// bw.write( triple.toString() + "\n" );
-					// }
-
-					// sqsum += list.size() * list.size();
-					if( list.size() == 1 ) {
-						++singlelistsize;
-						continue;
+					if( DEBUG.JoinMHOn ) {
+						System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
 					}
-					sum++;
-					count += list.size();
+
+					// Statistics
+					int sum = 0;
+
+					long singlelistsize = 0;
+					long count = 0;
+					// long sqsum = 0;
+					for( Map.Entry<QGram, List<IntIntRecordTriple>> entry : ithidx.entrySet() ) {
+						List<IntIntRecordTriple> list = entry.getValue();
+
+						// bw.write( "Key " + Record.strlist.get( entry.getKey().i1 ) + " " + Record.strlist.get( entry.getKey().i2 )
+						// + "\n" );
+						// for( IntIntRecordTriple triple : list ) {
+						// bw.write( triple.toString() + "\n" );
+						// }
+
+						// sqsum += list.size() * list.size();
+						if( list.size() == 1 ) {
+							++singlelistsize;
+							continue;
+						}
+						sum++;
+						count += list.size();
+					}
+
+					if( DEBUG.JoinMHOn ) {
+						System.out.println( i + "th Single value list size : " + singlelistsize );
+						System.out.println( i + "th iIdx size(w/o 1) : " + count );
+						System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+						// System.out.println( i + "th Sqsum : " + sqsum );
+					}
+
+					long totalCount = count + singlelistsize;
+					int exp = 0;
+					while( totalCount / 1000 != 0 ) {
+						totalCount = totalCount / 1000;
+						exp++;
+					}
+
+					if( exp == 1 ) {
+						indexStr = indexStr + totalCount + "k ";
+					}
+					else if( exp == 2 ) {
+						indexStr = indexStr + totalCount + "M ";
+					}
+					else {
+						indexStr = indexStr + totalCount + "G ";
+					}
 				}
 
-				if( DEBUG.JoinMHOn ) {
-					System.out.println( i + "th Single value list size : " + singlelistsize );
-					System.out.println( i + "th iIdx size(w/o 1) : " + count );
-					System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-					// System.out.println( i + "th Sqsum : " + sqsum );
-				}
-
-				long totalCount = count + singlelistsize;
-				int exp = 0;
-				while( totalCount / 1000 != 0 ) {
-					totalCount = totalCount / 1000;
-					exp++;
-				}
-
-				if( exp == 1 ) {
-					indexStr = indexStr + totalCount + "k ";
-				}
-				else if( exp == 2 ) {
-					indexStr = indexStr + totalCount + "M ";
-				}
-				else {
-					indexStr = indexStr + totalCount + "G ";
-				}
-			}
-
-			if( DEBUG.JoinMHOn ) {
 				stat.add( "Stat_Index_Size_Per_Position", indexStr );
 
 				for( int i = 0; i < idx.size(); i++ ) {
@@ -396,18 +438,4 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		return "JoinMH_QL";
 	}
 
-	@Override
-	public void run( String[] args ) {
-		Param params = Param.parseArgs( args, stat );
-
-		maxIndexLength = params.getMaxIndex();
-		qgramSize = params.getQGramSize();
-
-		// Setup parameters
-		checker = params.getValidator();
-
-		run();
-
-		Validator.printStats();
-	}
 }
