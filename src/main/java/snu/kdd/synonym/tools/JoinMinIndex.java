@@ -599,6 +599,9 @@ public class JoinMinIndex {
 				if( compare >= 0 ) {
 					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 					appliedRulesSum += compare;
+
+					// DEBUG
+					System.out.println( "JoinMin rslt " + recS + ", " + recR );
 				}
 			}
 		}

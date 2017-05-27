@@ -10,8 +10,8 @@ public class TopDownHashSetSinglePath_DS_OneSide extends Validator {
 		if( areSameString( x, y ) )
 			return 0;
 		// DEBUG
-		System.out.println( x );
-		System.out.println( y );
+		// System.out.println( x );
+		// System.out.println( y );
 
 		boolean[][] isValid = new boolean[ x.size() ][ y.size() ];
 		boolean[][] isEquiv = new boolean[ x.size() ][ y.size() ];
@@ -70,7 +70,7 @@ public class TopDownHashSetSinglePath_DS_OneSide extends Validator {
 			}
 
 			if( candidate ) {
-				System.out.println( "Cand rule: " + rule.toTextString( Record.strlist ) );
+				// System.out.println( "Cand rule: " + rule.toTextString( Record.strlist ) );
 
 				boolean equiv = getMyEqual( x, y, xIdx - lhs.length, yIdx - rhs.length, isValid, isEquiv );
 				if( equiv ) {
