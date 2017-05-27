@@ -760,7 +760,7 @@ public class JoinMinIndex {
 
 				if( oneSideJoin ) {
 					availableQGrams = rec.getSelfQGrams( qSize, searchmax );
-					System.out.println( availableQGrams.toString() );
+					// System.out.println( availableQGrams.toString() );
 				}
 				else {
 					availableQGrams = rec.getQGrams( qSize, searchmax );
