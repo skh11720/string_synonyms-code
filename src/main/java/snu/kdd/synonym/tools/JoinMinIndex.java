@@ -601,7 +601,9 @@ public class JoinMinIndex {
 					appliedRulesSum += compare;
 
 					// DEBUG
-					System.out.println( "JoinMin rslt " + recS + ", " + recR );
+					if( recS.getID() != recR.getID() ) {
+						System.out.println( "JoinMin rslt " + recS + ", " + recR );
+					}
 				}
 			}
 		}

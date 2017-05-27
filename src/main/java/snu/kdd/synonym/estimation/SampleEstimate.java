@@ -537,7 +537,9 @@ public class SampleEstimate {
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		int prevAddedIndex = -1;
 
-		Util.printLog( "MaxThreshold " + maxThreshold );
+		if( DEBUG.SampleStatOn ) {
+			Util.printLog( "MaxThreshold " + maxThreshold );
+		}
 
 		boolean stop = false;
 		if( maxThreshold == Long.MAX_VALUE ) {
@@ -575,7 +577,10 @@ public class SampleEstimate {
 					}
 				}
 			}
-			Util.printLog( "searchedIdx " + searchedIdx );
+
+			if( DEBUG.SampleStatOn ) {
+				Util.printLog( "searchedIdx " + searchedIdx );
+			}
 
 			double removedComparison = 0;
 
@@ -635,8 +640,10 @@ public class SampleEstimate {
 				joinminEstimation = this.getEstimateJoinMin( 0, 0, -removedComparison );
 			}
 
-			Util.printLog( "T: " + currentThreshold + " nT: " + nextThreshold + " NT: " + naiveEstimation + " JT: "
-					+ joinminEstimation );
+			if( DEBUG.SampleStatOn ) {
+				Util.printLog( "T: " + currentThreshold + " nT: " + nextThreshold + " NT: " + naiveEstimation + " JT: "
+						+ joinminEstimation );
+			}
 
 			if( bestEstTime > joinminEstimation + naiveEstimation ) {
 				bestEstTime = joinminEstimation + naiveEstimation;
@@ -648,7 +655,9 @@ public class SampleEstimate {
 					currentThreshold = Integer.MAX_VALUE;
 				}
 
-				Util.printLog( "New Best " + bestThreshold );
+				if( DEBUG.SampleStatOn ) {
+					Util.printLog( "New Best " + bestThreshold );
+				}
 			}
 
 			currentThreshold = nextThreshold;
