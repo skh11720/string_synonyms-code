@@ -74,6 +74,7 @@ public class TopDownHashSetSinglePath_DS_OneSide extends Validator {
 				if( equiv ) {
 					isValid[ xIdx ][ yIdx ] = true;
 					isEquiv[ xIdx ][ yIdx ] = true;
+					return true;
 				}
 			}
 
