@@ -118,7 +118,7 @@ public class Param {
 				param.validator = new BottomUpHashSetSinglePath_DS();
 				break;
 			case TopDownHashSetSinglePathDS:
-				if( cmd.hasOption( "OneSide" ) ) {
+				if( cmd.hasOption( "oneSide" ) ) {
 					param.validator = new TopDownHashSetSinglePath_DS_OneSide();
 				}
 				else {
