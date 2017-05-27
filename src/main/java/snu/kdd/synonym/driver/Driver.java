@@ -181,7 +181,12 @@ public class Driver {
 			initializeTime.stopAndAdd( stat );
 		}
 
-		alg.run( cmd.getOptionValue( "additional", "" ).split( " " ) );
+		String additionalOptions = cmd.getOptionValue( "additional", "" );
+		if( oneSideJoin ) {
+			additionalOptions = additionalOptions + " -oneSide";
+		}
+
+		alg.run( additionalOptions.split( " " ) );
 
 		totalTime.stop();
 

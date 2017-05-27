@@ -14,6 +14,7 @@ import validator.BottomUpMatrix_SS;
 import validator.BottomUpQueue_DS;
 import validator.Naive_DS;
 import validator.TopDownHashSetSinglePath_DS;
+import validator.TopDownHashSetSinglePath_DS_OneSide;
 import validator.TopDownHashSetSinglePath_DS_SharedPrefix;
 import validator.TopDownMatrix_DS;
 import validator.Validator;
@@ -41,7 +42,7 @@ public class Param {
 				.desc( "If number of expanded record is less of equal to T," + " use naive method (for hybrid algorithms only)" )
 				.numberOfArgs( 1 ).build() );
 		options.addOption( Option.builder( "s" ).hasArg( true ).desc( "Sampling ratio" ).build() );
-
+		options.addOption( "oneSide", false, "One side join" );
 		// added by yjpark
 		options.addOption( "qSize", true, "Q gram size" );
 
@@ -80,8 +81,9 @@ public class Param {
 				param.useLengthFilter = false;
 			if( cmd.hasOption( "v" ) ) {
 				vname = ValidatorName.valueOf( cmd.getOptionValue( "v" ) );
-				if( vname == ValidatorName.Naive )
+				if( vname == ValidatorName.Naive ) {
 					vthreshold = Integer.parseInt( cmd.getOptionValues( "v" )[ 1 ] );
+				}
 			}
 			if( cmd.hasOption( "joinExpandThreshold" ) )
 				param.joinThreshold = Integer.parseInt( cmd.getOptionValue( "joinExpandThreshold" ) );
@@ -116,7 +118,12 @@ public class Param {
 				param.validator = new BottomUpHashSetSinglePath_DS();
 				break;
 			case TopDownHashSetSinglePathDS:
-				param.validator = new TopDownHashSetSinglePath_DS();
+				if( cmd.hasOption( "OneSide" ) ) {
+					param.validator = new TopDownHashSetSinglePath_DS_OneSide();
+				}
+				else {
+					param.validator = new TopDownHashSetSinglePath_DS();
+				}
 				break;
 			case TopDownHashSetSinglePathDSSharedPrefix:
 				param.validator = new TopDownHashSetSinglePath_DS_SharedPrefix();
