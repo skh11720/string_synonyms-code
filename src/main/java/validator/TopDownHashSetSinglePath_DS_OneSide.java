@@ -68,7 +68,7 @@ public class TopDownHashSetSinglePath_DS_OneSide extends Validator {
 			}
 
 			if( candidate ) {
-				System.out.println( "Cand rule: " + rule );
+				System.out.println( "Cand rule: " + rule.toTextString( Record.strlist ) );
 
 				boolean equiv = getMyEqual( x, y, xIdx - lhs.length, yIdx - rhs.length, isValid, isEquiv );
 				if( equiv ) {
