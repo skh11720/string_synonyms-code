@@ -105,8 +105,8 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args ) {
-		if( args.length != 1 ) {
-			System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold>" );
+		if( args.length < 1 ) {
+			System.out.println( "Usage : <R file> <S file> <Rule file> <output file> <exp threshold> <oneSide>" );
 		}
 		this.threshold = Long.valueOf( args[ 0 ] );
 
