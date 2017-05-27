@@ -166,7 +166,14 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		if( joinMinRequired ) {
 			for( Record s : tableSearched ) {
-				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
+				if( oneSideJoin ) {
+					if( s.getEstNumRecords() > joinThreshold ) {
+						joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold, oneSideJoin );
+					}
+				}
+				else {
+					joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold, oneSideJoin );
+				}
 			}
 			clearJoinMinIndex();
 

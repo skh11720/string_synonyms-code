@@ -273,8 +273,17 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long joinstart = System.nanoTime();
 		if( joinMinRequired ) {
-			for( Record s : tableSearched ) {
-				joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold );
+			if( oneSideJoin ) {
+				for( Record s : tableSearched ) {
+					if( s.getEstNumRecords() > joinThreshold ) {
+						joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold, oneSideJoin );
+					}
+				}
+			}
+			else {
+				for( Record s : tableSearched ) {
+					joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold, oneSideJoin );
+				}
 			}
 		}
 		double joinminJointime = System.nanoTime() - joinstart;

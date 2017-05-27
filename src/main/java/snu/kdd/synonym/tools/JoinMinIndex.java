@@ -503,7 +503,7 @@ public class JoinMinIndex {
 	}
 
 	public void joinRecordThres( Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker,
-			int threshold ) {
+			int threshold, boolean oneSideJoin ) {
 		long qgramStartTime = 0;
 		long joinStartTime = 0;
 		long qgramCount = 0;
@@ -552,7 +552,7 @@ public class JoinMinIndex {
 
 				for( int idx = tree.size() - 1; idx >= 0; idx-- ) {
 					Record e = tree.get( idx );
-					if( !isUpperRecord && e.getEstNumRecords() <= threshold ) {
+					if( !oneSideJoin && !isUpperRecord && e.getEstNumRecords() <= threshold ) {
 						break;
 					}
 					else if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
