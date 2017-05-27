@@ -116,7 +116,7 @@ public class JoinHybridThres_Q extends AlgorithmTemplate {
 	private void buildJoinMinIndex() {
 		// Build an index
 		// Count Invokes per each (token, loc) pair
-		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true );
+		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true, oneSideJoin );
 		// joinMinIdx = JoinMinIndex.buildIndexThreshold( tableSearched, tableIndexed, maxIndex, qSize, stat, true, joinThreshold );
 	}
 

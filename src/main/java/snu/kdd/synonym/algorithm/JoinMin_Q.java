@@ -61,7 +61,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 	}
 
 	private void buildIndex( boolean writeResult ) throws IOException {
-		idx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, writeResult );
+		idx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, writeResult, oneSideJoin );
 	}
 
 	public void statistics() {

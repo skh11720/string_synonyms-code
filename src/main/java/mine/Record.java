@@ -486,6 +486,37 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		return resultQGram;
 	}
 
+	public List<List<QGram>> getSelfQGrams( int q, int range ) {
+		getQGramCount++;
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
+
+		int maxLength = Integer.min( range, getMaxLength() );
+		for( int i = 0; i < maxLength; i++ ) {
+			positionalQGram.add( new ArrayList<QGram>( 1 ) );
+		}
+
+		int i = 0;
+		for( ; i < tokens.length - q + 1; i++ ) {
+
+			if( i >= maxLength )
+				break;
+
+			int[] qgramArray = new int[ q ];
+
+			for( int j = 0; j < q; j++ ) {
+				qgramArray[ j ] = tokens[ i + j ];
+			}
+
+			QGram qgram = new QGram( qgramArray );
+
+			List<QGram> list = positionalQGram.get( i );
+
+			list.add( qgram );
+		}
+
+		return positionalQGram;
+	}
+
 	public List<List<QGram>> getQGrams( int q, int range ) {
 		getQGramCount++;
 		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();

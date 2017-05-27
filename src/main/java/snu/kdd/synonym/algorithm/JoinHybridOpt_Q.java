@@ -237,7 +237,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 
 	private void buildJoinMinIndex() {
 		// Build an index
-		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true );
+		joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true, oneSideJoin );
 	}
 
 	private void buildNaiveIndex() {

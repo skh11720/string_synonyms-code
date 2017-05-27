@@ -625,7 +625,7 @@ public class JoinMinIndex {
 	}
 
 	public static JoinMinIndex buildIndex( List<Record> tableSearched, List<Record> tableIndexed, int maxIndex, int qSize,
-			StatContainer stat, boolean writeResult ) {
+			StatContainer stat, boolean writeResult, boolean oneSideJoin ) {
 		long starttime = System.nanoTime();
 
 		// Build an index
@@ -756,7 +756,15 @@ public class JoinMinIndex {
 
 				int searchmax = Math.min( range[ 0 ], invokes.size() );
 
-				List<List<QGram>> availableQGrams = rec.getQGrams( qSize, searchmax );
+				List<List<QGram>> availableQGrams = null;
+
+				if( oneSideJoin ) {
+					availableQGrams = rec.getSelfQGrams( qSize, searchmax );
+				}
+				else {
+					availableQGrams = rec.getQGrams( qSize, searchmax );
+				}
+
 				for( List<QGram> set : availableQGrams ) {
 					idx.indexedTotalSigCount += set.size();
 				}
