@@ -7,6 +7,8 @@ public class TopDownHashSetSinglePath_DS_OneSide extends Validator {
 
 	@Override
 	public int isEqual( Record x, Record y ) {
+		if( areSameString( x, y ) )
+			return 0;
 		// DEBUG
 		System.out.println( x );
 		System.out.println( y );
