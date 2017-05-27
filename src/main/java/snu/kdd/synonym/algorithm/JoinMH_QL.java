@@ -2,6 +2,7 @@ package snu.kdd.synonym.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	@Override
 	public void run( String[] args ) {
+		System.out.println( Arrays.toString( args ) );
 		Param params = Param.parseArgs( args, stat );
 
 		maxIndexLength = params.getMaxIndex();
