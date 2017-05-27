@@ -514,6 +514,24 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			list.add( qgram );
 		}
 
+		for( ; i < maxLength; i++ ) {
+			int[] qgramArray = new int[ q ];
+			for( int j = 0; j < q; j++ ) {
+				if( i + j < tokens.length ) {
+					qgramArray[ j ] = tokens[ i + j ];
+				}
+				else {
+					qgramArray[ j ] = Integer.MAX_VALUE;
+				}
+			}
+
+			QGram qgram = new QGram( qgramArray );
+
+			List<QGram> list = positionalQGram.get( i );
+
+			list.add( qgram );
+		}
+
 		return positionalQGram;
 	}
 
