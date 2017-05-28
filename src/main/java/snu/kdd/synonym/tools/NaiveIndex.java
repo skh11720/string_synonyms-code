@@ -107,7 +107,7 @@ public class NaiveIndex {
 		// if( recS.toString().equals( "david almeroth Road cicchetto ALASKA 48939 " ) ) {
 		// debug = true;
 		// }
-		System.out.println( "join " + recS );
+		// System.out.println( "join " + recS );
 
 		long expandStartTime = System.nanoTime();
 		// final List<Record> expanded = recS.expandAll( ruletrie );
@@ -145,7 +145,7 @@ public class NaiveIndex {
 
 			// DEBUG
 			// if( debug ) {
-			System.out.println( "naive " + recS + " " + recS.getID() + " " + idx );
+			// System.out.println( "naive " + recS + " " + recS.getID() + " " + idx );
 			// }
 
 			rslt.add( new IntegerPair( recS.getID(), idx ) );

@@ -508,6 +508,8 @@ public class JoinMinIndex {
 		long joinStartTime = 0;
 		long qgramCount = 0;
 
+		System.out.println( "recS " + recS );
+
 		boolean isUpperRecord = recS.getEstNumRecords() > threshold;
 
 		if( DEBUG.JoinMinON ) {
