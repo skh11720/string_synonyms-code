@@ -10,8 +10,8 @@ public class TopDownHashSetSinglePath_DS_OneSide extends Validator {
 		if( areSameString( x, y ) )
 			return 0;
 		// DEBUG
-		System.out.println( x );
-		System.out.println( y );
+		System.out.println( "x " + x );
+		System.out.println( "y " + y );
 
 		boolean[][] isValid = new boolean[ x.size() ][ y.size() ];
 		boolean[][] isEquiv = new boolean[ x.size() ][ y.size() ];
