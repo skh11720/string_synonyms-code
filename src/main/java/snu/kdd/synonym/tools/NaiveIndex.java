@@ -107,6 +107,7 @@ public class NaiveIndex {
 		// if( recS.toString().equals( "david almeroth Road cicchetto ALASKA 48939 " ) ) {
 		// debug = true;
 		// }
+		System.out.println( "join " + recS );
 
 		long expandStartTime = System.nanoTime();
 		// final List<Record> expanded = recS.expandAll( ruletrie );
