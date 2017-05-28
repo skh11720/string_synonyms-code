@@ -275,6 +275,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		if( joinMinRequired ) {
 			if( oneSideJoin ) {
 				for( Record s : tableSearched ) {
+					System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumRecords() > joinThreshold ) {
 						joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold, oneSideJoin );
 					}
