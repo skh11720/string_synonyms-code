@@ -602,7 +602,7 @@ public class JoinMinIndex {
 
 					// DEBUG
 					// if( recS.getID() != recR.getID() ) {
-					// System.out.println( "JoinMin rslt " + recS + " " + recS.getID() + ", " + recR + " " + recR.getID() );
+					System.out.println( "JoinMin rslt " + recS + " " + recS.getID() + ", " + recR + " " + recR.getID() );
 					// }
 				}
 			}

@@ -144,7 +144,7 @@ public class NaiveIndex {
 
 			// DEBUG
 			// if( debug ) {
-			// System.out.println( recS + " " + recS.getID() + " " + idx );
+			System.out.println( recS + " " + recS.getID() + " " + idx );
 			// }
 
 			rslt.add( new IntegerPair( recS.getID(), idx ) );
