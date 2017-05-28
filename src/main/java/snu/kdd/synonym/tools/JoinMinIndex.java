@@ -584,7 +584,7 @@ public class JoinMinIndex {
 					st = System.nanoTime();
 				}
 
-				int compare = checker.isEqual( recR, recS );
+				int compare = checker.isEqual( recS, recR );
 
 				if( DEBUG.JoinMinON ) {
 					ruleiters = Validator.niterrules - ruleiters;
