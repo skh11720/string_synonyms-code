@@ -121,7 +121,8 @@ public class JoinMinIndex {
 		list.add( rec );
 	}
 
-	public List<IntegerPair> join( List<Record> tableSearched, boolean writeResult, StatContainer stat, Validator checker ) {
+	public List<IntegerPair> join( List<Record> tableSearched, boolean writeResult, StatContainer stat, Validator checker,
+			boolean oneSideJoin ) {
 		BufferedWriter bw = null;
 
 		if( DEBUG.JoinMinJoinON ) {
@@ -137,7 +138,7 @@ public class JoinMinIndex {
 
 		long joinStartTime = System.nanoTime();
 		for( Record recS : tableSearched ) {
-			joinRecord( recS, rslt, writeResult, bw, checker );
+			joinRecord( recS, rslt, writeResult, bw, checker, oneSideJoin );
 		}
 		joinTime = System.nanoTime() - joinStartTime;
 
@@ -264,7 +265,8 @@ public class JoinMinIndex {
 		return rslt;
 	}
 
-	public void joinRecord( Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker ) {
+	public void joinRecord( Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker,
+			boolean oneSideJoin ) {
 		long qgramStartTime = 0;
 		long joinStartTime = 0;
 		long qgramCount = 0;
@@ -316,15 +318,30 @@ public class JoinMinIndex {
 				}
 
 				for( Record e : tree ) {
-					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						// if( debug ) {
-						// System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
-						// }
-						candidates.add( e );
-						comparisonCount++;
+					if( oneSideJoin ) {
+						if( StaticFunctions.overlap( e.getTokenArray().length, e.getTokenArray().length, range[ 0 ],
+								range[ 1 ] ) ) {
+							// if( debug ) {
+							// System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
+							// }
+							candidates.add( e );
+							comparisonCount++;
+						}
+						else {
+							lengthFiltered++;
+						}
 					}
 					else {
-						lengthFiltered++;
+						if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+							// if( debug ) {
+							// System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
+							// }
+							candidates.add( e );
+							comparisonCount++;
+						}
+						else {
+							lengthFiltered++;
+						}
 					}
 				}
 			}
@@ -557,15 +574,31 @@ public class JoinMinIndex {
 					if( !oneSideJoin && !isUpperRecord && e.getEstNumRecords() <= threshold ) {
 						break;
 					}
-					else if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						// if( debug ) {
-						// System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
-						// }
-						candidates.add( e );
-						comparisonCount++;
+
+					if( oneSideJoin ) {
+						if( StaticFunctions.overlap( e.getTokenArray().length, e.getTokenArray().length, range[ 0 ],
+								range[ 1 ] ) ) {
+							// if( debug ) {
+							// System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
+							// }
+							candidates.add( e );
+							comparisonCount++;
+						}
+						else {
+							lengthFiltered++;
+						}
 					}
 					else {
-						lengthFiltered++;
+						if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+							// if( debug ) {
+							// System.out.println( "C " + e.toString() + "(" + e.getID() + ")" );
+							// }
+							candidates.add( e );
+							comparisonCount++;
+						}
+						else {
+							lengthFiltered++;
+						}
 					}
 				}
 			}

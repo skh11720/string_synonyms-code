@@ -129,7 +129,7 @@ public class JoinMin_Q extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		}
 
-		Collection<IntegerPair> rslt = idx.join( tableSearched, writeResult, stat, checker );
+		Collection<IntegerPair> rslt = idx.join( tableSearched, writeResult, stat, checker, oneSideJoin );
 
 		if( DEBUG.JoinMinON ) {
 			if( writeResult ) {
