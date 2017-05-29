@@ -468,7 +468,7 @@ public class JoinMinIndex {
 			}
 
 			long st = System.nanoTime();
-			int compare = checker.isEqual( recR, recS );
+			int compare = checker.isEqual( recS, recR );
 			long duration = System.nanoTime() - st;
 
 			if( DEBUG.JoinMinON ) {
