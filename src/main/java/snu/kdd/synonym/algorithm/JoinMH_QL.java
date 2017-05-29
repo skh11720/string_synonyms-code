@@ -403,7 +403,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 				equivTime.start();
 				for( Record recR : candidates ) {
-					int compare = checker.isEqual( recR, recS );
+					int compare = checker.isEqual( recS, recR );
 					if( compare >= 0 ) {
 						rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 					}
