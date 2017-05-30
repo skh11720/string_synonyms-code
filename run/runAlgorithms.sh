@@ -101,7 +101,7 @@ if [[ $# -ne 15 ]];
 	#JoinMin
 	if [[ $RUN_JoinMin == "True" ]];
 	then
-		for q in {2..2..1}; do
+		for q in {1..3..1}; do
 			date
 			./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project $oneSide
 			#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
@@ -120,8 +120,8 @@ if [[ $# -ne 15 ]];
 	if [[ $RUN_JoinMH == "True" ]];
 	then
 		#for j in {1..3..1}; do
-		for j in {2..2..1}; do
-			for q in {2..2..1};do
+		for j in {1..3..1}; do
+			for q in {1..3..1};do
 			#for q in {1..3..1}; do
 
 				date
@@ -141,7 +141,8 @@ if [[ $# -ne 15 ]];
 	#JoinHybridOpt
 	if [[ $RUN_JoinHybridOpt == "True" ]];
 	then
-		samplings=( 0.01 0.02 0.03 0.001 0.002 0.003 0.008 )
+		samplings=( 0.001 0.003 0.01 0.03 )
+		#samplings=( 0.01 0.02 0.03 0.001 0.002 0.003 0.008 )
 		#samplings=( 0.01 0.001 0.0001 100 1000 10000 )
 		#samplings=( 0.001 0.003 0.01 0.03 )
 		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
@@ -164,10 +165,10 @@ if [[ $# -ne 15 ]];
 	if [[ $RUN_JoinHybridThres == "True" ]];
 	then
 		#thresholds=( 1 )
-		thresholds=( 100 )
+		#thresholds=( 100 )
 		#thresholds=( 10 50 100 150 )
 		#thresholds=( 10 50 100 150 500 1000 )
-		#thresholds=( 3 10 30 100 )
+		thresholds=( 3 10 30 100 )
 		#thresholds=( 0 1 3 10 100  )
 		#thresholds=( 0 10 100 1000 10000 10000000 )
 		for q in {2..2..1}; do

@@ -4,8 +4,10 @@ nTokens=1000000
 #SIZES=( 100 )
 #SIZES=( 100000 )
 #SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
-SIZES=( 100000 158489 251188 398107 )
+#SIZES=( 100000 158489 251188 398107 )
 #SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 398107 630957 1000000 )
+SIZES=( 10000 15848 25118 39810 63095 100000 630957 )
+#SIZES=( 63095 )
 
 #SIZES=( 100 1000 10000 100000 300000 1000000 1500000 2000000 3000000 10000000 )
 #SIZES=( 10000000 100000000 )
@@ -17,6 +19,8 @@ avgLhsLen=2
 avgRhsLen=2
 skewZ=1
 ratio=0
+
+oneSide=$1
 
 LIBS=../target/Synonym.jar
 CLASSPATH=../target/Synonym.jar
@@ -35,11 +39,11 @@ RUN_SIJoin=False
 RUN_JoinMin=True
 #RUN_JoinMin=False
 
-#RUN_JoinMH=True
-RUN_JoinMH=False
+RUN_JoinMH=True
+#RUN_JoinMH=False
 
-RUN_JoinHybridOpt=True
-#RUN_JoinHybridOpt=False
+#RUN_JoinHybridOpt=True
+RUN_JoinHybridOpt=False
 
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
@@ -62,5 +66,5 @@ do
 	rulefile=`java -cp $CLASSPATH snu.kdd.synonym.data.Generator -cr $nTokensInRule $avgLhsLen $avgRhsLen $nRules 0 $seedRule data_store`/rule.txt
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive1 $RUN_Naive2 $RUN_SIJoin $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt  $RUN_JoinHybridThres $RUN_DEBUG
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive1 $RUN_Naive2 $RUN_SIJoin $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt  $RUN_JoinHybridThres $RUN_DEBUG $oneSide
 done

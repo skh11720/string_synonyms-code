@@ -26,6 +26,6 @@ else
 	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm $ALG \
+		-algorithm $ALG -oneSideJoin $oneSide \
 		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
 fi

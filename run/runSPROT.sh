@@ -10,7 +10,11 @@ dir=logs
 #SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
 #SIZES=( 100000 158489 251188 466158 )
 #SIZES=( 100000 )
+#SIZES=( 63095 )
+#SIZES=( 158489 )
 SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 466158 )
+
+oneSide=$1
 
 
 RUN_Naive1=True
@@ -22,17 +26,17 @@ RUN_Naive2=False
 #RUN_SIJoin=True
 RUN_SIJoin=False
 
-#RUN_JoinMin=True
-RUN_JoinMin=False
+RUN_JoinMin=True
+#RUN_JoinMin=False
 
-#RUN_JoinMH=True
-RUN_JoinMH=False
+RUN_JoinMH=True
+#RUN_JoinMH=False
 
 RUN_JoinHybridOpt=True
 #RUN_JoinHybridOpt=False
 
-#RUN_JoinHybridThres=True
-RUN_JoinHybridThres=False
+RUN_JoinHybridThres=True
+#RUN_JoinHybridThres=False
 
 #RUN_DEBUG=True
 RUN_DEBUG=False
@@ -47,5 +51,5 @@ do
 	rulefile=data_store/sprot/rule.txt
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive1 $RUN_Naive2 $RUN_SIJoin $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt $RUN_JoinHybridThres $RUN_DEBUG
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive1 $RUN_Naive2 $RUN_SIJoin $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt $RUN_JoinHybridThres $RUN_DEBUG $oneSide
 done

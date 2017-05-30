@@ -6,12 +6,13 @@ logdir=$5
 LIBS=$6
 qSize=$7
 project=$8
+oneSide=$9
 
 ADDITIONAL="-qSize $qSize -v TopDownHashSetSinglePathDS 0"
 
 ALG=DebugAlg
 
-if [[ $# -ne 8 ]];
+if [[ $# -ne 9 ]];
 then
 	echo 'illegal number of parameters: [$ALG]'
 	echo 1 $1
@@ -22,6 +23,7 @@ then
 	echo 6 $6
 	echo 7 $7
 	echo 8 $8
+	echo oneSide $9
 else
 	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
