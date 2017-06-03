@@ -677,6 +677,11 @@ public class SampleEstimate {
 		int bestThreshold = 0;
 		double bestEstTime = Double.MAX_VALUE;
 
+		for( int i = 0; i < sampleIndexedList.size(); i++ ) {
+			Record rec = sampleIndexedList.get( i );
+			System.out.println( rec.getID() + " " + rec.getEstNumRecords() );
+		}
+
 		// Indicates the minimum indices which have more that 'theta' expanded
 		// records
 		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumRecords(),
@@ -695,6 +700,8 @@ public class SampleEstimate {
 			}
 		}
 
+		System.out.println( "Best t : " + bestThreshold + " time: " + bestEstTime );
+
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_BestEst_Time", bestEstTime );
 		return bestThreshold;
@@ -702,6 +709,7 @@ public class SampleEstimate {
 
 	private double findThetaUnrestrictedCountAll( int qSize, StatContainer stat, long maxIndexedEstNumRecords,
 			long maxSearchedEstNumRecords, int threshold ) {
+		System.out.println( " T: " + threshold );
 
 		List<Map<QGram, BinaryCountEntry>> invokes = new ArrayList<Map<QGram, BinaryCountEntry>>();
 		List<List<BinaryCountEntry>> indexedPositions = new ArrayList<List<BinaryCountEntry>>();
@@ -838,7 +846,8 @@ public class SampleEstimate {
 
 		joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount, estimatedInvokes );
 
-		Util.printLog( "T: " + threshold + " NT: " + naiveEstimation + " JT: " + joinminEstimation );
+		Util.printLog( String.format( "T: %d  NT: %.2f JT: %.2f TT: %.2f", threshold, naiveEstimation, joinminEstimation,
+				( naiveEstimation + joinminEstimation ) ) );
 
 		return joinminEstimation + naiveEstimation;
 	}
