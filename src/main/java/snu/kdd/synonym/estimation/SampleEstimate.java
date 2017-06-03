@@ -927,6 +927,9 @@ public class SampleEstimate {
 
 		long maxThreshold = Math.max( sampleSearchedList.get( sampleSearchedList.size() - 1 ).getEstNumRecords(),
 				sampleIndexedList.get( sampleIndexedList.size() - 1 ).getEstNumRecords() );
+
+		System.out.println( "Max threshold: " + maxThreshold );
+
 		int maxT = (int) Math.min( maxThreshold, 1000 );
 
 		for( int t = (int) currentThreshold; t <= maxT; t++ ) {
