@@ -838,6 +838,8 @@ public class SampleEstimate {
 
 				if( indexedIdx > prevAddedIndex ) {
 					// for naive estimation
+					System.out.println(
+							"Adding " + indexedIdx + " est " + est + " estLength " + ( est * rec.getTokenArray().length ) );
 					currExpLengthSize += est * rec.getTokenArray().length;
 				}
 
@@ -871,18 +873,10 @@ public class SampleEstimate {
 			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 			double joinminEstimation = 0;
 
-			if( nextThreshold == maxThreshold + 1 ) {
-				// we compute difference of joinmin estimation time.
-				// estimation time of building joinmin index is not added even if it utilizes joinmin index
-				// in this case we do not use joinmin index and thus the execution time of building joinmin index is <b>subtracted</b>
-				joinminEstimation = this.getEstimateJoinMin( 0, 0, 8 - removedComparison );
-			}
-			else {
-				// we assume that joinmin index built from entire data takes 0 sec.
-				// thus, the execution time smaller than that is represented by minus execution time
-				joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
-						totalInvokes - removedComparison );
-			}
+			// we assume that joinmin index built from entire data takes 0 sec.
+			// thus, the execution time smaller than that is represented by minus execution time
+			joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
+					totalInvokes - removedComparison );
 
 			System.out.println( "CurrExpSize : " + currExpSize );
 			System.out.println( "CurrExpLengthSize : " + currExpLengthSize );
