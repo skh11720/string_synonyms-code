@@ -729,9 +729,14 @@ public class SampleEstimate {
 
 		double indexedTotalSigCount = 0;
 		double totalInvokes = 0;
+		double currExpLengthSize = 0;
 
 		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
 			Record rec = sampleIndexedList.get( recId );
+
+			if( oneSideJoin ) {
+				currExpLengthSize += rec.getTokenArray().length;
+			}
 
 			List<List<QGram>> availableQGrams = null;
 			if( oneSideJoin ) {
@@ -788,7 +793,6 @@ public class SampleEstimate {
 
 		// Prefix sums
 		double currExpSize = 0;
-		double currExpLengthSize = 0;
 
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		int prevAddedIndex = -1;
@@ -851,7 +855,9 @@ public class SampleEstimate {
 					// for naive estimation
 					// System.out.println(
 					// "Adding " + indexedIdx + " est " + est + " estLength " + ( est * rec.getTokenArray().length ) );
-					currExpLengthSize += est * rec.getTokenArray().length;
+					if( !oneSideJoin ) {
+						currExpLengthSize += est * rec.getTokenArray().length;
+					}
 				}
 
 				List<BinaryCountEntry> list = indexedPositions.get( indexedIdx );
