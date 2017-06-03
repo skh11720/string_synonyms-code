@@ -7,14 +7,15 @@ LIBS=$6
 threshold=$7
 qsize=$8
 project=$9
+oneSide=${10}
 
 ADDITIONAL="-qSize $qsize -joinExpandThreshold $threshold -v TopDownHashSetSinglePathDS 0"
 
 ALG=JoinHybridThres
 
-if [[ $# -ne 9 ]];
+if [[ $# -ne 10 ]];
 then
-	echo 'illegal number of parameters [$ALG]'
+	echo illegal number of parameters [$ALG]
 	echo 1 $1
 	echo 2 $2
 	echo 3 $3
@@ -24,11 +25,12 @@ then
 	echo 7 $7
 	echo 8 $8
 	echo 9 $9
+	echo oneSide $oneSide
 else
 	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG\_$threshold
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.driver.Driver \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm $ALG \
+		-algorithm $ALG -oneSideJoin $oneSide \
 		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$threshold
 fi
 

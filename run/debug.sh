@@ -6,10 +6,10 @@ LIBS=../target/Synonym.jar
 hybrid=False
 
 # AOL
-SIZE=1000000
-inputfile_one=data_store/aol/splitted/$SIZE/data.txt
-inputfile_two=data_store/aol/splitted/$SIZE/data.txt
-rulefile=data_store/wordnet/rules.noun
+#SIZE=1000000
+#inputfile_one=data_store/aol/splitted/$SIZE/data.txt
+#inputfile_two=data_store/aol/splitted/$SIZE/data.txt
+#rulefile=data_store/wordnet/rules.noun
 
 # USPS
 #SIZE=1000000
@@ -32,15 +32,19 @@ rulefile=data_store/wordnet/rules.noun
 #inputfile_two=data_store/data/1000000_5_3000_1.0_0.0_1/data.txt
 #inputfile_one=data_store/data/1000000_5_3000_1.0_0.0_2/data.txt
 #rulefile=data_store/rule/30000_2_2_200000_0.0_0/rule.txt
+inputfile_one=data_store/data/1000000_5_63095_1.0_0.0_1/data.txt
+inputfile_two=data_store/data/1000000_5_63095_1.0_0.0_2/data.txt
+rulefile=data_store/rule/30000_2_2_200000_0.0_0/rule.txt
+
 
 #SPROT
-#SIZE=1000000
+#SIZE=158489
 #inputfile_one=data_store/sprot/splitted/SPROT_$SIZE.txt
 #inputfile_two=data_store/sprot/splitted/SPROT_$SIZE.txt
 #rulefile=data_store/sprot/rule.txt
 
 
-recordId=133786
+recordId=39131
 
 ./package.sh
 
