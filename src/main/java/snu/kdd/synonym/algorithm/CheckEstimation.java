@@ -62,6 +62,8 @@ public class CheckEstimation extends AlgorithmTemplate {
 
 		estimate.findThetaUnrestrictedDebug( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 
+		System.out.println( "----------------------------------------------------" );
+
 		joinThreshold = estimate.findThetaUnrestrictedCountAll( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
 			joinMinRequired = false;
