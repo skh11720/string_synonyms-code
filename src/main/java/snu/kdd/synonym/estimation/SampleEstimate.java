@@ -1050,11 +1050,16 @@ public class SampleEstimate {
 		// Prefix sums
 		double currExpSize = 0;
 
+		boolean hasRecord = false;
+
 		for( int recId = 0; recId < sampleSearchedList.size(); recId++ ) {
 			Record rec = sampleSearchedList.get( recId );
 
 			if( rec.getEstNumRecords() <= threshold ) {
 				currExpSize += rec.getEstNumRecords();
+			}
+			if( rec.getEstNumRecords() == threshold ) {
+				hasRecord = true;
 			}
 		}
 
@@ -1070,6 +1075,9 @@ public class SampleEstimate {
 				// for naive estimation
 				currExpLengthSize += est * rec.getTokenArray().length;
 			}
+			if( est == threshold ) {
+				hasRecord = true;
+			}
 
 			List<BinaryCountEntry> list = indexedPositions.get( indexedIdx );
 
@@ -1079,20 +1087,19 @@ public class SampleEstimate {
 			}
 		}
 
-		System.out.println( "CurrExpSize : " + currExpSize );
-		System.out.println( "CurrExpLengthSize : " + currExpLengthSize );
-
 		double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
-		double joinminEstimation = 0;
+		double joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount, estimatedInvokes );
+		if( hasRecord ) {
+			System.out.println( "CurrExpSize : " + currExpSize );
+			System.out.println( "CurrExpLengthSize : " + currExpLengthSize );
 
-		System.out.println( "SearchedTotalSigCount : " + searchedTotalSigCount );
-		System.out.println( "IndexedTotalSigCount : " + indexedTotalSigCount );
-		System.out.println( "EstimatedInvoke : " + estimatedInvokes );
+			System.out.println( "SearchedTotalSigCount : " + searchedTotalSigCount );
+			System.out.println( "IndexedTotalSigCount : " + indexedTotalSigCount );
+			System.out.println( "EstimatedInvoke : " + estimatedInvokes );
 
-		joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount, estimatedInvokes );
-
-		Util.printLog( String.format( "T: %d  NT: %.2f JT: %.2f TT: %.2f", threshold, naiveEstimation, joinminEstimation,
-				( naiveEstimation + joinminEstimation ) ) );
+			Util.printLog( String.format( "T: %d  NT: %.2f JT: %.2f TT: %.2f", threshold, naiveEstimation, joinminEstimation,
+					( naiveEstimation + joinminEstimation ) ) );
+		}
 
 		return joinminEstimation + naiveEstimation;
 	}
