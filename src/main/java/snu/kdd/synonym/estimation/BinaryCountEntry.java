@@ -18,6 +18,10 @@ public class BinaryCountEntry {
 		largeListSize++;
 	}
 
+	void increaseSmall() {
+		smallListSize++;
+	}
+
 	void fromLargeToSmall() {
 		largeListSize--;
 		smallListSize++;
