@@ -835,7 +835,7 @@ public class SampleEstimate {
 
 				if( indexedIdx > prevAddedIndex ) {
 					// for naive estimation
-					currExpSize += est * rec.getTokenArray().length;
+					currExpLengthSize += est * rec.getTokenArray().length;
 				}
 
 				List<BinaryCountEntry> list = indexedPositions.get( indexedIdx );
