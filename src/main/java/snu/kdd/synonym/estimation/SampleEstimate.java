@@ -428,8 +428,8 @@ public class SampleEstimate {
 		return (int) bestThreshold;
 	}
 
-	public int findThetaUnrestricted( int qSize, StatContainer stat, long maxIndexedEstNumRecords,
-			long maxSearchedEstNumRecords ) {
+	public int findThetaUnrestricted( int qSize, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords,
+			boolean oneSideJoin ) {
 		// Find the best threshold
 		int bestThreshold = 0;
 		double bestEstTime = Double.MAX_VALUE;
@@ -482,11 +482,22 @@ public class SampleEstimate {
 
 		double indexedTotalSigCount = 0;
 		double totalInvokes = 0;
+		double currExpLengthSize = 0;
 
 		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
 			Record rec = sampleIndexedList.get( recId );
 
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize, invokes.size() );
+			if( oneSideJoin ) {
+				currExpLengthSize += rec.getTokenArray().length;
+			}
+
+			List<List<QGram>> availableQGrams = null;
+			if( oneSideJoin ) {
+				availableQGrams = rec.getSelfQGrams( qSize, invokes.size() );
+			}
+			else {
+				availableQGrams = rec.getQGrams( qSize, invokes.size() );
+			}
 
 			List<BinaryCountEntry> list = new ArrayList<BinaryCountEntry>();
 
@@ -535,7 +546,6 @@ public class SampleEstimate {
 
 		// Prefix sums
 		double currExpSize = 0;
-		double currExpLengthSize = 0;
 
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		int prevAddedIndex = -1;
@@ -601,7 +611,9 @@ public class SampleEstimate {
 				if( indexedIdx > prevAddedIndex ) {
 					// for naive estimation
 
-					currExpLengthSize += est * rec.getTokenArray().length;
+					if( !oneSideJoin ) {
+						currExpLengthSize += est * rec.getTokenArray().length;
+					}
 				}
 
 				List<BinaryCountEntry> list = indexedPositions.get( indexedIdx );
@@ -673,6 +685,7 @@ public class SampleEstimate {
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_BestEst_Time", bestEstTime );
 		return bestThreshold;
+
 	}
 
 	public int findThetaUnrestrictedDebug( int qSize, StatContainer stat, long maxIndexedEstNumRecords,
