@@ -904,6 +904,15 @@ public class SampleEstimate {
 			currentThreshold = nextThreshold;
 		}
 
+		System.out.println( "CurrExpSize : " + currExpSize );
+		System.out.println( "CurrExpLengthSize : " + currExpLengthSize );
+
+		double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
+		if( bestEstTime > naiveOnlyEstimation ) {
+			bestEstTime = naiveOnlyEstimation;
+			bestThreshold = Integer.MAX_VALUE;
+		}
+
 		// if( bestThreshold > 10000 ) {
 		// bestThreshold = 10000;
 		// }
@@ -943,6 +952,29 @@ public class SampleEstimate {
 				bestEstTime = cost;
 				bestThreshold = t;
 			}
+		}
+
+		double currExpLengthSize = 0;
+		for( int recId = 0; recId < sampleIndexedList.size(); recId++ ) {
+			Record rec = sampleIndexedList.get( recId );
+
+			currExpLengthSize += rec.getEstNumRecords() * rec.getTokenArray().length;
+		}
+
+		double currExpSize = 0;
+		for( int recId = 0; recId < sampleSearchedList.size(); recId++ ) {
+			Record rec = sampleSearchedList.get( recId );
+
+			currExpSize += rec.getEstNumRecords();
+		}
+
+		System.out.println( "CurrExpSize : " + currExpSize );
+		System.out.println( "CurrExpLengthSize : " + currExpLengthSize );
+
+		double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
+		if( bestEstTime > naiveOnlyEstimation ) {
+			bestEstTime = naiveOnlyEstimation;
+			bestThreshold = Integer.MAX_VALUE;
 		}
 
 		System.out.println( "Best t : " + bestThreshold + " time: " + bestEstTime );
