@@ -833,6 +833,7 @@ public class SampleEstimate {
 				long est = rec.getEstNumRecords();
 				if( est > currentThreshold ) {
 					nextThresholdIndexed = est;
+					indexedIdx--;
 					break;
 				}
 
