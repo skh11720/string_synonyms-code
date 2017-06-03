@@ -60,7 +60,7 @@ public class CheckEstimation extends AlgorithmTemplate {
 		// Estimate constants
 		findConstants( sampleratio );
 
-		estimate.findThetaUnrestrictedDebug( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
+		estimate.findThetaUnrestrictedDebug( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords, oneSideJoin );
 
 		System.out.println( "----------------------------------------------------" );
 		System.out.println( "OneSideJoin: " + oneSideJoin );
