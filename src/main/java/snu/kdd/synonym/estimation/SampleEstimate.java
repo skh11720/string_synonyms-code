@@ -724,6 +724,7 @@ public class SampleEstimate {
 		}
 
 		double indexedTotalSigCount = 0;
+		double totalInvokes = 0;
 
 		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
 			Record rec = sampleIndexedList.get( recId );
@@ -762,6 +763,8 @@ public class SampleEstimate {
 			}
 
 			Map<QGram, BinaryCountEntry> minInvokes = invokes.get( minIndex );
+
+			totalInvokes += minComparison;
 
 			for( QGram qgram : availableQGrams.get( minIndex ) ) {
 				BinaryCountEntry entry = minInvokes.get( qgram );
@@ -877,14 +880,15 @@ public class SampleEstimate {
 			else {
 				// we assume that joinmin index built from entire data takes 0 sec.
 				// thus, the execution time smaller than that is represented by minus execution time
-				joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount, 8 - removedComparison );
+				joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
+						totalInvokes - removedComparison );
 			}
 
 			System.out.println( "CurrExpSize : " + currExpSize );
 			System.out.println( "CurrExpLengthSize : " + currExpLengthSize );
 			System.out.println( "SearchedTotalSigCount : " + searchedTotalSigCount );
 			System.out.println( "IndexedTotalSigCount : " + indexedTotalSigCount );
-			System.out.println( "EstimatedInvoke : " + removedComparison );
+			System.out.println( "EstimatedInvoke : " + ( totalInvokes - removedComparison ) );
 
 			Util.printLog( String.format( "T: %d  nT: %d  NT: %.2f  JT: %.2f  TT: %.2f", currentThreshold, nextThreshold,
 					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
