@@ -12,6 +12,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.algorithm.CheckEstimation;
 import snu.kdd.synonym.algorithm.CheckQGram;
 import snu.kdd.synonym.algorithm.JoinHybridOpt_Q;
 import snu.kdd.synonym.algorithm.JoinHybridThres_Q;
@@ -127,7 +128,7 @@ public class Driver {
 			break;
 
 		case DebugAlg:
-			alg = new JoinMinTwo_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
+			alg = new CheckEstimation( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 		case JoinMin:
 			alg = new JoinMin_Q( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );

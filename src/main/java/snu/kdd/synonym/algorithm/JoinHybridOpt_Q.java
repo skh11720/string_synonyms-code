@@ -39,7 +39,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	static boolean skipChecking = false;
 	static int maxIndex = Integer.MAX_VALUE;
 	static boolean compact = false;
-	static boolean singleside;
+	// static boolean singleside;
 	static Validator checker;
 
 	private int qSize = -1;
@@ -76,8 +76,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	private DataInfo dataInfo;
 
 	public JoinHybridOpt_Q( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo,
-			boolean joinOneSide, StatContainer stat ) throws IOException {
-		super( rulefile, Rfile, Sfile, outputfile, dataInfo, joinOneSide, stat );
+			boolean oneSideJoin, StatContainer stat ) throws IOException {
+		super( rulefile, Rfile, Sfile, outputfile, dataInfo, oneSideJoin, stat );
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 
@@ -92,7 +92,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		skipChecking = params.isSkipChecking();
 		maxIndex = params.getMaxIndex();
 		compact = params.isCompact();
-		singleside = params.isSingleside();
+		// singleside = params.isSingleside();
 		checker = params.getValidator();
 		qSize = params.getQGramSize();
 
