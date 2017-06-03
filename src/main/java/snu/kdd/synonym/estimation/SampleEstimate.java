@@ -679,7 +679,8 @@ public class SampleEstimate {
 
 		for( int i = 0; i < sampleIndexedList.size(); i++ ) {
 			Record rec = sampleIndexedList.get( i );
-			System.out.println( rec.getID() + ": " + rec.toString() + " " + rec.getEstNumRecords() );
+			System.out.println( rec.getID() + ": " + rec.toString() + " " + rec.getEstNumRecords() + " "
+					+ ( rec.getEstNumRecords() * rec.getTokenArray().length ) );
 		}
 
 		// Indicates the minimum indices which have more that 'theta' expanded
