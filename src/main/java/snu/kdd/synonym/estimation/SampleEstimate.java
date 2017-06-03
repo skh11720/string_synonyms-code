@@ -872,12 +872,12 @@ public class SampleEstimate {
 				// we compute difference of joinmin estimation time.
 				// estimation time of building joinmin index is not added even if it utilizes joinmin index
 				// in this case we do not use joinmin index and thus the execution time of building joinmin index is <b>subtracted</b>
-				joinminEstimation = this.getEstimateJoinMin( -searchedTotalSigCount, -indexedTotalSigCount, -removedComparison );
+				joinminEstimation = this.getEstimateJoinMin( 0, 0, 8 - removedComparison );
 			}
 			else {
 				// we assume that joinmin index built from entire data takes 0 sec.
 				// thus, the execution time smaller than that is represented by minus execution time
-				joinminEstimation = this.getEstimateJoinMin( 0, 0, -removedComparison );
+				joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount, 8 - removedComparison );
 			}
 
 			System.out.println( "CurrExpSize : " + currExpSize );
