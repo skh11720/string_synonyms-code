@@ -676,7 +676,7 @@ public class SampleEstimate {
 	}
 
 	public int findThetaUnrestrictedDebug( int qSize, StatContainer stat, long maxIndexedEstNumRecords,
-			long maxSearchedEstNumRecords ) {
+			long maxSearchedEstNumRecords, boolean oneSideJoin ) {
 		// Find the best threshold
 		int bestThreshold = 0;
 		double bestEstTime = Double.MAX_VALUE;
@@ -733,7 +733,13 @@ public class SampleEstimate {
 		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
 			Record rec = sampleIndexedList.get( recId );
 
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize, invokes.size() );
+			List<List<QGram>> availableQGrams = null;
+			if( oneSideJoin ) {
+				availableQGrams = rec.getSelfQGrams( qSize, invokes.size() );
+			}
+			else {
+				availableQGrams = rec.getQGrams( qSize, invokes.size() );
+			}
 
 			List<BinaryCountEntry> list = new ArrayList<BinaryCountEntry>();
 
