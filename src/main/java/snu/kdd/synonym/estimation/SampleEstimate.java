@@ -672,14 +672,15 @@ public class SampleEstimate {
 			currentThreshold = nextThreshold;
 		}
 
-		double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
-		if( bestEstTime > naiveOnlyEstimation ) {
-			bestEstTime = naiveOnlyEstimation;
-			bestThreshold = Integer.MAX_VALUE;
-		}
-
-		if( DEBUG.SampleStatOn ) {
-			Util.printLog( String.format( "T: %d  TT: %.2f", Integer.MAX_VALUE, naiveOnlyEstimation ) );
+		if( sampleIndexedList.size() > 100 ) {
+			double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
+			if( bestEstTime > naiveOnlyEstimation ) {
+				bestEstTime = naiveOnlyEstimation;
+				bestThreshold = Integer.MAX_VALUE;
+			}
+			if( DEBUG.SampleStatOn ) {
+				Util.printLog( String.format( "T: %d  TT: %.2f", Integer.MAX_VALUE, naiveOnlyEstimation ) );
+			}
 		}
 
 		// if( bestThreshold > 10000 ) {
