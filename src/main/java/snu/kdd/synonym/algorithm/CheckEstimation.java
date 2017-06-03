@@ -42,7 +42,7 @@ public class CheckEstimation extends AlgorithmTemplate {
 		idComparator = new RecordIDComparator();
 		ruletrie = new RuleTrie( rulelist );
 
-		this.dataInfo = dataInfo;
+		this.dataInfo = info;
 	}
 
 	@Override
