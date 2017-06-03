@@ -954,7 +954,6 @@ public class SampleEstimate {
 
 	private double findThetaUnrestrictedCountAll( int qSize, StatContainer stat, long maxIndexedEstNumRecords,
 			long maxSearchedEstNumRecords, int threshold ) {
-		System.out.println( "[T: " + threshold + "]" );
 
 		List<Map<QGram, BinaryCountEntry>> invokes = new ArrayList<Map<QGram, BinaryCountEntry>>();
 		List<List<BinaryCountEntry>> indexedPositions = new ArrayList<List<BinaryCountEntry>>();
@@ -1090,6 +1089,7 @@ public class SampleEstimate {
 		double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 		double joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount, estimatedInvokes );
 		if( hasRecord ) {
+			System.out.println( "[T: " + threshold + "]" );
 			System.out.println( "CurrExpSize : " + currExpSize );
 			System.out.println( "CurrExpLengthSize : " + currExpLengthSize );
 
