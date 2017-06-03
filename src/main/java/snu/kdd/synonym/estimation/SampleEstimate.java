@@ -823,7 +823,7 @@ public class SampleEstimate {
 			long est = rec.getEstNumRecords();
 			if( est <= threshold ) {
 				// for naive estimation
-				currExpSize += est * rec.getTokenArray().length;
+				currExpLengthSize += est * rec.getTokenArray().length;
 			}
 
 			List<BinaryCountEntry> list = indexedPositions.get( indexedIdx );
