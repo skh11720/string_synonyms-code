@@ -788,6 +788,7 @@ public class SampleEstimate {
 		}
 
 		while( currentThreshold <= maxThreshold ) {
+			System.out.println( "[T: " + currentThreshold + "]" );
 			long nextThresholdIndexed = -1;
 			long nextThresholdSearched = -1;
 
