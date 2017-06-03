@@ -5,20 +5,18 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import mine.Record;
-import mine.RecordIDComparator;
 import snu.kdd.synonym.data.DataInfo;
 import snu.kdd.synonym.estimation.CountEntry;
 import snu.kdd.synonym.estimation.SampleEstimate;
 import snu.kdd.synonym.tools.Param;
 import snu.kdd.synonym.tools.StatContainer;
 import tools.DEBUG;
-import tools.RuleTrie;
 import validator.Validator;
 
 public class CheckEstimation extends AlgorithmTemplate {
 
-	private RecordIDComparator idComparator;
-	private RuleTrie ruletrie;
+	// private RecordIDComparator idComparator;
+	// private RuleTrie ruletrie;
 
 	private DataInfo dataInfo;
 	private Validator checker;
@@ -39,8 +37,8 @@ public class CheckEstimation extends AlgorithmTemplate {
 	public CheckEstimation( String rulefile, String Rfile, String Sfile, String outputPath, DataInfo info, boolean oneSideJoin,
 			StatContainer stat ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputPath, info, oneSideJoin, stat );
-		idComparator = new RecordIDComparator();
-		ruletrie = new RuleTrie( rulelist );
+		// idComparator = new RecordIDComparator();
+		// ruletrie = new RuleTrie( rulelist );
 
 		this.dataInfo = info;
 	}
@@ -61,6 +59,8 @@ public class CheckEstimation extends AlgorithmTemplate {
 
 		// Estimate constants
 		findConstants( sampleratio );
+
+		estimate.findThetaUnrestrictedDebug( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 
 		joinThreshold = estimate.findThetaUnrestrictedCountAll( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
