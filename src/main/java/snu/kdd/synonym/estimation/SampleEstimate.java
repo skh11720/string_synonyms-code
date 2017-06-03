@@ -481,6 +481,7 @@ public class SampleEstimate {
 		}
 
 		double indexedTotalSigCount = 0;
+		double totalInvokes = 0;
 
 		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
 			Record rec = sampleIndexedList.get( recId );
@@ -520,6 +521,8 @@ public class SampleEstimate {
 
 			Map<QGram, BinaryCountEntry> minInvokes = invokes.get( minIndex );
 
+			totalInvokes += minComparison;
+
 			for( QGram qgram : availableQGrams.get( minIndex ) ) {
 				BinaryCountEntry entry = minInvokes.get( qgram );
 				if( entry != null ) {
@@ -547,6 +550,7 @@ public class SampleEstimate {
 		}
 
 		while( currentThreshold <= maxThreshold ) {
+
 			long nextThresholdIndexed = -1;
 			long nextThresholdSearched = -1;
 
@@ -590,12 +594,14 @@ public class SampleEstimate {
 				long est = rec.getEstNumRecords();
 				if( est > currentThreshold ) {
 					nextThresholdIndexed = est;
+					indexedIdx--;
 					break;
 				}
 
 				if( indexedIdx > prevAddedIndex ) {
 					// for naive estimation
-					currExpSize += est * rec.getTokenArray().length;
+
+					currExpLengthSize += est * rec.getTokenArray().length;
 				}
 
 				List<BinaryCountEntry> list = indexedPositions.get( indexedIdx );
@@ -628,21 +634,13 @@ public class SampleEstimate {
 			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 			double joinminEstimation = 0;
 
-			if( nextThreshold == maxThreshold + 1 ) {
-				// we compute difference of joinmin estimation time.
-				// estimation time of building joinmin index is not added even if it utilizes joinmin index
-				// in this case we do not use joinmin index and thus the execution time of building joinmin index is <b>subtracted</b>
-				joinminEstimation = this.getEstimateJoinMin( -searchedTotalSigCount, -indexedTotalSigCount, -removedComparison );
-			}
-			else {
-				// we assume that joinmin index built from entire data takes 0 sec.
-				// thus, the execution time smaller than that is represented by minus execution time
-				joinminEstimation = this.getEstimateJoinMin( 0, 0, -removedComparison );
-			}
+			joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
+					totalInvokes - removedComparison );
 
 			if( DEBUG.SampleStatOn ) {
-				Util.printLog( "T: " + currentThreshold + " nT: " + nextThreshold + " NT: " + naiveEstimation + " JT: "
-						+ joinminEstimation );
+				Util.printLog( String.format( "T: %d  nT: %d  NT: %.2f  JT: %.2f  TT: %.2f", currentThreshold, nextThreshold,
+						naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
+
 			}
 
 			if( bestEstTime > joinminEstimation + naiveEstimation ) {
@@ -661,6 +659,12 @@ public class SampleEstimate {
 			}
 
 			currentThreshold = nextThreshold;
+		}
+
+		double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
+		if( bestEstTime > naiveOnlyEstimation ) {
+			bestEstTime = naiveOnlyEstimation;
+			bestThreshold = Integer.MAX_VALUE;
 		}
 
 		// if( bestThreshold > 10000 ) {
@@ -922,7 +926,7 @@ public class SampleEstimate {
 	}
 
 	public int findThetaUnrestrictedCountAll( int qSize, StatContainer stat, long maxIndexedEstNumRecords,
-			long maxSearchedEstNumRecords ) {
+			long maxSearchedEstNumRecords, boolean oneSideJoin ) {
 		// Find the best threshold
 		int bestThreshold = 0;
 		double bestEstTime = Double.MAX_VALUE;
@@ -932,6 +936,7 @@ public class SampleEstimate {
 			System.out.println( rec.getID() + ": " + rec.toString() + " " + rec.getEstNumRecords() + " "
 					+ ( rec.getEstNumRecords() * rec.getTokenArray().length ) );
 		}
+		System.out.println( "----------------------------------------------------------------" );
 
 		// Indicates the minimum indices which have more that 'theta' expanded
 		// records
@@ -946,7 +951,8 @@ public class SampleEstimate {
 		int maxT = (int) Math.min( maxThreshold, 1000 );
 
 		for( int t = (int) currentThreshold; t <= maxT; t++ ) {
-			double cost = findThetaUnrestrictedCountAll( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords, t );
+			double cost = findThetaUnrestrictedCountAll( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords, t,
+					oneSideJoin );
 
 			if( bestEstTime > cost ) {
 				bestEstTime = cost;
@@ -958,7 +964,12 @@ public class SampleEstimate {
 		for( int recId = 0; recId < sampleIndexedList.size(); recId++ ) {
 			Record rec = sampleIndexedList.get( recId );
 
-			currExpLengthSize += rec.getEstNumRecords() * rec.getTokenArray().length;
+			if( oneSideJoin ) {
+				currExpLengthSize += rec.getTokenArray().length;
+			}
+			else {
+				currExpLengthSize += rec.getEstNumRecords() * rec.getTokenArray().length;
+			}
 		}
 
 		double currExpSize = 0;
@@ -985,7 +996,7 @@ public class SampleEstimate {
 	}
 
 	private double findThetaUnrestrictedCountAll( int qSize, StatContainer stat, long maxIndexedEstNumRecords,
-			long maxSearchedEstNumRecords, int threshold ) {
+			long maxSearchedEstNumRecords, int threshold, boolean oneSideJoin ) {
 
 		List<Map<QGram, BinaryCountEntry>> invokes = new ArrayList<Map<QGram, BinaryCountEntry>>();
 		List<List<BinaryCountEntry>> indexedPositions = new ArrayList<List<BinaryCountEntry>>();
@@ -1034,7 +1045,15 @@ public class SampleEstimate {
 		for( int recId = 0; recId < sampleIndexedList.size(); recId++ ) {
 			Record rec = sampleIndexedList.get( recId );
 
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize, invokes.size() );
+			List<List<QGram>> availableQGrams = null;
+
+			if( oneSideJoin ) {
+				availableQGrams = rec.getSelfQGrams( qSize, invokes.size() );
+			}
+			else {
+				availableQGrams = rec.getQGrams( qSize, invokes.size() );
+			}
+
 			List<BinaryCountEntry> list = new ArrayList<BinaryCountEntry>();
 
 			long minComparison = Long.MAX_VALUE;
@@ -1102,10 +1121,16 @@ public class SampleEstimate {
 			Record rec = sampleIndexedList.get( indexedIdx );
 
 			long est = rec.getEstNumRecords();
-			if( est <= threshold ) {
+
+			if( !oneSideJoin && est <= threshold ) {
 				// for naive estimation
 				currExpLengthSize += est * rec.getTokenArray().length;
 			}
+
+			if( oneSideJoin ) {
+				currExpLengthSize += rec.getTokenArray().length;
+			}
+
 			if( est == threshold ) {
 				hasRecord = true;
 			}
