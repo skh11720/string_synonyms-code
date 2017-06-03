@@ -879,8 +879,14 @@ public class SampleEstimate {
 				joinminEstimation = this.getEstimateJoinMin( 0, 0, -removedComparison );
 			}
 
-			Util.printLog( "T: " + currentThreshold + " nT: " + nextThreshold + " NT: " + naiveEstimation + " JT: "
-					+ joinminEstimation );
+			System.out.println( "CurrExpSize : " + currExpSize );
+			System.out.println( "CurrExpLengthSize : " + currExpLengthSize );
+			System.out.println( "SearchedTotalSigCount : " + searchedTotalSigCount );
+			System.out.println( "IndexedTotalSigCount : " + indexedTotalSigCount );
+			System.out.println( "EstimatedInvoke : " + removedComparison );
+
+			Util.printLog( String.format( "T: %d  nT: %d  NT: %.2f  JT: %.2f  TT: %.2f", currentThreshold, nextThreshold,
+					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
 
 			if( bestEstTime > joinminEstimation + naiveEstimation ) {
 				bestEstTime = joinminEstimation + naiveEstimation;
@@ -892,9 +898,7 @@ public class SampleEstimate {
 					currentThreshold = Integer.MAX_VALUE;
 				}
 
-				if( DEBUG.SampleStatOn ) {
-					Util.printLog( "New Best " + bestThreshold );
-				}
+				Util.printLog( "New Best " + bestThreshold );
 			}
 
 			currentThreshold = nextThreshold;
