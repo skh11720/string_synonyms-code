@@ -839,8 +839,8 @@ public class SampleEstimate {
 
 				if( indexedIdx > prevAddedIndex ) {
 					// for naive estimation
-					System.out.println(
-							"Adding " + indexedIdx + " est " + est + " estLength " + ( est * rec.getTokenArray().length ) );
+					// System.out.println(
+					// "Adding " + indexedIdx + " est " + est + " estLength " + ( est * rec.getTokenArray().length ) );
 					currExpLengthSize += est * rec.getTokenArray().length;
 				}
 
