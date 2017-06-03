@@ -103,6 +103,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 	public void run( double sampleratio ) {
 		StopWatch stepTime = null;
 
+		Util.printLog( "Selected Threshold: " + joinThreshold );
+
 		if( DEBUG.JoinHybridON ) {
 			stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		}
