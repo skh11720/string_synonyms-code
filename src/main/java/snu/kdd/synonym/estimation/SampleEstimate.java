@@ -679,7 +679,7 @@ public class SampleEstimate {
 
 		for( int i = 0; i < sampleIndexedList.size(); i++ ) {
 			Record rec = sampleIndexedList.get( i );
-			System.out.println( rec.getID() + " " + rec.getEstNumRecords() );
+			System.out.println( rec.getID() + ": " + rec.toString() + " " + rec.getEstNumRecords() );
 		}
 
 		// Indicates the minimum indices which have more that 'theta' expanded
@@ -709,7 +709,7 @@ public class SampleEstimate {
 
 	private double findThetaUnrestrictedCountAll( int qSize, StatContainer stat, long maxIndexedEstNumRecords,
 			long maxSearchedEstNumRecords, int threshold ) {
-		System.out.println( " T: " + threshold );
+		System.out.println( "[T: " + threshold + "]" );
 
 		List<Map<QGram, BinaryCountEntry>> invokes = new ArrayList<Map<QGram, BinaryCountEntry>>();
 		List<List<BinaryCountEntry>> indexedPositions = new ArrayList<List<BinaryCountEntry>>();
