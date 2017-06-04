@@ -652,7 +652,6 @@ public class SampleEstimate {
 			if( DEBUG.SampleStatOn ) {
 				Util.printLog( String.format( "T: %d  nT: %d  NT: %.2f  JT: %.2f  TT: %.2f", currentThreshold, nextThreshold,
 						naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
-
 			}
 
 			if( bestEstTime > joinminEstimation + naiveEstimation ) {
@@ -673,10 +672,15 @@ public class SampleEstimate {
 			currentThreshold = nextThreshold;
 		}
 
-		double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
-		if( bestEstTime > naiveOnlyEstimation ) {
-			bestEstTime = naiveOnlyEstimation;
-			bestThreshold = Integer.MAX_VALUE;
+		if( sampleIndexedList.size() > 100 ) {
+			double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
+			if( bestEstTime > naiveOnlyEstimation ) {
+				bestEstTime = naiveOnlyEstimation;
+				bestThreshold = Integer.MAX_VALUE;
+			}
+			if( DEBUG.SampleStatOn ) {
+				Util.printLog( String.format( "T: %d  TT: %.2f", Integer.MAX_VALUE, naiveOnlyEstimation ) );
+			}
 		}
 
 		// if( bestThreshold > 10000 ) {
