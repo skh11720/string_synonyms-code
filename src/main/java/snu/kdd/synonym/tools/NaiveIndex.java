@@ -99,6 +99,10 @@ public class NaiveIndex {
 			}
 		}
 
+		if( addStat ) {
+			stat.add( "Join_Naive_Result", rslt.size() );
+		}
+
 		return rslt;
 	}
 

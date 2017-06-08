@@ -173,11 +173,16 @@ public class JoinMinIndex {
 			if( writeResult ) {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
 				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
-				stat.add( "Stat_Equiv_Comparison", equivComparisons );
+
 				stat.add( "Stat_Length_Filtered", lengthFiltered );
 				stat.add( "Stat_getQGramCount", Record.getQGramCount );
 				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime / 1000000 );
 			}
+		}
+
+		if( writeResult ) {
+			stat.add( "Stat_Equiv_Comparison", equivComparisons );
+			stat.add( "Join_Min_Result", rslt.size() );
 		}
 
 		if( DEBUG.JoinMinJoinON ) {

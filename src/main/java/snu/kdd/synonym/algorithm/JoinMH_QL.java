@@ -289,7 +289,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 
 	private ArrayList<IntegerPair> join() {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
-		@SuppressWarnings( "unused" )
+
 		long count = 0;
 		@SuppressWarnings( "unused" )
 		long lengthFiltered = 0;
@@ -424,6 +424,8 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			e.printStackTrace();
 		}
 
+		stat.add( "Stat_Equiv_Comparison", count );
+
 		if( DEBUG.JoinMHOn ) {
 			// stat.add( "Last Token Filtered", lastTokenFiltered );
 			for( int i = 0; i < maxIndexLength; ++i ) {
@@ -443,7 +445,6 @@ public class JoinMH_QL extends AlgorithmTemplate {
 			stat.add( "Counter_Final_2_MapCollision", WYK_HashMap.collision );
 			stat.add( "Counter_Final_2_MapResize", WYK_HashMap.resize );
 
-			stat.add( "Stat_Equiv_Comparison", count );
 			stat.add( "Stat_Length_Filtered", lengthFiltered );
 			stat.add( equivTime );
 
