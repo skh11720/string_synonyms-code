@@ -256,7 +256,7 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 		if( joinMinRequired ) {
 			buildJoinMinIndex();
 		}
-
+		int joinMinResultSize = 0;
 		if( DEBUG.JoinHybridON ) {
 			if( joinMinRequired ) {
 				stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
@@ -287,6 +287,10 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 					joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold, oneSideJoin );
 				}
 			}
+
+			joinMinResultSize = rslt.size();
+			stat.add( "Join_Min_Result", joinMinResultSize );
+			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
 		}
 		double joinminJointime = System.nanoTime() - joinstart;
 
@@ -329,6 +333,8 @@ public class JoinHybridOpt_Q extends AlgorithmTemplate {
 			}
 		}
 		double joinTime = System.nanoTime() - starttime;
+
+		stat.add( "Join_Naive_Result", rslt.size() - joinMinResultSize );
 
 		if( DEBUG.JoinHybridON ) {
 			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinTime / naiveIndex.totalExp ) );
