@@ -625,7 +625,7 @@ public class JoinMinIndex {
 			joinStartTime = System.nanoTime();
 		}
 
-		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex );
+		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS );
 
 		for( int i = 0; i < searchmax; ++i ) {
 			Map<QGram, List<Record>> curridx = idx.get( i );
