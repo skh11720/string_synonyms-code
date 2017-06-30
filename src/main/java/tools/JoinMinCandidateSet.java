@@ -14,7 +14,12 @@ public class JoinMinCandidateSet {
 	public JoinMinCandidateSet( int nIndex, Record rec ) {
 		this.nIndex = nIndex;
 
-		appearingMap = new WYK_HashMap<Record, Integer>( rec.predictedInvokesJoinMin * 2 );
+		if( rec.predictedInvokesJoinMin < 10 ) {
+			appearingMap = new WYK_HashMap<Record, Integer>( 10 );
+		}
+		else {
+			appearingMap = new WYK_HashMap<Record, Integer>( rec.predictedInvokesJoinMin * 2 );
+		}
 	}
 
 	public void add( WYK_HashSet<Record> set ) {
