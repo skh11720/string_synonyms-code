@@ -101,7 +101,7 @@ if [[ $# -ne 15 ]];
 	#JoinMin
 	if [[ $RUN_JoinMin == "True" ]];
 	then
-		for q in {1..3..1}; do
+		for q in {2..2..1}; do
 			date
 			./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project $oneSide
 			#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
@@ -141,7 +141,8 @@ if [[ $# -ne 15 ]];
 	#JoinHybridOpt
 	if [[ $RUN_JoinHybridOpt == "True" ]];
 	then
-		samplings=( 0.001 0.003 0.01 0.03 )
+		samplings=( 0.01 )
+		#samplings=( 0.001 0.003 0.01 0.03 )
 		#samplings=( 0.01 0.02 0.03 0.001 0.002 0.003 0.008 )
 		#samplings=( 0.01 0.001 0.0001 100 1000 10000 )
 		#samplings=( 0.001 0.003 0.01 0.03 )
@@ -189,14 +190,16 @@ if [[ $# -ne 15 ]];
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
-		for q in {2..2..1}; do
-			date
-			./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project $oneSide
-			date
-
-			./compare.sh $PREV JoinMinTwo_Q
+		K=( 1 2 3 )
+		#K=( 1 )
+		for k in "${K[@]}"; do
+			for q in {2..2..1}; do
+			#for q in {1..3..1}; do
+				date
+				./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide
+				./compare.sh $PREV JoinMin_QL
+			done
 		done
-		PREV="JoinMinTwo_Q"
 	fi
 
 	./upload.sh
