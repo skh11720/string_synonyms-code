@@ -17,7 +17,12 @@ public class JoinMinCandidateSet {
 
 	public void add( WYK_HashSet<Record> set ) {
 		if( appearingMap == null ) {
-			appearingMap = new WYK_HashMap<Record, Integer>( set.size() * 2 );
+			if( set.size() > 10 ) {
+				appearingMap = new WYK_HashMap<Record, Integer>( set.size() * 2 );
+			}
+			else {
+				appearingMap = new WYK_HashMap<Record, Integer>( 20 );
+			}
 		}
 
 		for( Record r : set ) {
