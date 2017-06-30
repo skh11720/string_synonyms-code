@@ -9,13 +9,17 @@ import mine.Record;
 public class JoinMinCandidateSet {
 	int nIndex;
 
-	WYK_HashMap<Record, Integer> appearingMap = new WYK_HashMap<Record, Integer>();
+	WYK_HashMap<Record, Integer> appearingMap = null;
 
 	public JoinMinCandidateSet( int nIndex ) {
 		this.nIndex = nIndex;
 	}
 
 	public void add( WYK_HashSet<Record> set ) {
+		if( appearingMap == null ) {
+			appearingMap = new WYK_HashMap<Record, Integer>( set.size() * 2 );
+		}
+
 		for( Record r : set ) {
 			Integer count = appearingMap.get( r );
 
