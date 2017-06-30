@@ -213,9 +213,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 				for( int i = 0; i < maxIndexLength; ++i ) {
 					Map<QGram, List<IntIntRecordTriple>> ithidx = idx.get( i );
 
-					if( DEBUG.JoinMHOn ) {
-						System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
-					}
+					System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
 
 					// Statistics
 					int sum = 0;
@@ -241,7 +239,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 						count += list.size();
 					}
 
-					if( DEBUG.JoinMHOn ) {
+					if( DEBUG.JoinMHDetailOn ) {
 						System.out.println( i + "th Single value list size : " + singlelistsize );
 						System.out.println( i + "th iIdx size(w/o 1) : " + count );
 						System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
@@ -266,19 +264,20 @@ public class JoinMH_QL extends AlgorithmTemplate {
 					}
 				}
 
-				stat.add( "Stat_Index_Size_Per_Position", indexStr );
-
-				for( int i = 0; i < idx.size(); i++ ) {
-					WYK_HashMap<QGram, List<IntIntRecordTriple>> index = (WYK_HashMap<QGram, List<IntIntRecordTriple>>) idx
-							.get( i );
-					stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
-					stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
-					stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
-					stat.add( "Counter_Index_" + i + "_Resize_Count", index.resizeCount );
-					stat.add( "Counter_Index_" + i + "_Remove_Count", index.removeCount );
-					stat.add( "Counter_Index_" + i + "_RemoveIter_Count", index.removeIterCount );
-					stat.add( "Counter_Index_" + i + "_PutRemoved_Count", index.putRemovedCount );
-					stat.add( "Counter_Index_" + i + "_RemoveFound_Count", index.removeFoundCount );
+				if( DEBUG.JoinMHDetailOn ) {
+					stat.add( "Stat_Index_Size_Per_Position", "\"" + indexStr + "\"" );
+					for( int i = 0; i < idx.size(); i++ ) {
+						WYK_HashMap<QGram, List<IntIntRecordTriple>> index = (WYK_HashMap<QGram, List<IntIntRecordTriple>>) idx
+								.get( i );
+						stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
+						stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
+						stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
+						stat.add( "Counter_Index_" + i + "_Resize_Count", index.resizeCount );
+						stat.add( "Counter_Index_" + i + "_Remove_Count", index.removeCount );
+						stat.add( "Counter_Index_" + i + "_RemoveIter_Count", index.removeIterCount );
+						stat.add( "Counter_Index_" + i + "_PutRemoved_Count", index.putRemovedCount );
+						stat.add( "Counter_Index_" + i + "_RemoveFound_Count", index.removeFoundCount );
+					}
 				}
 			}
 		}

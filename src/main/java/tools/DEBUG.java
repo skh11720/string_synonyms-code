@@ -15,6 +15,7 @@ public class DEBUG {
 	public static final boolean JoinHybridThresON = false;
 
 	public static final boolean JoinMHOn = true;
+	public static final boolean JoinMHDetailOn = true;
 
 	public static final boolean SampleStatOn = false;
 	public static final boolean ValidateON = false;
