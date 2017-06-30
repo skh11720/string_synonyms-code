@@ -61,7 +61,13 @@ public class JoinMin_QL extends AlgorithmTemplate {
 	}
 
 	private void buildIndex( boolean writeResult ) throws IOException {
-		idx = JoinMinIndex.buildIndexMaxK( tableSearched, tableIndexed, nIndex, qSize, stat, writeResult, oneSideJoin );
+		if( nIndex == 1 ) {
+			idx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, Integer.MAX_VALUE, qSize, stat, writeResult,
+					writeResult );
+		}
+		else {
+			idx = JoinMinIndex.buildIndexMaxK( tableSearched, tableIndexed, nIndex, qSize, stat, writeResult, oneSideJoin );
+		}
 	}
 
 	public void statistics() {
@@ -129,7 +135,14 @@ public class JoinMin_QL extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		}
 
-		Collection<IntegerPair> rslt = idx.joinMaxK( nIndex, tableSearched, writeResult, stat, checker, oneSideJoin );
+		Collection<IntegerPair> rslt = null;
+
+		if( nIndex == 1 ) {
+			rslt = idx.join( tableSearched, writeResult, stat, checker, oneSideJoin );
+		}
+		else {
+			rslt = idx.joinMaxK( nIndex, tableSearched, writeResult, stat, checker, oneSideJoin );
+		}
 
 		if( DEBUG.JoinMinON ) {
 			if( writeResult ) {
