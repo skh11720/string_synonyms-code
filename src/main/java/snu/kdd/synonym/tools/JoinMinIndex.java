@@ -1562,6 +1562,8 @@ public class JoinMinIndex {
 					mpq.add( i, invoke );
 				}
 
+				rec.predictedInvokesJoinMin = mpq.minInvokes;
+
 				idx.predictCount += mpq.minInvokes;
 
 				int indexedCount = 0;

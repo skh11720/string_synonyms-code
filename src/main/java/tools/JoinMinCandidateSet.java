@@ -11,20 +11,13 @@ public class JoinMinCandidateSet {
 
 	WYK_HashMap<Record, Integer> appearingMap = null;
 
-	public JoinMinCandidateSet( int nIndex ) {
+	public JoinMinCandidateSet( int nIndex, Record rec ) {
 		this.nIndex = nIndex;
+
+		appearingMap = new WYK_HashMap<Record, Integer>( rec.predictedInvokesJoinMin * 2 );
 	}
 
 	public void add( WYK_HashSet<Record> set ) {
-		if( appearingMap == null ) {
-			if( set.size() > 10 ) {
-				appearingMap = new WYK_HashMap<Record, Integer>( set.size() * 2 );
-			}
-			else {
-				appearingMap = new WYK_HashMap<Record, Integer>( 20 );
-			}
-		}
-
 		for( Record r : set ) {
 			Integer count = appearingMap.get( r );
 

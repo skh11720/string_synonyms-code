@@ -42,6 +42,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	public static int get2GramCount = 0;
 
 	public int indexedCountJoinMin = 0;
+	public int predictedInvokesJoinMin = 0;
 
 	/**
 	 * Actual tokens
