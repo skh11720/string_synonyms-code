@@ -13,6 +13,7 @@ import java.util.Set;
 import mine.Record;
 import tools.DEBUG;
 import tools.IntegerPair;
+import tools.JoinMinCandidateSet;
 import tools.MinPositionQueue;
 import tools.QGram;
 import tools.StaticFunctions;
@@ -288,7 +289,7 @@ public class JoinMinIndex {
 
 		long joinStartTime = System.nanoTime();
 		for( Record recS : tableSearched ) {
-			joinRecord( recS, rslt, writeResult, bw, checker, oneSideJoin );
+			joinRecordMaxK( nIndex, recS, rslt, writeResult, bw, checker, oneSideJoin );
 		}
 		joinTime = System.nanoTime() - joinStartTime;
 
@@ -556,6 +557,109 @@ public class JoinMinIndex {
 
 		equivComparisons += twoCandidates.size();
 		for( Record recR : twoCandidates ) {
+			long ruleiters = 0;
+			long reccalls = 0;
+			long entryiters = 0;
+
+			if( DEBUG.JoinMinON ) {
+				ruleiters = Validator.niterrules;
+				reccalls = Validator.recursivecalls;
+				entryiters = Validator.niterentry;
+			}
+
+			long st = System.nanoTime();
+			int compare = checker.isEqual( recS, recR );
+			long duration = System.nanoTime() - st;
+
+			if( DEBUG.JoinMinON ) {
+				ruleiters = Validator.niterrules - ruleiters;
+				reccalls = Validator.recursivecalls - reccalls;
+				entryiters = Validator.niterentry - entryiters;
+
+				// bw.write( duration + "\t" + compare + "\t" + recR.size() + "\t" + recR.getRuleCount() + "\t"
+				// + recR.getFirstRuleCount() + "\t" + recS.size() + "\t" + recS.getRuleCount() + "\t"
+				// + recS.getFirstRuleCount() + "\t" + ruleiters + "\t" + reccalls + "\t" + entryiters + "\n" );
+			}
+
+			comparisonTime += duration;
+			if( compare >= 0 ) {
+				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+				appliedRulesSum += compare;
+			}
+		}
+
+		if( DEBUG.JoinMinJoinON ) {
+			long joinTime = System.nanoTime() - joinStartTime;
+
+			try {
+				bw.write( "" + qgramCount );
+				bw.write( " " + joinTime );
+				bw.write( "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void joinRecordMaxK( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
+			Validator checker, boolean oneSideJoin ) {
+		long qgramStartTime = 0;
+		long joinStartTime = 0;
+		long qgramCount = 0;
+
+		if( DEBUG.JoinMinON ) {
+			qgramStartTime = System.nanoTime();
+		}
+
+		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
+
+		if( DEBUG.JoinMinON ) {
+			getQGramTime += System.nanoTime() - qgramStartTime;
+		}
+
+		int[] range = recS.getCandidateLengths( recS.size() - 1 );
+		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
+
+		if( DEBUG.JoinMinJoinON ) {
+			joinStartTime = System.nanoTime();
+		}
+
+		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex );
+
+		for( int i = 0; i < searchmax; ++i ) {
+			Map<QGram, List<Record>> curridx = idx.get( i );
+			if( curridx == null ) {
+				continue;
+			}
+
+			for( QGram qgram : availableQGrams.get( i ) ) {
+				if( DEBUG.JoinMinJoinON ) {
+					qgramCount++;
+				}
+
+				List<Record> tree = curridx.get( qgram );
+
+				if( tree == null ) {
+					continue;
+				}
+
+				for( Record e : tree ) {
+					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
+						allCandidateSet.add( e );
+						comparisonCount++;
+					}
+					else {
+						lengthFiltered++;
+					}
+				}
+			}
+		}
+
+		ArrayList<Record> candSet = allCandidateSet.getCandSet();
+
+		equivComparisons += candSet.size();
+		for( Record recR : candSet ) {
 			long ruleiters = 0;
 			long reccalls = 0;
 			long entryiters = 0;
@@ -1457,7 +1561,10 @@ public class JoinMinIndex {
 
 				idx.predictCount += mpq.minInvokes;
 
+				int indexedCount = 0;
 				while( !mpq.isEmpty() ) {
+					indexedCount++;
+
 					int minIdx = mpq.pollIndex();
 					idx.setIndex( minIdx );
 					for( QGram qgram : availableQGrams.get( minIdx ) ) {
@@ -1473,6 +1580,8 @@ public class JoinMinIndex {
 						indexedElements += availableQGrams.get( minIdx ).size();
 					}
 				}
+
+				rec.indexedCountJoinMin = indexedCount;
 			}
 
 			idx.indexTime = System.nanoTime() - starttime;
