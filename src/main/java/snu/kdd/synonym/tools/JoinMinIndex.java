@@ -633,6 +633,8 @@ public class JoinMinIndex {
 				continue;
 			}
 
+			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
+
 			for( QGram qgram : availableQGrams.get( i ) ) {
 				if( DEBUG.JoinMinJoinON ) {
 					qgramCount++;
@@ -646,7 +648,7 @@ public class JoinMinIndex {
 
 				for( Record e : tree ) {
 					if( StaticFunctions.overlap( e.getMinLength(), e.getMaxLength(), range[ 0 ], range[ 1 ] ) ) {
-						allCandidateSet.add( e );
+						candidates.add( e );
 						comparisonCount++;
 					}
 					else {
@@ -654,6 +656,7 @@ public class JoinMinIndex {
 					}
 				}
 			}
+			allCandidateSet.add( candidates );
 		}
 
 		ArrayList<Record> candSet = allCandidateSet.getCandSet();

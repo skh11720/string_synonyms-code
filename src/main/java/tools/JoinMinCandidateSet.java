@@ -15,14 +15,16 @@ public class JoinMinCandidateSet {
 		this.nIndex = nIndex;
 	}
 
-	public void add( Record r ) {
-		Integer count = appearingMap.get( r );
+	public void add( WYK_HashSet<Record> set ) {
+		for( Record r : set ) {
+			Integer count = appearingMap.get( r );
 
-		if( count == null ) {
-			appearingMap.put( r, 1 );
-		}
-		else {
-			appearingMap.put( r, count + 1 );
+			if( count == null ) {
+				appearingMap.put( r, 1 );
+			}
+			else {
+				appearingMap.put( r, count + 1 );
+			}
 		}
 	}
 
