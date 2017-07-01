@@ -282,7 +282,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 				Set<Record> candidates = new WYK_HashSet<Record>();
 
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition );
+				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
 
 				// long recordStartTime = System.nanoTime();
 				int[] range = recS.getCandidateLengths( recS.size() - 1 );
