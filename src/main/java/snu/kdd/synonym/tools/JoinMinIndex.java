@@ -1043,7 +1043,7 @@ public class JoinMinIndex {
 					// write2File(bw, minIdx, twogram, rec.getID());
 
 					if( DEBUG.PrintJoinMinIndexON ) {
-						bw_index.write( minIdx + ", " + qgram + " : " + rec + "\n" );
+						bw_index.write( minIdx + "(" + minInvokes + "), " + qgram + " : " + rec + "\n" );
 					}
 
 					idx.put( minIdx, qgram, rec );
