@@ -20,7 +20,7 @@ public class DEBUG {
 	public static final boolean SampleStatOn = false;
 	public static final boolean ValidateON = false;
 
-	public static final boolean PrintJoinMinIndexON = false;
+	public static final boolean PrintJoinMinIndexON = true;
 	public static final boolean PrintNaiveIndexON = false;
 
 	public static void main( String args[] ) {
