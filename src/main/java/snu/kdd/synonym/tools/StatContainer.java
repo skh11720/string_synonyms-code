@@ -302,7 +302,7 @@ public class StatContainer {
 				bld.append( "," );
 			}
 			bld.append( "\"" + nameList.get( i ) + "\":" );
-			bld.append( "\"" + valueList.get( i ).replaceAll( "\"", "\\\"" ) + "\"" );
+			bld.append( "\"" + valueList.get( i ).replaceAll( "\"", "\\\\\"" ) + "\"" );
 		}
 
 		return bld.toString();
