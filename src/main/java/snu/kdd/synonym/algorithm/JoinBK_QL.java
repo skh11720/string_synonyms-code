@@ -108,20 +108,30 @@ public class JoinBK_QL extends AlgorithmTemplate {
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
 		int minimumSize = 5;
-		int[] count = new int[ minimumSize ];
+		// int[] count = new int[ minimumSize ];
+
+		List<WYK_HashSet<QGram>> qgramSetList = new ArrayList<WYK_HashSet<QGram>>();
+		for( int i = 0; i < minimumSize; i++ ) {
+			qgramSetList.add( new WYK_HashSet<QGram>() );
+		}
+
 		for( Record rec : tableSearched ) {
 			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
 
 			for( int i = 0; i < minimumSize; i++ ) {
-				count[ i ] += qgrams.get( i ).size();
+				WYK_HashSet<QGram> set = qgramSetList.get( i );
+				set.addAll( qgrams.get( i ) );
+				// count[ i ] += qgrams.get( i ).size();
 			}
 		}
 
 		MinPositionQueue mpq = new MinPositionQueue( maxIndexLength );
 
 		for( int i = 0; i < minimumSize; i++ ) {
-			System.out.println( "Index " + i + " " + count[ i ] );
-			mpq.add( i, count[ i ] );
+			// System.out.println( "Index " + i + " " + count[ i ] );
+			System.out.println( "Index " + i + " " + qgramSetList.get( i ).size() );
+			mpq.add( i, qgramSetList.get( i ).size() );
+			// mpq.add( i, count[ i ] );
 		}
 
 		int i = maxIndexLength - 1;
