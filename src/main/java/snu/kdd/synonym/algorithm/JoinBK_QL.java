@@ -84,7 +84,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		}
 
-		ArrayList<IntegerPair> rslt = join();
+		ArrayList<IntegerPair> rslt = join( indexPosition );
 
 		if( DEBUG.JoinMHOn ) {
 			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
@@ -126,7 +126,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 			// Build an index
 
 			idx = new ArrayList<Map<QGram, List<IntIntRecordTriple>>>();
-			for( int i = 0; i <= maxPosition; ++i ) {
+			for( int i = 0; i < maxIndexLength; ++i ) {
 				idx.add( new WYK_HashMap<QGram, List<IntIntRecordTriple>>() );
 			}
 
@@ -143,9 +143,10 @@ public class JoinBK_QL extends AlgorithmTemplate {
 					availableQGrams = rec.getSelfQGrams( qgramSize, maxPosition + 1 );
 				}
 
-				for( int i : indexPosition ) {
+				for( int i = 0; i < indexPosition.length; i++ ) {
 					Map<QGram, List<IntIntRecordTriple>> map = idx.get( i );
-					for( QGram qgram : availableQGrams.get( i ) ) {
+					int actualIndex = indexPosition[ i ];
+					for( QGram qgram : availableQGrams.get( actualIndex ) ) {
 						List<IntIntRecordTriple> list = map.get( qgram );
 						if( list == null ) {
 							list = new ArrayList<IntIntRecordTriple>();
@@ -153,7 +154,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 						}
 						list.add( new IntIntRecordTriple( range[ 0 ], range[ 1 ], rec ) );
 					}
-					elements += availableQGrams.get( i ).size();
+					elements += availableQGrams.get( actualIndex ).size();
 				}
 			}
 
@@ -241,7 +242,14 @@ public class JoinBK_QL extends AlgorithmTemplate {
 		}
 	}
 
-	private ArrayList<IntegerPair> join() {
+	private ArrayList<IntegerPair> join( int[] indexPosition ) {
+		int maxPosition = 0;
+		for( int idx : indexPosition ) {
+			if( maxPosition < idx ) {
+				maxPosition = idx;
+			}
+		}
+
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		long count = 0;
@@ -274,7 +282,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 				Set<Record> candidates = new WYK_HashSet<Record>();
 
 				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
-				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxIndexLength );
+				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition );
 
 				// long recordStartTime = System.nanoTime();
 				int[] range = recS.getCandidateLengths( recS.size() - 1 );
@@ -288,7 +296,9 @@ public class JoinBK_QL extends AlgorithmTemplate {
 
 					Set<Record> candidatesAppeared = new WYK_HashSet<Record>();
 
-					for( QGram qgram : availableQGrams.get( i ) ) {
+					int actualIndex = indexPosition[ i ];
+
+					for( QGram qgram : availableQGrams.get( actualIndex ) ) {
 						// elements++;
 						List<IntIntRecordTriple> list = map.get( qgram );
 						if( list == null ) {
@@ -319,7 +329,6 @@ public class JoinBK_QL extends AlgorithmTemplate {
 							}
 						}
 						cand_sum_afterprune[ i ] += candidatesAppeared.size();
-
 					}
 					candidates.clear();
 					Set<Record> temp = candidatesAppeared;
