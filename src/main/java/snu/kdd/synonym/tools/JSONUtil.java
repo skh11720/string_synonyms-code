@@ -43,7 +43,7 @@ public class JSONUtil {
 				bw.write( "\"" );
 				bw.write( nameList.get( i ) );
 				bw.write( "\": \"" );
-				bw.write( valueList.get( i ).toString().replaceAll( "\"", "\\\"" ) );
+				bw.write( valueList.get( i ).toString() );
 				bw.write( "\"" );
 			}
 			bw.write( "\n}" );
