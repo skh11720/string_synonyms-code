@@ -642,6 +642,82 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		return resultQGram;
 	}
 
+	public List<Integer> getQGramCount( int q, int range ) {
+		getQGramCount++;
+		List<Integer> positionalQGramCount = new ArrayList<Integer>();
+
+		int maxLength = Integer.min( range, getMaxLength() );
+		for( int i = 0; i < maxLength; i++ ) {
+			positionalQGramCount.add( 0 );
+		}
+
+		for( int t = 0; t < tokens.length; t++ ) {
+			Rule[] rules = applicableRules[ t ];
+
+			int minIndex;
+			int maxIndex;
+
+			if( t == 0 ) {
+				minIndex = 0;
+				maxIndex = 0;
+			}
+			else {
+				minIndex = transformedLengths[ t - 1 ][ 0 ];
+				maxIndex = transformedLengths[ t - 1 ][ 1 ];
+			}
+
+			if( minIndex >= range ) {
+				continue;
+			}
+
+			// try {
+			for( int r = 0; r < rules.length; r++ ) {
+				Rule startRule = rules[ r ];
+
+				Stack<QGramEntry> stack = new Stack<QGramEntry>();
+
+				stack.add( new QGramEntry( q, startRule, t ) );
+
+				while( !stack.isEmpty() ) {
+					QGramEntry entry = stack.pop();
+
+					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
+						entry.generateQGramCount( q, positionalQGramCount, minIndex, maxIndex, range );
+					}
+					else {
+						if( entry.rightMostIndex < tokens.length ) {
+							// append
+
+							entry.generateQGramCount( q, positionalQGramCount, minIndex, maxIndex, range );
+
+							if( minIndex + entry.builtPosition < range ) {
+								for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+
+									QGramEntry newEntry = new QGramEntry( entry, nextRule );
+
+									if( newEntry.length >= q + newEntry.getBothRHSLength() - 2 ) {
+										newEntry.generateQGramCount( q, positionalQGramCount, minIndex, maxIndex, range );
+									}
+									else {
+										stack.add( newEntry );
+									}
+								}
+							}
+
+						}
+						else {
+							// add EOF
+							entry.eof = true;
+							entry.generateQGramCount( q, positionalQGramCount, minIndex, maxIndex, range );
+						}
+					}
+				}
+			}
+		}
+
+		return positionalQGramCount;
+	}
+
 	public static class QGramEntry {
 		private Rule[] ruleList;
 		private int length;
@@ -825,6 +901,80 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 				}
 			}
 			builtPosition = i;
+		}
+
+		public void generateQGramCount( int q, List<Integer> qgramCount, int min, int max, int range ) {
+			if( !eof && length < q ) {
+				return;
+			}
+
+			Rule firstRule = ruleList[ 0 ];
+
+			int[] to = firstRule.getTo();
+			int firstRuleToSize = to.length;
+
+			int lastSize;
+
+			if( eof ) {
+				lastSize = firstRuleToSize;
+			}
+			else {
+				lastSize = Integer.min( length - q + 1, firstRuleToSize );
+			}
+
+			int i = builtPosition;
+			for( ; i < lastSize; i++ ) {
+				if( i + min >= range ) {
+					break;
+				}
+
+				int idx = 0;
+				boolean stop = false;
+
+				// set first rule part
+				for( int p = i; p < firstRuleToSize; p++ ) {
+					if( idx == q ) {
+						addQGramCount( qgramCount, min, max, i, range );
+						stop = true;
+						break;
+					}
+				}
+
+				if( !stop ) {
+					for( int r = 1; r < ruleList.length; r++ ) {
+						Rule otherRule = ruleList[ r ];
+
+						int[] otherRuleTo = otherRule.getTo();
+						int otherRuleToSize = otherRuleTo.length;
+
+						for( int p = 0; p < otherRuleToSize; p++ ) {
+							if( idx == q ) {
+								addQGramCount( qgramCount, min, max, i, range );
+								stop = true;
+								break;
+							}
+						}
+					}
+				}
+
+				if( !stop ) {
+					addQGramCount( qgramCount, min, max, i, range );
+				}
+			}
+			builtPosition = i;
+		}
+
+		public void addQGramCount( List<Integer> qgramCount, int min, int max, int i, int range ) {
+			int iterMinIndex = min + i;
+			int iterMaxIndex = max + i;
+
+			for( int p = iterMinIndex; p <= iterMaxIndex; p++ ) {
+				if( p >= range ) {
+					break;
+				}
+
+				qgramCount.add( p, qgramCount.get( p ) + 1 );
+			}
 		}
 
 		public void addQGram( QGram qgram, List<List<QGram>> qgrams, int min, int max, int i, int range ) {

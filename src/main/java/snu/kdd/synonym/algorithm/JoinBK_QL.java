@@ -105,14 +105,15 @@ public class JoinBK_QL extends AlgorithmTemplate {
 
 	private int[] estimateIndexPosition( int maxIndexLength ) {
 		int[] indexPosition = new int[ maxIndexLength ];
+		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
 		int minimumSize = 5;
 		int[] count = new int[ minimumSize ];
 		for( Record rec : tableSearched ) {
-			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
+			List<Integer> qgrams = rec.getQGramCount( qgramSize, minimumSize + 1 );
 
 			for( int i = 0; i < minimumSize; i++ ) {
-				count[ i ] += qgrams.get( i ).size();
+				count[ i ] += qgrams.get( i );
 			}
 		}
 
@@ -136,6 +137,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 		}
 
 		stat.add( "Auto_BestPosition", bld.toString() );
+		stat.add( estimateIndex );
 		return indexPosition;
 	}
 
