@@ -110,10 +110,10 @@ public class JoinBK_QL extends AlgorithmTemplate {
 		int minimumSize = 5;
 		int[] count = new int[ minimumSize ];
 		for( Record rec : tableSearched ) {
-			List<Integer> qgrams = rec.getQGramCount( qgramSize, minimumSize + 1 );
+			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
 
 			for( int i = 0; i < minimumSize; i++ ) {
-				count[ i ] += qgrams.get( i );
+				count[ i ] += qgrams.get( i ).size();
 			}
 		}
 
