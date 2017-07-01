@@ -126,7 +126,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 			// Build an index
 
 			idx = new ArrayList<Map<QGram, List<IntIntRecordTriple>>>();
-			for( int i = 0; i <= maxIndexLength; ++i ) {
+			for( int i = 0; i <= maxPosition; ++i ) {
 				idx.add( new WYK_HashMap<QGram, List<IntIntRecordTriple>>() );
 			}
 
