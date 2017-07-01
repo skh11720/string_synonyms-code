@@ -104,6 +104,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 
 	private int[] estimateIndexPosition( int maxIndexLength ) {
 		int[] indexPosition = new int[ maxIndexLength ];
+		indexPosition[ 0 ] = 3;
 		return indexPosition;
 	}
 
