@@ -15,6 +15,7 @@ import snu.kdd.synonym.tools.Util;
 import tools.DEBUG;
 import tools.IntIntRecordTriple;
 import tools.IntegerPair;
+import tools.MinPositionQueue;
 import tools.QGram;
 import tools.StaticFunctions;
 import tools.WYK_HashMap;
@@ -104,11 +105,31 @@ public class JoinBK_QL extends AlgorithmTemplate {
 
 	private int[] estimateIndexPosition( int maxIndexLength ) {
 		int[] indexPosition = new int[ maxIndexLength ];
-		indexPosition[ 0 ] = 3;
-		indexPosition[ 1 ] = 0;
+
+		int minimumSize = 5;
+		int[] count = new int[ minimumSize ];
+		for( Record rec : tableSearched ) {
+			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
+
+			for( int i = 0; i < minimumSize; i++ ) {
+				count[ i ] += qgrams.get( i ).size();
+			}
+		}
+
+		MinPositionQueue mpq = new MinPositionQueue( maxIndexLength );
+
+		for( int i = 0; i < minimumSize; i++ ) {
+			mpq.add( i, count[ i ] );
+		}
+
+		int i = maxIndexLength - 1;
+		while( !mpq.isEmpty() ) {
+			indexPosition[ i ] = mpq.pollIndex();
+			i--;
+		}
 
 		StringBuilder bld = new StringBuilder();
-		for( int i = 0; i < indexPosition.length; i++ ) {
+		for( i = 0; i < indexPosition.length; i++ ) {
 			bld.append( indexPosition[ i ] );
 			bld.append( " " );
 		}
