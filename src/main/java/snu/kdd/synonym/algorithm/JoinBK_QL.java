@@ -119,6 +119,7 @@ public class JoinBK_QL extends AlgorithmTemplate {
 		MinPositionQueue mpq = new MinPositionQueue( maxIndexLength );
 
 		for( int i = 0; i < minimumSize; i++ ) {
+			System.out.println( "Index " + i + " " + count[ i ] );
 			mpq.add( i, count[ i ] );
 		}
 
