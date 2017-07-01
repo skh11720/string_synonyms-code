@@ -137,10 +137,10 @@ public class JoinBK_QL extends AlgorithmTemplate {
 
 				List<List<QGram>> availableQGrams = null;
 				if( !oneSideJoin ) {
-					availableQGrams = rec.getQGrams( qgramSize, maxPosition );
+					availableQGrams = rec.getQGrams( qgramSize, maxPosition + 1 );
 				}
 				else {
-					availableQGrams = rec.getSelfQGrams( qgramSize, maxPosition );
+					availableQGrams = rec.getSelfQGrams( qgramSize, maxPosition + 1 );
 				}
 
 				for( int i : indexPosition ) {
