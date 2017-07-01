@@ -13,6 +13,7 @@ import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.algorithm.CheckQGram;
+import snu.kdd.synonym.algorithm.JoinBK_QL;
 import snu.kdd.synonym.algorithm.JoinHybridOpt_Q;
 import snu.kdd.synonym.algorithm.JoinHybridThres_Q;
 import snu.kdd.synonym.algorithm.JoinMH_QL;
@@ -64,6 +65,7 @@ public class Driver {
 		JoinMin_OLD,
 		JoinHybridThres,
 		JoinHybridOpt,
+		JoinBK,
 		SIJoin,
 		DebugAlg,
 		CheckQGram,
@@ -144,6 +146,10 @@ public class Driver {
 			break;
 		case SIJoin:
 			alg = new SIJoin( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, stat );
+			break;
+
+		case JoinBK:
+			alg = new JoinBK_QL( rulePath, dataOnePath, dataTwoPath, outputPath, dataInfo, oneSideJoin, stat );
 			break;
 
 		case JoinMH_OLD:
