@@ -53,9 +53,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	}
 
 	private void preprocess() {
-		if( DEBUG.NaiveON ) {
-			stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		}
+		stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 
 		long applicableRules = 0;
 
@@ -144,6 +142,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_3_2_Join_Time" );
+			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		}
 
 		// Join
@@ -158,6 +157,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
 				stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
 				idx.addStat( stat, "Counter_Join" );
+				stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 			}
 		}
 

@@ -31,7 +31,6 @@ import snu.kdd.synonym.estimation.EstimateJoinNaive;
 import snu.kdd.synonym.tools.StatContainer;
 import snu.kdd.synonym.tools.StopWatch;
 import snu.kdd.synonym.tools.Util;
-import tools.DEBUG;
 
 public class Driver {
 
@@ -113,10 +112,7 @@ public class Driver {
 
 		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
 
-		StopWatch initializeTime = null;
-		if( DEBUG.AlgorithmON ) {
-			initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
-		}
+		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
 
 		switch( algorithm ) {
 		case JoinNaive1:
@@ -184,9 +180,7 @@ public class Driver {
 			alg.setSelfJoin( true );
 		}
 
-		if( DEBUG.AlgorithmON ) {
-			initializeTime.stopAndAdd( stat );
-		}
+		initializeTime.stopAndAdd( stat );
 
 		String additionalOptions = cmd.getOptionValue( "additional", "" );
 		if( oneSideJoin ) {
