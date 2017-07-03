@@ -62,43 +62,35 @@ public class JoinMH_QL extends AlgorithmTemplate {
 		StopWatch stepTime = null;
 		StopWatch runTime = null;
 
-		if( DEBUG.JoinMHOn ) {
-			stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		}
+		stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 		preprocess( false, maxIndexLength, false );
 
-		if( DEBUG.JoinMHOn ) {
-			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_1_Index_Building_Time" );
-			runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		}
+		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( "Result_3_1_Index_Building_Time" );
+
+		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 
 		buildIndex();
 
-		if( DEBUG.JoinMHOn ) {
-			stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-		}
+		stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
 		ArrayList<IntegerPair> rslt = join();
 
-		if( DEBUG.JoinMHOn ) {
-			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-			stepTime.stopAndAdd( stat );
+		stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+		stepTime.stopAndAdd( stat );
 
-			runTime.stopAndAdd( stat );
-			System.out.println( "Result " + rslt.size() );
-			stepTime.resetAndStart( "Result_4_Write_Time" );
-		}
+		runTime.stopAndAdd( stat );
+
+		stepTime.resetAndStart( "Result_4_Write_Time" );
 
 		writeResult( rslt );
 
-		if( DEBUG.JoinMHOn ) {
-			stepTime.stopAndAdd( stat );
-		}
+		stepTime.stopAndAdd( stat );
 	}
 
 	private void buildIndex() {
