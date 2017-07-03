@@ -140,29 +140,26 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
 		// Index building
-		StopWatch stepTime = null;
-		if( DEBUG.NaiveON ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
 		idx = NaiveIndex.buildIndex( tableIndexed, avgTransformed, stat, threshold, addStat, oneSideJoin );
 
-		if( DEBUG.NaiveON ) {
-			stepTime.stopQuiet();
-			if( addStat ) {
-				stat.add( stepTime );
-			}
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.stopQuiet();
+		if( addStat ) {
+			stat.add( stepTime );
 		}
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
 		// Join
 		final List<IntegerPair> rslt = idx.join( tableSearched, stat, threshold, addStat, oneSideJoin );
 
-		if( DEBUG.NaiveON ) {
-			stepTime.stopQuiet();
-			if( addStat ) {
-				stat.add( stepTime );
+		if( addStat ) {
+			stat.add( stepTime );
+		}
 
+		stepTime.stopQuiet();
+		if( DEBUG.NaiveON ) {
+			if( addStat ) {
 				stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
 				stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
 				idx.addStat( stat, "Counter_Join" );
