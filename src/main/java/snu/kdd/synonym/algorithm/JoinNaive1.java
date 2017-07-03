@@ -150,6 +150,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
+			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 		}
 
 		if( DEBUG.NaiveON ) {
@@ -157,7 +158,6 @@ public class JoinNaive1 extends AlgorithmTemplate {
 				stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
 				stat.add( "Stat_Counter_Equals", StaticFunctions.compare_cmp_counter );
 				idx.addStat( stat, "Counter_Join" );
-				stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 			}
 		}
 
