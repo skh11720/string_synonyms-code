@@ -175,6 +175,8 @@ public abstract class AlgorithmTemplate {
 		// builds an automata of the set of rules
 		StopWatch preprocessTime = null;
 
+		stat.add( "Mem_1_Initialized", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+
 		if( DEBUG.AlgorithmON ) {
 			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
 		}
