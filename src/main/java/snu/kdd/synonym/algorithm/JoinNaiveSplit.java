@@ -17,7 +17,7 @@ import tools.StaticFunctions;
 /**
  * The Naive algorithm which expands strings from both tables S and T
  */
-public class JoinNaive1 extends AlgorithmTemplate {
+public class JoinNaiveSplit extends AlgorithmTemplate {
 	public boolean skipequiv = false;
 
 	public Rule_ACAutomata automata;
@@ -33,7 +33,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 	public double avgTransformed = 1;
 	public double executionTime;
 
-	public JoinNaive1( AlgorithmTemplate o, StatContainer stat ) {
+	public JoinNaiveSplit( AlgorithmTemplate o, StatContainer stat ) {
 		super( o );
 
 		// build an ac automata / a trie from rule lists
@@ -43,7 +43,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		this.stat = stat;
 	}
 
-	public JoinNaive1( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo, boolean oneSideJoin,
+	public JoinNaiveSplit( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo, boolean oneSideJoin,
 			StatContainer stat ) throws IOException {
 		super( rulefile, Rfile, Sfile, outputfile, dataInfo, oneSideJoin, stat );
 
@@ -110,49 +110,54 @@ public class JoinNaive1 extends AlgorithmTemplate {
 		}
 		this.threshold = Long.valueOf( args[ 0 ] );
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
+		StopWatch stepTime = null;
 		if( DEBUG.NaiveON ) {
 			stat.addPrimary( "cmd_threshold", threshold );
+			stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		}
 
 		preprocess();
 
-		stepTime.stopAndAdd( stat );
-		stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
+		if( DEBUG.NaiveON ) {
+			stepTime.stopAndAdd( stat );
+			stat.add( "Mem_2_Preprocessed", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			stepTime.resetAndStart( "Result_3_Run_Time" );
+		}
 
 		final List<IntegerPair> list = runWithoutPreprocess( true );
 
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
+		if( DEBUG.NaiveON ) {
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_4_Write_Time" );
+		}
 
 		this.writeResult( list );
 
-		stepTime.stopAndAdd( stat );
+		if( DEBUG.NaiveON ) {
+			stepTime.stopAndAdd( stat );
+		}
 	}
 
 	public List<IntegerPair> runWithoutPreprocess( boolean addStat ) {
 		// Index building
-		StopWatch stepTime = null;
-		if( addStat ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
 		idx = NaiveIndex.buildIndex( tableIndexed, avgTransformed, stat, threshold, addStat, oneSideJoin );
 
+		stepTime.stopQuiet();
 		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
+			stat.add( stepTime );
 		}
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
 		// Join
 		final List<IntegerPair> rslt = idx.join( tableSearched, stat, threshold, addStat, oneSideJoin );
 
 		if( addStat ) {
-			stepTime.stopAndAdd( stat );
+			stat.add( stepTime );
 		}
 
+		stepTime.stopQuiet();
 		if( DEBUG.NaiveON ) {
 			if( addStat ) {
 				stat.add( "Stat_Counter_Union", StaticFunctions.union_cmp_counter );
@@ -174,7 +179,7 @@ public class JoinNaive1 extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinNaive1";
+		return "JoinNaiveSplit";
 	}
 
 	@Override
