@@ -70,11 +70,11 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 		}
 		System.out.println( "Time: " + ( System.nanoTime() - startTime ) );
 
-		// System.out.println( "\nExpanded strings with new implementations" );
-		// List<Record> expanded = r.expandAll();
-		// for( Record e : expanded ) {
-		// System.out.println( e );
-		// }
+		System.out.println( "\nExpanded strings with new implementations" );
+		List<Record> expanded = r.expandAll();
+		for( Record e : expanded ) {
+			System.out.println( e );
+		}
 	}
 
 	public static void main( String args[] ) throws IOException {
