@@ -30,8 +30,6 @@ public class JoinMHIndex {
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
 
-		
-		
 		if( indexPosition.length != indexK ) {
 			throw new RuntimeException( "The length of indexPosition should match indexK" );
 		}
@@ -42,8 +40,8 @@ public class JoinMHIndex {
 				maxPosition = idx;
 			}
 		}
-		
-		this.joinMHIndex = new  ArrayList<Map<QGram, List<Record>>>();
+
+		this.joinMHIndex = new ArrayList<Map<QGram, List<Record>>>();
 
 		@SuppressWarnings( "unused" )
 		long elements = 0;
