@@ -229,7 +229,7 @@ public class StatContainer {
 			}
 			else {
 				primarykeyblank[ i ] = 25 - primaryNameList.get( i ).length() - 2;
-				primaryvalueblank[ i ] = 25 - primaryValueList.get( i ).length() + 2;
+				primaryvalueblank[ i ] = 25 - primaryValueList.get( i ).length();
 			}
 		}
 		// due to #
