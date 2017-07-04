@@ -12,6 +12,7 @@ import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMH_QL;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -76,6 +77,9 @@ public class App {
 		switch( algorithmName ) {
 		case JoinNaive:
 			alg = new JoinNaive( query, stat );
+			break;
+		case JoinMH:
+			alg = new JoinMH_QL( query, stat );
 			break;
 		case JoinBK:
 			break;
