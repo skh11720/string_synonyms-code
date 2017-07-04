@@ -52,7 +52,7 @@ public class Record implements Comparable<Record> {
 		if( tokens.length != o.tokens.length ) {
 			return tokens.length - o.tokens.length;
 		}
-		
+
 		int idx = 0;
 		while( idx < tokens.length ) {
 			int cmp = Integer.compare( tokens[ idx ], o.tokens[ idx ] );
@@ -78,6 +78,18 @@ public class Record implements Comparable<Record> {
 
 	public void preprocessRules( ACAutomataR automata ) {
 		applicableRules = automata.applicableRules( tokens );
+	}
+
+	public Rule[] getApplicableRules( int k ) {
+		if( applicableRules == null ) {
+			return null;
+		}
+		else if( k < applicableRules.length ) {
+			return applicableRules[ k ];
+		}
+		else {
+			return Rule.EMPTY_RULE;
+		}
 	}
 
 	public int getNumApplicableRules() {
@@ -326,15 +338,110 @@ public class Record implements Comparable<Record> {
 	}
 
 	public Rule[] getSuffixApplicableRules( int k ) {
-		if( suffixApplicableRules == null )
+		if( suffixApplicableRules == null ) {
 			return null;
-		else if( k < suffixApplicableRules.length )
+		}
+		else if( k < suffixApplicableRules.length ) {
 			return suffixApplicableRules[ k ];
-		else
+		}
+		else {
 			return Rule.EMPTY_RULE;
+		}
 	}
 
 	/* Get positional qgrams */
+
+	public List<List<QGram>> getQGrams( int q ) {
+		getQGramCount++;
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
+
+		int maxLength = getMaxTransLength();
+		for( int i = 0; i < maxLength; i++ ) {
+			positionalQGram.add( new ArrayList<QGram>( 30 ) );
+		}
+
+		for( int t = 0; t < tokens.length; t++ ) {
+			Rule[] rules = applicableRules[ t ];
+
+			int minIndex;
+			int maxIndex;
+
+			if( t == 0 ) {
+				minIndex = 0;
+				maxIndex = 0;
+			}
+			else {
+				minIndex = transformLengths[ t - 1 ][ 0 ];
+				maxIndex = transformLengths[ t - 1 ][ 1 ];
+			}
+
+			// try {
+			for( int r = 0; r < rules.length; r++ ) {
+				Rule startRule = rules[ r ];
+
+				Stack<QGramEntry> stack = new Stack<QGramEntry>();
+
+				stack.add( new QGramEntry( q, startRule, t ) );
+
+				while( !stack.isEmpty() ) {
+					QGramEntry entry = stack.pop();
+
+					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
+						entry.generateQGram( q, positionalQGram, minIndex, maxIndex );
+					}
+					else {
+						if( entry.rightMostIndex < tokens.length ) {
+							// append
+
+							entry.generateQGram( q, positionalQGram, minIndex, maxIndex );
+
+							for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+								stack.add( new QGramEntry( entry, nextRule ) );
+							}
+
+						}
+						else {
+							// add EOF
+							entry.eof = true;
+							entry.generateQGram( q, positionalQGram, minIndex, maxIndex );
+						}
+					}
+				}
+			}
+		}
+
+		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
+
+		int maxSize = 0;
+		for( int i = 0; i < maxLength; i++ ) {
+			int size = positionalQGram.get( i ).size();
+			if( maxSize < size ) {
+				maxSize = size;
+			}
+		}
+
+		// WYK_HashSet.DEBUG = true;
+		WYK_HashSet<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
+
+		for( int i = 0; i < positionalQGram.size(); i++ ) {
+			sQGram.emptyAll();
+
+			List<QGram> pQGram = positionalQGram.get( i );
+			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
+
+			for( QGram qgram : pQGram ) {
+				boolean added = sQGram.add( qgram );
+				if( added ) {
+					lQGram.add( qgram );
+				}
+			}
+
+			resultQGram.add( lQGram );
+		}
+		// WYK_HashSet.DEBUG = false;
+
+		return resultQGram;
+	}
 
 	public List<List<QGram>> getQGrams( int q, int range ) {
 

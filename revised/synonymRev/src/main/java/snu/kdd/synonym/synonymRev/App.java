@@ -65,14 +65,14 @@ public class App {
 		String outputPath = cmd.getOptionValue( "outputPath" );
 		Boolean oneSideJoin = Boolean.parseBoolean( cmd.getOptionValue( "oneSideJoin" ) );
 
+		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
+		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
+
 		Query query = new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
 
 		AlgorithmTemplate alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 		StatContainer stat = new StatContainer();
-
-		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
-		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
 
 		switch( algorithmName ) {
 		case JoinNaive:
