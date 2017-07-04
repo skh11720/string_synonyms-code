@@ -16,6 +16,7 @@ public class Ruleset {
 		this.name = ruleFile;
 
 		BufferedReader br = new BufferedReader( new FileReader( ruleFile ) );
+		ruleList = new ObjectArrayList<>();
 
 		String line;
 		while( ( line = br.readLine() ) != null ) {

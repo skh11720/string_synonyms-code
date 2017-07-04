@@ -16,6 +16,7 @@ public class Dataset {
 		this.name = dataFile;
 
 		String line;
+		recordList = new ObjectArrayList<>();
 
 		nRecord = 0;
 		while( ( line = br.readLine() ) != null ) {

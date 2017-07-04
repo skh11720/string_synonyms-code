@@ -34,6 +34,7 @@ public abstract class AlgorithmTemplate {
 	public AlgorithmTemplate( Query query, StatContainer stat ) throws IOException {
 		this.stat = stat;
 		this.query = query;
+		this.tokenIndex = new TokenIndex();
 
 		ruleSet = new Ruleset( query.ruleFile, tokenIndex );
 
