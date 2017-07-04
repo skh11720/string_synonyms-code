@@ -27,7 +27,6 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 	}
 
-	@SuppressWarnings( "deprecation" )
 	public void printInfo( int id ) {
 		preprocess();
 

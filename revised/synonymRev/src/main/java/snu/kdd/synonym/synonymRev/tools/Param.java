@@ -8,7 +8,9 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
+import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class Param {
@@ -22,7 +24,7 @@ public class Param {
 		argOptions = options;
 	}
 
-	public static Param parseArgs( String[] args, StatContainer stat ) throws IOException, ParseException {
+	public static Param parseArgs( String[] args, StatContainer stat, Query query ) throws IOException, ParseException {
 		CommandLineParser parser = new DefaultParser();
 		Param param = new Param();
 
@@ -38,7 +40,12 @@ public class Param {
 			param.qgramSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
 		}
 
-		param.validator = new TopDown();
+		if( query.oneSideJoin ) {
+			param.validator = new TopDownOneSide();
+		}
+		else {
+			param.validator = new TopDown();
+		}
 
 		return param;
 	}

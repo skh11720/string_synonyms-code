@@ -46,7 +46,7 @@ public class JoinMH_QL extends AlgorithmTemplate {
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat );
+		Param params = Param.parseArgs( args, stat, query );
 
 		indexK = params.indexK;
 		qgramSize = params.qgramSize;
