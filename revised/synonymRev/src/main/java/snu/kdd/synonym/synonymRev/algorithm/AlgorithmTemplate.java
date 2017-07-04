@@ -159,7 +159,8 @@ public abstract class AlgorithmTemplate {
 				Util.printLog( "Writing results " + rslt.size() );
 			}
 
-			final BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile ) );
+			final BufferedWriter bw = new BufferedWriter(
+					new FileWriter( query.outputFile + "/" + getName() ) );
 			bw.write( rslt.size() + "\n" );
 			for( final IntegerPair ip : rslt ) {
 				final Record r = searchedSet.getRecord( ip.i1 );
