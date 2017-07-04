@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
@@ -32,6 +33,15 @@ public class JoinMH_QL extends AlgorithmTemplate {
 	 */
 
 	JoinMHIndex idx;
+
+	@Override
+	protected void preprocess() {
+		super.preprocess();
+
+		for( Record rec : query.indexedSet.get() ) {
+			rec.preprocessSuffixApplicableRules();
+		}
+	}
 
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {

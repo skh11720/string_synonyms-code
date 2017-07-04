@@ -6,7 +6,7 @@ import java.util.Map;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 
-public class TopDownHashSetSinglePath_DS extends Validator {
+public class TopDown extends Validator {
 	private static final Submatch BASIS = new Submatch( 0, 0, null, 0 );
 
 	/**

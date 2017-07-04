@@ -8,7 +8,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import snu.kdd.synonym.synonymRev.validator.TopDownHashSetSinglePath_DS;
+import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class Param {
@@ -38,7 +38,7 @@ public class Param {
 			param.qgramSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
 		}
 
-		param.validator = new TopDownHashSetSinglePath_DS();
+		param.validator = new TopDown();
 
 		return param;
 	}
