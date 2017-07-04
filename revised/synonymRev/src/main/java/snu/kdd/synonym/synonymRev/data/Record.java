@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.data;
 
 import java.util.ArrayList;
 
+import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class Record {
@@ -14,6 +15,9 @@ public class Record {
 	protected int[][] transformLengths = null;
 
 	private long[] estTrans;
+
+	private boolean validHashValue = false;
+	private int hashValue;
 
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		this.id = id;
@@ -206,5 +210,40 @@ public class Record {
 
 	public int getID() {
 		return id;
+	}
+
+	@Override
+	public int hashCode() {
+		if( !validHashValue ) {
+			long tmp = 0;
+			for( int token : tokens ) {
+				tmp = ( tmp << 32 ) + token;
+				tmp = tmp % Util.bigprime;
+			}
+			hashValue = (int) ( tmp % Integer.MAX_VALUE );
+			validHashValue = true;
+		}
+		return hashValue;
+	}
+
+	@Override
+	public boolean equals( Object o ) {
+		if( o != null ) {
+			Record orec = (Record) o;
+
+			if( this == orec ) {
+				return true;
+			}
+			if( id == orec.id ) {
+				if( id == -1 ) {
+					return StaticFunctions.compare( tokens, orec.tokens ) == 0;
+				}
+				return true;
+			}
+			return false;
+		}
+		else {
+			return false;
+		}
 	}
 }

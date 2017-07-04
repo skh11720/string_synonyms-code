@@ -8,6 +8,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 public class Util {
+	public static final int bigprime = 1645333507;
 
 	public static void printLog( String message ) {
 		System.out.println( toLogString( message ) );
