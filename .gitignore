@@ -18,7 +18,7 @@ JiahengLu/
 result/
 output/
 exp/~$exp.xlsx
-data/
+/data/
 exp/~$exp2.xlsx
 exp/~$JoinNaive1_1.0.xlsx
 exp/~$JoinMH_QL_1.1.xlsx
