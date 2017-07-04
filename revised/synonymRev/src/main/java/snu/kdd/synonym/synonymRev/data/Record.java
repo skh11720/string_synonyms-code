@@ -1,9 +1,14 @@
 package snu.kdd.synonym.synonymRev.data;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
+import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.QGramEntry;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
 public class Record {
 	public static int expandAllCount = 0;
@@ -20,6 +25,9 @@ public class Record {
 	private int hashValue;
 
 	public static TokenIndex tokenIndex = null;
+	protected Rule[][] suffixApplicableRules = null;
+
+	public int getQGramCount = 0;
 
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		if( Record.tokenIndex == null ) {
@@ -37,6 +45,10 @@ public class Record {
 	public Record( int[] tokens ) {
 		this.id = -1;
 		this.tokens = tokens;
+	}
+
+	public int[] getTokens() {
+		return tokens;
 	}
 
 	public int getTokenCount() {
@@ -206,6 +218,18 @@ public class Record {
 		}
 	}
 
+	public int[] getTransLengths() {
+		return transformLengths[ tokens.length - 1 ];
+	}
+
+	public int getMaxTransLength() {
+		return transformLengths[ tokens.length - 1 ][ 1 ];
+	}
+
+	public int getMinTransLength() {
+		return transformLengths[ tokens.length - 1 ][ 0 ];
+	}
+
 	public String toString() {
 		if( Record.tokenIndex != null ) {
 			return toString( Record.tokenIndex );
@@ -260,5 +284,191 @@ public class Record {
 		else {
 			return false;
 		}
+	}
+
+	/* Get/set suffix applicable rules for validators */
+
+	public void preprocessSuffixApplicableRules() {
+		List<List<Rule>> tmplist = new ArrayList<List<Rule>>();
+
+		for( int i = 0; i < tokens.length; ++i ) {
+			tmplist.add( new ArrayList<Rule>() );
+		}
+
+		for( int i = tokens.length - 1; i >= 0; --i ) {
+			for( Rule rule : applicableRules[ i ] ) {
+				int suffixidx = i + rule.getLeft().length - 1;
+				tmplist.get( suffixidx ).add( rule );
+			}
+		}
+
+		suffixApplicableRules = new Rule[ tokens.length ][];
+		for( int i = 0; i < tokens.length; ++i ) {
+			suffixApplicableRules[ i ] = tmplist.get( i ).toArray( new Rule[ 0 ] );
+		}
+	}
+
+	public Rule[] getSuffixApplicableRules( int k ) {
+		if( suffixApplicableRules == null )
+			return null;
+		else if( k < suffixApplicableRules.length )
+			return suffixApplicableRules[ k ];
+		else
+			return Rule.EMPTY_RULE;
+	}
+
+	/* Get positional qgrams */
+
+	public List<List<QGram>> getQGrams( int q, int range ) {
+
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
+
+		int maxLength = Integer.min( range, getMaxTransLength() );
+		for( int i = 0; i < maxLength; i++ ) {
+			positionalQGram.add( new ArrayList<QGram>( 30 ) );
+		}
+
+		for( int t = 0; t < tokens.length; t++ ) {
+			Rule[] rules = applicableRules[ t ];
+
+			int minIndex;
+			int maxIndex;
+
+			if( t == 0 ) {
+				minIndex = 0;
+				maxIndex = 0;
+			}
+			else {
+				minIndex = transformLengths[ t - 1 ][ 0 ];
+				maxIndex = transformLengths[ t - 1 ][ 1 ];
+			}
+
+			if( minIndex >= range ) {
+				continue;
+			}
+
+			// try {
+			for( int r = 0; r < rules.length; r++ ) {
+				Rule startRule = rules[ r ];
+
+				Stack<QGramEntry> stack = new Stack<QGramEntry>();
+
+				stack.add( new QGramEntry( q, startRule, t ) );
+
+				while( !stack.isEmpty() ) {
+					QGramEntry entry = stack.pop();
+
+					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
+						entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
+					}
+					else {
+						if( entry.rightMostIndex < tokens.length ) {
+							// append
+
+							entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
+
+							if( minIndex + entry.builtPosition < range ) {
+								for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+
+									QGramEntry newEntry = new QGramEntry( entry, nextRule );
+
+									if( newEntry.length >= q + newEntry.getBothRHSLength() - 2 ) {
+										newEntry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
+									}
+									else {
+										stack.add( newEntry );
+									}
+								}
+							}
+
+						}
+						else {
+							// add EOF
+							entry.eof = true;
+							entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
+						}
+					}
+				}
+			}
+		}
+
+		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
+
+		int maxSize = 0;
+		for( int i = 0; i < maxLength; i++ ) {
+			int size = positionalQGram.get( i ).size();
+			if( maxSize < size ) {
+				maxSize = size;
+			}
+		}
+
+		WYK_HashSet<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
+
+		for( int i = 0; i < positionalQGram.size(); i++ ) {
+			sQGram.emptyAll();
+			List<QGram> pQGram = positionalQGram.get( i );
+
+			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
+
+			for( QGram qgram : pQGram ) {
+				boolean added = sQGram.add( qgram );
+				if( added ) {
+					lQGram.add( qgram );
+				}
+			}
+
+			resultQGram.add( lQGram );
+		}
+
+		return resultQGram;
+	}
+
+	public List<List<QGram>> getSelfQGrams( int q, int range ) {
+		getQGramCount++;
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
+
+		int maxLength = Integer.min( range, getMaxTransLength() );
+		for( int i = 0; i < maxLength; i++ ) {
+			positionalQGram.add( new ArrayList<QGram>( 1 ) );
+		}
+
+		int i = 0;
+		for( ; i < tokens.length - q + 1; i++ ) {
+
+			if( i >= maxLength )
+				break;
+
+			int[] qgramArray = new int[ q ];
+
+			for( int j = 0; j < q; j++ ) {
+				qgramArray[ j ] = tokens[ i + j ];
+			}
+
+			QGram qgram = new QGram( qgramArray );
+
+			List<QGram> list = positionalQGram.get( i );
+
+			list.add( qgram );
+		}
+
+		for( ; i < maxLength; i++ ) {
+			int[] qgramArray = new int[ q ];
+			for( int j = 0; j < q; j++ ) {
+				if( i + j < tokens.length ) {
+					qgramArray[ j ] = tokens[ i + j ];
+				}
+				else {
+					qgramArray[ j ] = Integer.MAX_VALUE;
+				}
+			}
+
+			QGram qgram = new QGram( qgramArray );
+
+			List<QGram> list = positionalQGram.get( i );
+
+			list.add( qgram );
+		}
+
+		return positionalQGram;
 	}
 }

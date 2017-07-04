@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 
+import org.apache.commons.cli.ParseException;
+
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -32,7 +34,7 @@ public abstract class AlgorithmTemplate {
 
 	public abstract String getVersion();
 
-	public abstract void run( Query query, String[] args );
+	public abstract void run( Query query, String[] args ) throws IOException, ParseException;
 
 	public void printStat() {
 		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );

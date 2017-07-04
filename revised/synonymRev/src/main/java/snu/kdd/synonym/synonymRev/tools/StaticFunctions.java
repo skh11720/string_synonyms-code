@@ -8,7 +8,7 @@ public class StaticFunctions {
 		if( str1.length == 0 || str2.length == 0 ) {
 			return str1.length - str2.length;
 		}
-		
+
 		int idx = 0;
 		int lastcmp = 0;
 
@@ -28,5 +28,12 @@ public class StaticFunctions {
 		else {
 			return 1;
 		}
+	}
+
+	public static boolean overlap( int min1, int max1, int min2, int max2 ) {
+		if( min1 > max2 || max1 < min2 ) {
+			return false;
+		}
+		return true;
 	}
 }
