@@ -30,7 +30,7 @@ public class Param {
 
 		stat.add( cmd );
 
-		if( cmd.hasOption( "n" ) ) {
+		if( cmd.hasOption( "K" ) ) {
 			param.indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
 		}
 
