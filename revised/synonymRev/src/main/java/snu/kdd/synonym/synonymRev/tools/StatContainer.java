@@ -223,13 +223,13 @@ public class StatContainer {
 		final int[] primarykeyblank = new int[ primaryNameList.size() ];
 		final int[] primaryvalueblank = new int[ primaryValueList.size() ];
 		for( int i = 0; i < primaryNameList.size(); i++ ) {
-			if( primaryValueList.get( i ).length() > 25 || primaryNameList.get( i ).length() > 25 ) {
+			if( primaryNameList.get( i ).contains( "Path" ) ) {
 				primarykeyblank[ i ] = primaryValueList.get( i ).length() - primaryNameList.get( i ).length() - 2;
 				primaryvalueblank[ i ] = primaryNameList.get( i ).length() + 2 - primaryValueList.get( i ).length();
 			}
 			else {
-				primarykeyblank[ i ] = 25 - primaryNameList.get( i ).length() - 2;
-				primaryvalueblank[ i ] = 25 - primaryValueList.get( i ).length();
+				primarykeyblank[ i ] = 28 - primaryNameList.get( i ).length() - 2;
+				primaryvalueblank[ i ] = 28 - primaryValueList.get( i ).length();
 			}
 		}
 		// due to #
