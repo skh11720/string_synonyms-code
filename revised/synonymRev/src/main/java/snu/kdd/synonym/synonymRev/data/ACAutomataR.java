@@ -140,7 +140,7 @@ public class ACAutomataR {
 
 				if( next.output != null ) {
 					for( final Rule rule : next.output ) {
-						tmprslt[ i - rule.righths.length ].add( rule );
+						tmprslt[ i - rule.lefths.length ].add( rule );
 					}
 				}
 			}
