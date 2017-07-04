@@ -113,7 +113,8 @@ public class NaiveIndex {
 
 					if( DEBUG.PrintNaiveIndexON ) {
 						try {
-							bw.write( recR + "(" + i + ") -> " + exp + "\n" );
+							bw.write( recR.toString( query.tokenIndex ) + "(" + i + ") -> " + exp.toString( query.tokenIndex )
+									+ "\n" );
 						}
 						catch( IOException e ) {
 							e.printStackTrace();
@@ -127,7 +128,7 @@ public class NaiveIndex {
 				if( DEBUG.PrintNaiveIndexON ) {
 					try {
 						bw.write( recR.toString( query.tokenIndex ) + "(" + i + ") -> " + recR.toString( query.tokenIndex )
-								+ "\n" );
+								+ " (hash: " + recR.hashCode() + ")" + "\n" );
 					}
 					catch( IOException e ) {
 						e.printStackTrace();
@@ -259,23 +260,19 @@ public class NaiveIndex {
 		// if( recS.toString().equals( "david almeroth Road cicchetto ALASKA 48939 " ) ) {
 		// debug = true;
 		// }
-		// System.out.println( "join " + recS );
 
 		long expandStartTime = System.nanoTime();
-		// final List<Record> expanded = recS.expandAll( ruletrie );
 		final List<Record> expanded = recS.expandAll();
 		expandTime += System.nanoTime() - expandStartTime;
 
 		totalExp += expanded.size();
-		// final List<List<Integer>> candidates = new ArrayList<List<Integer>>();
+
 		final Set<Integer> candidates = new HashSet<Integer>();
 
 		long searchStartTime = System.nanoTime();
 		for( final Record exp : expanded ) {
 
-			// if( debug ) {
-			// System.out.println( exp );
-			// }
+			System.out.println( exp.toString() + " " + exp.hashCode() );
 
 			final List<Integer> overlapidx = idx.get( exp );
 			if( overlapidx == null ) {

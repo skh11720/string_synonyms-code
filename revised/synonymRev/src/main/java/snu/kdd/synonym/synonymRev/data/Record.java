@@ -19,7 +19,13 @@ public class Record {
 	private boolean validHashValue = false;
 	private int hashValue;
 
+	public static TokenIndex tokenIndex = null;
+
 	public Record( int id, String str, TokenIndex tokenIndex ) {
+		if( Record.tokenIndex == null ) {
+			Record.tokenIndex = tokenIndex;
+		}
+
 		this.id = id;
 		String[] pstr = str.split( "( |\t)+" );
 		tokens = new int[ pstr.length ];
@@ -197,6 +203,15 @@ public class Record {
 				}
 
 			}
+		}
+	}
+
+	public String toString() {
+		if( Record.tokenIndex != null ) {
+			return toString( Record.tokenIndex );
+		}
+		else {
+			return "";
 		}
 	}
 
