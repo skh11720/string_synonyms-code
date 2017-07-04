@@ -19,7 +19,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex {
-	ArrayList<Map<QGram, List<Record>>> idx;
+	ArrayList<Map<QGram, List<Record>>> joinMHIndex;
 
 	int indexK;
 	int qgramSize;
@@ -30,6 +30,8 @@ public class JoinMHIndex {
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
 
+		
+		
 		if( indexPosition.length != indexK ) {
 			throw new RuntimeException( "The length of indexPosition should match indexK" );
 		}
@@ -40,12 +42,14 @@ public class JoinMHIndex {
 				maxPosition = idx;
 			}
 		}
+		
+		this.joinMHIndex = new  ArrayList<Map<QGram, List<Record>>>();
 
 		@SuppressWarnings( "unused" )
 		long elements = 0;
 
 		for( int i = 0; i < indexK; ++i ) {
-			idx.add( new WYK_HashMap<QGram, List<Record>>() );
+			joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>() );
 		}
 
 		for( Record rec : query.indexedSet.get() ) {
@@ -60,7 +64,7 @@ public class JoinMHIndex {
 			}
 
 			for( int i = 0; i < indexPosition.length; i++ ) {
-				Map<QGram, List<Record>> map = idx.get( i );
+				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 				int actualIndex = indexPosition[ i ];
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
 					List<Record> list = map.get( qgram );
@@ -81,7 +85,7 @@ public class JoinMHIndex {
 			// computes the statistics of the indexes
 			String indexStr = "";
 			for( int i = 0; i < indexK; ++i ) {
-				Map<QGram, List<Record>> ithidx = idx.get( i );
+				Map<QGram, List<Record>> ithidx = joinMHIndex.get( i );
 
 				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
 
@@ -129,8 +133,8 @@ public class JoinMHIndex {
 
 			if( DEBUG.JoinMHIndexOn ) {
 				stat.add( "Stat_Index_Size_Per_Position", "\"" + indexStr + "\"" );
-				for( int i = 0; i < idx.size(); i++ ) {
-					WYK_HashMap<QGram, List<Record>> index = (WYK_HashMap<QGram, List<Record>>) idx.get( i );
+				for( int i = 0; i < joinMHIndex.size(); i++ ) {
+					WYK_HashMap<QGram, List<Record>> index = (WYK_HashMap<QGram, List<Record>>) joinMHIndex.get( i );
 					stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
 					stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
 					stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
@@ -176,7 +180,6 @@ public class JoinMHIndex {
 				Record recS = query.searchedSet.getRecord( sid );
 				Set<Record> candidates = new WYK_HashSet<Record>();
 
-				// List<List<Record>> candidatesList = new ArrayList<List<Record>>();
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
 
 				// long recordStartTime = System.nanoTime();
@@ -187,7 +190,7 @@ public class JoinMHIndex {
 
 					// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
 
-					Map<QGram, List<Record>> map = idx.get( i );
+					Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 					Set<Record> candidatesAppeared = new WYK_HashSet<Record>();
 
@@ -226,34 +229,11 @@ public class JoinMHIndex {
 					candidatesAppeared = candidates;
 					candidates = temp;
 
-					// if( i == 0 ) {
-					// Iterator<Record> itr = candidates.iterator();
-					// while( itr.hasNext() ) {
-					// Record rec = itr.next();
-					// if( !recS.shareLastToken( rec ) ) {
-					// itr.remove();
-					// lastTokenFiltered++;
-					// }
-					// }
-					// }
-
 					cand_sum_afterunion[ i ] += candidates.size();
 
 					candidateTimes[ i ].stopQuiet();
 				}
-				// long recordTime = System.nanoTime() - recordStartTime;
-
 				count += candidates.size();
-
-				// DEBUG
-				// if( candidates.size() != 1 ) {
-				// System.out.println( candidates.size() );
-				// for( int i = 0; i < boundary; i++ ) {
-				// for( IntegerPair twogram : available2Grams.get( i ) ) {
-				// System.out.println( twogram.toStrString() );
-				// }
-				// }
-				// }
 
 				equivTime.start();
 				for( Record recR : candidates ) {
@@ -263,16 +243,7 @@ public class JoinMHIndex {
 					}
 				}
 				equivTime.stopQuiet();
-
-				// bw.write( recordTime + " " );
-				// bw.write( ( elements - debug_elements ) + " " );
-				// bw.write( ( getGCCount() - debug_gcCount ) + " " );
-				// bw.write( candidates.size() + " " );
-				// bw.write( "\n" );
-				// debug_elements = elements;
-				// debug_gcCount = getGCCount();
 			}
-			// bw.close();
 		}
 		catch( Exception e ) {
 			e.printStackTrace();
@@ -280,8 +251,7 @@ public class JoinMHIndex {
 
 		stat.add( "Stat_Equiv_Comparison", count );
 
-		if( DEBUG.JoinMHOn ) {
-			// stat.add( "Last Token Filtered", lastTokenFiltered );
+		if( DEBUG.JoinMHIndexOn ) {
 			for( int i = 0; i < indexK; ++i ) {
 				Util.printLog( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
 				Util.printLog( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
