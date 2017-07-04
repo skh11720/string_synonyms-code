@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 
-import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -30,6 +29,8 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 	@SuppressWarnings( "deprecation" )
 	public void printInfo( int id ) {
+		preprocess();
+
 		Record r = query.searchedSet.getRecord( id );
 		System.out.println( r );
 
