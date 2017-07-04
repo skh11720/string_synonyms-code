@@ -22,6 +22,7 @@ import tools.Rule;
 import tools.Rule_ACAutomata;
 
 public abstract class RevAlgorithmTemplate {
+	// Output file path
 	protected String outputfile;
 
 	// Rule
@@ -304,7 +305,7 @@ public abstract class RevAlgorithmTemplate {
 			bw_json = new BufferedWriter( new FileWriter(
 					"json/" + this.getName() + "_"
 							+ new java.text.SimpleDateFormat( "yyyyMMdd_HHmmss_z" ).format( new java.util.Date() ) + ".txt",
-							true ) );
+					true ) );
 
 			bw_json.write( "{" );
 

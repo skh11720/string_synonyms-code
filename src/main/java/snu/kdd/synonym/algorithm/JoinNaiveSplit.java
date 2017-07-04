@@ -91,6 +91,8 @@ public class JoinNaiveSplit extends AlgorithmTemplate {
 				s.preprocessEstimatedRecords();
 				estTransformed += s.getEstNumRecords();
 			}
+
+			s.preprocessLengths();
 		}
 
 		if( !oneSideJoin ) {
