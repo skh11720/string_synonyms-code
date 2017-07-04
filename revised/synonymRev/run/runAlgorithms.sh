@@ -33,7 +33,7 @@ echo RUN_JoinHybridOpt $RUN_JoinHybridOpt
 echo RUN_JoinHybridThres $RUN_JoinHybridThres
 echo RUN_JoinBK $RUN_JoinBK
 echo RUN_DEBUG $RUN_DEBUG
-echo ondSide $oneSide
+echo oneSide $oneSide
 echo "--------------------------------------"
 
 if [[ $# -ne 16 ]];
@@ -71,7 +71,7 @@ if [[ $# -ne 16 ]];
 		#echo java -Xmx8G -Xms4G -cp $LIBS mine.Naive1 $inputfile_one $inputfile_two $rulefile -1
 		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.Naive1 $inputfile_one $inputfile_two $rulefile -1 > $dir"/"logNaive1; }
 		date
-		PREV="JoinNaive1"
+		PREV="JoinNaive"
 	fi
 
 	#JoinNaive2

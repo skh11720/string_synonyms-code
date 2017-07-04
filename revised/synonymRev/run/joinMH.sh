@@ -9,7 +9,7 @@ qSize=$8
 project=$9
 oneSide=${10}
 
-ADDITIONAL="-K $k -qSize $qSize -v TopDownHashSetSinglePathDS 0"
+ADDITIONAL="-K $k -qSize $qSize"
 
 ALG=JoinMH
 
@@ -27,7 +27,7 @@ then
 	echo project $9
 	echo oneSide $oneSide
 else
-	echo $ALG with k=$k and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_$k
+	echo $ALG with k=$k and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_$k\_$qSize
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
 		-algorithm $ALG -oneSideJoin $oneSide \
