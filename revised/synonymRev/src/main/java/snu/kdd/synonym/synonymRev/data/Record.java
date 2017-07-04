@@ -10,7 +10,7 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
-public class Record {
+public class Record implements Comparable<Record> {
 	public static int expandAllCount = 0;
 
 	private int[] tokens;
@@ -45,6 +45,23 @@ public class Record {
 	public Record( int[] tokens ) {
 		this.id = -1;
 		this.tokens = tokens;
+	}
+
+	@Override
+	public int compareTo( Record o ) {
+		if( tokens.length != o.tokens.length ) {
+			return tokens.length - o.tokens.length;
+		}
+		
+		int idx = 0;
+		while( idx < tokens.length ) {
+			int cmp = Integer.compare( tokens[ idx ], o.tokens[ idx ] );
+			if( cmp != 0 ) {
+				return cmp;
+			}
+			++idx;
+		}
+		return 0;
 	}
 
 	public int[] getTokens() {
