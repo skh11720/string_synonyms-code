@@ -223,8 +223,14 @@ public class StatContainer {
 		final int[] primarykeyblank = new int[ primaryNameList.size() ];
 		final int[] primaryvalueblank = new int[ primaryValueList.size() ];
 		for( int i = 0; i < primaryNameList.size(); i++ ) {
-			primarykeyblank[ i ] = primaryValueList.get( i ).length() - primaryNameList.get( i ).length() - 2;
-			primaryvalueblank[ i ] = primaryNameList.get( i ).length() + 2 - primaryValueList.get( i ).length();
+			if( primaryValueList.get( i ).length() > 20 || primaryNameList.get( i ).length() > 20 ) {
+				primarykeyblank[ i ] = primaryValueList.get( i ).length() - primaryNameList.get( i ).length() - 2;
+				primaryvalueblank[ i ] = primaryNameList.get( i ).length() + 2 - primaryValueList.get( i ).length();
+			}
+			else {
+				primarykeyblank[ i ] = 20 - primaryNameList.get( i ).length();
+				primaryvalueblank[ i ] = 20 - primaryValueList.get( i ).length();
+			}
 		}
 		// due to #
 		primarykeyblank[ 0 ] -= 1;
