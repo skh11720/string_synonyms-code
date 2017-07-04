@@ -151,7 +151,8 @@ public abstract class AlgorithmTemplate {
 					continue;
 				}
 
-				bw.write( r.toString( query.tokenIndex ) + "\t==\t" + s.toString( query.tokenIndex ) + "\n" );
+				bw.write( r.toString( query.tokenIndex ) + "(" + r.getID() + ")\t==\t" + s.toString( query.tokenIndex ) + "("
+						+ s.getID() + ")\n" );
 			}
 			bw.close();
 		}
