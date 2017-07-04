@@ -37,10 +37,10 @@ public class JoinNaive extends AlgorithmTemplate {
 		super.preprocess();
 
 		double estTransformed = 0.0;
-		for( Record rec : indexedSet.get() ) {
+		for( Record rec : query.indexedSet.get() ) {
 			estTransformed += rec.getEstNumTransformed();
 		}
-		avgTransformed = estTransformed / indexedSet.size();
+		avgTransformed = estTransformed / query.indexedSet.size();
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class JoinNaive extends AlgorithmTemplate {
 			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		}
 
-		idx = NaiveIndex.buildIndex( indexedSet, avgTransformed, stat, threshold, addStat, query.oneSideJoin );
+		idx = NaiveIndex.buildIndex( avgTransformed, stat, threshold, addStat, query );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -85,7 +85,7 @@ public class JoinNaive extends AlgorithmTemplate {
 		}
 
 		// Join
-		final List<IntegerPair> rslt = idx.join( searchedSet, stat, threshold, addStat, query.oneSideJoin );
+		final List<IntegerPair> rslt = idx.join( stat, threshold, addStat, query );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );

@@ -22,11 +22,6 @@ public abstract class AlgorithmTemplate {
 		JoinNaive, JoinBK
 	}
 
-	protected Ruleset ruleSet;
-	protected Dataset indexedSet;
-	protected Dataset searchedSet;
-	protected TokenIndex tokenIndex;
-
 	// contains statistics of the algorithm
 	StatContainer stat;
 	protected Query query;
@@ -34,18 +29,6 @@ public abstract class AlgorithmTemplate {
 	public AlgorithmTemplate( Query query, StatContainer stat ) throws IOException {
 		this.stat = stat;
 		this.query = query;
-		this.tokenIndex = new TokenIndex();
-
-		ruleSet = new Ruleset( query.ruleFile, tokenIndex );
-
-		if( query.selfJoin ) {
-			indexedSet = new Dataset( query.indexedFile, tokenIndex );
-			searchedSet = indexedSet;
-		}
-		else {
-			indexedSet = new Dataset( query.indexedFile, tokenIndex );
-			searchedSet = new Dataset( query.searchedFile, tokenIndex );
-		}
 	}
 
 	public abstract String getName();
@@ -71,12 +54,12 @@ public abstract class AlgorithmTemplate {
 			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
 		}
 
-		final ACAutomataR automata = new ACAutomataR( ruleSet.get() );
+		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 
 		long applicableRules = 0;
 
 		// Preprocess each records in R
-		for( final Record rec : searchedSet.get() ) {
+		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessRules( automata );
 
 			if( DEBUG.AlgorithmON ) {
@@ -87,12 +70,12 @@ public abstract class AlgorithmTemplate {
 		if( DEBUG.AlgorithmON ) {
 			preprocessTime.stopQuietAndAdd( stat );
 			stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
-			stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / searchedSet.size() ) );
+			stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
 
 			preprocessTime.resetAndStart( "Result_2_2_Preprocess length time" );
 		}
 
-		for( final Record rec : searchedSet.get() ) {
+		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessTransformLength();
 		}
 
@@ -103,7 +86,7 @@ public abstract class AlgorithmTemplate {
 		}
 
 		long maxTSize = 0;
-		for( final Record rec : searchedSet.get() ) {
+		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessEstimatedRecords();
 
 			if( DEBUG.AlgorithmON ) {
@@ -127,7 +110,7 @@ public abstract class AlgorithmTemplate {
 		applicableRules = 0;
 
 		if( !query.selfJoin ) {
-			for( final Record rec : indexedSet.get() ) {
+			for( final Record rec : query.indexedSet.get() ) {
 				rec.preprocessRules( automata );
 				rec.preprocessTransformLength();
 				rec.preprocessEstimatedRecords();
@@ -162,14 +145,14 @@ public abstract class AlgorithmTemplate {
 			final BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile + "/" + getName() ) );
 			bw.write( rslt.size() + "\n" );
 			for( final IntegerPair ip : rslt ) {
-				final Record r = searchedSet.getRecord( ip.i1 );
-				final Record s = indexedSet.getRecord( ip.i2 );
+				final Record r = query.searchedSet.getRecord( ip.i1 );
+				final Record s = query.indexedSet.getRecord( ip.i2 );
 
 				if( query.selfJoin && r.equals( s ) ) {
 					continue;
 				}
 
-				bw.write( r.toString( tokenIndex ) + "\t==\t" + s.toString( tokenIndex ) + "\n" );
+				bw.write( r.toString( query.tokenIndex ) + "\t==\t" + s.toString( query.tokenIndex ) + "\n" );
 			}
 			bw.close();
 		}

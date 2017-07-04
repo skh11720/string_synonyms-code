@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import snu.kdd.synonym.synonymRev.data.Dataset;
+import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -37,10 +38,10 @@ public class NaiveIndex {
 		idx = new WYK_HashMap<Record, ArrayList<Integer>>( initialSize );
 	}
 
-	public static NaiveIndex buildIndex( Dataset indexedSet, double avgTransformed, StatContainer stat, long threshold,
-			boolean addStat, boolean oneSideJoin ) {
+	public static NaiveIndex buildIndex( double avgTransformed, StatContainer stat, long threshold, boolean addStat,
+			Query query ) {
 		final long starttime = System.nanoTime();
-		int initialsize = (int) ( indexedSet.size() * avgTransformed / 2 );
+		int initialsize = (int) ( query.indexedSet.size() * avgTransformed / 2 );
 
 		if( initialsize > 10000 ) {
 			initialsize = 10000;
@@ -72,10 +73,10 @@ public class NaiveIndex {
 
 		long expandTime = 0;
 
-		for( int i = 0; i < indexedSet.size(); ++i ) {
-			final Record recR = indexedSet.getRecord( i );
+		for( int i = 0; i < query.indexedSet.size(); ++i ) {
+			final Record recR = query.indexedSet.getRecord( i );
 
-			if( !oneSideJoin ) {
+			if( !query.oneSideJoin ) {
 				final long est = recR.getEstNumTransformed();
 
 				if( threshold != -1 && est > threshold ) {
@@ -95,7 +96,7 @@ public class NaiveIndex {
 				expandTime += System.nanoTime() - expandStartTime;
 			}
 
-			if( !oneSideJoin ) {
+			if( !query.oneSideJoin ) {
 				expanded = recR.expandAll();
 				totalExpLength += expanded.size() * recR.getTokenCount();
 
@@ -106,7 +107,7 @@ public class NaiveIndex {
 
 			long indexingStartTime = System.nanoTime();
 
-			if( !oneSideJoin ) {
+			if( !query.oneSideJoin ) {
 				for( final Record exp : expanded ) {
 					naiveIndex.addExpaneded( exp, i );
 
@@ -125,7 +126,8 @@ public class NaiveIndex {
 			else {
 				if( DEBUG.PrintNaiveIndexON ) {
 					try {
-						bw.write( recR + "(" + i + ") -> " + recR + "\n" );
+						bw.write( recR.toString( query.tokenIndex ) + "(" + i + ") -> " + recR.toString( query.tokenIndex )
+								+ "\n" );
 					}
 					catch( IOException e ) {
 						e.printStackTrace();
@@ -211,15 +213,16 @@ public class NaiveIndex {
 		stat.add( prefix + "_RemoveFound_Count", idx.removeFoundCount );
 	}
 
-	public List<IntegerPair> join( Dataset searchedSet, StatContainer stat, long threshold, boolean addStat,
-			boolean oneSideJoin ) {
+	public List<IntegerPair> join( StatContainer stat, long threshold, boolean addStat, Query query ) {
 		final List<IntegerPair> rslt = new ArrayList<>();
 		final long starttime = System.nanoTime();
+
+		Dataset searchedSet = query.searchedSet;
 
 		for( int idxS = 0; idxS < searchedSet.size(); ++idxS ) {
 			final Record recS = searchedSet.getRecord( idxS );
 
-			if( !oneSideJoin ) {
+			if( !query.oneSideJoin ) {
 				final long est = recS.getEstNumTransformed();
 				if( threshold != -1 && est > threshold ) {
 					continue;
