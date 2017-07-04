@@ -249,8 +249,8 @@ public class Record {
 			if( this == orec ) {
 				return true;
 			}
-			if( id == orec.id ) {
-				if( id == -1 ) {
+			if( id == orec.id || id == -1 || orec.id == -1 ) {
+				if( id == -1 || orec.id == -1 ) {
 					return StaticFunctions.compare( tokens, orec.tokens ) == 0;
 				}
 				return true;
