@@ -60,7 +60,7 @@ public class PrintRecordInfo extends AlgorithmTemplate {
 
 		System.out.println( "\nQgramWithBound" );
 		startTime = System.nanoTime();
-		qgrams = r.getQGrams( 2, range[ 0 ] );
+		qgrams = r.getQGrams( 2, r.getMinTransLength() );
 		for( int i = 0; i < qgrams.size(); i++ ) {
 			System.out.println( "Position " + i );
 			for( QGram qgram : qgrams.get( i ) ) {
