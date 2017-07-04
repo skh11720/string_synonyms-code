@@ -31,7 +31,7 @@ public class Param {
 		stat.add( cmd );
 
 		if( cmd.hasOption( "n" ) ) {
-			param.indexK = Integer.parseInt( cmd.getOptionValue( "n" ) );
+			param.indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
 		}
 
 		if( cmd.hasOption( "qSize" ) ) {
@@ -43,7 +43,7 @@ public class Param {
 		return param;
 	}
 
-	public int indexK = Integer.MAX_VALUE;
+	public int indexK = 2;
 	public int qgramSize = 2;
 	public Validator validator;
 }
