@@ -10,19 +10,24 @@ public class DataTest {
 	public void test() {
 		ArrayList<Rule> ruleList = new ArrayList<Rule>();
 
-		int[] lhs = new int[ 3 ];
-		int[] rhs = new int[ 2 ];
+		int[] lhs1 = new int[ 3 ];
+		int[] rhs1 = new int[ 2 ];
 
-		lhs[ 0 ] = 1;
-		lhs[ 1 ] = 2;
-		lhs[ 2 ] = 3;
+		lhs1[ 0 ] = 1;
+		lhs1[ 1 ] = 2;
+		lhs1[ 2 ] = 3;
 
-		rhs[ 0 ] = 10;
-		rhs[ 1 ] = 11;
+		rhs1[ 0 ] = 10;
+		rhs1[ 1 ] = 11;
 
-		ruleList.add( new Rule( lhs, rhs ) );
+		ruleList.add( new Rule( lhs1, rhs1 ) );
 
 		ACAutomataR automata = new ACAutomataR( ruleList );
+
+		int[] tokens = { 1, 2, 3, 4 };
+
+		Rule[][] applicable = automata.applicableRules( tokens );
+
 	}
 
 }

@@ -13,6 +13,8 @@ public class TokenIndex {
 		token2IntMap = new Object2IntOpenHashMap<String>();
 		token2IntMap.defaultReturnValue( -1 );
 
+		int2TokenList = new ObjectArrayList<String>();
+
 		// add an empty string with id 0
 		getID( "" );
 	}
@@ -21,7 +23,7 @@ public class TokenIndex {
 		// Get id of token, if a new token is given add it to token2IntMap and int2TokenList
 		int id = token2IntMap.getInt( token );
 
-		if( id < -1 ) {
+		if( id == -1 ) {
 			id = nextNewId++;
 			token2IntMap.put( token, id );
 			int2TokenList.add( token );
@@ -29,8 +31,8 @@ public class TokenIndex {
 
 		return id;
 	}
-	
+
 	public String getToken( int index ) {
-		return int2TokenList.get(index);
+		return int2TokenList.get( index );
 	}
 }

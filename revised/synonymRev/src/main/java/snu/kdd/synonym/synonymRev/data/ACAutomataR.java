@@ -42,7 +42,7 @@ public class ACAutomataR {
 		// 2. Build Trie for rules
 		for( final Rule rule : rules ) {
 			State curr = root;
-			for( final int str : rule.righths ) {
+			for( final int str : rule.lefths ) {
 				State next;
 				if( curr.split != null && ( next = curr.split.get( str ) ) != null ) {
 					curr = next;
