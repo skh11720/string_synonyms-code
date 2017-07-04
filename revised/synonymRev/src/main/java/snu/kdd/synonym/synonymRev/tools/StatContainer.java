@@ -223,7 +223,7 @@ public class StatContainer {
 		final int[] primarykeyblank = new int[ primaryNameList.size() ];
 		final int[] primaryvalueblank = new int[ primaryValueList.size() ];
 		for( int i = 0; i < primaryNameList.size(); i++ ) {
-			if( primaryNameList.get( i ).contains( "Path" ) ) {
+			if( primaryNameList.get( i ).contains( "Path" ) && !primaryNameList.get( i ).contains( "output" ) ) {
 				primarykeyblank[ i ] = 28 - primaryNameList.get( i ).length() - 2;
 				primaryvalueblank[ i ] = 28 - primaryValueList.get( i ).length();
 			}
