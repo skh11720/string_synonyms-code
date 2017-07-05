@@ -69,7 +69,7 @@ public class JoinMHIndex {
 			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actual = indexPosition[ i ];
 
-				if( availableQGrams.size() < actual ) {
+				if( availableQGrams.size() > actual ) {
 					indexedCount++;
 				}
 			}
