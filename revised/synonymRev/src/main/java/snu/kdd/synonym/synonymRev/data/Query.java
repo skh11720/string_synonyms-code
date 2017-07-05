@@ -41,7 +41,9 @@ public class Query {
 		}
 		else {
 			indexedSet = new Dataset( indexedFile, tokenIndex );
-			searchedSet = new Dataset( searchedFile, tokenIndex );
+			if( searchedFile != null ) {
+				searchedSet = new Dataset( searchedFile, tokenIndex );
+			}
 		}
 	}
 }

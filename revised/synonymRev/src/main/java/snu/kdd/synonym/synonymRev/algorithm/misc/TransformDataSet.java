@@ -35,7 +35,7 @@ public class TransformDataSet extends AlgorithmTemplate {
 
 		Random random = new Random( seed );
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile + "/transformed.txt" ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile.replace( ".txt", "transformed.txt" ) ) );
 
 			for( Record rec : query.searchedSet.get() ) {
 				ArrayList<Record> exp = rec.expandAll();
@@ -69,8 +69,8 @@ public class TransformDataSet extends AlgorithmTemplate {
 	public static void main( String args[] ) throws IOException {
 		String rulefile = args[ 0 ];
 		String Rfile = args[ 1 ];
-		String Sfile = args[ 2 ];
-		String outputPath = args[ 3 ];
+		String Sfile = null;
+		String outputPath = args[ 1 ];
 
 		StatContainer stat = new StatContainer();
 		Query query = new Query( rulefile, Rfile, Sfile, false, outputPath );
