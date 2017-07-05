@@ -121,16 +121,6 @@ public class JoinMin extends AlgorithmTemplate {
 	}
 
 	@Override
-	public String getVersion() {
-		return "2.0";
-	}
-
-	@Override
-	public String getName() {
-		return "JoinMin_QL";
-	}
-
-	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
 
@@ -170,5 +160,15 @@ public class JoinMin extends AlgorithmTemplate {
 
 	public double getEpsilon() {
 		return idx.epsilon;
+	}
+
+	@Override
+	public String getVersion() {
+		return "2.0";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinMin_QL";
 	}
 }
