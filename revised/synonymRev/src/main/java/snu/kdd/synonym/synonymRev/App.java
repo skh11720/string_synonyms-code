@@ -34,7 +34,7 @@ public class App {
 			options.addOption( "dataTwoPath", true, "data two path" );
 			options.addOption( "outputPath", true, "output path" );
 			options.addOption( "oneSideJoin", true, "One side join" );
-			options.addOption( Option.builder( "algorithm" ).argName( "Algorithm" ).numberOfArgs( 1 ).build() );
+			options.addOption( "algorithm", true, "Algorithm" );
 
 			options.addOption( "additional", true, "Additional input arguments" );
 
