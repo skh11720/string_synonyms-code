@@ -104,7 +104,7 @@ if [[ $# -ne 16 ]];
 				date
 				./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $K $q $project $oneSide
 				date
-				./compare.sh $PREV JoinMin_Q
+				./compare.sh $PREV JoinMin
 			done
 		done
 		PREV="JoinMin"
@@ -121,7 +121,7 @@ if [[ $# -ne 16 ]];
 				date
 				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide
 				date
-				./compare.sh $PREV JoinMH_QL
+				./compare.sh $PREV JoinMH
 			done
 		done
 		PREV="JoinMH"
@@ -182,7 +182,7 @@ if [[ $# -ne 16 ]];
 			for q in {1..5..1}; do
 				date
 				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide
-				./compare.sh $PREV JoinBK_QL
+				./compare.sh $PREV JoinBK
 			done
 		done
 		PREV="JoinBK"

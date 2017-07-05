@@ -13,14 +13,14 @@ ADDITIONAL="-K $k -qSize $qSize"
 
 ALG=JoinMin
 
-if [[ $# -ne 9 ]];
+if [[ $# -ne 10 ]];
 then
-	echo 'illegal number of parameters: [$ALG]'
-	echo 1 $1
-	echo 2 $2
-	echo 3 $3
-	echo 4 $4
-	echo 5 $5
+	echo illegal number of parameters: [$ALG]
+	echo one $inputfile_one
+	echo two $inputfile_two
+	echo rule $rulefile
+	echo output $outputPath
+	echo log $logdir
 	echo LIBS $LIBS
 	echo k $k
 	echo qSize $qSize
