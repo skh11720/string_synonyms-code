@@ -35,7 +35,7 @@ public class TransformDataSet extends AlgorithmTemplate {
 
 		Random random = new Random( seed );
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile.replace( ".txt", "_transformed.txt" ) ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile.replace( ".txt", "_tf.txt" ) ) );
 
 			for( Record rec : query.searchedSet.get() ) {
 				ArrayList<Record> exp = rec.expandAll();
