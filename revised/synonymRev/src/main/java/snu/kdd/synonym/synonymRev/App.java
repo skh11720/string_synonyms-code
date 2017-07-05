@@ -83,6 +83,7 @@ public class App {
 			break;
 		case JoinMin:
 			alg = new JoinMin( query, stat );
+			break;
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );
