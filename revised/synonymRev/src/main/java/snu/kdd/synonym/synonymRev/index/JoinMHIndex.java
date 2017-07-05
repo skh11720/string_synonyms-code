@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -20,6 +24,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex {
 	ArrayList<Map<QGram, List<Record>>> joinMHIndex;
+	Object2IntOpenHashMap<Record> indexedCountList = new Object2IntOpenHashMap<Record>();
 
 	int indexK;
 	int qgramSize;
@@ -30,8 +35,6 @@ public class JoinMHIndex {
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
 
-		
-		
 		if( indexPosition.length != indexK ) {
 			throw new RuntimeException( "The length of indexPosition should match indexK" );
 		}
@@ -42,8 +45,8 @@ public class JoinMHIndex {
 				maxPosition = idx;
 			}
 		}
-		
-		this.joinMHIndex = new  ArrayList<Map<QGram, List<Record>>>();
+
+		this.joinMHIndex = new ArrayList<Map<QGram, List<Record>>>();
 
 		@SuppressWarnings( "unused" )
 		long elements = 0;
@@ -63,9 +66,24 @@ public class JoinMHIndex {
 				availableQGrams = rec.getSelfQGrams( qgramSize, maxPosition + 1 );
 			}
 
+			int indexedCount = 0;
 			for( int i = 0; i < indexPosition.length; i++ ) {
-				Map<QGram, List<Record>> map = joinMHIndex.get( i );
+				int actual = indexPosition[ i ];
+
+				if( availableQGrams.size() > actual ) {
+					indexedCount++;
+				}
+				indexedCountList.put( rec, indexedCount );
+			}
+
+			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actualIndex = indexPosition[ i ];
+				if( availableQGrams.size() <= actualIndex ) {
+					continue;
+				}
+
+				Map<QGram, List<Record>> map = joinMHIndex.get( i );
+
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
 					List<Record> list = map.get( qgram );
 					if( list == null ) {
@@ -78,7 +96,7 @@ public class JoinMHIndex {
 			}
 		}
 
-		if( DEBUG.JoinMHIndexOn ) {
+		if( DEBUG.JoinMHIndexON ) {
 			stat.add( "Stat_Index_Size", elements );
 			System.out.println( "Index size : " + elements );
 
@@ -106,7 +124,7 @@ public class JoinMHIndex {
 					count += list.size();
 				}
 
-				if( DEBUG.JoinMHIndexOn ) {
+				if( DEBUG.JoinMHIndexON ) {
 					System.out.println( i + "th Single value list size : " + singlelistsize );
 					System.out.println( i + "th iIdx size(w/o 1) : " + count );
 					System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
@@ -131,7 +149,7 @@ public class JoinMHIndex {
 				}
 			}
 
-			if( DEBUG.JoinMHIndexOn ) {
+			if( DEBUG.JoinMHIndexON ) {
 				stat.add( "Stat_Index_Size_Per_Position", "\"" + indexStr + "\"" );
 				for( int i = 0; i < joinMHIndex.size(); i++ ) {
 					WYK_HashMap<QGram, List<Record>> index = (WYK_HashMap<QGram, List<Record>>) joinMHIndex.get( i );
@@ -164,7 +182,6 @@ public class JoinMHIndex {
 
 		long cand_sum[] = new long[ indexK ];
 		long cand_sum_afterprune[] = new long[ indexK ];
-		long cand_sum_afterunion[] = new long[ indexK ];
 		int count_cand[] = new int[ indexK ];
 		int count_empty[] = new int[ indexK ];
 
@@ -174,88 +191,104 @@ public class JoinMHIndex {
 			candidateTimes[ i ] = StopWatch.getWatchStopped( "Result_3_2_2_Cand_" + i + " Time" );
 		}
 
-		try {
-			for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
+		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
 
-				Record recS = query.searchedSet.getRecord( sid );
-				Set<Record> candidates = new WYK_HashSet<Record>();
+			Record recS = query.searchedSet.getRecord( sid );
+			Set<Record> candidates = new WYK_HashSet<Record>();
 
-				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
+			Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
+			candidatesCount.defaultReturnValue( -1 );
 
-				// long recordStartTime = System.nanoTime();
-				int[] range = recS.getTransLengths();
-				int boundary = Math.min( range[ 0 ], indexK );
-				for( int i = 0; i < boundary; ++i ) {
-					candidateTimes[ i ].start();
+			List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
 
-					// List<List<Record>> ithCandidates = new ArrayList<List<Record>>();
-
-					Map<QGram, List<Record>> map = joinMHIndex.get( i );
-
-					Set<Record> candidatesAppeared = new WYK_HashSet<Record>();
-
-					int actualIndex = indexPosition[ i ];
-
-					for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-						// elements++;
-						List<Record> list = map.get( qgram );
-						if( list == null ) {
-							++count_empty[ i ];
-							continue;
-						}
-						cand_sum[ i ] += list.size();
-						++count_cand[ i ];
-						for( Record otherRecord : list ) {
-
-							int[] otherRange = otherRecord.getTransLengths();
-							if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
-								// length filtering
-								if( i == 0 ) {
-									candidatesAppeared.add( otherRecord );
-								}
-								else if( candidates.contains( otherRecord ) ) {
-									// signature filtering
-									candidatesAppeared.add( otherRecord );
-								}
-							}
-							else {
-								lengthFiltered++;
-							}
-						}
-						cand_sum_afterprune[ i ] += candidatesAppeared.size();
-					}
-					candidates.clear();
-					Set<Record> temp = candidatesAppeared;
-					candidatesAppeared = candidates;
-					candidates = temp;
-
-					cand_sum_afterunion[ i ] += candidates.size();
-
-					candidateTimes[ i ].stopQuiet();
+			// long recordStartTime = System.nanoTime();
+			int[] range = recS.getTransLengths();
+			for( int i = 0; i < indexK; ++i ) {
+				int actualIndex = indexPosition[ i ];
+				if( availableQGrams.size() <= actualIndex ) {
+					continue;
 				}
-				count += candidates.size();
 
-				equivTime.start();
-				for( Record recR : candidates ) {
-					int compare = checker.isEqual( recS, recR );
-					if( compare >= 0 ) {
-						rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+				candidateTimes[ i ].start();
+
+				ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
+
+				Map<QGram, List<Record>> map = joinMHIndex.get( i );
+
+				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
+					// elements++;
+					List<Record> list = map.get( qgram );
+					if( list == null ) {
+						++count_empty[ i ];
+						continue;
+					}
+					cand_sum[ i ] += list.size();
+					++count_cand[ i ];
+					for( Record otherRecord : list ) {
+						int[] otherRange = null;
+
+						if( query.oneSideJoin ) {
+							otherRange = new int[ 2 ];
+							otherRange[ 0 ] = otherRecord.getTokenCount();
+							otherRange[ 1 ] = otherRecord.getTokenCount();
+						}
+						else {
+							otherRange = otherRecord.getTransLengths();
+						}
+						
+						if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
+							// length filtering
+
+							ithCandidates.add( otherRecord );
+						}
+						else {
+							lengthFiltered++;
+						}
+					}
+					cand_sum_afterprune[ i ] += candidatesCount.size();
+				}
+
+				for( Record otherRecord : ithCandidates ) {
+					int candCount = candidatesCount.getInt( otherRecord );
+					if( candCount == -1 ) {
+						candidatesCount.put( otherRecord, 1 );
+					}
+					else {
+						candidatesCount.put( otherRecord, candCount + 1 );
 					}
 				}
-				equivTime.stopQuiet();
+
+				candidateTimes[ i ].stopQuiet();
 			}
-		}
-		catch( Exception e ) {
-			e.printStackTrace();
+			count += candidates.size();
+
+			ObjectIterator<Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
+			while( iter.hasNext() ) {
+				Entry<Record> entry = iter.next();
+				Record record = entry.getKey();
+				int recordCount = entry.getIntValue();
+
+				if( indexedCountList.getInt( record ) == recordCount || indexedCountList.getInt( recS ) == recordCount ) {
+					candidates.add( record );
+				}
+			}
+
+			equivTime.start();
+			for( Record recR : candidates ) {
+				int compare = checker.isEqual( recS, recR );
+				if( compare >= 0 ) {
+					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+				}
+			}
+			equivTime.stopQuiet();
 		}
 
 		stat.add( "Stat_Equiv_Comparison", count );
 
-		if( DEBUG.JoinMHIndexOn ) {
+		if( DEBUG.JoinMHIndexON ) {
 			for( int i = 0; i < indexK; ++i ) {
 				Util.printLog( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
 				Util.printLog( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
-				Util.printLog( "Avg candidates(w/o empty, after union) : " + cand_sum_afterunion[ i ] + "/" + count_cand[ i ] );
 				Util.printLog( "Empty candidates : " + count_empty[ i ] );
 			}
 

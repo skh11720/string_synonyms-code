@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.data;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 
 public class TokenIndex {
 	Object2IntOpenHashMap<String> token2IntMap;
@@ -22,7 +23,10 @@ public class TokenIndex {
 	public int getID( String token ) {
 		// Get id of token, if a new token is given add it to token2IntMap and int2TokenList
 		// we transform every character to lower case
-		token = token.toLowerCase();
+
+		if( DEBUG.ToLowerON ) {
+			token = token.toLowerCase();
+		}
 
 		int id = token2IntMap.getInt( token );
 

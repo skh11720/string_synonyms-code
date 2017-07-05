@@ -43,6 +43,7 @@ public class StatContainer {
 			else if( valueName.startsWith( "data_store/" ) ) {
 				valueName = valueName.replaceAll( "data_store/", "" );
 				valueName = valueName.replaceAll( "splitted/", "" );
+				valueName = valueName.replaceAll( "removed/", "" );
 				valueName = valueName.replaceAll( "data.txt", "" );
 			}
 			else if( valueName.startsWith( "/home/" ) ) {
@@ -227,7 +228,7 @@ public class StatContainer {
 			String name = primaryNameList.get( i );
 			String value = primaryValueList.get( i );
 
-			if( name.contains( "Path" ) && !name.contains( "output" ) ) {
+			if( name.contains( "Path" ) && !name.contains( "output" ) && value.length() < 28 ) {
 				primarykeyblank[ i ] = 28 - name.length() - 2;
 				primaryvalueblank[ i ] = 28 - value.length();
 			}

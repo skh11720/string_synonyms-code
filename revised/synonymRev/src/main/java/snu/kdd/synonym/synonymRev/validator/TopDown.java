@@ -130,12 +130,16 @@ public class TopDown extends Validator {
 		++recursivecalls;
 		// If this value is already computed, simply return the computed value.
 		Boolean rslt = Mx.get( match );
-		if( rslt != null )
+		if( rslt != null ) {
 			return rslt;
+		}
+
 		// Check every rule which is applicable to a suffix of x[1..i]
 		++niterentry;
-		if( match.i == 0 )
+		if( match.i == 0 ) {
 			return false;
+		}
+
 		Rule[] rules = x.getSuffixApplicableRules( match.i - 1 );
 		assert ( rules != null );
 		assert ( rules.length != 0 );
@@ -204,12 +208,16 @@ public class TopDown extends Validator {
 		assert ( match.rule != null );
 		// If this value is already computed, simply return the computed value.
 		Boolean rslt = My.get( match );
-		if( rslt != null )
+		if( rslt != null ) {
 			return rslt;
+		}
+
 		// Check every rule which is applicable to a suffix of y[1..j]
 		++niterentry;
-		if( match.j == 0 )
+		if( match.j == 0 ) {
 			return false;
+		}
+
 		Rule[] rules = y.getSuffixApplicableRules( match.j - 1 );
 		assert ( rules != null );
 		assert ( rules.length != 0 );
@@ -224,8 +232,9 @@ public class TopDown extends Validator {
 			// Check if one is a suffix of another
 			boolean isSuffix = true;
 			while( isSuffix && rhsidx >= 0 && remainidx >= 0 ) {
-				if( rhs[ rhsidx ] != str[ remainidx ] )
+				if( rhs[ rhsidx ] != str[ remainidx ] ) {
 					isSuffix = false;
+				}
 				--rhsidx;
 				--remainidx;
 			}

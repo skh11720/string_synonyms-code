@@ -18,7 +18,7 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 
 public abstract class AlgorithmTemplate {
 	public enum AlgorithmName {
-		JoinNaive, JoinMH, JoinBK
+		JoinNaive, JoinMH, JoinBK, JoinMin
 	}
 
 	// contains statistics of the algorithm
@@ -147,11 +147,14 @@ public abstract class AlgorithmTemplate {
 				final Record r = query.searchedSet.getRecord( ip.i1 );
 				final Record s = query.indexedSet.getRecord( ip.i2 );
 
-				if( query.selfJoin && r.equals( s ) ) {
-					continue;
+				if( !DEBUG.printSelfJoinON ) {
+					if( query.selfJoin && r.equals( s ) ) {
+						continue;
+					}
 				}
 
-				bw.write( r.toString( query.tokenIndex ) + "\t==\t" + s.toString( query.tokenIndex ) + "\n" );
+				bw.write( r.toString( query.tokenIndex ) + "(" + r.getID() + ")\t==\t" + s.toString( query.tokenIndex ) + "("
+						+ s.getID() + ")\n" );
 			}
 			bw.close();
 		}

@@ -168,7 +168,7 @@ public class GuiMain extends JFrame {
 			}
 			else if( command.equals( "JoinMH" ) ) {
 				arg = arg + " -algorithm JoinMH -additional";
-				additional = "-n 2 -qSize 2 -compact -v TopDownHashSetSinglePathDS 0";
+				additional = "-K 2 -qSize 1";
 			}
 			else if( command.equals( "JoinDebug" ) ) {
 				// String sample = sampleTextField.getText();

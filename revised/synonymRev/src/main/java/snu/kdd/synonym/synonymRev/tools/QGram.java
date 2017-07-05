@@ -1,6 +1,6 @@
 package snu.kdd.synonym.synonymRev.tools;
 
-import java.util.List;
+import snu.kdd.synonym.synonymRev.data.TokenIndex;
 
 public class QGram {
 	// private static final int SHIFT_VAL = 314159;
@@ -65,7 +65,7 @@ public class QGram {
 		return str;
 	}
 
-	public String toStrString( List<String> strlist ) {
+	public String toString( TokenIndex tokenIndex ) {
 		String str = "";
 		for( int i = 0; i < qgram.length; i++ ) {
 			int id = qgram[ i ];
@@ -74,7 +74,7 @@ public class QGram {
 				str += "EOF ";
 			}
 			else {
-				str += strlist.get( qgram[ i ] ) + " ";
+				str += tokenIndex.getToken( qgram[ i ] ) + " ";
 			}
 		}
 

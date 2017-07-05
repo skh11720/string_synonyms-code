@@ -6,23 +6,20 @@ import java.util.Date;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMH_QL;
+import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
-/**
- * Hello world!
- *
- */
 public class App {
 	private static Options argOptions;
 
@@ -34,7 +31,7 @@ public class App {
 			options.addOption( "dataTwoPath", true, "data two path" );
 			options.addOption( "outputPath", true, "output path" );
 			options.addOption( "oneSideJoin", true, "One side join" );
-			options.addOption( Option.builder( "algorithm" ).argName( "Algorithm" ).numberOfArgs( 1 ).build() );
+			options.addOption( "algorithm", true, "Algorithm" );
 
 			options.addOption( "additional", true, "Additional input arguments" );
 
@@ -65,24 +62,27 @@ public class App {
 		String outputPath = cmd.getOptionValue( "outputPath" );
 		Boolean oneSideJoin = Boolean.parseBoolean( cmd.getOptionValue( "oneSideJoin" ) );
 
+		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
+		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
+
 		Query query = new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
 
 		AlgorithmTemplate alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 		StatContainer stat = new StatContainer();
 
-		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
-		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
-
 		switch( algorithmName ) {
 		case JoinNaive:
 			alg = new JoinNaive( query, stat );
 			break;
 		case JoinMH:
-			alg = new JoinMH_QL( query, stat );
+			alg = new JoinMH( query, stat );
 			break;
 		case JoinBK:
+			alg = new JoinBK( query, stat );
 			break;
+		case JoinMin:
+			alg = new JoinMin( query, stat );
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );
@@ -95,7 +95,14 @@ public class App {
 		initializeTime.stopAndAdd( stat );
 
 		String additionalOptions = cmd.getOptionValue( "additional", "" );
-		alg.run( query, additionalOptions.split( " " ) );
+
+		if( additionalOptions != null ) {
+			String additionalArgs[] = additionalOptions.split( " " );
+			alg.run( query, additionalArgs );
+		}
+		else {
+			alg.run( query, null );
+		}
 
 		totalTime.stop();
 		Util.printGCStats( stat );
