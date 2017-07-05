@@ -107,7 +107,7 @@ if [[ $# -ne 16 ]];
 				./compare.sh $PREV JoinMin_Q
 			done
 		done
-		PREV="JoinMin_Q"
+		PREV="JoinMin"
 	fi
 
 	#JoinMH
@@ -124,7 +124,7 @@ if [[ $# -ne 16 ]];
 				./compare.sh $PREV JoinMH_QL
 			done
 		done
-		PREV="JoinMH_QL"
+		PREV="JoinMH"
 	fi
 
 	#JoinHybridOpt
@@ -185,7 +185,7 @@ if [[ $# -ne 16 ]];
 				./compare.sh $PREV JoinBK_QL
 			done
 		done
-		PREV="JoinBK_QL"
+		PREV="JoinBK"
 	fi
 
 	#JoinMH_QL
