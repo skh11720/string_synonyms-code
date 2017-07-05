@@ -38,9 +38,6 @@ public class JoinMH extends AlgorithmTemplate {
 	protected void preprocess() {
 		super.preprocess();
 
-		for( Record rec : query.indexedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
 		for( Record rec : query.searchedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
 		}
