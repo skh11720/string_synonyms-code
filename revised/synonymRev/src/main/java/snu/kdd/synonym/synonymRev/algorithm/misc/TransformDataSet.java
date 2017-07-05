@@ -35,7 +35,7 @@ public class TransformDataSet extends AlgorithmTemplate {
 
 		Random random = new Random( seed );
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile.replace( ".txt", "transformed.txt" ) ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile.replace( ".txt", "_transformed.txt" ) ) );
 
 			for( Record rec : query.searchedSet.get() ) {
 				ArrayList<Record> exp = rec.expandAll();
@@ -56,8 +56,6 @@ public class TransformDataSet extends AlgorithmTemplate {
 						bw.write( selectedRecord3.toString() + "\n" );
 					}
 				}
-
-				bw.write( "\n" );
 			}
 			bw.close();
 		}
