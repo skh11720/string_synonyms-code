@@ -70,6 +70,12 @@ public class JoinMHIndex {
 			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actual = indexPosition[ i ];
 
+				if( rec.getID() == 4168 ) {
+					System.out.println( rec );
+					System.out.println( availableQGrams.size() );
+					System.out.println( actual );
+				}
+
 				if( availableQGrams.size() > actual ) {
 					indexedCount++;
 				}
