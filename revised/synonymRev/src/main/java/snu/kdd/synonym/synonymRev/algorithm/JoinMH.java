@@ -41,6 +41,9 @@ public class JoinMH extends AlgorithmTemplate {
 		for( Record rec : query.indexedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
 		}
+		for( Record rec : query.searchedSet.get() ) {
+			rec.preprocessSuffixApplicableRules();
+		}
 	}
 
 	@Override
