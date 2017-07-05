@@ -14,6 +14,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 
 public class NaiveIndex {
@@ -97,6 +98,13 @@ public class NaiveIndex {
 			}
 
 			if( !query.oneSideJoin ) {
+				if( DEBUG.JoinNaiveSkipTooMany ) {
+					if( DEBUG.EstTooManyThreshold < recR.getEstNumTransformed() || recR.getEstNumTransformed() <= 0 ) {
+						Util.printLog( "Rec " + recR + " is skipped indexing due to too many transformed strings "
+								+ recR.getEstNumTransformed() );
+						continue;
+					}
+				}
 				expanded = recR.expandAll();
 				totalExpLength += expanded.size() * recR.getTokenCount();
 
@@ -226,6 +234,14 @@ public class NaiveIndex {
 			if( !query.oneSideJoin ) {
 				final long est = recS.getEstNumTransformed();
 				if( threshold != -1 && est > threshold ) {
+					continue;
+				}
+			}
+
+			if( DEBUG.JoinNaiveSkipTooMany ) {
+				if( DEBUG.EstTooManyThreshold < recS.getEstNumTransformed() || recS.getEstNumTransformed() <= 0 ) {
+					Util.printLog( "Rec " + recS + " is skipped joining due to too many transformed strings "
+							+ recS.getEstNumTransformed() );
 					continue;
 				}
 			}
