@@ -67,9 +67,6 @@ if [[ $# -ne 16 ]];
 	then
 		date
 		./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
-
-		#echo java -Xmx8G -Xms4G -cp $LIBS mine.Naive1 $inputfile_one $inputfile_two $rulefile -1
-		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.Naive1 $inputfile_one $inputfile_two $rulefile -1 > $dir"/"logNaive1; }
 		date
 		PREV="JoinNaive"
 	fi
@@ -79,8 +76,6 @@ if [[ $# -ne 16 ]];
 	then
 		date
 		./joinNaive2.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
-		#echo java -Xmx8G -Xms4G -cp $LIBS mine.Naive2 $inputfile_one $inputfile_two $rulefile
-		#{ time java -Xmx8G -Xms4G -cp $LIBS mine.Naive2 $inputfile_one $inputfile_two $rulefile > $dir"/"logNaive2; }
 		date
 
 		./compare.sh $PREV JoinNaive2
@@ -92,8 +87,6 @@ if [[ $# -ne 16 ]];
 	then
 		date
 		./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
-		#echo java -Xmx8G -Xms4G -cp $LIBS sigmod13.modified.SI_Join_Modified $inputfile_one $inputfile_two $rulefile
-		#{ time java -Xmx8G -Xms4G -cp $LIBS sigmod13.modified.SI_Join_Modified $inputfile_one $inputfile_two $rulefile rslt_sijoin.txt > $dir"/"logSIJoin; }
 		date
 
 		./compare.sh $PREV SIJoin
@@ -103,19 +96,18 @@ if [[ $# -ne 16 ]];
 	#JoinMin
 	if [[ $RUN_JoinMin == "True" ]];
 	then
-		for q in {2..2..1}; do
-			date
-			./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $q $project $oneSide
-			#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile
-			#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinH2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt4.txt -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinH2GramCompactTopDownHashSet; }
-			date
-
-			./compare.sh $PREV JoinMin_Q
+		K=( 1 2 3 4 5 )
+		#K=( 1 )
+		for k in "${K[@]}"; do
+			for q in {1..5..1}; do
+			#for q in {1..3..1}; do
+				date
+				./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $K $q $project $oneSide
+				date
+				./compare.sh $PREV JoinMin_Q
+			done
 		done
 		PREV="JoinMin_Q"
-
-		#./joinMin_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project
-		#./compare.sh $PREV JoinMin_Q_OLD
 	fi
 
 	#JoinMH
@@ -131,14 +123,9 @@ if [[ $# -ne 16 ]];
 				date
 				./compare.sh $PREV JoinMH_QL
 			done
-
-			#./joinMH_Old.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $project
-			#./compare.sh $PREV JoinMH_QL_OLD
 		done
 		PREV="JoinMH_QL"
 	fi
-	#echo java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0
-	#{ time java -Xmx8G -Xms4G -cp $LIBS mine.JoinD2GramNoIntervalTree $inputfile_one $inputfile_two $rulefile rslt$j".txt" -n $j -compact -v TopDownHashSetSinglePathDS 0 > $dir"/"logJoinD2GramCompact$j"TopDownHashSet"; }
 
 	#JoinHybridOpt
 	if [[ $RUN_JoinHybridOpt == "True" ]];
@@ -154,8 +141,6 @@ if [[ $# -ne 16 ]];
 				date
 				./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $q $project $oneSide
 
-				#echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling
-				#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramWithOptTheta3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -s $sampling > $dir"/"logHybrid2GramWithOptTheta3_$sampling; }
 				date
 
 				./compare.sh $PREV JoinHybridOpt_Q
@@ -179,8 +164,6 @@ if [[ $# -ne 16 ]];
 				date
 				./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $q $project $oneSide
 
-				#echo java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold
-				#{ time java -Xmx8G -Xms4G -cp $LIBS mine.hybrid.Hybrid2GramA3 $inputfile_one $inputfile_two $rulefile rslt6.txt -compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold $threshold > $dir"/"logHybrid2GramA3_$threshold; }
 				date
 
 				./compare.sh $PREV JoinHybridThres_Q
