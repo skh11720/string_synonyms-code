@@ -235,6 +235,7 @@ public class JoinMHIndex {
 						else {
 							otherRange = otherRecord.getTransLengths();
 						}
+						
 						if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
 							// length filtering
 
