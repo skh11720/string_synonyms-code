@@ -47,6 +47,7 @@ public class TransformDataSet extends AlgorithmTemplate {
 				ArrayList<Record> exp2 = selectedRecord.expandAll();
 				int selected2 = random.nextInt( exp2.size() );
 				bw.write( exp2.get( selected2 ).toString() );
+				bw.write( "\n" );
 			}
 			bw.close();
 		}
@@ -70,7 +71,7 @@ public class TransformDataSet extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "PrintRecordInfo";
+		return "TransformDataSet";
 	}
 
 	@Override
