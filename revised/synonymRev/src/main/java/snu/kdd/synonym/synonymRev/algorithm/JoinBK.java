@@ -2,16 +2,22 @@ package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
 import snu.kdd.synonym.synonymRev.tools.Param;
+import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
+import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinBK extends AlgorithmTemplate {
@@ -94,11 +100,61 @@ public class JoinBK extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private void buildIndex() {
-		int[] indexPosition = new int[ indexK ];
-		for( int i = 0; i < indexK; i++ ) {
-			indexPosition[ i ] = i;
+	private int[] estimateIndexPosition( int maxIndexLength ) {
+		int[] indexPosition = new int[ maxIndexLength ];
+		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
+
+		int minimumSize = 10;
+		double[] count = new double[ minimumSize ];
+
+		List<ObjectOpenHashSet<QGram>> qgramSetList = new ArrayList<ObjectOpenHashSet<QGram>>();
+		for( int i = 0; i < minimumSize; i++ ) {
+			qgramSetList.add( new ObjectOpenHashSet<QGram>() );
 		}
+
+		for( Record rec : query.searchedSet.get() ) {
+			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
+
+			for( int i = 0; i < minimumSize; i++ ) {
+				if( qgrams.size() >= i ) {
+					break;
+				}
+
+				count[ i ]++;
+
+				ObjectOpenHashSet<QGram> set = qgramSetList.get( i );
+				set.addAll( qgrams.get( i ) );
+			}
+		}
+
+		MinPositionQueue mpq = new MinPositionQueue( maxIndexLength );
+
+		for( int i = 0; i < minimumSize; i++ ) {
+			if( DEBUG.JoinBKON ) {
+				Util.printLog( "Index " + i + " " + qgramSetList.get( i ).size() );
+			}
+			mpq.add( i, qgramSetList.get( i ).size() / count[ i ] );
+		}
+
+		int i = maxIndexLength - 1;
+		while( !mpq.isEmpty() ) {
+			indexPosition[ i ] = mpq.pollIndex();
+			i--;
+		}
+
+		StringBuilder bld = new StringBuilder();
+		for( i = 0; i < indexPosition.length; i++ ) {
+			bld.append( indexPosition[ i ] );
+			bld.append( " " );
+		}
+
+		stat.add( "Auto_BestPosition", bld.toString() );
+		stat.add( estimateIndex );
+		return indexPosition;
+	}
+
+	private void buildIndex() {
+		int[] indexPosition = estimateIndexPosition( indexK );
 		idx = new JoinMHIndex( indexK, qgramSize, query, stat, indexPosition );
 	}
 
@@ -109,7 +165,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMH_QL";
+		return "JoinBK";
 	}
 
 }

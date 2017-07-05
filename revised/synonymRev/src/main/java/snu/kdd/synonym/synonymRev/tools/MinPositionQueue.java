@@ -8,14 +8,14 @@ public class MinPositionQueue {
 	PriorityQueue<MinPosition> pq;
 	public static final MinPositionComparator comp = new MinPositionComparator();
 	int nIndex;
-	public int minInvokes = Integer.MAX_VALUE;
+	public double minInvokes = Integer.MAX_VALUE;
 
 	public MinPositionQueue( int nIndex ) {
 		pq = new PriorityQueue<MinPosition>( nIndex, comp );
 		this.nIndex = nIndex;
 	}
 
-	public void add( int index, int invokes ) {
+	public void add( int index, double invokes ) {
 		MinPosition mp = new MinPosition( index, invokes );
 
 		if( pq.size() < nIndex || comp.compare( mp, pq.peek() ) > 0 ) {
@@ -54,9 +54,9 @@ public class MinPositionQueue {
 
 	private static class MinPosition {
 		int positionIndex;
-		int candidateCount;
+		double candidateCount;
 
-		public MinPosition( int pos, int invokes ) {
+		public MinPosition( int pos, double invokes ) {
 			positionIndex = pos;
 			candidateCount = invokes;
 		}
