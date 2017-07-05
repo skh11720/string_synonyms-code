@@ -100,8 +100,8 @@ public class NaiveIndex {
 			if( !query.oneSideJoin ) {
 				if( DEBUG.JoinNaiveSkipTooMany ) {
 					if( DEBUG.EstTooManyThreshold < recR.getEstNumTransformed() || recR.getEstNumTransformed() <= 0 ) {
-						Util.printLog( "Rec " + recR + " is skipped indexing due to too many transformed strings "
-								+ recR.getEstNumTransformed() );
+						Util.printLog( "Rec " + recR.getID() + "(" + recR
+								+ ") is skipped indexing due to too many transformed strings " + recR.getEstNumTransformed() );
 						continue;
 					}
 				}
@@ -240,8 +240,8 @@ public class NaiveIndex {
 
 			if( DEBUG.JoinNaiveSkipTooMany ) {
 				if( DEBUG.EstTooManyThreshold < recS.getEstNumTransformed() || recS.getEstNumTransformed() <= 0 ) {
-					Util.printLog( "Rec " + recS + " is skipped joining due to too many transformed strings "
-							+ recS.getEstNumTransformed() );
+					Util.printLog( "Rec " + recS.getID() + "(" + recS
+							+ ") is skipped joining due to too many transformed strings " + recS.getEstNumTransformed() );
 					continue;
 				}
 			}
