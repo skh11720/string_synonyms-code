@@ -11,4 +11,6 @@ public class DEBUG {
 	public static final boolean PrintNaiveIndexON = false;
 
 	public static final boolean ValidateON = false;
+
+	public static final boolean printSelfJoinON = true;
 }
