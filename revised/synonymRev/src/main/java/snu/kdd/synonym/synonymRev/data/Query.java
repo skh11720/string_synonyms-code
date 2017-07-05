@@ -44,6 +44,10 @@ public class Query {
 			if( searchedFile != null ) {
 				searchedSet = new Dataset( searchedFile, tokenIndex );
 			}
+			else {
+				this.selfJoin = true;
+				searchedSet = indexedSet;
+			}
 		}
 	}
 }
