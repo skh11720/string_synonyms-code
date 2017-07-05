@@ -96,7 +96,7 @@ public class JoinMHIndex {
 			}
 		}
 
-		if( DEBUG.JoinMHIndexOn ) {
+		if( DEBUG.JoinMHIndexON ) {
 			stat.add( "Stat_Index_Size", elements );
 			System.out.println( "Index size : " + elements );
 
@@ -124,7 +124,7 @@ public class JoinMHIndex {
 					count += list.size();
 				}
 
-				if( DEBUG.JoinMHIndexOn ) {
+				if( DEBUG.JoinMHIndexON ) {
 					System.out.println( i + "th Single value list size : " + singlelistsize );
 					System.out.println( i + "th iIdx size(w/o 1) : " + count );
 					System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
@@ -149,7 +149,7 @@ public class JoinMHIndex {
 				}
 			}
 
-			if( DEBUG.JoinMHIndexOn ) {
+			if( DEBUG.JoinMHIndexON ) {
 				stat.add( "Stat_Index_Size_Per_Position", "\"" + indexStr + "\"" );
 				for( int i = 0; i < joinMHIndex.size(); i++ ) {
 					WYK_HashMap<QGram, List<Record>> index = (WYK_HashMap<QGram, List<Record>>) joinMHIndex.get( i );
@@ -285,7 +285,7 @@ public class JoinMHIndex {
 
 		stat.add( "Stat_Equiv_Comparison", count );
 
-		if( DEBUG.JoinMHIndexOn ) {
+		if( DEBUG.JoinMHIndexON ) {
 			for( int i = 0; i < indexK; ++i ) {
 				Util.printLog( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
 				Util.printLog( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );

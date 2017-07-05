@@ -104,7 +104,6 @@ public class Generator {
 				Generator gen = new Generator( nToken, skewZ, seed );
 				ACAutomataR atm = null;
 
-				// TODO: support when equivration != 0
 				if( equivratio != 0 ) {
 					rulefile = args[ 8 ];
 					atm = gen.readRules( rulefile );
@@ -237,55 +236,6 @@ public class Generator {
 					bw.write( to + " " );
 				bw.newLine();
 			}
-		}
-		bw.close();
-	}
-
-	public void genUniformRule( int lhsmax, int rhsmax, int nRules, File file ) throws IOException {
-		HashSet<Rule> rules = new HashSet<Rule>();
-		while( rules.size() < nRules ) {
-			// 1. sample length of lhs and rhs
-			int lhslen = random.nextInt( lhsmax ) + 1;
-			int rhslen = random.nextInt( rhsmax ) + 1;
-			int[] from = new int[ lhslen ];
-			int[] to = new int[ rhslen ];
-			Set<Integer> samples = new HashSet<Integer>();
-			// 2. generate random lhs
-			while( samples.size() < lhslen ) {
-				int token = random.nextInt( int2str.size() );
-				if( samples.contains( token ) )
-					continue;
-				from[ samples.size() ] = token;
-				samples.add( token );
-			}
-			samples.clear();
-			// 2. generate random rhs
-			while( samples.size() < rhslen ) {
-				int token = random.nextInt( int2str.size() );
-				if( samples.contains( token ) )
-					continue;
-				to[ samples.size() ] = token;
-				samples.add( token );
-			}
-			if( lhslen == rhslen ) {
-				boolean equals = true;
-				for( int t = 0; t < lhslen; ++t )
-					if( from[ t ] != to[ t ] )
-						equals = false;
-				if( equals )
-					continue;
-			}
-			Rule rule = new Rule( from, to );
-			rules.add( rule );
-		}
-		BufferedWriter bw = new BufferedWriter( new FileWriter( file ) );
-		for( Rule rule : rules ) {
-			for( int from : rule.getLeft() )
-				bw.write( from + " " );
-			bw.write( ", " );
-			for( int to : rule.getRight() )
-				bw.write( to + " " );
-			bw.newLine();
 		}
 		bw.close();
 	}

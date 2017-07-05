@@ -95,7 +95,8 @@ public class App {
 		initializeTime.stopAndAdd( stat );
 
 		String additionalOptions = cmd.getOptionValue( "additional", "" );
-		alg.run( query, additionalOptions.split( " " ) );
+		String additionalArgs[] = additionalOptions.split( " " );
+		alg.run( query, additionalArgs );
 
 		totalTime.stop();
 		Util.printGCStats( stat );
