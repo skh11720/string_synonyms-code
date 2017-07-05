@@ -19,7 +19,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMin_QL extends AlgorithmTemplate {
+public class JoinMin extends AlgorithmTemplate {
 	public int qSize = 0;
 	public int indexK = 0;
 
@@ -31,7 +31,7 @@ public class JoinMin_QL extends AlgorithmTemplate {
 	 */
 	public JoinMinIndex idx;
 
-	public JoinMin_QL( Query query, StatContainer stat ) throws IOException {
+	public JoinMin( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 

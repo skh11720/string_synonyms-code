@@ -23,7 +23,6 @@ public class Generator {
 	private double[] ratio;
 	private Random random;
 	private TokenIndex tokenIndex;
-	private List<String> int2str;
 
 	public Generator( int nDistinctTokens, double zipf, long seed ) {
 		ratio = new double[ nDistinctTokens ];

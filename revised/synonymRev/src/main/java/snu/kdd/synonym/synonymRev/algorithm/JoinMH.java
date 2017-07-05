@@ -14,10 +14,10 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMH_QL extends AlgorithmTemplate {
+public class JoinMH extends AlgorithmTemplate {
 	// RecordIDComparator idComparator;
 
-	public JoinMH_QL( Query query, StatContainer stat ) throws IOException {
+	public JoinMH( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 

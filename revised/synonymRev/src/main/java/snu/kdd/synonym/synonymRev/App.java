@@ -6,23 +6,20 @@ import java.util.Date;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMH_QL;
+import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
-/**
- * Hello world!
- *
- */
 public class App {
 	private static Options argOptions;
 
@@ -79,10 +76,13 @@ public class App {
 			alg = new JoinNaive( query, stat );
 			break;
 		case JoinMH:
-			alg = new JoinMH_QL( query, stat );
+			alg = new JoinMH( query, stat );
 			break;
 		case JoinBK:
+			alg = new JoinBK( query, stat );
 			break;
+		case JoinMin:
+			alg = new JoinMin( query, stat );
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );
