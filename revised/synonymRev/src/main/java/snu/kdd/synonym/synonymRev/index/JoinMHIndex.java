@@ -23,7 +23,8 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex {
-	ArrayList<Map<QGram, List<JoinMHEntry>>> joinMHIndex;
+	ArrayList<Map<QGram, List<Record>>> joinMHIndex;
+	Object2IntOpenHashMap<Record> indexedCountList = new Object2IntOpenHashMap<Record>();
 
 	int indexK;
 	int qgramSize;
@@ -45,13 +46,13 @@ public class JoinMHIndex {
 			}
 		}
 
-		this.joinMHIndex = new ArrayList<Map<QGram, List<JoinMHEntry>>>();
+		this.joinMHIndex = new ArrayList<Map<QGram, List<Record>>>();
 
 		@SuppressWarnings( "unused" )
 		long elements = 0;
 
 		for( int i = 0; i < indexK; ++i ) {
-			joinMHIndex.add( new WYK_HashMap<QGram, List<JoinMHEntry>>() );
+			joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>() );
 		}
 
 		for( Record rec : query.indexedSet.get() ) {
@@ -72,6 +73,7 @@ public class JoinMHIndex {
 				if( availableQGrams.size() > actual ) {
 					indexedCount++;
 				}
+				indexedCountList.put( rec, indexedCount );
 			}
 
 			for( int i = 0; i < indexPosition.length; i++ ) {
@@ -80,15 +82,15 @@ public class JoinMHIndex {
 					continue;
 				}
 
-				Map<QGram, List<JoinMHEntry>> map = joinMHIndex.get( i );
+				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-					List<JoinMHEntry> list = map.get( qgram );
+					List<Record> list = map.get( qgram );
 					if( list == null ) {
-						list = new ArrayList<JoinMHEntry>();
+						list = new ArrayList<Record>();
 						map.put( qgram, list );
 					}
-					list.add( new JoinMHEntry( indexedCount, rec ) );
+					list.add( rec );
 				}
 				elements += availableQGrams.get( actualIndex ).size();
 			}
@@ -101,7 +103,7 @@ public class JoinMHIndex {
 			// computes the statistics of the indexes
 			String indexStr = "";
 			for( int i = 0; i < indexK; ++i ) {
-				Map<QGram, List<JoinMHEntry>> ithidx = joinMHIndex.get( i );
+				Map<QGram, List<Record>> ithidx = joinMHIndex.get( i );
 
 				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
 
@@ -111,8 +113,8 @@ public class JoinMHIndex {
 				long singlelistsize = 0;
 				long count = 0;
 				// long sqsum = 0;
-				for( Map.Entry<QGram, List<JoinMHEntry>> entry : ithidx.entrySet() ) {
-					List<JoinMHEntry> list = entry.getValue();
+				for( Map.Entry<QGram, List<Record>> entry : ithidx.entrySet() ) {
+					List<Record> list = entry.getValue();
 
 					if( list.size() == 1 ) {
 						++singlelistsize;
@@ -150,7 +152,7 @@ public class JoinMHIndex {
 			if( DEBUG.JoinMHIndexOn ) {
 				stat.add( "Stat_Index_Size_Per_Position", "\"" + indexStr + "\"" );
 				for( int i = 0; i < joinMHIndex.size(); i++ ) {
-					WYK_HashMap<QGram, List<JoinMHEntry>> index = (WYK_HashMap<QGram, List<JoinMHEntry>>) joinMHIndex.get( i );
+					WYK_HashMap<QGram, List<Record>> index = (WYK_HashMap<QGram, List<Record>>) joinMHIndex.get( i );
 					stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
 					stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
 					stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
@@ -194,34 +196,36 @@ public class JoinMHIndex {
 			Record recS = query.searchedSet.getRecord( sid );
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
-			Object2IntOpenHashMap<JoinMHEntry> candidatesCount = new Object2IntOpenHashMap<JoinMHEntry>();
+			Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 			candidatesCount.defaultReturnValue( -1 );
 
 			List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
 
 			// long recordStartTime = System.nanoTime();
 			int[] range = recS.getTransLengths();
-			int boundary = Math.min( range[ 0 ], indexK );
-			for( int i = 0; i < boundary; ++i ) {
+			for( int i = 0; i < indexK; ++i ) {
+				int actualIndex = indexPosition[ i ];
+				if( availableQGrams.size() <= actualIndex ) {
+					continue;
+				}
+
 				candidateTimes[ i ].start();
 
-				ObjectOpenHashSet<JoinMHEntry> ithCandidates = new ObjectOpenHashSet<JoinMHEntry>();
+				ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
 
-				Map<QGram, List<JoinMHEntry>> map = joinMHIndex.get( i );
-
-				int actualIndex = indexPosition[ i ];
+				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
 					// elements++;
-					List<JoinMHEntry> list = map.get( qgram );
+					List<Record> list = map.get( qgram );
 					if( list == null ) {
 						++count_empty[ i ];
 						continue;
 					}
 					cand_sum[ i ] += list.size();
 					++count_cand[ i ];
-					for( JoinMHEntry otherRecord : list ) {
-						int[] otherRange = otherRecord.rec.getTransLengths();
+					for( Record otherRecord : list ) {
+						int[] otherRange = otherRecord.getTransLengths();
 						if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
 							// length filtering
 
@@ -234,7 +238,7 @@ public class JoinMHIndex {
 					cand_sum_afterprune[ i ] += candidatesCount.size();
 				}
 
-				for( JoinMHEntry otherRecord : ithCandidates ) {
+				for( Record otherRecord : ithCandidates ) {
 					int candCount = candidatesCount.getInt( otherRecord );
 					if( candCount == -1 ) {
 						candidatesCount.put( otherRecord, 1 );
@@ -248,14 +252,14 @@ public class JoinMHIndex {
 			}
 			count += candidates.size();
 
-			ObjectIterator<Entry<JoinMHEntry>> iter = candidatesCount.object2IntEntrySet().iterator();
+			ObjectIterator<Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
 			while( iter.hasNext() ) {
-				Entry<JoinMHEntry> entry = iter.next();
-				JoinMHEntry record = entry.getKey();
+				Entry<Record> entry = iter.next();
+				Record record = entry.getKey();
 				int recordCount = entry.getIntValue();
 
-				if( record.indexedCount == recordCount ) {
-					candidates.add( record.rec );
+				if( indexedCountList.getInt( record ) == recordCount || indexedCountList.getInt( recS ) == recordCount ) {
+					candidates.add( record );
 				}
 			}
 
@@ -300,26 +304,5 @@ public class JoinMHIndex {
 			stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 		}
 		return rslt;
-	}
-
-	public static class JoinMHEntry implements Comparable<JoinMHEntry> {
-		int indexedCount;
-		Record rec;
-
-		public JoinMHEntry( int indexed, Record r ) {
-			indexedCount = indexed;
-			rec = r;
-		}
-
-		@Override
-		public int hashCode() {
-			return rec.hashCode();
-		}
-
-		@Override
-		public int compareTo( JoinMHEntry o ) {
-			return rec.compareTo( o.rec );
-		}
-
 	}
 }
