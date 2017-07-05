@@ -24,6 +24,7 @@ public abstract class AlgorithmTemplate {
 	// contains statistics of the algorithm
 	StatContainer stat;
 	protected Query query;
+	protected ACAutomataR automata;
 
 	public AlgorithmTemplate( Query query, StatContainer stat ) throws IOException {
 		this.stat = stat;
@@ -53,7 +54,7 @@ public abstract class AlgorithmTemplate {
 			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
 		}
 
-		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
+		automata = new ACAutomataR( query.ruleSet.get() );
 
 		long applicableRules = 0;
 

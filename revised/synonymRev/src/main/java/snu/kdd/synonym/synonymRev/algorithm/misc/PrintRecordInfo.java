@@ -1,10 +1,11 @@
-package snu.kdd.synonym.synonymRev.algorithm;
+package snu.kdd.synonym.synonymRev.algorithm.misc;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
