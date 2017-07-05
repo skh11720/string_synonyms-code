@@ -73,6 +73,7 @@ public class JoinMHIndex {
 				if( rec.getID() == 4168 ) {
 					System.out.println( rec );
 					System.out.println( availableQGrams.size() );
+					System.out.println( availableQGrams.get( actual ) );
 					System.out.println( actual );
 				}
 
