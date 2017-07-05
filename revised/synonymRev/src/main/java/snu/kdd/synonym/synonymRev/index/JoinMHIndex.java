@@ -225,7 +225,16 @@ public class JoinMHIndex {
 					cand_sum[ i ] += list.size();
 					++count_cand[ i ];
 					for( Record otherRecord : list ) {
-						int[] otherRange = otherRecord.getTransLengths();
+						int[] otherRange = null;
+
+						if( query.oneSideJoin ) {
+							otherRange = new int[ 2 ];
+							otherRange[ 0 ] = otherRecord.getTokenCount();
+							otherRange[ 1 ] = otherRecord.getTokenCount();
+						}
+						else {
+							otherRange = otherRecord.getTransLengths();
+						}
 						if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
 							// length filtering
 
