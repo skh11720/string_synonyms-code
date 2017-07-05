@@ -258,12 +258,6 @@ public class JoinMHIndex {
 				Record record = entry.getKey();
 				int recordCount = entry.getIntValue();
 
-				if( recS.getID() == 4168 ) {
-					System.out.println( record );
-					System.out.println( recordCount );
-					System.out.println( indexedCountList.getInt( record ) );
-				}
-
 				if( indexedCountList.getInt( record ) == recordCount || indexedCountList.getInt( recS ) == recordCount ) {
 					candidates.add( record );
 				}

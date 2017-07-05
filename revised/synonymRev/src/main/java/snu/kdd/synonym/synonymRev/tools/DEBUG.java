@@ -12,5 +12,5 @@ public class DEBUG {
 
 	public static final boolean ValidateON = false;
 
-	public static final boolean printSelfJoinON = true;
+	public static final boolean printSelfJoinON = false;
 }
