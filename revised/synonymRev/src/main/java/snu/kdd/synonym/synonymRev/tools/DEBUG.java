@@ -18,5 +18,5 @@ public class DEBUG {
 
 	public static final boolean EstTooManyWarningON = true;
 	public static final boolean JoinNaiveSkipTooMany = true;
-	public static final int EstTooManyThreshold = 50_000_000;
+	public static final int EstTooManyThreshold = 20_000_000;
 }
