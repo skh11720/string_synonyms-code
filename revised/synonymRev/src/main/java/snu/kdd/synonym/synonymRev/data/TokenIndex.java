@@ -22,7 +22,8 @@ public class TokenIndex {
 	public int getID( String token ) {
 		// Get id of token, if a new token is given add it to token2IntMap and int2TokenList
 		// we transform every character to lower case
-		token = token.toLowerCase();
+		// TODO DEBUG
+		// token = token.toLowerCase();
 
 		int id = token2IntMap.getInt( token );
 
