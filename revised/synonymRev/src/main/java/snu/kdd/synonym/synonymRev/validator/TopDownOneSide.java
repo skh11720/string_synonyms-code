@@ -47,14 +47,6 @@ public class TopDownOneSide extends Validator {
 
 		Rule[] rules = x.getSuffixApplicableRules( xIdx );
 
-		// TODO: DEBUG
-		if( rules == null ) {
-			System.out.println( x );
-			System.out.println( xIdx );
-			System.out.println( y );
-			System.out.println( yIdx );
-		}
-
 		for( int ridx = 0; ridx < rules.length; ++ridx ) {
 			Rule rule = rules[ ridx ];
 

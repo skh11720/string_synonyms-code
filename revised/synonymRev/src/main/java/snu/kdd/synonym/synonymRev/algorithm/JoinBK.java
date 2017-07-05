@@ -44,7 +44,7 @@ public class JoinBK extends AlgorithmTemplate {
 	protected void preprocess() {
 		super.preprocess();
 
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : query.searchedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
 		}
 	}
