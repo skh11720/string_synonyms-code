@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import java.util.Set;
 import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -102,6 +104,11 @@ public class NaiveIndex {
 					if( DEBUG.EstTooManyThreshold < recR.getEstNumTransformed() || recR.getEstNumTransformed() <= 0 ) {
 						Util.printLog( "Rec " + recR.getID() + "(" + recR
 								+ ") is skipped indexing due to too many transformed strings " + recR.getEstNumTransformed() );
+						Rule[][] applicable = recR.getApplicableRules();
+						for( int j = 0; j < applicable.length; j++ ) {
+							Util.printLog( "Applicable Rule at " + j );
+							Util.printLog( Arrays.toString( applicable[ j ] ) );
+						}
 						continue;
 					}
 				}

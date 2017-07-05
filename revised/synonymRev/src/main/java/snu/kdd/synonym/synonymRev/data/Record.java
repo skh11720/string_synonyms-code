@@ -81,6 +81,10 @@ public class Record implements Comparable<Record> {
 		applicableRules = automata.applicableRules( tokens );
 	}
 
+	public Rule[][] getApplicableRules() {
+		return applicableRules;
+	}
+
 	public Rule[] getApplicableRules( int k ) {
 		if( applicableRules == null ) {
 			return null;
