@@ -46,7 +46,17 @@ public class TransformDataSet extends AlgorithmTemplate {
 
 				ArrayList<Record> exp2 = selectedRecord.expandAll();
 				int selected2 = random.nextInt( exp2.size() );
-				bw.write( exp2.get( selected2 ).toString() );
+				Record selectedRecord2 = exp2.get( selected2 );
+				bw.write( selectedRecord2.toString() + "\n" );
+
+				int selected3 = random.nextInt( exp2.size() );
+				if( selected2 != selected3 ) {
+					Record selectedRecord3 = exp2.get( selected3 );
+					if( !selectedRecord2.equals( selectedRecord3 ) ) {
+						bw.write( selectedRecord3.toString() + "\n" );
+					}
+				}
+
 				bw.write( "\n" );
 			}
 			bw.close();
