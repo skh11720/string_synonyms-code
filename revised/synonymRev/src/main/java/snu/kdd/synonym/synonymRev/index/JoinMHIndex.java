@@ -75,8 +75,13 @@ public class JoinMHIndex {
 			}
 
 			for( int i = 0; i < indexPosition.length; i++ ) {
-				Map<QGram, List<JoinMHEntry>> map = joinMHIndex.get( i );
 				int actualIndex = indexPosition[ i ];
+				if( availableQGrams.size() <= actualIndex ) {
+					continue;
+				}
+
+				Map<QGram, List<JoinMHEntry>> map = joinMHIndex.get( i );
+
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
 					List<JoinMHEntry> list = map.get( qgram );
 					if( list == null ) {
