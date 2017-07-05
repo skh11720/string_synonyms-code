@@ -15,4 +15,7 @@ public class DEBUG {
 	public static final boolean printSelfJoinON = false;
 
 	public static final boolean ToLowerON = true;
+
+	public static final boolean EstTooManyWarningON = true;
+	public static final int EstTooManyThreshold = 100000;
 }

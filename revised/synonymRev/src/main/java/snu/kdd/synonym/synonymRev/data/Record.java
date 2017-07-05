@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramEntry;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
@@ -141,10 +142,16 @@ public class Record implements Comparable<Record> {
 
 				if( size < 0 ) {
 					Util.printLog( "Too many generalizations: " + id + " size " + size );
+
 					return;
 				}
 			}
 			est[ i ] = size;
+		}
+		if( DEBUG.EstTooManyWarningON ) {
+			if( est[ tokens.length - 1 ] > DEBUG.EstTooManyThreshold ) {
+				Util.printLog( "Too many generalizations: " + id + " size " + est[ tokens.length - 1 ] );
+			}
 		}
 	}
 
