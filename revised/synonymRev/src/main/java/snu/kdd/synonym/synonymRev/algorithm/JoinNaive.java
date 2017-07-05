@@ -23,16 +23,6 @@ public class JoinNaive extends AlgorithmTemplate {
 		super( query, stat );
 	}
 
-	@Override
-	public String getName() {
-		return "JoinNaive";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2.0";
-	}
-
 	public void preprocess() {
 		super.preprocess();
 
@@ -99,6 +89,16 @@ public class JoinNaive extends AlgorithmTemplate {
 		}
 
 		return rslt;
+	}
+
+	@Override
+	public String getName() {
+		return "JoinNaive";
+	}
+
+	@Override
+	public String getVersion() {
+		return "2.0";
 	}
 
 }

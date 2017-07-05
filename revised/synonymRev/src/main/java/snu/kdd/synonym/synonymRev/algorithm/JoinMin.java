@@ -169,6 +169,6 @@ public class JoinMin extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMin_QL";
+		return "JoinMin";
 	}
 }
