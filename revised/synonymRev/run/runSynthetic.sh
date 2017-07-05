@@ -37,8 +37,8 @@ RUN_Naive2=False
 #RUN_SIJoin=True
 RUN_SIJoin=False
 
-#RUN_JoinMin=True
-RUN_JoinMin=False
+RUN_JoinMin=True
+#RUN_JoinMin=False
 
 RUN_JoinMH=True
 #RUN_JoinMH=False
@@ -49,8 +49,8 @@ RUN_JoinHybridOpt=False
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
 
-#RUN_JoinBK=True
-RUN_JoinBK=False
+RUN_JoinBK=True
+#RUN_JoinBK=False
 
 #RUN_DEBUG=True
 RUN_DEBUG=False
@@ -65,8 +65,8 @@ do
 
 	project=syn_$nRecords
 
-	inputfile_one=`java -cp $CLASSPATH snu.kdd.synonym.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataOne data_store`/data.txt
-	inputfile_two=`java -cp $CLASSPATH snu.kdd.synonym.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataTwo data_store`/data.txt
+	inputfile_one=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataOne data_store`/data.txt
+	inputfile_two=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataTwo data_store`/data.txt
 	rulefile=`java -cp $CLASSPATH snu.kdd.synonym.data.Generator -cr $nTokensInRule $avgLhsLen $avgRhsLen $nRules 0 $seedRule data_store`/rule.txt
 	outputPath=output
 
