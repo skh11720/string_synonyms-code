@@ -105,7 +105,7 @@ public class NaiveIndex_Split {
 				}
 				expanded = recR.expandAll();
 				totalExpLength += expanded.size() * recR.getTokenCount();
-				
+
 				if( DEBUG.NaiveON ) {
 					totalExp += expanded.size();
 				}
@@ -316,20 +316,32 @@ public class NaiveIndex_Split {
 
 		long searchStartTime = System.nanoTime();
 
-		int[] ranges = null;
-
 		if( oneSideJoin ) {
-			ranges = new int[ 2 ];
-			ranges[ 0 ] = recS.getTokenCount();
-			ranges[ 1 ] = ranges[ 0 ];
+			int[] ranges = recS.getTransLengths();
+			for( int i = ranges[ 0 ]; i <= ranges[ 1 ]; i++ ) {
+				WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( i );
+
+				if( idx == null ) {
+					continue;
+				}
+
+				for( final Record exp : expanded ) {
+
+					final List<Integer> overlapidx = idx.get( exp );
+					if( overlapidx == null ) {
+						continue;
+					}
+
+					for( Integer index : overlapidx ) {
+						candidates.add( index );
+					}
+				}
+			}
 		}
 		else {
-			ranges = recS.getTransLengths();
-		}
-
-		for( int i = ranges[ 0 ]; i <= ranges[ 1 ]; i++ ) {
-			WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( i );
 			for( final Record exp : expanded ) {
+				WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( exp.getTokenCount() );
+
 				if( idx == null ) {
 					continue;
 				}
