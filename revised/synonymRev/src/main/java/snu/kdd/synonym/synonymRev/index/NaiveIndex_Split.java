@@ -105,7 +105,7 @@ public class NaiveIndex_Split {
 				}
 				expanded = recR.expandAll();
 				totalExpLength += expanded.size() * recR.getTokenCount();
-
+				
 				if( DEBUG.NaiveON ) {
 					totalExp += expanded.size();
 				}
@@ -327,7 +327,7 @@ public class NaiveIndex_Split {
 			ranges = recS.getTransLengths();
 		}
 
-		for( int i = ranges[ 0 ]; i < ranges[ 1 ]; i++ ) {
+		for( int i = ranges[ 0 ]; i <= ranges[ 1 ]; i++ ) {
 			WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( i );
 			for( final Record exp : expanded ) {
 				if( idx == null ) {
