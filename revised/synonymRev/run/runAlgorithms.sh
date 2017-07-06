@@ -6,7 +6,7 @@ outputPath=$5
 dir=$6
 RUN_Naive=$7
 RUN_NaiveSP=$8
-RUN_SIJoin=$9
+RUN_JoinMHSP=$9
 RUN_JoinMin=${10}
 RUN_JoinMH=${11}
 RUN_JoinHybridOpt=${12}
@@ -26,7 +26,7 @@ echo outputPath $outputPath
 echo dir $dir
 echo RUN_Naive $RUN_Naive
 echo RUN_NaiveSP $RUN_NaiveSP
-echo RUN_SIJoin $RUN_SIJoin
+echo RUN_JoinMHSP $RUN_JoinMHSP
 echo RUN_JoinMin $RUN_JoinMin
 echo RUN_JoinMH $RUN_JoinMH
 echo RUN_JoinHybridOpt $RUN_JoinHybridOpt
@@ -83,14 +83,19 @@ if [[ $# -ne 16 ]];
 	fi
 
 	#SIJoin
-	if [[ $RUN_SIJoin == "True" ]];
+	if [[ $RUN_JoinMHSP == "True" ]];
 	then
-		date
-		./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
-		date
+		for j in {2..3..1}; do
+			for q in {2..4..1};do
 
-		./compare.sh $PREV SIJoin
-		PREV="SIJoin"
+				date
+				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide true
+				date
+
+				./compare.sh $PREV JoinMHSP
+			done
+		done
+		PREV="JoinMHSP"
 	fi
 
 	#JoinMin
@@ -119,7 +124,7 @@ if [[ $# -ne 16 ]];
 			#for q in {1..3..1}; do
 
 				date
-				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide
+				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide false
 				date
 				./compare.sh $PREV JoinMH
 			done
