@@ -12,6 +12,7 @@ import org.apache.commons.cli.ParseException;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
+import snu.kdd.synonym.synonymRev.algorithm.JoinBK_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
@@ -94,7 +95,12 @@ public class App {
 			}
 			break;
 		case JoinBK:
-			alg = new JoinBK( query, stat );
+			if( split ) {
+				alg = new JoinBK_Split( query, stat );
+			}
+			else {
+				alg = new JoinBK( query, stat );
+			}
 			break;
 		case JoinMin:
 			alg = new JoinMin( query, stat );
