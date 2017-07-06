@@ -316,21 +316,23 @@ public class NaiveIndex_Split {
 
 		long searchStartTime = System.nanoTime();
 
-		for( final Record exp : expanded ) {
-			int expLength = exp.getTokenCount();
+		int[] ranges = recS.getTransLengths();
 
-			WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( expLength );
-			if( idx == null ) {
-				continue;
-			}
-			
-			final List<Integer> overlapidx = idx.get( exp );
-			if( overlapidx == null ) {
-				continue;
-			}
+		for( int i = ranges[ 0 ]; i < ranges[ 1 ]; i++ ) {
+			WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( i );
+			for( final Record exp : expanded ) {
+				if( idx == null ) {
+					continue;
+				}
 
-			for( Integer i : overlapidx ) {
-				candidates.add( i );
+				final List<Integer> overlapidx = idx.get( exp );
+				if( overlapidx == null ) {
+					continue;
+				}
+
+				for( Integer index : overlapidx ) {
+					candidates.add( index );
+				}
 			}
 		}
 		searchTime += System.nanoTime() - searchStartTime;
