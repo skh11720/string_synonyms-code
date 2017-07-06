@@ -5,7 +5,7 @@ rulefile=$4
 outputPath=$5
 dir=$6
 RUN_Naive=$7
-RUN_Naive2=$8
+RUN_NaiveSP=$8
 RUN_SIJoin=$9
 RUN_JoinMin=${10}
 RUN_JoinMH=${11}
@@ -25,7 +25,7 @@ echo rulefile $rulefile
 echo outputPath $outputPath
 echo dir $dir
 echo RUN_Naive $RUN_Naive
-echo RUN_Naive2 $RUN_Naive2
+echo RUN_NaiveSP $RUN_NaiveSP
 echo RUN_SIJoin $RUN_SIJoin
 echo RUN_JoinMin $RUN_JoinMin
 echo RUN_JoinMH $RUN_JoinMH
@@ -66,20 +66,20 @@ if [[ $# -ne 16 ]];
 	if [[ $RUN_Naive == "True" ]];
 	then
 		date
-		./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
+		./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide false
 		date
 		PREV="JoinNaive"
 	fi
 
 	#JoinNaive2
-	if [[ $RUN_Naive2 == "True" ]];
+	if [[ $RUN_NaiveSP == "True" ]];
 	then
 		date
-		./joinNaive2.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide
+		./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide true
 		date
 
-		./compare.sh $PREV JoinNaive2
-		PREV="JoinNaive2"
+		./compare.sh $PREV JoinNaiveSP
+		PREV="JoinNaiveSP"
 	fi
 
 	#SIJoin
@@ -114,8 +114,8 @@ if [[ $# -ne 16 ]];
 	if [[ $RUN_JoinMH == "True" ]];
 	then
 		#for j in {1..3..1}; do
-		for j in {1..3..1}; do
-			for q in {1..3..1};do
+		for j in {2..3..1}; do
+			for q in {2..4..1};do
 			#for q in {1..3..1}; do
 
 				date
@@ -179,7 +179,7 @@ if [[ $# -ne 16 ]];
 		#K=( 1 )
 		for k in "${K[@]}"; do
 			#for q in {1..5..1}; do
-			for q in {1..5..1}; do
+			for q in {2..5..1}; do
 				date
 				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide
 				./compare.sh $PREV JoinBK
@@ -191,10 +191,11 @@ if [[ $# -ne 16 ]];
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
-		K=( 1 2 3 4 5 )
+		#K=( 1 2 3 4 5 )
+		K=( 2 3 )
 		#K=( 1 )
 		for k in "${K[@]}"; do
-			for q in {1..5..1}; do
+			for q in {2..4..1}; do
 			#for q in {1..3..1}; do
 				date
 				./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide

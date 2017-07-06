@@ -6,12 +6,13 @@ logdir=$5
 LIBS=$6
 project=$7
 oneSide=$8
+split=$9
 
 ADDITIONAL="-1"
 
 ALG=JoinNaive
 
-if [[ $# -ne 8 ]];
+if [[ $# -ne 9 ]];
 then
 	echo illegal number of parameters: [$ALG]
 	echo 1 $1
@@ -22,10 +23,20 @@ then
 	echo 6 $6
 	echo 7 $7
 	echo oneSide $oneSide
+	echo split $split
 else
-	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
-	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
-		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm $ALG -oneSideJoin $oneSide \
-		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
+	if [[ "$split" = true ]];
+	then
+		echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
+		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
+			-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
+			-algorithm $ALG -oneSideJoin $oneSide -split \
+			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
+	else
+		echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
+		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
+			-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
+			-algorithm $ALG -oneSideJoin $oneSide \
+			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
+	fi
 fi
