@@ -280,7 +280,7 @@ public class NaiveIndex_Split {
 				}
 			}
 
-			joinOneRecord( recS, rslt );
+			joinOneRecord( recS, rslt, query.oneSideJoin );
 		}
 
 		joinTime = System.nanoTime() - starttime;
@@ -305,7 +305,7 @@ public class NaiveIndex_Split {
 		return rslt;
 	}
 
-	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+	public void joinOneRecord( Record recS, List<IntegerPair> rslt, boolean oneSideJoin ) {
 		long expandStartTime = System.nanoTime();
 		final List<Record> expanded = recS.expandAll();
 		expandTime += System.nanoTime() - expandStartTime;
@@ -316,7 +316,16 @@ public class NaiveIndex_Split {
 
 		long searchStartTime = System.nanoTime();
 
-		int[] ranges = recS.getTransLengths();
+		int[] ranges = null;
+
+		if( oneSideJoin ) {
+			ranges = new int[ 2 ];
+			ranges[ 0 ] = recS.getTokenCount();
+			ranges[ 1 ] = ranges[ 0 ];
+		}
+		else {
+			ranges = recS.getTransLengths();
+		}
 
 		for( int i = ranges[ 0 ]; i < ranges[ 1 ]; i++ ) {
 			WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( i );
