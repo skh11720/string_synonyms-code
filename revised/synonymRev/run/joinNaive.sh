@@ -27,11 +27,11 @@ then
 else
 	if [[ "$split" = true ]];
 	then
-		echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
+		echo $ALG SP with $ADDITIONAL logging in $logdir"/"$project\_$ALG\_SP
 		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 			-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
 			-algorithm $ALG -oneSideJoin $oneSide -split \
-			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
+			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_SP
 	else
 		echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
 		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
