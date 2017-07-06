@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -203,9 +202,6 @@ public class JoinMHIndex_Split {
 			Record recS = query.searchedSet.getRecord( sid );
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
-			Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
-			candidatesCount.defaultReturnValue( -1 );
-
 			List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
 
 			// long recordStartTime = System.nanoTime();
@@ -226,17 +222,22 @@ public class JoinMHIndex_Split {
 				IntegerPair pair = rangeCandidateList.get( r );
 				ArrayList<Map<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
 
+				ObjectOpenHashSet<Record> prevCandidate = null;
 				for( int i = 0; i < indexK; ++i ) {
 					int actualIndex = indexPosition[ i ];
+
 					if( availableQGrams.size() <= actualIndex ) {
+						continue;
+					}
+
+					Map<QGram, List<Record>> map = joinMHIndex.get( i );
+					if( map.size() == 0 ) {
 						continue;
 					}
 
 					candidateTimes[ i ].start();
 
 					ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
-
-					Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 					for( QGram qgram : availableQGrams.get( actualIndex ) ) {
 						// elements++;
@@ -261,40 +262,30 @@ public class JoinMHIndex_Split {
 
 							if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
 								// length filtering
-
-								ithCandidates.add( otherRecord );
+								if( prevCandidate == null ) {
+									ithCandidates.add( otherRecord );
+								}
+								else if( prevCandidate.contains( otherRecord ) ) {
+									ithCandidates.add( otherRecord );
+								}
 							}
 							else {
 								lengthFiltered++;
 							}
 						}
-						cand_sum_afterprune[ i ] += candidatesCount.size();
+						cand_sum_afterprune[ i ] += ithCandidates.size();
 					}
 
-					for( Record otherRecord : ithCandidates ) {
-						int candCount = candidatesCount.getInt( otherRecord );
-						if( candCount == -1 ) {
-							candidatesCount.put( otherRecord, 1 );
-						}
-						else {
-							candidatesCount.put( otherRecord, candCount + 1 );
-						}
+					if( prevCandidate != null ) {
+						prevCandidate.clear();
 					}
+					prevCandidate = ithCandidates;
 
 					candidateTimes[ i ].stopQuiet();
 				}
 				count += candidates.size();
 
-				ObjectIterator<Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
-				while( iter.hasNext() ) {
-					Entry<Record> entry = iter.next();
-					Record record = entry.getKey();
-					int recordCount = entry.getIntValue();
-
-					if( indexedCountList.getInt( record ) == recordCount || indexedCountList.getInt( recS ) == recordCount ) {
-						candidates.add( record );
-					}
-				}
+				candidates.addAll( prevCandidate );
 			}
 
 			equivTime.start();
