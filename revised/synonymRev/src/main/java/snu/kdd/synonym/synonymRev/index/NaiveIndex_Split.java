@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap.Entry;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -19,11 +19,12 @@ import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 
 public class NaiveIndex_Split {
-	public Int2ObjectOpenHashMap<WYK_HashMap<Record, ArrayList<Integer>>> idxList;
+	public Object2ObjectOpenHashMap<IntegerPair, WYK_HashMap<Record, ArrayList<Integer>>> idxList;
 
 	public double alpha;
 	public double beta;
@@ -38,7 +39,7 @@ public class NaiveIndex_Split {
 	public double searchTime = 0;
 
 	NaiveIndex_Split() {
-		idxList = new Int2ObjectOpenHashMap<WYK_HashMap<Record, ArrayList<Integer>>>();
+		idxList = new Object2ObjectOpenHashMap<IntegerPair, WYK_HashMap<Record, ArrayList<Integer>>>();
 	}
 
 	public static NaiveIndex_Split buildIndex( double avgTransformed, StatContainer stat, long threshold, boolean addStat,
@@ -114,8 +115,9 @@ public class NaiveIndex_Split {
 			long indexingStartTime = System.nanoTime();
 
 			if( !query.oneSideJoin ) {
+				IntegerPair length = new IntegerPair( recR.getTransLengths() );
 				for( final Record exp : expanded ) {
-					naiveIndex.addExpaneded( exp, i, recR.getMinTransLength() );
+					naiveIndex.addExpaneded( exp, i, length );
 
 					if( DEBUG.PrintNaiveIndexON ) {
 						try {
@@ -141,7 +143,7 @@ public class NaiveIndex_Split {
 					}
 				}
 
-				naiveIndex.addExpaneded( recR, i, recR.getTokenCount() );
+				naiveIndex.addExpaneded( recR, i, new IntegerPair( recR.getTokenCount(), recR.getTokenCount() ) );
 			}
 
 			indexingTime += System.nanoTime() - indexingStartTime;
@@ -192,7 +194,7 @@ public class NaiveIndex_Split {
 		return naiveIndex;
 	}
 
-	public void addExpaneded( Record expanded, int recordId, int length ) {
+	public void addExpaneded( Record expanded, int recordId, IntegerPair length ) {
 		WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( length );
 		if( idx == null ) {
 			idx = new WYK_HashMap<Record, ArrayList<Integer>>();
@@ -217,7 +219,8 @@ public class NaiveIndex_Split {
 	}
 
 	public void addStat( StatContainer stat, String prefix ) {
-		ObjectIterator<Entry<WYK_HashMap<Record, ArrayList<Integer>>>> iter = idxList.int2ObjectEntrySet().iterator();
+		ObjectIterator<Entry<IntegerPair, WYK_HashMap<Record, ArrayList<Integer>>>> iter = idxList.object2ObjectEntrySet()
+				.iterator();
 
 		long getCount = 0;
 		long getIterCount = 0;
@@ -229,7 +232,7 @@ public class NaiveIndex_Split {
 		long removeFoundCount = 0;
 
 		while( iter.hasNext() ) {
-			Entry<WYK_HashMap<Record, ArrayList<Integer>>> entry = iter.next();
+			Entry<IntegerPair, WYK_HashMap<Record, ArrayList<Integer>>> entry = iter.next();
 			WYK_HashMap<Record, ArrayList<Integer>> idx = entry.getValue();
 			getCount += idx.getCount;
 			getIterCount += idx.getIterCount;
@@ -316,10 +319,23 @@ public class NaiveIndex_Split {
 
 		long searchStartTime = System.nanoTime();
 
-		if( oneSideJoin ) {
+		if( !oneSideJoin ) {
 			int[] ranges = recS.getTransLengths();
-			for( int i = ranges[ 0 ]; i <= ranges[ 1 ]; i++ ) {
-				WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( i );
+
+			ArrayList<IntegerPair> rangeCandidateList = new ArrayList<IntegerPair>();
+
+			ObjectIterator<IntegerPair> iter = idxList.keySet().iterator();
+			while( iter.hasNext() ) {
+				IntegerPair pair = iter.next();
+
+				if( StaticFunctions.overlap( pair.i1, pair.i2, ranges[ 0 ], ranges[ 1 ] ) ) {
+					rangeCandidateList.add( pair );
+				}
+			}
+
+			for( int i = 0; i < rangeCandidateList.size(); i++ ) {
+				IntegerPair pair = rangeCandidateList.get( i );
+				WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( pair );
 
 				if( idx == null ) {
 					continue;
@@ -340,7 +356,8 @@ public class NaiveIndex_Split {
 		}
 		else {
 			for( final Record exp : expanded ) {
-				WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( exp.getTokenCount() );
+				int count = exp.getTokenCount();
+				WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( new IntegerPair( count, count ) );
 
 				if( idx == null ) {
 					continue;

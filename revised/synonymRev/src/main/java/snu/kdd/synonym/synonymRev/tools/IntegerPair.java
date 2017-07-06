@@ -11,6 +11,11 @@ public class IntegerPair {
 		this.i2 = i2;
 	}
 
+	public IntegerPair( int[] integers ) {
+		this.i1 = integers[ 0 ];
+		this.i2 = integers[ 1 ];
+	}
+
 	@Override
 	public boolean equals( Object o ) {
 		if( o == null ) {
