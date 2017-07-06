@@ -78,6 +78,8 @@ public class JoinMHIndex_Split {
 
 			ArrayList<Map<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
 			if( joinMHIndex == null ) {
+				joinMHIndex = new ArrayList<Map<QGram, List<Record>>>();
+				joinMHIndexList.put( pair, joinMHIndex );
 				for( int i = 0; i < indexK; ++i ) {
 					joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>() );
 				}
