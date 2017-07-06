@@ -15,6 +15,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
+import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
@@ -32,6 +33,7 @@ public class App {
 			options.addOption( "outputPath", true, "output path" );
 			options.addOption( "oneSideJoin", true, "One side join" );
 			options.addOption( "algorithm", true, "Algorithm" );
+			options.addOption( "split", false, "Split datasets" );
 
 			options.addOption( "additional", true, "Additional input arguments" );
 
@@ -71,9 +73,16 @@ public class App {
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 		StatContainer stat = new StatContainer();
 
+		boolean split = cmd.hasOption( "split" );
+
 		switch( algorithmName ) {
 		case JoinNaive:
-			alg = new JoinNaive( query, stat );
+			if( split ) {
+				alg = new JoinNaive_Split( query, stat );
+			}
+			else {
+				alg = new JoinNaive( query, stat );
+			}
 			break;
 		case JoinMH:
 			alg = new JoinMH( query, stat );
