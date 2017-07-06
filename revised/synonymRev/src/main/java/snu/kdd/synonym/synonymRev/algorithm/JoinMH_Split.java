@@ -104,7 +104,7 @@ public class JoinMH_Split extends AlgorithmTemplate {
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex_Split( indexK, qgramSize, query, stat, indexPosition );
+		idx = new JoinMHIndex_Split( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition );
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class JoinMHIndex_Split {
 	int qgramSize;
 	int[] indexPosition;
 
-	public JoinMHIndex_Split( int indexK, int qgramSize, Query query, StatContainer stat, int[] indexPosition ) {
+	public JoinMHIndex_Split( int indexK, int qgramSize, Iterable<Record> recordList, Query query, StatContainer stat, int[] indexPosition ) {
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
@@ -51,7 +51,7 @@ public class JoinMHIndex_Split {
 		@SuppressWarnings( "unused" )
 		long elements = 0;
 
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : recordList ) {
 			// long recordStartTime = System.nanoTime();
 
 			List<List<QGram>> availableQGrams = null;

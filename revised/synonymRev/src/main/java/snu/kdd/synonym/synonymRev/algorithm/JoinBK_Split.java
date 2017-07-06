@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.data.Dataset_Split;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex_Split;
@@ -32,6 +34,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 	static Validator checker;
 
+	Dataset_Split splitIndexedSet;
+
 	/**
 	 * Key: twogram<br/>
 	 * Value IntervalTree Key: length of record (min, max)<br/>
@@ -52,6 +56,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 				rec.preprocessSuffixApplicableRules();
 			}
 		}
+
+		splitIndexedSet = new Dataset_Split( query.indexedSet, query.oneSideJoin );
 	}
 
 	@Override
@@ -85,16 +91,26 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 
-		buildIndex();
+		StopWatch indexingTime = StopWatch.getWatchStopped( "Result_3_1_Index_Time" );
+		StopWatch joinTime = StopWatch.getWatchStopped( "Result_3_2_Join_Time" );
+		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
-		stat.addMemory( "Mem_3_BuildIndex" );
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		for( int i = 0; i < splitIndexedSet.keySetSize(); i++ ) {
+			ObjectArrayList<Record> list = splitIndexedSet.getSplitData( i );
 
-		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker );
+			indexingTime.start();
+			buildIndex( list );
+			indexingTime.stopQuiet();
 
-		stat.addMemory( "Mem_4_Joined" );
-		stepTime.stopAndAdd( stat );
+			joinTime.start();
+			ArrayList<IntegerPair> partialRslt = idx.join( stat, query, checker );
+			joinTime.stopQuiet();
+
+			rslt.addAll( partialRslt );
+		}
+
+		stat.add( indexingTime );
+		stat.add( joinTime );
 
 		runTime.stopAndAdd( stat );
 
@@ -105,7 +121,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private int[] estimateIndexPosition( int maxIndexLength ) {
+	private int[] estimateIndexPosition( ObjectArrayList<Record> recordList, int maxIndexLength ) {
 		int[] indexPosition = new int[ maxIndexLength ];
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
@@ -117,7 +133,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			qgramSetList.add( new ObjectOpenHashSet<QGram>() );
 		}
 
-		for( Record rec : query.searchedSet.get() ) {
+		for( Record rec : recordList ) {
 			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
 
 			for( int i = 0; i < minimumSize; i++ ) {
@@ -162,9 +178,9 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		return indexPosition;
 	}
 
-	private void buildIndex() {
-		int[] indexPosition = estimateIndexPosition( indexK );
-		idx = new JoinMHIndex_Split( indexK, qgramSize, query, stat, indexPosition );
+	private void buildIndex( ObjectArrayList<Record> recordList ) {
+		int[] indexPosition = estimateIndexPosition( recordList, indexK );
+		idx = new JoinMHIndex_Split( indexK, qgramSize, recordList, query, stat, indexPosition );
 	}
 
 	@Override
