@@ -319,7 +319,12 @@ public class NaiveIndex_Split {
 		for( final Record exp : expanded ) {
 			int expLength = exp.getTokenCount();
 
-			final List<Integer> overlapidx = idxList.get( expLength ).get( exp );
+			WYK_HashMap<Record, ArrayList<Integer>> idx = idxList.get( expLength );
+			if( idx == null ) {
+				continue;
+			}
+			
+			final List<Integer> overlapidx = idx.get( exp );
 			if( overlapidx == null ) {
 				continue;
 			}
