@@ -111,7 +111,7 @@ public class App {
 			break;
 		}
 
-		stat.addPrimary( "Date", "\"" + new Date().toString() + "\"" );
+		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
 		stat.add( cmd );
 
 		initializeTime.stopAndAdd( stat );
