@@ -151,14 +151,16 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		MinPositionQueue mpq = new MinPositionQueue( maxIndexLength );
 
 		for( int i = 0; i < minimumSize; i++ ) {
-			if( DEBUG.JoinBKON ) {
-				Util.printLog(
-						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] ) );
-			}
 			if( qgramSetList.get( i ).size() == 0 ) {
 				// skip if there is no q-grams
 				continue;
 			}
+
+			if( DEBUG.JoinBKON ) {
+				Util.printLog(
+						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] ) );
+			}
+
 			mpq.add( i, qgramSetList.get( i ).size() / count[ i ] );
 		}
 
@@ -166,6 +168,10 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		while( !mpq.isEmpty() ) {
 			indexPosition[ i ] = mpq.pollIndex();
 			i--;
+
+			if( DEBUG.JoinBKON ) {
+				Util.printLog( "Index " + indexPosition[ i ] + " selected" );
+			}
 		}
 
 		StringBuilder bld = new StringBuilder();
