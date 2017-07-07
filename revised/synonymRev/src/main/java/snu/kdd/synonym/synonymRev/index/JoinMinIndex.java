@@ -643,8 +643,10 @@ public class JoinMinIndex {
 
 				if( debug ) {
 					System.out.println( "qgram " + qgram );
-					for( Record r : tree ) {
-						System.out.println( r.getID()  );
+					if( tree != null ) {
+						for( Record r : tree ) {
+							System.out.println( r.getID() );
+						}
 					}
 				}
 
