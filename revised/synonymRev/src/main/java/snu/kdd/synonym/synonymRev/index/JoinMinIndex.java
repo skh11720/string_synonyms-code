@@ -639,15 +639,15 @@ public class JoinMinIndex {
 					qgramCount++;
 				}
 
-				
-
 				List<Record> tree = curridx.get( qgram );
 
 				if( debug ) {
 					System.out.println( "qgram " + qgram );
-					System.out.println( tree );
+					for( Record r : tree ) {
+						System.out.println( r.getID()  );
+					}
 				}
-				
+
 				if( tree == null ) {
 					continue;
 				}
