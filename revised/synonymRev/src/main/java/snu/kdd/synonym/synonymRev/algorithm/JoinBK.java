@@ -109,7 +109,7 @@ public class JoinBK extends AlgorithmTemplate {
 		int[] indexPosition = new int[ maxIndexLength ];
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
-		int minimumSize = 10;
+		int minimumSize = 20;
 		double[] count = new double[ minimumSize ];
 
 		List<ObjectOpenHashSet<QGram>> qgramSetList = new ArrayList<ObjectOpenHashSet<QGram>>();
@@ -121,7 +121,7 @@ public class JoinBK extends AlgorithmTemplate {
 			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
 
 			for( int i = 0; i < minimumSize; i++ ) {
-				if( qgrams.size() >= i ) {
+				if( qgrams.size() < i ) {
 					break;
 				}
 

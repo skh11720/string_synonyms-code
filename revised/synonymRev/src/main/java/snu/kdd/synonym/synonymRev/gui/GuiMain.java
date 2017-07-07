@@ -36,7 +36,7 @@ public class GuiMain extends JFrame {
 
 	private final JButton btnRules = new JButton( "Rules" );
 	private final JButton btnJoinNaive = new JButton( "JoinNaive" );
-	private final JButton btnJoinNaive2 = new JButton( "JoinNaive2" );
+	private final JButton btnJoinBK = new JButton( "JoinBK" );
 	private final JButton btnJoinMH = new JButton( "JoinMH" );
 	private final JButton btnDebug = new JButton( "JoinDebug" );
 	private final JButton btnJoinMin = new JButton( "JoinMin" );
@@ -100,7 +100,7 @@ public class GuiMain extends JFrame {
 					btnTransaction.setEnabled( true );
 					btnRules.setEnabled( true );
 					btnJoinNaive.setEnabled( true );
-					btnJoinNaive2.setEnabled( true );
+					btnJoinBK.setEnabled( true );
 					btnJoinMH.setEnabled( true );
 					btnJoinMin.setEnabled( true );
 					btnJoinHybridOpt.setEnabled( true );
@@ -131,7 +131,7 @@ public class GuiMain extends JFrame {
 					btnTransaction.setEnabled( true );
 					btnRules.setEnabled( true );
 					btnJoinNaive.setEnabled( true );
-					btnJoinNaive2.setEnabled( true );
+					btnJoinBK.setEnabled( true );
 					btnJoinMH.setEnabled( true );
 					btnJoinMin.setEnabled( true );
 					btnJoinHybridOpt.setEnabled( true );
@@ -162,9 +162,9 @@ public class GuiMain extends JFrame {
 				arg = arg + " -algorithm JoinNaive -additional";
 				additional = "-1";
 			}
-			else if( command.equals( "JoinNaive2" ) ) {
-				arg = arg + " -algorithm JoinNaive2 -additional";
-				additional = "";
+			else if( command.equals( "JoinBK" ) ) {
+				arg = arg + " -algorithm JoinBK -additional";
+				additional = "-K 2 -qSize 3";
 			}
 			else if( command.equals( "JoinMH" ) ) {
 				arg = arg + " -algorithm JoinMH -additional";
@@ -304,9 +304,10 @@ public class GuiMain extends JFrame {
 		getContentPane().add( btnJoinHybridThres );
 		btnJoinHybridThres.addActionListener( algorithmAction );
 
-		btnJoinNaive2.setEnabled( false );
-		btnJoinNaive2.setBounds( 139, 43, 120, 23 );
-		getContentPane().add( btnJoinNaive2 );
+		btnJoinBK.setEnabled( false );
+		btnJoinBK.addActionListener( algorithmAction );
+		btnJoinBK.setBounds( 139, 43, 120, 23 );
+		getContentPane().add( btnJoinBK );
 
 		btnDebug.setEnabled( false );
 		btnDebug.addActionListener( algorithmAction );
