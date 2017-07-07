@@ -136,7 +136,8 @@ public class JoinBK extends AlgorithmTemplate {
 
 		for( int i = 0; i < minimumSize; i++ ) {
 			if( DEBUG.JoinBKON ) {
-				Util.printLog( "Index " + i + " " + qgramSetList.get( i ).size() );
+				Util.printLog(
+						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] ) );
 			}
 			mpq.add( i, qgramSetList.get( i ).size() / count[ i ] );
 		}
