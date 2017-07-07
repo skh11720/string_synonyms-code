@@ -100,11 +100,11 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 			// DEBUG
 			System.out.println( "Key " + key );
-			
+
 			ObjectArrayList<Record> list = splitIndexedSet.getSplitData( i );
 
 			indexingTime.start();
-			buildIndex( list );
+			buildIndex( list, key );
 			indexingTime.stopQuiet();
 
 			joinTime.start();
@@ -126,11 +126,13 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private int[] estimateIndexPosition( ObjectArrayList<Record> recordList, int maxIndexLength ) {
+	private int[] estimateIndexPosition( ObjectArrayList<Record> recordList, int maxIndexLength, IntegerPair key ) {
+		// DEBUG
+		int minimumSize = 10;
+
 		int[] indexPosition = new int[ maxIndexLength ];
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
-		int minimumSize = 10;
 		double[] count = new double[ minimumSize ];
 
 		List<ObjectOpenHashSet<QGram>> qgramSetList = new ArrayList<ObjectOpenHashSet<QGram>>();
@@ -191,8 +193,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		return indexPosition;
 	}
 
-	private void buildIndex( ObjectArrayList<Record> recordList ) {
-		int[] indexPosition = estimateIndexPosition( recordList, indexK );
+	private void buildIndex( ObjectArrayList<Record> recordList, IntegerPair key ) {
+		int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
 		idx = new JoinMHIndex_Split( indexK, qgramSize, recordList, query, stat, indexPosition );
 	}
 
