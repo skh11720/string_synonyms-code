@@ -59,4 +59,8 @@ public class Dataset_Split {
 
 		return recordListMap.get( key );
 	}
+
+	public IntegerPair getKey( int i ) {
+		return keySet.get( i );
+	}
 }

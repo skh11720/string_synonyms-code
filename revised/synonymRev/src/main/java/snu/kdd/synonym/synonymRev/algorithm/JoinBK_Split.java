@@ -96,6 +96,11 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		for( int i = 0; i < splitIndexedSet.keySetSize(); i++ ) {
+			IntegerPair key = splitIndexedSet.getKey( i );
+
+			// DEBUG
+			System.out.println( "Key " + key );
+			
 			ObjectArrayList<Record> list = splitIndexedSet.getSplitData( i );
 
 			indexingTime.start();

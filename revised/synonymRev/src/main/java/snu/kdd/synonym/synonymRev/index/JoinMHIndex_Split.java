@@ -30,7 +30,8 @@ public class JoinMHIndex_Split {
 	int qgramSize;
 	int[] indexPosition;
 
-	public JoinMHIndex_Split( int indexK, int qgramSize, Iterable<Record> recordList, Query query, StatContainer stat, int[] indexPosition ) {
+	public JoinMHIndex_Split( int indexK, int qgramSize, Iterable<Record> recordList, Query query, StatContainer stat,
+			int[] indexPosition ) {
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
@@ -198,6 +199,9 @@ public class JoinMHIndex_Split {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
+
+			// DEBUG
+			System.out.println( "sid " + sid );
 
 			Record recS = query.searchedSet.getRecord( sid );
 			Set<Record> candidates = new WYK_HashSet<Record>();
