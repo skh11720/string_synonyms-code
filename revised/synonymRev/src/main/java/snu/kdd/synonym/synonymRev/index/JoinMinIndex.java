@@ -602,6 +602,11 @@ public class JoinMinIndex {
 		long joinStartTime = 0;
 		long qgramCount = 0;
 
+		boolean debug = false;
+		if( recS.getID() == 9368 ) {
+			debug = true;
+		}
+
 		if( DEBUG.JoinMinON ) {
 			qgramStartTime = System.nanoTime();
 		}
@@ -634,8 +639,15 @@ public class JoinMinIndex {
 					qgramCount++;
 				}
 
+				
+
 				List<Record> tree = curridx.get( qgram );
 
+				if( debug ) {
+					System.out.println( "qgram " + qgram );
+					System.out.println( tree );
+				}
+				
 				if( tree == null ) {
 					continue;
 				}
