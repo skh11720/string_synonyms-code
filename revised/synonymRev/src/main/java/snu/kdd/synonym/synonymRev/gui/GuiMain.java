@@ -179,7 +179,7 @@ public class GuiMain extends JFrame {
 			}
 			else if( command.equals( "JoinMin" ) ) {
 				arg = arg + " -algorithm JoinMin -additional";
-				additional = "-qSize 2 -v TopDownHashSetSinglePathDS 0";
+				additional = "-K 2 -qSize 2";
 			}
 			else if( command.equals( "JoinHybridOpt" ) ) {
 				String sample = sampleTextField.getText();

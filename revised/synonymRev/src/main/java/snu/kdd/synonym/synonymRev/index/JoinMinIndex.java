@@ -282,7 +282,7 @@ public class JoinMinIndex {
 				}
 			}
 
-			estimatedCountMap.put( rec, indexedCount );
+			indexedCountMap.put( rec, indexedCount );
 		}
 
 		this.indexTime = System.nanoTime() - starttime;

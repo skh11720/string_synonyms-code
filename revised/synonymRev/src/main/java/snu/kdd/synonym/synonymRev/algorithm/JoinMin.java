@@ -35,6 +35,20 @@ public class JoinMin extends AlgorithmTemplate {
 		super( query, stat );
 	}
 
+	@Override
+	public void preprocess() {
+		super.preprocess();
+
+		for( Record rec : query.indexedSet.get() ) {
+			rec.preprocessSuffixApplicableRules();
+		}
+		if( !query.selfJoin ) {
+			for( Record rec : query.searchedSet.get() ) {
+				rec.preprocessSuffixApplicableRules();
+			}
+		}
+	}
+
 	private void buildIndex( boolean writeResult ) throws IOException {
 		idx = new JoinMinIndex( indexK, qSize, stat, query, writeResult );
 	}
