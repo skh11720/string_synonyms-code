@@ -207,7 +207,12 @@ public class NaiveIndex {
 		if( list == null ) {
 			// new expression
 			list = new ArrayList<Integer>( 5 );
-			idx.putNonExist( expanded, list );
+			if( expanded.getID() == -1 ) {
+				idx.putNonExist( expanded, list );
+			}
+			else {
+				idx.putNonExist( new Record( expanded.getTokens() ), list );
+			}
 		}
 
 		// If current list already contains current record as the last element, skip adding
