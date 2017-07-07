@@ -121,7 +121,7 @@ public class JoinBK extends AlgorithmTemplate {
 			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
 
 			for( int i = 0; i < minimumSize; i++ ) {
-				if( qgrams.size() < i ) {
+				if( qgrams.size() <= i ) {
 					break;
 				}
 
