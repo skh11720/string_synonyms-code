@@ -319,7 +319,8 @@ public class Record implements Comparable<Record> {
 				}
 				return true;
 			}
-			return false;
+
+			return StaticFunctions.compare( tokens, orec.tokens ) == 0;
 		}
 		else {
 			return false;
