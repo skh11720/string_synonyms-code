@@ -12,8 +12,9 @@ RUN_JoinMH=${11}
 RUN_JoinHybridOpt=${12}
 RUN_JoinHybridThres=${13}
 RUN_JoinBK=${14}
-RUN_DEBUG=${15}
-oneSide=${16}
+RUN_JoinBKSP=${15}
+RUN_DEBUG=${16}
+oneSide=${17}
 
 LIBS=../target/Synonym.jar
 
@@ -32,11 +33,12 @@ echo RUN_JoinMH $RUN_JoinMH
 echo RUN_JoinHybridOpt $RUN_JoinHybridOpt
 echo RUN_JoinHybridThres $RUN_JoinHybridThres
 echo RUN_JoinBK $RUN_JoinBK
+echo RUN_JoinBKSP $RUN_JoinBKSP
 echo RUN_DEBUG $RUN_DEBUG
 echo oneSide $oneSide
 echo "--------------------------------------"
 
-if [[ $# -ne 16 ]];
+if [[ $# -ne 17 ]];
 	then
 		echo 'illegal number of parameters'
 	else
@@ -186,11 +188,27 @@ if [[ $# -ne 16 ]];
 			#for q in {1..5..1}; do
 			for q in {2..5..1}; do
 				date
-				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide
+				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide false
 				./compare.sh $PREV JoinBK
 			done
 		done
 		PREV="JoinBK"
+	fi
+
+	#JoinBKSP
+	if [[ $RUN_JoinBKSP == "True" ]];
+	then
+		K=( 1 2 3 4 5 )
+		#K=( 1 )
+		for k in "${K[@]}"; do
+			#for q in {1..5..1}; do
+			for q in {2..5..1}; do
+				date
+				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide true
+				./compare.sh $PREV JoinBKSP
+			done
+		done
+		PREV="JoinBKSP"
 	fi
 
 	#JoinMH_QL

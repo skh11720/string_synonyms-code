@@ -31,11 +31,11 @@ then
 else
 	if [[ "$split" = true ]];
 	then
-		echo $ALG with k=$k and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_$k\_$qSize
+		echo $ALG SP with k=$k and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_SP\_$k\_$qSize
 		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 			-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
 			-algorithm $ALG -oneSideJoin $oneSide -split \
-			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$k\_$qSize
+			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_SP\_$k\_$qSize
 	else
 		echo $ALG with k=$k and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_$k\_$qSize
 		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
