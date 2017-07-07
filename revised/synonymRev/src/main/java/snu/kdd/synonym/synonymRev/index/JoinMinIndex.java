@@ -682,6 +682,9 @@ public class JoinMinIndex {
 
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
+			if( debug ) {
+				System.out.println( "Rec: " + recR.getID() + " " + recR );
+			}
 			long ruleiters = 0;
 			long reccalls = 0;
 			long entryiters = 0;
@@ -704,6 +707,9 @@ public class JoinMinIndex {
 
 			comparisonTime += duration;
 			if( compare >= 0 ) {
+				if( debug ) {
+					System.out.println( "ID: " + recR.getID() );
+				}
 				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 				appliedRulesSum += compare;
 			}
