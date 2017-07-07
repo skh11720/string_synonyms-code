@@ -137,7 +137,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			List<List<QGram>> qgrams = rec.getQGrams( qgramSize, minimumSize + 1 );
 
 			for( int i = 0; i < minimumSize; i++ ) {
-				if( qgrams.size() >= i ) {
+				if( qgrams.size() <= i ) {
 					break;
 				}
 
@@ -152,7 +152,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 		for( int i = 0; i < minimumSize; i++ ) {
 			if( DEBUG.JoinBKON ) {
-				Util.printLog( "Index " + i + " " + qgramSetList.get( i ).size() );
+				Util.printLog(
+						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] ) );
 			}
 			if( qgramSetList.get( i ).size() == 0 ) {
 				// skip if there is no q-grams

@@ -41,7 +41,7 @@ public class GuiMain extends JFrame {
 	private final JButton btnDebug = new JButton( "JoinDebug" );
 	private final JButton btnJoinMin = new JButton( "JoinMin" );
 	private final JButton btnJoinHybridOpt = new JButton( "JoinHybridOpt" );
-	private final JButton btnJoinHybridThres = new JButton( "JoinHybridThres" );
+	private final JButton btnJoinBK_SP = new JButton( "JoinBKSP" );
 	private final JButton btnPrintInfo = new JButton( "PrintInfo" );
 
 	private JTextField sampleTextField;
@@ -104,7 +104,7 @@ public class GuiMain extends JFrame {
 					btnJoinMH.setEnabled( true );
 					btnJoinMin.setEnabled( true );
 					btnJoinHybridOpt.setEnabled( true );
-					btnJoinHybridThres.setEnabled( true );
+					btnJoinBK_SP.setEnabled( true );
 				}
 			}
 			else {
@@ -135,7 +135,7 @@ public class GuiMain extends JFrame {
 					btnJoinMH.setEnabled( true );
 					btnJoinMin.setEnabled( true );
 					btnJoinHybridOpt.setEnabled( true );
-					btnJoinHybridThres.setEnabled( true );
+					btnJoinBK_SP.setEnabled( true );
 					btnDebug.setEnabled( true );
 					btnPrintInfo.setEnabled( true );
 				}
@@ -186,10 +186,9 @@ public class GuiMain extends JFrame {
 				arg = arg + " -algorithm JoinHybridOpt -additional";
 				additional = "-compact -v TopDownHashSetSinglePathDS 0 -s " + sample;
 			}
-			else if( command.equals( "JoinHybridThres" ) ) {
-				String thres = thresTextField.getText();
-				arg = arg + " -algorithm JoinHybridThres -additional";
-				additional = "-compact -v TopDownHashSetSinglePathDS 0 -joinExpandThreshold " + thres;
+			else if( command.equals( "JoinBKSP" ) ) {
+				arg = arg + " -algorithm JoinBK -split -additional";
+				additional = "-K 2 -qSize 2";
 			}
 
 			System.out.println( "Args: " + arg );
@@ -299,10 +298,10 @@ public class GuiMain extends JFrame {
 		btnLoadRule.setBounds( 267, 12, 120, 23 );
 		getContentPane().add( btnLoadRule );
 
-		btnJoinHybridThres.setEnabled( false );
-		btnJoinHybridThres.setBounds( 139, 74, 120, 23 );
-		getContentPane().add( btnJoinHybridThres );
-		btnJoinHybridThres.addActionListener( algorithmAction );
+		btnJoinBK_SP.setEnabled( false );
+		btnJoinBK_SP.setBounds( 139, 74, 120, 23 );
+		getContentPane().add( btnJoinBK_SP );
+		btnJoinBK_SP.addActionListener( algorithmAction );
 
 		btnJoinBK.setEnabled( false );
 		btnJoinBK.addActionListener( algorithmAction );

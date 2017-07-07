@@ -2,9 +2,12 @@ package snu.kdd.synonym.synonymRev.data;
 
 import java.util.ArrayList;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class Dataset_Split {
 	String name;
@@ -38,6 +41,12 @@ public class Dataset_Split {
 			}
 
 			recordList.add( r );
+		}
+
+		if( DEBUG.JoinBKON ) {
+			for( Entry<IntegerPair, ObjectArrayList<Record>> entry : recordListMap.object2ObjectEntrySet() ) {
+				Util.printLog( entry.getKey() + " " + entry.getValue().size() );
+			}
 		}
 	}
 
