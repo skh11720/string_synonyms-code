@@ -657,6 +657,9 @@ public class JoinMinIndex {
 				for( Record e : tree ) {
 					if( oneSideJoin ) {
 						if( StaticFunctions.overlap( e.getTokenCount(), e.getTokenCount(), range[ 0 ], range[ 1 ] ) ) {
+							if( debug ) {
+								System.out.println( "Cand : " + e );
+							}
 							candidates.add( e );
 							comparisonCount++;
 						}
