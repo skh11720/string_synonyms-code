@@ -285,11 +285,11 @@ public class NaiveIndex {
 
 	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		boolean debug = false;
-		
+
 		if( recS.getID() == 2867 ) {
 			debug = true;
 		}
-		
+
 		long expandStartTime = System.nanoTime();
 		final List<Record> expanded = recS.expandAll();
 		expandTime += System.nanoTime() - expandStartTime;
@@ -305,6 +305,10 @@ public class NaiveIndex {
 			}
 
 			final List<Integer> overlapidx = idx.get( exp );
+			
+			if( debug ) {
+				System.out.println( "overlap " + overlapidx );
+			}
 			if( overlapidx == null ) {
 				continue;
 			}
@@ -316,6 +320,9 @@ public class NaiveIndex {
 		searchTime += System.nanoTime() - searchStartTime;
 
 		for( final Integer idx : candidates ) {
+			if( debug ) {
+				System.out.println( "idx : " + idx );
+			}
 			rslt.add( new IntegerPair( recS.getID(), idx ) );
 		}
 	}
