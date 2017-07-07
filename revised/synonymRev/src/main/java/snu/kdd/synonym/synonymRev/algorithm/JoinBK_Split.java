@@ -167,11 +167,12 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		int i = maxIndexLength - 1;
 		while( !mpq.isEmpty() ) {
 			indexPosition[ i ] = mpq.pollIndex();
-			i--;
 
 			if( DEBUG.JoinBKON ) {
 				Util.printLog( "Index " + indexPosition[ i ] + " selected" );
 			}
+
+			i--;
 		}
 
 		StringBuilder bld = new StringBuilder();
