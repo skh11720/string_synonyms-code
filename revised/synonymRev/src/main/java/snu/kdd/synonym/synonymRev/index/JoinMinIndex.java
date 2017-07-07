@@ -602,11 +602,6 @@ public class JoinMinIndex {
 		long joinStartTime = 0;
 		long qgramCount = 0;
 
-		boolean debug = false;
-		if( recS.getID() == 9368 ) {
-			debug = true;
-		}
-
 		if( DEBUG.JoinMinON ) {
 			qgramStartTime = System.nanoTime();
 		}
@@ -641,15 +636,6 @@ public class JoinMinIndex {
 
 				List<Record> tree = curridx.get( qgram );
 
-				if( debug ) {
-					System.out.println( "qgram " + qgram );
-					if( tree != null ) {
-						for( Record r : tree ) {
-							System.out.println( r.getID() );
-						}
-					}
-				}
-
 				if( tree == null ) {
 					continue;
 				}
@@ -657,9 +643,7 @@ public class JoinMinIndex {
 				for( Record e : tree ) {
 					if( oneSideJoin ) {
 						if( StaticFunctions.overlap( e.getTokenCount(), e.getTokenCount(), range[ 0 ], range[ 1 ] ) ) {
-							if( debug ) {
-								System.out.println( "Cand : " + e );
-							}
+
 							candidates.add( e );
 							comparisonCount++;
 						}
@@ -685,9 +669,6 @@ public class JoinMinIndex {
 
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
-			if( debug ) {
-				System.out.println( "Rec: " + recR.getID() + " " + recR );
-			}
 			long ruleiters = 0;
 			long reccalls = 0;
 			long entryiters = 0;
@@ -710,9 +691,6 @@ public class JoinMinIndex {
 
 			comparisonTime += duration;
 			if( compare >= 0 ) {
-				if( debug ) {
-					System.out.println( "ID: " + recR.getID() );
-				}
 				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 				appliedRulesSum += compare;
 			}
