@@ -60,6 +60,10 @@ public class JoinMHIndex_Split {
 
 		for( Record rec : recordList ) {
 			// long recordStartTime = System.nanoTime();
+			boolean debug = false;
+			if( rec.getID() == 1573 ) {
+				debug = true;
+			}
 
 			List<List<QGram>> availableQGrams = null;
 			IntegerPair pair = null;
@@ -100,6 +104,9 @@ public class JoinMHIndex_Split {
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
+					if( debug ) {
+						System.out.println( "qgram: " + qgram );
+					}
 					List<Record> list = map.get( qgram );
 					if( list == null ) {
 						list = new ArrayList<Record>();
@@ -205,7 +212,14 @@ public class JoinMHIndex_Split {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
+			boolean debug = false;
+
 			Record recS = query.searchedSet.getRecord( sid );
+
+			if( recS.getID() == 1573 ) {
+				debug = true;
+			}
+
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
 			List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
@@ -220,6 +234,9 @@ public class JoinMHIndex_Split {
 				IntegerPair pair = pairIter.next();
 
 				if( StaticFunctions.overlap( pair.i1, pair.i2, range[ 0 ], range[ 1 ] ) ) {
+					if( debug ) {
+						System.out.println( "Cand: " + pair );
+					}
 					rangeCandidateList.add( pair );
 				}
 			}
@@ -247,6 +264,7 @@ public class JoinMHIndex_Split {
 
 					for( QGram qgram : availableQGrams.get( actualIndex ) ) {
 						// elements++;
+
 						List<Record> list = map.get( qgram );
 						if( list == null ) {
 							++count_empty[ i ];
@@ -254,6 +272,12 @@ public class JoinMHIndex_Split {
 						}
 						cand_sum[ i ] += list.size();
 						++count_cand[ i ];
+
+						if( debug ) {
+							System.out.println( "qgram: " + qgram );
+							System.out.println( "list: " + list );
+						}
+
 						for( Record otherRecord : list ) {
 							int[] otherRange = null;
 
