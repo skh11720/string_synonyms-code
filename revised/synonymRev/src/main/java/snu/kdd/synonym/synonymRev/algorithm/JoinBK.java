@@ -39,6 +39,7 @@ public class JoinBK extends AlgorithmTemplate {
 	 */
 
 	JoinMHIndex idx;
+	int indexedMinLength = Integer.MAX_VALUE;
 
 	@Override
 	protected void preprocess() {
@@ -46,6 +47,9 @@ public class JoinBK extends AlgorithmTemplate {
 
 		for( Record rec : query.indexedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
+			if( indexedMinLength > rec.getMinTransLength() ) {
+				indexedMinLength = rec.getMinTransLength();
+			}
 		}
 		if( !query.selfJoin ) {
 			for( Record rec : query.searchedSet.get() ) {
@@ -107,6 +111,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 	private int[] estimateIndexPosition( int maxIndexLength ) {
 		int[] indexPosition = new int[ maxIndexLength ];
+
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
 		int minimumSize = 20;
@@ -138,7 +143,6 @@ public class JoinBK extends AlgorithmTemplate {
 						set.add( q );
 					}
 				}
-
 			}
 		}
 
@@ -154,6 +158,7 @@ public class JoinBK extends AlgorithmTemplate {
 		}
 
 		int i = maxIndexLength - 1;
+
 		while( !mpq.isEmpty() ) {
 			indexPosition[ i ] = mpq.pollIndex();
 
@@ -162,6 +167,20 @@ public class JoinBK extends AlgorithmTemplate {
 			}
 
 			i--;
+		}
+
+		boolean validPositions = false;
+		for( i = 0; i < indexPosition.length; i++ ) {
+			int actualIndex = indexPosition[ i ];
+
+			if( indexedMinLength > actualIndex ) {
+				validPositions = true;
+			}
+		}
+
+		if( !validPositions ) {
+			// to join short strings correctly
+			indexPosition[ maxIndexLength - 1 ] = indexedMinLength - 1;
 		}
 
 		StringBuilder bld = new StringBuilder();
