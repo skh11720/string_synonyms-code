@@ -213,13 +213,13 @@ public class JoinMHIndex_Split {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
-			boolean debug = false;
+			// boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord( sid );
 
-			if( recS.getID() == 4145 ) {
-				debug = true;
-			}
+			// if( recS.getID() == 4145 ) {
+			// debug = true;
+			// }
 
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
@@ -227,9 +227,9 @@ public class JoinMHIndex_Split {
 
 			// long recordStartTime = System.nanoTime();
 			int[] range = recS.getTransLengths();
-			if( debug ) {
-				System.out.println( "Range : " + range[ 0 ] + " " + range[ 1 ] );
-			}
+			// if( debug ) {
+			// System.out.println( "Range : " + range[ 0 ] + " " + range[ 1 ] );
+			// }
 
 			ArrayList<IntegerPair> rangeCandidateList = new ArrayList<IntegerPair>();
 
@@ -238,9 +238,9 @@ public class JoinMHIndex_Split {
 				IntegerPair pair = pairIter.next();
 
 				if( StaticFunctions.overlap( pair.i1, pair.i2, range[ 0 ], range[ 1 ] ) ) {
-					if( debug ) {
-						System.out.println( "Cand: " + pair );
-					}
+					// if( debug ) {
+					// System.out.println( "Cand: " + pair );
+					// }
 					rangeCandidateList.add( pair );
 				}
 			}
@@ -255,9 +255,9 @@ public class JoinMHIndex_Split {
 
 					if( range[ 0 ] < actualIndex ) {
 
-						if( debug ) {
-							System.out.println( actualIndex + " skipped " + range[ 0 ] );
-						}
+						// if( debug ) {
+						// System.out.println( actualIndex + " skipped " + range[ 0 ] );
+						// }
 						continue;
 					}
 
@@ -281,10 +281,10 @@ public class JoinMHIndex_Split {
 						cand_sum[ i ] += list.size();
 						++count_cand[ i ];
 
-						if( debug ) {
-							System.out.println( "qgram: " + qgram );
-							System.out.println( "list: " + list );
-						}
+						// if( debug ) {
+						// System.out.println( "qgram: " + qgram );
+						// System.out.println( "list: " + list );
+						// }
 
 						for( Record otherRecord : list ) {
 							int[] otherRange = null;
@@ -323,10 +323,10 @@ public class JoinMHIndex_Split {
 				}
 				count += candidates.size();
 
-				if( prevCandidate != null ) {
-					// TODO why null?
-					candidates.addAll( prevCandidate );
-				}
+				// if( prevCandidate != null ) {
+				// // TODO why null?
+				candidates.addAll( prevCandidate );
+				// }
 			}
 
 			equivTime.start();
