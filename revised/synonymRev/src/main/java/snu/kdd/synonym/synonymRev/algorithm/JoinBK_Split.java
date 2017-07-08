@@ -18,6 +18,7 @@ import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -215,7 +216,25 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
+			int[] range = recS.getTransLengths();
+
+			boolean debug = recS.getID() == 4145;
+
+			if( debug ) {
+				System.out.println( "Range: " + range[ 0 ] + " " + range[ 1 ] );
+			}
+
 			for( int i = 0; i < idxList.size(); i++ ) {
+				IntegerPair key = splitIndexedSet.getKey( i );
+
+				if( !StaticFunctions.overlap( range[ 0 ], range[ 1 ], key.i1, key.i2 ) ) {
+					continue;
+				}
+
+				if( debug ) {
+					System.out.println( "Searhcing " + key );
+				}
+
 				JoinMHIndex idx = idxList.get( i );
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
 				idx.joinOneRecord( recS, availableQGrams, query, checker, rslt );
