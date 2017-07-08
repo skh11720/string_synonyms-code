@@ -119,6 +119,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		}
 
 		int[] indexPosition = new int[ maxIndexLength ];
+		int[] duplicateCount = new int[ minimumSize ];
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
 		double[] count = new double[ minimumSize ];
@@ -139,7 +140,15 @@ public class JoinBK_Split extends AlgorithmTemplate {
 				count[ i ]++;
 
 				ObjectOpenHashSet<QGram> set = qgramSetList.get( i );
-				set.addAll( qgrams.get( i ) );
+
+				for( QGram q : qgrams.get( i ) ) {
+					if( set.contains( q ) ) {
+						duplicateCount[ i ]++;
+					}
+					else {
+						set.add( q );
+					}
+				}
 			}
 		}
 
@@ -153,10 +162,12 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 			if( DEBUG.JoinBKON ) {
 				Util.printLog(
-						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] ) );
+						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] )
+								+ duplicateCount[ i ] + " " + ( duplicateCount[ i ] / count[ i ] ) );
 			}
 
-			mpq.add( i, qgramSetList.get( i ).size() / count[ i ] );
+			double value = duplicateCount[ i ] / count[ i ];
+			mpq.add( i, value );
 		}
 
 		int i = maxIndexLength - 1;
