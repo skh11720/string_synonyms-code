@@ -58,10 +58,10 @@ public class JoinMHIndex {
 		}
 
 		for( Record rec : indexedSet ) {
-			// boolean debug = false;
-			// if( rec.getID() == 94118 ) {
-			// debug = true;
-			// }
+			boolean debug = false;
+			if( rec.getID() == 4145 ) {
+				debug = true;
+			}
 
 			// long recordStartTime = System.nanoTime();
 
@@ -93,9 +93,9 @@ public class JoinMHIndex {
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-					// if( debug ) {
-					// System.out.println( qgram + " " + actualIndex );
-					// }
+					if( debug ) {
+						System.out.println( qgram + " " + actualIndex );
+					}
 					List<Record> list = map.get( qgram );
 					if( list == null ) {
 						list = new ArrayList<Record>();
@@ -186,6 +186,11 @@ public class JoinMHIndex {
 
 		ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
 
+		boolean debug = false;
+		if( recS.getID() == 4145 ) {
+			debug = true;
+		}
+
 		// long recordStartTime = System.nanoTime();
 		int[] range = recS.getTransLengths();
 		for( int i = 0; i < indexK; ++i ) {
@@ -199,9 +204,9 @@ public class JoinMHIndex {
 			Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 			for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-				// if( debug ) {
-				// System.out.println( "Q " + qgram + " " + actualIndex );
-				// }
+				if( debug ) {
+					System.out.println( "Q " + qgram + " " + actualIndex );
+				}
 
 				// elements++;
 				List<Record> list = map.get( qgram );
@@ -210,9 +215,9 @@ public class JoinMHIndex {
 				}
 
 				for( Record otherRecord : list ) {
-					// if( debug ) {
-					// System.out.println( "record: " + otherRecord );
-					// }
+					if( debug ) {
+						System.out.println( "record: " + otherRecord );
+					}
 
 					int[] otherRange = null;
 
