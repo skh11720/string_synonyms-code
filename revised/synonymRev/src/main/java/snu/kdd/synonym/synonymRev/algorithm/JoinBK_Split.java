@@ -207,7 +207,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
 			estimateIndex.stop();
 
-			JoinMHIndex idx = new JoinMHIndex( indexPosition.length, qgramSize, recordList, query, stat, indexPosition, false, false );
+			JoinMHIndex idx = new JoinMHIndex( indexPosition.length, qgramSize, recordList, query, stat, indexPosition, false,
+					false );
 			idxList.add( idx );
 		}
 	}
@@ -218,11 +219,11 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		for( Record recS : query.searchedSet.get() ) {
 			int[] range = recS.getTransLengths();
 
-			boolean debug = recS.getID() == 4145;
+			// boolean debug = recS.getID() == 4145;
 
-			if( debug ) {
-				System.out.println( "Range: " + range[ 0 ] + " " + range[ 1 ] );
-			}
+			// if( debug ) {
+			// System.out.println( "Range: " + range[ 0 ] + " " + range[ 1 ] );
+			// }
 
 			for( int i = 0; i < idxList.size(); i++ ) {
 				IntegerPair key = splitIndexedSet.getKey( i );
@@ -231,9 +232,9 @@ public class JoinBK_Split extends AlgorithmTemplate {
 					continue;
 				}
 
-				if( debug ) {
-					System.out.println( "Searhcing " + key );
-				}
+				// if( debug ) {
+				// System.out.println( "Searhcing " + key );
+				// }
 
 				JoinMHIndex idx = idxList.get( i );
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );

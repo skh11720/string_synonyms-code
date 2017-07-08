@@ -62,10 +62,7 @@ public class JoinMHIndex {
 		}
 
 		for( Record rec : indexedSet ) {
-			boolean debug = false;
-			if( rec.getID() == 4145 ) {
-				debug = true;
-			}
+			// boolean debug = rec.getID() == 4145;
 
 			// long recordStartTime = System.nanoTime();
 
@@ -100,9 +97,9 @@ public class JoinMHIndex {
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-					if( debug ) {
-						System.out.println( qgram + " " + actualIndex );
-					}
+					// if( debug ) {
+					// System.out.println( qgram + " " + actualIndex );
+					// }
 					List<Record> list = map.get( qgram );
 					if( list == null ) {
 						list = new ArrayList<Record>();
@@ -190,8 +187,8 @@ public class JoinMHIndex {
 			ArrayList<IntegerPair> rslt ) {
 		// this function is for the splitted data sets only -> qgrams are previously computed and
 		// length filtering is not applied here (already applied by the function calling this function)
-		
-		boolean debug = recS.getID() == 4145;
+
+		// boolean debug = recS.getID() == 4145;
 		// long recordStartTime = System.nanoTime();
 
 		ObjectOpenHashSet<Record> prevCandidate = null;
@@ -203,9 +200,9 @@ public class JoinMHIndex {
 			Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 			for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-				if( debug ) {
-					System.out.println( "Q " + qgram + " " + actualIndex );
-				}
+				// if( debug ) {
+				// System.out.println( "Q " + qgram + " " + actualIndex );
+				// }
 
 				// elements++;
 				List<Record> list = map.get( qgram );
@@ -214,9 +211,9 @@ public class JoinMHIndex {
 				}
 
 				for( Record otherRecord : list ) {
-					if( debug ) {
-						System.out.println( "record: " + otherRecord );
-					}
+					// if( debug ) {
+					// System.out.println( "record: " + otherRecord );
+					// }
 
 					if( prevCandidate == null ) {
 						ithCandidates.add( otherRecord );
