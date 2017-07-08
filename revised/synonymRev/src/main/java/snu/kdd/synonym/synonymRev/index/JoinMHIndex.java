@@ -31,6 +31,7 @@ public class JoinMHIndex {
 	int[] indexPosition;
 
 	public JoinMHIndex( int indexK, int qgramSize, Query query, StatContainer stat, int[] indexPosition ) {
+
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
@@ -56,6 +57,11 @@ public class JoinMHIndex {
 		}
 
 		for( Record rec : query.indexedSet.get() ) {
+			boolean debug = false;
+			if( rec.getID() == 41505 ) {
+				debug = true;
+			}
+				
 			// long recordStartTime = System.nanoTime();
 
 			List<List<QGram>> availableQGrams = null;
@@ -85,6 +91,9 @@ public class JoinMHIndex {
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
+					if( debug ) {
+						System.out.println( qgram + " " + actualIndex );
+					}
 					List<Record> list = map.get( qgram );
 					if( list == null ) {
 						list = new ArrayList<Record>();
@@ -235,7 +244,7 @@ public class JoinMHIndex {
 						else {
 							otherRange = otherRecord.getTransLengths();
 						}
-						
+
 						if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
 							// length filtering
 

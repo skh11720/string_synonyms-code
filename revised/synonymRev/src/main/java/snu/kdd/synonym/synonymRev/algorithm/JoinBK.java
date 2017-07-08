@@ -145,6 +145,11 @@ public class JoinBK extends AlgorithmTemplate {
 		int i = maxIndexLength - 1;
 		while( !mpq.isEmpty() ) {
 			indexPosition[ i ] = mpq.pollIndex();
+
+			if( DEBUG.JoinBKON ) {
+				Util.printLog( "Selected " + indexPosition[ i ] );
+			}
+
 			i--;
 		}
 
