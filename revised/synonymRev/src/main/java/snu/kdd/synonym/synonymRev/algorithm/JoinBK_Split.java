@@ -187,8 +187,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			bld.append( " " );
 		}
 
-		stat.add( "Auto_BestPosition", bld.toString() );
-		stat.add( estimateIndex );
+		// stat.add( "Auto_BestPosition", bld.toString() );
+		// stat.add( estimateIndex );
 		return indexPosition;
 	}
 
@@ -197,6 +197,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		for( int i = 0; i < splitIndexedSet.keySetSize(); i++ ) {
 			IntegerPair key = splitIndexedSet.getKey( i );
 			ObjectArrayList<Record> recordList = splitIndexedSet.getSplitData( i );
+
+			System.out.println( key );
 
 			int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
 			JoinMHIndex_Split idx = new JoinMHIndex_Split( indexK, qgramSize, recordList, query, stat, indexPosition );
