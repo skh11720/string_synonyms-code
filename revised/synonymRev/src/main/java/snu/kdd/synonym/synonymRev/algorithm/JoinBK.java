@@ -201,9 +201,8 @@ public class JoinBK extends AlgorithmTemplate {
 			bld.append( indexPosition[ i ] );
 			bld.append( " " );
 		}
-
+		estimateIndex.stopAndAdd( stat );
 		stat.add( "Auto_BestPosition", bld.toString() );
-		stat.add( estimateIndex );
 		return indexPosition;
 	}
 
