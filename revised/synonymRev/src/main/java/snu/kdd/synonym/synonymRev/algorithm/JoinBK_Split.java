@@ -120,7 +120,6 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 		int[] indexPosition = new int[ maxIndexLength ];
 		int[] duplicateCount = new int[ minimumSize ];
-		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
 		double[] count = new double[ minimumSize ];
 
@@ -194,13 +193,19 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 	private void buildIndex() {
 		idxList = new ArrayList<>();
+		StopWatch estimateIndex = StopWatch.getWatchStopped( "Result_3_1_1_Index_Count_Time" );
 		for( int i = 0; i < splitIndexedSet.keySetSize(); i++ ) {
 			IntegerPair key = splitIndexedSet.getKey( i );
 			ObjectArrayList<Record> recordList = splitIndexedSet.getSplitData( i );
 
-			System.out.println( key );
+			if( DEBUG.JoinBKON ) {
+				Util.printLog( "Indexing : " + key );
+			}
 
+			estimateIndex.start();
 			int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
+			estimateIndex.stop();
+
 			JoinMHIndex idx = new JoinMHIndex( indexK, qgramSize, recordList, query, stat, indexPosition, false );
 			idxList.add( idx );
 		}
