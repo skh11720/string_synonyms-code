@@ -57,10 +57,10 @@ public class JoinMHIndex {
 		}
 
 		for( Record rec : query.indexedSet.get() ) {
-			boolean debug = false;
-			if( rec.getID() == 94118 ) {
-				debug = true;
-			}
+			// boolean debug = false;
+			// if( rec.getID() == 94118 ) {
+			// debug = true;
+			// }
 
 			// long recordStartTime = System.nanoTime();
 
@@ -92,9 +92,9 @@ public class JoinMHIndex {
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-					if( debug ) {
-						System.out.println( qgram + " " + actualIndex );
-					}
+					// if( debug ) {
+					// System.out.println( qgram + " " + actualIndex );
+					// }
 					List<Record> list = map.get( qgram );
 					if( list == null ) {
 						list = new ArrayList<Record>();
@@ -202,14 +202,14 @@ public class JoinMHIndex {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
-			boolean debug = false;
+			// boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord( sid );
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
-			if( recS.getID() == 94118 ) {
-				debug = true;
-			}
+			// if( recS.getID() == 94118 ) {
+			// debug = true;
+			// }
 
 			Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 			candidatesCount.defaultReturnValue( -1 );
@@ -231,9 +231,9 @@ public class JoinMHIndex {
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-					if( debug ) {
-						System.out.println( "Q " + qgram + " " + actualIndex );
-					}
+					// if( debug ) {
+					// System.out.println( "Q " + qgram + " " + actualIndex );
+					// }
 
 					// elements++;
 					List<Record> list = map.get( qgram );
@@ -244,9 +244,9 @@ public class JoinMHIndex {
 					cand_sum[ i ] += list.size();
 					++count_cand[ i ];
 					for( Record otherRecord : list ) {
-						if( debug ) {
-							System.out.println( "record: " + otherRecord );
-						}
+						// if( debug ) {
+						// System.out.println( "record: " + otherRecord );
+						// }
 
 						int[] otherRange = null;
 
