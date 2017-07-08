@@ -113,6 +113,8 @@ public class JoinBK extends AlgorithmTemplate {
 		int[] indexPosition = new int[ maxIndexLength ];
 
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
+		int minAmongValidIndex = -1;
+		double minAmongValidValue = 0;
 
 		int minimumSize = 20;
 		double[] count = new double[ minimumSize ];
@@ -154,7 +156,15 @@ public class JoinBK extends AlgorithmTemplate {
 						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] )
 								+ duplicateCount[ i ] + " " + ( duplicateCount[ i ] / count[ i ] ) );
 			}
-			mpq.add( i, duplicateCount[ i ] / count[ i ] );
+			double value = duplicateCount[ i ] / count[ i ];
+			mpq.add( i, value );
+
+			if( i < indexedMinLength ) {
+				if( minAmongValidValue > value ) {
+					minAmongValidIndex = i;
+					minAmongValidValue = value;
+				}
+			}
 		}
 
 		int i = maxIndexLength - 1;
@@ -180,7 +190,10 @@ public class JoinBK extends AlgorithmTemplate {
 
 		if( !validPositions ) {
 			// to join short strings correctly
-			indexPosition[ maxIndexLength - 1 ] = indexedMinLength - 1;
+			if( DEBUG.JoinBKON ) {
+				Util.printLog( "Replace " + indexPosition[ maxIndexLength - 1 ] + " with " + minAmongValidIndex );
+			}
+			indexPosition[ maxIndexLength - 1 ] = minAmongValidIndex;
 		}
 
 		StringBuilder bld = new StringBuilder();
