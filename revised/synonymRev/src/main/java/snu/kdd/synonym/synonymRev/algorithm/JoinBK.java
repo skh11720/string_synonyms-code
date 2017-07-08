@@ -111,6 +111,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 		int minimumSize = 20;
 		double[] count = new double[ minimumSize ];
+		int[] duplicateCount = new int[ minimumSize ];
 
 		List<ObjectOpenHashSet<QGram>> qgramSetList = new ArrayList<ObjectOpenHashSet<QGram>>();
 		for( int i = 0; i < minimumSize; i++ ) {
@@ -128,7 +129,16 @@ public class JoinBK extends AlgorithmTemplate {
 				count[ i ]++;
 
 				ObjectOpenHashSet<QGram> set = qgramSetList.get( i );
-				set.addAll( qgrams.get( i ) );
+
+				for( QGram q : qgrams.get( i ) ) {
+					if( set.contains( q ) ) {
+						duplicateCount[ i ]++;
+					}
+					else {
+						set.add( q );
+					}
+				}
+
 			}
 		}
 
@@ -137,9 +147,10 @@ public class JoinBK extends AlgorithmTemplate {
 		for( int i = 0; i < minimumSize; i++ ) {
 			if( DEBUG.JoinBKON ) {
 				Util.printLog(
-						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] ) );
+						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] )
+								+ duplicateCount[ i ] + " " + ( duplicateCount[ i ] / count[ i ] ) );
 			}
-			mpq.add( i, qgramSetList.get( i ).size() / count[ i ] );
+			mpq.add( i, duplicateCount[ i ] / count[ i ] );
 		}
 
 		int i = maxIndexLength - 1;
