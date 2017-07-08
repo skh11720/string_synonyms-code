@@ -253,7 +253,7 @@ public class JoinMHIndex_Split {
 				for( int i = 0; i < indexK; ++i ) {
 					int actualIndex = indexPosition[ i ];
 
-					if( range[ 0 ] <= actualIndex ) {
+					if( range[ 0 ] < actualIndex ) {
 
 						if( debug ) {
 							System.out.println( actualIndex + " skipped " + range[ 0 ] );
