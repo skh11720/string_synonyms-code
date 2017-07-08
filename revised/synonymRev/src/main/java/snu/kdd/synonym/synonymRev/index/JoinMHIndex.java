@@ -61,7 +61,7 @@ public class JoinMHIndex {
 			if( rec.getID() == 41505 ) {
 				debug = true;
 			}
-				
+
 			// long recordStartTime = System.nanoTime();
 
 			List<List<QGram>> availableQGrams = null;
@@ -201,9 +201,14 @@ public class JoinMHIndex {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
+			boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord( sid );
 			Set<Record> candidates = new WYK_HashSet<Record>();
+
+			if( recS.getID() == 41818 ) {
+				debug = true;
+			}
 
 			Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 			candidatesCount.defaultReturnValue( -1 );
@@ -225,6 +230,10 @@ public class JoinMHIndex {
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
+					if( debug ) {
+						System.out.println( "Q " + qgram + " " + actualIndex );
+					}
+
 					// elements++;
 					List<Record> list = map.get( qgram );
 					if( list == null ) {
@@ -234,6 +243,10 @@ public class JoinMHIndex {
 					cand_sum[ i ] += list.size();
 					++count_cand[ i ];
 					for( Record otherRecord : list ) {
+						if( debug ) {
+							System.out.println( "record: " + otherRecord );
+						}
+						
 						int[] otherRange = null;
 
 						if( query.oneSideJoin ) {
