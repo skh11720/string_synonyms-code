@@ -182,6 +182,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 	}
 
 	private void buildIndex() {
+		idxList = new ArrayList<>();
 		for( int i = 0; i < splitIndexedSet.keySetSize(); i++ ) {
 			IntegerPair key = splitIndexedSet.getKey( i );
 			ObjectArrayList<Record> recordList = splitIndexedSet.getSplitData( i );
