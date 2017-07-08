@@ -227,6 +227,9 @@ public class JoinMHIndex_Split {
 
 			// long recordStartTime = System.nanoTime();
 			int[] range = recS.getTransLengths();
+			if( debug ) {
+				System.out.println( "Range : " + range[ 0 ] + " " + range[ 1 ] );
+			}
 
 			ArrayList<IntegerPair> rangeCandidateList = new ArrayList<IntegerPair>();
 
@@ -251,6 +254,10 @@ public class JoinMHIndex_Split {
 					int actualIndex = indexPosition[ i ];
 
 					if( range[ 0 ] <= actualIndex ) {
+
+						if( debug ) {
+							System.out.println( actualIndex + " skipped " + range[ 0 ] );
+						}
 						continue;
 					}
 
