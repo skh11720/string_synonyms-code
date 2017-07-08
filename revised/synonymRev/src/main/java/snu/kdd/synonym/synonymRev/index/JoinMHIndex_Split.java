@@ -77,10 +77,11 @@ public class JoinMHIndex_Split {
 			}
 
 			int indexedCount = 0;
+			int[] range = rec.getTransLengths();
 			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actual = indexPosition[ i ];
 
-				if( availableQGrams.size() > actual ) {
+				if( range[ 0 ] > actual ) {
 					indexedCount++;
 				}
 				indexedCountList.put( rec, indexedCount );

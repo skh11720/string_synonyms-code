@@ -112,8 +112,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 	}
 
 	private int[] estimateIndexPosition( ObjectArrayList<Record> recordList, int maxIndexLength, IntegerPair key ) {
-		int minimumSize = key.i2;
-		int indexedMinLength = key.i1;
+		int minimumSize = key.i1;
 
 		if( maxIndexLength > minimumSize ) {
 			maxIndexLength = minimumSize;
@@ -124,8 +123,6 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 
 		double[] count = new double[ minimumSize ];
-		int minAmongValidIndex = -1;
-		double minAmongValidValue = Double.MAX_VALUE;
 
 		List<ObjectOpenHashSet<QGram>> qgramSetList = new ArrayList<ObjectOpenHashSet<QGram>>();
 		for( int i = 0; i < minimumSize; i++ ) {
@@ -171,13 +168,6 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 			double value = duplicateCount[ i ] / count[ i ];
 			mpq.add( i, value );
-
-			if( i < indexedMinLength ) {
-				if( minAmongValidValue > value ) {
-					minAmongValidIndex = i;
-					minAmongValidValue = value;
-				}
-			}
 		}
 
 		int i = maxIndexLength - 1;
@@ -189,23 +179,6 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			}
 
 			i--;
-		}
-
-		boolean validPositions = false;
-		for( i = 0; i < indexPosition.length; i++ ) {
-			int actualIndex = indexPosition[ i ];
-
-			if( indexedMinLength > actualIndex ) {
-				validPositions = true;
-			}
-		}
-
-		if( !validPositions ) {
-			// to join short strings correctly
-			if( DEBUG.JoinBKON ) {
-				Util.printLog( "Replace " + indexPosition[ maxIndexLength - 1 ] + " with " + minAmongValidIndex );
-			}
-			indexPosition[ maxIndexLength - 1 ] = minAmongValidIndex;
 		}
 
 		StringBuilder bld = new StringBuilder();
