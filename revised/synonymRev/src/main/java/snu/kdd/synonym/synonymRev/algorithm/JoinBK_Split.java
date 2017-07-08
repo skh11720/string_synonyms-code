@@ -207,7 +207,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
 			estimateIndex.stop();
 
-			JoinMHIndex idx = new JoinMHIndex( indexK, qgramSize, recordList, query, stat, indexPosition, false );
+			JoinMHIndex idx = new JoinMHIndex( indexPosition.length, qgramSize, recordList, query, stat, indexPosition, false, false );
 			idxList.add( idx );
 		}
 	}
@@ -237,7 +237,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 				JoinMHIndex idx = idxList.get( i );
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
-				idx.joinOneRecord( recS, availableQGrams, query, checker, rslt );
+				idx.joinOneRecordForSplit( recS, availableQGrams, query, checker, rslt );
 			}
 		}
 

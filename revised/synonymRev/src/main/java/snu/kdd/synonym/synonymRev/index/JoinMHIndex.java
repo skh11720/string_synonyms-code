@@ -24,14 +24,14 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex {
 	ArrayList<Map<QGram, List<Record>>> joinMHIndex;
-	Object2IntOpenHashMap<Record> indexedCountList = new Object2IntOpenHashMap<Record>();
+	Object2IntOpenHashMap<Record> indexedCountList;
 
 	int indexK;
 	int qgramSize;
 	int[] indexPosition;
 
 	public JoinMHIndex( int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
-			int[] indexPosition, boolean addStat ) {
+			int[] indexPosition, boolean addStat, boolean useIndexCount ) {
 
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;
@@ -39,6 +39,10 @@ public class JoinMHIndex {
 
 		if( indexPosition.length != indexK ) {
 			throw new RuntimeException( "The length of indexPosition should match indexK" );
+		}
+
+		if( useIndexCount ) {
+			indexedCountList = new Object2IntOpenHashMap<Record>();
 		}
 
 		int maxPosition = 0;
@@ -75,13 +79,16 @@ public class JoinMHIndex {
 
 			int indexedCount = 0;
 			int[] range = rec.getTransLengths();
-			for( int i = 0; i < indexPosition.length; i++ ) {
-				int actual = indexPosition[ i ];
 
-				if( range[ 0 ] > actual ) {
-					indexedCount++;
+			if( useIndexCount ) {
+				for( int i = 0; i < indexPosition.length; i++ ) {
+					int actual = indexPosition[ i ];
+
+					if( range[ 0 ] > actual ) {
+						indexedCount++;
+					}
+					indexedCountList.put( rec, indexedCount );
 				}
-				indexedCountList.put( rec, indexedCount );
 			}
 
 			for( int i = 0; i < indexPosition.length; i++ ) {
@@ -179,17 +186,15 @@ public class JoinMHIndex {
 		}
 	}
 
-	public void joinOneRecord( Record recS, List<List<QGram>> availableQGrams, Query query, Validator checker,
+	public void joinOneRecordForSplit( Record recS, List<List<QGram>> availableQGrams, Query query, Validator checker,
 			ArrayList<IntegerPair> rslt ) {
-		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
-		candidatesCount.defaultReturnValue( -1 );
-
-		ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
-
+		// this function is for the splitted data sets only -> qgrams are previously computed and
+		// length filtering is not applied here (already applied by the function calling this function)
+		
 		boolean debug = recS.getID() == 4145;
-
 		// long recordStartTime = System.nanoTime();
 
+		ObjectOpenHashSet<Record> prevCandidate = null;
 		for( int i = 0; i < indexK; ++i ) {
 			int actualIndex = indexPosition[ i ];
 
@@ -213,44 +218,22 @@ public class JoinMHIndex {
 						System.out.println( "record: " + otherRecord );
 					}
 
-					int[] otherRange = null;
-
-					if( query.oneSideJoin ) {
-						otherRange = new int[ 2 ];
-						otherRange[ 0 ] = otherRecord.getTokenCount();
-						otherRange[ 1 ] = otherRecord.getTokenCount();
+					if( prevCandidate == null ) {
+						ithCandidates.add( otherRecord );
 					}
-					else {
-						otherRange = otherRecord.getTransLengths();
+					else if( prevCandidate.contains( otherRecord ) ) {
+						ithCandidates.add( otherRecord );
 					}
-
-					ithCandidates.add( otherRecord );
 				}
 			}
 
-			for( Record otherRecord : ithCandidates ) {
-				int candCount = candidatesCount.getInt( otherRecord );
-				if( candCount == -1 ) {
-					candidatesCount.put( otherRecord, 1 );
-				}
-				else {
-					candidatesCount.put( otherRecord, candCount + 1 );
-				}
+			if( prevCandidate != null ) {
+				prevCandidate.clear();
 			}
+			prevCandidate = ithCandidates;
 		}
 
-		ObjectIterator<Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
-		while( iter.hasNext() ) {
-			Entry<Record> entry = iter.next();
-			Record record = entry.getKey();
-			int recordCount = entry.getIntValue();
-
-			if( indexedCountList.getInt( record ) <= recordCount || indexedCountList.getInt( recS ) <= recordCount ) {
-				candidates.add( record );
-			}
-		}
-
-		for( Record recR : candidates ) {
+		for( Record recR : prevCandidate ) {
 			int compare = checker.isEqual( recS, recR );
 			if( compare >= 0 ) {
 				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
