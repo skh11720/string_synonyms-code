@@ -291,7 +291,10 @@ public class JoinMHIndex_Split {
 				}
 				count += candidates.size();
 
-				candidates.addAll( prevCandidate );
+				if( prevCandidate != null ) {
+					// TODO why null?
+					candidates.addAll( prevCandidate );
+				}
 			}
 
 			equivTime.start();
