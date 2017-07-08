@@ -186,18 +186,12 @@ public class JoinMHIndex {
 
 		ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
 
-		boolean debug = false;
-		if( recS.getID() == 4145 ) {
-			debug = true;
-		}
+		boolean debug = recS.getID() == 4145;
 
 		// long recordStartTime = System.nanoTime();
-		int[] range = recS.getTransLengths();
+
 		for( int i = 0; i < indexK; ++i ) {
 			int actualIndex = indexPosition[ i ];
-			if( range[ 0 ] <= actualIndex ) {
-				continue;
-			}
 
 			ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
 
@@ -230,14 +224,7 @@ public class JoinMHIndex {
 						otherRange = otherRecord.getTransLengths();
 					}
 
-					if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
-						// length filtering
-
-						ithCandidates.add( otherRecord );
-					}
-					// else {
-					// lengthFiltered++;
-					// }
+					ithCandidates.add( otherRecord );
 				}
 			}
 
