@@ -219,7 +219,7 @@ public class JoinMHIndex {
 			int[] range = recS.getTransLengths();
 			for( int i = 0; i < indexK; ++i ) {
 				int actualIndex = indexPosition[ i ];
-				if( availableQGrams.size() <= actualIndex ) {
+				if( range[ 0 ] <= actualIndex ) {
 					continue;
 				}
 
@@ -246,7 +246,7 @@ public class JoinMHIndex {
 						if( debug ) {
 							System.out.println( "record: " + otherRecord );
 						}
-						
+
 						int[] otherRange = null;
 
 						if( query.oneSideJoin ) {
