@@ -30,7 +30,8 @@ public class JoinMHIndex {
 	int qgramSize;
 	int[] indexPosition;
 
-	public JoinMHIndex( int indexK, int qgramSize, Query query, StatContainer stat, int[] indexPosition ) {
+	public JoinMHIndex( int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
+			int[] indexPosition, boolean addStat ) {
 
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;
@@ -56,7 +57,7 @@ public class JoinMHIndex {
 			joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>() );
 		}
 
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : indexedSet ) {
 			// boolean debug = false;
 			// if( rec.getID() == 94118 ) {
 			// debug = true;
@@ -107,71 +108,160 @@ public class JoinMHIndex {
 		}
 
 		if( DEBUG.JoinMHIndexON ) {
-			stat.add( "Stat_Index_Size", elements );
-			System.out.println( "Index size : " + elements );
+			if( addStat ) {
+				stat.add( "Stat_Index_Size", elements );
+				System.out.println( "Index size : " + elements );
 
-			// computes the statistics of the indexes
-			String indexStr = "";
-			for( int i = 0; i < indexK; ++i ) {
-				Map<QGram, List<Record>> ithidx = joinMHIndex.get( i );
+				// computes the statistics of the indexes
+				String indexStr = "";
+				for( int i = 0; i < indexK; ++i ) {
+					Map<QGram, List<Record>> ithidx = joinMHIndex.get( i );
 
-				System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
+					System.out.println( i + "th iIdx key-value pairs: " + ithidx.size() );
 
-				// Statistics
-				int sum = 0;
+					// Statistics
+					int sum = 0;
 
-				long singlelistsize = 0;
-				long count = 0;
-				// long sqsum = 0;
-				for( Map.Entry<QGram, List<Record>> entry : ithidx.entrySet() ) {
-					List<Record> list = entry.getValue();
+					long singlelistsize = 0;
+					long count = 0;
+					// long sqsum = 0;
+					for( Map.Entry<QGram, List<Record>> entry : ithidx.entrySet() ) {
+						List<Record> list = entry.getValue();
 
-					if( list.size() == 1 ) {
-						++singlelistsize;
-						continue;
+						if( list.size() == 1 ) {
+							++singlelistsize;
+							continue;
+						}
+						sum++;
+						count += list.size();
 					}
-					sum++;
-					count += list.size();
+
+					if( DEBUG.JoinMHIndexON ) {
+						System.out.println( i + "th Single value list size : " + singlelistsize );
+						System.out.println( i + "th iIdx size(w/o 1) : " + count );
+						System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
+						// System.out.println( i + "th Sqsum : " + sqsum );
+					}
+
+					long totalCount = count + singlelistsize;
+					int exp = 0;
+					while( totalCount / 1000 != 0 ) {
+						totalCount = totalCount / 1000;
+						exp++;
+					}
+
+					if( exp == 1 ) {
+						indexStr = indexStr + totalCount + "k ";
+					}
+					else if( exp == 2 ) {
+						indexStr = indexStr + totalCount + "M ";
+					}
+					else {
+						indexStr = indexStr + totalCount + "G ";
+					}
 				}
 
 				if( DEBUG.JoinMHIndexON ) {
-					System.out.println( i + "th Single value list size : " + singlelistsize );
-					System.out.println( i + "th iIdx size(w/o 1) : " + count );
-					System.out.println( i + "th Rec per idx(w/o 1) : " + ( (double) count ) / sum );
-					// System.out.println( i + "th Sqsum : " + sqsum );
+					stat.add( "Stat_Index_Size_Per_Position", "\"" + indexStr + "\"" );
+					for( int i = 0; i < joinMHIndex.size(); i++ ) {
+						WYK_HashMap<QGram, List<Record>> index = (WYK_HashMap<QGram, List<Record>>) joinMHIndex.get( i );
+						stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
+						stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
+						stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
+						stat.add( "Counter_Index_" + i + "_Resize_Count", index.resizeCount );
+						stat.add( "Counter_Index_" + i + "_Remove_Count", index.removeCount );
+						stat.add( "Counter_Index_" + i + "_RemoveIter_Count", index.removeIterCount );
+						stat.add( "Counter_Index_" + i + "_PutRemoved_Count", index.putRemovedCount );
+						stat.add( "Counter_Index_" + i + "_RemoveFound_Count", index.removeFoundCount );
+					}
+				}
+			}
+		}
+	}
+
+	public void joinOneRecord( Record recS, List<List<QGram>> availableQGrams, Query query, Validator checker,
+			ArrayList<IntegerPair> rslt ) {
+		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
+		candidatesCount.defaultReturnValue( -1 );
+
+		ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
+
+		// long recordStartTime = System.nanoTime();
+		int[] range = recS.getTransLengths();
+		for( int i = 0; i < indexK; ++i ) {
+			int actualIndex = indexPosition[ i ];
+			if( range[ 0 ] <= actualIndex ) {
+				continue;
+			}
+
+			ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
+
+			Map<QGram, List<Record>> map = joinMHIndex.get( i );
+
+			for( QGram qgram : availableQGrams.get( actualIndex ) ) {
+				// if( debug ) {
+				// System.out.println( "Q " + qgram + " " + actualIndex );
+				// }
+
+				// elements++;
+				List<Record> list = map.get( qgram );
+				if( list == null ) {
+					continue;
 				}
 
-				long totalCount = count + singlelistsize;
-				int exp = 0;
-				while( totalCount / 1000 != 0 ) {
-					totalCount = totalCount / 1000;
-					exp++;
-				}
+				for( Record otherRecord : list ) {
+					// if( debug ) {
+					// System.out.println( "record: " + otherRecord );
+					// }
 
-				if( exp == 1 ) {
-					indexStr = indexStr + totalCount + "k ";
-				}
-				else if( exp == 2 ) {
-					indexStr = indexStr + totalCount + "M ";
-				}
-				else {
-					indexStr = indexStr + totalCount + "G ";
+					int[] otherRange = null;
+
+					if( query.oneSideJoin ) {
+						otherRange = new int[ 2 ];
+						otherRange[ 0 ] = otherRecord.getTokenCount();
+						otherRange[ 1 ] = otherRecord.getTokenCount();
+					}
+					else {
+						otherRange = otherRecord.getTransLengths();
+					}
+
+					if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
+						// length filtering
+
+						ithCandidates.add( otherRecord );
+					}
+					// else {
+					// lengthFiltered++;
+					// }
 				}
 			}
 
-			if( DEBUG.JoinMHIndexON ) {
-				stat.add( "Stat_Index_Size_Per_Position", "\"" + indexStr + "\"" );
-				for( int i = 0; i < joinMHIndex.size(); i++ ) {
-					WYK_HashMap<QGram, List<Record>> index = (WYK_HashMap<QGram, List<Record>>) joinMHIndex.get( i );
-					stat.add( "Counter_Index_" + i + "_Get_Count", index.getCount );
-					stat.add( "Counter_Index_" + i + "_GetIter_Count", index.getIterCount );
-					stat.add( "Counter_Index_" + i + "_Put_Count", index.putCount );
-					stat.add( "Counter_Index_" + i + "_Resize_Count", index.resizeCount );
-					stat.add( "Counter_Index_" + i + "_Remove_Count", index.removeCount );
-					stat.add( "Counter_Index_" + i + "_RemoveIter_Count", index.removeIterCount );
-					stat.add( "Counter_Index_" + i + "_PutRemoved_Count", index.putRemovedCount );
-					stat.add( "Counter_Index_" + i + "_RemoveFound_Count", index.removeFoundCount );
+			for( Record otherRecord : ithCandidates ) {
+				int candCount = candidatesCount.getInt( otherRecord );
+				if( candCount == -1 ) {
+					candidatesCount.put( otherRecord, 1 );
 				}
+				else {
+					candidatesCount.put( otherRecord, candCount + 1 );
+				}
+			}
+		}
+
+		ObjectIterator<Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
+		while( iter.hasNext() ) {
+			Entry<Record> entry = iter.next();
+			Record record = entry.getKey();
+			int recordCount = entry.getIntValue();
+
+			if( indexedCountList.getInt( record ) <= recordCount || indexedCountList.getInt( recS ) <= recordCount ) {
+				candidates.add( record );
+			}
+		}
+
+		for( Record recR : candidates ) {
+			int compare = checker.isEqual( recS, recR );
+			if( compare >= 0 ) {
+				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 			}
 		}
 	}

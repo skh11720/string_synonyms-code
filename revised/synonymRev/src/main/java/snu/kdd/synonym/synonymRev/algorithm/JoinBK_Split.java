@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Dataset_Split;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex_Split;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
@@ -42,7 +42,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 	 * Value IntervalTree Value: record
 	 */
 
-	ArrayList<JoinMHIndex_Split> idxList;
+	ArrayList<JoinMHIndex> idxList;
 
 	@Override
 	protected void preprocess() {
@@ -201,18 +201,20 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			System.out.println( key );
 
 			int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
-			JoinMHIndex_Split idx = new JoinMHIndex_Split( indexK, qgramSize, recordList, query, stat, indexPosition );
+			JoinMHIndex idx = new JoinMHIndex( indexK, qgramSize, recordList, query, stat, indexPosition, false );
 			idxList.add( idx );
 		}
 	}
 
 	private ArrayList<IntegerPair> join() {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
-		for( int i = 0; i < idxList.size(); i++ ) {
-			JoinMHIndex_Split idx = idxList.get( i );
-			ArrayList<IntegerPair> partialRslt = idx.join( stat, query, checker );
 
-			rslt.addAll( partialRslt );
+		for( Record recS : query.searchedSet.get() ) {
+			for( int i = 0; i < idxList.size(); i++ ) {
+				JoinMHIndex idx = idxList.get( i );
+				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
+				idx.joinOneRecord( recS, availableQGrams, query, checker, rslt );
+			}
 		}
 
 		return rslt;
