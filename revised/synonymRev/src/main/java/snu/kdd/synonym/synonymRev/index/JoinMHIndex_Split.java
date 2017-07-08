@@ -61,7 +61,7 @@ public class JoinMHIndex_Split {
 		for( Record rec : recordList ) {
 			// long recordStartTime = System.nanoTime();
 			boolean debug = false;
-			if( rec.getID() == 1573 ) {
+			if( rec.getID() == 4145 ) {
 				debug = true;
 			}
 
@@ -217,7 +217,7 @@ public class JoinMHIndex_Split {
 
 			Record recS = query.searchedSet.getRecord( sid );
 
-			if( recS.getID() == 1573 ) {
+			if( recS.getID() == 4145 ) {
 				debug = true;
 			}
 
