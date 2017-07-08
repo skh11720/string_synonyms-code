@@ -42,7 +42,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 	 * Value IntervalTree Value: record
 	 */
 
-	JoinMHIndex_Split idx;
+	ArrayList<JoinMHIndex_Split> idxList;
 
 	@Override
 	protected void preprocess() {
@@ -91,31 +91,16 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 
-		StopWatch indexingTime = StopWatch.getWatchStopped( "Result_3_1_Index_Time" );
-		StopWatch joinTime = StopWatch.getWatchStopped( "Result_3_2_Join_Time" );
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		buildIndex();
 
-		for( int i = 0; i < splitIndexedSet.keySetSize(); i++ ) {
-			IntegerPair key = splitIndexedSet.getKey( i );
+		stat.addMemory( "Mem_3_BuildIndex" );
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-			// DEBUG
-			System.out.println( "Key " + key );
+		ArrayList<IntegerPair> rslt = join();
 
-			ObjectArrayList<Record> list = splitIndexedSet.getSplitData( i );
-
-			indexingTime.start();
-			buildIndex( list, key );
-			indexingTime.stopQuiet();
-
-			joinTime.start();
-			ArrayList<IntegerPair> partialRslt = idx.join( stat, query, checker );
-			joinTime.stopQuiet();
-
-			rslt.addAll( partialRslt );
-		}
-
-		stat.add( indexingTime );
-		stat.add( joinTime );
+		stat.addMemory( "Mem_4_Joined" );
+		stepTime.stopAndAdd( stat );
 
 		runTime.stopAndAdd( stat );
 
@@ -127,8 +112,11 @@ public class JoinBK_Split extends AlgorithmTemplate {
 	}
 
 	private int[] estimateIndexPosition( ObjectArrayList<Record> recordList, int maxIndexLength, IntegerPair key ) {
-		// DEBUG
-		int minimumSize = 10;
+		int minimumSize = key.i2;
+
+		if( maxIndexLength > minimumSize ) {
+			maxIndexLength = minimumSize;
+		}
 
 		int[] indexPosition = new int[ maxIndexLength ];
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
@@ -193,9 +181,27 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		return indexPosition;
 	}
 
-	private void buildIndex( ObjectArrayList<Record> recordList, IntegerPair key ) {
-		int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
-		idx = new JoinMHIndex_Split( indexK, qgramSize, recordList, query, stat, indexPosition );
+	private void buildIndex() {
+		for( int i = 0; i < splitIndexedSet.keySetSize(); i++ ) {
+			IntegerPair key = splitIndexedSet.getKey( i );
+			ObjectArrayList<Record> recordList = splitIndexedSet.getSplitData( i );
+
+			int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
+			JoinMHIndex_Split idx = new JoinMHIndex_Split( indexK, qgramSize, recordList, query, stat, indexPosition );
+			idxList.add( idx );
+		}
+	}
+
+	private ArrayList<IntegerPair> join() {
+		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		for( int i = 0; i < idxList.size(); i++ ) {
+			JoinMHIndex_Split idx = idxList.get( i );
+			ArrayList<IntegerPair> partialRslt = idx.join( stat, query, checker );
+
+			rslt.addAll( partialRslt );
+		}
+
+		return rslt;
 	}
 
 	@Override

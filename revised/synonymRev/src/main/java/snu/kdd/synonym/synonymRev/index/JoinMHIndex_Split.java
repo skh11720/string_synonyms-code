@@ -37,7 +37,13 @@ public class JoinMHIndex_Split {
 		this.indexPosition = indexPosition;
 
 		if( indexPosition.length != indexK ) {
-			throw new RuntimeException( "The length of indexPosition should match indexK" );
+			if( indexPosition.length < indexK ) {
+				Util.printLog( "Using less index than given parameter K: " + indexPosition.length );
+				this.indexK = indexPosition.length;
+			}
+			else {
+				throw new RuntimeException( "The length of indexPosition should match indexK" );
+			}
 		}
 
 		int maxPosition = 0;
@@ -199,10 +205,6 @@ public class JoinMHIndex_Split {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
-
-			// DEBUG
-			System.out.println( "sid " + sid );
-
 			Record recS = query.searchedSet.getRecord( sid );
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
