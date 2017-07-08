@@ -114,7 +114,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 		StopWatch estimateIndex = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
 		int minAmongValidIndex = -1;
-		double minAmongValidValue = 0;
+		double minAmongValidValue = Double.MAX_VALUE;
 
 		int minimumSize = 20;
 		double[] count = new double[ minimumSize ];
