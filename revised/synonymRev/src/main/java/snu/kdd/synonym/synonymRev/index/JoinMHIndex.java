@@ -58,7 +58,7 @@ public class JoinMHIndex {
 
 		for( Record rec : query.indexedSet.get() ) {
 			boolean debug = false;
-			if( rec.getID() == 41505 ) {
+			if( rec.getID() == 94118 ) {
 				debug = true;
 			}
 
@@ -206,7 +206,7 @@ public class JoinMHIndex {
 			Record recS = query.searchedSet.getRecord( sid );
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
-			if( recS.getID() == 41818 ) {
+			if( recS.getID() == 94118 ) {
 				debug = true;
 			}
 
