@@ -232,7 +232,7 @@ public class JoinMHIndex_Split {
 				for( int i = 0; i < indexK; ++i ) {
 					int actualIndex = indexPosition[ i ];
 
-					if( availableQGrams.size() <= actualIndex ) {
+					if( range[ 0 ] <= actualIndex ) {
 						continue;
 					}
 
