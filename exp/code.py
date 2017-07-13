@@ -157,3 +157,15 @@ class ExpContainer:
                     else:
                         x_content, y_content, value_content = self.parse_content(line)
                         self.add_result(x_content, y_content, value_content)
+
+if __name__== "__main__":
+	files = ["JoinBK_2.0", "JoinBKSP_2.0", "JoinMH_2.0", "JoinMin_2.0", "JoinNaive_2.0"]
+
+	param_title = ["cmd_algorithm", "cmd_K", "cmd_qSize"]
+	data_title = ["cmd_dataOnePath", "cmd_dataTwoPath", "cmd_rulePath", "cmd_oneSideJoin"]
+	value_title = ["Final Result Size", "Result_0_Total_Time", "Result_3_1_Index_Building_Time", "Result_3_2_Join_Time", ]
+
+	container = ExpContainer(param_title, data_title, value_title)
+	container.load(files)
+
+	container.save_as_csv("result.csv")

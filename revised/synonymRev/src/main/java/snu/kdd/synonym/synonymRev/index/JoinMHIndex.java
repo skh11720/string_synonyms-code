@@ -23,7 +23,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex {
-	ArrayList<Map<QGram, List<Record>>> joinMHIndex;
+	ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
 	Object2IntOpenHashMap<Record> indexedCountList;
 
 	int indexK;
@@ -52,7 +52,7 @@ public class JoinMHIndex {
 			}
 		}
 
-		this.joinMHIndex = new ArrayList<Map<QGram, List<Record>>>();
+		this.joinMHIndex = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 
 		@SuppressWarnings( "unused" )
 		long elements = 0;

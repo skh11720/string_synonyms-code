@@ -22,6 +22,7 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 
 public class App {
 	private static Options argOptions;
@@ -132,7 +133,20 @@ public class App {
 		stat.addPrimary( totalTime );
 		alg.printStat();
 
+		addWYKMapCount( stat );
+		
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 		Util.printLog( alg.getName() + " finished" );
+	}
+
+	public static void addWYKMapCount( StatContainer stat ) {
+		stat.add( "getCount", WYK_HashMap.getCount );
+		stat.add( "getIterCount", WYK_HashMap.getIterCount );
+		stat.add( "putCount", WYK_HashMap.putCount );
+		stat.add( "resizeCount", WYK_HashMap.resizeCount );
+		stat.add( "removeCount", WYK_HashMap.removeCount );
+		stat.add( "removeIterCount", WYK_HashMap.removeIterCount );
+		stat.add( "putRemovedCount", WYK_HashMap.putRemovedCount );
+		stat.add( "removeFoundCount", WYK_HashMap.removeFoundCount );
 	}
 }

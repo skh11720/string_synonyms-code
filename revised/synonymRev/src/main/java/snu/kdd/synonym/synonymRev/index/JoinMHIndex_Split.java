@@ -1,13 +1,12 @@
 package snu.kdd.synonym.synonymRev.index;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -23,7 +22,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex_Split {
-	Object2ObjectOpenHashMap<IntegerPair, ArrayList<Map<QGram, List<Record>>>> joinMHIndexList;
+	WYK_HashMap<IntegerPair, ArrayList<WYK_HashMap<QGram, List<Record>>>> joinMHIndexList;
 	Object2IntOpenHashMap<Record> indexedCountList = new Object2IntOpenHashMap<Record>();
 
 	int indexK;
@@ -53,7 +52,7 @@ public class JoinMHIndex_Split {
 			}
 		}
 
-		this.joinMHIndexList = new Object2ObjectOpenHashMap<IntegerPair, ArrayList<Map<QGram, List<Record>>>>();
+		this.joinMHIndexList = new WYK_HashMap<IntegerPair, ArrayList<WYK_HashMap<QGram, List<Record>>>>();
 
 		@SuppressWarnings( "unused" )
 		long elements = 0;
@@ -87,9 +86,9 @@ public class JoinMHIndex_Split {
 				indexedCountList.put( rec, indexedCount );
 			}
 
-			ArrayList<Map<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
+			ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
 			if( joinMHIndex == null ) {
-				joinMHIndex = new ArrayList<Map<QGram, List<Record>>>();
+				joinMHIndex = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 				joinMHIndexList.put( pair, joinMHIndex );
 				for( int i = 0; i < indexK; ++i ) {
 					joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>() );
@@ -233,7 +232,7 @@ public class JoinMHIndex_Split {
 
 			ArrayList<IntegerPair> rangeCandidateList = new ArrayList<IntegerPair>();
 
-			ObjectIterator<IntegerPair> pairIter = joinMHIndexList.keySet().iterator();
+			Iterator<IntegerPair> pairIter = joinMHIndexList.keySet().iterator();
 			while( pairIter.hasNext() ) {
 				IntegerPair pair = pairIter.next();
 
@@ -247,7 +246,7 @@ public class JoinMHIndex_Split {
 
 			for( int r = 0; r < rangeCandidateList.size(); r++ ) {
 				IntegerPair pair = rangeCandidateList.get( r );
-				ArrayList<Map<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
+				ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
 
 				ObjectOpenHashSet<Record> prevCandidate = null;
 				for( int i = 0; i < indexK; ++i ) {
