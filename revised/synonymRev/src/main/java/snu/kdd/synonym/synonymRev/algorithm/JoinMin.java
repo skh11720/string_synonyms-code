@@ -109,10 +109,13 @@ public class JoinMin extends AlgorithmTemplate {
 		Collection<IntegerPair> rslt = null;
 
 		rslt = idx.joinMaxK( indexK, writeResult, stat, checker, query );
+		if( writeResult ) {
+			stepTime.stopAndAdd( stat );
+		}
 
 		if( DEBUG.JoinMinON ) {
 			if( writeResult ) {
-				stepTime.stopAndAdd( stat );
+
 				stat.addMemory( "Mem_4_Joined" );
 
 				stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
