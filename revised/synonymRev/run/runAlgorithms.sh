@@ -87,8 +87,8 @@ if [[ $# -ne 17 ]];
 	#SIJoin
 	if [[ $RUN_JoinMHSP == "True" ]];
 	then
-		for j in {2..3..1}; do
-			for q in {2..4..1};do
+		for j in {1..3..1}; do
+			for q in {1..3..1};do
 
 				date
 				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide true
@@ -103,10 +103,10 @@ if [[ $# -ne 17 ]];
 	#JoinMin
 	if [[ $RUN_JoinMin == "True" ]];
 	then
-		K=( 1 2 3 4 5 )
+		K=( 1 2 3 )
 		#K=( 1 )
 		for k in "${K[@]}"; do
-			for q in {1..5..1}; do
+			for q in {1..3..1}; do
 			#for q in {1..3..1}; do
 				date
 				./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $K $q $project $oneSide
@@ -121,8 +121,8 @@ if [[ $# -ne 17 ]];
 	if [[ $RUN_JoinMH == "True" ]];
 	then
 		#for j in {1..3..1}; do
-		for j in {2..3..1}; do
-			for q in {2..4..1};do
+		for j in {1..3..1}; do
+			for q in {1..3..1};do
 			#for q in {1..3..1}; do
 
 				date
@@ -182,11 +182,9 @@ if [[ $# -ne 17 ]];
 	#JoinBK
 	if [[ $RUN_JoinBK == "True" ]];
 	then
-		K=( 1 2 3 4 5 )
-		#K=( 1 )
-		for k in "${K[@]}"; do
+		for k in {1..3..1}; do
 			#for q in {1..5..1}; do
-			for q in {2..5..1}; do
+			for q in {1..3..1}; do
 				date
 				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide false
 				./compare.sh $PREV JoinBK
@@ -198,11 +196,9 @@ if [[ $# -ne 17 ]];
 	#JoinBKSP
 	if [[ $RUN_JoinBKSP == "True" ]];
 	then
-		K=( 1 2 3 4 5 )
-		#K=( 1 )
-		for k in "${K[@]}"; do
+		for k in {1..3..1}; do
 			#for q in {1..5..1}; do
-			for q in {2..5..1}; do
+			for q in {1..3..1}; do
 				date
 				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide true
 				./compare.sh $PREV JoinBKSP
