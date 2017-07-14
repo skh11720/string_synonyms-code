@@ -134,19 +134,19 @@ public class App {
 		alg.printStat();
 
 		addWYKMapCount( stat );
-		
+
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 		Util.printLog( alg.getName() + " finished" );
 	}
 
 	public static void addWYKMapCount( StatContainer stat ) {
-		stat.add( "getCount", WYK_HashMap.getCount );
-		stat.add( "getIterCount", WYK_HashMap.getIterCount );
-		stat.add( "putCount", WYK_HashMap.putCount );
-		stat.add( "resizeCount", WYK_HashMap.resizeCount );
-		stat.add( "removeCount", WYK_HashMap.removeCount );
-		stat.add( "removeIterCount", WYK_HashMap.removeIterCount );
-		stat.add( "putRemovedCount", WYK_HashMap.putRemovedCount );
-		stat.add( "removeFoundCount", WYK_HashMap.removeFoundCount );
+		stat.add( "hm_getCount", WYK_HashMap.getCount );
+		stat.add( "hm_getIterCount", WYK_HashMap.getIterCount );
+		stat.add( "hm_putCount", WYK_HashMap.putCount );
+		stat.add( "hm_resizeCount", WYK_HashMap.resizeCount );
+		stat.add( "hm_removeCount", WYK_HashMap.removeCount );
+		stat.add( "hm_removeIterCount", WYK_HashMap.removeIterCount );
+		stat.add( "hm_putRemovedCount", WYK_HashMap.putRemovedCount );
+		stat.add( "hm_removeFoundCount", WYK_HashMap.removeFoundCount );
 	}
 }
