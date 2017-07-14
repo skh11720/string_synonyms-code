@@ -9,12 +9,13 @@ qSize=$8
 project=$9
 oneSide=${10}
 split=${11}
+UPLOAD=${12}
 
 ADDITIONAL="-K $k -qSize $qSize"
 
 ALG=JoinMH
 
-if [[ $# -ne 11 ]];
+if [[ $# -ne 12 ]];
 then
 	echo illegal number of parameters: [$ALG]
 	echo inputfile_one $1
@@ -28,19 +29,20 @@ then
 	echo project $9
 	echo oneSide $oneSide
 	echo split $split
+	echo UPLOAD $UPLOAD
 else
 	if [[ "$split" = true ]];
 	then
 		echo $ALG SP with k=$k and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_SP\_$k\_$qSize
 		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 			-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-			-algorithm $ALG -oneSideJoin $oneSide -split \
+			-algorithm $ALG -oneSideJoin $oneSide -split -upload $UPLOAD \
 			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_SP\_$k\_$qSize
 	else
 		echo $ALG with k=$k and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_$k\_$qSize
 		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 			-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-			-algorithm $ALG -oneSideJoin $oneSide \
+			-algorithm $ALG -oneSideJoin $oneSide -upload $UPLOAD \
 			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$k\_$qSize
 	fi
 fi

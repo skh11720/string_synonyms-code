@@ -8,12 +8,13 @@ k=$7
 qSize=$8
 project=$9
 oneSide=${10}
+UPLOAD=${11}
 
 ADDITIONAL="-K $k -qSize $qSize"
 
 ALG=JoinMin
 
-if [[ $# -ne 10 ]];
+if [[ $# -ne 11 ]];
 then
 	echo illegal number of parameters: [$ALG]
 	echo one $inputfile_one
@@ -26,11 +27,12 @@ then
 	echo qSize $qSize
 	echo project $project
 	echo oneSide $oneSide
+	echo UPLOAD $UPLOAD
 else
 	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
-		-algorithm $ALG -oneSideJoin $oneSide \
+		-algorithm $ALG -oneSideJoin $oneSide -upload $UPLOAD \
 		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
 fi
 

@@ -7,13 +7,15 @@ dir=logs
 #SIZES=( 1000000 )
 #SIZES=( 1000000 )
 #SIZES=( 1500000 2000000 2500000 )
-#SIZES=( 1000 )
+SIZES=( 30000 )
 #SIZES=( 1000000 )
-SIZES=( 1000 3000 10000 30000 100000 )
+#SIZES=( 1000 3000 10000 30000 100000 )
 #SIZES=( 1000 3000 10000 30000 100000 300000 1000000 3000000 5000000 )
 #SIZES=( 1000 3000 10000 30000 100000 )
 
 oneSide=$1
+
+UPLOAD=$2
 
 #RUN_Naive=True
 RUN_Naive=False
@@ -57,5 +59,10 @@ do
 	rulefile=data_store/wordnet/rules.noun
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_NaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_NaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
+
+	if [[ $UPLOAD == "True" ]];
+	then
+		./upload.sh
+	fi
 done

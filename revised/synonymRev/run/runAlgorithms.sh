@@ -15,6 +15,7 @@ RUN_JoinBK=${14}
 RUN_JoinBKSP=${15}
 RUN_DEBUG=${16}
 oneSide=${17}
+UPLOAD=${18}
 
 LIBS=../target/Synonym.jar
 
@@ -36,9 +37,10 @@ echo RUN_JoinBK $RUN_JoinBK
 echo RUN_JoinBKSP $RUN_JoinBKSP
 echo RUN_DEBUG $RUN_DEBUG
 echo oneSide $oneSide
+echo UPLOAD $UPLOAD
 echo "--------------------------------------"
 
-if [[ $# -ne 17 ]];
+if [[ $# -ne 18 ]];
 	then
 		echo 'illegal number of parameters'
 	else
@@ -64,20 +66,20 @@ if [[ $# -ne 17 ]];
 		mkdir output
 	fi
 
-	#JoinNaive1
+	#JoinNaive
 	if [[ $RUN_Naive == "True" ]];
 	then
 		date
-		./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide false
+		./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide false $UPLOAD
 		date
 		PREV="JoinNaive"
 	fi
 
-	#JoinNaive2
+	#JoinNaiveSP
 	if [[ $RUN_NaiveSP == "True" ]];
 	then
 		date
-		./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide true
+		./joinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide true $UPLOAD
 		date
 
 		./compare.sh $PREV JoinNaiveSP
@@ -91,7 +93,7 @@ if [[ $# -ne 17 ]];
 			for q in {1..3..1};do
 
 				date
-				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide true
+				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide true $UPLOAD
 				date
 
 				./compare.sh $PREV JoinMHSP
@@ -109,7 +111,7 @@ if [[ $# -ne 17 ]];
 			for q in {1..3..1}; do
 			#for q in {1..3..1}; do
 				date
-				./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide
+				./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
 				date
 				./compare.sh $PREV JoinMin
 			done
@@ -126,7 +128,7 @@ if [[ $# -ne 17 ]];
 			#for q in {1..3..1}; do
 
 				date
-				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide false
+				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide false $UPLOAD
 				date
 				./compare.sh $PREV JoinMH
 			done
@@ -146,8 +148,7 @@ if [[ $# -ne 17 ]];
 		for q in {2..2..1}; do
 			for sampling in "${samplings[@]}"; do
 				date
-				./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $q $project $oneSide
-
+				./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $q $project $oneSide $UPLOAD
 				date
 
 				./compare.sh $PREV JoinHybridOpt_Q
@@ -169,7 +170,7 @@ if [[ $# -ne 17 ]];
 		for q in {2..2..1}; do
 			for threshold in "${thresholds[@]}"; do
 				date
-				./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $q $project $oneSide
+				./joinHybridThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $q $project $oneSide $UPLOAD
 
 				date
 
@@ -186,7 +187,7 @@ if [[ $# -ne 17 ]];
 			#for q in {1..5..1}; do
 			for q in {1..3..1}; do
 				date
-				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide false
+				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide false $UPLOAD
 				./compare.sh $PREV JoinBK
 			done
 		done
@@ -200,7 +201,7 @@ if [[ $# -ne 17 ]];
 			#for q in {1..5..1}; do
 			for q in {1..3..1}; do
 				date
-				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide true
+				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide true $UPLOAD
 				./compare.sh $PREV JoinBKSP
 			done
 		done
@@ -217,11 +218,9 @@ if [[ $# -ne 17 ]];
 			for q in {2..4..1}; do
 			#for q in {1..3..1}; do
 				date
-				./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide
+				./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
 				./compare.sh $PREV JoinMin_QL
 			done
 		done
 	fi
-
-	./upload.sh
 fi

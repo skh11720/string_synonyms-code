@@ -38,14 +38,16 @@ rulefile=/home/kddlab/wooyekim/Synonym/wordnet/deduplicated_rules.noun
 
 
 #SPROT
+SIZE=100000
 #SIZE=158489
-#inputfile_one=data_store/sprot/splitted/SPROT_$SIZE.txt
-#inputfile_two=data_store/sprot/splitted/SPROT_$SIZE.txt
-#rulefile=data_store/sprot/rule.txt
+inputfile_one=data_store/sprot/splitted/SPROT_$SIZE.txt
+inputfile_two=data_store/sprot/splitted/SPROT_$SIZE.txt
+rulefile=data_store/sprot/rule.txt
 
 
 #recordId=4840
-recordId=118803
+#recordId=41505
+recordId=41818
 
 ./package.sh
 
