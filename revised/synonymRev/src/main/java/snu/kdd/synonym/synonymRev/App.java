@@ -18,6 +18,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMH_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
+import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
@@ -37,6 +38,7 @@ public class App {
 			options.addOption( "oneSideJoin", true, "One side join" );
 			options.addOption( "algorithm", true, "Algorithm" );
 			options.addOption( "split", false, "Split datasets" );
+			options.addOption( "upload", true, "Upload experiments" );
 
 			options.addOption( "additional", true, "Additional input arguments" );
 
@@ -77,6 +79,7 @@ public class App {
 		StatContainer stat = new StatContainer();
 
 		boolean split = cmd.hasOption( "split" );
+		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
 
 		switch( algorithmName ) {
 		case JoinNaive:
@@ -138,7 +141,15 @@ public class App {
 		addWYKMapCount( stat );
 
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
+
+		DataInfo dataInfo = new DataInfo( dataOnePath, dataTwoPath, rulePath );
+
+		if( upload ) {
+			alg.writeJSON( dataInfo, cmd );
+		}
+
 		Util.printLog( alg.getName() + " finished" );
+
 	}
 
 	public static void addWYKMapCount( StatContainer stat ) {

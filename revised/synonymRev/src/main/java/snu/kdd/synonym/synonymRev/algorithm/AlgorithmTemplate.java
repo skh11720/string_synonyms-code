@@ -4,10 +4,13 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 
+import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
+import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -162,6 +165,44 @@ public abstract class AlgorithmTemplate {
 		catch( final Exception e ) {
 			e.printStackTrace();
 			Util.printLog( "Error: " + e.getMessage() );
+		}
+	}
+
+	public void writeJSON( DataInfo dataInfo, CommandLine cmd ) {
+		BufferedWriter bw_json;
+		try {
+			bw_json = new BufferedWriter( new FileWriter(
+					"json/" + this.getName() + "_"
+							+ new java.text.SimpleDateFormat( "yyyyMMdd_HHmmss_z" ).format( new java.util.Date() ) + ".txt",
+					true ) );
+
+			bw_json.write( "{" );
+
+			bw_json.write( "\"Date\": \"" + new Date().toString() + "\"," );
+
+			bw_json.write( "\"Algorithm\": {" );
+			bw_json.write( "\"name\": \"" + getName() + "\"," );
+			bw_json.write( "\"version\": \"" + getVersion() + "\"" );
+			bw_json.write( "}" );
+
+			bw_json.write( ", \"Result\":{" );
+			bw_json.write( stat.toJson() );
+			bw_json.write( "}" );
+
+			bw_json.write( ", \"Dataset\": {" );
+			bw_json.write( dataInfo.toJson() );
+			bw_json.write( "}" );
+
+			bw_json.write( ", \"ParametersUsed\": {" );
+			bw_json.write( "\"additional\": \"" );
+			bw_json.write( cmd.getOptionValue( "additional", "" ) + "\"" );
+			bw_json.write( "}" );
+
+			bw_json.write( "}\n" );
+			bw_json.close();
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
 		}
 	}
 }
