@@ -126,7 +126,7 @@ public class TopDown extends Validator {
 	 * Get the value of M_x[i][j][remain].<br/>
 	 * If the value is not computed, compute and then return the value.
 	 */
-	private static boolean getMx( Record x, Record y, Submatch match ) {
+	private boolean getMx( Record x, Record y, Submatch match ) {
 		++recursivecalls;
 		// If this value is already computed, simply return the computed value.
 		Boolean rslt = Mx.get( match );
@@ -202,7 +202,7 @@ public class TopDown extends Validator {
 	 * Get the value of M_y[i][j][remain].<br/>
 	 * If the value is not computed, compute and then return the value.
 	 */
-	private static boolean getMy( Record x, Record y, Submatch match ) {
+	private boolean getMy( Record x, Record y, Submatch match ) {
 		++recursivecalls;
 		// Every exact match is handled by getMyEqual(x, y, match).
 		assert ( match.rule != null );
@@ -281,7 +281,7 @@ public class TopDown extends Validator {
 	 * Get the value of M_x[i][j][""].<br/>
 	 * If the value is not computed, compute and then return the value.
 	 */
-	private static boolean getMyEqual( Record x, Record y, Submatch match ) {
+	private boolean getMyEqual( Record x, Record y, Submatch match ) {
 		++recursivecalls;
 		// If this value is already computed, simply return the computed value.
 		Boolean rslt = My.get( match );

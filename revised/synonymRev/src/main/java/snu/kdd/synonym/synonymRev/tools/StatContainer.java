@@ -39,9 +39,7 @@ public class StatContainer {
 			String valueName = opt.getValue();
 
 			if( name.equals( "cmd_algorithm" ) ) {
-				if( cmd.hasOption( "split" ) ) {
-					valueName += "SP";
-				}
+				continue;
 			}
 
 			if( valueName == null ) {

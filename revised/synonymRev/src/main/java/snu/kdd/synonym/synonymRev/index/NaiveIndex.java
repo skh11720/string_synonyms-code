@@ -224,14 +224,14 @@ public class NaiveIndex {
 	}
 
 	public void addStat( StatContainer stat, String prefix ) {
-		stat.add( prefix + "_Get_Count", idx.getCount );
-		stat.add( prefix + "_GetIter_Count", idx.getIterCount );
-		stat.add( prefix + "_Put_Count", idx.putCount );
-		stat.add( prefix + "_Resize_Count", idx.resizeCount );
-		stat.add( prefix + "_Remove_Count", idx.removeCount );
-		stat.add( prefix + "_RemoveIter_Count", idx.removeIterCount );
-		stat.add( prefix + "_PutRemoved_Count", idx.putRemovedCount );
-		stat.add( prefix + "_RemoveFound_Count", idx.removeFoundCount );
+		stat.add( prefix + "_Get_Count", WYK_HashMap.getCount );
+		stat.add( prefix + "_GetIter_Count", WYK_HashMap.getIterCount );
+		stat.add( prefix + "_Put_Count", WYK_HashMap.putCount );
+		stat.add( prefix + "_Resize_Count", WYK_HashMap.resizeCount );
+		stat.add( prefix + "_Remove_Count", WYK_HashMap.removeCount );
+		stat.add( prefix + "_RemoveIter_Count", WYK_HashMap.removeIterCount );
+		stat.add( prefix + "_PutRemoved_Count", WYK_HashMap.putRemovedCount );
+		stat.add( prefix + "_RemoveFound_Count", WYK_HashMap.removeFoundCount );
 	}
 
 	public List<IntegerPair> join( StatContainer stat, long threshold, boolean addStat, Query query ) {

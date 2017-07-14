@@ -18,14 +18,14 @@ public class WYK_HashMap<K, V> implements Map<K, V> {
 	private double factor;
 	private int nextExpandSize;
 
-	public long getCount = 0;
-	public long getIterCount = 0;
-	public long putCount = 0;
-	public long resizeCount = 0;
-	public long removeCount = 0;
-	public long removeIterCount = 0;
-	public long putRemovedCount = 0;
-	public long removeFoundCount = 0;
+	public static long getCount = 0;
+	public static long getIterCount = 0;
+	public static long putCount = 0;
+	public static long resizeCount = 0;
+	public static long removeCount = 0;
+	public static long removeIterCount = 0;
+	public static long putRemovedCount = 0;
+	public static long removeFoundCount = 0;
 
 	public static long resize = 0;
 	public static long collision = 0;

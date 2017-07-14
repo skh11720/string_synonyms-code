@@ -14,7 +14,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
+import snu.kdd.synonym.synonymRev.tools.MinPositionPairQueue;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -74,7 +74,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 		run();
 
-		Validator.printStats();
+		checker.addStat( stat );
 	}
 
 	public void run() {
@@ -119,6 +119,14 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			maxIndexLength = minimumSize;
 		}
 
+		if( recordList.size() < 10 ) {
+			int[] indexed = new int[ maxIndexLength ];
+			for( int i = 0; i < maxIndexLength; i++ ) {
+				indexed[ i ] = i;
+			}
+			return indexed;
+		}
+
 		int[] indexPosition = new int[ maxIndexLength ];
 		int[] duplicateCount = new int[ minimumSize ];
 
@@ -152,7 +160,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			}
 		}
 
-		MinPositionQueue mpq = new MinPositionQueue( maxIndexLength );
+		MinPositionPairQueue mpq = new MinPositionPairQueue( maxIndexLength );
 
 		for( int i = 0; i < minimumSize; i++ ) {
 			if( qgramSetList.get( i ).size() == 0 ) {
@@ -166,8 +174,9 @@ public class JoinBK_Split extends AlgorithmTemplate {
 								+ duplicateCount[ i ] + " " + ( duplicateCount[ i ] / count[ i ] ) );
 			}
 
-			double value = duplicateCount[ i ] / count[ i ];
-			mpq.add( i, value );
+			double overlapValue = duplicateCount[ i ] / count[ i ];
+			double candidateValue = qgramSetList.get( i ).size() / count[ i ];
+			mpq.add( i, overlapValue, candidateValue );
 		}
 
 		int i = maxIndexLength - 1;
@@ -200,17 +209,18 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			ObjectArrayList<Record> recordList = splitIndexedSet.getSplitData( i );
 
 			if( DEBUG.JoinBKON ) {
-				Util.printLog( "Indexing : " + key );
+				Util.printLog( "Indexing : " + key + " " + recordList.size() );
 			}
 
 			estimateIndex.start();
 			int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
-			estimateIndex.stop();
+			estimateIndex.stopQuiet();
 
 			JoinMHIndex idx = new JoinMHIndex( indexPosition.length, qgramSize, recordList, query, stat, indexPosition, false,
 					false );
 			idxList.add( idx );
 		}
+		stat.add( estimateIndex );
 	}
 
 	private ArrayList<IntegerPair> join() {
@@ -247,7 +257,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.0";
+		return "2.1";
 	}
 
 	@Override

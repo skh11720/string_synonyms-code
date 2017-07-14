@@ -12,7 +12,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
+import snu.kdd.synonym.synonymRev.tools.MinPositionPairQueue;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -71,7 +71,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 		run();
 
-		Validator.printStats();
+		checker.addStat( stat );
 	}
 
 	public void run() {
@@ -148,7 +148,7 @@ public class JoinBK extends AlgorithmTemplate {
 			}
 		}
 
-		MinPositionQueue mpq = new MinPositionQueue( maxIndexLength );
+		MinPositionPairQueue mpq = new MinPositionPairQueue( maxIndexLength );
 
 		for( int i = 0; i < minimumSize; i++ ) {
 			if( DEBUG.JoinBKON ) {
@@ -156,13 +156,14 @@ public class JoinBK extends AlgorithmTemplate {
 						"Index " + i + " " + qgramSetList.get( i ).size() + " " + ( qgramSetList.get( i ).size() / count[ i ] )
 								+ duplicateCount[ i ] + " " + ( duplicateCount[ i ] / count[ i ] ) );
 			}
-			double value = duplicateCount[ i ] / count[ i ];
-			mpq.add( i, value );
+			double overlapValue = duplicateCount[ i ] / count[ i ];
+			double candidateValue = qgramSetList.get( i ).size() / count[ i ];
+			mpq.add( i, overlapValue, candidateValue );
 
 			if( i < indexedMinLength ) {
-				if( minAmongValidValue > value ) {
+				if( minAmongValidValue > overlapValue ) {
 					minAmongValidIndex = i;
-					minAmongValidValue = value;
+					minAmongValidValue = overlapValue;
 				}
 			}
 		}
@@ -213,7 +214,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.0";
+		return "2.1";
 	}
 
 	@Override
