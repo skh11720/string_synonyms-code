@@ -61,7 +61,7 @@ public class JoinMH_Split extends AlgorithmTemplate {
 
 		run();
 
-		Validator.printStats();
+		checker.addStat( stat );
 	}
 
 	public void run() {

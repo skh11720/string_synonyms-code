@@ -548,15 +548,15 @@ public class JoinMinIndex {
 
 			equivComparisons += candidates.size();
 			for( Record recR : candidates ) {
-				long ruleiters = 0;
-				long reccalls = 0;
-				long entryiters = 0;
-
-				if( DEBUG.JoinMinON ) {
-					ruleiters = Validator.niterrules;
-					reccalls = Validator.recursivecalls;
-					entryiters = Validator.niterentry;
-				}
+				// long ruleiters = 0;
+				// long reccalls = 0;
+				// long entryiters = 0;
+				//
+				// if( DEBUG.JoinMinON ) {
+				// ruleiters = Validator.niterrules;
+				// reccalls = Validator.recursivecalls;
+				// entryiters = Validator.niterentry;
+				// }
 
 				long st = System.nanoTime();
 				int compare = checker.isEqual( recS, recR );
@@ -568,11 +568,11 @@ public class JoinMinIndex {
 
 				long duration = System.nanoTime() - st;
 
-				if( DEBUG.JoinMinON ) {
-					ruleiters = Validator.niterrules - ruleiters;
-					reccalls = Validator.recursivecalls - reccalls;
-					entryiters = Validator.niterentry - entryiters;
-				}
+				// if( DEBUG.JoinMinON ) {
+				// ruleiters = Validator.niterrules - ruleiters;
+				// reccalls = Validator.recursivecalls - reccalls;
+				// entryiters = Validator.niterentry - entryiters;
+				// }
 
 				comparisonTime += duration;
 				if( compare >= 0 ) {
@@ -669,25 +669,25 @@ public class JoinMinIndex {
 
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
-			long ruleiters = 0;
-			long reccalls = 0;
-			long entryiters = 0;
-
-			if( DEBUG.JoinMinON ) {
-				ruleiters = Validator.niterrules;
-				reccalls = Validator.recursivecalls;
-				entryiters = Validator.niterentry;
-			}
+			// long ruleiters = 0;
+			// long reccalls = 0;
+			// long entryiters = 0;
+			//
+			// if( DEBUG.JoinMinON ) {
+			// ruleiters = Validator.niterrules;
+			// reccalls = Validator.recursivecalls;
+			// entryiters = Validator.niterentry;
+			// }
 
 			long st = System.nanoTime();
 			int compare = checker.isEqual( recS, recR );
 			long duration = System.nanoTime() - st;
 
-			if( DEBUG.JoinMinON ) {
-				ruleiters = Validator.niterrules - ruleiters;
-				reccalls = Validator.recursivecalls - reccalls;
-				entryiters = Validator.niterentry - entryiters;
-			}
+			// if( DEBUG.JoinMinON ) {
+			// ruleiters = Validator.niterrules - ruleiters;
+			// reccalls = Validator.recursivecalls - reccalls;
+			// entryiters = Validator.niterentry - entryiters;
+			// }
 
 			comparisonTime += duration;
 			if( compare >= 0 ) {

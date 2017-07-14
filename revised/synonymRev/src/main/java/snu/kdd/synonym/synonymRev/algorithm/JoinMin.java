@@ -163,8 +163,8 @@ public class JoinMin extends AlgorithmTemplate {
 
 		if( DEBUG.JoinMinON ) {
 			preprocessTime.stopAndAdd( stat );
-			Validator.printStats();
 		}
+		checker.addStat( stat );
 	}
 
 	public double getGamma() {

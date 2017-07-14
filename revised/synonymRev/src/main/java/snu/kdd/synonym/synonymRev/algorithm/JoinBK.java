@@ -71,7 +71,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 		run();
 
-		Validator.printStats();
+		checker.addStat( stat );
 	}
 
 	public void run() {
