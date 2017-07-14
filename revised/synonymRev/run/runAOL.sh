@@ -52,10 +52,8 @@ do
 	./setAOL.sh $SIZE
 
 	project=aol_$SIZE
-	#inputfile_one=data_store/aol/splitted/$SIZE/data_5.txt
-	inputfile_one=data_store/aol/splitted/$SIZE/data.txt
-	#inputfile_two=data_store/aol/splitted/$SIZE/data_5.txt
-	inputfile_two=data_store/aol/splitted/$SIZE/data.txt
+	inputfile_one=data_store/aol/splitted/$SIZE/aol_$SIZE\_data.txt
+	inputfile_two=data_store/aol/splitted/$SIZE/aol_$SIZE\_data.txt
 	rulefile=data_store/wordnet/rules.noun
 	outputPath=output
 
