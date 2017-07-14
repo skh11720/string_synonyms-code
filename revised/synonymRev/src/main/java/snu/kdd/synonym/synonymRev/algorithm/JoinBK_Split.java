@@ -119,6 +119,14 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			maxIndexLength = minimumSize;
 		}
 
+		if( recordList.size() < 10 ) {
+			int[] indexed = new int[ maxIndexLength ];
+			for( int i = 0; i < maxIndexLength; i++ ) {
+				indexed[ i ] = i;
+			}
+			return indexed;
+		}
+
 		int[] indexPosition = new int[ maxIndexLength ];
 		int[] duplicateCount = new int[ minimumSize ];
 
@@ -212,6 +220,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 					false );
 			idxList.add( idx );
 		}
+		stat.add( estimateIndex );
 	}
 
 	private ArrayList<IntegerPair> join() {
