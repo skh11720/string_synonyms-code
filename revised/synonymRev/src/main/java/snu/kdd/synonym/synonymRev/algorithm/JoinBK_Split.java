@@ -201,12 +201,12 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			ObjectArrayList<Record> recordList = splitIndexedSet.getSplitData( i );
 
 			if( DEBUG.JoinBKON ) {
-				Util.printLog( "Indexing : " + key );
+				Util.printLog( "Indexing : " + key + " " + recordList.size() );
 			}
 
 			estimateIndex.start();
 			int[] indexPosition = estimateIndexPosition( recordList, indexK, key );
-			estimateIndex.stop();
+			estimateIndex.stopQuiet();
 
 			JoinMHIndex idx = new JoinMHIndex( indexPosition.length, qgramSize, recordList, query, stat, indexPosition, false,
 					false );
