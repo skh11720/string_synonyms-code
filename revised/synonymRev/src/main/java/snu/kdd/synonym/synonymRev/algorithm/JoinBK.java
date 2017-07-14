@@ -214,7 +214,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.0";
+		return "2.1";
 	}
 
 	@Override
