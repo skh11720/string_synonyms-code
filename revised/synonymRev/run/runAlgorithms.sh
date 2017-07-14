@@ -109,7 +109,7 @@ if [[ $# -ne 17 ]];
 			for q in {1..3..1}; do
 			#for q in {1..3..1}; do
 				date
-				./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $K $q $project $oneSide
+				./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide
 				date
 				./compare.sh $PREV JoinMin
 			done
