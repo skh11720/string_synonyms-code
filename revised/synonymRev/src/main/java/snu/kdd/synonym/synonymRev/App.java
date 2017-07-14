@@ -114,6 +114,8 @@ public class App {
 
 		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
 		stat.add( cmd );
+		stat.add( "cmd_alg", alg.getName() );
+		stat.add( "cmd_alg_v", alg.getVersion() );
 
 		initializeTime.stopAndAdd( stat );
 
