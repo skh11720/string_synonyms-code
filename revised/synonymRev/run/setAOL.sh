@@ -13,7 +13,7 @@ if [ ! -d $dir ];
 then
 	echo creating data in $dir with size $Size
 	mkdir -p $dir
-	shuf $inputfile | head -n $Size > $dir"/"aol_$SIZE\_data.txt
+	shuf $inputfile | head -n $Size > $dir"/"aol_$Size\_data.txt
 else
 	echo data already exists in $dir
 fi
