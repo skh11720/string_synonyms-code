@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import snu.kdd.synonym.synonymRev.data.Dataset;
@@ -219,8 +218,6 @@ public class NaiveIndex_Split {
 	}
 
 	public void addStat( StatContainer stat, String prefix ) {
-		ObjectIterator<Entry<IntegerPair, WYK_HashMap<Record, ArrayList<Integer>>>> iter = idxList.object2ObjectEntrySet()
-				.iterator();
 
 		long getCount = 0;
 		long getIterCount = 0;
@@ -231,18 +228,14 @@ public class NaiveIndex_Split {
 		long putRemovedCount = 0;
 		long removeFoundCount = 0;
 
-		while( iter.hasNext() ) {
-			Entry<IntegerPair, WYK_HashMap<Record, ArrayList<Integer>>> entry = iter.next();
-			WYK_HashMap<Record, ArrayList<Integer>> idx = entry.getValue();
-			getCount += idx.getCount;
-			getIterCount += idx.getIterCount;
-			putCount += idx.putCount;
-			resizeCount += idx.resizeCount;
-			removeCount += idx.removeCount;
-			removeIterCount += idx.removeIterCount;
-			putRemovedCount += idx.putRemovedCount;
-			removeFoundCount += idx.removeFoundCount;
-		}
+		getCount += WYK_HashMap.getCount;
+		getIterCount += WYK_HashMap.getIterCount;
+		putCount += WYK_HashMap.putCount;
+		resizeCount += WYK_HashMap.resizeCount;
+		removeCount += WYK_HashMap.removeCount;
+		removeIterCount += WYK_HashMap.removeIterCount;
+		putRemovedCount += WYK_HashMap.putRemovedCount;
+		removeFoundCount += WYK_HashMap.removeFoundCount;
 
 		stat.add( prefix + "_Get_Count", getCount );
 		stat.add( prefix + "_GetIter_Count", getIterCount );

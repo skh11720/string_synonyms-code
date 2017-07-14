@@ -341,28 +341,6 @@ public class JoinMinIndex {
 	}
 
 	public void addStat( StatContainer stat ) {
-		long getCount = 0;
-		long getIterCount = 0;
-		long putCount = 0;
-		long resizeCount = 0;
-		long removeCount = 0;
-		long removeIterCount = 0;
-		long putRemovedCount = 0;
-		long removeFoundCount = 0;
-
-		for( int i = 0; i < idx.size(); i++ ) {
-			WYK_HashMap<QGram, List<Record>> map = idx.get( i );
-
-			getCount += map.getCount;
-			getIterCount += map.getIterCount;
-			putCount += map.putCount;
-			resizeCount += map.resizeCount;
-			removeCount += map.removeCount;
-			removeIterCount += map.removeIterCount;
-			putRemovedCount += map.putRemovedCount;
-			removeFoundCount += map.removeFoundCount;
-		}
-
 		if( DEBUG.JoinMinIndexON ) {
 			for( int i = 0; i < countPerPosition.size(); i++ ) {
 				stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
@@ -374,15 +352,6 @@ public class JoinMinIndex {
 				}
 			}
 		}
-
-		stat.add( "Counter_Index_0_Get_Count", getCount );
-		stat.add( "Counter_Index_0_GetIter_Count", getIterCount );
-		stat.add( "Counter_Index_0_Put_Count", putCount );
-		stat.add( "Counter_Index_0_Resize_Count", resizeCount );
-		stat.add( "Counter_Index_0_Remove_Count", removeCount );
-		stat.add( "Counter_Index_0_RemoveIter_Count", removeIterCount );
-		stat.add( "Counter_Index_0_PutRemoved_Count", putRemovedCount );
-		stat.add( "Counter_Index_0_RemoveFound_Count", removeFoundCount );
 	}
 
 	public void put( int position, QGram qgram, Record rec ) {

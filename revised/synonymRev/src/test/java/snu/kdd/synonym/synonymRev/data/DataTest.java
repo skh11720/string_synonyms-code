@@ -27,6 +27,11 @@ public class DataTest {
 		int[] tokens = { 1, 2, 3, 4 };
 
 		Rule[][] applicable = automata.applicableRules( tokens );
+		for( int i = 0; i < applicable.length; i++ ) {
+			for( int j = 0; j < applicable[ i ].length; j++ ) {
+				System.out.println( applicable[ i ][ j ] );
+			}
+		}
 
 	}
 
