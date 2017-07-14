@@ -23,14 +23,14 @@ class ExpContainer:
         self.data_index.clear()
         self.value_index.clear()
 
-    def add_result(self, x_content, y_content, value_content):
-        if x_content not in self.param_set:
-            self.param_set.append(x_content)
-        param_index = self.param_set.index(x_content)
+    def add_result(self, param_content, data_content, value_content):
+        if param_content not in self.param_set:
+            self.param_set.append(param_content)
+        param_index = self.param_set.index(param_content)
 
-        if y_content not in self.data_set:
-            self.data_set.append(y_content)
-        data_index = self.data_set.index(y_content)
+        if data_content not in self.data_set:
+            self.data_set.append(data_content)
+        data_index = self.data_set.index(data_content)
 
         self.value_map[(data_index, param_index)] = value_content
 
@@ -41,7 +41,13 @@ class ExpContainer:
             for value_index in range(len(self.value_title)):
                 w.write("\"" + str(self.value_title[value_index]) + "\",")
                 for param in self.param_set:
-                    w.write("\"" + str(param) + "\",")
+                    w.write("\"")
+                    for i in range(len(self.param_title)):
+                        title = param_title[i]
+                        if title != "cmd_alg" and title != "cmd_alg_v":
+                            w.write(title + ":")
+                        w.write(str(param[title]) + " ")
+                    w.write("\",")
                 w.write("\n")
 
                 for data_index in range(len(self.data_set)):
@@ -96,7 +102,7 @@ class ExpContainer:
         is_started = False
         content = ""
 
-        param_content = []
+        param_content = {}
         data_content = []
         value_content = {}
 
@@ -107,7 +113,7 @@ class ExpContainer:
                 if is_quote_started:
 
                     if index in self.param_index.values():
-                        param_content.append(content)
+                        param_content[self.param_inv_index[index]] = content
                     if index in self.data_index.values():
                         data_content.append(content)
                     if index in self.value_index.values():
@@ -122,7 +128,7 @@ class ExpContainer:
                     is_started = not is_started
 
                     if index in self.param_index.values():
-                        param_content.append(content)
+                        param_content[self.param_inv_index[index]] = content
                     if index in self.data_index.values():
                         data_content.append(content)
                     if index in self.value_index.values():
@@ -140,7 +146,7 @@ class ExpContainer:
         if content != "":
 
             if index in self.param_index.values():
-                param_content.append(content)
+                param_content[self.param_inv_index[index]] = content
             if index in self.data_index.values():
                 data_content.append(content)
             if index in self.value_index.values():
@@ -160,12 +166,12 @@ class ExpContainer:
 
 
 if __name__ == "__main__":
-    files = ["JoinBK_2.0", "JoinBKSP_2.0", "JoinMH_2.0", "JoinMin_2.0", "JoinNaive_2.0"]
+    files = ["JoinBK_2.0", "JoinBKSP_2.1", "JoinMH_2.0", "JoinMHSP_2.0"]  # , "JoinMin_2.0", "JoinNaive_2.0"
 
-    param_title = ["cmd_algorithm", "cmd_K", "cmd_qSize"]
+    param_title = ["cmd_alg", "cmd_alg_v", "cmd_K", "cmd_qSize"]
     data_title = ["cmd_dataOnePath", "cmd_dataTwoPath", "cmd_rulePath", "cmd_oneSideJoin"]
     value_title = ["Final Result Size", "Result_0_Total_Time", "Result_3_1_Index_Building_Time",
-                   "Result_3_2_Join_Time", "resizeCount", "removeCount"]
+                   "Result_3_2_Join_Time", "hm_resizeCount", "hm_removeCount"]
 
     container = ExpContainer(param_title, data_title, value_title)
     container.load(files)
