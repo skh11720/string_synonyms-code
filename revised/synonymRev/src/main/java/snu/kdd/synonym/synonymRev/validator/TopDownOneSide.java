@@ -7,6 +7,7 @@ public class TopDownOneSide extends Validator {
 
 	@Override
 	public int isEqual( Record x, Record y ) {
+		++checked;
 		if( areSameString( x, y ) )
 			return 0;
 		// DEBUG
@@ -29,8 +30,8 @@ public class TopDownOneSide extends Validator {
 	 * Get the value of M_x[i][j][""].<br/>
 	 * If the value is not computed, compute and then return the value.
 	 */
-	private static boolean getMyEqual( Record x, Record y, int xIdx, int yIdx, boolean[][] isValid, boolean[][] isEquiv ) {
-
+	private boolean getMyEqual( Record x, Record y, int xIdx, int yIdx, boolean[][] isValid, boolean[][] isEquiv ) {
+		++recursivecalls;
 		if( xIdx == -1 && yIdx == -1 ) {
 			return true;
 		}
@@ -48,6 +49,7 @@ public class TopDownOneSide extends Validator {
 		Rule[] rules = x.getSuffixApplicableRules( xIdx );
 
 		for( int ridx = 0; ridx < rules.length; ++ridx ) {
+			++niterrules;
 			Rule rule = rules[ ridx ];
 
 			int[] lhs = rule.getLeft();
