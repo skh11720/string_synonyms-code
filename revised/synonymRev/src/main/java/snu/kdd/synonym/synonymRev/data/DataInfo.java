@@ -129,7 +129,7 @@ public class DataInfo {
 		ruleSize = new File( rulePath ).length();
 		size += ruleSize;
 
-		System.out.println( "One size:" + oneSize + " rule size: " + ruleSize );
+		System.out.println( "One size:" + oneSize + "," + dataOnePath + " rule size: " + ruleSize );
 
 		name += "_wrt_" + rule;
 	}
