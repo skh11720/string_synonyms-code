@@ -49,7 +49,6 @@ public class StatContainer {
 				valueName = valueName.replaceAll( "data_store/", "" );
 				valueName = valueName.replaceAll( "splitted/", "" );
 				valueName = valueName.replaceAll( "removed/", "" );
-				valueName = valueName.replaceAll( "data.txt", "" );
 			}
 			else if( valueName.startsWith( "/home/" ) ) {
 				valueName = valueName.replaceAll( "/home/kddlab/wooyekim/", "" );
