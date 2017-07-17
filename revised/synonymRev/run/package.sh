@@ -17,12 +17,17 @@ then
 fi
 
 git pull
+if [ $? -ne "0" ]
+then
+	echo "Error"
+	read -p "Press any key to continue..."
+fi
 
 cd ..
 mvn package
 
 OUT=$?                                                                                                                                                                                                                                                               
-if [ $OUT -eq "1" ]                                                                                                                                                                                                                                                  
+if [ $OUT -ne "0" ]                                                                                                                                                                                                                                                  
 then                                                                                                                                                                                                                                                                 
     echo "Error"                                                                                                                                                                                                                                                     
     read -p "Press any key to continue..."                                                                                                                                                                                                                           

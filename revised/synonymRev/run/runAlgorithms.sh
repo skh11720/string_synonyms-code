@@ -40,6 +40,27 @@ echo oneSide $oneSide
 echo UPLOAD $UPLOAD
 echo "--------------------------------------"
 
+MH_K_START=2
+MH_K_END=2
+MH_Q_START=2
+MH_Q_END=2
+
+MHSP_K_START=2
+MHSP_K_END=2
+MHSP_Q_START=2
+MHSP_Q_END=2
+
+BK_K_START=2
+BK_K_END=2
+BK_Q_START=2
+BK_Q_END=2
+
+BKSP_K_START=2
+BKSP_K_END=2
+BKSP_Q_START=2
+BKSP_Q_END=2
+
+
 if [[ $# -ne 18 ]];
 	then
 		echo 'illegal number of parameters'
@@ -89,11 +110,11 @@ if [[ $# -ne 18 ]];
 	#SIJoin
 	if [[ $RUN_JoinMHSP == "True" ]];
 	then
-		for j in {1..3..1}; do
-			for q in {1..3..1};do
+		for ((k=MH_K_START;k<=MH_K_END;k++)); do
+			for ((q=MH_Q_START;q<=MH_Q_END;q++));do
 
 				date
-				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide true $UPLOAD
+				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide true $UPLOAD
 				date
 
 				./compare.sh $PREV JoinMHSP
@@ -122,13 +143,10 @@ if [[ $# -ne 18 ]];
 	#JoinMH
 	if [[ $RUN_JoinMH == "True" ]];
 	then
-		#for j in {1..3..1}; do
-		for j in {1..3..1}; do
-			for q in {1..3..1};do
-			#for q in {1..3..1}; do
-
+		for ((k=MH_K_START;k<=MH_K_END;k++)); do
+			for ((q=MH_Q_START;q<=MH_Q_END;q++)); do
 				date
-				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $j $q $project $oneSide false $UPLOAD
+				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide false $UPLOAD
 				date
 				./compare.sh $PREV JoinMH
 			done
@@ -183,9 +201,8 @@ if [[ $# -ne 18 ]];
 	#JoinBK
 	if [[ $RUN_JoinBK == "True" ]];
 	then
-		for k in {1..3..1}; do
-			#for q in {1..5..1}; do
-			for q in {1..3..1}; do
+		for ((k=BK_K_START;k<=BK_K_END;k++)); do
+			for ((q=BK_Q_START;q<=BK_Q_END;q++)); do
 				date
 				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide false $UPLOAD
 				./compare.sh $PREV JoinBK
@@ -197,9 +214,8 @@ if [[ $# -ne 18 ]];
 	#JoinBKSP
 	if [[ $RUN_JoinBKSP == "True" ]];
 	then
-		for k in {1..3..1}; do
-			#for q in {1..5..1}; do
-			for q in {1..3..1}; do
+		for ((k=BKSP_K_START;k<=BKSP_K_END;k++)); do
+			for ((q=BKSP_Q_START;q<=BKSP_Q_END;q++)); do
 				date
 				./joinBK.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide true $UPLOAD
 				./compare.sh $PREV JoinBKSP
