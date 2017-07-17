@@ -8,7 +8,8 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Dataset_Split;
+import snu.kdd.synonym.synonymRev.data.Dataset_SplitMin;
+import snu.kdd.synonym.synonymRev.data.Dataset_SplitRange;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
@@ -35,7 +36,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 	static Validator checker;
 
-	Dataset_Split splitIndexedSet;
+	Dataset_SplitMin splitIndexedSet;
 
 	/**
 	 * Key: twogram<br/>
@@ -58,7 +59,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			}
 		}
 
-		splitIndexedSet = new Dataset_Split( query.indexedSet, query.oneSideJoin );
+		splitIndexedSet = new Dataset_SplitMin( query.indexedSet, query.oneSideJoin );
 	}
 
 	@Override
@@ -112,8 +113,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private int[] estimateIndexPosition( ObjectArrayList<Record> recordList, int maxIndexLength, IntegerPair key ) {
-		int minimumSize = key.i1;
+	private int[] estimateIndexPosition( ObjectArrayList<Record> recordList, int maxIndexLength, int key ) {
+		int minimumSize = key;
 
 		if( maxIndexLength > minimumSize ) {
 			maxIndexLength = minimumSize;
@@ -205,7 +206,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		idxList = new ArrayList<>();
 		StopWatch estimateIndex = StopWatch.getWatchStopped( "Result_3_1_1_Index_Count_Time" );
 		for( int i = 0; i < splitIndexedSet.keySetSize(); i++ ) {
-			IntegerPair key = splitIndexedSet.getKey( i );
+			int key = splitIndexedSet.getKey( i );
 			ObjectArrayList<Record> recordList = splitIndexedSet.getSplitData( i );
 
 			if( DEBUG.JoinBKON ) {
@@ -240,9 +241,13 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 			for( int i = 0; i < idxList.size(); i++ ) {
 
-				IntegerPair key = splitIndexedSet.getKey( i );
+				int key = splitIndexedSet.getKey( i );
 
-				if( !StaticFunctions.overlap( range[ 0 ], range[ 1 ], key.i1, key.i2 ) ) {
+				// if( !StaticFunctions.overlap( range[ 0 ], range[ 1 ], key.i1, key.i2 ) ) {
+				// continue;
+				// }
+
+				if( key > range[ 1 ] ) {
 					continue;
 				}
 
@@ -264,7 +269,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.1";
+		return "2.2";
 	}
 
 	@Override
