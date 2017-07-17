@@ -227,8 +227,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
-			long startTime = System.currentTimeMillis();
-			String joinTime = "";
+			// long startTime = System.currentTimeMillis();
+			// String joinTime = "";
 
 			int[] range = recS.getTransLengths();
 
@@ -246,21 +246,17 @@ public class JoinBK_Split extends AlgorithmTemplate {
 					continue;
 				}
 
-				// if( debug ) {
-				// System.out.println( "Searhcing " + key );
-				// }
-
-				long getStartTime = System.currentTimeMillis();
+				// long getStartTime = System.currentTimeMillis();
 				JoinMHIndex idx = idxList.get( i );
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
 				idx.joinOneRecordForSplit( recS, availableQGrams, query, checker, rslt );
-				joinTime += "(" + key.i1 + "," + key.i2 + ")" + ( System.currentTimeMillis() - getStartTime ) + " ";
+				// joinTime += "(" + key.i1 + "," + key.i2 + ")" + ( System.currentTimeMillis() - getStartTime ) + " ";
 			}
-			long executionTime = System.currentTimeMillis() - startTime;
-			if( executionTime > 0 ) {
-				Util.printLog( range[ 0 ] + " " + range[ 1 ] );
-				Util.printLog( recS.getID() + " processed " + executionTime + " " + joinTime );
-			}
+			// long executionTime = System.currentTimeMillis() - startTime;
+			// if( executionTime > 0 ) {
+			// Util.printLog( range[ 0 ] + " " + range[ 1 ] );
+			// Util.printLog( recS.getID() + " processed " + executionTime + " " + joinTime );
+			// }
 		}
 
 		return rslt;
