@@ -9,7 +9,6 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Dataset_SplitMin;
-import snu.kdd.synonym.synonymRev.data.Dataset_SplitRange;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
@@ -19,7 +18,6 @@ import snu.kdd.synonym.synonymRev.tools.MinPositionPairQueue;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -228,8 +226,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
-			// long startTime = System.currentTimeMillis();
-			// String joinTime = "";
+			long startTime = System.currentTimeMillis();
+			String joinTime = "";
 
 			int[] range = recS.getTransLengths();
 
@@ -247,21 +245,28 @@ public class JoinBK_Split extends AlgorithmTemplate {
 				// continue;
 				// }
 
-				if( key > range[ 1 ] ) {
-					continue;
+				if( query.oneSideJoin ) {
+					if( key < range[ 0 ] || key > range[ 1 ] ) {
+						continue;
+					}
+				}
+				else {
+					if( splitIndexedSet.getMaxLength( key ) < range[ 0 ] || key > range[ 1 ] ) {
+						continue;
+					}
 				}
 
-				// long getStartTime = System.currentTimeMillis();
+				long getStartTime = System.currentTimeMillis();
 				JoinMHIndex idx = idxList.get( i );
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
 				idx.joinOneRecordForSplit( recS, availableQGrams, query, checker, rslt );
-				// joinTime += "(" + key.i1 + "," + key.i2 + ")" + ( System.currentTimeMillis() - getStartTime ) + " ";
+				joinTime += "(" + key + ")" + ( System.currentTimeMillis() - getStartTime ) + " ";
 			}
-			// long executionTime = System.currentTimeMillis() - startTime;
-			// if( executionTime > 0 ) {
-			// Util.printLog( range[ 0 ] + " " + range[ 1 ] );
-			// Util.printLog( recS.getID() + " processed " + executionTime + " " + joinTime );
-			// }
+			long executionTime = System.currentTimeMillis() - startTime;
+			if( executionTime > 0 ) {
+				Util.printLog( range[ 0 ] + " " + range[ 1 ] );
+				Util.printLog( recS.getID() + " processed " + executionTime + " " + joinTime );
+			}
 		}
 
 		return rslt;
