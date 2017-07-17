@@ -58,7 +58,7 @@ public class JoinMHIndex {
 		long elements = 0;
 
 		for( int i = 0; i < indexK; ++i ) {
-			joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>() );
+			joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>( query.indexedSet.size() ) );
 		}
 
 		for( Record rec : indexedSet ) {
@@ -274,7 +274,7 @@ public class JoinMHIndex {
 			// boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord( sid );
-			Set<Record> candidates = new WYK_HashSet<Record>();
+			Set<Record> candidates = new WYK_HashSet<Record>( 100 );
 
 			// if( recS.getID() == 94118 ) {
 			// debug = true;

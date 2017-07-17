@@ -226,8 +226,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
-			long startTime = System.currentTimeMillis();
-			String joinTime = "";
+			// long startTime = System.currentTimeMillis();
+			// String joinTime = "";
 
 			int[] range = recS.getTransLengths();
 
@@ -256,17 +256,19 @@ public class JoinBK_Split extends AlgorithmTemplate {
 					}
 				}
 
-				long getStartTime = System.currentTimeMillis();
+				// long getStartTime = System.currentTimeMillis();
+
 				JoinMHIndex idx = idxList.get( i );
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
 				idx.joinOneRecordForSplit( recS, availableQGrams, query, checker, rslt );
-				joinTime += "(" + key + ")" + ( System.currentTimeMillis() - getStartTime ) + " ";
+
+				// joinTime += "(" + key + ")" + ( System.currentTimeMillis() - getStartTime ) + " ";
 			}
-			long executionTime = System.currentTimeMillis() - startTime;
-			if( executionTime > 0 ) {
-				Util.printLog( range[ 0 ] + " " + range[ 1 ] );
-				Util.printLog( recS.getID() + " processed " + executionTime + " " + joinTime );
-			}
+			// long executionTime = System.currentTimeMillis() - startTime;
+			// if( executionTime > 0 ) {
+			// Util.printLog( range[ 0 ] + " " + range[ 1 ] );
+			// Util.printLog( recS.getID() + " processed " + executionTime + " " + joinTime );
+			// }
 		}
 
 		return rslt;
