@@ -252,7 +252,9 @@ public class JoinBK_Split extends AlgorithmTemplate {
 				idx.joinOneRecordForSplit( recS, availableQGrams, query, checker, rslt );
 			}
 			long executionTime = System.currentTimeMillis() - startTime;
-			Util.printLog( recS.getID() + " processed " + executionTime );
+			if( executionTime > 0 ) {
+				Util.printLog( recS.getID() + " processed " + executionTime );
+			}
 		}
 
 		return rslt;
