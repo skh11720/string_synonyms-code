@@ -228,8 +228,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 		for( Record recS : query.searchedSet.get() ) {
 			long startTime = System.currentTimeMillis();
-			long getKeyTime = 0;
-			long joinTime = 0;
+			String joinTime = "";
 
 			int[] range = recS.getTransLengths();
 
@@ -240,9 +239,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			// }
 
 			for( int i = 0; i < idxList.size(); i++ ) {
-				long getStartTime = System.currentTimeMillis();
+
 				IntegerPair key = splitIndexedSet.getKey( i );
-				getKeyTime += System.currentTimeMillis() - getStartTime;
 
 				if( !StaticFunctions.overlap( range[ 0 ], range[ 1 ], key.i1, key.i2 ) ) {
 					continue;
@@ -252,15 +250,15 @@ public class JoinBK_Split extends AlgorithmTemplate {
 				// System.out.println( "Searhcing " + key );
 				// }
 
-				getStartTime = System.currentTimeMillis();
+				long getStartTime = System.currentTimeMillis();
 				JoinMHIndex idx = idxList.get( i );
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
 				idx.joinOneRecordForSplit( recS, availableQGrams, query, checker, rslt );
-				joinTime += System.currentTimeMillis() - getStartTime;
+				joinTime += ( System.currentTimeMillis() - getStartTime ) + " ";
 			}
 			long executionTime = System.currentTimeMillis() - startTime;
 			if( executionTime > 0 ) {
-				Util.printLog( recS.getID() + " processed " + executionTime + " " + getKeyTime + " " + joinTime );
+				Util.printLog( recS.getID() + " processed " + executionTime + " " + joinTime );
 			}
 		}
 
