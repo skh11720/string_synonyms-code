@@ -254,7 +254,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 				JoinMHIndex idx = idxList.get( i );
 				List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
 				idx.joinOneRecordForSplit( recS, availableQGrams, query, checker, rslt );
-				joinTime += ( System.currentTimeMillis() - getStartTime ) + " ";
+				joinTime += "(" + key.i1 + "," + key.i2 + ")" + ( System.currentTimeMillis() - getStartTime ) + " ";
 			}
 			long executionTime = System.currentTimeMillis() - startTime;
 			if( executionTime > 0 ) {
