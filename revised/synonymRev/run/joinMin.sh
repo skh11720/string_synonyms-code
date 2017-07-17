@@ -29,10 +29,10 @@ then
 	echo oneSide $oneSide
 	echo UPLOAD $UPLOAD
 else
-	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
+	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG\_$k\_$qSize
 	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
 		-algorithm $ALG -oneSideJoin $oneSide -upload $UPLOAD \
-		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG
+		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$k\_$qSize
 fi
 
