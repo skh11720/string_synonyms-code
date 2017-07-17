@@ -174,7 +174,7 @@ public class JoinMHIndex {
 
 	public void joinOneRecordForSplit( Record recS, List<List<QGram>> availableQGrams, Query query, Validator checker,
 			ArrayList<IntegerPair> rslt ) {
-
+		long startTime = System.currentTimeMillis();
 		// this function is for the splitted data sets only -> qgrams are previously computed and
 		// length filtering is not applied here (already applied by the function calling this function)
 
@@ -218,6 +218,10 @@ public class JoinMHIndex {
 				prevCandidate.clear();
 			}
 			prevCandidate = ithCandidates;
+		}
+
+		if( System.currentTimeMillis() - startTime > 0 ) {
+			System.out.println( "prevCand: " + prevCandidate.size() );
 		}
 
 		for( Record recR : prevCandidate ) {
