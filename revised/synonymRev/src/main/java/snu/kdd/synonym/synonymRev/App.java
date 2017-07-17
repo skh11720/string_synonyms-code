@@ -136,9 +136,8 @@ public class App {
 		Util.printGCStats( stat );
 
 		stat.addPrimary( totalTime );
-		alg.printStat();
-
 		addWYKMapCount( stat );
+		alg.printStat();
 
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
