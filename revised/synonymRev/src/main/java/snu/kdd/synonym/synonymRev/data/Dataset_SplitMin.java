@@ -43,7 +43,7 @@ public class Dataset_SplitMin {
 
 			}
 
-			if( oneSideJoin ) {
+			if( !oneSideJoin ) {
 				int[] range = r.getTransLengths();
 				int max = maxLengthMap.get( key );
 				if( max < range[ 1 ] ) {
