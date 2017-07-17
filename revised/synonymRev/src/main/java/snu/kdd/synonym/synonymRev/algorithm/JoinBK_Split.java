@@ -258,6 +258,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			}
 			long executionTime = System.currentTimeMillis() - startTime;
 			if( executionTime > 0 ) {
+				Util.printLog( range[ 0 ] + " " + range[ 1 ] );
 				Util.printLog( recS.getID() + " processed " + executionTime + " " + joinTime );
 			}
 		}
