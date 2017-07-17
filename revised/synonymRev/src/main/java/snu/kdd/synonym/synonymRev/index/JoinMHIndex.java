@@ -218,6 +218,10 @@ public class JoinMHIndex {
 				prevCandidate.clear();
 			}
 			prevCandidate = ithCandidates;
+
+			if( prevCandidate.size() == 0 ) {
+				break;
+			}
 		}
 
 		if( System.currentTimeMillis() - startTime > 0 ) {
