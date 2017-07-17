@@ -9,7 +9,6 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Dataset_SplitMin;
-import snu.kdd.synonym.synonymRev.data.Dataset_SplitRange;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
@@ -19,7 +18,6 @@ import snu.kdd.synonym.synonymRev.tools.MinPositionPairQueue;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -247,8 +245,15 @@ public class JoinBK_Split extends AlgorithmTemplate {
 				// continue;
 				// }
 
-				if( key > range[ 1 ] ) {
-					continue;
+				if( query.oneSideJoin ) {
+					if( key < range[ 0 ] || key > range[ 1 ] ) {
+						continue;
+					}
+				}
+				else {
+					if( splitIndexedSet.getMaxLength( key ) < range[ 0 ] || key > range[ 1 ] ) {
+						continue;
+					}
 				}
 
 				long getStartTime = System.currentTimeMillis();
