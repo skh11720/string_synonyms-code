@@ -1,4 +1,5 @@
 #!/bin/bash
+rm json/*.txt
 
 if [ ! -d output ]
 then
@@ -8,6 +9,11 @@ fi
 if [ ! -d logs ]
 then
 	mkdir logs
+fi
+
+if [ ! -d json ]
+then
+	mkdir json
 fi
 
 git pull

@@ -9,13 +9,13 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
-public class Dataset_Split {
+public class Dataset_SplitRange {
 	String name;
 	Object2ObjectOpenHashMap<IntegerPair, ObjectArrayList<Record>> recordListMap;
 	ArrayList<IntegerPair> keySet;
 	int nRecord;
 
-	public Dataset_Split( Dataset ds, boolean oneSideJoin ) {
+	public Dataset_SplitRange( Dataset ds, boolean oneSideJoin ) {
 		recordListMap = new Object2ObjectOpenHashMap<>();
 		keySet = new ArrayList<>();
 		nRecord = ds.nRecord;
