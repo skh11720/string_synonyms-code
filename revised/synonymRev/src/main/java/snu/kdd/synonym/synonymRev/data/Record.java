@@ -275,7 +275,14 @@ public class Record implements Comparable<Record> {
 			return toString( Record.tokenIndex );
 		}
 		else {
-			return "";
+			String rslt = "";
+			for( int id : tokens ) {
+				if( rslt.length() != 0 ) {
+					rslt += " ";
+				}
+				rslt += id;
+			}
+			return rslt;
 		}
 	}
 
