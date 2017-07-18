@@ -168,9 +168,9 @@ public class Generator {
 		int len = (int) Math.max( 1, avgLength + random.nextGaussian() );
 		// 2. generate random string
 		int[] tokens = random( len );
-		System.out.println( Arrays.toString( tokens ) );
+		// System.out.println( Arrays.toString( tokens ) );
 		Record rec = new Record( tokens );
-		System.out.println( "Rec: " + rec.toString() );
+		// System.out.println( "Rec: " + rec.toString() );
 		return rec;
 	}
 
