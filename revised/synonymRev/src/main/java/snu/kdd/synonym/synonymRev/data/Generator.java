@@ -75,11 +75,11 @@ public class Generator {
 				new File( storePath ).mkdirs();
 
 				Generator gen = new Generator( nToken, skewZ, seed );
-				gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + "/rule.txt" );
+				gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + ".txt" );
 
 				RuleInfo info = new RuleInfo();
 				info.setSynthetic( maxLhs, maxRhs, nRule, seed, nToken, skewZ );
-				info.saveToFile( storePath + "/rule_info.json" );
+				info.saveToFile( storePath + "_rule_info.json" );
 			}
 		}
 		else if( args[ 0 ].equals( "-d" ) || args[ 0 ].equals( "-cd" ) ) {
@@ -107,11 +107,11 @@ public class Generator {
 					rulefile = args[ 8 ];
 					atm = gen.readRules( rulefile );
 				}
-				gen.genString( avgRecLen, nRecord, storePath + "/data.txt", equivratio, atm );
+				gen.genString( avgRecLen, nRecord, storePath + ".txt", equivratio, atm );
 
 				DataInfo info = new DataInfo();
 				info.setSynthetic( avgRecLen, nRecord, seed, nToken, skewZ, equivratio );
-				info.saveToFile( storePath + "/data_info.json" );
+				info.saveToFile( storePath + "_data_info.json" );
 			}
 		}
 		else {
