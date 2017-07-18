@@ -271,10 +271,12 @@ public class Record implements Comparable<Record> {
 	}
 
 	public String toString() {
+		System.out.println( "To String" );
 		if( Record.tokenIndex != null ) {
 			return toString( Record.tokenIndex );
 		}
 		else {
+			System.out.println( "Null" );
 			return "";
 		}
 	}
