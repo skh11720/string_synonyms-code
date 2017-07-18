@@ -170,6 +170,7 @@ public class Generator {
 		// 2. generate random string
 		int[] tokens = random( len );
 		Record rec = new Record( tokens );
+		System.out.println( "Rec: " + rec.toString() );
 		return rec;
 	}
 
