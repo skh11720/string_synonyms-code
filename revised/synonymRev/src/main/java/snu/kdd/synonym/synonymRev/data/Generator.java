@@ -67,7 +67,7 @@ public class Generator {
 			String storePath = outputPath + "/rule/" + getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewZ, seed );
 
 			if( args[ 0 ].equals( "-cr" ) ) {
-				System.out.println( storePath );
+				System.out.println( storePath + ".txt" );
 			}
 			else {
 				// if args[ 0 ].equals( "-r" )
@@ -95,7 +95,7 @@ public class Generator {
 			String storePath = outputPath + "/data/" + getDataFilePath( nToken, avgRecLen, nRecord, skewZ, equivratio, seed );
 
 			if( args[ 0 ].equals( "-cd" ) ) {
-				System.out.println( storePath );
+				System.out.println( storePath + ".txt" );
 			}
 			else {
 				new File( storePath ).mkdirs();
