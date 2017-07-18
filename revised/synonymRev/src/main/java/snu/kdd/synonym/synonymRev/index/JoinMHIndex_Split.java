@@ -59,10 +59,10 @@ public class JoinMHIndex_Split {
 
 		for( Record rec : recordList ) {
 			// long recordStartTime = System.nanoTime();
-			boolean debug = false;
-			if( rec.getID() == 252635 ) {
-				debug = true;
-			}
+			// boolean debug = false;
+			// if( rec.getID() == 252635 ) {
+			// debug = true;
+			// }
 
 			List<List<QGram>> availableQGrams = null;
 			IntegerPair pair = null;
@@ -95,9 +95,9 @@ public class JoinMHIndex_Split {
 				}
 			}
 
-			if( debug ) {
-				System.out.println( "Pair: " + pair );
-			}
+			// if( debug ) {
+			// System.out.println( "Pair: " + pair );
+			// }
 
 			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actualIndex = indexPosition[ i ];
@@ -106,16 +106,16 @@ public class JoinMHIndex_Split {
 					continue;
 				}
 
-				if( debug ) {
-					System.out.println( "Index: " + actualIndex );
-				}
+				// if( debug ) {
+				// System.out.println( "Index: " + actualIndex );
+				// }
 
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 
 				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
-					if( debug ) {
-						System.out.println( "qgram: " + qgram );
-					}
+					// if( debug ) {
+					// System.out.println( "qgram: " + qgram );
+					// }
 					List<Record> list = map.get( qgram );
 					if( list == null ) {
 						list = new ArrayList<Record>();
@@ -221,13 +221,13 @@ public class JoinMHIndex_Split {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
-			boolean debug = false;
+			// boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord( sid );
 
-			if( recS.getID() == 52157 ) {
-				debug = true;
-			}
+			// if( recS.getID() == 52157 ) {
+			// debug = true;
+			// }
 
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
@@ -254,9 +254,9 @@ public class JoinMHIndex_Split {
 				IntegerPair pair = rangeCandidateList.get( r );
 				ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
 
-				if( debug ) {
-					System.out.println( "Cand: " + pair );
-				}
+				// if( debug ) {
+				// System.out.println( "Cand: " + pair );
+				// }
 
 				ObjectOpenHashSet<Record> prevCandidate = null;
 				for( int i = 0; i < indexK; ++i ) {
@@ -264,9 +264,9 @@ public class JoinMHIndex_Split {
 
 					if( range[ 0 ] < actualIndex || pair.i1 < actualIndex ) {
 
-						if( debug ) {
-							System.out.println( actualIndex + " skipped " + range[ 0 ] );
-						}
+						// if( debug ) {
+						// System.out.println( actualIndex + " skipped " + range[ 0 ] );
+						// }
 						continue;
 					}
 
@@ -290,10 +290,10 @@ public class JoinMHIndex_Split {
 						cand_sum[ i ] += list.size();
 						++count_cand[ i ];
 
-						if( debug ) {
-							System.out.println( "qgram: " + qgram );
-							System.out.println( "list: " + list );
-						}
+						// if( debug ) {
+						// System.out.println( "qgram: " + qgram );
+						// System.out.println( "list: " + list );
+						// }
 
 						for( Record otherRecord : list ) {
 							int[] otherRange = null;
@@ -333,7 +333,6 @@ public class JoinMHIndex_Split {
 				count += candidates.size();
 
 				// if( prevCandidate != null ) {
-				// // TODO why null?
 				candidates.addAll( prevCandidate );
 				// }
 			}
