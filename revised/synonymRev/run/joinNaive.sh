@@ -13,6 +13,16 @@ ADDITIONAL="-1"
 
 ALG=JoinNaive
 
+
+if [[ -f xmx.txt ]];
+then
+	xmx=`cat xmx.txt`
+else
+	echo 'Make file xmx.txt with memory size'
+	read -p "Press any key to continue..."
+fi
+
+
 if [[ $# -ne 10 ]];
 then
 	echo illegal number of parameters: [$ALG]
@@ -30,13 +40,13 @@ else
 	if [[ "$split" = true ]];
 	then
 		echo $ALG SP with $ADDITIONAL logging in $logdir"/"$project\_$ALG\_SP
-		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
+		time java -Xmx$xmx -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 			-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
 			-algorithm $ALG -oneSideJoin $oneSide -split -upload $UPLOAD \
 			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_SP
 	else
 		echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG
-		time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
+		time java -Xmx$xmx -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 			-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
 			-algorithm $ALG -oneSideJoin $oneSide -upload $UPLOAD \
 			-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG

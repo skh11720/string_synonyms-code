@@ -32,9 +32,14 @@ seedDataTwo=2
 CLASSPATH=../target/Synonym.jar
 
 dir=data_store
-if [ ! -d $dir ]
+if [ ! -d $dir/data ]
 then
-	mkdir $dir
+	mkdir -p $dir/data
+fi
+
+if [ ! -d $dir/rule ]
+then
+	mkdir -p $dir/rule
 fi
 
 ruledir=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cr $nTokensInRule $avgLhsLen $avgRhsLen $nRules 0 $seedRule $dir`
