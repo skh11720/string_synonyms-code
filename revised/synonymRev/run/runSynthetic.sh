@@ -5,7 +5,8 @@ nTokens=1000000
 SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 398107 630957 1000000 )
 
 #nRecords=100000
-nRules=200000
+#nRules=200000
+nRules=1000
 nTokensInRule=30000
 avgRecLen=5
 avgLhsLen=2
@@ -21,8 +22,8 @@ CLASSPATH=../target/Synonym.jar
 
 dir=logs
 
-RUN_Naive=True
-#RUN_Naive=False
+#RUN_Naive=True
+RUN_Naive=False
 
 #RUN_JoinNaiveSP=True
 RUN_JoinNaiveSP=False
