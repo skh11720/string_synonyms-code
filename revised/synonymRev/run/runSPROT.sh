@@ -6,14 +6,12 @@ LIBS=../target/Synonym.jar
 dir=logs
 
 #SIZES=( 1000000 )
-SIZES=( 1000 3000 10000 30000 1000000 )
-#SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
 #SIZES=( 158489 251188 466158 )
 #SIZES=( 100000 )
 #SIZES=( 63095 )
 #SIZES=( 158489 )
 #SIZES=( 15848 )
-#SIZES=( 10000 15848 25118 39810 63095 100000 )
+SIZES=( 10000 15848 25118 39810 63095 100000 )
 #SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 466158 )
 
 oneSide=$1
@@ -26,8 +24,8 @@ RUN_Naive=True
 #RUN_JoinNaiveSP=True
 RUN_JoinNaiveSP=False
 
-#RUN_JoinMHSP=True
-RUN_JoinMHSP=False
+RUN_JoinMHSP=True
+#RUN_JoinMHSP=False
 
 RUN_JoinMin=True
 #RUN_JoinMin=False
@@ -61,4 +59,9 @@ do
 	outputPath=output
 
 	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_JoinNaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
+
+	if [[ $UPLOAD == "True" ]];
+	then
+		./upload.sh
+	fi
 done
