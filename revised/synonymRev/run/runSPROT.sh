@@ -17,6 +17,7 @@ SIZES=( 1000 3000 10000 30000 1000000 )
 #SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 466158 )
 
 oneSide=$1
+UPLOAD=$2
 
 
 RUN_Naive=True
@@ -59,5 +60,5 @@ do
 	rulefile=data_store/sprot/rule.txt
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_JoinNaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_JoinNaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
 done
