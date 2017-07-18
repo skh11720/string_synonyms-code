@@ -37,9 +37,9 @@ RUN_JoinBKSP=True
 #RUN_DEBUG=True
 RUN_DEBUG=False
 
-#IDS=( 8 )
-IDS=( 10 11 )
-#IDS=( 1 2 3 4 5 6 7 8 9 )
+#IDS=( 1 )
+#IDS=( 10 11 )
+IDS=( 1 2 3 4 5 6 7 8 9 )
 #IDS=( 6 7 8 9 10 11 )
 #IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
 for nId in ${IDS[@]};
