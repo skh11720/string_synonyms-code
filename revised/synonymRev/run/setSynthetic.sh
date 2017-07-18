@@ -10,6 +10,20 @@ avgRhsLen=$7
 skewZ=$8
 ratio=$9
 
+if [[ $# -ne 9 ]];
+then
+	echo illegal number of parameters [$ALG]
+	echo nTokens $nTokens
+	echo nRecords $nRecords
+	echo nRules $nRules
+	echo nTokensInRule $nTokensInRule
+	echo avgRecLen $avgRecLen
+	echo avgLhsLen $avgLhsLen
+	echo avgRhsLen $avgRhslen
+	echo skewZ $skewZ
+	echo ratio $ratio
+else
+
 seedRule=0
 seedDataOne=1
 seedDataTwo=2
@@ -55,4 +69,5 @@ else
 	echo Generating new data in $datadir2
 	echo java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -d $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataTwo $dir
 	java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -d $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataTwo $dir
+fi
 fi
