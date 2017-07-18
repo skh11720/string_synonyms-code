@@ -66,4 +66,9 @@ do
 	outputPath=output
 
 	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_JoinNaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt  $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
+
+	if [[ $UPLOAD == "True" ]];
+	then
+		./upload.sh
+	fi
 done
