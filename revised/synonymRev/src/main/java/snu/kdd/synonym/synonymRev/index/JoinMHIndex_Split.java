@@ -83,8 +83,8 @@ public class JoinMHIndex_Split {
 				if( range[ 0 ] > actual ) {
 					indexedCount++;
 				}
-				indexedCountList.put( rec, indexedCount );
 			}
+			indexedCountList.put( rec, indexedCount );
 
 			ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
 			if( joinMHIndex == null ) {
@@ -102,12 +102,12 @@ public class JoinMHIndex_Split {
 			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actualIndex = indexPosition[ i ];
 
-				if( debug ) {
-					System.out.println( "Index: " + actualIndex );
+				if( range[ 0 ] <= actualIndex ) {
+					continue;
 				}
 
-				if( availableQGrams.size() <= actualIndex ) {
-					continue;
+				if( debug ) {
+					System.out.println( "Index: " + actualIndex );
 				}
 
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
@@ -262,7 +262,7 @@ public class JoinMHIndex_Split {
 				for( int i = 0; i < indexK; ++i ) {
 					int actualIndex = indexPosition[ i ];
 
-					if( range[ 0 ] < actualIndex ) {
+					if( range[ 0 ] < actualIndex || pair.i1 < actualIndex ) {
 
 						if( debug ) {
 							System.out.println( actualIndex + " skipped " + range[ 0 ] );

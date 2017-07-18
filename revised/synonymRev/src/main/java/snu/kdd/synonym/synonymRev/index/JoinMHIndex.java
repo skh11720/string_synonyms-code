@@ -84,8 +84,8 @@ public class JoinMHIndex {
 					if( range[ 0 ] > actual ) {
 						indexedCount++;
 					}
-					indexedCountList.put( rec, indexedCount );
 				}
+				indexedCountList.put( rec, indexedCount );
 			}
 
 			for( int i = 0; i < indexPosition.length; i++ ) {
