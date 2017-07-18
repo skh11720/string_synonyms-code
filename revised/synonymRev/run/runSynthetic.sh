@@ -2,16 +2,8 @@
 
 nTokens=1000000
 #SIZES=( 100 )
-#SIZES=( 100000 )
-#SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
-#SIZES=( 100000 158489 251188 398107 )
-#SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 398107 630957 1000000 )
-SIZES=( 10000 15848 25118 39810 63095 100000 )
-#SIZES=( 10000 15848 25118 39810 63095 100000 630957 )
-#SIZES=( 63095 )
+SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 398107 630957 1000000 )
 
-#SIZES=( 100 1000 10000 100000 300000 1000000 1500000 2000000 3000000 10000000 )
-#SIZES=( 10000000 100000000 )
 #nRecords=100000
 nRules=200000
 nTokensInRule=30000
@@ -22,20 +14,21 @@ skewZ=1
 ratio=0
 
 oneSide=$1
+UPLOAD=$2
 
 LIBS=../target/Synonym.jar
 CLASSPATH=../target/Synonym.jar
 
 dir=logs
 
-RUN_Naive1=True
-#RUN_Naive1=False
+RUN_Naive=True
+#RUN_Naive=False
 
-#RUN_Naive2=True
-RUN_Naive2=False
+#RUN_JoinNaiveSP=True
+RUN_JoinNaiveSP=False
 
-#RUN_SIJoin=True
-RUN_SIJoin=False
+#RUN_JoinMHSP=True
+RUN_JoinMHSP=False
 
 RUN_JoinMin=True
 #RUN_JoinMin=False
@@ -52,6 +45,9 @@ RUN_JoinHybridThres=False
 RUN_JoinBK=True
 #RUN_JoinBK=False
 
+RUN_JoinBKSP=True
+#RUN_JoinBKSP=False
+
 #RUN_DEBUG=True
 RUN_DEBUG=False
 
@@ -65,10 +61,10 @@ do
 
 	project=syn_$nRecords
 
-	inputfile_one=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataOne data_store`/data.txt
-	inputfile_two=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataTwo data_store`/data.txt
-	rulefile=`java -cp $CLASSPATH snu.kdd.synonym.data.Generator -cr $nTokensInRule $avgLhsLen $avgRhsLen $nRules 0 $seedRule data_store`/rule.txt
+	inputfile_one=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataOne data_store`
+	inputfile_two=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cd $nTokens $avgRecLen $nRecords $skewZ $ratio $seedDataTwo data_store`
+	rulefile=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cr $nTokensInRule $avgLhsLen $avgRhsLen $nRules 0 $seedRule data_store`
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive1 $RUN_Naive2 $RUN_SIJoin $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt  $RUN_JoinHybridThres $RUN_JoinBK $RUN_DEBUG $oneSide
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_JoinNaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt  $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
 done
