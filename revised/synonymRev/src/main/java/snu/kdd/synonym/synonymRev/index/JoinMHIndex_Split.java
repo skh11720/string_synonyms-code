@@ -102,8 +102,15 @@ public class JoinMHIndex_Split {
 			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actualIndex = indexPosition[ i ];
 
-				if( range[ 0 ] <= actualIndex ) {
-					continue;
+				if( !query.oneSideJoin ) {
+					if( range[ 0 ] <= actualIndex ) {
+						continue;
+					}
+				}
+				else {
+					if( availableQGrams.size() <= actualIndex ) {
+						continue;
+					}
 				}
 
 				// if( debug ) {
