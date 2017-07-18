@@ -40,6 +40,7 @@ echo oneSide $oneSide
 echo UPLOAD $UPLOAD
 echo "--------------------------------------"
 
+
 MH_K_START=2
 MH_K_END=2
 MH_Q_START=2
@@ -60,6 +61,10 @@ BKSP_K_END=2
 BKSP_Q_START=2
 BKSP_Q_END=2
 
+MIN_K_START=2
+MIN_K_END=2
+MIN_Q_START=2
+MIN_Q_END=2
 
 if [[ $# -ne 18 ]];
 	then
@@ -126,11 +131,8 @@ if [[ $# -ne 18 ]];
 	#JoinMin
 	if [[ $RUN_JoinMin == "True" ]];
 	then
-		K=( 1 2 3 )
-		#K=( 1 )
-		for k in "${K[@]}"; do
-			for q in {1..3..1}; do
-			#for q in {1..3..1}; do
+		for ((k=MIN_K_START;k<=MIN_K_END;k++)); do
+			for ((q=MIN_Q_START;q<=MIN_Q_END;q++)); do
 				date
 				./joinMin.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
 				date
