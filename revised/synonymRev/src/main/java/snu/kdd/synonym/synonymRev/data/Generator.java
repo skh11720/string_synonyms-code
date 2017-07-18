@@ -72,7 +72,6 @@ public class Generator {
 			else {
 				// if args[ 0 ].equals( "-r" )
 				// generate data
-				new File( storePath ).mkdirs();
 
 				Generator gen = new Generator( nToken, skewZ, seed );
 				gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + ".txt" );
@@ -98,8 +97,6 @@ public class Generator {
 				System.out.println( storePath + ".txt" );
 			}
 			else {
-				new File( storePath ).mkdirs();
-
 				Generator gen = new Generator( nToken, skewZ, seed );
 				ACAutomataR atm = null;
 
