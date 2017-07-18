@@ -95,6 +95,10 @@ public class JoinMHIndex_Split {
 				}
 			}
 
+			if( debug ) {
+				System.out.println( "Pair: " + pair );
+			}
+
 			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actualIndex = indexPosition[ i ];
 
