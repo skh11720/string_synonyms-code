@@ -60,7 +60,7 @@ public class JoinMHIndex_Split {
 		for( Record rec : recordList ) {
 			// long recordStartTime = System.nanoTime();
 			boolean debug = false;
-			if( rec.getID() == 4145 ) {
+			if( rec.getID() == 52157 ) {
 				debug = true;
 			}
 
@@ -237,9 +237,6 @@ public class JoinMHIndex_Split {
 				IntegerPair pair = pairIter.next();
 
 				if( StaticFunctions.overlap( pair.i1, pair.i2, range[ 0 ], range[ 1 ] ) ) {
-					// if( debug ) {
-					// System.out.println( "Cand: " + pair );
-					// }
 					rangeCandidateList.add( pair );
 				}
 			}
@@ -247,6 +244,10 @@ public class JoinMHIndex_Split {
 			for( int r = 0; r < rangeCandidateList.size(); r++ ) {
 				IntegerPair pair = rangeCandidateList.get( r );
 				ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex = joinMHIndexList.get( pair );
+
+				if( debug ) {
+					System.out.println( "Cand: " + pair );
+				}
 
 				ObjectOpenHashSet<Record> prevCandidate = null;
 				for( int i = 0; i < indexK; ++i ) {
