@@ -10,18 +10,19 @@ avgRhsLen=$7
 skewZ=$8
 ratio=$9
 
+echo nTokens $nTokens
+echo nRecords $nRecords
+echo nRules $nRules
+echo nTokensInRule $nTokensInRule
+echo avgRecLen $avgRecLen
+echo avgLhsLen $avgLhsLen
+echo avgRhsLen $avgRhsLen
+echo skewZ $skewZ
+echo ratio $ratio
+
 if [[ $# -ne 9 ]];
 then
 	echo illegal number of parameters [$ALG]
-	echo nTokens $nTokens
-	echo nRecords $nRecords
-	echo nRules $nRules
-	echo nTokensInRule $nTokensInRule
-	echo avgRecLen $avgRecLen
-	echo avgLhsLen $avgLhsLen
-	echo avgRhsLen $avgRhslen
-	echo skewZ $skewZ
-	echo ratio $ratio
 else
 
 seedRule=0
