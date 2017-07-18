@@ -212,13 +212,13 @@ public class JoinMHIndex_Split {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
-			// boolean debug = false;
+			boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord( sid );
 
-			// if( recS.getID() == 4145 ) {
-			// debug = true;
-			// }
+			if( recS.getID() == 52157 ) {
+				debug = true;
+			}
 
 			Set<Record> candidates = new WYK_HashSet<Record>();
 
@@ -254,9 +254,9 @@ public class JoinMHIndex_Split {
 
 					if( range[ 0 ] < actualIndex ) {
 
-						// if( debug ) {
-						// System.out.println( actualIndex + " skipped " + range[ 0 ] );
-						// }
+						if( debug ) {
+							System.out.println( actualIndex + " skipped " + range[ 0 ] );
+						}
 						continue;
 					}
 
@@ -280,10 +280,10 @@ public class JoinMHIndex_Split {
 						cand_sum[ i ] += list.size();
 						++count_cand[ i ];
 
-						// if( debug ) {
-						// System.out.println( "qgram: " + qgram );
-						// System.out.println( "list: " + list );
-						// }
+						if( debug ) {
+							System.out.println( "qgram: " + qgram );
+							System.out.println( "list: " + list );
+						}
 
 						for( Record otherRecord : list ) {
 							int[] otherRange = null;
