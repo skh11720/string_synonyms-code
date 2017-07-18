@@ -2,7 +2,6 @@ package snu.kdd.synonym.synonymRev.data;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -169,6 +168,7 @@ public class Generator {
 		int len = (int) Math.max( 1, avgLength + random.nextGaussian() );
 		// 2. generate random string
 		int[] tokens = random( len );
+		System.out.println( Arrays.toString( tokens ) );
 		Record rec = new Record( tokens );
 		System.out.println( "Rec: " + rec.toString() );
 		return rec;
