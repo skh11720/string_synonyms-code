@@ -60,7 +60,7 @@ public class JoinMHIndex_Split {
 		for( Record rec : recordList ) {
 			// long recordStartTime = System.nanoTime();
 			boolean debug = false;
-			if( rec.getID() == 52157 ) {
+			if( rec.getID() == 252635 ) {
 				debug = true;
 			}
 
@@ -97,6 +97,11 @@ public class JoinMHIndex_Split {
 
 			for( int i = 0; i < indexPosition.length; i++ ) {
 				int actualIndex = indexPosition[ i ];
+
+				if( debug ) {
+					System.out.println( "Index: " + actualIndex );
+				}
+
 				if( availableQGrams.size() <= actualIndex ) {
 					continue;
 				}
