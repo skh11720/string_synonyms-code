@@ -14,6 +14,16 @@ ADDITIONAL="-K $k -qSize $qSize"
 
 ALG=JoinMin
 
+
+if [[ -f xmx.txt ]];
+then
+	xmx=`cat xmx.txt`
+else
+	echo 'Make file xmx.txt with memory size'
+	read -p "Press any key to continue..."
+fi
+
+
 if [[ $# -ne 11 ]];
 then
 	echo illegal number of parameters: [$ALG]
@@ -30,7 +40,7 @@ then
 	echo UPLOAD $UPLOAD
 else
 	echo $ALG with $ADDITIONAL logging in $logdir"/"$project\_$ALG\_$k\_$qSize
-	time java -Xmx8G -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
+	time java -Xmx$xmx -Xms4G -cp $LIBS snu.kdd.synonym.synonymRev.App \
 		-dataOnePath $inputfile_one -dataTwoPath $inputfile_two -rulePath $rulefile -outputPath $outputPath \
 		-algorithm $ALG -oneSideJoin $oneSide -upload $UPLOAD \
 		-additional "$ADDITIONAL" > $logdir"/"$project\_$ALG\_$k\_$qSize
