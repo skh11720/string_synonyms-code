@@ -7,8 +7,8 @@ dir=logs
 oneSide=$1
 UPLOAD=$2
 
-RUN_Naive=True
-#RUN_Naive=False
+#RUN_Naive=True
+RUN_Naive=False
 
 #RUN_NaiveSP=True
 RUN_NaiveSP=False
@@ -38,10 +38,10 @@ RUN_JoinBKSP=True
 RUN_DEBUG=False
 
 #IDS=( 8 )
-IDS=( 10 11 )
+#IDS=( 10 11 )
 #IDS=( 1 2 3 4 5 6 7 8 9 )
 #IDS=( 6 7 8 9 10 11 )
-#IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
+IDS=( 1 2 3 4 5 6 7 8 9 10 11 )
 for nId in ${IDS[@]};
 do
 	project=usps_sample_$nId
