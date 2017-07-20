@@ -87,6 +87,7 @@ public class JoinNaive extends AlgorithmTemplate {
 				idx.addStat( stat, "Counter_Join" );
 			}
 		}
+		stat.add( "idx_skipped_counter", idx.skippedCount );
 
 		return rslt;
 	}
