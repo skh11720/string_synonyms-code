@@ -115,8 +115,8 @@ if [[ $# -ne 18 ]];
 	#SIJoin
 	if [[ $RUN_JoinMHSP == "True" ]];
 	then
-		for ((k=MH_K_START;k<=MH_K_END;k++)); do
-			for ((q=MH_Q_START;q<=MH_Q_END;q++));do
+		for ((k=MHSP_K_START;k<=MHSP_K_END;k++)); do
+			for ((q=MHSP_Q_START;q<=MHSP_Q_END;q++));do
 
 				date
 				./joinMH.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide true $UPLOAD
