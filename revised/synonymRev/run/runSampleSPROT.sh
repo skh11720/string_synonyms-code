@@ -7,8 +7,8 @@ dir=logs
 oneSide=$1
 UPLOAD=$2
 
-#RUN_Naive=True
-RUN_Naive=False
+RUN_Naive=True
+#RUN_Naive=False
 
 #RUN_NaiveSP=True
 RUN_NaiveSP=False
@@ -42,10 +42,10 @@ IDS=( 1 2 3 4 5 6 7 8 9 )
 #IDS=( 6 7 8 9 )
 for nId in ${IDS[@]};
 do
-	project=usps_sample_$nId
+	project=sprot_sample_$nId
 
-	inputfile_one=data_store/sprot_sample/sprot_sample_$nId
-	inputfile_two=data_store/sprot_sample/sprot_sample_$nId
+	inputfile_one=data_store/sample_sprot/sample_sprot_$nId
+	inputfile_two=data_store/sample_sprot/sample_sprot_$nId
 	rulefile=data_store/sprot/rule.txt
 	outputPath=output
 
