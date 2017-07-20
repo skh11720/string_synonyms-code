@@ -34,6 +34,8 @@ public class NaiveIndex {
 	public double expandTime = 0;
 	public double searchTime = 0;
 
+	public int skippedCount = 0;
+
 	NaiveIndex( int initialSize ) {
 		if( initialSize < 10 ) {
 			initialSize = 10;
@@ -258,6 +260,7 @@ public class NaiveIndex {
 					if( query.selfJoin ) {
 						rslt.add( new IntegerPair( recS.getID(), recS.getID() ) );
 					}
+					skippedCount++;
 
 					continue;
 				}
