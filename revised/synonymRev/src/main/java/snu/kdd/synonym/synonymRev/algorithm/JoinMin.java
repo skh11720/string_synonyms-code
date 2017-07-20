@@ -111,13 +111,11 @@ public class JoinMin extends AlgorithmTemplate {
 		rslt = idx.joinMaxK( indexK, writeResult, stat, checker, query );
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
+			stat.addMemory( "Mem_4_Joined" );
 		}
 
 		if( DEBUG.JoinMinON ) {
 			if( writeResult ) {
-
-				stat.addMemory( "Mem_4_Joined" );
-
 				stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
 				stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
 
