@@ -391,9 +391,9 @@ public class JoinMinIndex {
 			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
 
 			long executionTime = System.currentTimeMillis() - startTime;
-			if( executionTime > 0 ) {
-				Util.printLog( recS.getID() + " processed " + executionTime );
-			}
+			// if( executionTime > 0 ) {
+			// Util.printLog( recS.getID() + " processed " + executionTime );
+			// }
 		}
 		joinTime = System.nanoTime() - joinStartTime;
 
