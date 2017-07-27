@@ -386,11 +386,11 @@ public class JoinMinIndex {
 
 		long joinStartTime = System.nanoTime();
 		for( Record recS : query.searchedSet.get() ) {
-			long startTime = System.currentTimeMillis();
+			// long startTime = System.currentTimeMillis();
 
 			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
 
-			long executionTime = System.currentTimeMillis() - startTime;
+			// long executionTime = System.currentTimeMillis() - startTime;
 			// if( executionTime > 0 ) {
 			// Util.printLog( recS.getID() + " processed " + executionTime );
 			// }
