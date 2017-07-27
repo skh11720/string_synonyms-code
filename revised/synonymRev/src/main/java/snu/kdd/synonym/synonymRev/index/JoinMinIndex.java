@@ -332,6 +332,10 @@ public class JoinMinIndex {
 				stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
 			}
 		}
+
+		for( Object2IntOpenHashMap<QGram> in : invokes ) {
+			in.clear();
+		}
 	}
 
 	public void setIndex( int position ) {
