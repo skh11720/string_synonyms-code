@@ -377,11 +377,11 @@ public class JoinMHIndex {
 			long executionTime = System.currentTimeMillis() - startTime;
 
 			if( candidates.size() > 10 ) {
-				Util.printLog( recS.getID() + " compared " + candidates.size() );
+				System.out.println( recS.getID() + " compared " + candidates.size() );
 			}
 
 			if( executionTime > 2 ) {
-				Util.printLog( recS.getID() + " processed " + executionTime );
+				System.out.println( recS.getID() + " processed " + executionTime );
 			}
 
 		}
