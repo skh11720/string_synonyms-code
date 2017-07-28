@@ -380,9 +380,9 @@ public class JoinMHIndex {
 				System.out.println( recS.getID() + " compared " + candidates.size() );
 			}
 
-			if( executionTime > 2 ) {
-				System.out.println( recS.getID() + " processed " + executionTime );
-			}
+			// if( executionTime > 2 ) {
+			// System.out.println( recS.getID() + " processed " + executionTime );
+			// }
 
 		}
 
