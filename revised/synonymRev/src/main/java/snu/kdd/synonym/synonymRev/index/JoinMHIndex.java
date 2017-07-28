@@ -375,9 +375,15 @@ public class JoinMHIndex {
 			equivTime.stopQuiet();
 
 			long executionTime = System.currentTimeMillis() - startTime;
-			if( executionTime > 100 ) {
+
+			if( candidates.size() > 10 ) {
+				Util.printLog( recS.getID() + " compared " + candidates.size() );
+			}
+
+			if( executionTime > 2 ) {
 				Util.printLog( recS.getID() + " processed " + executionTime );
 			}
+
 		}
 
 		stat.add( "Stat_Equiv_Comparison", count );
