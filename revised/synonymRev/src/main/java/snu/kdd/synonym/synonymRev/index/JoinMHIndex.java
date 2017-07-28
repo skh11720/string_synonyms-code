@@ -374,12 +374,12 @@ public class JoinMHIndex {
 			}
 			equivTime.stopQuiet();
 
-			long executionTime = System.currentTimeMillis() - startTime;
+			// long executionTime = System.currentTimeMillis() - startTime;
 
-			if( candidates.size() > 100 ) {
-				System.out.println( recS.getID() + " compared " );
-				System.out.println(  candidates.size() );
-			}
+			// if( candidates.size() > 100 ) {
+			// System.out.println( recS.getID() + " compared " );
+			// System.out.println( candidates.size() );
+			// }
 
 			// if( executionTime > 2 ) {
 			// System.out.println( recS.getID() + " processed " + executionTime );
