@@ -376,7 +376,7 @@ public class JoinMHIndex {
 
 			long executionTime = System.currentTimeMillis() - startTime;
 
-			if( candidates.size() > 10 ) {
+			if( candidates.size() > 100 ) {
 				System.out.println( recS.getID() + " compared " + candidates.size() );
 			}
 
