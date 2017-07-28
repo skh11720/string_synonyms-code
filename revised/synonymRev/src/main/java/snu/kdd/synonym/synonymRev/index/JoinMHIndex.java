@@ -270,7 +270,7 @@ public class JoinMHIndex {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
-			// long startTime = System.currentTimeMillis();
+			long startTime = System.currentTimeMillis();
 			// boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord( sid );
@@ -374,10 +374,10 @@ public class JoinMHIndex {
 			}
 			equivTime.stopQuiet();
 
-			// long executionTime = System.currentTimeMillis() - startTime;
-			// if( executionTime > 0 ) {
-			// Util.printLog( recS.getID() + " processed " + executionTime );
-			// }
+			long executionTime = System.currentTimeMillis() - startTime;
+			if( executionTime > 100 ) {
+				Util.printLog( recS.getID() + " processed " + executionTime );
+			}
 		}
 
 		stat.add( "Stat_Equiv_Comparison", count );
