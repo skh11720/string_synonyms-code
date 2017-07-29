@@ -372,9 +372,9 @@ public class Record implements Comparable<Record> {
 
 	public List<List<QGram>> getQGrams( int q ) {
 		getQGramCount++;
-		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
-
 		int maxLength = getMaxTransLength();
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>( maxLength );
+
 		for( int i = 0; i < maxLength; i++ ) {
 			positionalQGram.add( new ArrayList<QGram>( 30 ) );
 		}
@@ -429,7 +429,7 @@ public class Record implements Comparable<Record> {
 			}
 		}
 
-		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
+		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>( getMaxTransLength() );
 
 		int maxSize = 0;
 		for( int i = 0; i < maxLength; i++ ) {
@@ -463,10 +463,9 @@ public class Record implements Comparable<Record> {
 	}
 
 	public List<List<QGram>> getQGrams( int q, int range ) {
-
-		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>( getMaxTransLength() );
-
 		int maxLength = Integer.min( range, getMaxTransLength() );
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>( maxLength );
+
 		for( int i = 0; i < maxLength; i++ ) {
 			positionalQGram.add( new ArrayList<QGram>( 30 ) );
 		}
@@ -490,7 +489,6 @@ public class Record implements Comparable<Record> {
 				continue;
 			}
 
-			// try {
 			for( int r = 0; r < rules.length; r++ ) {
 				Rule startRule = rules[ r ];
 
@@ -535,8 +533,6 @@ public class Record implements Comparable<Record> {
 			}
 		}
 
-		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>();
-
 		int maxSize = 0;
 		for( int i = 0; i < maxLength; i++ ) {
 			int size = positionalQGram.get( i ).size();
@@ -545,6 +541,7 @@ public class Record implements Comparable<Record> {
 			}
 		}
 
+		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>( maxLength );
 		WYK_HashSet<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
 
 		for( int i = 0; i < positionalQGram.size(); i++ ) {
