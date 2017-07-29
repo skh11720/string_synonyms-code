@@ -464,7 +464,7 @@ public class Record implements Comparable<Record> {
 
 	public List<List<QGram>> getQGrams( int q, int range ) {
 
-		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>();
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>( getMaxTransLength() );
 
 		int maxLength = Integer.min( range, getMaxTransLength() );
 		for( int i = 0; i < maxLength; i++ ) {
