@@ -116,6 +116,9 @@ public class JoinMHIndex {
 			}
 			long afterIndexing = System.currentTimeMillis();
 
+			if( afterQGram - recordStartTime > 0 ) {
+				System.out.println( "rec: " + rec.getID() + " q: " + ( afterQGram - recordStartTime ) );
+			}
 			qGramTime += afterQGram - recordStartTime;
 			indexingTime += afterIndexing - afterQGram;
 		}
