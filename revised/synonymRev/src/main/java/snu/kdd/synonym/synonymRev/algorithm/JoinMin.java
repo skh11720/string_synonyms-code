@@ -144,24 +144,19 @@ public class JoinMin extends AlgorithmTemplate {
 		qSize = params.qgramSize;
 		indexK = params.indexK;
 
-		StopWatch preprocessTime = null;
-		if( DEBUG.JoinMinON ) {
-			preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		}
+		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+
 		preprocess();
 
-		if( DEBUG.JoinMinON ) {
-			preprocessTime.stopAndAdd( stat );
+		preprocessTime.stopAndAdd( stat );
 
-			stat.addMemory( "Mem_2_Preprocessed" );
-			preprocessTime.resetAndStart( "Result_3_Run_Time" );
-		}
+		stat.addMemory( "Mem_2_Preprocessed" );
+		preprocessTime.resetAndStart( "Result_3_Run_Time" );
 
 		runWithoutPreprocess( true );
 
-		if( DEBUG.JoinMinON ) {
-			preprocessTime.stopAndAdd( stat );
-		}
+		preprocessTime.stopAndAdd( stat );
+
 		checker.addStat( stat );
 	}
 

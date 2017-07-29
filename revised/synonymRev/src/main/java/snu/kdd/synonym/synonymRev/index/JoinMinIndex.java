@@ -181,13 +181,11 @@ public class JoinMinIndex {
 
 		starttime = System.nanoTime();
 
-		if( DEBUG.JoinMinON ) {
-			if( writeResult ) {
-				stepTime.stopAndAdd( stat );
-			}
-			else {
-				stepTime.stop();
-			}
+		if( writeResult ) {
+			stepTime.stopAndAdd( stat );
+		}
+		else {
+			stepTime.stop();
 		}
 
 		BufferedWriter bw_index = null;
@@ -288,6 +286,13 @@ public class JoinMinIndex {
 		this.indexTime = System.nanoTime() - starttime;
 		this.delta = this.indexTime / this.indexedTotalSigCount;
 
+		if( writeResult ) {
+			stepTime.stopAndAdd( stat );
+		}
+		else {
+			stepTime.stop();
+		}
+
 		if( DEBUG.JoinMinON ) {
 			Util.printLog( "Idx size : " + indexedElements );
 			Util.printLog( "Predict : " + this.predictCount );
@@ -300,19 +305,6 @@ public class JoinMinIndex {
 
 				stat.add( "Est_Index_2_Build_Index_Time", this.indexTime );
 				stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( this.delta ) );
-				stepTime.stopAndAdd( stat );
-			}
-			else {
-				stepTime.stop();
-			}
-
-			stepTime.resetAndStart( "Result_3_3_Statistic Time" );
-
-			if( writeResult ) {
-				stepTime.stopAndAdd( stat );
-			}
-			else {
-				stepTime.stop();
 			}
 		}
 
@@ -325,12 +317,10 @@ public class JoinMinIndex {
 			}
 		}
 
-		if( DEBUG.JoinMinON ) {
-			if( writeResult ) {
-				this.addStat( stat );
-				stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
-				stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
-			}
+		if( writeResult ) {
+			this.addStat( stat );
+			stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
+			stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
 		}
 
 		for( Object2IntOpenHashMap<QGram> in : invokes ) {
