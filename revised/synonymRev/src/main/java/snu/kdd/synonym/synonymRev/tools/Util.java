@@ -83,6 +83,28 @@ public class Util {
 		System.err.println( new String( new char[ index.length() ] ).replace( "\0", "=" ) );
 	}
 
+	public static void printGCStats() {
+		long totalGarbageCollections = 0;
+		long garbageCollectionTime = 0;
+
+		for( GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans() ) {
+
+			long count = gc.getCollectionCount();
+
+			if( count >= 0 ) {
+				totalGarbageCollections += count;
+			}
+
+			long time = gc.getCollectionTime();
+
+			if( time >= 0 ) {
+				garbageCollectionTime += time;
+			}
+		}
+		printLog( "Total Garbage Collections: " + totalGarbageCollections );
+		printLog( "Total Garbage Collection Time (ms): " + garbageCollectionTime );
+	}
+
 	public static void printGCStats( StatContainer stat ) {
 		long totalGarbageCollections = 0;
 		long garbageCollectionTime = 0;
@@ -101,9 +123,6 @@ public class Util {
 				garbageCollectionTime += time;
 			}
 		}
-
-		printLog( "Total Garbage Collections: " + totalGarbageCollections );
-		printLog( "Total Garbage Collection Time (ms): " + garbageCollectionTime );
 
 		stat.add( "Stat_Garbage_Collections", totalGarbageCollections );
 		stat.add( "Stat_Garbage_Collections_Time", garbageCollectionTime );
