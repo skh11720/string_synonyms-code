@@ -69,7 +69,7 @@ public class JoinMHIndex {
 
 		for( Record rec : indexedSet ) {
 
-			long recordStartTime = System.nanoTime();
+			long recordStartTime = System.currentTimeMillis();
 			List<List<QGram>> availableQGrams = null;
 			if( !query.oneSideJoin ) {
 				availableQGrams = rec.getQGrams( qgramSize, maxPosition + 1 );
