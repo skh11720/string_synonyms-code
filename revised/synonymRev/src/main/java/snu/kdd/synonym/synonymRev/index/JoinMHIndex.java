@@ -121,11 +121,10 @@ public class JoinMHIndex {
 		}
 		stat.add( "Result_3_1_1_qGramTime", qGramTime );
 		stat.add( "Result_3_1_2_indexingTime", indexingTime );
+		stat.add( "Stat_Index_Size", elements );
 
 		if( DEBUG.JoinMHIndexON ) {
 			if( addStat ) {
-				stat.add( "Stat_Index_Size", elements );
-
 				// computes the statistics of the indexes
 				String indexStr = "";
 				for( int i = 0; i < indexK; ++i ) {
