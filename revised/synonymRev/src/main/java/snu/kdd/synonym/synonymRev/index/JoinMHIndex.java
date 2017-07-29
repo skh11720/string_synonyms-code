@@ -64,6 +64,7 @@ public class JoinMHIndex {
 			joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>( query.indexedSet.size() ) );
 		}
 
+		Util.printGCStats();
 		long qGramTime = 0;
 		long indexingTime = 0;
 
@@ -122,7 +123,7 @@ public class JoinMHIndex {
 			qGramTime += afterQGram - recordStartTime;
 			indexingTime += afterIndexing - afterQGram;
 		}
-
+		Util.printGCStats();
 		stat.add( "Result_3_1_1_qGramTime", qGramTime );
 		stat.add( "Result_3_1_2_indexingTime", indexingTime );
 
