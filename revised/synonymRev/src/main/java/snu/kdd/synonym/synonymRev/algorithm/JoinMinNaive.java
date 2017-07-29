@@ -8,7 +8,11 @@ import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
+import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
+import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.validator.Validator;
 
 /**
  * Given threshold, if a record has more than 'threshold' 1-expandable strings,
@@ -22,29 +26,26 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 public class JoinMinNaive extends AlgorithmTemplate {
 	public JoinMinNaive( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
-		// TODO Auto-generated constructor stub
 	}
 
-	// static boolean useAutomata = true;
-	// static boolean skipChecking = false;
-	// static int maxIndex = Integer.MAX_VALUE;
-	// static boolean compact = false;
-	// // static boolean singleside;
-	// static Validator checker;
-	//
-	// private int qSize = -1;
-	//
+	public Validator checker;
+	SampleEstimate estimate;
+	private int qSize = 0;
+	private int indexK = 0;
+
 	// int joinThreshold = 0;
-	//
-	// SampleEstimate estimate;
-	//
+
 	// private boolean joinMinRequired = true;
-	//
-	// /**
-	// * List of 1-expandable strings
-	// */
-	// NaiveIndex naiveIndex;
-	// JoinMinIndex joinMinIdx;
+
+	NaiveIndex naiveIndex;
+	JoinMinIndex joinMinIdx;
+
+	@Override
+	public void run( Query query, String[] args ) throws IOException, ParseException {
+		// TODO Auto-generated method stub
+
+	}
+
 	// /**
 	// * Estimated number of comparisons
 	// */
@@ -387,22 +388,17 @@ public class JoinMinNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMinNaive";
+		return "MinNaive";
 	}
 
-	class Directory {
-		List<Record> list;
-		int SHsize;
+	// class Directory {
+	// List<Record> list;
+	// int SHsize;
+	//
+	// Directory() {
+	// list = new ArrayList<Record>();
+	// SHsize = 0;
+	// }
+	// }
 
-		Directory() {
-			list = new ArrayList<Record>();
-			SHsize = 0;
-		}
-	}
-
-	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// TODO Auto-generated method stub
-		
-	}
 }

@@ -41,6 +41,7 @@ public class JoinMHIndex {
 			throw new RuntimeException( "The length of indexPosition should match indexK" );
 		}
 
+		// indexed count list keeps the number of positions of a record to be used to join
 		if( useIndexCount ) {
 			indexedCountList = new Object2IntOpenHashMap<Record>();
 		}
@@ -52,20 +53,23 @@ public class JoinMHIndex {
 			}
 		}
 
+		// one WKY_HashMap per position
 		this.joinMHIndex = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 
 		@SuppressWarnings( "unused" )
 		long elements = 0;
 
 		for( int i = 0; i < indexK; ++i ) {
+			// initialize with indexedSet size
 			joinMHIndex.add( new WYK_HashMap<QGram, List<Record>>( query.indexedSet.size() ) );
 		}
 
+		long qGramTime = 0;
+		long indexingTime = 0;
+
 		for( Record rec : indexedSet ) {
-			// boolean debug = rec.getID() == 4145;
 
-			// long recordStartTime = System.nanoTime();
-
+			long recordStartTime = System.nanoTime();
 			List<List<QGram>> availableQGrams = null;
 			if( !query.oneSideJoin ) {
 				availableQGrams = rec.getQGrams( qgramSize, maxPosition + 1 );
@@ -73,6 +77,7 @@ public class JoinMHIndex {
 			else {
 				availableQGrams = rec.getSelfQGrams( qgramSize, maxPosition + 1 );
 			}
+			long afterQGram = System.currentTimeMillis();
 
 			int indexedCount = 0;
 			int[] range = rec.getTransLengths();
@@ -109,12 +114,18 @@ public class JoinMHIndex {
 				}
 				elements += availableQGrams.get( actualIndex ).size();
 			}
+			long afterIndexing = System.currentTimeMillis();
+
+			qGramTime += afterQGram - recordStartTime;
+			indexingTime += afterIndexing - afterQGram;
 		}
+
+		stat.add( "Result_3_1_1_qGramTime", qGramTime );
+		stat.add( "Result_3_1_2_indexingTime", indexingTime );
 
 		if( DEBUG.JoinMHIndexON ) {
 			if( addStat ) {
 				stat.add( "Stat_Index_Size", elements );
-				System.out.println( "Index size : " + elements );
 
 				// computes the statistics of the indexes
 				String indexStr = "";
@@ -270,7 +281,7 @@ public class JoinMHIndex {
 		}
 
 		for( int sid = 0; sid < query.searchedSet.size(); sid++ ) {
-			long startTime = System.currentTimeMillis();
+			// long startTime = System.currentTimeMillis();
 			// boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord( sid );
