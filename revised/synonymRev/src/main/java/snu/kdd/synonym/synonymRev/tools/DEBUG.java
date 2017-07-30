@@ -9,10 +9,10 @@ public class DEBUG {
 	public static final boolean NaiveON = false;
 
 	public static final boolean JoinMHIndexON = false;
-	public static final boolean JoinMinIndexON = false;
+	public static final boolean JoinMinIndexON = true;
 
 	public static final boolean PrintNaiveIndexON = false;
-	public static final boolean PrintJoinMinIndexON = false;
+	public static final boolean PrintJoinMinIndexON = true;
 	public static final boolean PrintJoinMinJoinON = false;
 
 	public static final boolean ValidateON = false;
