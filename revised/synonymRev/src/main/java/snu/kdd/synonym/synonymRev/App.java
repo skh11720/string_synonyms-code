@@ -114,6 +114,7 @@ public class App {
 			break;
 		case JoinMinRange:
 			alg = new JoinMinRange( query, stat );
+			break;
 		case JoinMinNaive:
 			alg = new JoinMinNaive( query, stat );
 			break;
