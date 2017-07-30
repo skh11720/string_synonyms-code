@@ -7,6 +7,7 @@ import java.util.Stack;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramEntry;
+import snu.kdd.synonym.synonymRev.tools.QGramWithRange;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
@@ -460,6 +461,64 @@ public class Record implements Comparable<Record> {
 		// WYK_HashSet.DEBUG = false;
 
 		return resultQGram;
+	}
+
+	public List<QGramWithRange> getQGramWithRange( int q ) {
+		getQGramCount++;
+		int maxLength = getMaxTransLength();
+		List<QGramWithRange> positionalQGram = new ArrayList<QGramWithRange>( maxLength );
+
+		for( int t = 0; t < tokens.length; t++ ) {
+			Rule[] rules = applicableRules[ t ];
+
+			int minIndex;
+			int maxIndex;
+
+			if( t == 0 ) {
+				minIndex = 0;
+				maxIndex = 0;
+			}
+			else {
+				minIndex = transformLengths[ t - 1 ][ 0 ];
+				maxIndex = transformLengths[ t - 1 ][ 1 ];
+			}
+
+			// try {
+			for( int r = 0; r < rules.length; r++ ) {
+				Rule startRule = rules[ r ];
+
+				Stack<QGramEntry> stack = new Stack<QGramEntry>();
+
+				stack.add( new QGramEntry( q, startRule, t ) );
+
+				while( !stack.isEmpty() ) {
+					QGramEntry entry = stack.pop();
+
+					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
+						entry.generateQGramWithRange( q, positionalQGram, minIndex, maxIndex );
+					}
+					else {
+						if( entry.rightMostIndex < tokens.length ) {
+							// append
+
+							entry.generateQGramWithRange( q, positionalQGram, minIndex, maxIndex );
+
+							for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+								stack.add( new QGramEntry( entry, nextRule ) );
+							}
+
+						}
+						else {
+							// add EOF
+							entry.eof = true;
+							entry.generateQGramWithRange( q, positionalQGram, minIndex, maxIndex );
+						}
+					}
+				}
+			}
+		}
+
+		return positionalQGram;
 	}
 
 	public List<List<QGram>> getQGrams( int q, int range ) {

@@ -56,7 +56,6 @@ public class JoinMHIndex {
 		// one WKY_HashMap per position
 		this.joinMHIndex = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 
-		@SuppressWarnings( "unused" )
 		long elements = 0;
 
 		for( int i = 0; i < indexK; ++i ) {

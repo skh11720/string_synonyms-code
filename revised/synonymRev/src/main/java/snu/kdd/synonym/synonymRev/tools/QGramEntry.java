@@ -121,6 +121,68 @@ public class QGramEntry {
 		builtPosition = i;
 	}
 
+	public void generateQGramWithRange( int q, List<QGramWithRange> qgrams, int min, int max ) {
+		if( !eof && length < q ) {
+			return;
+		}
+
+		Rule firstRule = ruleList[ 0 ];
+
+		int[] to = firstRule.getRight();
+		int firstRuleToSize = to.length;
+
+		int lastSize;
+
+		if( eof ) {
+			lastSize = firstRuleToSize;
+		}
+		else {
+			lastSize = Integer.min( length - q + 1, firstRuleToSize );
+		}
+
+		int i = builtPosition;
+		for( ; i < lastSize; i++ ) {
+
+			int[] qgram = new int[ q ];
+			int idx = 0;
+			boolean stop = false;
+
+			// set first rule part
+			for( int p = i; p < firstRuleToSize; p++ ) {
+				qgram[ idx++ ] = to[ p ];
+				if( idx == q ) {
+					addQGramWithRange( new QGram( qgram ), qgrams, min, max, i );
+					stop = true;
+					break;
+				}
+			}
+
+			for( int r = 1; !stop && r < ruleList.length; r++ ) {
+				Rule otherRule = ruleList[ r ];
+
+				int[] otherRuleTo = otherRule.getRight();
+				int otherRuleToSize = otherRuleTo.length;
+
+				for( int p = 0; p < otherRuleToSize; p++ ) {
+					qgram[ idx++ ] = otherRuleTo[ p ];
+					if( idx == q ) {
+						addQGramWithRange( new QGram( qgram ), qgrams, min, max, i );
+						stop = true;
+						break;
+					}
+				}
+			}
+
+			if( !stop ) {
+				for( ; idx < q; idx++ ) {
+					qgram[ idx ] = Integer.MAX_VALUE;
+				}
+				addQGramWithRange( new QGram( qgram ), qgrams, min, max, i );
+			}
+		}
+		builtPosition = i;
+	}
+
 	// range : inclusive
 	public void generateQGram( int q, List<List<QGram>> qgrams, int min, int max, int range ) {
 		if( !eof && length < q ) {
@@ -283,5 +345,12 @@ public class QGramEntry {
 		for( int p = iterMinIndex; p <= iterMaxIndex; p++ ) {
 			qgrams.get( p ).add( qgram );
 		}
+	}
+
+	public void addQGramWithRange( QGram qgram, List<QGramWithRange> qgrams, int min, int max, int i ) {
+		int iterMinIndex = min + i;
+		int iterMaxIndex = max + i;
+
+		qgrams.add( new QGramWithRange( qgram, iterMinIndex, iterMaxIndex ) );
 	}
 }
