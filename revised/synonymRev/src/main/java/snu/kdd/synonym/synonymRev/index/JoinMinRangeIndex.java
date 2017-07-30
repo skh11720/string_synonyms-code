@@ -335,12 +335,6 @@ public class JoinMinRangeIndex {
 			for( int i = 0; i < countPerPosition.size(); i++ ) {
 				stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
 			}
-
-			for( int i = 0; i < idx.size(); i++ ) {
-				if( idx.get( i ).size() != 0 ) {
-					stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
-				}
-			}
 		}
 	}
 
