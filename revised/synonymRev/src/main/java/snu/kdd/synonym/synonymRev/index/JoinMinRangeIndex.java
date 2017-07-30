@@ -92,6 +92,10 @@ public class JoinMinRangeIndex {
 		this.idx = new WYK_HashMap<QGram, List<RecordInt>>();
 		this.qSize = qSize;
 
+		if( DEBUG.JoinMinIndexON ) {
+			this.countPerPosition = new ArrayList<Integer>();
+		}
+		
 		long starttime = System.nanoTime();
 
 		// Build an index
