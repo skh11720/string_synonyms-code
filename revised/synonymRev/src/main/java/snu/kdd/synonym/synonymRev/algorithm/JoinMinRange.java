@@ -174,11 +174,11 @@ public class JoinMinRange extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.0";
+		return "1.0";
 	}
 
 	@Override
 	public String getName() {
-		return "JoinMin";
+		return "JoinMinRange";
 	}
 }
