@@ -670,4 +670,48 @@ public class Record implements Comparable<Record> {
 
 		return positionalQGram;
 	}
+
+	public List<QGramWithRange> getSelfQGramsWithRange( int q ) {
+		getQGramCount++;
+		List<QGramWithRange> positionalQGram = new ArrayList<QGramWithRange>();
+
+		int maxLength = tokens.length;
+
+		int i = 0;
+		for( ; i < tokens.length - q + 1; i++ ) {
+
+			if( i >= maxLength )
+				break;
+
+			int[] qgramArray = new int[ q ];
+
+			for( int j = 0; j < q; j++ ) {
+				qgramArray[ j ] = tokens[ i + j ];
+			}
+
+			QGram qgram = new QGram( qgramArray );
+			QGramWithRange qgramRange = new QGramWithRange( qgram, i, i );
+
+			positionalQGram.add( qgramRange );
+		}
+
+		for( ; i < maxLength; i++ ) {
+			int[] qgramArray = new int[ q ];
+			for( int j = 0; j < q; j++ ) {
+				if( i + j < tokens.length ) {
+					qgramArray[ j ] = tokens[ i + j ];
+				}
+				else {
+					qgramArray[ j ] = Integer.MAX_VALUE;
+				}
+			}
+
+			QGram qgram = new QGram( qgramArray );
+			QGramWithRange qgramRange = new QGramWithRange( qgram, i, i );
+
+			positionalQGram.add( qgramRange );
+		}
+
+		return positionalQGram;
+	}
 }
