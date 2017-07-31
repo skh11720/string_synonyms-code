@@ -238,6 +238,7 @@ public class QGramEntry {
 					int otherRuleToSize = otherRuleTo.length;
 
 					for( int p = 0; p < otherRuleToSize; p++ ) {
+						System.out.println( idx );
 						qgram[ idx++ ] = otherRuleTo[ p ];
 						if( idx == q ) {
 							addQGram( new QGram( qgram ), qgrams, min, max, i, range );
