@@ -390,5 +390,9 @@ public class QGramEntry {
 
 		QGramRange qgramRange = new QGramRange( qgram, mergeMin, mergeMax );
 		list.add( qgramRange );
+		
+		for( QGramRange qr : list ) {
+			System.out.println( "  list" +  qr.qgram + " [" + qr.min + ", " + qr.max + "]" );
+		}
 	}
 }
