@@ -360,8 +360,6 @@ public class QGramEntry {
 		int mergeMin = iterMinIndex;
 		int mergeMax = iterMaxIndex;
 
-		System.out.println( "Gen " + qgram + " at [" + iterMinIndex + ", " + iterMaxIndex + "]" );
-
 		if( list != null ) {
 			// merge with existing entities
 			Iterator<QGramRange> iter = list.iterator();
@@ -371,8 +369,6 @@ public class QGramEntry {
 				if( ( iterMinIndex > otherRange.max ) || ( iterMaxIndex < otherRange.min ) ) {
 					continue;
 				}
-
-				System.out.println( "Merge " + qgram + " with [" + otherRange.min + ", " + otherRange.max + "]" );
 
 				if( otherRange.max > mergeMax ) {
 					mergeMax = otherRange.max;
@@ -389,13 +385,7 @@ public class QGramEntry {
 			qgramsMap.put( qgram, list );
 		}
 
-		System.out.println( "Adding " + qgram + " with [" + mergeMin + ", " + mergeMax + "]" );
-
 		QGramRange qgramRange = new QGramRange( qgram, mergeMin, mergeMax );
 		list.add( qgramRange );
-
-		for( QGramRange qr : list ) {
-			System.out.println( "  list " + qr.qgram + " [" + qr.min + ", " + qr.max + "]" );
-		}
 	}
 }
