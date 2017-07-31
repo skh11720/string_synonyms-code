@@ -501,8 +501,7 @@ public class Record implements Comparable<Record> {
 					}
 					else {
 						if( entry.rightMostIndex < tokens.length ) {
-							// append
-							entry.generateQGramWithRange( q, positionalQGram, minIndex, maxIndex );
+							// append more rules
 
 							for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
 								stack.add( new QGramEntry( entry, nextRule ) );

@@ -174,8 +174,8 @@ public class GuiMain extends JFrame {
 				// String sample = sampleTextField.getText();
 				// arg = arg + " -algorithm DebugAlg -additional";
 				// additional = "-compact -v TopDownHashSetSinglePathDS 0 -s " + sample;
-				arg = arg + " -algorithm JoinMinTwo -additional";
-				additional = "-qSize 2 -v TopDownHashSetSinglePathDS 0";
+				arg = arg + " -algorithm JoinMinRange -additional";
+				additional = "-K 1 -qSize 2";
 			}
 			else if( command.equals( "JoinMin" ) ) {
 				arg = arg + " -algorithm JoinMin -additional";
