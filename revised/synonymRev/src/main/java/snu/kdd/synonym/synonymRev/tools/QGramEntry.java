@@ -360,7 +360,7 @@ public class QGramEntry {
 		int mergeMin = iterMinIndex;
 		int mergeMax = iterMaxIndex;
 
-		System.out.println( "Gen " + qgram + " at [" + min + ", " + max + "]" );
+		System.out.println( "Gen " + qgram + " at [" + iterMinIndex + ", " + iterMaxIndex + "]" );
 
 		if( list != null ) {
 			// merge with existing entities
@@ -368,9 +368,7 @@ public class QGramEntry {
 			while( iter.hasNext() ) {
 				QGramRange otherRange = iter.next();
 
-				System.out.println( "Existing " + qgram + " with [" + otherRange.min + ", " + otherRange.max + "]" );
-				if( ( min > otherRange.max ) || ( max < otherRange.min ) ) {
-					System.out.println( "Skipped " + ( min > otherRange.max ) + " " + ( max < otherRange.min ) );
+				if( ( iterMinIndex > otherRange.max ) || ( iterMaxIndex < otherRange.min ) ) {
 					continue;
 				}
 
