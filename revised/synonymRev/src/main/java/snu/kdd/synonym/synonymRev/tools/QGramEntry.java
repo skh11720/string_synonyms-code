@@ -1,5 +1,6 @@
 package snu.kdd.synonym.synonymRev.tools;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -123,7 +124,7 @@ public class QGramEntry {
 		builtPosition = i;
 	}
 
-	public void generateQGramWithRange( int q, Object2ObjectOpenHashMap<QGram,List<QGramRange>> qgrams, int min, int max ) {
+	public void generateQGramWithRange( int q, Object2ObjectOpenHashMap<QGram, List<QGramRange>> qgrams, int min, int max ) {
 		if( !eof && length < q ) {
 			return;
 		}
@@ -356,27 +357,32 @@ public class QGramEntry {
 
 		List<QGramRange> list = qgramsMap.get( qgram );
 
-		Iterator<QGramRange> iter = list.iterator();
-
 		int mergeMin = iterMinIndex;
 		int mergeMax = iterMaxIndex;
-		while( iter.hasNext() ) {
-			QGramRange otherRange = iter.next();
-			if( min > otherRange.max || max < otherRange.min ) {
-				continue;
-			}
 
-			if( otherRange.max > mergeMax ) {
-				mergeMax = otherRange.max;
+		if( list != null ) {
+			Iterator<QGramRange> iter = list.iterator();
+			while( iter.hasNext() ) {
+				QGramRange otherRange = iter.next();
+				if( min > otherRange.max || max < otherRange.min ) {
+					continue;
+				}
+
+				if( otherRange.max > mergeMax ) {
+					mergeMax = otherRange.max;
+				}
+				if( otherRange.min < mergeMin ) {
+					mergeMin = otherRange.min;
+				}
+				iter.remove();
 			}
-			if( otherRange.min < mergeMin ) {
-				mergeMin = otherRange.min;
-			}
-			iter.remove();
+		}
+		else {
+			list = new ArrayList<QGramRange>();
+			qgramsMap.put( qgram, list );
 		}
 
 		QGramRange qgramRange = new QGramRange( qgram, mergeMin, mergeMax );
-
 		list.add( qgramRange );
 	}
 }
