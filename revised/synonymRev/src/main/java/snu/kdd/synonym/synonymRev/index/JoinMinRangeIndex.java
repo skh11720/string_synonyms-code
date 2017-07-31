@@ -153,8 +153,8 @@ public class JoinMinRangeIndex {
 
 			if( DEBUG.JoinMinIndexON ) {
 				try {
-					bw_debug_count.write( recordMidTime - recordStartTime + " " );
 					bw_debug_count.write( qgramCount + " " );
+					bw_debug_count.write( recordMidTime - recordStartTime + " " );
 					bw_debug_count.write( "\n" );
 				}
 				catch( IOException e ) {

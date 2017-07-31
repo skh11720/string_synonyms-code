@@ -144,8 +144,8 @@ public class JoinMinIndex {
 
 			if( DEBUG.JoinMinIndexON ) {
 				try {
-					bw.write( recordMidTime - recordStartTime + " " );
 					bw.write( qgramCount + " " );
+					bw.write( recordMidTime - recordStartTime + " " );
 					bw.write( "\n" );
 				}
 				catch( IOException e ) {
