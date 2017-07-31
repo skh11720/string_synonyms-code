@@ -246,6 +246,10 @@ public class JoinMinRangeIndex {
 				}
 			}
 
+			for( int i = 0; i < searchmax; i++ ) {
+				mpq.add( i, positionalCount[ i ] );
+			}
+
 			this.predictCount += mpq.minInvokes;
 
 			int indexedCount = 0;
