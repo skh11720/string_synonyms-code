@@ -176,7 +176,7 @@ public class JoinMinIndex {
 
 						QGram q = entry.getKey();
 						int c = entry.getIntValue();
-						bw.write( "Inv: " + q + " " + c + "\n" );
+						bw.write( "Inv: " + q + " " + i + "=>" + c + "\n" );
 					}
 				}
 
