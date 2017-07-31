@@ -2,8 +2,11 @@ package snu.kdd.synonym.synonymRev.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Stack;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramEntry;
@@ -466,7 +469,7 @@ public class Record implements Comparable<Record> {
 	public List<QGramRange> getQGramRange( int q ) {
 		getQGramCount++;
 		int maxLength = getMaxTransLength();
-		List<QGramRange> positionalQGram = new ArrayList<QGramRange>( maxLength );
+		Object2ObjectOpenHashMap<QGram, List<QGramRange>> positionalQGram = new Object2ObjectOpenHashMap<>();
 
 		for( int t = 0; t < tokens.length; t++ ) {
 			Rule[] rules = applicableRules[ t ];
@@ -518,7 +521,13 @@ public class Record implements Comparable<Record> {
 			}
 		}
 
-		return positionalQGram;
+		ArrayList<QGramRange> resultList = new ArrayList<>();
+		ObjectIterator<Entry<QGram, List<QGramRange>>> iter = positionalQGram.entrySet().iterator();
+		while( iter.hasNext() ) {
+			resultList.addAll( iter.next().getValue() );
+		}
+
+		return resultList;
 	}
 
 	public List<List<QGram>> getQGrams( int q, int range ) {
