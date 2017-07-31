@@ -363,10 +363,14 @@ public class QGramEntry {
 		System.out.println( "Gen " + qgram + " at [" + min + ", " + max + "]" );
 
 		if( list != null ) {
+			// merge with existing entities
 			Iterator<QGramRange> iter = list.iterator();
 			while( iter.hasNext() ) {
 				QGramRange otherRange = iter.next();
+
+				System.out.println( "Existing " + qgram + " with [" + otherRange.min + ", " + otherRange.max + "]" );
 				if( min > otherRange.max || max < otherRange.min ) {
+
 					continue;
 				}
 
@@ -382,6 +386,7 @@ public class QGramEntry {
 			}
 		}
 		else {
+			// initialize list
 			list = new ArrayList<QGramRange>();
 			qgramsMap.put( qgram, list );
 		}
@@ -390,9 +395,9 @@ public class QGramEntry {
 
 		QGramRange qgramRange = new QGramRange( qgram, mergeMin, mergeMax );
 		list.add( qgramRange );
-		
+
 		for( QGramRange qr : list ) {
-			System.out.println( "  list" +  qr.qgram + " [" + qr.min + ", " + qr.max + "]" );
+			System.out.println( "  list " + qr.qgram + " [" + qr.min + ", " + qr.max + "]" );
 		}
 	}
 }
