@@ -66,6 +66,12 @@ MIN_K_END=3
 MIN_Q_START=1
 MIN_Q_END=3
 
+MIN_RANGE_K_START=1
+MIN_RANGE_K_END=3
+MIN_RANGE_Q_START=1
+MIN_RANGE_Q_END=3
+
+
 if [[ $# -ne 18 ]];
 	then
 		echo 'illegal number of parameters'
@@ -229,15 +235,12 @@ if [[ $# -ne 18 ]];
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
-		#K=( 1 2 3 4 5 )
-		K=( 2 3 )
-		#K=( 1 )
-		for k in "${K[@]}"; do
-			for q in {2..4..1}; do
-			#for q in {1..3..1}; do
+		for ((k=MIN_RANGE_K_START;k<=MIN_RANGE_K_END;k++)); do
+			for ((q=MIN_RANGE_Q_START;q<=MIN_RANGE_Q_END;q++)); do
 				date
-				./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
-				./compare.sh $PREV JoinMin_QL
+				./joinMinRange.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
+				#./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
+				./compare.sh $PREV JoinMinRange
 			done
 		done
 	fi
