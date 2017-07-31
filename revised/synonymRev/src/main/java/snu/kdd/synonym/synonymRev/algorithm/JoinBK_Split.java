@@ -276,7 +276,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.2";
+		return "2.3";
 	}
 
 	@Override
