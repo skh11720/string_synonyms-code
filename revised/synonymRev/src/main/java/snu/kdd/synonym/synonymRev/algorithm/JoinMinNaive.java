@@ -388,7 +388,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "MinNaive";
+		return "JoinMinNaive";
 	}
 
 	// class Directory {

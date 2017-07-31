@@ -589,7 +589,7 @@ public class Record implements Comparable<Record> {
 					QGramEntry entry = stack.pop();
 
 					if( entry.length - entry.getLeftRHSLength() >= q - 1 ) {
-						entry.generateQGramWithRange( q, positionalQGram, minIndex, maxIndex );
+						entry.generateQGramRange( q, positionalQGram, minIndex, maxIndex );
 					}
 					else {
 						if( entry.rightMostIndex < tokens.length ) {
@@ -602,7 +602,7 @@ public class Record implements Comparable<Record> {
 						else {
 							// add EOF
 							entry.eof = true;
-							entry.generateQGramWithRange( q, positionalQGram, minIndex, maxIndex );
+							entry.generateQGramRange( q, positionalQGram, minIndex, maxIndex );
 						}
 					}
 				}

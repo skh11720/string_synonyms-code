@@ -194,7 +194,7 @@ public class QGramEntry {
 		builtPosition = i;
 	}
 
-	public void generateQGramWithRange( int q, Object2ObjectOpenHashMap<QGram, List<QGramRange>> qgrams, int min, int max ) {
+	public void generateQGramRange( int q, Object2ObjectOpenHashMap<QGram, List<QGramRange>> qgrams, int min, int max ) {
 		if( !eof && length < q ) {
 			return;
 		}
