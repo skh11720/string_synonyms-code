@@ -251,10 +251,11 @@ public class JoinMinRangeIndex {
 			for( QGramRange qgramRange : availableQGrams ) {
 				// There is no invocation count: this is the minimum point
 				RangeCount range = invokes.get( qgramRange.qgram );
-
-				for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
-					int c = range.getCount( i );
-					positionalCount[ i ] += c;
+				if( range != null ) {
+					for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
+						int c = range.getCount( i );
+						positionalCount[ i ] += c;
+					}
 				}
 			}
 
