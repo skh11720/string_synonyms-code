@@ -21,7 +21,7 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue.MinPosition;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import snu.kdd.synonym.synonymRev.tools.QGramWithRange;
+import snu.kdd.synonym.synonymRev.tools.QGramRange;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
@@ -126,7 +126,7 @@ public class JoinMinRangeIndex {
 				recordStartTime = System.nanoTime();
 			}
 
-			List<QGramWithRange> availableQGrams = rec.getQGramWithRange( qSize );
+			List<QGramRange> availableQGrams = rec.getQGramRange( qSize );
 
 			if( DEBUG.JoinMinON ) {
 				recordMidTime = System.nanoTime();
@@ -134,7 +134,7 @@ public class JoinMinRangeIndex {
 			}
 
 			long qgramCount = 0;
-			for( QGramWithRange qgram : availableQGrams ) {
+			for( QGramRange qgram : availableQGrams ) {
 				qgramCount += qgram.max - qgram.min + 1;
 
 				RangeCount count = invokes.get( qgram.qgram );
@@ -220,23 +220,23 @@ public class JoinMinRangeIndex {
 		for( Record rec : query.indexedSet.get() ) {
 			int searchmax = rec.getMaxTransLength();
 
-			List<QGramWithRange> availableQGrams = null;
+			List<QGramRange> availableQGrams = null;
 
 			if( query.oneSideJoin ) {
 				availableQGrams = rec.getSelfQGramsWithRange( qSize );
 			}
 			else {
-				availableQGrams = rec.getQGramWithRange( qSize );
+				availableQGrams = rec.getQGramRange( qSize );
 			}
 
-			for( QGramWithRange qgram : availableQGrams ) {
+			for( QGramRange qgram : availableQGrams ) {
 				this.indexedTotalSigCount += qgram.max - qgram.min + 1;
 			}
 
 			MinPositionQueue mpq = new MinPositionQueue( nIndex );
 
 			int[] positionalCount = new int[ searchmax ];
-			for( QGramWithRange qgramRange : availableQGrams ) {
+			for( QGramRange qgramRange : availableQGrams ) {
 				// There is no invocation count: this is the minimum point
 				RangeCount range = invokes.get( qgramRange.qgram );
 
@@ -272,7 +272,7 @@ public class JoinMinRangeIndex {
 
 			Arrays.sort( indexedPosition );
 
-			for( QGramWithRange qgramRange : availableQGrams ) {
+			for( QGramRange qgramRange : availableQGrams ) {
 				// since indexedPosition is sorted by ascending order,
 				// if minIdx > qgramRange.max, we skip the qgramRange
 				for( int minIdx : indexedPosition ) {
@@ -455,7 +455,7 @@ public class JoinMinRangeIndex {
 			qgramStartTime = System.nanoTime();
 		}
 
-		List<QGramWithRange> availableQGrams = recS.getQGramWithRange( qSize );
+		List<QGramRange> availableQGrams = recS.getQGramRange( qSize );
 
 		// DEBUG
 		// boolean debug = false;
@@ -475,7 +475,7 @@ public class JoinMinRangeIndex {
 
 		Set<Record> candidates = new WYK_HashSet<Record>();
 
-		for( QGramWithRange qgramRange : availableQGrams ) {
+		for( QGramRange qgramRange : availableQGrams ) {
 			if( DEBUG.PrintJoinMinJoinON ) {
 				qgramCount++;
 			}
@@ -575,7 +575,7 @@ public class JoinMinRangeIndex {
 			qgramStartTime = System.nanoTime();
 		}
 
-		List<QGramWithRange> availableQGrams = recS.getQGramWithRange( qSize );
+		List<QGramRange> availableQGrams = recS.getQGramRange( qSize );
 
 		if( DEBUG.JoinMinON ) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
@@ -589,7 +589,7 @@ public class JoinMinRangeIndex {
 
 		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
 
-		for( QGramWithRange qgramRange : availableQGrams ) {
+		for( QGramRange qgramRange : availableQGrams ) {
 			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
 
 			if( DEBUG.PrintJoinMinJoinON ) {

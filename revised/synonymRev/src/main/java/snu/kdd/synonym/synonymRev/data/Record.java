@@ -7,7 +7,7 @@ import java.util.Stack;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramEntry;
-import snu.kdd.synonym.synonymRev.tools.QGramWithRange;
+import snu.kdd.synonym.synonymRev.tools.QGramRange;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
@@ -463,10 +463,10 @@ public class Record implements Comparable<Record> {
 		return resultQGram;
 	}
 
-	public List<QGramWithRange> getQGramWithRange( int q ) {
+	public List<QGramRange> getQGramRange( int q ) {
 		getQGramCount++;
 		int maxLength = getMaxTransLength();
-		List<QGramWithRange> positionalQGram = new ArrayList<QGramWithRange>( maxLength );
+		List<QGramRange> positionalQGram = new ArrayList<QGramRange>( maxLength );
 
 		for( int t = 0; t < tokens.length; t++ ) {
 			Rule[] rules = applicableRules[ t ];
@@ -671,9 +671,9 @@ public class Record implements Comparable<Record> {
 		return positionalQGram;
 	}
 
-	public List<QGramWithRange> getSelfQGramsWithRange( int q ) {
+	public List<QGramRange> getSelfQGramsWithRange( int q ) {
 		getQGramCount++;
-		List<QGramWithRange> positionalQGram = new ArrayList<QGramWithRange>();
+		List<QGramRange> positionalQGram = new ArrayList<QGramRange>();
 
 		int maxLength = tokens.length;
 
@@ -690,7 +690,7 @@ public class Record implements Comparable<Record> {
 			}
 
 			QGram qgram = new QGram( qgramArray );
-			QGramWithRange qgramRange = new QGramWithRange( qgram, i, i );
+			QGramRange qgramRange = new QGramRange( qgram, i, i );
 
 			positionalQGram.add( qgramRange );
 		}
@@ -707,7 +707,7 @@ public class Record implements Comparable<Record> {
 			}
 
 			QGram qgram = new QGram( qgramArray );
-			QGramWithRange qgramRange = new QGramWithRange( qgram, i, i );
+			QGramRange qgramRange = new QGramRange( qgram, i, i );
 
 			positionalQGram.add( qgramRange );
 		}

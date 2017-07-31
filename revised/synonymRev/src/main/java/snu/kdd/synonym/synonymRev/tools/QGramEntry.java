@@ -121,7 +121,7 @@ public class QGramEntry {
 		builtPosition = i;
 	}
 
-	public void generateQGramWithRange( int q, List<QGramWithRange> qgrams, int min, int max ) {
+	public void generateQGramWithRange( int q, List<QGramRange> qgrams, int min, int max ) {
 		if( !eof && length < q ) {
 			return;
 		}
@@ -347,10 +347,10 @@ public class QGramEntry {
 		}
 	}
 
-	public void addQGramWithRange( QGram qgram, List<QGramWithRange> qgrams, int min, int max, int i ) {
+	public void addQGramWithRange( QGram qgram, List<QGramRange> qgrams, int min, int max, int i ) {
 		int iterMinIndex = min + i;
 		int iterMaxIndex = max + i;
 
-		qgrams.add( new QGramWithRange( qgram, iterMinIndex, iterMaxIndex ) );
+		qgrams.add( new QGramRange( qgram, iterMinIndex, iterMaxIndex ) );
 	}
 }
