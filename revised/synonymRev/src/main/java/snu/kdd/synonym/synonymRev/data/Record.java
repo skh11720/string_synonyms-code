@@ -468,7 +468,6 @@ public class Record implements Comparable<Record> {
 
 	public List<QGramRange> getQGramRange( int q ) {
 		getQGramCount++;
-		int maxLength = getMaxTransLength();
 		Object2ObjectOpenHashMap<QGram, List<QGramRange>> positionalQGram = new Object2ObjectOpenHashMap<>();
 
 		for( int t = 0; t < tokens.length; t++ ) {
@@ -503,13 +502,11 @@ public class Record implements Comparable<Record> {
 					else {
 						if( entry.rightMostIndex < tokens.length ) {
 							// append
-
 							entry.generateQGramWithRange( q, positionalQGram, minIndex, maxIndex );
 
 							for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
 								stack.add( new QGramEntry( entry, nextRule ) );
 							}
-
 						}
 						else {
 							// add EOF
