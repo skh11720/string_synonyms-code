@@ -370,7 +370,7 @@ public class QGramEntry {
 
 				System.out.println( "Existing " + qgram + " with [" + otherRange.min + ", " + otherRange.max + "]" );
 				if( min > otherRange.max || max < otherRange.min ) {
-
+					System.out.println( "Skipped" );
 					continue;
 				}
 
