@@ -62,6 +62,10 @@ public class QGramEntry {
 		return bothSize;
 	}
 
+	public int getLeftRHSLength() {
+		return ruleList[ 0 ].rightSize();
+	}
+
 	public void generateQGram( int q, List<List<QGram>> qgrams, int min, int max ) {
 		if( !eof && length < q ) {
 			return;
@@ -334,9 +338,10 @@ public class QGramEntry {
 
 		for( int p = iterMinIndex; p <= iterMaxIndex; p++ ) {
 			if( p >= range ) {
+				// System.out.println( "stopped " + qgram + " " + p );
 				break;
 			}
-
+			// System.out.println( p + " add: " + qgram );
 			qgrams.get( p ).add( qgram );
 		}
 	}
@@ -346,6 +351,7 @@ public class QGramEntry {
 		int iterMaxIndex = max + i;
 
 		for( int p = iterMinIndex; p <= iterMaxIndex; p++ ) {
+			// System.out.println( p + " add: " + qgram );
 			qgrams.get( p ).add( qgram );
 		}
 	}

@@ -63,14 +63,38 @@ public class DataTest {
 		assertTrue( minTransformed == 3 );
 
 		List<Record> transformed = r.expandAll();
-		
+
 		assertTrue( transformed.size() == 6 );
 
-		List<List<QGram>> qgramList = r.getQGrams( 2 );
-		int[] sizeArray = { 3, 4, 5, 5, 4, 2, 1 };
-		for( int i = 0; i < qgramList.size(); i++ ) {
-			List<QGram> list = qgramList.get( i );
-			assertTrue( sizeArray[ i ] == list.size() );
+		List<List<QGram>> twoGramList = r.getQGrams( 2 );
+		int[] twoSizeArray = { 3, 4, 5, 5, 4, 2, 1 };
+		for( int i = 0; i < twoGramList.size(); i++ ) {
+			List<QGram> list = twoGramList.get( i );
+			assertTrue( twoSizeArray[ i ] == list.size() );
+		}
+
+		List<List<QGram>> threeGramList = r.getQGrams( 3 );
+		int[] threeSizeArray = { 4, 5, 6, 5, 4, 2, 1 };
+		for( int i = 0; i < threeGramList.size(); i++ ) {
+			List<QGram> list = threeGramList.get( i );
+
+			assertTrue( threeSizeArray[ i ] == list.size() );
+		}
+
+		for( int bound = 0; bound < 10; bound++ ) {
+			List<List<QGram>> threeBoundedGramList = r.getQGrams( 3, bound );
+			for( int i = 0; i < threeBoundedGramList.size(); i++ ) {
+				List<QGram> list = threeBoundedGramList.get( i );
+				assertTrue( threeSizeArray[ i ] == list.size() );
+			}
+		}
+
+		int[] fourSizeArray = { 5, 6, 6, 5, 4, 2, 1 };
+		List<List<QGram>> fourGramList = r.getQGrams( 4 );
+		for( int i = 0; i < fourGramList.size(); i++ ) {
+			List<QGram> list = fourGramList.get( i );
+			
+			assertTrue( fourSizeArray[ i ] == list.size() );
 		}
 	}
 }

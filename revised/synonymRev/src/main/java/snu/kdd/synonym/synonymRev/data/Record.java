@@ -402,14 +402,17 @@ public class Record implements Comparable<Record> {
 			for( int r = 0; r < rules.length; r++ ) {
 				Rule startRule = rules[ r ];
 
+				// System.out.println( "Start Rule: " + startRule );
+
 				Stack<QGramEntry> stack = new Stack<QGramEntry>();
 
 				stack.add( new QGramEntry( q, startRule, t ) );
 
 				while( !stack.isEmpty() ) {
 					QGramEntry entry = stack.pop();
+					// System.out.println( "Entry: " + entry );
 
-					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
+					if( entry.length - entry.getLeftRHSLength() >= q - 1 ) {
 						entry.generateQGram( q, positionalQGram, minIndex, maxIndex );
 					}
 					else {
@@ -458,6 +461,99 @@ public class Record implements Comparable<Record> {
 			resultQGram.add( lQGram );
 		}
 		// WYK_HashSet.DEBUG = false;
+
+		return resultQGram;
+	}
+
+	public List<List<QGram>> getQGrams( int q, int range ) {
+		int maxLength = Integer.min( range, getMaxTransLength() );
+		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>( maxLength );
+
+		for( int i = 0; i < maxLength; i++ ) {
+			positionalQGram.add( new ArrayList<QGram>( 30 ) );
+		}
+
+		for( int t = 0; t < tokens.length; t++ ) {
+			Rule[] rules = applicableRules[ t ];
+
+			int minIndex;
+			int maxIndex;
+
+			if( t == 0 ) {
+				minIndex = 0;
+				maxIndex = 0;
+			}
+			else {
+				minIndex = transformLengths[ t - 1 ][ 0 ];
+				maxIndex = transformLengths[ t - 1 ][ 1 ];
+			}
+
+			if( minIndex >= range ) {
+				continue;
+			}
+
+			for( int r = 0; r < rules.length; r++ ) {
+				Rule startRule = rules[ r ];
+				// System.out.println( "Start Rule: " + startRule );
+
+				Stack<QGramEntry> stack = new Stack<QGramEntry>();
+
+				stack.add( new QGramEntry( q, startRule, t ) );
+
+				while( !stack.isEmpty() ) {
+					QGramEntry entry = stack.pop();
+
+					// System.out.println( "Entry: " + entry );
+					if( entry.length - entry.getLeftRHSLength() >= q - 1 ) {
+						entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
+					}
+					else {
+						if( entry.rightMostIndex < tokens.length ) {
+							// append
+							if( minIndex + entry.builtPosition < range ) {
+								for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
+									QGramEntry newEntry = new QGramEntry( entry, nextRule );
+
+									stack.add( newEntry );
+								}
+							}
+						}
+						else {
+							// add EOF
+							entry.eof = true;
+							entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
+						}
+					}
+				}
+			}
+		}
+
+		int maxSize = 0;
+		for( int i = 0; i < maxLength; i++ ) {
+			int size = positionalQGram.get( i ).size();
+			if( maxSize < size ) {
+				maxSize = size;
+			}
+		}
+
+		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>( maxLength );
+		WYK_HashSet<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
+
+		for( int i = 0; i < positionalQGram.size(); i++ ) {
+			sQGram.emptyAll();
+			List<QGram> pQGram = positionalQGram.get( i );
+
+			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
+
+			for( QGram qgram : pQGram ) {
+				boolean added = sQGram.add( qgram );
+				if( added ) {
+					lQGram.add( qgram );
+				}
+			}
+
+			resultQGram.add( lQGram );
+		}
 
 		return resultQGram;
 	}
@@ -520,103 +616,6 @@ public class Record implements Comparable<Record> {
 		}
 
 		return resultList;
-	}
-
-	public List<List<QGram>> getQGrams( int q, int range ) {
-		int maxLength = Integer.min( range, getMaxTransLength() );
-		List<List<QGram>> positionalQGram = new ArrayList<List<QGram>>( maxLength );
-
-		for( int i = 0; i < maxLength; i++ ) {
-			positionalQGram.add( new ArrayList<QGram>( 30 ) );
-		}
-
-		for( int t = 0; t < tokens.length; t++ ) {
-			Rule[] rules = applicableRules[ t ];
-
-			int minIndex;
-			int maxIndex;
-
-			if( t == 0 ) {
-				minIndex = 0;
-				maxIndex = 0;
-			}
-			else {
-				minIndex = transformLengths[ t - 1 ][ 0 ];
-				maxIndex = transformLengths[ t - 1 ][ 1 ];
-			}
-
-			if( minIndex >= range ) {
-				continue;
-			}
-
-			for( int r = 0; r < rules.length; r++ ) {
-				Rule startRule = rules[ r ];
-
-				Stack<QGramEntry> stack = new Stack<QGramEntry>();
-
-				stack.add( new QGramEntry( q, startRule, t ) );
-
-				while( !stack.isEmpty() ) {
-					QGramEntry entry = stack.pop();
-
-					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
-						entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
-					}
-					else {
-						if( entry.rightMostIndex < tokens.length ) {
-							// append
-							if( minIndex + entry.builtPosition < range ) {
-								for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
-
-									QGramEntry newEntry = new QGramEntry( entry, nextRule );
-
-									if( newEntry.length >= q + newEntry.getBothRHSLength() - 2 ) {
-										newEntry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
-									}
-									else {
-										stack.add( newEntry );
-									}
-								}
-							}
-						}
-						else {
-							// add EOF
-							entry.eof = true;
-							entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
-						}
-					}
-				}
-			}
-		}
-
-		int maxSize = 0;
-		for( int i = 0; i < maxLength; i++ ) {
-			int size = positionalQGram.get( i ).size();
-			if( maxSize < size ) {
-				maxSize = size;
-			}
-		}
-
-		List<List<QGram>> resultQGram = new ArrayList<List<QGram>>( maxLength );
-		WYK_HashSet<QGram> sQGram = new WYK_HashSet<QGram>( maxSize * 2 + 2 );
-
-		for( int i = 0; i < positionalQGram.size(); i++ ) {
-			sQGram.emptyAll();
-			List<QGram> pQGram = positionalQGram.get( i );
-
-			List<QGram> lQGram = new ArrayList<QGram>( pQGram.size() + 1 );
-
-			for( QGram qgram : pQGram ) {
-				boolean added = sQGram.add( qgram );
-				if( added ) {
-					lQGram.add( qgram );
-				}
-			}
-
-			resultQGram.add( lQGram );
-		}
-
-		return resultQGram;
 	}
 
 	public List<List<QGram>> getSelfQGrams( int q, int range ) {
