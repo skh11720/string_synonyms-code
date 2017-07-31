@@ -95,7 +95,7 @@ public class JoinMinRangeIndex {
 		if( DEBUG.JoinMinIndexON ) {
 			this.countPerPosition = new ArrayList<Integer>();
 		}
-		
+
 		long starttime = System.nanoTime();
 
 		// Build an index
@@ -201,7 +201,7 @@ public class JoinMinRangeIndex {
 
 		if( DEBUG.PrintJoinMinIndexON ) {
 			try {
-				bw_index = new BufferedWriter( new FileWriter( "JoinMin_Index_Content.txt" ) );
+				bw_index = new BufferedWriter( new FileWriter( "JoinMinRange_Index_Content.txt" ) );
 			}
 			catch( IOException e ) {
 				e.printStackTrace();
@@ -453,7 +453,6 @@ public class JoinMinRangeIndex {
 		}
 
 		int[] range = recS.getTransLengths();
-		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 
 		if( DEBUG.PrintJoinMinJoinON ) {
 			joinStartTime = System.nanoTime();
@@ -568,7 +567,6 @@ public class JoinMinRangeIndex {
 		}
 
 		int[] range = recS.getTransLengths();
-		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 
 		if( DEBUG.PrintJoinMinJoinON ) {
 			joinStartTime = System.nanoTime();
