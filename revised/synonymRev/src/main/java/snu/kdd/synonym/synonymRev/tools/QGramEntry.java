@@ -128,6 +128,72 @@ public class QGramEntry {
 		builtPosition = i;
 	}
 
+	// range : inclusive
+	public void generateQGram( int q, List<List<QGram>> qgrams, int min, int max, int range ) {
+		if( !eof && length < q ) {
+			return;
+		}
+
+		Rule firstRule = ruleList[ 0 ];
+
+		int[] to = firstRule.getRight();
+		int firstRuleToSize = to.length;
+
+		int lastSize;
+
+		if( eof ) {
+			lastSize = firstRuleToSize;
+		}
+		else {
+			lastSize = Integer.min( length - q + 1, firstRuleToSize );
+		}
+
+		int i = builtPosition;
+		for( ; i < lastSize; i++ ) {
+			if( i + min >= range ) {
+				break;
+			}
+
+			int[] qgram = new int[ q ];
+			int idx = 0;
+			boolean stop = false;
+
+			// set first rule part
+			for( int p = i; p < firstRuleToSize; p++ ) {
+				qgram[ idx++ ] = to[ p ];
+				if( idx == q ) {
+					addQGram( new QGram( qgram ), qgrams, min, max, i, range );
+					stop = true;
+					break;
+				}
+			}
+
+			for( int r = 1; !stop && r < ruleList.length; r++ ) {
+				Rule otherRule = ruleList[ r ];
+
+				int[] otherRuleTo = otherRule.getRight();
+				int otherRuleToSize = otherRuleTo.length;
+
+				for( int p = 0; p < otherRuleToSize; p++ ) {
+					qgram[ idx++ ] = otherRuleTo[ p ];
+					if( idx == q ) {
+						addQGram( new QGram( qgram ), qgrams, min, max, i, range );
+						stop = true;
+						break;
+					}
+				}
+			}
+
+			if( !stop ) {
+				for( ; idx < q; idx++ ) {
+					qgram[ idx ] = Integer.MAX_VALUE;
+				}
+				addQGram( new QGram( qgram ), qgrams, min, max, i, range );
+			}
+		}
+		builtPosition = i;
+	}
+
 	public void generateQGramWithRange( int q, Object2ObjectOpenHashMap<QGram, List<QGramRange>> qgrams, int min, int max ) {
 		if( !eof && length < q ) {
 			return;
@@ -185,75 +251,6 @@ public class QGramEntry {
 					qgram[ idx ] = Integer.MAX_VALUE;
 				}
 				addQGramWithRange( new QGram( qgram ), qgrams, min, max, i );
-			}
-		}
-		builtPosition = i;
-	}
-
-	// range : inclusive
-	public void generateQGram( int q, List<List<QGram>> qgrams, int min, int max, int range ) {
-		if( !eof && length < q ) {
-			return;
-		}
-
-		Rule firstRule = ruleList[ 0 ];
-
-		int[] to = firstRule.getRight();
-		int firstRuleToSize = to.length;
-
-		int lastSize;
-
-		if( eof ) {
-			lastSize = firstRuleToSize;
-		}
-		else {
-			lastSize = Integer.min( length - q + 1, firstRuleToSize );
-		}
-
-		int i = builtPosition;
-		for( ; i < lastSize; i++ ) {
-			if( i + min >= range ) {
-				break;
-			}
-
-			int[] qgram = new int[ q ];
-			int idx = 0;
-			boolean stop = false;
-
-			// set first rule part
-			for( int p = i; p < firstRuleToSize; p++ ) {
-				qgram[ idx++ ] = to[ p ];
-				if( idx == q ) {
-					addQGram( new QGram( qgram ), qgrams, min, max, i, range );
-					stop = true;
-					break;
-				}
-			}
-
-			if( !stop ) {
-				for( int r = 1; r < ruleList.length; r++ ) {
-					Rule otherRule = ruleList[ r ];
-
-					int[] otherRuleTo = otherRule.getRight();
-					int otherRuleToSize = otherRuleTo.length;
-
-					for( int p = 0; p < otherRuleToSize; p++ ) {
-						System.out.println( idx );
-						qgram[ idx++ ] = otherRuleTo[ p ];
-						if( idx == q ) {
-							addQGram( new QGram( qgram ), qgrams, min, max, i, range );
-							stop = true;
-							break;
-						}
-					}
-				}
-			}
-
-			if( !stop ) {
-				for( ; idx < q; idx++ ) {
-					qgram[ idx ] = Integer.MAX_VALUE;
-				}
-				addQGram( new QGram( qgram ), qgrams, min, max, i, range );
 			}
 		}
 		builtPosition = i;
