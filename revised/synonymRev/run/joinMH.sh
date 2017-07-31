@@ -42,6 +42,7 @@ then
 	echo split $split
 	echo UPLOAD $UPLOAD
 else
+	rm output/$ALG
 	if [[ "$split" = true ]];
 	then
 		echo $ALG SP with k=$k and "$ADDITIONAL" logging in $logdir"/"$project\_$ALG\_SP\_$k\_$qSize

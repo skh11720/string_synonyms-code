@@ -12,7 +12,7 @@ UPLOAD=${11}
 
 ADDITIONAL="-K $k -qSize $qSize"
 
-ALG=JoinMin
+ALG=JoinMinRange
 
 
 if [[ -f xmx.txt ]];

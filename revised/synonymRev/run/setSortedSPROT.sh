@@ -12,7 +12,7 @@ if [ ! -f $dir/SPROT_$Size.txt ];
 then
 	echo creating data in $dir with size $Size
 	mkdir -p $dir
-	shuf $inputfile | head -n $Size > $dir/SPROT_$Size.txt
+	head -n $Size $inputfile > $dir/SPROT_$Size.txt
 else
 	echo data already exists in $dir
 fi
