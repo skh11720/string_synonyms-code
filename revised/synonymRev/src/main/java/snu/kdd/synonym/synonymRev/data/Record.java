@@ -415,13 +415,9 @@ public class Record implements Comparable<Record> {
 					else {
 						if( entry.rightMostIndex < tokens.length ) {
 							// append
-
-							entry.generateQGram( q, positionalQGram, minIndex, maxIndex );
-
 							for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
 								stack.add( new QGramEntry( entry, nextRule ) );
 							}
-
 						}
 						else {
 							// add EOF
@@ -569,9 +565,6 @@ public class Record implements Comparable<Record> {
 					else {
 						if( entry.rightMostIndex < tokens.length ) {
 							// append
-
-							entry.generateQGram( q, positionalQGram, minIndex, maxIndex, range );
-
 							if( minIndex + entry.builtPosition < range ) {
 								for( Rule nextRule : applicableRules[ entry.rightMostIndex ] ) {
 
@@ -585,7 +578,6 @@ public class Record implements Comparable<Record> {
 									}
 								}
 							}
-
 						}
 						else {
 							// add EOF
