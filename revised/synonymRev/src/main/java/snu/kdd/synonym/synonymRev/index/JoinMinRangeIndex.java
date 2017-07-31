@@ -13,6 +13,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.RecordInt;
@@ -62,7 +63,7 @@ public class JoinMinRangeIndex {
 
 	public static class RangeCount {
 
-		Int2IntOpenHashMap rangeToCount;
+		public Int2IntOpenHashMap rangeToCount;
 
 		public RangeCount( int min, int max ) {
 			int size = ( max - min ) * 2;
@@ -176,7 +177,21 @@ public class JoinMinRangeIndex {
 		}
 
 		if( DEBUG.JoinMinIndexON ) {
+			ObjectIterator<Entry<QGram, RangeCount>> iter = invokes.entrySet().iterator();
 			try {
+				while( iter.hasNext() ) {
+					Entry<QGram, RangeCount> entry = iter.next();
+					RangeCount c = entry.getValue();
+					QGram q = entry.getKey();
+
+					ObjectIterator<it.unimi.dsi.fastutil.ints.Int2IntMap.Entry> count_iter = c.rangeToCount.int2IntEntrySet()
+							.iterator();
+					while( count_iter.hasNext() ) {
+
+						bw_debug_count.write( "Inv: " + q + " " + count_iter.next() + "\n" );
+
+					}
+				}
 				bw_debug_count.close();
 			}
 			catch( IOException e ) {

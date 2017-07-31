@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -165,6 +167,19 @@ public class JoinMinIndex {
 
 		if( DEBUG.JoinMinIndexON ) {
 			try {
+				for( int i = 0; i < invokes.size(); i++ ) {
+					Object2IntOpenHashMap<QGram> count = invokes.get( i );
+					ObjectIterator<Object2IntMap.Entry<QGram>> iter = count.object2IntEntrySet().iterator();
+
+					while( iter.hasNext() ) {
+						Object2IntMap.Entry<QGram> entry = iter.next();
+
+						QGram q = entry.getKey();
+						int c = entry.getIntValue();
+						bw.write( "Inv: " + q + " " + c + "\n" );
+					}
+				}
+
 				bw.close();
 			}
 			catch( IOException e ) {
