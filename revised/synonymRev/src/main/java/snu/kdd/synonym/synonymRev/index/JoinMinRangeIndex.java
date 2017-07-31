@@ -148,7 +148,7 @@ public class JoinMinRangeIndex {
 				if( DEBUG.JoinMinIndexON ) {
 					try {
 						for( int i = qgram.min; i <= qgram.max; i++ ) {
-							bw_debug_count.write( qgram.qgram + " " + i + "\n" );
+							bw_debug_count.write( "qg " + qgram.qgram + " " + i + "\n" );
 						}
 					}
 					catch( IOException e ) {
