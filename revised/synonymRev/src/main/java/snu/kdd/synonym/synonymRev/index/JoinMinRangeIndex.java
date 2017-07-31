@@ -255,10 +255,10 @@ public class JoinMinRangeIndex {
 				indexedCount++;
 				MinPosition minPos = mpq.poll();
 				indexedPosition[ p++ ] = minPos.positionIndex;
-				
+
 				if( DEBUG.PrintJoinMinIndexON ) {
 					try {
-						bw_index.write( minPos.positionIndex + " " + minPos.candidateCount );
+						bw_index.write( minPos.positionIndex + " " + minPos.candidateCount + "\n" );
 					}
 					catch( IOException e ) {
 						e.printStackTrace();
