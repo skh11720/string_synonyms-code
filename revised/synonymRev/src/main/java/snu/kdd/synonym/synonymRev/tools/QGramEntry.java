@@ -360,6 +360,8 @@ public class QGramEntry {
 		int mergeMin = iterMinIndex;
 		int mergeMax = iterMaxIndex;
 
+		System.out.println( "Adding " + qgram + " at [" + min + ", " + max + "]" );
+
 		if( list != null ) {
 			Iterator<QGramRange> iter = list.iterator();
 			while( iter.hasNext() ) {
