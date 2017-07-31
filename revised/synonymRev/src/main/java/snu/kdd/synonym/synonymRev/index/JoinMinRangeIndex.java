@@ -145,16 +145,16 @@ public class JoinMinRangeIndex {
 					count.increase( qgram.min, qgram.max );
 				}
 
-				if( DEBUG.JoinMinIndexON ) {
-					try {
-						for( int i = qgram.min; i <= qgram.max; i++ ) {
-							bw_debug_count.write( "qg " + qgram.qgram + " " + i + "\n" );
-						}
-					}
-					catch( IOException e ) {
-						e.printStackTrace();
-					}
-				}
+				// if( DEBUG.JoinMinIndexON ) {
+				// try {
+				// for( int i = qgram.min; i <= qgram.max; i++ ) {
+				// bw_debug_count.write( "qg " + qgram.qgram + " " + i + "\n" );
+				// }
+				// }
+				// catch( IOException e ) {
+				// e.printStackTrace();
+				// }
+				// }
 
 			}
 			this.searchedTotalSigCount += qgramCount;
