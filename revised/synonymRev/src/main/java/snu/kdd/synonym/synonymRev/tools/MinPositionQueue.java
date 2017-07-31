@@ -34,8 +34,8 @@ public class MinPositionQueue {
 		return pq.isEmpty();
 	}
 
-	public int pollIndex() {
-		return pq.poll().positionIndex;
+	public MinPosition poll() {
+		return pq.poll();
 	}
 
 	private static class MinPositionComparator implements Comparator<MinPosition> {
@@ -52,9 +52,9 @@ public class MinPositionQueue {
 
 	}
 
-	private static class MinPosition {
-		int positionIndex;
-		double candidateCount;
+	public static class MinPosition {
+		public int positionIndex;
+		public double candidateCount;
 
 		public MinPosition( int pos, double invokes ) {
 			positionIndex = pos;

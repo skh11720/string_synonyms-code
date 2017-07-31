@@ -19,6 +19,7 @@ import snu.kdd.synonym.synonymRev.data.RecordInt;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
+import snu.kdd.synonym.synonymRev.tools.MinPositionQueue.MinPosition;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramWithRange;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -104,11 +105,11 @@ public class JoinMinRangeIndex {
 		long getQGramTime = 0;
 		long countIndexingTime = 0;
 
-		BufferedWriter bw = null;
+		BufferedWriter bw_debug_count = null;
 
 		if( DEBUG.JoinMinIndexON ) {
 			try {
-				bw = new BufferedWriter( new FileWriter( "JoinMinRange_Index_Count_Debug.txt" ) );
+				bw_debug_count = new BufferedWriter( new FileWriter( "JoinMinRange_Index_Count_Debug.txt" ) );
 			}
 			catch( IOException e ) {
 				e.printStackTrace();
@@ -152,9 +153,9 @@ public class JoinMinRangeIndex {
 
 			if( DEBUG.JoinMinIndexON ) {
 				try {
-					bw.write( recordMidTime - recordStartTime + " " );
-					bw.write( qgramCount + " " );
-					bw.write( "\n" );
+					bw_debug_count.write( recordMidTime - recordStartTime + " " );
+					bw_debug_count.write( qgramCount + " " );
+					bw_debug_count.write( "\n" );
 				}
 				catch( IOException e ) {
 					e.printStackTrace();
@@ -164,7 +165,7 @@ public class JoinMinRangeIndex {
 
 		if( DEBUG.JoinMinIndexON ) {
 			try {
-				bw.close();
+				bw_debug_count.close();
 			}
 			catch( IOException e ) {
 				e.printStackTrace();
@@ -252,7 +253,17 @@ public class JoinMinRangeIndex {
 			int p = 0;
 			while( !mpq.isEmpty() ) {
 				indexedCount++;
-				indexedPosition[ p++ ] = mpq.pollIndex();
+				MinPosition minPos = mpq.poll();
+				indexedPosition[ p++ ] = minPos.positionIndex;
+				
+				if( DEBUG.PrintJoinMinIndexON ) {
+					try {
+						bw_index.write( minPos.positionIndex + " " + minPos.candidateCount );
+					}
+					catch( IOException e ) {
+						e.printStackTrace();
+					}
+				}
 			}
 
 			Arrays.sort( indexedPosition );

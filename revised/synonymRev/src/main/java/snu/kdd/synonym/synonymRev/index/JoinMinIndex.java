@@ -16,6 +16,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
+import snu.kdd.synonym.synonymRev.tools.MinPositionQueue.MinPosition;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
@@ -259,7 +260,18 @@ public class JoinMinIndex {
 			while( !mpq.isEmpty() ) {
 				indexedCount++;
 
-				int minIdx = mpq.pollIndex();
+				MinPosition minPos = mpq.poll();
+				int minIdx = minPos.positionIndex;
+
+				if( DEBUG.PrintJoinMinIndexON ) {
+					try {
+						bw_index.write( minPos.positionIndex + " " + minPos.candidateCount );
+					}
+					catch( IOException e ) {
+						e.printStackTrace();
+					}
+				}
+
 				this.setIndex( minIdx );
 				for( QGram qgram : availableQGrams.get( minIdx ) ) {
 					// write2File(bw, minIdx, twogram, rec.getID());
