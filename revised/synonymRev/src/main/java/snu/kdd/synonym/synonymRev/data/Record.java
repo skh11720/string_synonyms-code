@@ -588,7 +588,7 @@ public class Record implements Comparable<Record> {
 				while( !stack.isEmpty() ) {
 					QGramEntry entry = stack.pop();
 
-					if( entry.length >= q + entry.getBothRHSLength() - 2 ) {
+					if( entry.length - entry.getLeftRHSLength() >= q - 1 ) {
 						entry.generateQGramWithRange( q, positionalQGram, minIndex, maxIndex );
 					}
 					else {

@@ -11,7 +11,7 @@ public class QGramEntry {
 	private Rule[] ruleList;
 	public int length;
 	public int rightMostIndex;
-	public int bothSize;
+	// public int bothSize;
 	public int builtPosition;
 	public boolean eof = false;
 
@@ -21,7 +21,7 @@ public class QGramEntry {
 		length = r.rightSize();
 		rightMostIndex = idx + r.leftSize();
 
-		bothSize = length * 2;
+		// bothSize = length * 2;
 		builtPosition = 0;
 	}
 
@@ -35,7 +35,7 @@ public class QGramEntry {
 		length = entry.length + r.rightSize();
 		rightMostIndex = entry.rightMostIndex + r.leftSize();
 
-		bothSize = ruleList[ 0 ].rightSize() + r.rightSize();
+		// bothSize = ruleList[ 0 ].rightSize() + r.rightSize();
 		builtPosition = entry.builtPosition;
 	}
 
@@ -58,9 +58,9 @@ public class QGramEntry {
 		return bld.toString();
 	}
 
-	public int getBothRHSLength() {
-		return bothSize;
-	}
+	// public int getBothRHSLength() {
+	// return bothSize;
+	// }
 
 	public int getLeftRHSLength() {
 		return ruleList[ 0 ].rightSize();
