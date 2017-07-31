@@ -131,7 +131,7 @@ public class JoinMinIndex {
 
 					if( DEBUG.JoinMinIndexON ) {
 						try {
-							bw.write( qgram + " " + i );
+							bw.write( qgram + " " + i + "\n" );
 						}
 						catch( IOException e ) {
 							e.printStackTrace();
