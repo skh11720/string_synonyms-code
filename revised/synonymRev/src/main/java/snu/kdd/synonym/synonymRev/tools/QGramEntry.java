@@ -369,8 +369,8 @@ public class QGramEntry {
 				QGramRange otherRange = iter.next();
 
 				System.out.println( "Existing " + qgram + " with [" + otherRange.min + ", " + otherRange.max + "]" );
-				if( min > otherRange.max || max < otherRange.min ) {
-					System.out.println( "Skipped" );
+				if( ( min > otherRange.max ) || ( max < otherRange.min ) ) {
+					System.out.println( "Skipped " + ( min > otherRange.max ) + " " + ( max < otherRange.min ) );
 					continue;
 				}
 
