@@ -80,6 +80,7 @@ public class JoinNaive extends AlgorithmTemplate {
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
 			stat.addMemory( "Mem_4_Joined" );
+			stat.add( "Stat_Expanded", idx.totalExp );
 		}
 
 		if( DEBUG.NaiveON ) {
