@@ -245,7 +245,8 @@ public class JoinMinRangeIndex {
 		indexedCountMap = new Object2IntOpenHashMap<>();
 		estimatedCountMap = new Object2IntOpenHashMap<>();
 		for( Record rec : query.indexedSet.get() ) {
-			int searchmax = rec.getMaxTransLength();
+
+			int searchmax = Math.min( rec.getMinTransLength(), invokes.size() );
 
 			List<QGramRange> availableQGrams = null;
 
@@ -268,6 +269,9 @@ public class JoinMinRangeIndex {
 				RangeCount range = invokes.get( qgramRange.qgram );
 				if( range != null ) {
 					for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
+						if( i >= searchmax ) {
+							break;
+						}
 						int c = range.getCount( i );
 						positionalCount[ i ] += c;
 					}
