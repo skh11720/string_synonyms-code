@@ -275,6 +275,14 @@ public class JoinMinRangeIndex {
 			}
 
 			for( int i = 0; i < searchmax; i++ ) {
+				if( DEBUG.PrintJoinMinIndexON ) {
+					try {
+						bw_index.write( "pos " + i + " " + positionalCount[ i ] + "\n" );
+					}
+					catch( IOException e ) {
+						e.printStackTrace();
+					}
+				}
 				mpq.add( i, positionalCount[ i ] );
 			}
 

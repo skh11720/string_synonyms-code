@@ -275,6 +275,14 @@ public class JoinMinIndex {
 						invoke += count;
 					}
 				}
+
+				try {
+					bw_index.write( "pos " + i + " " + invoke + "\n" );
+				}
+				catch( IOException e ) {
+					e.printStackTrace();
+				}
+
 				mpq.add( i, invoke );
 			}
 
