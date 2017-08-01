@@ -257,12 +257,14 @@ public class JoinMinIndex {
 				// There is no invocation count: this is the minimum point
 				if( i >= invokes.size() ) {
 					mpq.add( i, 0 );
-					
-					try {
-						bw_index.write( "pos " + i + " 0\n" );
-					}
-					catch( IOException e ) {
-						e.printStackTrace();
+
+					if( DEBUG.JoinMinIndexON ) {
+						try {
+							bw_index.write( "pos " + i + " 0\n" );
+						}
+						catch( IOException e ) {
+							e.printStackTrace();
+						}
 					}
 					continue;
 				}
@@ -270,14 +272,16 @@ public class JoinMinIndex {
 				Object2IntOpenHashMap<QGram> curridx_invokes = invokes.get( i );
 				if( curridx_invokes.size() == 0 ) {
 					mpq.add( i, 0 );
-					
-					try {
-						bw_index.write( "pos " + i + " 0\n" );
+
+					if( DEBUG.JoinMinIndexON ) {
+						try {
+							bw_index.write( "pos " + i + " 0\n" );
+						}
+						catch( IOException e ) {
+							e.printStackTrace();
+						}
 					}
-					catch( IOException e ) {
-						e.printStackTrace();
-					}
-					
+
 					continue;
 				}
 
@@ -291,11 +295,13 @@ public class JoinMinIndex {
 					}
 				}
 
-				try {
-					bw_index.write( "pos " + i + " " + invoke + "\n" );
-				}
-				catch( IOException e ) {
-					e.printStackTrace();
+				if( DEBUG.JoinMinIndexON ) {
+					try {
+						bw_index.write( "pos " + i + " " + invoke + "\n" );
+					}
+					catch( IOException e ) {
+						e.printStackTrace();
+					}
 				}
 
 				mpq.add( i, invoke );
