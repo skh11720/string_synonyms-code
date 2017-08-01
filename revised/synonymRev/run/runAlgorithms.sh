@@ -187,7 +187,7 @@ if [[ $# -ne 18 ]];
 				done
 			done
 		done
-		PREV="JoinHybridOpt_Q"
+		PREV="JoinMinNaive"
 	fi
 
 	#JoinHybridThres
