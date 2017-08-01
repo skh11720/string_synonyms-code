@@ -28,8 +28,8 @@ RUN_JoinMHSP=False
 RUN_JoinMin=True
 #RUN_JoinMin=False
 
-#RUN_JoinHybridOpt=True
-RUN_JoinHybridOpt=False
+#RUN_JoinMinNaive=True
+RUN_JoinMinNaive=False
 
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
@@ -54,5 +54,5 @@ do
 	rulefile=data_store/JiahengLu/USPS_rule.txt
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_NaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinHybridOpt $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_NaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinMinNaive $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
 done

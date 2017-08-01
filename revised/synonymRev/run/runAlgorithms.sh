@@ -9,7 +9,7 @@ RUN_NaiveSP=$8
 RUN_JoinMHSP=$9
 RUN_JoinMin=${10}
 RUN_JoinMH=${11}
-RUN_JoinHybridOpt=${12}
+RUN_JoinMinNaive=${12}
 RUN_JoinHybridThres=${13}
 RUN_JoinBK=${14}
 RUN_JoinBKSP=${15}
@@ -31,7 +31,7 @@ echo RUN_NaiveSP $RUN_NaiveSP
 echo RUN_JoinMHSP $RUN_JoinMHSP
 echo RUN_JoinMin $RUN_JoinMin
 echo RUN_JoinMH $RUN_JoinMH
-echo RUN_JoinHybridOpt $RUN_JoinHybridOpt
+echo RUN_JoinMinNaive $RUN_JoinMinNaive
 echo RUN_JoinHybridThres $RUN_JoinHybridThres
 echo RUN_JoinBK $RUN_JoinBK
 echo RUN_JoinBKSP $RUN_JoinBKSP
@@ -65,6 +65,11 @@ MIN_K_START=1
 MIN_K_END=3
 MIN_Q_START=1
 MIN_Q_END=3
+
+MIN_NAIVE_K_START=1
+MIN_NAIVE_K_END=3
+MIN_NAIVE_Q_START=1
+MIN_NAIVE_Q_END=3
 
 MIN_RANGE_K_START=1
 MIN_RANGE_K_END=3
@@ -163,7 +168,7 @@ if [[ $# -ne 18 ]];
 	fi
 
 	#JoinHybridOpt
-	if [[ $RUN_JoinHybridOpt == "True" ]];
+	if [[ $RUN_JoinMinNaive == "True" ]];
 	then
 		samplings=( 0.01 )
 		#samplings=( 0.001 0.003 0.01 0.03 )
@@ -171,13 +176,15 @@ if [[ $# -ne 18 ]];
 		#samplings=( 0.01 0.001 0.0001 100 1000 10000 )
 		#samplings=( 0.001 0.003 0.01 0.03 )
 		#samplings=( 0.0001 0.0003 0.001 0.003 0.01 0.03 )
-		for q in {2..2..1}; do
-			for sampling in "${samplings[@]}"; do
-				date
-				./joinHybridOpt.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $q $project $oneSide $UPLOAD
-				date
+		for sampling in "${samplings[@]}"; do
+			for ((k=MIN_NAIVE_K_START;k<=MIN_NAIVE_K_END;k++)); do
+				for ((q=MIN_NAIVE_Q_START;q<=MIN_NAIVE_Q_END;q++)); do
+					date
+					./joinMinNaive.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sampling $k $q $project $oneSide $UPLOAD
+					date
 
-				./compare.sh $PREV JoinHybridOpt_Q
+					./compare.sh $PREV JoinMinNaive
+				done
 			done
 		done
 		PREV="JoinHybridOpt_Q"
