@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Random;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.data.Dataset;
@@ -98,7 +97,7 @@ public class SampleEstimate {
 
 	}
 
-	public void estimateNaive( AlgorithmTemplate o, StatContainer stat ) {
+	public void estimateNaive( StatContainer stat ) {
 
 		// Infer alpha and beta
 		JoinNaive naiveinst;
@@ -122,7 +121,7 @@ public class SampleEstimate {
 		}
 	}
 
-	public void estimateJoinMin( AlgorithmTemplate o, StatContainer stat, Validator checker, int qSize ) {
+	public void estimateJoinMin( StatContainer stat, Validator checker, int indexK, int qSize ) {
 
 		if( DEBUG.SampleStatON ) {
 			stat.add( "Stat_Sample Searched size", sampleSearchedList.size() );
@@ -135,6 +134,7 @@ public class SampleEstimate {
 			joinmininst = new JoinMin( sampleQuery, stat );
 			joinmininst.checker = checker;
 			joinmininst.qSize = qSize;
+			joinmininst.indexK = indexK;
 
 			if( DEBUG.SampleStatON ) {
 				Util.printLog( "Joinmininst run" );
@@ -167,9 +167,9 @@ public class SampleEstimate {
 		}
 	}
 
-	public void estimateWithSample( StatContainer stat, AlgorithmTemplate o, Validator checker, int qSize ) {
-		estimateNaive( o, stat );
-		estimateJoinMin( o, stat, checker, qSize );
+	public void estimateWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
+		estimateNaive( stat );
+		estimateJoinMin( stat, checker, indexK, qSize );
 	}
 
 	public double getEstimateNaive( double totalExpLengthIndex, double totalExpJoin ) {
