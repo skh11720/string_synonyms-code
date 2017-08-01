@@ -50,4 +50,14 @@ public class Query {
 			}
 		}
 	}
+
+	public Query( Ruleset ruleSet, Dataset indexedSet, Dataset searchedSet, TokenIndex tokenIndex, boolean oneSideJoin,
+			boolean selfJoin ) {
+		this.ruleSet = ruleSet;
+		this.indexedSet = indexedSet;
+		this.searchedSet = searchedSet;
+		this.tokenIndex = tokenIndex;
+		this.oneSideJoin = oneSideJoin;
+		this.selfJoin = selfJoin;
+	}
 }

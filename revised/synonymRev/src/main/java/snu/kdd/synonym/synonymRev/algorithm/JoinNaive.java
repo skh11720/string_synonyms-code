@@ -92,6 +92,14 @@ public class JoinNaive extends AlgorithmTemplate {
 		return rslt;
 	}
 
+	public double getAlpha() {
+		return idx.alpha;
+	}
+
+	public double getBeta() {
+		return idx.beta;
+	}
+
 	@Override
 	public String getName() {
 		return "JoinNaive";

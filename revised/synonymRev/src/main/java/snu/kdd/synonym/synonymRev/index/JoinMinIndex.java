@@ -505,6 +505,7 @@ public class JoinMinIndex {
 		return rslt;
 	}
 
+	@Deprecated
 	public void joinRecord( Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker,
 			boolean oneSideJoin ) {
 		long qgramStartTime = 0;
@@ -704,25 +705,116 @@ public class JoinMinIndex {
 
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
-			// long ruleiters = 0;
-			// long reccalls = 0;
-			// long entryiters = 0;
-			//
-			// if( DEBUG.JoinMinON ) {
-			// ruleiters = Validator.niterrules;
-			// reccalls = Validator.recursivecalls;
-			// entryiters = Validator.niterentry;
-			// }
 
 			long st = System.nanoTime();
 			int compare = checker.isEqual( recS, recR );
 			long duration = System.nanoTime() - st;
 
-			// if( DEBUG.JoinMinON ) {
-			// ruleiters = Validator.niterrules - ruleiters;
-			// reccalls = Validator.recursivecalls - reccalls;
-			// entryiters = Validator.niterentry - entryiters;
-			// }
+			comparisonTime += duration;
+			if( compare >= 0 ) {
+				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+				appliedRulesSum += compare;
+			}
+		}
+
+		if( DEBUG.PrintJoinMinJoinON ) {
+			long joinTime = System.nanoTime() - joinStartTime;
+
+			try {
+				bw.write( "" + qgramCount );
+				bw.write( " " + joinTime );
+				bw.write( "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void joinRecordMaxKThres( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
+			Validator checker, int threshold, boolean oneSideJoin ) {
+		long qgramStartTime = 0;
+		long joinStartTime = 0;
+		long qgramCount = 0;
+
+		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
+
+		if( DEBUG.JoinMinON ) {
+			qgramStartTime = System.nanoTime();
+		}
+
+		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
+
+		if( DEBUG.JoinMinON ) {
+			getQGramTime += System.nanoTime() - qgramStartTime;
+		}
+
+		int[] range = recS.getTransLengths();
+		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
+
+		if( DEBUG.PrintJoinMinJoinON ) {
+			joinStartTime = System.nanoTime();
+		}
+
+		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
+
+		for( int i = 0; i < searchmax; ++i ) {
+			Map<QGram, List<Record>> curridx = idx.get( i );
+			if( curridx == null ) {
+				continue;
+			}
+
+			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
+
+			for( QGram qgram : availableQGrams.get( i ) ) {
+				if( DEBUG.PrintJoinMinJoinON ) {
+					qgramCount++;
+				}
+
+				List<Record> tree = curridx.get( qgram );
+
+				if( tree == null ) {
+					continue;
+				}
+
+				for( Record e : tree ) {
+					if( !isUpperRecord && e.getEstNumTransformed() <= threshold ) {
+						// this record will not compared by joinmin index.
+						// this will be compared by joinnaive index
+						continue;
+					}
+					if( oneSideJoin ) {
+						if( StaticFunctions.overlap( e.getTokenCount(), e.getTokenCount(), range[ 0 ], range[ 1 ] ) ) {
+
+							candidates.add( e );
+							comparisonCount++;
+						}
+						else {
+							lengthFiltered++;
+						}
+					}
+					else {
+						if( StaticFunctions.overlap( e.getMinTransLength(), e.getMaxTransLength(), range[ 0 ], range[ 1 ] ) ) {
+							candidates.add( e );
+							comparisonCount++;
+						}
+						else {
+							lengthFiltered++;
+						}
+					}
+				}
+			}
+			allCandidateSet.add( candidates );
+		}
+
+		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap );
+
+		equivComparisons += candSet.size();
+		for( Record recR : candSet ) {
+
+			long st = System.nanoTime();
+			int compare = checker.isEqual( recS, recR );
+			long duration = System.nanoTime() - st;
 
 			comparisonTime += duration;
 			if( compare >= 0 ) {

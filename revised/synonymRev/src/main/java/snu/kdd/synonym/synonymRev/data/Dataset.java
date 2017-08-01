@@ -25,6 +25,11 @@ public class Dataset {
 		br.close();
 	}
 
+	public Dataset( ObjectArrayList<Record> record ) {
+		this.recordList = record;
+		this.nRecord = record.size();
+	}
+
 	public Iterable<Record> get() {
 		return recordList;
 	}

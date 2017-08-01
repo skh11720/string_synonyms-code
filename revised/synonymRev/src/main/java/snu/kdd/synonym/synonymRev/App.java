@@ -93,6 +93,7 @@ public class App {
 				alg = new JoinNaive( query, stat );
 			}
 			break;
+			
 		case JoinMH:
 			if( split ) {
 				alg = new JoinMH_Split( query, stat );
@@ -101,6 +102,7 @@ public class App {
 				alg = new JoinMH( query, stat );
 			}
 			break;
+			
 		case JoinBK:
 			if( split ) {
 				alg = new JoinBK_Split( query, stat );
@@ -109,18 +111,23 @@ public class App {
 				alg = new JoinBK( query, stat );
 			}
 			break;
+			
 		case JoinMin:
 			alg = new JoinMin( query, stat );
 			break;
+
 		case JoinMinRange:
 			alg = new JoinMinRange( query, stat );
 			break;
+
 		case JoinMinNaive:
 			alg = new JoinMinNaive( query, stat );
 			break;
+
 		case JoinMHNaive:
 			alg = new JoinMHNaive( query, stat );
 			break;
+
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );

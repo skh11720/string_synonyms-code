@@ -2,7 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.cli.ParseException;
 
@@ -11,7 +11,12 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
+import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StopWatch;
+import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 /**
@@ -32,19 +37,15 @@ public class JoinMinNaive extends AlgorithmTemplate {
 	SampleEstimate estimate;
 	private int qSize = 0;
 	private int indexK = 0;
-
-	// int joinThreshold = 0;
-
-	// private boolean joinMinRequired = true;
+	private double sampleRatio = 0;
+	private int joinThreshold = 1;
+	private boolean joinMinRequired = true;
 
 	NaiveIndex naiveIndex;
 	JoinMinIndex joinMinIdx;
 
-	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// TODO Auto-generated method stub
-
-	}
+	private long maxSearchedEstNumRecords = 0;
+	private long maxIndexedEstNumRecords = 0;
 
 	// /**
 	// * Estimated number of comparisons
@@ -58,328 +59,186 @@ public class JoinMinNaive extends AlgorithmTemplate {
 	// private double partialExpLengthNaiveIndex[];
 	// private double partialExpNaiveJoin[];
 	//
-	// private long maxSearchedEstNumRecords;
-	// private long maxIndexedEstNumRecords;
-	//
-	// private DataInfo dataInfo;
-	//
-	// public JoinHybrid( String rulefile, String Rfile, String Sfile, String outputfile, DataInfo dataInfo,
-	// boolean oneSideJoin, StatContainer stat ) throws IOException {
-	// super( rulefile, Rfile, Sfile, outputfile, dataInfo, oneSideJoin, stat );
-	// idComparator = new RecordIDComparator();
-	// ruletrie = new RuleTrie( rulelist );
-	//
-	// this.dataInfo = dataInfo;
-	// }
-	//
-	// @Override
-	// public void run( String[] args ) {
-	// Param params = Param.parseArgs( args, stat );
-	// // Setup parameters
-	// useAutomata = params.isUseACAutomata();
-	// skipChecking = params.isSkipChecking();
-	// maxIndex = params.getMaxIndex();
-	// compact = params.isCompact();
-	// // singleside = params.isSingleside();
-	// checker = params.getValidator();
-	// qSize = params.getQGramSize();
-	//
-	// run( params.getSampleRatio() );
-	// Validator.printStats();
-	// }
-	//
-	// public void run( double sampleratio ) {
-	// StopWatch stepTime = null;
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-	// }
-	//
-	// preprocess( compact, maxIndex, useAutomata );
-	//
-	// // Retrieve statistics
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// stepTime.stopAndAdd( stat );
-	// stepTime.resetAndStart( "Result_3_Statistics_Time" );
-	// statistics();
-	// stepTime.stopAndAdd( stat );
-	// stepTime.resetAndStart( "Result_4_Find_Constants_Time" );
-	// }
-	//
-	// // Estimate constants
-	// findConstants( sampleratio );
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// stepTime.stopAndAdd( stat );
-	// stepTime.resetAndStart( "Result_6_Find_Theta_Time" );
-	// }
-	//
-	// // joinThreshold = findTheta( Integer.MAX_VALUE );
-	// // joinThreshold = estimate.findTheta( qSize, maxIndex, stat, totalExpLengthNaiveIndex, totalExpNaiveJoin,
-	// // partialExpLengthNaiveIndex, partialExpNaiveJoin, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
-	//
-	// joinThreshold = estimate.findThetaUnrestricted( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
-	// oneSideJoin );
-	// if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
-	// joinMinRequired = false;
-	// }
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// stepTime.stopAndAdd( stat );
-	// stepTime.resetAndStart( "Result_7_Join_Time" );
-	// }
-	// Util.printLog( "Selected Threshold: " + joinThreshold );
-	//
-	// Collection<IntegerPair> rslt = join();
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// stepTime.stopAndAdd( stat );
-	//
-	// Util.printLog( "Result size: " + rslt.size() );
-	// Util.printLog( "Union counter: " + StaticFunctions.union_cmp_counter );
-	// }
-	//
-	// writeResult( rslt );
-	// }
-	//
-	// @Override
-	// protected void preprocess( boolean compact, int maxIndex, boolean useAutomata ) {
-	// super.preprocess( compact, maxIndex, useAutomata );
-	//
-	// // Sort R and S with expanded sizes
-	// Comparator<Record> cmp = new Comparator<Record>() {
-	// @Override
-	// public int compare( Record o1, Record o2 ) {
-	// long est1 = o1.getEstNumRecords();
-	// long est2 = o2.getEstNumRecords();
-	// return Long.compare( est1, est2 );
-	// }
-	// };
-	//
-	// long sortTime;
-	// if( DEBUG.JoinHybridON ) {
-	// sortTime = System.currentTimeMillis();
-	// }
-	//
-	// Collections.sort( tableSearched, cmp );
-	// Collections.sort( tableIndexed, cmp );
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// stat.add( "Result_2_7_Preprocess_Sorting_Time", System.currentTimeMillis() - sortTime );
-	// }
-	//
-	// // Reassign ID and collect statistics for join naive
-	// partialExpLengthNaiveIndex = new double[ CountEntry.countMax ];
-	// partialExpNaiveJoin = new double[ CountEntry.countMax ];
-	//
-	// int currentIdx = 0;
-	// int nextThreshold = 10;
-	//
-	// for( int i = 0; i < tableSearched.size(); ++i ) {
-	// Record t = tableSearched.get( i );
-	// t.setID( i );
-	//
-	// long est = t.getEstNumRecords();
-	// totalExpNaiveJoin += est;
-	//
-	// while( currentIdx != CountEntry.countMax - 1 && est >= nextThreshold ) {
-	// nextThreshold *= 10;
-	// currentIdx++;
-	// }
-	//
-	// int idx = CountEntry.getIndex( est );
-	// partialExpNaiveJoin[ idx ] += est;
-	// }
-	//
-	// currentIdx = 0;
-	// nextThreshold = 10;
-	// for( int i = 0; i < tableIndexed.size(); ++i ) {
-	// Record s = tableIndexed.get( i );
-	// s.setID( i );
-	//
-	// long est = s.getEstNumRecords();
-	// double estLength = (double) s.getEstNumRecords() * (double) s.getTokenArray().length;
-	// totalExpLengthNaiveIndex += estLength;
-	//
-	// while( currentIdx != CountEntry.countMax - 1 && s.getEstNumRecords() >= nextThreshold ) {
-	// nextThreshold *= 10;
-	// currentIdx++;
-	// }
-	//
-	// int idx = CountEntry.getIndex( est );
-	// partialExpLengthNaiveIndex[ idx ] += estLength;
-	// }
-	//
-	// maxSearchedEstNumRecords = tableSearched.get( tableSearched.size() - 1 ).getEstNumRecords();
-	// maxIndexedEstNumRecords = tableIndexed.get( tableIndexed.size() - 1 ).getEstNumRecords();
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// for( int i = 0; i < CountEntry.countMax; i++ ) {
-	// stat.add( "Preprocess_ExpLength_" + i, partialExpLengthNaiveIndex[ i ] );
-	// stat.add( "Preprocess_Exp_" + i, partialExpNaiveJoin[ i ] );
-	// }
-	// stat.add( "Preprocess_ExpLength_Total", totalExpLengthNaiveIndex );
-	// stat.add( "Preprocess_Exp_Total", totalExpNaiveJoin );
-	// }
-	// }
-	//
-	// private void buildJoinMinIndex() {
-	// // Build an index
-	// joinMinIdx = JoinMinIndex.buildIndex( tableSearched, tableIndexed, maxIndex, qSize, stat, true, oneSideJoin );
-	// }
-	//
-	// private void buildNaiveIndex() {
-	// naiveIndex = NaiveIndex.buildIndex( tableIndexed, joinThreshold / 2, stat, joinThreshold, false, oneSideJoin );
-	// }
-	//
-	// /**
-	// * Although this implementation is not efficient, we did like this to measure
-	// * the execution time of each part more accurate.
-	// *
-	// * @return
-	// */
-	// private ArrayList<IntegerPair> join() {
-	// StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
-	// if( joinMinRequired ) {
-	// buildJoinMinIndex();
-	// }
-	// int joinMinResultSize = 0;
-	// if( DEBUG.JoinHybridON ) {
-	// if( joinMinRequired ) {
-	// stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
-	// stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
-	// stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
-	//
-	// stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
-	// stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
-	// stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
-	// }
-	// stepTime.stopAndAdd( stat );
-	// stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
-	// }
-	//
-	// ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
-	// long joinstart = System.nanoTime();
-	// if( joinMinRequired ) {
-	// if( oneSideJoin ) {
-	// for( Record s : tableSearched ) {
-	// // System.out.println( "test " + s + " " + s.getEstNumRecords() );
-	// if( s.getEstNumRecords() > joinThreshold ) {
-	// joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold, oneSideJoin );
-	// }
-	// }
-	// }
-	// else {
-	// for( Record s : tableSearched ) {
-	// joinMinIdx.joinRecordThres( s, rslt, true, null, checker, joinThreshold, oneSideJoin );
-	// }
-	// }
-	//
-	// joinMinResultSize = rslt.size();
-	// stat.add( "Join_Min_Result", joinMinResultSize );
-	// stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
-	// }
-	// double joinminJointime = System.nanoTime() - joinstart;
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// Util.printLog( "After JoinMin Result: " + rslt.size() );
-	// stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
-	// if( joinMinRequired ) {
-	// stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
-	// stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
-	//
-	// // TODO DEBUG
-	// stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
-	// stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
-	// }
-	// stepTime.stopAndAdd( stat );
-	// stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
-	// }
-	//
-	// buildNaiveIndex();
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
-	// stat.add( "Const_Alpha_IndexTime_Actual", String.format( "%.2f", naiveIndex.indexTime ) );
-	// stat.add( "Const_Alpha_ExpLength_Actual", String.format( "%.2f", naiveIndex.totalExpLength ) );
-	//
-	// stepTime.stopAndAdd( stat );
-	// stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
-	// }
-	//
-	// @SuppressWarnings( "unused" )
-	// int naiveSearch = 0;
-	// long starttime = System.nanoTime();
-	// for( Record s : tableSearched ) {
-	// if( s.getEstNumRecords() > joinThreshold ) {
-	// continue;
-	// }
-	// else {
-	// naiveIndex.joinOneRecord( s, rslt );
-	// naiveSearch++;
-	// }
-	// }
-	// double joinTime = System.nanoTime() - starttime;
-	//
-	// stat.add( "Join_Naive_Result", rslt.size() - joinMinResultSize );
-	//
-	// if( DEBUG.JoinHybridON ) {
-	// stat.add( "Const_Beta_Actual", String.format( "%.2f", joinTime / naiveIndex.totalExp ) );
-	// stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
-	// stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
-	//
-	// stat.add( "Stat_Naive search count", naiveSearch );
-	// stepTime.stopAndAdd( stat );
-	// }
-	//
-	// return rslt;
-	// }
-	//
-	// public void statistics() {
-	// long strlengthsum = 0;
-	// long strmaxinvsearchrangesum = 0;
-	// int strs = 0;
-	// int maxstrlength = 0;
-	//
-	// long rhslengthsum = 0;
-	// int rules = 0;
-	// int maxrhslength = 0;
-	//
-	// for( Record rec : tableSearched ) {
-	// strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
-	// int length = rec.getTokenArray().length;
-	// ++strs;
-	// strlengthsum += length;
-	// maxstrlength = Math.max( maxstrlength, length );
-	// }
-	// for( Record rec : tableIndexed ) {
-	// strmaxinvsearchrangesum += rec.getMaxInvSearchRange();
-	// int length = rec.getTokenArray().length;
-	// ++strs;
-	// strlengthsum += length;
-	// maxstrlength = Math.max( maxstrlength, length );
-	// }
-	//
-	// for( Rule rule : getRulelist() ) {
-	// int length = rule.getTo().length;
-	// ++rules;
-	// rhslengthsum += length;
-	// maxrhslength = Math.max( maxrhslength, length );
-	// }
-	//
-	// Util.printLog( "Average str length: " + strlengthsum + "/" + strs );
-	// Util.printLog( "Average maxinvsearchrange: " + strmaxinvsearchrangesum + "/" + strs );
-	// Util.printLog( "Maximum str length: " + maxstrlength );
-	// Util.printLog( "Average rhs length: " + rhslengthsum + "/" + rules );
-	// Util.printLog( "Maximum rhs length: " + maxrhslength );
-	// }
-	//
-	// private void findConstants( double sampleratio ) {
-	// // Sample
-	// estimate = new SampleEstimate( tableSearched, tableIndexed, sampleratio, dataInfo.isSelfJoin() );
-	// estimate.estimateWithSample( stat, this, checker, qSize );
-	// }
+
+	@Override
+	public void preprocess() {
+		super.preprocess();
+
+		for( Record rec : query.indexedSet.get() ) {
+			rec.preprocessSuffixApplicableRules();
+			if( maxIndexedEstNumRecords < rec.getEstNumTransformed() ) {
+				maxIndexedEstNumRecords = rec.getEstNumTransformed();
+			}
+		}
+		if( !query.selfJoin ) {
+			for( Record rec : query.searchedSet.get() ) {
+				rec.preprocessSuffixApplicableRules();
+				if( maxSearchedEstNumRecords < rec.getEstNumTransformed() ) {
+					maxSearchedEstNumRecords = rec.getEstNumTransformed();
+				}
+			}
+		}
+		else {
+			maxSearchedEstNumRecords = maxIndexedEstNumRecords;
+		}
+	}
+
+	@Override
+	public void run( Query query, String[] args ) throws IOException, ParseException {
+		Param params = Param.parseArgs( args, stat, query );
+		// Setup parameters
+		checker = params.validator;
+		qSize = params.qgramSize;
+		indexK = params.indexK;
+		sampleRatio = params.sampleRatio;
+
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		preprocess();
+		stepTime.stopAndAdd( stat );
+		// Retrieve statistics
+
+		stepTime.resetAndStart( "Result_3_Run_Time" );
+		// Estimate constants
+		findConstants( sampleRatio );
+
+		// joinThreshold = findTheta( Integer.MAX_VALUE );
+		// joinThreshold = estimate.findTheta( qSize, maxIndex, stat, totalExpLengthNaiveIndex, totalExpNaiveJoin,
+		// partialExpLengthNaiveIndex, partialExpNaiveJoin, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
+
+		joinThreshold = estimate.findThetaUnrestricted( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
+				query.oneSideJoin );
+
+		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
+			joinMinRequired = false;
+		}
+
+		Util.printLog( "Selected Threshold: " + joinThreshold );
+
+		Collection<IntegerPair> rslt = join();
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
+
+		stepTime.resetAndStart( "Result_4_Write_Time" );
+		writeResult( rslt );
+		stepTime.stopAndAdd( stat );
+	}
+
+	private void buildJoinMinIndex() {
+		// Build an index
+		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, true );
+	}
+
+	private void buildNaiveIndex() {
+		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, false, query );
+	}
+
+	/**
+	 * Although this implementation is not efficient, we did like this to measure
+	 * the execution time of each part more accurate.
+	 *
+	 * @return
+	 */
+	private ArrayList<IntegerPair> join() {
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
+		if( joinMinRequired ) {
+			buildJoinMinIndex();
+		}
+		int joinMinResultSize = 0;
+		if( DEBUG.JoinMinNaiveON ) {
+			if( joinMinRequired ) {
+				stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
+				stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
+				stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
+
+				stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
+				stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
+				stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
+			}
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
+		}
+
+		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		long joinstart = System.nanoTime();
+		if( joinMinRequired ) {
+			if( query.oneSideJoin ) {
+				for( Record s : query.searchedSet.get() ) {
+					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
+					if( s.getEstNumTransformed() > joinThreshold ) {
+						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+					}
+				}
+			}
+			else {
+				for( Record s : query.searchedSet.get() ) {
+					joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+				}
+			}
+
+			joinMinResultSize = rslt.size();
+			stat.add( "Join_Min_Result", joinMinResultSize );
+			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
+		}
+		double joinminJointime = System.nanoTime() - joinstart;
+
+		if( DEBUG.JoinMinNaiveON ) {
+			Util.printLog( "After JoinMin Result: " + rslt.size() );
+			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
+			if( joinMinRequired ) {
+				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
+				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
+
+				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
+				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+			}
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
+		}
+
+		buildNaiveIndex();
+
+		if( DEBUG.JoinMinNaiveON ) {
+			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
+			stat.add( "Const_Alpha_IndexTime_Actual", String.format( "%.2f", naiveIndex.indexTime ) );
+			stat.add( "Const_Alpha_ExpLength_Actual", String.format( "%.2f", naiveIndex.totalExpLength ) );
+
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
+		}
+
+		@SuppressWarnings( "unused" )
+		int naiveSearch = 0;
+		long starttime = System.nanoTime();
+		for( Record s : query.searchedSet.get() ) {
+			if( s.getEstNumTransformed() > joinThreshold ) {
+				continue;
+			}
+			else {
+				naiveIndex.joinOneRecord( s, rslt );
+				naiveSearch++;
+			}
+		}
+		double joinTime = System.nanoTime() - starttime;
+
+		stat.add( "Join_Naive_Result", rslt.size() - joinMinResultSize );
+
+		if( DEBUG.JoinMinNaiveON ) {
+			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinTime / naiveIndex.totalExp ) );
+			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
+			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
+
+			stat.add( "Stat_Naive search count", naiveSearch );
+			stepTime.stopAndAdd( stat );
+		}
+
+		return rslt;
+	}
+
+	private void findConstants( double sampleratio ) {
+		// Sample
+		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
+		estimate.estimateWithSample( stat, this, checker, qSize );
+	}
 
 	@Override
 	public String getVersion() {
