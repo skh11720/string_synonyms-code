@@ -62,6 +62,8 @@ public class JoinMinRangeIndex {
 
 	public long predictCount;
 
+	private int maxPosition = 0;
+
 	public static class RangeCount {
 
 		public Int2IntOpenHashMap rangeToCount;
@@ -157,7 +159,6 @@ public class JoinMinRangeIndex {
 				// e.printStackTrace();
 				// }
 				// }
-
 			}
 			this.searchedTotalSigCount += qgramCount;
 
@@ -302,6 +303,10 @@ public class JoinMinRangeIndex {
 				MinPosition minPos = mpq.poll();
 				indexedPosition[ p ] = minPos.positionIndex;
 				candidateCount[ p ] = minPos.candidateCount;
+
+				if( maxPosition < minPos.positionIndex ) {
+					maxPosition = minPos.positionIndex;
+				}
 
 				if( DEBUG.PrintJoinMinIndexON ) {
 
@@ -640,7 +645,7 @@ public class JoinMinRangeIndex {
 
 			if( DEBUG.PrintJoinMinJoinON ) {
 				for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
-					if( i >= idx.size() ) {
+					if( i >= maxPosition ) {
 						break;
 					}
 					debugArray.add( "q :" + qgramRange.qgram + " " + i + "\n" );
