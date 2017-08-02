@@ -734,6 +734,10 @@ public class JoinMinRangeIndex {
 			if( compare >= 0 ) {
 				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 				appliedRulesSum += compare;
+				if( DEBUG.PrintJoinMinJoinON ) {
+					debugArray.add( "Val " + recS + " : " + recR );
+				}
+
 			}
 		}
 
