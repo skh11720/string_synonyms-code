@@ -258,7 +258,7 @@ public class JoinMinIndex {
 				if( i >= invokes.size() ) {
 					mpq.add( i, 0 );
 
-					if( DEBUG.JoinMinIndexON ) {
+					if( DEBUG.PrintJoinMinIndexON ) {
 						try {
 							bw_index.write( "pos " + i + " 0\n" );
 						}
@@ -273,7 +273,7 @@ public class JoinMinIndex {
 				if( curridx_invokes.size() == 0 ) {
 					mpq.add( i, 0 );
 
-					if( DEBUG.JoinMinIndexON ) {
+					if( DEBUG.PrintJoinMinIndexON ) {
 						try {
 							bw_index.write( "pos " + i + " 0\n" );
 						}
@@ -295,7 +295,7 @@ public class JoinMinIndex {
 					}
 				}
 
-				if( DEBUG.JoinMinIndexON ) {
+				if( DEBUG.PrintJoinMinIndexON ) {
 					try {
 						bw_index.write( "pos " + i + " " + invoke + "\n" );
 					}
