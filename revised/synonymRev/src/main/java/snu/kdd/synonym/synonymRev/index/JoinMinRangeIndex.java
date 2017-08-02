@@ -706,7 +706,7 @@ public class JoinMinRangeIndex {
 			allCandidateSet.add( candidates );
 		}
 
-		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap );
+		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, debugArray );
 
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
@@ -825,7 +825,7 @@ public class JoinMinRangeIndex {
 			}
 		}
 
-		public ArrayList<Record> getCandSet( Object2IntOpenHashMap<Record> indexedCountMap ) {
+		public ArrayList<Record> getCandSet( Object2IntOpenHashMap<Record> indexedCountMap, ArrayList<String> debugArray ) {
 			ArrayList<Record> list = new ArrayList<Record>( appearingMap.size() );
 			Iterator<Entry<Record, Integer>> iter = appearingMap.entrySet().iterator();
 
@@ -833,6 +833,11 @@ public class JoinMinRangeIndex {
 				Entry<Record, Integer> entry = iter.next();
 
 				Record r = entry.getKey();
+
+				if( DEBUG.PrintJoinMinJoinON ) {
+					debugArray.add( r + " " + indexedCountMap.getInt( r ) + " " + entry.getValue() + "\n" );
+				}
+
 				if( indexedCountMap.getInt( r ) == entry.getValue() ) {
 					list.add( r );
 				}
