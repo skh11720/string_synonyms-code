@@ -325,6 +325,14 @@ public class JoinMinRangeIndex {
 			for( QGramRange qgramRange : availableQGrams ) {
 				// since indexedPosition is sorted by ascending order,
 				// if minIdx > qgramRange.max, we skip the qgramRange
+				if( DEBUG.PrintJoinMinIndexON ) {
+					try {
+						bw_index.write( "qgramRange " + qgramRange.qgram + " " + qgramRange.min + " " + qgramRange.max );
+					}
+					catch( IOException e ) {
+						e.printStackTrace();
+					}
+				}
 				for( int minIdx : indexedPosition ) {
 					// write2File(bw, minIdx, twogram, rec.getID());
 
@@ -334,7 +342,7 @@ public class JoinMinRangeIndex {
 					else if( qgramRange.min <= minIdx ) {
 						if( DEBUG.PrintJoinMinIndexON ) {
 							try {
-								bw_index.write( minIdx + ", " + qgramRange.qgram + " : " + rec + "\n" );
+								bw_index.write( minIdx + ", " + qgramRange.qgram + " : " + rec + " " + "\n" );
 							}
 							catch( IOException e ) {
 								e.printStackTrace();
@@ -347,7 +355,6 @@ public class JoinMinRangeIndex {
 						}
 					}
 				}
-
 			}
 
 			indexedCountMap.put( rec, indexedCount );
