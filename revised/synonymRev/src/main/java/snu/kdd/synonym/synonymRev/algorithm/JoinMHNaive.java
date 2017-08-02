@@ -16,14 +16,12 @@ public class JoinMHNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "joinMHNaive";
 	}
 
 	@Override
 	public String getVersion() {
-		// TODO Auto-generated method stub
-		return null;
+		return "2.0";
 	}
 
 	@Override
