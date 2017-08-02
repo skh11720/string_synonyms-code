@@ -321,6 +321,14 @@ public class JoinMinRangeIndex {
 			}
 
 			Arrays.sort( indexedPosition );
+			if( DEBUG.PrintJoinMinIndexON ) {
+				try {
+					bw_index.write( "indexed " + Arrays.toString( indexedPosition ) );
+				}
+				catch( IOException e ) {
+					e.printStackTrace();
+				}
+			}
 
 			for( QGramRange qgramRange : availableQGrams ) {
 				// since indexedPosition is sorted by ascending order,
