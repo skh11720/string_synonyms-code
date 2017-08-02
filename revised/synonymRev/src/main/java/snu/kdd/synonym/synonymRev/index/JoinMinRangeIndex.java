@@ -414,7 +414,7 @@ public class JoinMinRangeIndex {
 
 		if( DEBUG.PrintJoinMinJoinON ) {
 			try {
-				bw = new BufferedWriter( new FileWriter( "JoinMin_Join_Debug.txt" ) );
+				bw = new BufferedWriter( new FileWriter( "JoinMinRange_Join_Debug.txt" ) );
 			}
 			catch( Exception e ) {
 				e.printStackTrace();
