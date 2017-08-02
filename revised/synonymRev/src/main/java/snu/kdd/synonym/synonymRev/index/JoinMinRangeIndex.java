@@ -666,7 +666,7 @@ public class JoinMinRangeIndex {
 								range[ 1 ] ) ) {
 
 							if( DEBUG.PrintJoinMinJoinON ) {
-								debugArray.add( "Cand: " + e.record.getID() + " by " + qgramRange.qgram + "\n" );
+								debugArray.add( "Cand: " + e.record + " by " + qgramRange.qgram + "\n" );
 							}
 							candidates.add( e.record );
 							comparisonCount++;
