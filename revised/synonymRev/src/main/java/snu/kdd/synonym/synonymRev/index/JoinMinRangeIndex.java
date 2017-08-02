@@ -638,7 +638,15 @@ public class JoinMinRangeIndex {
 			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
 
 			if( DEBUG.PrintJoinMinJoinON ) {
-				qgramCount += Integer.min( qgramRange.max, searchmax ) - qgramRange.min + 1;
+				try {
+					for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
+						bw.write( "q :" + qgramRange.qgram + " " + i );
+					}
+				}
+				catch( IOException e1 ) {
+					e1.printStackTrace();
+				}
+				qgramCount += qgramRange.max - qgramRange.min + 1;
 			}
 
 			List<RecordInt> tree = idx.get( qgramRange.qgram );

@@ -667,6 +667,12 @@ public class JoinMinIndex {
 
 			for( QGram qgram : availableQGrams.get( i ) ) {
 				if( DEBUG.PrintJoinMinJoinON ) {
+					try {
+						bw.write( "q :" + qgramRange.qgram + " " + i );
+					}
+					catch( IOException e1 ) {
+						e1.printStackTrace();
+					}
 					qgramCount++;
 				}
 
