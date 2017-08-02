@@ -294,13 +294,16 @@ public class JoinMinRangeIndex {
 
 			int indexedCount = 0;
 			int[] indexedPosition = new int[ nIndex ];
+			double[] candidateCount = new double[ nIndex ];
 			int p = 0;
 			while( !mpq.isEmpty() ) {
 				indexedCount++;
 				MinPosition minPos = mpq.poll();
-				indexedPosition[ p++ ] = minPos.positionIndex;
+				indexedPosition[ p ] = minPos.positionIndex;
+				candidateCount[ p ] = minPos.candidateCount;
 
 				if( DEBUG.PrintJoinMinIndexON ) {
+
 					try {
 						bw_index.write( minPos.positionIndex + " " + minPos.candidateCount + "\n" );
 					}
@@ -308,6 +311,7 @@ public class JoinMinRangeIndex {
 						e.printStackTrace();
 					}
 				}
+				p++;
 			}
 
 			Arrays.sort( indexedPosition );
