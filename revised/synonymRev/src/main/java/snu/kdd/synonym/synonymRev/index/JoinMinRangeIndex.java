@@ -620,6 +620,7 @@ public class JoinMinRangeIndex {
 		}
 
 		List<QGramRange> availableQGrams = recS.getQGramRange( qSize );
+		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 
 		if( DEBUG.JoinMinON ) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
@@ -637,7 +638,7 @@ public class JoinMinRangeIndex {
 			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
 
 			if( DEBUG.PrintJoinMinJoinON ) {
-				qgramCount += qgramRange.max - qgramRange.min + 1;
+				qgramCount += Integer.min( qgramRange.max, searchmax ) - qgramRange.min + 1;
 			}
 
 			List<RecordInt> tree = idx.get( qgramRange.qgram );
