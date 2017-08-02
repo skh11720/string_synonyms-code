@@ -108,7 +108,7 @@ public class JoinMinRangeIndex {
 
 		BufferedWriter bw_debug_count = null;
 
-		if( DEBUG.JoinMinIndexON ) {
+		if( DEBUG.PrintJoinMinIndexON ) {
 			try {
 				bw_debug_count = new BufferedWriter( new FileWriter( "JoinMinRange_Index_Count_Debug.txt" ) );
 			}
@@ -164,7 +164,7 @@ public class JoinMinRangeIndex {
 				countIndexingTime += System.nanoTime() - recordMidTime;
 			}
 
-			if( DEBUG.JoinMinIndexON ) {
+			if( DEBUG.PrintJoinMinIndexON ) {
 				try {
 					bw_debug_count.write( qgramCount + " " );
 					bw_debug_count.write( recordMidTime - recordStartTime + " " );
@@ -176,7 +176,7 @@ public class JoinMinRangeIndex {
 			}
 		}
 
-		if( DEBUG.JoinMinIndexON ) {
+		if( DEBUG.PrintJoinMinIndexON ) {
 			ObjectIterator<Entry<QGram, RangeCount>> iter = invokes.entrySet().iterator();
 			try {
 				while( iter.hasNext() ) {
