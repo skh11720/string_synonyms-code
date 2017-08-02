@@ -645,7 +645,7 @@ public class JoinMinRangeIndex {
 
 			if( DEBUG.PrintJoinMinJoinON ) {
 				for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
-					if( i >= maxPosition ) {
+					if( i > maxPosition ) {
 						break;
 					}
 					debugArray.add( "q :" + qgramRange.qgram + " " + i + "\n" );
