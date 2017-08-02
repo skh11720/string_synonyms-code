@@ -327,7 +327,7 @@ public class JoinMinRangeIndex {
 				// if minIdx > qgramRange.max, we skip the qgramRange
 				if( DEBUG.PrintJoinMinIndexON ) {
 					try {
-						bw_index.write( "qgramRange " + qgramRange.qgram + " " + qgramRange.min + " " + qgramRange.max );
+						bw_index.write( "qgramRange " + qgramRange.qgram + " " + qgramRange.min + " " + qgramRange.max + "\n" );
 					}
 					catch( IOException e ) {
 						e.printStackTrace();
