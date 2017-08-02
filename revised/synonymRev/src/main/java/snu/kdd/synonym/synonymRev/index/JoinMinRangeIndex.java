@@ -640,9 +640,12 @@ public class JoinMinRangeIndex {
 
 			if( DEBUG.PrintJoinMinJoinON ) {
 				for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
+					if( i >= idx.size() ) {
+						break;
+					}
 					debugArray.add( "q :" + qgramRange.qgram + " " + i + "\n" );
+					qgramCount++;
 				}
-				qgramCount += qgramRange.max - qgramRange.min + 1;
 			}
 
 			List<RecordInt> tree = idx.get( qgramRange.qgram );
