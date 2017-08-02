@@ -665,6 +665,9 @@ public class JoinMinRangeIndex {
 						if( StaticFunctions.overlap( e.record.getTokenCount(), e.record.getTokenCount(), range[ 0 ],
 								range[ 1 ] ) ) {
 
+							if( DEBUG.PrintJoinMinJoinON ) {
+								debugArray.add( "Cand: " + e.record.getID() );
+							}
 							candidates.add( e.record );
 							comparisonCount++;
 						}
