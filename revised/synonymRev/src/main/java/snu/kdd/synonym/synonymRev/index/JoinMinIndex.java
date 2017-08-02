@@ -712,7 +712,7 @@ public class JoinMinIndex {
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
 			if( DEBUG.PrintJoinMinJoinON ) {
-				debugArray.add( "Test " + recR );
+				debugArray.add( "Test " + recR + "\n" );
 			}
 
 			long st = System.nanoTime();
