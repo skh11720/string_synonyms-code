@@ -711,6 +711,9 @@ public class JoinMinIndex {
 
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
+			if( DEBUG.PrintJoinMinJoinON ) {
+				debugArray.add( "Test " + recR );
+			}
 
 			long st = System.nanoTime();
 			int compare = checker.isEqual( recS, recR );

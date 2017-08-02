@@ -681,7 +681,7 @@ public class JoinMinRangeIndex {
 								range[ 1 ] ) ) {
 
 							if( DEBUG.PrintJoinMinJoinON ) {
-								debugArray.add( "Cand: " + e.record + " by " + qgramRange.qgram + "\n" );
+								debugArray.add( "Cand: " + e.record + " by " + qgramRange.qgram + " at " + e.index + "\n" );
 							}
 							candidates.add( e.record );
 							comparisonCount++;
@@ -710,15 +710,10 @@ public class JoinMinRangeIndex {
 
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
-			// long ruleiters = 0;
-			// long reccalls = 0;
-			// long entryiters = 0;
-			//
-			// if( DEBUG.JoinMinON ) {
-			// ruleiters = Validator.niterrules;
-			// reccalls = Validator.recursivecalls;
-			// entryiters = Validator.niterentry;
-			// }
+
+			if( DEBUG.PrintJoinMinJoinON ) {
+				debugArray.add( "Test " + recR );
+			}
 
 			long st = System.nanoTime();
 			int compare = checker.isEqual( recS, recR );
