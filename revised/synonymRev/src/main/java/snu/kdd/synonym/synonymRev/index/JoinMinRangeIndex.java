@@ -295,8 +295,8 @@ public class JoinMinRangeIndex {
 			this.predictCount += mpq.minInvokes;
 
 			int indexedCount = 0;
-			int[] indexedPosition = new int[ nIndex ];
-			double[] candidateCount = new double[ nIndex ];
+			int[] indexedPosition = new int[ mpq.size() ];
+			double[] candidateCount = new double[ mpq.size() ];
 			int p = 0;
 			while( !mpq.isEmpty() ) {
 				indexedCount++;

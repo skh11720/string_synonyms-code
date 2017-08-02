@@ -38,6 +38,10 @@ public class MinPositionQueue {
 		return pq.poll();
 	}
 
+	public int size() {
+		return pq.size();
+	}
+
 	private static class MinPositionComparator implements Comparator<MinPosition> {
 		@Override
 		public int compare( MinPosition x, MinPosition y ) {
