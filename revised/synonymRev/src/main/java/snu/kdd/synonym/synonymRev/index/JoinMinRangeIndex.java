@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -656,8 +657,6 @@ public class JoinMinRangeIndex {
 		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
 
 		for( QGramRange qgramRange : availableQGrams ) {
-			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
-
 			if( DEBUG.PrintJoinMinJoinON ) {
 				for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
 					if( i > maxPosition ) {
@@ -683,7 +682,8 @@ public class JoinMinRangeIndex {
 							if( DEBUG.PrintJoinMinJoinON ) {
 								debugArray.add( "Cand: " + e.record + " by " + qgramRange.qgram + " at " + e.index + "\n" );
 							}
-							candidates.add( e.record );
+							allCandidateSet.add( e.record, e.index );
+
 							comparisonCount++;
 						}
 						else {
@@ -693,7 +693,7 @@ public class JoinMinRangeIndex {
 					else {
 						if( StaticFunctions.overlap( e.record.getMinTransLength(), e.record.getMaxTransLength(), range[ 0 ],
 								range[ 1 ] ) ) {
-							candidates.add( e.record );
+							allCandidateSet.add( e.record, e.index );
 							comparisonCount++;
 						}
 						else {
@@ -702,8 +702,6 @@ public class JoinMinRangeIndex {
 					}
 				}
 			}
-
-			allCandidateSet.add( candidates );
 		}
 
 		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, debugArray );
@@ -800,10 +798,12 @@ public class JoinMinRangeIndex {
 		int nIndex;
 
 		WYK_HashMap<Record, Integer> appearingMap = null;
+		WYK_HashMap<Record, IntArrayList> appearingPositionMap = null;
 
 		public JoinMinCandidateSet( int nIndex, Record rec, int predictedInvokes ) {
 			this.nIndex = nIndex;
 
+			this.appearingPositionMap = new WYK_HashMap<Record, IntArrayList>();
 			if( predictedInvokes < 10 ) {
 				appearingMap = new WYK_HashMap<Record, Integer>( 10 );
 			}
@@ -812,15 +812,19 @@ public class JoinMinRangeIndex {
 			}
 		}
 
-		public void add( WYK_HashSet<Record> set ) {
-			for( Record r : set ) {
-				Integer count = appearingMap.get( r );
-
-				if( count == null ) {
-					appearingMap.put( r, 1 );
-				}
-				else {
-					appearingMap.put( r, count + 1 );
+		public void add( Record record, int position ) {
+			IntArrayList list = appearingPositionMap.get( record );
+			if( list == null ) {
+				list = new IntArrayList( 3 );
+				list.add( position );
+				appearingPositionMap.put( record, list );
+				appearingMap.put( record, 1 );
+			}
+			else {
+				if( !list.contains( position ) ) {
+					list.add( position );
+					Integer count = appearingMap.get( record );
+					appearingMap.put( record, count + 1 );
 				}
 			}
 		}
