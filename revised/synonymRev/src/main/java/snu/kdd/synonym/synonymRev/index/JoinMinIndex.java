@@ -725,7 +725,7 @@ public class JoinMinIndex {
 				appliedRulesSum += compare;
 
 				if( DEBUG.PrintJoinMinJoinON ) {
-					debugArray.add( "Val " + recS + " : " + recR );
+					debugArray.add( "Val " + recS + " : " + recR + "\n" );
 				}
 			}
 		}

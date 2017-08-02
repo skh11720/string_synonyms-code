@@ -730,7 +730,7 @@ public class JoinMinRangeIndex {
 				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 				appliedRulesSum += compare;
 				if( DEBUG.PrintJoinMinJoinON ) {
-					debugArray.add( "Val " + recS + " : " + recR );
+					debugArray.add( "Val " + recS + " : " + recR + "\n" );
 				}
 
 			}
