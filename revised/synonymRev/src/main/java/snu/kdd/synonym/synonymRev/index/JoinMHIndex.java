@@ -238,10 +238,10 @@ public class JoinMHIndex {
 			}
 		}
 
-		if( System.currentTimeMillis() - startTime > 0 )
-
-		{
-			System.out.println( "prevCand: " + prevCandidate.size() );
+		if( DEBUG.JoinMHIndexON ) {
+			if( System.currentTimeMillis() - startTime > 0 ) {
+				System.out.println( "prevCand: " + prevCandidate.size() );
+			}
 		}
 
 		for( Record recR : prevCandidate ) {
