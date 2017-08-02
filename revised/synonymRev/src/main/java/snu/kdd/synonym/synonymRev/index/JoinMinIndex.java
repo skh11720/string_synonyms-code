@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -650,6 +651,7 @@ public class JoinMinIndex {
 
 		int[] range = recS.getTransLengths();
 		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
+		ArrayList<String> debugArray = new ArrayList<String>();
 
 		if( DEBUG.PrintJoinMinJoinON ) {
 			joinStartTime = System.nanoTime();
@@ -667,12 +669,8 @@ public class JoinMinIndex {
 
 			for( QGram qgram : availableQGrams.get( i ) ) {
 				if( DEBUG.PrintJoinMinJoinON ) {
-					try {
-						bw.write( "q :" + qgram + " " + i + "\n" );
-					}
-					catch( IOException e1 ) {
-						e1.printStackTrace();
-					}
+					debugArray.add( "q :" + qgram + " " + i + "\n" );
+
 					qgramCount++;
 				}
 
@@ -727,6 +725,10 @@ public class JoinMinIndex {
 			long joinTime = System.nanoTime() - joinStartTime;
 
 			try {
+				Collections.sort( debugArray );
+				for( String temp : debugArray ) {
+					bw.write( temp );
+				}
 				bw.write( "" + qgramCount );
 				bw.write( " " + joinTime );
 				bw.write( "\n" );

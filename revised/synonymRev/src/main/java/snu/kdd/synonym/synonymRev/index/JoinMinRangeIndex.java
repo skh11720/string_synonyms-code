@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -620,14 +621,14 @@ public class JoinMinRangeIndex {
 		}
 
 		List<QGramRange> availableQGrams = recS.getQGramRange( qSize );
-		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
+		// int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 
 		if( DEBUG.JoinMinON ) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
 		}
 
 		int[] range = recS.getTransLengths();
-
+		ArrayList<String> debugArray = new ArrayList<String>();
 		if( DEBUG.PrintJoinMinJoinON ) {
 			joinStartTime = System.nanoTime();
 		}
@@ -638,13 +639,8 @@ public class JoinMinRangeIndex {
 			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
 
 			if( DEBUG.PrintJoinMinJoinON ) {
-				try {
-					for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
-						bw.write( "q :" + qgramRange.qgram + " " + i + "\n" );
-					}
-				}
-				catch( IOException e1 ) {
-					e1.printStackTrace();
+				for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
+					debugArray.add( "q :" + qgramRange.qgram + " " + i + "\n" );
 				}
 				qgramCount += qgramRange.max - qgramRange.min + 1;
 			}
@@ -719,6 +715,11 @@ public class JoinMinRangeIndex {
 			long joinTime = System.nanoTime() - joinStartTime;
 
 			try {
+				Collections.sort( debugArray );
+				for( String temp : debugArray ) {
+					bw.write( temp );
+				}
+
 				bw.write( "" + qgramCount );
 				bw.write( " " + joinTime );
 				bw.write( "\n" );
