@@ -684,7 +684,7 @@ public class JoinMinIndex {
 					if( oneSideJoin ) {
 						if( StaticFunctions.overlap( e.getTokenCount(), e.getTokenCount(), range[ 0 ], range[ 1 ] ) ) {
 							if( DEBUG.PrintJoinMinJoinON ) {
-								debugArray.add( "Cand: " + e.getID() );
+								debugArray.add( "Cand: " + e.getID() + "\n" );
 							}
 							candidates.add( e );
 							comparisonCount++;

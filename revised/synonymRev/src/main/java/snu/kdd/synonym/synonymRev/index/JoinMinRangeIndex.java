@@ -666,7 +666,7 @@ public class JoinMinRangeIndex {
 								range[ 1 ] ) ) {
 
 							if( DEBUG.PrintJoinMinJoinON ) {
-								debugArray.add( "Cand: " + e.record.getID() );
+								debugArray.add( "Cand: " + e.record.getID() + "\n" );
 							}
 							candidates.add( e.record );
 							comparisonCount++;
