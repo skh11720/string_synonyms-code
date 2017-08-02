@@ -150,6 +150,9 @@ public abstract class AlgorithmTemplate {
 			for( final IntegerPair ip : rslt ) {
 				final Record r = query.searchedSet.getRecord( ip.i1 );
 				final Record s = query.indexedSet.getRecord( ip.i2 );
+				
+				System.out.println( r );
+				System.out.println( s );
 
 				if( !DEBUG.printSelfJoinON ) {
 					if( query.selfJoin && r.equals( s ) ) {
