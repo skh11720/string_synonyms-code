@@ -323,7 +323,7 @@ public class JoinMinRangeIndex {
 			Arrays.sort( indexedPosition );
 			if( DEBUG.PrintJoinMinIndexON ) {
 				try {
-					bw_index.write( "indexed " + Arrays.toString( indexedPosition ) );
+					bw_index.write( "indexed " + Arrays.toString( indexedPosition ) + "\n" );
 				}
 				catch( IOException e ) {
 					e.printStackTrace();
