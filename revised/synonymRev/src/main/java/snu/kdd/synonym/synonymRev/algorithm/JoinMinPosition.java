@@ -179,6 +179,6 @@ public class JoinMinPosition extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMin";
+		return "JoinMinPosition";
 	}
 }
