@@ -157,7 +157,7 @@ public class App {
 		}
 
 		totalTime.stop();
-		Util.printGCStats( stat );
+		Util.printGCStats( stat, "Stat" );
 
 		stat.addPrimary( totalTime );
 		addWYKMapCount( stat );

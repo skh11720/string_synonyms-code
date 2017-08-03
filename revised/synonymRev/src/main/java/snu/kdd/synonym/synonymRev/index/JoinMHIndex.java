@@ -178,6 +178,8 @@ public class JoinMHIndex {
 				}
 			}
 		}
+		
+		Util.printGCStats( stat, "Stat_Index" );
 	}
 
 	public void joinOneRecordForSplit( Record recS, List<List<QGram>> availableQGrams, Query query, Validator checker,

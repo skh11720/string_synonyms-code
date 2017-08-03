@@ -387,6 +387,7 @@ public class JoinMinIndex {
 			this.addStat( stat );
 			stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
 			stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
+			Util.printGCStats( stat, "Stat_Index" );
 		}
 
 		for( Object2IntOpenHashMap<QGram> in : invokes ) {

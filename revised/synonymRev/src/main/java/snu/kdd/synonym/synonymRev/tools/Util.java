@@ -105,7 +105,7 @@ public class Util {
 		printLog( "Total Garbage Collection Time (ms): " + garbageCollectionTime );
 	}
 
-	public static void printGCStats( StatContainer stat ) {
+	public static void printGCStats( StatContainer stat, String prefix ) {
 		long totalGarbageCollections = 0;
 		long garbageCollectionTime = 0;
 
@@ -124,7 +124,7 @@ public class Util {
 			}
 		}
 
-		stat.add( "Stat_Garbage_Collections", totalGarbageCollections );
-		stat.add( "Stat_Garbage_Collections_Time", garbageCollectionTime );
+		stat.add( prefix + "_Garbage_Collections", totalGarbageCollections );
+		stat.add( prefix + "_Garbage_Collections_Time", garbageCollectionTime );
 	}
 }

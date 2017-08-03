@@ -175,8 +175,8 @@ public class NaiveIndex {
 		naiveIndex.alpha = naiveIndex.indexTime / totalExpLength;
 		naiveIndex.totalExpLength = totalExpLength;
 
-		if( DEBUG.NaiveON ) {
-			if( addStat ) {
+		if( addStat ) {
+			if( DEBUG.NaiveON ) {
 				// stat.add( "Stat_Size_Indexed_Records", count );
 				stat.add( "Stat_Size_Total_Index", idxsize );
 
@@ -198,6 +198,7 @@ public class NaiveIndex {
 				Runtime runtime = Runtime.getRuntime();
 				stat.add( "Mem_3_BuildIndex", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 			}
+			Util.printGCStats( stat, "Stat_Index" );
 		}
 
 		return naiveIndex;
