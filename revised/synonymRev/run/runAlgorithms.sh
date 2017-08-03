@@ -198,15 +198,15 @@ if [[ $# -ne 18 ]];
 			for ((q=MIN_NAIVE_THRES_Q_START;q<=MIN_NAIVE_THRES_Q_END;q++)); do
 				for threshold in "${MIN_NAIVE_THRES[@]}"; do
 					date
-					./joinMinNaive_Thres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $k $q $project $oneSide $UPLOAD
+					./joinMinNaiveThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $k $q $project $oneSide $UPLOAD
 
 					date
 
-					./compare.sh $PREV JoinMinNaive_Thres
+					./compare.sh $PREV JoinMinNaiveThres
 				done
 			done
 		done
-		PREV="JoinMinNaive_Thres"
+		PREV="JoinMinNaiveThres"
 	fi
 
 	#JoinBK

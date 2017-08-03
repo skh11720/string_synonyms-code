@@ -13,7 +13,7 @@ UPLOAD=${12}
 
 ADDITIONAL="-K $k -qSize $qSize -t $threshold"
 
-ALG=JoinMinNaive_Thres
+ALG=JoinMinNaiveThres
 
 
 if [[ -f xmx.txt ]];
