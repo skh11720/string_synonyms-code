@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
+import snu.kdd.synonym.synonymRev.tools.Histogram;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue.MinPosition;
@@ -757,8 +758,10 @@ public class JoinMinIndex {
 
 		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
 
+		Histogram hist = null;
 		if( DEBUG.JoinMinON ) {
 			qgramStartTime = System.nanoTime();
+			hist = new Histogram( "Validation" );
 		}
 
 		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
@@ -828,6 +831,9 @@ public class JoinMinIndex {
 		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, null );
 
 		equivComparisons += candSet.size();
+		if( DEBUG.JoinMinON ) {
+			hist.add( candSet.size() );
+		}
 		for( Record recR : candSet ) {
 
 			long st = System.nanoTime();
@@ -852,6 +858,10 @@ public class JoinMinIndex {
 			catch( IOException e ) {
 				e.printStackTrace();
 			}
+		}
+		if( DEBUG.JoinMinON ) {
+			hist.print();
+			hist.printLogHistogram();
 		}
 	}
 
