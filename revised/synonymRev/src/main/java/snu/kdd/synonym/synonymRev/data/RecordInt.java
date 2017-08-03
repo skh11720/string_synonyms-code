@@ -8,4 +8,9 @@ public class RecordInt {
 		this.record = r;
 		this.index = m;
 	}
+
+	@Override
+	public int hashCode() {
+		return record.hashCode() + this.index;
+	}
 }
