@@ -424,20 +424,20 @@ public class SampleEstimate {
 			currentThreshold = nextThreshold;
 		}
 
-		// if( sampleIndexedList.size() > 100 ) {
-		// double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
-		// if( bestEstTime > naiveOnlyEstimation ) {
-		// bestEstTime = naiveOnlyEstimation;
-		// bestThreshold = Integer.MAX_VALUE;
-		// }
-		// if( DEBUG.SampleStatON ) {
-		// Util.printLog( String.format( "T: %d TT: %.2f", Integer.MAX_VALUE, naiveOnlyEstimation ) );
-		// }
-		// }
+		if( sampleIndexedList.size() > 100 ) {
+			double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
+			if( bestEstTime > naiveOnlyEstimation ) {
+				bestEstTime = naiveOnlyEstimation;
+				bestThreshold = Integer.MAX_VALUE;
+			}
+			if( DEBUG.SampleStatON ) {
+				Util.printLog( String.format( "T: %d TT: %.2f", Integer.MAX_VALUE, naiveOnlyEstimation ) );
+			}
+		}
 
-		// if( bestThreshold > 10000 ) {
-		// bestThreshold = 10000;
-		// }
+		if( bestThreshold > 1000 ) {
+			bestThreshold = 1000;
+		}
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_BestEst_Time", bestEstTime );
 		return bestThreshold;
