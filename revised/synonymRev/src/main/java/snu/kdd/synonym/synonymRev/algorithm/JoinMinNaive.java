@@ -47,19 +47,6 @@ public class JoinMinNaive extends AlgorithmTemplate {
 	private long maxSearchedEstNumRecords = 0;
 	private long maxIndexedEstNumRecords = 0;
 
-	// /**
-	// * Estimated number of comparisons
-	// */
-	// long est_cmps;
-	// long memlimit_expandedS;
-	//
-	// private double totalExpLengthNaiveIndex = 0;
-	// private double totalExpNaiveJoin = 0;
-	//
-	// private double partialExpLengthNaiveIndex[];
-	// private double partialExpNaiveJoin[];
-	//
-
 	@Override
 	public void preprocess() {
 		super.preprocess();
@@ -100,10 +87,6 @@ public class JoinMinNaive extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 		// Estimate constants
 		findConstants( sampleRatio );
-
-		// joinThreshold = findTheta( Integer.MAX_VALUE );
-		// joinThreshold = estimate.findTheta( qSize, maxIndex, stat, totalExpLengthNaiveIndex, totalExpNaiveJoin,
-		// partialExpLengthNaiveIndex, partialExpNaiveJoin, maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 
 		joinThreshold = estimate.findThetaUnrestricted( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
 				query.oneSideJoin );

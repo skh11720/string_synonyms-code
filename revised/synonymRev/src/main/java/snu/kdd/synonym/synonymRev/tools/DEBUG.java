@@ -19,7 +19,7 @@ public class DEBUG {
 	public static final boolean PrintJoinMinJoinON = false;
 
 	public static final boolean ValidateON = false;
-	public static final boolean SampleStatON = false;
+	public static final boolean SampleStatON = true;
 
 	public static final boolean printSelfJoinON = true;
 
