@@ -27,8 +27,8 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
  * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
  * index in order to find the best execution time.
  */
-public class JoinMinNaive_Thres extends AlgorithmTemplate {
-	public JoinMinNaive_Thres( Query query, StatContainer stat ) throws IOException {
+public class JoinMinNaiveThres extends AlgorithmTemplate {
+	public JoinMinNaiveThres( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 
@@ -217,7 +217,7 @@ public class JoinMinNaive_Thres extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMinNaive_Thres";
+		return "JoinMinNaiveThres";
 	}
 
 	// class Directory {
