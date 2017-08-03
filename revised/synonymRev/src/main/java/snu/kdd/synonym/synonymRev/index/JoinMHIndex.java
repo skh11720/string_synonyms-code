@@ -1,6 +1,5 @@
 package snu.kdd.synonym.synonymRev.index;
 
-import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -435,6 +434,8 @@ public class JoinMHIndex {
 			boolean oneSideJoin, int maxPosition ) {
 		Set<Record> candidates = new WYK_HashSet<Record>( 100 );
 
+		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
+
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue( -1 );
 
@@ -467,6 +468,9 @@ public class JoinMHIndex {
 					// if( debug ) {
 					// System.out.println( "record: " + otherRecord );
 					// }
+					if( !isUpperRecord && otherRecord.getEstNumTransformed() <= threshold ) {
+						continue;
+					}
 
 					int[] otherRange = null;
 
