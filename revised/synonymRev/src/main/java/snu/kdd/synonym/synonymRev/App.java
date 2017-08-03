@@ -127,6 +127,7 @@ public class App {
 
 		case JoinMinNaive_Thres:
 			alg = new JoinMinNaive_Thres( query, stat );
+			break;
 
 		case JoinMHNaive:
 			alg = new JoinMHNaive( query, stat );
