@@ -8,7 +8,7 @@ import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -27,8 +27,8 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
  * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
  * index in order to find the best execution time.
  */
-public class JoinMinNaiveThres extends AlgorithmTemplate {
-	public JoinMinNaiveThres( Query query, StatContainer stat ) throws IOException {
+public class JoinMHNaiveThres extends AlgorithmTemplate {
+	public JoinMHNaiveThres( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 
@@ -36,10 +36,10 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	private int qSize = 0;
 	private int indexK = 0;
 	private int joinThreshold = 1;
-	private boolean joinMinRequired = true;
+	private boolean joinMHRequired = true;
 
 	NaiveIndex naiveIndex;
-	JoinMinIndex joinMinIdx;
+	JoinMHIndex joinMHIndex;
 
 	private long maxSearchedEstNumRecords = 0;
 	private long maxIndexedEstNumRecords = 0;
@@ -85,7 +85,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 		// Estimate constants
 
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
-			joinMinRequired = false;
+			joinMHRequired = false;
 		}
 
 		Util.printLog( "Selected Threshold: " + joinThreshold );
@@ -99,9 +99,14 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private void buildJoinMinIndex() {
+	private void buildJoinMHIndex() {
 		// Build an index
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, true );
+		int[] index = new int[ indexK ];
+		for( int i = 0; i < indexK; i++ ) {
+			index[ i ] = i;
+		}
+
+		joinMHIndex = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true );
 	}
 
 	private void buildNaiveIndex() {
@@ -116,19 +121,19 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	 */
 	private ArrayList<IntegerPair> join() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
-		if( joinMinRequired ) {
-			buildJoinMinIndex();
+		if( joinMHRequired ) {
+			buildJoinMHIndex();
 		}
 		int joinMinResultSize = 0;
-		if( DEBUG.JoinMinNaiveON ) {
-			if( joinMinRequired ) {
-				stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
-				stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
-				stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
-
-				stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
-				stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
-				stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
+		if( DEBUG.JoinMHNaiveON ) {
+			if( joinMHRequired ) {
+				// stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMHIndex.gamma ) );
+				// stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMHIndex.searchedTotalSigCount );
+				// stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMHIndex.countTime ) );
+				//
+				// stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMHIndex.delta ) );
+				// stat.add( "Const_Delta_IndexedSigCount_Actual", joinMHIndex.indexedTotalSigCount );
+				// stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMHIndex.indexTime ) );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
@@ -136,36 +141,36 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long joinstart = System.nanoTime();
-		if( joinMinRequired ) {
+		if( joinMHRequired ) {
 			if( query.oneSideJoin ) {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+						joinMHIndex.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+					joinMHIndex.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 				}
 			}
 
 			joinMinResultSize = rslt.size();
 			stat.add( "Join_Min_Result", joinMinResultSize );
-			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
+			// stat.add( "Stat_Equiv_Comparison", joinMHIndex.equivComparisons );
 		}
 		double joinminJointime = System.nanoTime() - joinstart;
 
-		if( DEBUG.JoinMinNaiveON ) {
+		if( DEBUG.JoinMHNaiveON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
 			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
-			if( joinMinRequired ) {
-				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
-				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
-
-				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
-				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+			if( joinMHRequired ) {
+				// stat.add( "Const_Epsilon_Predict_Actual", joinMHIndex.predictCount );
+				// stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.predictCount ) );
+				//
+				// stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.comparisonCount ) );
+				// stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMHIndex.comparisonCount );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
@@ -173,7 +178,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 
 		buildNaiveIndex();
 
-		if( DEBUG.JoinMinNaiveON ) {
+		if( DEBUG.JoinMHNaiveON ) {
 			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
 			stat.add( "Const_Alpha_IndexTime_Actual", String.format( "%.2f", naiveIndex.indexTime ) );
 			stat.add( "Const_Alpha_ExpLength_Actual", String.format( "%.2f", naiveIndex.totalExpLength ) );
@@ -198,7 +203,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 
 		stat.add( "Join_Naive_Result", rslt.size() - joinMinResultSize );
 
-		if( DEBUG.JoinMinNaiveON ) {
+		if( DEBUG.JoinMHNaiveON ) {
 			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinTime / naiveIndex.totalExp ) );
 			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
 			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
@@ -217,6 +222,6 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMinNaiveThres";
+		return "JoinMHNaiveThres";
 	}
 }

@@ -1,5 +1,6 @@
 package snu.kdd.synonym.synonymRev.index;
 
+import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -178,7 +179,7 @@ public class JoinMHIndex {
 				}
 			}
 		}
-		
+
 		Util.printGCStats( stat, "Stat_Index" );
 	}
 
@@ -428,5 +429,91 @@ public class JoinMHIndex {
 			stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 		}
 		return rslt;
+	}
+
+	public void joinOneRecordThres( int nIndex, Record recS, List<IntegerPair> rslt, Validator checker, int threshold,
+			boolean oneSideJoin, int maxPosition ) {
+		Set<Record> candidates = new WYK_HashSet<Record>( 100 );
+
+		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
+		candidatesCount.defaultReturnValue( -1 );
+
+		List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
+
+		// long recordStartTime = System.nanoTime();
+		int[] range = recS.getTransLengths();
+		for( int i = 0; i < indexK; ++i ) {
+			int actualIndex = indexPosition[ i ];
+			if( range[ 0 ] <= actualIndex ) {
+				continue;
+			}
+
+			ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
+
+			Map<QGram, List<Record>> map = joinMHIndex.get( i );
+
+			for( QGram qgram : availableQGrams.get( actualIndex ) ) {
+				// if( debug ) {
+				// System.out.println( "Q " + qgram + " " + actualIndex );
+				// }
+
+				// elements++;
+				List<Record> list = map.get( qgram );
+				if( list == null ) {
+					continue;
+				}
+
+				for( Record otherRecord : list ) {
+					// if( debug ) {
+					// System.out.println( "record: " + otherRecord );
+					// }
+
+					int[] otherRange = null;
+
+					if( oneSideJoin ) {
+						otherRange = new int[ 2 ];
+						otherRange[ 0 ] = otherRecord.getTokenCount();
+						otherRange[ 1 ] = otherRecord.getTokenCount();
+					}
+					else {
+						otherRange = otherRecord.getTransLengths();
+					}
+
+					if( StaticFunctions.overlap( otherRange[ 0 ], otherRange[ 1 ], range[ 0 ], range[ 1 ] ) ) {
+						// length filtering
+
+						ithCandidates.add( otherRecord );
+					}
+				}
+			}
+
+			for( Record otherRecord : ithCandidates ) {
+				int candCount = candidatesCount.getInt( otherRecord );
+				if( candCount == -1 ) {
+					candidatesCount.put( otherRecord, 1 );
+				}
+				else {
+					candidatesCount.put( otherRecord, candCount + 1 );
+				}
+			}
+		}
+
+		ObjectIterator<Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
+		while( iter.hasNext() ) {
+			Entry<Record> entry = iter.next();
+			Record record = entry.getKey();
+			int recordCount = entry.getIntValue();
+
+			if( indexedCountList.getInt( record ) <= recordCount || indexedCountList.getInt( recS ) <= recordCount ) {
+				candidates.add( record );
+			}
+		}
+
+		for( Record recR : candidates ) {
+			int compare = checker.isEqual( recS, recR );
+			if( compare >= 0 ) {
+				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+			}
+		}
 	}
 }
