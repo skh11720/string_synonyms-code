@@ -21,6 +21,7 @@ public class Param {
 		options.addOption( "K", true, "Represents a number of indexes" );
 		options.addOption( "qSize", true, "Q gram size" );
 		options.addOption( "sample", true, "Sampling Ratio" );
+		options.addOption( "t", true, "Threshold" );
 
 		argOptions = options;
 	}
@@ -45,6 +46,9 @@ public class Param {
 			param.sampleRatio = Integer.parseInt( cmd.getOptionValue( "sample" ) );
 		}
 
+		if( cmd.hasOption( "t" ) ) {
+			param.threshold = Integer.parseInt( cmd.getOptionValue( "t" ) );
+		}
 		if( query.oneSideJoin ) {
 			param.validator = new TopDownOneSide();
 		}
@@ -59,4 +63,5 @@ public class Param {
 	public int qgramSize = 2;
 	public double sampleRatio = 0.1;
 	public Validator validator;
+	public int threshold = 10;
 }
