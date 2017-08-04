@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -33,7 +34,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 public class JoinMinPositionIndex {
 	ArrayList<WYK_HashMap<QGram, List<RecordInt>>> idx;
 	ArrayList<Integer> countPerPosition = null;
-	Object2IntOpenHashMap<Record> indexedCountMap;
+	IntArrayList indexedCountList;
 	Object2IntOpenHashMap<Record> estimatedCountMap;
 	WYK_HashSet<Integer> bypassSet = null;
 
@@ -232,7 +233,7 @@ public class JoinMinPositionIndex {
 		long indexedElements = 0;
 
 		// find best K positions for each string in T
-		indexedCountMap = new Object2IntOpenHashMap<>();
+		indexedCountList = new IntArrayList();
 		estimatedCountMap = new Object2IntOpenHashMap<>();
 		for( Record rec : query.indexedSet.get() ) {
 			int[] range = rec.getTransLengths();
@@ -353,7 +354,7 @@ public class JoinMinPositionIndex {
 				}
 			}
 
-			indexedCountMap.put( rec, indexedCount );
+			indexedCountList.add( indexedCount );
 		}
 
 		this.indexTime = System.nanoTime() - starttime;
@@ -644,7 +645,7 @@ public class JoinMinPositionIndex {
 		for( Entry<Record, Integer> entry : foundMap.entrySet() ) {
 
 			Record recR = entry.getKey();
-			if( indexedCountMap.getInt( recR ) != entry.getValue() ) {
+			if( indexedCountList.getInt( recR.getID() ) != entry.getValue() ) {
 				continue;
 			}
 

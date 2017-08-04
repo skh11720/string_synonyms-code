@@ -174,7 +174,7 @@ public class JoinMinPosition extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.3";
+		return "2.4";
 	}
 
 	@Override
