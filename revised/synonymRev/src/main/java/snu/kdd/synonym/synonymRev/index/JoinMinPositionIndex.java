@@ -233,7 +233,7 @@ public class JoinMinPositionIndex {
 		long indexedElements = 0;
 
 		// find best K positions for each string in T
-		indexedCountList = new IntArrayList();
+		indexedCountList = new IntArrayList( query.indexedSet.size() );
 		estimatedCountMap = new Object2IntOpenHashMap<>();
 		for( Record rec : query.indexedSet.get() ) {
 			int[] range = rec.getTransLengths();
