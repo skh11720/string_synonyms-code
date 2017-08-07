@@ -166,11 +166,11 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 
 		joinTime.stopQuiet();
 
-		double joinminJointime = System.nanoTime() - joinstart;
+		double joinmhJointime = System.nanoTime() - joinstart;
 
 		if( DEBUG.JoinMHNaiveON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
-			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
+			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinmhJointime ) );
 			if( joinMHRequired ) {
 				// stat.add( "Const_Epsilon_Predict_Actual", joinMHIndex.predictCount );
 				// stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.predictCount ) );
