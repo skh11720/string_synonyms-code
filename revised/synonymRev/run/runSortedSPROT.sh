@@ -28,11 +28,11 @@ RUN_JoinNaiveSP=False
 #RUN_JoinMHSP=True
 RUN_JoinMHSP=False
 
-RUN_JoinMin=True
-#RUN_JoinMin=False
+#RUN_JoinMin=True
+RUN_JoinMin=False
 
-RUN_JoinMH=True
-#RUN_JoinMH=False
+#RUN_JoinMH=True
+RUN_JoinMH=False
 
 #RUN_JoinMinNaive=True
 RUN_JoinMinNaive=False
@@ -40,8 +40,8 @@ RUN_JoinMinNaive=False
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
 
-RUN_JoinBK=True
-#RUN_JoinBK=False
+#RUN_JoinBK=True
+RUN_JoinBK=False
 
 #RUN_JoinBKSP=True
 RUN_JoinBKSP=False

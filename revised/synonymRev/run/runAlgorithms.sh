@@ -82,6 +82,13 @@ MIN_NAIVE_THRES_K_END=1
 MIN_NAIVE_THRES_Q_START=2
 MIN_NAIVE_THRES_Q_END=2
 
+MH_NAIVE_THRES=( 3 10 30 100 300 )
+MH_NAIVE_THRES_K_START=1
+MH_NAIVE_THRES_K_END=1
+MH_NAIVE_THRES_Q_START=2
+MH_NAIVE_THRES_Q_END=2
+
+
 
 if [[ $# -ne 18 ]];
 	then
@@ -238,13 +245,28 @@ if [[ $# -ne 18 ]];
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
-		for ((k=MIN_RANGE_K_START;k<=MIN_RANGE_K_END;k++)); do
-			for ((q=MIN_RANGE_Q_START;q<=MIN_RANGE_Q_END;q++)); do
-				date
-				./joinMinRange.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
-				#./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
-				./compare.sh $PREV JoinMinRange
+		for ((k=MH_NAIVE_THRES_K_START;k<=MH_NAIVE_THRES_K_END;k++)); do
+			for ((q=MH_NAIVE_THRES_Q_START;q<=MH_NAIVE_THRES_Q_END;q++)); do
+				for threshold in "${MH_NAIVE_THRES[@]}"; do
+					date
+					./joinMHNaiveThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $k $q $project $oneSide $UPLOAD
+
+					date
+
+					./compare.sh $PREV JoinMHNaiveThres
+				done
 			done
 		done
+		PREV="JoinMHNaiveThres"
+
+		#for ((k=MIN_RANGE_K_START;k<=MIN_RANGE_K_END;k++)); do
+		#	for ((q=MIN_RANGE_Q_START;q<=MIN_RANGE_Q_END;q++)); do
+		#		date
+		#		#./joinMinRange.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
+		#		./joinMHNaiveThres.sh
+		#		#./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
+		#		./compare.sh $PREV JoinMinRange
+		#	done
+		#done
 	fi
 fi
