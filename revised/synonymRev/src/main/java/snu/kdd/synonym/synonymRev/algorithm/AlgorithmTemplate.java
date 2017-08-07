@@ -25,7 +25,7 @@ public abstract class AlgorithmTemplate {
 	}
 
 	// contains statistics of the algorithm
-	StatContainer stat;
+	protected StatContainer stat;
 	protected Query query;
 	protected ACAutomataR automata;
 
