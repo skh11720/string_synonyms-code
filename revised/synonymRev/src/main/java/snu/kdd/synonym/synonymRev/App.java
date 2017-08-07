@@ -117,7 +117,7 @@ public class App {
 		case JoinMin:
 			alg = new JoinMin( query, stat );
 			break;
-			
+
 		case JoinMinPosition:
 			alg = new JoinMinPosition( query, stat );
 			break;
@@ -137,7 +137,11 @@ public class App {
 		case JoinMHNaive:
 			alg = new JoinMHNaive( query, stat );
 			break;
-
+			
+		case JoinMHNaiveThres:
+			alg = new JoinMHNaive( query, stat );
+			break;
+			
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );
