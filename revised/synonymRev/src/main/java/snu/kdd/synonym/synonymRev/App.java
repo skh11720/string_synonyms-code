@@ -15,6 +15,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaive;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThres;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaive;
@@ -139,7 +140,7 @@ public class App {
 			break;
 			
 		case JoinMHNaiveThres:
-			alg = new JoinMHNaive( query, stat );
+			alg = new JoinMHNaiveThres( query, stat );
 			break;
 			
 		default:
