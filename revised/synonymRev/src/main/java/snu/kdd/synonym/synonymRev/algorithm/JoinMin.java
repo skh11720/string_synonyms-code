@@ -124,7 +124,6 @@ public class JoinMin extends AlgorithmTemplate {
 			}
 			else {
 				stat.add( "Sample_JoinMin_Result", rslt.size() );
-				stepTime.stop();
 			}
 		}
 
