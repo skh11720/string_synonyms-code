@@ -86,16 +86,6 @@ public class JoinMinNaive extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 		// Estimate constants
-		findConstants( sampleRatio );
-
-		joinThreshold = estimate.findThetaUnrestricted( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
-				query.oneSideJoin );
-
-		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
-			joinMinRequired = false;
-		}
-
-		Util.printLog( "Selected Threshold: " + joinThreshold );
 
 		Collection<IntegerPair> rslt = join();
 		stepTime.stopAndAdd( stat );
@@ -122,7 +112,22 @@ public class JoinMinNaive extends AlgorithmTemplate {
 	 * @return
 	 */
 	private ArrayList<IntegerPair> join() {
+
+		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		findConstants( sampleRatio );
+
+		joinThreshold = estimate.findThetaUnrestricted( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
+				query.oneSideJoin );
+
+		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
+			joinMinRequired = false;
+		}
+
+		Util.printLog( "Selected Threshold: " + joinThreshold );
+
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
+
+		buildTime.start();
 		if( joinMinRequired ) {
 			buildJoinMinIndex();
 		}
@@ -140,7 +145,8 @@ public class JoinMinNaive extends AlgorithmTemplate {
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		}
-
+		buildTime.stopQuiet();
+		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long joinstart = System.nanoTime();
 		if( joinMinRequired ) {
@@ -163,6 +169,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
 		}
 		double joinminJointime = System.nanoTime() - joinstart;
+		joinTime.stopQuiet();
 
 		if( DEBUG.JoinMinNaiveON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
@@ -178,7 +185,9 @@ public class JoinMinNaive extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}
 
+		buildTime.start();
 		buildNaiveIndex();
+		buildTime.stopAndAdd( stat );
 
 		if( DEBUG.JoinMinNaiveON ) {
 			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
@@ -189,6 +198,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
 		}
 
+		joinTime.start();
 		@SuppressWarnings( "unused" )
 		int naiveSearch = 0;
 		long starttime = System.nanoTime();
@@ -201,19 +211,20 @@ public class JoinMinNaive extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
-		double joinTime = System.nanoTime() - starttime;
+		double joinNanoTime = System.nanoTime() - starttime;
 
 		stat.add( "Join_Naive_Result", rslt.size() - joinMinResultSize );
+		joinTime.stopAndAdd( stat );
 
 		if( DEBUG.JoinMinNaiveON ) {
-			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinTime / naiveIndex.totalExp ) );
+			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinNanoTime / naiveIndex.totalExp ) );
 			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
 			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
 
 			stat.add( "Stat_Naive search count", naiveSearch );
 			stepTime.stopAndAdd( stat );
 		}
-
+		buildTime.stopAndAdd( stat );
 		return rslt;
 	}
 
