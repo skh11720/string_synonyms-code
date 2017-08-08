@@ -91,21 +91,21 @@ public class EstimationTest extends AlgorithmTemplate {
 		actualJoinThreshold( 4 );
 
 		actualJoinThreshold( 6 );
-		
+
 		actualJoinThreshold( 8 );
-		
+
 		actualJoinThreshold( 12 );
-		
+
 		actualJoinThreshold( 18 );
-		
+
 		actualJoinThreshold( 20 );
-		
+
 		actualJoinThreshold( 30 );
-		
+
 		actualJoinThreshold( 36 );
-		
+
 		actualJoinThreshold( 40 );
-		
+
 		actualJoinThreshold( 41 );
 
 		actualJoinThreshold( 1000 );
@@ -243,6 +243,7 @@ public class EstimationTest extends AlgorithmTemplate {
 	}
 
 	private ArrayList<IntegerPair> actualJoinThreshold( int joinThreshold ) {
+		System.out.println( "Threshold: " + joinThreshold );
 		long startTime = System.nanoTime();
 
 		boolean joinMinRequired = true;
@@ -310,6 +311,7 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		System.out.println( "Threshold " + joinThreshold + " naive Join " + ( naiveJoinTime - naiveBuildTime ) );
 
+		System.out.println();
 		return rslt;
 	}
 
