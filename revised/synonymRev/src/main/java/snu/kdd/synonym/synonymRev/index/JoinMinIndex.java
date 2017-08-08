@@ -209,8 +209,8 @@ public class JoinMinIndex {
 		else {
 			if( DEBUG.SampleStatON ) {
 				System.out.println( "[Gamma] " + gamma );
-				System.out.println( "[Gamma] CountTime" + countTime );
-				System.out.println( "[Gamma] TotalSigCount" + searchedTotalSigCount );
+				System.out.println( "[Gamma] CountTime " + countTime );
+				System.out.println( "[Gamma] TotalSigCount " + searchedTotalSigCount );
 			}
 		}
 
@@ -355,8 +355,8 @@ public class JoinMinIndex {
 		}
 		else {
 			System.out.println( "[Delta] " + delta );
-			System.out.println( "[Delta] IndexTime" + indexTime );
-			System.out.println( "[Delta] TotalSigCount" + indexedTotalSigCount );
+			System.out.println( "[Delta] IndexTime " + indexTime );
+			System.out.println( "[Delta] TotalSigCount " + indexedTotalSigCount );
 		}
 
 		if( DEBUG.JoinMinON ) {
@@ -493,6 +493,13 @@ public class JoinMinIndex {
 		if( writeResult ) {
 			stat.add( "Stat_Equiv_Comparison", equivComparisons );
 			stat.add( "Join_Min_Result", rslt.size() );
+		}
+		else {
+			if( DEBUG.SampleStatON ) {
+				System.out.println( "[Epsilon] " + epsilon );
+				System.out.println( "[Epsilon] JoinTime " + joinTime );
+				System.out.println( "[Epsilon] PredictCount " + predictCount );
+			}
 		}
 
 		if( DEBUG.PrintJoinMinJoinON ) {
