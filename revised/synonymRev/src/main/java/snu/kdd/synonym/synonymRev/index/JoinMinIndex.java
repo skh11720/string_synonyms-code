@@ -132,15 +132,6 @@ public class JoinMinIndex {
 					else {
 						curridx_invokes.put( qgram, count + 1 );
 					}
-
-					// if( DEBUG.JoinMinIndexON ) {
-					// try {
-					// bw.write( "qg " + qgram + " " + i + "\n" );
-					// }
-					// catch( IOException e ) {
-					// e.printStackTrace();
-					// }
-					// }
 				}
 
 				if( DEBUG.JoinMinIndexON ) {

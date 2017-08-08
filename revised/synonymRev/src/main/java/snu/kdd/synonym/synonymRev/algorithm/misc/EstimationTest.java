@@ -2,7 +2,6 @@ package snu.kdd.synonym.synonymRev.algorithm.misc;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import org.apache.commons.cli.ParseException;
 
@@ -80,13 +79,11 @@ public class EstimationTest extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 		// Estimate constants
 
-		Collection<IntegerPair> rslt = join();
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_4_Joined" );
+		actualJoinThreshold( 3 );
 
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult( rslt );
-		stepTime.stopAndAdd( stat );
+		actualJoinThreshold( 10 );
+
+		actualJoinThreshold( 20 );
 	}
 
 	private void buildJoinMinIndex() {
@@ -218,6 +215,66 @@ public class EstimationTest extends AlgorithmTemplate {
 			stepTime.stopAndAdd( stat );
 		}
 		buildTime.stopAndAdd( stat );
+		return rslt;
+	}
+
+	private ArrayList<IntegerPair> actualJoinThreshold( int joinThreshold ) {
+		StopWatch buildTime = StopWatch.getWatchStarted( "Actual_Index_" + joinThreshold + "_Build_Time" );
+
+		if( joinMinRequired ) {
+			buildJoinMinIndex();
+		}
+		int joinMinResultSize = 0;
+
+		buildTime.stopQuiet();
+
+		StopWatch joinTime = StopWatch.getWatchStarted( "Actual_Join_" + joinThreshold + "_Join_Time" );
+
+		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		long joinstart = System.nanoTime();
+		if( joinMinRequired ) {
+			if( query.oneSideJoin ) {
+				for( Record s : query.searchedSet.get() ) {
+					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
+					if( s.getEstNumTransformed() > joinThreshold ) {
+						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+					}
+				}
+			}
+			else {
+				for( Record s : query.searchedSet.get() ) {
+					joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+				}
+			}
+
+			joinMinResultSize = rslt.size();
+			stat.add( "Join_Min_Result", joinMinResultSize );
+			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
+		}
+		joinTime.stopQuiet();
+
+		double joinminJointime = System.nanoTime() - joinstart;
+
+		buildTime.start();
+		buildNaiveIndex();
+		buildTime.stopAndAdd( stat );
+
+		joinTime.start();
+		@SuppressWarnings( "unused" )
+		int naiveSearch = 0;
+		long starttime = System.nanoTime();
+		for( Record s : query.searchedSet.get() ) {
+			if( s.getEstNumTransformed() > joinThreshold ) {
+				continue;
+			}
+			else {
+				naiveIndex.joinOneRecord( s, rslt );
+				naiveSearch++;
+			}
+		}
+		joinTime.stopAndAdd( stat );
+		double joinNanoTime = System.nanoTime() - starttime;
+
 		return rslt;
 	}
 
