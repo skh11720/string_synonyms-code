@@ -201,14 +201,9 @@ public class NaiveIndex {
 		}
 		else {
 			if( DEBUG.SampleStatON ) {
-				stat.add( "Sample_Stat_Size_Total_Index", idxsize );
-				stat.add( "Sample_Est_Index_1_expSize", Double.toString( totalExp ) );
-				stat.add( "Sample_Est_Index_1_expandTime", expandTime );
-				stat.add( "Sample_Est_Index_2_indexingTime", indexingTime );
-				stat.add( "Sample_Est_Index_3_expandTimesLength", Double.toString( naiveIndex.totalExpLength ) );
-				stat.add( "Sample_Est_Index_3_expandTimePerETL", Double.toString( expandTime / naiveIndex.totalExpLength ) );
-				stat.add( "Sample_NaiveIndex_IndexTime", naiveIndex.indexTime );
-				stat.add( "Sample_NaiveIndex_totalExpLength", naiveIndex.totalExpLength );
+				System.out.println( "[Alpha] " + naiveIndex.alpha );
+				System.out.println( "[Alpha] IndexTime " + naiveIndex.indexTime );
+				System.out.println( "[Alpha] totalExpLength " + naiveIndex.totalExpLength );
 			}
 		}
 
