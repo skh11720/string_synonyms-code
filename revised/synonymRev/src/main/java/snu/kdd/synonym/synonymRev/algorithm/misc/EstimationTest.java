@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm.misc;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.commons.cli.ParseException;
 
@@ -79,11 +80,17 @@ public class EstimationTest extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 		// Estimate constants
 
+		Collection<IntegerPair> rslt = join();
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
+
+		stepTime.resetAndStart( "Result_4_Write_Time" );
+		writeResult( rslt );
+		stepTime.stopAndAdd( stat );
+
 		actualJoinThreshold( 3 );
 
 		actualJoinThreshold( 10 );
-
-		actualJoinThreshold( 20 );
 	}
 
 	private void buildJoinMinIndex() {
