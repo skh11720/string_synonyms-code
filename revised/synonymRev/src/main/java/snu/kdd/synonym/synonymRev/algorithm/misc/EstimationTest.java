@@ -88,9 +88,11 @@ public class EstimationTest extends AlgorithmTemplate {
 		writeResult( rslt );
 		stepTime.stopAndAdd( stat );
 
-		actualJoinThreshold( 3 );
+		actualJoinThreshold( 4 );
 
-		actualJoinThreshold( 10 );
+		actualJoinThreshold( 6 );
+		
+		actualJoinThreshold( 1000 );
 	}
 
 	private void buildJoinMinIndex( boolean writeResult ) {
