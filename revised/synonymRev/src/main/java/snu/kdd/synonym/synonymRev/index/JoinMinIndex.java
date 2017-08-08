@@ -210,7 +210,7 @@ public class JoinMinIndex {
 			if( DEBUG.SampleStatON ) {
 				System.out.println( "[Gamma] " + gamma );
 				System.out.println( "[Gamma] CountTime " + countTime );
-				System.out.println( "[Gamma] TotalSigCount " + searchedTotalSigCount );
+				System.out.println( "[Gamma] SearchedSigCount " + searchedTotalSigCount );
 			}
 		}
 
@@ -356,7 +356,7 @@ public class JoinMinIndex {
 		else {
 			System.out.println( "[Delta] " + delta );
 			System.out.println( "[Delta] IndexTime " + indexTime );
-			System.out.println( "[Delta] TotalSigCount " + indexedTotalSigCount );
+			System.out.println( "[Delta] IndexedSigCount " + indexedTotalSigCount );
 		}
 
 		if( DEBUG.JoinMinON ) {
