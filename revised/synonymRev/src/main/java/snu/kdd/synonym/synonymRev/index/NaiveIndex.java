@@ -296,8 +296,9 @@ public class NaiveIndex {
 		}
 		else {
 			if( DEBUG.SampleStatON ) {
-				Util.printLog( "JoinTime " + joinTime );
-				Util.printLog( "TotalExp " + totalExp );
+				System.out.println( "[Beta] " + beta );
+				System.out.println( "[Beta] JoinTime " + joinTime );
+				System.out.println( "[Beta] TotalExp " + totalExp );
 			}
 		}
 
