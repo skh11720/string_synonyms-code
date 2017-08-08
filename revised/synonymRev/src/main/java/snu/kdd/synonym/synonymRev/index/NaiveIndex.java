@@ -206,6 +206,8 @@ public class NaiveIndex {
 				stat.add( "Sample_Est_Index_1_expSize", Double.toString( totalExp ) );
 				stat.add( "Sample_Est_Index_1_expandTime", expandTime );
 				stat.add( "Sample_Est_Index_2_indexingTime", indexingTime );
+				stat.add( "Sample_Est_Index_3_expandTimesLength", Double.toString( totalExpLength ) );
+				stat.add( "Sample_Est_Index_3_expandTimePerETL", Double.toString( expandTime / totalExpLength ) );
 			}
 		}
 
