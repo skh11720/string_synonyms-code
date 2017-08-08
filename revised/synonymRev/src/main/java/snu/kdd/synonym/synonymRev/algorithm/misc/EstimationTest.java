@@ -98,12 +98,12 @@ public class EstimationTest extends AlgorithmTemplate {
 		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, false, query );
 	}
 
-	/**
-	 * Although this implementation is not efficient, we did like this to measure
-	 * the execution time of each part more accurate.
-	 *
-	 * @return
-	 */
+	private void findConstants( double sampleratio ) {
+		// Sample
+		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
+		estimate.estimateWithSample( stat, checker, indexK, qSize );
+	}
+
 	private ArrayList<IntegerPair> join() {
 
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
@@ -219,12 +219,6 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 		buildTime.stopAndAdd( stat );
 		return rslt;
-	}
-
-	private void findConstants( double sampleratio ) {
-		// Sample
-		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
-		estimate.estimateWithSample( stat, checker, indexK, qSize );
 	}
 
 	@Override
