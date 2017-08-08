@@ -173,10 +173,24 @@ public class SampleEstimate {
 	}
 
 	public double getEstimateNaive( double totalExpLengthIndex, double totalExpJoin ) {
+		if( DEBUG.SampleStatON ) {
+			Util.printLog( "totalExpLength " + totalExpLengthIndex + ", totalExpJoin " + totalExpJoin );
+			Util.printLog( "Naive Index Time" + ( alpha * totalExpLengthIndex ) );
+			Util.printLog( "Naive Join Time" + ( beta * totalExpJoin ) );
+		}
+
 		return alpha * totalExpLengthIndex + beta * totalExpJoin;
 	}
 
 	public double getEstimateJoinMin( double searchedTotalSigCount, double indexedTotalSigCount, double estimatedInvokes ) {
+		if( DEBUG.SampleStatON ) {
+			Util.printLog( "searched Total " + searchedTotalSigCount + ", indexed Total " + indexedTotalSigCount
+					+ " estimatedInvokes " + estimatedInvokes );
+			Util.printLog( "JoinMin Count Time " + ( searchedTotalSigCount * gamma ) );
+			Util.printLog( "JoinMin Index Time " + ( indexedTotalSigCount * delta ) );
+			Util.printLog( "JoinMin Join Time " + ( estimatedInvokes * epsilon ) );
+		}
+
 		return gamma * searchedTotalSigCount + delta * indexedTotalSigCount + epsilon * estimatedInvokes;
 	}
 
