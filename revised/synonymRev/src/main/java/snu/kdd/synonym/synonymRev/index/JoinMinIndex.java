@@ -499,6 +499,7 @@ public class JoinMinIndex {
 				System.out.println( "[Epsilon] " + epsilon );
 				System.out.println( "[Epsilon] JoinTime " + joinTime );
 				System.out.println( "[Epsilon] PredictCount " + predictCount );
+				System.out.println( "[Epsilon] ActualCount " + equivComparisons );
 			}
 		}
 
