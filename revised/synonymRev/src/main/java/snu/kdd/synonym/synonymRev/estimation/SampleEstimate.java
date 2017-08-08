@@ -115,9 +115,6 @@ public class SampleEstimate {
 				stat.add( "Const_Alpha", String.format( "%.2f", alpha ) );
 				stat.add( "Const_Beta", String.format( "%.2f", beta ) );
 			}
-
-			// DEBUG
-			System.exit( 0 );
 		}
 		catch( IOException e ) {
 			e.printStackTrace();

@@ -105,7 +105,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	}
 
 	private void buildNaiveIndex() {
-		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, false, query );
+		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, true, query );
 	}
 
 	/**
