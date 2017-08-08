@@ -59,7 +59,7 @@ public class NaiveIndex {
 		BufferedWriter bw = null;
 		if( DEBUG.PrintNaiveIndexON ) {
 			try {
-				bw = new BufferedWriter( new FileWriter( "Naive_index.txt" ) );
+				bw = new BufferedWriter( new FileWriter( "Naive_index_" + addStat + ".txt" ) );
 			}
 			catch( IOException e ) {
 				e.printStackTrace();
@@ -208,8 +208,8 @@ public class NaiveIndex {
 				stat.add( "Sample_Est_Index_2_indexingTime", indexingTime );
 				stat.add( "Sample_Est_Index_3_expandTimesLength", Double.toString( totalExpLength ) );
 				stat.add( "Sample_Est_Index_3_expandTimePerETL", Double.toString( expandTime / totalExpLength ) );
-				stat.add( "Sample_NaiveIndex_IndexTime", naiveIndex.indexTime  );
-				stat.add( "Sample_NaiveIndex_totalExpLength", totalExpLength  );
+				stat.add( "Sample_NaiveIndex_IndexTime", naiveIndex.indexTime );
+				stat.add( "Sample_NaiveIndex_totalExpLength", totalExpLength );
 			}
 		}
 
