@@ -24,6 +24,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMinPosition;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinRange;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
+import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -138,11 +139,15 @@ public class App {
 		case JoinMHNaive:
 			alg = new JoinMHNaive( query, stat );
 			break;
-			
+
 		case JoinMHNaiveThres:
 			alg = new JoinMHNaiveThres( query, stat );
 			break;
-			
+
+		case EstimationTest:
+			alg = new EstimationTest( query, stat );
+			break;
+
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );
