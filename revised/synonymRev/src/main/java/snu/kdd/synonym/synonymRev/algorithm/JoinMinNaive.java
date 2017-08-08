@@ -243,15 +243,4 @@ public class JoinMinNaive extends AlgorithmTemplate {
 	public String getName() {
 		return "JoinMinNaive";
 	}
-
-	// class Directory {
-	// List<Record> list;
-	// int SHsize;
-	//
-	// Directory() {
-	// list = new ArrayList<Record>();
-	// SHsize = 0;
-	// }
-	// }
-
 }
