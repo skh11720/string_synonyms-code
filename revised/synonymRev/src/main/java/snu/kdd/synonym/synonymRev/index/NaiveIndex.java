@@ -130,8 +130,7 @@ public class NaiveIndex {
 
 					if( DEBUG.PrintNaiveIndexON ) {
 						try {
-							bw.write( recR.toString( query.tokenIndex ) + "(" + i + ") -> " + exp.toString( query.tokenIndex )
-									+ "\n" );
+							bw.write( recR.getID() + " -> " + exp.toString( query.tokenIndex ) + "\n" );
 						}
 						catch( IOException e ) {
 							e.printStackTrace();
@@ -144,13 +143,14 @@ public class NaiveIndex {
 			else {
 				if( DEBUG.PrintNaiveIndexON ) {
 					try {
-						bw.write( recR.toString( query.tokenIndex ) + "(" + i + ") -> " + recR.toString( query.tokenIndex )
-								+ " (hash: " + recR.hashCode() + ")" + "\n" );
+						bw.write( recR.getID() + " -> " + recR.toString( query.tokenIndex ) + " (hash: " + recR.hashCode() + ")"
+								+ "\n" );
 					}
 					catch( IOException e ) {
 						e.printStackTrace();
 					}
 				}
+				totalExpLength += recR.getTokenCount();
 
 				naiveIndex.addExpaneded( recR, i );
 			}
