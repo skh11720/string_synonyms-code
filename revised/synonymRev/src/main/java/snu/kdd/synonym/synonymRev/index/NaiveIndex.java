@@ -68,7 +68,7 @@ public class NaiveIndex {
 
 		NaiveIndex naiveIndex = new NaiveIndex( initialsize );
 
-		long totalExpLength = 0;
+		naiveIndex.totalExpLength = 0;
 
 		double totalExp = 0;
 		@SuppressWarnings( "unused" )
@@ -115,7 +115,7 @@ public class NaiveIndex {
 					}
 				}
 				expanded = recR.expandAll();
-				totalExpLength += expanded.size() * recR.getTokenCount();
+				naiveIndex.totalExpLength += expanded.size() * recR.getTokenCount();
 
 				if( DEBUG.NaiveON ) {
 					totalExp += expanded.size();
@@ -150,7 +150,7 @@ public class NaiveIndex {
 						e.printStackTrace();
 					}
 				}
-				totalExpLength += recR.getTokenCount();
+				naiveIndex.totalExpLength += recR.getTokenCount();
 
 				naiveIndex.addExpaneded( recR, i );
 			}
@@ -167,13 +167,12 @@ public class NaiveIndex {
 			}
 		}
 
-		if( totalExpLength == 0 ) {
-			totalExpLength = 1;
+		if( naiveIndex.totalExpLength == 0 ) {
+			naiveIndex.totalExpLength = 1;
 		}
 
 		naiveIndex.indexTime = System.nanoTime() - starttime;
-		naiveIndex.alpha = naiveIndex.indexTime / totalExpLength;
-		naiveIndex.totalExpLength = totalExpLength;
+		naiveIndex.alpha = naiveIndex.indexTime / naiveIndex.totalExpLength;
 
 		if( addStat ) {
 			if( DEBUG.NaiveON ) {
@@ -191,8 +190,8 @@ public class NaiveIndex {
 				naiveIndex.addStat( stat, "Counter_Index" );
 				stat.add( "Est_Index_2_totalTime", Double.toString( naiveIndex.indexTime ) );
 
-				stat.add( "Est_Index_3_expandTimesLength", Double.toString( totalExpLength ) );
-				stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / totalExpLength ) );
+				stat.add( "Est_Index_3_expandTimesLength", Double.toString( naiveIndex.totalExpLength ) );
+				stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / naiveIndex.totalExpLength ) );
 				// stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
 
 				Runtime runtime = Runtime.getRuntime();
@@ -206,10 +205,10 @@ public class NaiveIndex {
 				stat.add( "Sample_Est_Index_1_expSize", Double.toString( totalExp ) );
 				stat.add( "Sample_Est_Index_1_expandTime", expandTime );
 				stat.add( "Sample_Est_Index_2_indexingTime", indexingTime );
-				stat.add( "Sample_Est_Index_3_expandTimesLength", Double.toString( totalExpLength ) );
-				stat.add( "Sample_Est_Index_3_expandTimePerETL", Double.toString( expandTime / totalExpLength ) );
+				stat.add( "Sample_Est_Index_3_expandTimesLength", Double.toString( naiveIndex.totalExpLength ) );
+				stat.add( "Sample_Est_Index_3_expandTimePerETL", Double.toString( expandTime / naiveIndex.totalExpLength ) );
 				stat.add( "Sample_NaiveIndex_IndexTime", naiveIndex.indexTime );
-				stat.add( "Sample_NaiveIndex_totalExpLength", totalExpLength );
+				stat.add( "Sample_NaiveIndex_totalExpLength", naiveIndex.totalExpLength );
 			}
 		}
 
@@ -299,6 +298,12 @@ public class NaiveIndex {
 
 		if( addStat ) {
 			stat.add( "Join_Naive_Result", rslt.size() );
+		}
+		else {
+			if( DEBUG.SampleStatON ) {
+				Util.printLog( "JoinTime " + joinTime );
+				Util.printLog( "TotalExp " + totalExp );
+			}
 		}
 
 		return rslt;
