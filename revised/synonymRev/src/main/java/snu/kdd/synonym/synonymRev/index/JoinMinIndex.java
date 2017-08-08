@@ -80,7 +80,7 @@ public class JoinMinIndex {
 
 		if( DEBUG.JoinMinIndexON ) {
 			try {
-				bw = new BufferedWriter( new FileWriter( "JoinMin_Index_Count_Debug.txt" ) );
+				bw = new BufferedWriter( new FileWriter( "JoinMin_Index_Count_Debug_" + writeResult + ".txt" ) );
 			}
 			catch( IOException e ) {
 				e.printStackTrace();

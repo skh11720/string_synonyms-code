@@ -9,7 +9,7 @@ public class DEBUG {
 	public static final boolean NaiveON = true;
 
 	public static final boolean JoinMHIndexON = false;
-	public static final boolean JoinMinIndexON = false;
+	public static final boolean JoinMinIndexON = true;
 	
 	public static final boolean JoinMinNaiveON = false;
 	public static final boolean JoinMHNaiveON = false;
