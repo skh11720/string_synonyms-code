@@ -93,13 +93,13 @@ public class EstimationTest extends AlgorithmTemplate {
 		actualJoinThreshold( 10 );
 	}
 
-	private void buildJoinMinIndex() {
+	private void buildJoinMinIndex( boolean writeResult ) {
 		// Build an index
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, true );
+		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, writeResult );
 	}
 
-	private void buildNaiveIndex() {
-		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, true, query );
+	private void buildNaiveIndex( boolean writeResult ) {
+		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, writeResult, query );
 	}
 
 	private void findConstants( double sampleratio ) {
@@ -125,7 +125,7 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		buildTime.start();
 		if( joinMinRequired ) {
-			buildJoinMinIndex();
+			buildJoinMinIndex( true );
 		}
 		int joinMinResultSize = 0;
 		if( DEBUG.JoinMinNaiveON ) {
@@ -182,7 +182,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 
 		buildTime.start();
-		buildNaiveIndex();
+		buildNaiveIndex( true );
 		buildTime.stopAndAdd( stat );
 
 		if( DEBUG.JoinMinNaiveON ) {
@@ -233,7 +233,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 
 		if( joinMinRequired ) {
-			buildJoinMinIndex();
+			buildJoinMinIndex( false );
 		}
 		int joinMinResultSize = 0;
 
@@ -247,13 +247,13 @@ public class EstimationTest extends AlgorithmTemplate {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, false, null, checker, joinThreshold, query.oneSideJoin );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+					joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, false, null, checker, joinThreshold, query.oneSideJoin );
 				}
 			}
 
@@ -264,7 +264,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		long joinMinJoinTime = System.nanoTime();
 		System.out.println( "Threshold " + joinThreshold + " joinMin Join " + ( joinMinJoinTime - joinMinBuildTime ) );
 
-		buildNaiveIndex();
+		buildNaiveIndex( false );
 		long naiveBuildTime = System.nanoTime();
 		System.out.println( "Threshold " + joinThreshold + " naive Index " + ( naiveBuildTime - joinMinJoinTime ) );
 
