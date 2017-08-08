@@ -53,11 +53,11 @@ public class Query {
 		}
 
 		if( DEBUG.PrintQueryON ) {
-			System.out.println( "[Query] ruleFile: " + ruleFile );
-			System.out.println( "[Query] indexedFile: " + indexedFile );
+			System.out.println( "[Query]     ruleFile: " + ruleFile );
+			System.out.println( "[Query]  indexedFile: " + indexedFile );
 			System.out.println( "[Query] searchedFile: " + searchedFile );
-			System.out.println( "[Query] oneSideJoin: " + oneSideJoin );
-			System.out.println( "[Query] selfJoin: " + selfJoin );
+			System.out.println( "[Query]  oneSideJoin: " + oneSideJoin );
+			System.out.println( "[Query]     selfJoin: " + selfJoin );
 		}
 	}
 
