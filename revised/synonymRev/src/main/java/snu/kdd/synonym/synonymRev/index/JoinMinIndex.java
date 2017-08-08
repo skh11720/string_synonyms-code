@@ -87,7 +87,10 @@ public class JoinMinIndex {
 			}
 		}
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
+		StopWatch stepTime = null;
+		if( writeResult ) {
+			stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
+		}
 		// count number of occurrence of a positional q-grams
 		long recordStartTime = 0;
 		long recordMidTime = 0;
@@ -201,9 +204,14 @@ public class JoinMinIndex {
 
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
 		}
 		else {
-			stepTime.stop();
+			if( DEBUG.SampleStatON ) {
+				System.out.println( "[Gamma] " + gamma );
+				System.out.println( "[Gamma] CountTime" + countTime );
+				System.out.println( "[Gamma] TotalSigCount" + searchedTotalSigCount );
+			}
 		}
 
 		BufferedWriter bw_index = null;
@@ -216,8 +224,6 @@ public class JoinMinIndex {
 				e.printStackTrace();
 			}
 		}
-
-		stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
 
 		this.predictCount = 0;
 		long indexedElements = 0;
@@ -348,7 +354,9 @@ public class JoinMinIndex {
 			stepTime.stopAndAdd( stat );
 		}
 		else {
-			stepTime.stop();
+			System.out.println( "[Delta] " + delta );
+			System.out.println( "[Delta] IndexTime" + indexTime );
+			System.out.println( "[Delta] TotalSigCount" + indexedTotalSigCount );
 		}
 
 		if( DEBUG.JoinMinON ) {
