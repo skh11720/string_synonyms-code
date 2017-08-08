@@ -2,6 +2,8 @@ package snu.kdd.synonym.synonymRev.data;
 
 import java.io.IOException;
 
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
+
 public class Query {
 	public String ruleFile;
 	public String indexedFile;
@@ -48,6 +50,14 @@ public class Query {
 				this.selfJoin = true;
 				searchedSet = indexedSet;
 			}
+		}
+
+		if( DEBUG.PrintQueryON ) {
+			System.out.println( "[Query] ruleFile: " + ruleFile );
+			System.out.println( "[Query] indexedFile: " + indexedFile );
+			System.out.println( "[Query] searchedFile: " + searchedFile );
+			System.out.println( "[Query] oneSideJoin: " + oneSideJoin );
+			System.out.println( "[Query] selfJoin: " + selfJoin );
 		}
 	}
 
