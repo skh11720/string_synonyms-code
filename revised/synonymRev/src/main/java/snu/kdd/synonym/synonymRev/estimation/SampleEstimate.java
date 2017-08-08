@@ -90,6 +90,15 @@ public class SampleEstimate {
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
 
+		if( DEBUG.SampleStatON ) {
+			for( Record r : sampleSearchedList ) {
+				System.out.println( r );
+			}
+			for( Record r : sampleIndexedList ) {
+				System.out.println( r );
+			}
+		}
+
 		Dataset sampleIndexed = new Dataset( sampleIndexedList );
 		Dataset sampleSearched = new Dataset( sampleSearchedList );
 		sampleQuery = new Query( query.ruleSet, sampleIndexed, sampleSearched, query.tokenIndex, query.oneSideJoin,
