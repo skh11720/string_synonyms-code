@@ -42,7 +42,7 @@ public class Param {
 			param.qgramSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
 		}
 
-		if( cmd.hasOption( "sampleRatio" ) ) {
+		if( cmd.hasOption( "sample" ) ) {
 			param.sampleRatio = Integer.parseInt( cmd.getOptionValue( "sample" ) );
 		}
 
