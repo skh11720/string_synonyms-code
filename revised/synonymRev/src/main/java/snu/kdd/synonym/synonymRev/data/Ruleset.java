@@ -28,4 +28,8 @@ public class Ruleset {
 	public Iterable<Rule> get() {
 		return ruleList;
 	}
+
+	public int size() {
+		return ruleList.size();
+	}
 }

@@ -53,9 +53,9 @@ public class Query {
 		}
 
 		if( DEBUG.PrintQueryON ) {
-			System.out.println( "[Query]     ruleFile: " + ruleFile );
-			System.out.println( "[Query]  indexedFile: " + indexedFile );
-			System.out.println( "[Query] searchedFile: " + searchedFile );
+			System.out.println( "[Query]     ruleFile: " + ruleFile + " (" + ruleSet.size() + ")" );
+			System.out.println( "[Query]  indexedFile: " + indexedFile + " (" + indexedSet.size() + ")" );
+			System.out.println( "[Query] searchedFile: " + searchedFile + " (" + searchedSet.size() + ")" );
 			System.out.println( "[Query]  oneSideJoin: " + oneSideJoin );
 			System.out.println( "[Query]     selfJoin: " + selfJoin );
 		}
@@ -69,5 +69,13 @@ public class Query {
 		this.tokenIndex = tokenIndex;
 		this.oneSideJoin = oneSideJoin;
 		this.selfJoin = selfJoin;
+
+		if( DEBUG.PrintQueryON ) {
+			System.out.println( "[Query]     ruleFile: rules (" + ruleSet.size() + ")" );
+			System.out.println( "[Query]  indexedFile: sampled one (" + indexedSet.size() + ")" );
+			System.out.println( "[Query] searchedFile: sampled two (" + searchedSet.size() + ")" );
+			System.out.println( "[Query]  oneSideJoin: " + oneSideJoin );
+			System.out.println( "[Query]     selfJoin: " + selfJoin );
+		}
 	}
 }
