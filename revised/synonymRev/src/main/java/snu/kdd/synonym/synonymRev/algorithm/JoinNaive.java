@@ -65,6 +65,11 @@ public class JoinNaive extends AlgorithmTemplate {
 		if( addStat ) {
 			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		}
+		else {
+			if( DEBUG.SampleStatON ) {
+				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
+			}
+		}
 
 		idx = NaiveIndex.buildIndex( avgTransformed, stat, threshold, addStat, query );
 
@@ -72,6 +77,12 @@ public class JoinNaive extends AlgorithmTemplate {
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 			stat.addMemory( "Mem_3_BuildIndex" );
+		}
+		else {
+			if( DEBUG.SampleStatON ) {
+				stepTime.stopAndAdd( stat );
+				stepTime.resetAndStart( "Sample_2_Naive_Join_Time" );
+			}
 		}
 
 		// Join
@@ -81,6 +92,12 @@ public class JoinNaive extends AlgorithmTemplate {
 			stepTime.stopAndAdd( stat );
 			stat.addMemory( "Mem_4_Joined" );
 			stat.add( "Stat_Expanded", idx.totalExp );
+		}
+		else {
+			if( DEBUG.SampleStatON ) {
+				stepTime.stopAndAdd( stat );
+				stat.add( "Stat_Expanded", idx.totalExp );
+			}
 		}
 
 		if( DEBUG.NaiveON ) {

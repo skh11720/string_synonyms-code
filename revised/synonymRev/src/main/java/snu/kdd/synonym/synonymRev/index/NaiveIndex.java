@@ -200,6 +200,14 @@ public class NaiveIndex {
 			}
 			Util.printGCStats( stat, "Stat_Index" );
 		}
+		else {
+			if( DEBUG.SampleStatON ) {
+				stat.add( "Sample_Stat_Size_Total_Index", idxsize );
+				stat.add( "Sample_Est_Index_1_expSize", Double.toString( totalExp ) );
+				stat.add( "Sample_Est_Index_1_expandTime", expandTime );
+				stat.add( "Sample_Est_Index_2_indexingTime", indexingTime );
+			}
+		}
 
 		return naiveIndex;
 	}
