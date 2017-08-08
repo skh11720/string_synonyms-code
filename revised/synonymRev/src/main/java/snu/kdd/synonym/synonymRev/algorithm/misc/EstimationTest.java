@@ -91,7 +91,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		actualJoinThreshold( 4 );
 
 		actualJoinThreshold( 6 );
-		
+
 		actualJoinThreshold( 1000 );
 	}
 
@@ -264,6 +264,12 @@ public class EstimationTest extends AlgorithmTemplate {
 			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
 		}
 		long joinMinJoinTime = System.nanoTime();
+
+		System.out.println( "[Epsilon] " + joinMinIdx.epsilon );
+		System.out.println( "[Epsilon] JoinTime " + joinMinIdx.joinTime );
+		System.out.println( "[Epsilon] PredictedCount " + joinMinIdx.predictCount );
+		System.out.println( "[Epsilon] ActualCount " + joinMinIdx.comparisonCount );
+
 		System.out.println( "Threshold " + joinThreshold + " joinMin Join " + ( joinMinJoinTime - joinMinBuildTime ) );
 
 		buildNaiveIndex( false );
@@ -281,6 +287,11 @@ public class EstimationTest extends AlgorithmTemplate {
 			}
 		}
 		double naiveJoinTime = System.nanoTime();
+		
+		System.out.println( "[Beta] " + naiveIndex.beta );
+		System.out.println( "[Beta] JoinTime " + naiveIndex.joinTime );
+		System.out.println( "[Beta] TotalExp " + naiveIndex.totalExp );
+		
 		System.out.println( "Threshold " + joinThreshold + " naive Join " + ( naiveJoinTime - naiveBuildTime ) );
 
 		return rslt;
