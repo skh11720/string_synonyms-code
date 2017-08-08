@@ -265,8 +265,8 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 		long joinMinJoinTime = System.nanoTime();
 
-		System.out.println( "[Epsilon] " + joinMinIdx.epsilon );
-		System.out.println( "[Epsilon] JoinTime " + joinMinIdx.joinTime );
+		System.out.println( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
+		System.out.println( "[Epsilon] JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
 		System.out.println( "[Epsilon] PredictedCount " + joinMinIdx.predictCount );
 		System.out.println( "[Epsilon] ActualCount " + joinMinIdx.comparisonCount );
 
@@ -287,11 +287,11 @@ public class EstimationTest extends AlgorithmTemplate {
 			}
 		}
 		double naiveJoinTime = System.nanoTime();
-		
-		System.out.println( "[Beta] " + naiveIndex.beta );
-		System.out.println( "[Beta] JoinTime " + naiveIndex.joinTime );
+
+		System.out.println( "[Beta] " + ( naiveJoinTime - naiveBuildTime ) / (double) naiveIndex.totalExp );
+		System.out.println( "[Beta] JoinTime " + ( naiveJoinTime - naiveBuildTime ) );
 		System.out.println( "[Beta] TotalExp " + naiveIndex.totalExp );
-		
+
 		System.out.println( "Threshold " + joinThreshold + " naive Join " + ( naiveJoinTime - naiveBuildTime ) );
 
 		return rslt;
