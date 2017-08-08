@@ -91,6 +91,22 @@ public class EstimationTest extends AlgorithmTemplate {
 		actualJoinThreshold( 4 );
 
 		actualJoinThreshold( 6 );
+		
+		actualJoinThreshold( 8 );
+		
+		actualJoinThreshold( 12 );
+		
+		actualJoinThreshold( 18 );
+		
+		actualJoinThreshold( 20 );
+		
+		actualJoinThreshold( 30 );
+		
+		actualJoinThreshold( 36 );
+		
+		actualJoinThreshold( 40 );
+		
+		actualJoinThreshold( 41 );
 
 		actualJoinThreshold( 1000 );
 	}
