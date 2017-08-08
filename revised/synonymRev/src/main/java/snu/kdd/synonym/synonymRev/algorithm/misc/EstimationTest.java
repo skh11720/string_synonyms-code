@@ -109,7 +109,6 @@ public class EstimationTest extends AlgorithmTemplate {
 	}
 
 	private ArrayList<IntegerPair> join() {
-
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findConstants( sampleRatio );
 
@@ -226,16 +225,20 @@ public class EstimationTest extends AlgorithmTemplate {
 	}
 
 	private ArrayList<IntegerPair> actualJoinThreshold( int joinThreshold ) {
-		StopWatch buildTime = StopWatch.getWatchStarted( "Actual_Index_" + joinThreshold + "_Build_Time" );
+		long startTime = System.nanoTime();
+
+		boolean joinMinRequired = true;
+		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
+			joinMinRequired = false;
+		}
 
 		if( joinMinRequired ) {
 			buildJoinMinIndex();
 		}
 		int joinMinResultSize = 0;
 
-		buildTime.stopQuiet();
-
-		StopWatch joinTime = StopWatch.getWatchStarted( "Actual_Join_" + joinThreshold + "_Join_Time" );
+		long joinMinBuildTime = System.nanoTime();
+		System.out.println( "Threshold " + joinThreshold + " joinMin Index " + ( joinMinBuildTime - startTime ) );
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long joinstart = System.nanoTime();
@@ -258,18 +261,14 @@ public class EstimationTest extends AlgorithmTemplate {
 			stat.add( "Join_Min_Result", joinMinResultSize );
 			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
 		}
-		joinTime.stopQuiet();
+		long joinMinJoinTime = System.nanoTime();
+		System.out.println( "Threshold " + joinThreshold + " joinMin Join " + ( joinMinJoinTime - joinMinBuildTime ) );
 
-		double joinminJointime = System.nanoTime() - joinstart;
-
-		buildTime.start();
 		buildNaiveIndex();
-		buildTime.stopAndAdd( stat );
+		long naiveBuildTime = System.nanoTime();
+		System.out.println( "Threshold " + joinThreshold + " naive Index " + ( naiveBuildTime - joinMinJoinTime ) );
 
-		joinTime.start();
-		@SuppressWarnings( "unused" )
 		int naiveSearch = 0;
-		long starttime = System.nanoTime();
 		for( Record s : query.searchedSet.get() ) {
 			if( s.getEstNumTransformed() > joinThreshold ) {
 				continue;
@@ -279,8 +278,8 @@ public class EstimationTest extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
-		joinTime.stopAndAdd( stat );
-		double joinNanoTime = System.nanoTime() - starttime;
+		double naiveJoinTime = System.nanoTime();
+		System.out.println( "Threshold " + joinThreshold + " naive Join " + ( naiveJoinTime - naiveBuildTime ) );
 
 		return rslt;
 	}
