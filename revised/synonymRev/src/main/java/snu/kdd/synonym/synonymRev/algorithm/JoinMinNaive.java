@@ -236,7 +236,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.0";
+		return "2.3";
 	}
 
 	@Override
