@@ -43,7 +43,7 @@ public class Param {
 		}
 
 		if( cmd.hasOption( "sample" ) ) {
-			param.sampleRatio = Integer.parseInt( cmd.getOptionValue( "sample" ) );
+			param.sampleRatio = Double.parseDouble( cmd.getOptionValue( "sample" ) );
 		}
 
 		if( cmd.hasOption( "t" ) ) {
