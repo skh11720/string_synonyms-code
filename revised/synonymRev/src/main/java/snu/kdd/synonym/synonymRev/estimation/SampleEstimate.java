@@ -192,6 +192,20 @@ public class SampleEstimate {
 			Util.printLog( "Naive Join Time " + ( beta * totalExpJoin ) );
 		}
 
+		if( DEBUG.PrintEstimationON ) {
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bwEstimation = EstimationTest.getWriter();
+				try {
+					bwEstimation.write( "[Alpha] " + alpha + " IndexTime " + ( alpha * totalExpLengthIndex ) + " totalExpLength "
+							+ totalExpLengthIndex );
+					bwEstimation.write( "[Beta] " + beta + " JoinTime " + ( beta * totalExpJoin ) + " TotalExp " + totalExpJoin );
+				}
+				catch( IOException e ) {
+					e.printStackTrace();
+				}
+			}
+		}
+
 		return alpha * totalExpLengthIndex + beta * totalExpJoin;
 	}
 
@@ -202,6 +216,23 @@ public class SampleEstimate {
 			Util.printLog( "JoinMin Count Time " + ( searchedTotalSigCount * gamma ) );
 			Util.printLog( "JoinMin Index Time " + ( indexedTotalSigCount * delta ) );
 			Util.printLog( "JoinMin Join Time " + ( estimatedInvokes * epsilon ) );
+		}
+
+		if( DEBUG.PrintEstimationON ) {
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bwEstimation = EstimationTest.getWriter();
+				try {
+					bwEstimation.write( "[Gamma] " + gamma + " CountTime " + ( gamma * searchedTotalSigCount )
+							+ " SearchedSigCount " + searchedTotalSigCount );
+					bwEstimation.write( "[Delta] " + delta + " IndexTime " + ( delta * indexedTotalSigCount )
+							+ " IndexedSigCount " + indexedTotalSigCount );
+					bwEstimation.write( "[Epsilon] " + epsilon + " JoinTime " + ( epsilon * estimatedInvokes ) + " PredictCount "
+							+ estimatedInvokes );
+				}
+				catch( IOException e ) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return gamma * searchedTotalSigCount + delta * indexedTotalSigCount + epsilon * estimatedInvokes;
@@ -422,11 +453,21 @@ public class SampleEstimate {
 				nextThreshold = Long.min( nextThresholdSearched, nextThresholdIndexed );
 			}
 
-			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
-			double joinminEstimation = 0;
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bw = EstimationTest.getWriter();
 
-			joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
+				try {
+					bw.write( "Estimation " + currentThreshold + "\n" );
+				}
+				catch( IOException e ) {
+					e.printStackTrace();
+				}
+			}
+
+			double joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
 					totalInvokes - removedComparison );
+
+			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 
 			if( DEBUG.SampleStatON ) {
 				Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
