@@ -197,8 +197,9 @@ public class SampleEstimate {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
 					bwEstimation.write( "[Alpha] " + alpha + " IndexTime " + ( alpha * totalExpLengthIndex ) + " totalExpLength "
-							+ totalExpLengthIndex );
-					bwEstimation.write( "[Beta] " + beta + " JoinTime " + ( beta * totalExpJoin ) + " TotalExp " + totalExpJoin );
+							+ totalExpLengthIndex + "\n" );
+					bwEstimation.write(
+							"[Beta] " + beta + " JoinTime " + ( beta * totalExpJoin ) + " TotalExp " + totalExpJoin + "\n" );
 				}
 				catch( IOException e ) {
 					e.printStackTrace();
@@ -223,11 +224,11 @@ public class SampleEstimate {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
 					bwEstimation.write( "[Gamma] " + gamma + " CountTime " + ( gamma * searchedTotalSigCount )
-							+ " SearchedSigCount " + searchedTotalSigCount );
+							+ " SearchedSigCount " + searchedTotalSigCount + "\n" );
 					bwEstimation.write( "[Delta] " + delta + " IndexTime " + ( delta * indexedTotalSigCount )
-							+ " IndexedSigCount " + indexedTotalSigCount );
+							+ " IndexedSigCount " + indexedTotalSigCount + "\n" );
 					bwEstimation.write( "[Epsilon] " + epsilon + " JoinTime " + ( epsilon * estimatedInvokes ) + " PredictCount "
-							+ estimatedInvokes );
+							+ estimatedInvokes + "\n" );
 				}
 				catch( IOException e ) {
 					e.printStackTrace();
