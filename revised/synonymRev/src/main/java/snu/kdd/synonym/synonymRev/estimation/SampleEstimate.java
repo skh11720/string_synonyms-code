@@ -385,6 +385,10 @@ public class SampleEstimate {
 		}
 
 		while( currentThreshold <= maxThreshold ) {
+			if( currentThreshold > 100000 ) {
+				Util.printLog( "Current Threshold is more than 100000" );
+				break;
+			}
 
 			long nextThresholdIndexed = -1;
 			long nextThresholdSearched = -1;
