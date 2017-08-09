@@ -273,6 +273,17 @@ public class EstimationTest extends AlgorithmTemplate {
 
 	private ArrayList<IntegerPair> actualJoinThreshold( int joinThreshold ) {
 		System.out.println( "Threshold: " + joinThreshold );
+		BufferedWriter bwEstimation = null;
+		if( DEBUG.PrintEstimationON ) {
+			bwEstimation = getWriter();
+			try {
+				bwEstimation.write( "Threshold " + joinThreshold + "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+
 		long startTime = System.nanoTime();
 
 		boolean joinMinRequired = true;
@@ -312,7 +323,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		long joinMinJoinTime = System.nanoTime();
 
 		if( DEBUG.PrintEstimationON ) {
-			BufferedWriter bwEstimation = EstimationTest.getWriter();
+
 			try {
 				bwEstimation.write( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
 				bwEstimation.write( " JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
@@ -348,7 +359,6 @@ public class EstimationTest extends AlgorithmTemplate {
 		double naiveJoinTime = System.nanoTime();
 
 		if( DEBUG.PrintEstimationON ) {
-			BufferedWriter bwEstimation = EstimationTest.getWriter();
 			try {
 				bwEstimation.write( "[Beta] " + ( naiveJoinTime - naiveBuildTime ) / (double) naiveIndex.totalExp );
 				bwEstimation.write( " JoinTime " + ( naiveJoinTime - naiveBuildTime ) );
@@ -369,6 +379,17 @@ public class EstimationTest extends AlgorithmTemplate {
 		System.out.println( "Total Time " + ( naiveJoinTime - startTime ) );
 
 		System.out.println();
+
+		if( DEBUG.PrintEstimationON ) {
+			bwEstimation = getWriter();
+			try {
+				bwEstimation.write( "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+
 		return rslt;
 	}
 
