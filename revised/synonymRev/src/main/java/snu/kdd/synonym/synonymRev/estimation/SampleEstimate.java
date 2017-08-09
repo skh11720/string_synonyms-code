@@ -529,8 +529,8 @@ public class SampleEstimate {
 			}
 		}
 
-		if( bestThreshold > 1000 ) {
-			bestThreshold = 1000;
+		if( bestThreshold > 100000 ) {
+			bestThreshold = 100000;
 		}
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_Best_Estimated_Time", bestEstTime );
