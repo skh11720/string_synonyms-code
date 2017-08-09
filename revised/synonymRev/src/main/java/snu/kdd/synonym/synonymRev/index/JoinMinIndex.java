@@ -213,6 +213,17 @@ public class JoinMinIndex {
 				System.out.println( "[Gamma] CountTime " + countTime );
 				System.out.println( "[Gamma] SearchedSigCount " + searchedTotalSigCount );
 			}
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bwEstimation = EstimationTest.getWriter();
+				try {
+					bwEstimation.write( "[Gamma] " + gamma );
+					System.out.println( " CountTime " + countTime );
+					System.out.println( " SearchedSigCount " + searchedTotalSigCount );
+				}
+				catch( Exception e ) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		BufferedWriter bw_index = null;
