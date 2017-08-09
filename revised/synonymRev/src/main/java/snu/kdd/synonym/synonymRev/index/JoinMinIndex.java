@@ -14,6 +14,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -354,9 +355,17 @@ public class JoinMinIndex {
 			stepTime.stopAndAdd( stat );
 		}
 		else {
-			System.out.println( "[Delta] " + delta );
-			System.out.println( "[Delta] IndexTime " + indexTime );
-			System.out.println( "[Delta] IndexedSigCount " + indexedTotalSigCount );
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bwEstimation = EstimationTest.getWriter();
+				try {
+					bwEstimation.write( "[Delta] " + delta );
+					bwEstimation.write( " IndexTime " + indexTime );
+					bwEstimation.write( " IndexedSigCount " + indexedTotalSigCount + "\n" );
+				}
+				catch( IOException e ) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		if( DEBUG.JoinMinON ) {
@@ -443,14 +452,9 @@ public class JoinMinIndex {
 
 		long joinStartTime = System.nanoTime();
 		for( Record recS : query.searchedSet.get() ) {
-			// long startTime = System.currentTimeMillis();
 
 			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
 
-			// long executionTime = System.currentTimeMillis() - startTime;
-			// if( executionTime > 0 ) {
-			// Util.printLog( recS.getID() + " processed " + executionTime );
-			// }
 		}
 		joinTime = System.nanoTime() - joinStartTime;
 
@@ -500,6 +504,19 @@ public class JoinMinIndex {
 				System.out.println( "[Epsilon] JoinTime " + joinTime );
 				System.out.println( "[Epsilon] PredictCount " + predictCount );
 				System.out.println( "[Epsilon] ActualCount " + equivComparisons );
+			}
+
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bwEstimation = EstimationTest.getWriter();
+				try {
+					bwEstimation.write( "[Epsilon] " + epsilon );
+					bwEstimation.write( " JoinTime " + joinTime );
+					bwEstimation.write( " PredictCount " + predictCount );
+					bwEstimation.write( " ActualCount " + equivComparisons + "\n" );
+				}
+				catch( Exception e ) {
+					e.printStackTrace();
+				}
 			}
 		}
 

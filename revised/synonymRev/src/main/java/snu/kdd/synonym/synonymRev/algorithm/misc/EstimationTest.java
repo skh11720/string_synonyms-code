@@ -1,5 +1,7 @@
 package snu.kdd.synonym.synonymRev.algorithm.misc;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +41,31 @@ public class EstimationTest extends AlgorithmTemplate {
 
 	private long maxSearchedEstNumRecords = 0;
 	private long maxIndexedEstNumRecords = 0;
+
+	public static BufferedWriter bw = null;
+
+	public static BufferedWriter getWriter() {
+		if( bw == null ) {
+			try {
+				bw = new BufferedWriter( new FileWriter( "Estimation_DEBUG.txt" ) );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+		return bw;
+	}
+
+	public static void closeWriter() {
+		if( bw != null ) {
+			try {
+				bw.close();
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+	}
 
 	@Override
 	public void preprocess() {
@@ -109,6 +136,8 @@ public class EstimationTest extends AlgorithmTemplate {
 		actualJoinThreshold( 41 );
 
 		actualJoinThreshold( 1000 );
+
+		closeWriter();
 	}
 
 	private void buildJoinMinIndex( boolean writeResult ) {
@@ -282,6 +311,19 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 		long joinMinJoinTime = System.nanoTime();
 
+		if( DEBUG.PrintEstimationON ) {
+			BufferedWriter bwEstimation = EstimationTest.getWriter();
+			try {
+				bwEstimation.write( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
+				bwEstimation.write( " JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
+				bwEstimation.write( " PredictedCount " + joinMinIdx.predictCount );
+				bwEstimation.write( " ActualCount " + joinMinIdx.comparisonCount + "\n" );
+			}
+			catch( Exception e ) {
+				e.printStackTrace();
+			}
+		}
+
 		System.out.println( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
 		System.out.println( "[Epsilon] JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
 		System.out.println( "[Epsilon] PredictedCount " + joinMinIdx.predictCount );
@@ -305,10 +347,22 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 		double naiveJoinTime = System.nanoTime();
 
+		if( DEBUG.PrintEstimationON ) {
+			BufferedWriter bwEstimation = EstimationTest.getWriter();
+			try {
+				bwEstimation.write( "[Beta] " + ( naiveJoinTime - naiveBuildTime ) / (double) naiveIndex.totalExp );
+				bwEstimation.write( " JoinTime " + ( naiveJoinTime - naiveBuildTime ) );
+				bwEstimation.write( " TotalExp " + naiveIndex.totalExp + "\n" );
+			}
+			catch( Exception e ) {
+				e.printStackTrace();
+			}
+		}
+
 		System.out.println( "[Beta] " + ( naiveJoinTime - naiveBuildTime ) / (double) naiveIndex.totalExp );
 		System.out.println( "[Beta] JoinTime " + ( naiveJoinTime - naiveBuildTime ) );
 		System.out.println( "[Beta] TotalExp " + naiveIndex.totalExp );
-		
+
 		System.out.println( "Naive Search " + naiveSearch );
 
 		System.out.println( "Threshold " + joinThreshold + " naive Join " + ( naiveJoinTime - naiveBuildTime ) );

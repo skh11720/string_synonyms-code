@@ -168,8 +168,8 @@ public class SampleEstimate {
 	}
 
 	public void estimateWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
-		estimateNaive( stat );
 		estimateJoinMin( stat, checker, indexK, qSize );
+		estimateNaive( stat );
 	}
 
 	public double getEstimateNaive( double totalExpLengthIndex, double totalExpJoin ) {

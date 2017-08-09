@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -205,6 +206,17 @@ public class NaiveIndex {
 				System.out.println( "[Alpha] IndexTime " + naiveIndex.indexTime );
 				System.out.println( "[Alpha] totalExpLength " + naiveIndex.totalExpLength );
 			}
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bwEstimation = EstimationTest.getWriter();
+				try {
+					bwEstimation.write( "[Alpha] " + naiveIndex.alpha );
+					bwEstimation.write( " IndexTime " + naiveIndex.indexTime );
+					bwEstimation.write( " totalExpLength " + naiveIndex.totalExpLength + "\n" );
+				}
+				catch( Exception e ) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return naiveIndex;
@@ -299,6 +311,18 @@ public class NaiveIndex {
 				System.out.println( "[Beta] " + beta );
 				System.out.println( "[Beta] JoinTime " + joinTime );
 				System.out.println( "[Beta] TotalExp " + totalExp );
+			}
+
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bwEstimation = EstimationTest.getWriter();
+				try {
+					bwEstimation.write( "[Beta] " + beta );
+					System.out.println( " JoinTime " + joinTime );
+					System.out.println( " TotalExp " + totalExp + "\n" );
+				}
+				catch( Exception e ) {
+					e.printStackTrace();
+				}
 			}
 		}
 
