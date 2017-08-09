@@ -115,45 +115,79 @@ public class EstimationTest extends AlgorithmTemplate {
 		writeResult( rslt );
 		stepTime.stopAndAdd( stat );
 
+		// USPS
+		// actualJoinThreshold( 3 );
+		// actualJoinThreshold( 4 );
+		// actualJoinThreshold( 6 );
+		// actualJoinThreshold( 8 );
+		// actualJoinThreshold( 9 );
+		// actualJoinThreshold( 10 );
+		// actualJoinThreshold( 12 );
+		// actualJoinThreshold( 14 );
+		// actualJoinThreshold( 16 );
+		// actualJoinThreshold( 18 );
+		// actualJoinThreshold( 20 );
+		// actualJoinThreshold( 21 );
+		// actualJoinThreshold( 24 );
+		// actualJoinThreshold( 27 );
+		// actualJoinThreshold( 28 );
+		// actualJoinThreshold( 30 );
+		// actualJoinThreshold( 36 );
+		// actualJoinThreshold( 40 );
+
+		// SPROT
+		actualJoinThreshold( 1 );
+		actualJoinThreshold( 2 );
 		actualJoinThreshold( 3 );
-
 		actualJoinThreshold( 4 );
-
+		actualJoinThreshold( 5 );
 		actualJoinThreshold( 6 );
-
+		actualJoinThreshold( 7 );
 		actualJoinThreshold( 8 );
-
 		actualJoinThreshold( 9 );
-
 		actualJoinThreshold( 10 );
-
+		actualJoinThreshold( 11 );
 		actualJoinThreshold( 12 );
-
+		actualJoinThreshold( 13 );
 		actualJoinThreshold( 14 );
-
+		actualJoinThreshold( 15 );
 		actualJoinThreshold( 16 );
-
+		actualJoinThreshold( 17 );
 		actualJoinThreshold( 18 );
-
+		actualJoinThreshold( 19 );
 		actualJoinThreshold( 20 );
-
-		actualJoinThreshold( 21 );
-
+		actualJoinThreshold( 23 );
 		actualJoinThreshold( 24 );
-
-		actualJoinThreshold( 27 );
-
-		actualJoinThreshold( 28 );
-
+		actualJoinThreshold( 25 );
 		actualJoinThreshold( 30 );
-
+		actualJoinThreshold( 33 );
+		actualJoinThreshold( 34 );
+		actualJoinThreshold( 35 );
 		actualJoinThreshold( 36 );
-
 		actualJoinThreshold( 40 );
-
 		actualJoinThreshold( 41 );
-
-		actualJoinThreshold( 1000 );
+		actualJoinThreshold( 43 );
+		actualJoinThreshold( 49 );
+		actualJoinThreshold( 50 );
+		actualJoinThreshold( 55 );
+		actualJoinThreshold( 70 );
+		actualJoinThreshold( 75 );
+		actualJoinThreshold( 80 );
+		actualJoinThreshold( 82 );
+		actualJoinThreshold( 85 );
+		actualJoinThreshold( 120 );
+		actualJoinThreshold( 125 );
+		actualJoinThreshold( 150 );
+		actualJoinThreshold( 152 );
+		actualJoinThreshold( 180 );
+		actualJoinThreshold( 225 );
+		actualJoinThreshold( 238 );
+		actualJoinThreshold( 275 );
+		actualJoinThreshold( 375 );
+		actualJoinThreshold( 625 );
+		actualJoinThreshold( 1080 );
+		actualJoinThreshold( 1421 );
+		actualJoinThreshold( 1764 );
 
 		closeWriter();
 	}
