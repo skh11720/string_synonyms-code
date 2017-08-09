@@ -3,6 +3,8 @@ package snu.kdd.synonym.synonymRev.estimation;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -91,6 +93,18 @@ public class SampleEstimate {
 
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
+
+		// Comparator<Record> cmp = new Comparator<Record>() {
+		// @Override
+		// public int compare( Record o1, Record o2 ) {
+		// long est1 = o1.getEstNumTransformed();
+		// long est2 = o2.getEstNumTransformed();
+		// return Long.compare( est1, est2 );
+		// }
+		// };
+		//
+		// Collections.sort( sampleSearchedList, cmp );
+		// Collections.sort( sampleIndexedList, cmp );
 
 		Dataset sampleIndexed = new Dataset( sampleIndexedList );
 		Dataset sampleSearched = new Dataset( sampleSearchedList );
@@ -262,7 +276,11 @@ public class SampleEstimate {
 		double searchedTotalSigCount = 0;
 
 		for( int recId = 0; recId < tableSearchedSize; recId++ ) {
+
 			Record rec = sampleSearchedList.get( recId );
+
+			// DEBUG
+			System.out.println( "rec " + rec.getEstNumTransformed() );
 
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 
