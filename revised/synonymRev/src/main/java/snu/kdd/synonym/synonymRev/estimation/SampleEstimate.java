@@ -279,9 +279,6 @@ public class SampleEstimate {
 
 			Record rec = sampleSearchedList.get( recId );
 
-			// DEBUG
-			System.out.println( "rec " + rec.getEstNumTransformed() );
-
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 
 			int searchmax = availableQGrams.size();
