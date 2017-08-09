@@ -94,17 +94,17 @@ public class SampleEstimate {
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
 
-		// Comparator<Record> cmp = new Comparator<Record>() {
-		// @Override
-		// public int compare( Record o1, Record o2 ) {
-		// long est1 = o1.getEstNumTransformed();
-		// long est2 = o2.getEstNumTransformed();
-		// return Long.compare( est1, est2 );
-		// }
-		// };
-		//
-		// Collections.sort( sampleSearchedList, cmp );
-		// Collections.sort( sampleIndexedList, cmp );
+		Comparator<Record> cmp = new Comparator<Record>() {
+			@Override
+			public int compare( Record o1, Record o2 ) {
+				long est1 = o1.getEstNumTransformed();
+				long est2 = o2.getEstNumTransformed();
+				return Long.compare( est1, est2 );
+			}
+		};
+
+		Collections.sort( sampleSearchedList, cmp );
+		Collections.sort( sampleIndexedList, cmp );
 
 		Dataset sampleIndexed = new Dataset( sampleIndexedList );
 		Dataset sampleSearched = new Dataset( sampleSearchedList );
