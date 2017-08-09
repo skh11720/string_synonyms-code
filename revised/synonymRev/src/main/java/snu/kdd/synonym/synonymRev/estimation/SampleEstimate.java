@@ -276,7 +276,6 @@ public class SampleEstimate {
 		double searchedTotalSigCount = 0;
 
 		for( int recId = 0; recId < tableSearchedSize; recId++ ) {
-
 			Record rec = sampleSearchedList.get( recId );
 
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );

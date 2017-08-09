@@ -163,7 +163,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, writeResult );
 	}
 
-	private void buildNaiveIndex( boolean writeResult ) {
+	private void buildNaiveIndex( boolean writeResult, int joinThreshold ) {
 		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, writeResult, query );
 	}
 
@@ -247,7 +247,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 
 		buildTime.start();
-		buildNaiveIndex( true );
+		buildNaiveIndex( true, joinThreshold );
 		buildTime.stopAndAdd( stat );
 
 		if( DEBUG.JoinMinNaiveON ) {
@@ -340,27 +340,28 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 		long joinMinJoinTime = System.nanoTime();
 
-		if( DEBUG.PrintEstimationON ) {
+		if( joinMinRequired ) {
+			if( DEBUG.PrintEstimationON ) {
+				try {
+					bwEstimation
+							.write( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
+					bwEstimation.write( " JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
+					bwEstimation.write( " PredictedCount " + joinMinIdx.predictCount );
+					bwEstimation.write( " ActualCount " + joinMinIdx.comparisonCount + "\n" );
+				}
+				catch( Exception e ) {
+					e.printStackTrace();
+				}
+			}
+			System.out.println( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
+			System.out.println( "[Epsilon] JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
+			System.out.println( "[Epsilon] PredictedCount " + joinMinIdx.predictCount );
+			System.out.println( "[Epsilon] ActualCount " + joinMinIdx.comparisonCount );
 
-			try {
-				bwEstimation.write( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
-				bwEstimation.write( " JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
-				bwEstimation.write( " PredictedCount " + joinMinIdx.predictCount );
-				bwEstimation.write( " ActualCount " + joinMinIdx.comparisonCount + "\n" );
-			}
-			catch( Exception e ) {
-				e.printStackTrace();
-			}
+			System.out.println( "Threshold " + joinThreshold + " joinMin Join " + ( joinMinJoinTime - joinMinBuildTime ) );
 		}
 
-		System.out.println( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
-		System.out.println( "[Epsilon] JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
-		System.out.println( "[Epsilon] PredictedCount " + joinMinIdx.predictCount );
-		System.out.println( "[Epsilon] ActualCount " + joinMinIdx.comparisonCount );
-
-		System.out.println( "Threshold " + joinThreshold + " joinMin Join " + ( joinMinJoinTime - joinMinBuildTime ) );
-
-		buildNaiveIndex( false );
+		buildNaiveIndex( false, joinThreshold );
 		long naiveBuildTime = System.nanoTime();
 		System.out.println( "Threshold " + joinThreshold + " naive Index " + ( naiveBuildTime - joinMinJoinTime ) );
 
