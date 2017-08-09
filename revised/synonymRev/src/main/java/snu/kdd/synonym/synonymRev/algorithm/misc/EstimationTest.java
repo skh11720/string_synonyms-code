@@ -309,7 +309,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		System.out.println( "[Beta] JoinTime " + ( naiveJoinTime - naiveBuildTime ) );
 		System.out.println( "[Beta] TotalExp " + naiveIndex.totalExp );
 		
-		System.out.println( "Naive Search" );
+		System.out.println( "Naive Search " + naiveSearch );
 
 		System.out.println( "Threshold " + joinThreshold + " naive Join " + ( naiveJoinTime - naiveBuildTime ) );
 		System.out.println( "Total Time " + ( naiveJoinTime - startTime ) );
