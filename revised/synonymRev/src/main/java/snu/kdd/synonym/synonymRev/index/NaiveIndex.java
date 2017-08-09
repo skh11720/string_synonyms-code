@@ -317,8 +317,8 @@ public class NaiveIndex {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
 					bwEstimation.write( "[Beta] " + beta );
-					System.out.println( " JoinTime " + joinTime );
-					System.out.println( " TotalExp " + totalExp + "\n" );
+					bwEstimation.write( " JoinTime " + joinTime );
+					bwEstimation.write( " TotalExp " + totalExp + "\n" );
 				}
 				catch( Exception e ) {
 					e.printStackTrace();

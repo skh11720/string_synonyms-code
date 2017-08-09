@@ -217,8 +217,8 @@ public class JoinMinIndex {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
 					bwEstimation.write( "[Gamma] " + gamma );
-					System.out.println( " CountTime " + countTime );
-					System.out.println( " SearchedSigCount " + searchedTotalSigCount );
+					bwEstimation.write( " CountTime " + countTime );
+					bwEstimation.write( " SearchedSigCount " + searchedTotalSigCount + "\n" );
 				}
 				catch( Exception e ) {
 					e.printStackTrace();
