@@ -115,17 +115,35 @@ public class EstimationTest extends AlgorithmTemplate {
 		writeResult( rslt );
 		stepTime.stopAndAdd( stat );
 
+		actualJoinThreshold( 3 );
+
 		actualJoinThreshold( 4 );
 
 		actualJoinThreshold( 6 );
 
 		actualJoinThreshold( 8 );
 
+		actualJoinThreshold( 9 );
+
+		actualJoinThreshold( 10 );
+
 		actualJoinThreshold( 12 );
+
+		actualJoinThreshold( 14 );
+
+		actualJoinThreshold( 16 );
 
 		actualJoinThreshold( 18 );
 
 		actualJoinThreshold( 20 );
+
+		actualJoinThreshold( 21 );
+
+		actualJoinThreshold( 24 );
+
+		actualJoinThreshold( 27 );
+
+		actualJoinThreshold( 28 );
 
 		actualJoinThreshold( 30 );
 
