@@ -1,5 +1,6 @@
 package snu.kdd.synonym.synonymRev.estimation;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Random;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
+import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -170,6 +172,17 @@ public class SampleEstimate {
 	public void estimateWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
 		estimateJoinMin( stat, checker, indexK, qSize );
 		estimateNaive( stat );
+
+		if( DEBUG.PrintEstimationON ) {
+			BufferedWriter bw = EstimationTest.getWriter();
+
+			try {
+				bw.write( "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public double getEstimateNaive( double totalExpLengthIndex, double totalExpJoin ) {
