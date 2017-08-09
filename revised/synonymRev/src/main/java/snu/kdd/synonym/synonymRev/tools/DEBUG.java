@@ -10,7 +10,7 @@ public class DEBUG {
 
 	public static final boolean JoinMHIndexON = false;
 	public static final boolean JoinMinIndexON = true;
-	
+
 	public static final boolean JoinMinNaiveON = false;
 	public static final boolean JoinMHNaiveON = false;
 
@@ -19,6 +19,7 @@ public class DEBUG {
 	public static final boolean PrintJoinMinIndexON = false;
 	public static final boolean PrintJoinMinJoinON = false;
 	public static final boolean PrintQueryON = true;
+	public static final boolean PrintEstimation = true;
 
 	public static final boolean ValidateON = false;
 	public static final boolean SampleStatON = true;

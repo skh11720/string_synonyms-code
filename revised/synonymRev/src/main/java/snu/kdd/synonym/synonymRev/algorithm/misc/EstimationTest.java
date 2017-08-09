@@ -260,7 +260,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		System.out.println( "Threshold " + joinThreshold + " joinMin Index " + ( joinMinBuildTime - startTime ) );
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
-		long joinstart = System.nanoTime();
+
 		if( joinMinRequired ) {
 			if( query.oneSideJoin ) {
 				for( Record s : query.searchedSet.get() ) {
@@ -308,6 +308,8 @@ public class EstimationTest extends AlgorithmTemplate {
 		System.out.println( "[Beta] " + ( naiveJoinTime - naiveBuildTime ) / (double) naiveIndex.totalExp );
 		System.out.println( "[Beta] JoinTime " + ( naiveJoinTime - naiveBuildTime ) );
 		System.out.println( "[Beta] TotalExp " + naiveIndex.totalExp );
+		
+		System.out.println( "Naive Search" );
 
 		System.out.println( "Threshold " + joinThreshold + " naive Join " + ( naiveJoinTime - naiveBuildTime ) );
 		System.out.println( "Total Time " + ( naiveJoinTime - startTime ) );
