@@ -470,6 +470,17 @@ public class SampleEstimate {
 
 			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bw = EstimationTest.getWriter();
+
+				try {
+					bw.write( "\n" );
+				}
+				catch( IOException e ) {
+					e.printStackTrace();
+				}
+			}
+
 			if( DEBUG.SampleStatON ) {
 				Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
 						naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
