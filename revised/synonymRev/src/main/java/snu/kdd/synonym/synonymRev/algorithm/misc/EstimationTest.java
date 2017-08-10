@@ -173,7 +173,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		// 78624, 80325, 81144, 81312, 85680, 86400, 86940, 90720, 104040 };
 
 		// Synthetic
-		int[] SyntheticRange = { 1, 2, 3, 4, 5, 6, 7, 8 };
+		int[] SyntheticRange = { 1, 2, 3, 4, 6, 8, 9, 12, 16, 18, 24, 54 };
 
 		for( int idx : SyntheticRange ) {
 			actualJoinThreshold( idx );
