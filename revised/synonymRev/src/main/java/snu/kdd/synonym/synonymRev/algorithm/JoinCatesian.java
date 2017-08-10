@@ -46,8 +46,8 @@ public class JoinCatesian extends AlgorithmTemplate {
 		Param params = Param.parseArgs( args, stat, query );
 		checker = params.validator;
 
-		System.out.println( "No length" );
 		noLength = params.noLength;
+		System.out.println( "No length " + noLength );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
