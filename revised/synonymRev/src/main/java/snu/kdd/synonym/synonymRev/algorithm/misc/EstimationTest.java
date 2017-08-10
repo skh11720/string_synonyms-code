@@ -178,6 +178,9 @@ public class EstimationTest extends AlgorithmTemplate {
 		for( int idx : SyntheticRange ) {
 			actualJoinThreshold( idx );
 		}
+
+		rslt = join();
+
 		closeWriter();
 	}
 
