@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.ParseException;
@@ -43,6 +44,7 @@ public class JoinCatesian extends AlgorithmTemplate {
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		// Setup parameters
+		System.out.println( "Args " + Arrays.toString( args ) );
 		Param params = Param.parseArgs( args, stat, query );
 		checker = params.validator;
 
