@@ -13,6 +13,7 @@ import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK_Split;
+import snu.kdd.synonym.synonymRev.algorithm.JoinCatesian;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThres;
@@ -146,6 +147,10 @@ public class App {
 
 		case EstimationTest:
 			alg = new EstimationTest( query, stat );
+			break;
+
+		case JoinCatesian:
+			alg = new JoinCatesian( query, stat );
 			break;
 
 		default:

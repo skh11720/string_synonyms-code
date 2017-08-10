@@ -21,7 +21,18 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 
 public abstract class AlgorithmTemplate {
 	public enum AlgorithmName {
-		JoinNaive, JoinMH, JoinBK, JoinMin, JoinMinPosition, JoinMinRange, JoinMinNaive, JoinMinNaiveThres, JoinMHNaive, JoinMHNaiveThres, EstimationTest
+		JoinCatesian,
+		JoinNaive,
+		JoinMH,
+		JoinBK,
+		JoinMin,
+		JoinMinPosition,
+		JoinMinRange,
+		JoinMinNaive,
+		JoinMinNaiveThres,
+		JoinMHNaive,
+		JoinMHNaiveThres,
+		EstimationTest
 	}
 
 	// contains statistics of the algorithm
