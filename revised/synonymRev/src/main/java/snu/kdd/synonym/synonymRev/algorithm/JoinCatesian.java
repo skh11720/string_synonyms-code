@@ -25,6 +25,20 @@ public class JoinCatesian extends AlgorithmTemplate {
 	}
 
 	@Override
+	protected void preprocess() {
+		super.preprocess();
+
+		for( Record rec : query.indexedSet.get() ) {
+			rec.preprocessSuffixApplicableRules();
+		}
+		if( !query.selfJoin ) {
+			for( Record rec : query.searchedSet.get() ) {
+				rec.preprocessSuffixApplicableRules();
+			}
+		}
+	}
+
+	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		// Setup parameters
 		Param params = Param.parseArgs( args, stat, query );
