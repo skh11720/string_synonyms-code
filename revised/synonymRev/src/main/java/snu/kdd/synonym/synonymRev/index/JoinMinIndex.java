@@ -251,10 +251,13 @@ public class JoinMinIndex {
 			List<List<QGram>> availableQGrams = null;
 
 			if( query.oneSideJoin ) {
-				availableQGrams = rec.getSelfQGrams( qSize, searchmax );
+				// TODO DEBUG
+				availableQGrams = rec.getSelfQGrams( qSize, Integer.MAX_VALUE );
+				// availableQGrams = rec.getSelfQGrams( qSize, searchmax );
 				// System.out.println( availableQGrams.toString() );
 			}
 			else {
+				// TODO DEBUG
 				availableQGrams = rec.getQGrams( qSize, searchmax );
 			}
 
