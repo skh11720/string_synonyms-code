@@ -11,6 +11,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
@@ -19,6 +20,7 @@ public class JoinCatesian extends AlgorithmTemplate {
 	// staticitics used for building indexes
 	double avgTransformed;
 	static Validator checker;
+	boolean noLength = false;
 
 	public JoinCatesian( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -44,6 +46,8 @@ public class JoinCatesian extends AlgorithmTemplate {
 		Param params = Param.parseArgs( args, stat, query );
 		checker = params.validator;
 
+		noLength = params.noLength;
+
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 		preprocess();
@@ -66,6 +70,21 @@ public class JoinCatesian extends AlgorithmTemplate {
 		List<IntegerPair> rslt = new ArrayList<>();
 		for( Record r : query.indexedSet.get() ) {
 			for( Record s : query.searchedSet.get() ) {
+				if( !noLength ) {
+					if( query.oneSideJoin ) {
+						if( !StaticFunctions.overlap( r.getTokenCount(), r.getTokenCount(), s.getMinTransLength(),
+								s.getMaxTransLength() ) ) {
+							continue;
+						}
+					}
+					else {
+						if( !StaticFunctions.overlap( r.getMinTransLength(), r.getMaxTransLength(), s.getMinTransLength(),
+								s.getMaxTransLength() ) ) {
+							continue;
+						}
+					}
+				}
+
 				if( checker.isEqual( s, r ) >= 0 ) {
 					rslt.add( new IntegerPair( r.getID(), s.getID() ) );
 				}

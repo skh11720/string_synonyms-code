@@ -49,6 +49,11 @@ public class Param {
 		if( cmd.hasOption( "t" ) ) {
 			param.threshold = Integer.parseInt( cmd.getOptionValue( "t" ) );
 		}
+		
+		if( cmd.hasOption( "noLength" ) ) {
+			param.noLength = true;
+		}
+		
 		if( query.oneSideJoin ) {
 			param.validator = new TopDownOneSide();
 		}
@@ -64,4 +69,5 @@ public class Param {
 	public double sampleRatio = 0.1;
 	public Validator validator;
 	public int threshold = 10;
+	public boolean noLength = false;
 }
