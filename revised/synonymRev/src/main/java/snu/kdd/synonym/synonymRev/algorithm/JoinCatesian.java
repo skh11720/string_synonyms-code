@@ -68,18 +68,21 @@ public class JoinCatesian extends AlgorithmTemplate {
 
 	public List<IntegerPair> runAfterPreprocess() {
 		List<IntegerPair> rslt = new ArrayList<>();
+		long lengthFiltered = 0;
 		for( Record r : query.indexedSet.get() ) {
 			for( Record s : query.searchedSet.get() ) {
 				if( !noLength ) {
 					if( query.oneSideJoin ) {
 						if( !StaticFunctions.overlap( r.getTokenCount(), r.getTokenCount(), s.getMinTransLength(),
 								s.getMaxTransLength() ) ) {
+							lengthFiltered++;
 							continue;
 						}
 					}
 					else {
 						if( !StaticFunctions.overlap( r.getMinTransLength(), r.getMaxTransLength(), s.getMinTransLength(),
 								s.getMaxTransLength() ) ) {
+							lengthFiltered++;
 							continue;
 						}
 					}
@@ -90,6 +93,7 @@ public class JoinCatesian extends AlgorithmTemplate {
 				}
 			}
 		}
+		stat.add( "Stat_Length_Filtered", lengthFiltered );
 		return rslt;
 	}
 
