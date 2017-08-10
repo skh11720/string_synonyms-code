@@ -22,6 +22,7 @@ public class Param {
 		options.addOption( "qSize", true, "Q gram size" );
 		options.addOption( "sample", true, "Sampling Ratio" );
 		options.addOption( "t", true, "Threshold" );
+		options.addOption( "noLength", false, "No Length Filtering" );
 
 		argOptions = options;
 	}
@@ -49,11 +50,11 @@ public class Param {
 		if( cmd.hasOption( "t" ) ) {
 			param.threshold = Integer.parseInt( cmd.getOptionValue( "t" ) );
 		}
-		
+
 		if( cmd.hasOption( "noLength" ) ) {
 			param.noLength = true;
 		}
-		
+
 		if( query.oneSideJoin ) {
 			param.validator = new TopDownOneSide();
 		}
