@@ -184,9 +184,9 @@ public class EstimationTest extends AlgorithmTemplate {
 		closeWriter();
 	}
 
-	private void buildJoinMinIndex( boolean writeResult ) {
+	private void buildJoinMinIndex( boolean writeResult, int threshold ) {
 		// Build an index
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, writeResult );
+		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, threshold, writeResult );
 	}
 
 	private void buildNaiveIndex( boolean writeResult, int joinThreshold ) {
@@ -216,7 +216,7 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		buildTime.start();
 		if( joinMinRequired ) {
-			buildJoinMinIndex( true );
+			buildJoinMinIndex( true, joinThreshold );
 		}
 		int joinMinResultSize = 0;
 		if( DEBUG.JoinMinNaiveON ) {
@@ -336,7 +336,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 
 		if( joinMinRequired ) {
-			buildJoinMinIndex( false );
+			buildJoinMinIndex( false, joinThreshold );
 		}
 		int joinMinResultSize = 0;
 
