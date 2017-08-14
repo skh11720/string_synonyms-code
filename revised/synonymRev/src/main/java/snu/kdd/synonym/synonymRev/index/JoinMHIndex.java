@@ -271,7 +271,7 @@ public class JoinMHIndex {
 		}
 	}
 
-	public ArrayList<IntegerPair> join( StatContainer stat, Query query, Validator checker ) {
+	public ArrayList<IntegerPair> join( StatContainer stat, Query query, Validator checker, boolean writeResult ) {
 		long startTime = System.nanoTime();
 		int maxPosition = 0;
 		for( int idx : indexPosition ) {
@@ -415,35 +415,40 @@ public class JoinMHIndex {
 
 		}
 
-		stat.add( "Stat_Equiv_Comparison", count );
+		if( writeResult ) {
+			stat.add( "Stat_Equiv_Comparison", count );
+		}
 
 		if( DEBUG.JoinMHIndexON ) {
-			for( int i = 0; i < indexK; ++i ) {
-				Util.printLog( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
-				Util.printLog( "Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
-				Util.printLog( "Empty candidates : " + count_empty[ i ] );
+			if( writeResult ) {
+				for( int i = 0; i < indexK; ++i ) {
+					Util.printLog( "Avg candidates(w/o empty) : " + cand_sum[ i ] + "/" + count_cand[ i ] );
+					Util.printLog(
+							"Avg candidates(w/o empty, after prune) : " + cand_sum_afterprune[ i ] + "/" + count_cand[ i ] );
+					Util.printLog( "Empty candidates : " + count_empty[ i ] );
+				}
+
+				Util.printLog( "comparisions : " + count );
+
+				stat.addMemory( "Mem_4_Joined" );
+
+				stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
+				stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
+
+				stat.add( "Counter_Final_2_MapCollision", WYK_HashMap.collision );
+				stat.add( "Counter_Final_2_MapResize", WYK_HashMap.resize );
+
+				stat.add( "Stat_Length_Filtered", lengthFiltered );
+				stat.add( equivTime );
+
+				String candTimeStr = "";
+				for( int i = 0; i < indexK; i++ ) {
+					candidateTimes[ i ].printTotal();
+
+					candTimeStr = candTimeStr + ( candidateTimes[ i ].getTotalTime() ) + " ";
+				}
+				stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 			}
-
-			Util.printLog( "comparisions : " + count );
-
-			stat.addMemory( "Mem_4_Joined" );
-
-			stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
-			stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
-
-			stat.add( "Counter_Final_2_MapCollision", WYK_HashMap.collision );
-			stat.add( "Counter_Final_2_MapResize", WYK_HashMap.resize );
-
-			stat.add( "Stat_Length_Filtered", lengthFiltered );
-			stat.add( equivTime );
-
-			String candTimeStr = "";
-			for( int i = 0; i < indexK; i++ ) {
-				candidateTimes[ i ].printTotal();
-
-				candTimeStr = candTimeStr + ( candidateTimes[ i ].getTotalTime() ) + " ";
-			}
-			stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 		}
 		this.joinTime = System.nanoTime() - startTime;
 		this.theta = ( (double) this.joinTime / this.predictCount );

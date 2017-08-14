@@ -24,7 +24,7 @@ public class JoinMH extends AlgorithmTemplate {
 	public int indexK = 3;
 	public int qgramSize = 2;
 
-	static Validator checker;
+	public Validator checker;
 
 	/**
 	 * Key: twogram<br/>
@@ -65,46 +65,56 @@ public class JoinMH extends AlgorithmTemplate {
 	}
 
 	public void run() {
-		StopWatch stepTime = null;
-		StopWatch runTime = null;
-
-		stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 		preprocess();
 
 		stat.addMemory( "Mem_2_Preprocessed" );
 
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_1_Index_Building_Time" );
 
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-
-		buildIndex();
-
-		stat.addMemory( "Mem_3_BuildIndex" );
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
-
-		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker );
-
-		stat.addMemory( "Mem_4_Joined" );
-		stepTime.stopAndAdd( stat );
-
-		runTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		writeResult( rslt );
-
-		stepTime.stopAndAdd( stat );
+		runAfterPreprocess( true );
 	}
 
-	private void buildIndex() {
+	public void runAfterPreprocess( boolean writeResult ) {
+		StopWatch runTime = null;
+		StopWatch stepTime = null;
+
+		if( writeResult ) {
+			runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		}
+
+		buildIndex( writeResult );
+
+		if( writeResult ) {
+			stat.addMemory( "Mem_3_BuildIndex" );
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		}
+
+		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker, writeResult );
+		
+		if( writeResult ) {
+			stat.addMemory( "Mem_4_Joined" );
+			stepTime.stopAndAdd( stat );
+
+			runTime.stopAndAdd( stat );
+
+			stepTime.resetAndStart( "Result_4_Write_Time" );
+
+			writeResult( rslt );
+
+			stepTime.stopAndAdd( stat );
+		}
+	}
+
+	private void buildIndex( boolean writeResult ) {
 		int[] indexPosition = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, true, true );
+		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true );
 	}
 
 	@Override
@@ -115,6 +125,14 @@ public class JoinMH extends AlgorithmTemplate {
 	@Override
 	public String getName() {
 		return "JoinMH";
+	}
+
+	public double getEta() {
+		return idx.getEta();
+	}
+
+	public double getTheta() {
+		return idx.getTheta();
 	}
 
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
@@ -35,6 +36,10 @@ public class SampleEstimate {
 	public double delta;
 	// epsilon: JoinMin join time per candidate of table S
 	public double epsilon;
+	// eta : JoinMH indexing time per twograms of table T
+	public double eta;
+	// theta : JoinMH indexing time per candidate of table S
+	public double theta;
 
 	public double sampleRatio;
 
@@ -140,8 +145,8 @@ public class SampleEstimate {
 	public void estimateJoinMin( StatContainer stat, Validator checker, int indexK, int qSize ) {
 
 		if( DEBUG.SampleStatON ) {
-			stat.add( "Stat_Sample Searched size", sampleSearchedList.size() );
-			stat.add( "Stat_Sample Indexed size", sampleIndexedList.size() );
+			stat.add( "Stat_Sample Searched size_Min", sampleSearchedList.size() );
+			stat.add( "Stat_Sample Indexed size_Min", sampleIndexedList.size() );
 		}
 
 		// Infer gamma, delta and epsilon
@@ -176,6 +181,47 @@ public class SampleEstimate {
 				stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
 
 				stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.epsilonPrime ) );
+			}
+		}
+		catch( IOException e ) {
+			e.printStackTrace();
+		}
+	}
+
+	public void estimateJoinMH( StatContainer stat, Validator checker, int indexK, int qSize ) {
+
+		if( DEBUG.SampleStatON ) {
+			stat.add( "Stat_Sample Searched size_MH", sampleSearchedList.size() );
+			stat.add( "Stat_Sample Indexed size_MH", sampleIndexedList.size() );
+		}
+
+		// Infer gamma, delta and epsilon
+		JoinMH joinmhinst;
+		try {
+			joinmhinst = new JoinMH( sampleQuery, stat );
+			joinmhinst.checker = checker;
+			joinmhinst.qgramSize = qSize;
+			joinmhinst.indexK = indexK;
+
+			if( DEBUG.SampleStatON ) {
+				Util.printLog( "Joinmininst run" );
+			}
+
+			joinmhinst.runAfterPreprocess( false );
+
+			if( DEBUG.SampleStatON ) {
+				Util.printLog( "Joinmh run done" );
+			}
+
+			eta = joinmhinst.getEta();
+			theta = joinmhinst.getTheta();
+
+			if( DEBUG.SampleStatON ) {
+				Util.printLog( "Eta : " + eta );
+				Util.printLog( "Theta : " + theta );
+
+				stat.add( "Const_Eta", String.format( "%.2f", eta ) );
+				stat.add( "Const_Theta", String.format( "%.2f", theta ) );
 			}
 		}
 		catch( IOException e ) {
