@@ -143,12 +143,11 @@ public class JoinMinIndex {
 					curridx_invokes = invokes.get( i );
 				}
 				else {
-					curridx_invokes = lowInvokes.get( i );
-
 					if( query.oneSideJoin ) {
 						// if uni-directional join && isLowRecord, this record will not be compared with joinMin index
 						break;
 					}
+					curridx_invokes = lowInvokes.get( i );
 				}
 
 				List<QGram> available = availableQGrams.get( i );
