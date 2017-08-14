@@ -308,7 +308,7 @@ public class JoinMinIndex {
 
 				Object2IntOpenHashMap<QGram> curridx_invokes = invokes.get( i );
 				Object2IntOpenHashMap<QGram> curridx_lowInvokes = null;
-				if( hybridIndex ) {
+				if( !query.oneSideJoin && hybridIndex ) {
 					curridx_lowInvokes = lowInvokes.get( i );
 				}
 				int invoke = 0;
@@ -316,7 +316,7 @@ public class JoinMinIndex {
 				for( QGram qgram : availableQGrams.get( i ) ) {
 					int count = curridx_invokes.getInt( qgram );
 
-					if( !query.oneSideJoin && !isLowRecord ) {
+					if( !query.oneSideJoin && hybridIndex && !isLowRecord ) {
 						count += curridx_lowInvokes.getInt( qgram );
 					}
 
