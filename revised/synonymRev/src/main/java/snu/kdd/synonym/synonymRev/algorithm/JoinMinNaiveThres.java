@@ -101,7 +101,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 
 	private void buildJoinMinIndex() {
 		// Build an index
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, true );
+		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
 	}
 
 	private void buildNaiveIndex() {
@@ -137,7 +137,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 		buildTime.stopQuiet();
 
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
-		
+
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long joinstart = System.nanoTime();
 		if( joinMinRequired ) {
@@ -160,7 +160,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
 		}
 		joinTime.stopQuiet();
-		
+
 		double joinminJointime = System.nanoTime() - joinstart;
 
 		if( DEBUG.JoinMinNaiveON ) {
@@ -222,7 +222,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.0";
+		return "2.5";
 	}
 
 	@Override

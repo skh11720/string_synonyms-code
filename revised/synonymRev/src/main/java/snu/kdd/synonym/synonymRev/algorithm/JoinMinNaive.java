@@ -98,7 +98,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 
 	private void buildJoinMinIndex() {
 		// Build an index
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, true );
+		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
 	}
 
 	private void buildNaiveIndex() {
@@ -116,7 +116,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findConstants( sampleRatio );
 
-		joinThreshold = estimate.findThetaUnrestricted( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
+		joinThreshold = estimate.findThetaJoinMinNaive( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
 				query.oneSideJoin );
 
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
@@ -236,7 +236,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.3";
+		return "2.5";
 	}
 
 	@Override

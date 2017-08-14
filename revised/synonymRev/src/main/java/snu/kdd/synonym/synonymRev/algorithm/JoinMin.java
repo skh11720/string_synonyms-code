@@ -50,7 +50,7 @@ public class JoinMin extends AlgorithmTemplate {
 	}
 
 	private void buildIndex( boolean writeResult ) throws IOException {
-		idx = new JoinMinIndex( indexK, qSize, stat, query, writeResult );
+		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
 	}
 
 	public void statistics() {
@@ -173,7 +173,7 @@ public class JoinMin extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.3";
+		return "2.5";
 	}
 
 	@Override

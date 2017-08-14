@@ -61,9 +61,11 @@ public class JoinMinIndex {
 
 	public long predictCount;
 
-	public JoinMinIndex( int nIndex, int qSize, StatContainer stat, Query query, boolean writeResult ) {
+	public JoinMinIndex( int nIndex, int qSize, StatContainer stat, Query query, int threshold, boolean writeResult ) {
 		this.idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 		this.qSize = qSize;
+
+		boolean hybridIndex = threshold != 0;
 
 		if( DEBUG.JoinMinIndexON ) {
 			this.countPerPosition = new ArrayList<Integer>();
@@ -74,6 +76,15 @@ public class JoinMinIndex {
 		// Build an index
 		// Count Invokes per each (token, loc) pair
 		List<Object2IntOpenHashMap<QGram>> invokes = new ArrayList<Object2IntOpenHashMap<QGram>>();
+		List<Object2IntOpenHashMap<QGram>> lowInvokes = null;
+
+		if( hybridIndex ) {
+			if( !query.oneSideJoin ) {
+				// we do not have to compute the lowInvokes for the oneSideJoin
+				lowInvokes = new ArrayList<Object2IntOpenHashMap<QGram>>();
+			}
+		}
+
 		long getQGramTime = 0;
 		long countIndexingTime = 0;
 
@@ -122,9 +133,18 @@ public class JoinMinIndex {
 				}
 			}
 
+			boolean isLowRecord = hybridIndex && ( rec.getEstNumTransformed() <= threshold );
+
 			long qgramCount = 0;
 			for( int i = 0; i < searchmax; ++i ) {
-				Object2IntOpenHashMap<QGram> curridx_invokes = invokes.get( i );
+				Object2IntOpenHashMap<QGram> curridx_invokes = null;
+				if( query.oneSideJoin || !isLowRecord ) {
+					// it is not the hybrid index or not low record for the hybrid index
+					curridx_invokes = invokes.get( i );
+				}
+				else {
+					curridx_invokes = lowInvokes.get( i );
+				}
 
 				List<QGram> available = availableQGrams.get( i );
 				qgramCount += available.size();
@@ -250,14 +270,17 @@ public class JoinMinIndex {
 
 			List<List<QGram>> availableQGrams = null;
 
+			boolean isLowRecord = hybridIndex && ( rec.getEstNumTransformed() <= threshold );
+
 			if( query.oneSideJoin ) {
-				// TODO DEBUG
-				availableQGrams = rec.getSelfQGrams( qSize, Integer.MAX_VALUE );
-				// availableQGrams = rec.getSelfQGrams( qSize, searchmax );
+				if( isLowRecord ) {
+					// this record is not indexed
+					continue;
+				}
+				availableQGrams = rec.getSelfQGrams( qSize, searchmax );
 				// System.out.println( availableQGrams.toString() );
 			}
 			else {
-				// TODO DEBUG
 				availableQGrams = rec.getQGrams( qSize, searchmax );
 			}
 
@@ -284,25 +307,19 @@ public class JoinMinIndex {
 				}
 
 				Object2IntOpenHashMap<QGram> curridx_invokes = invokes.get( i );
-				if( curridx_invokes.size() == 0 ) {
-					mpq.add( i, 0 );
-
-					if( DEBUG.PrintJoinMinIndexON ) {
-						try {
-							bw_index.write( "pos " + i + " 0\n" );
-						}
-						catch( IOException e ) {
-							e.printStackTrace();
-						}
-					}
-
-					continue;
+				Object2IntOpenHashMap<QGram> curridx_lowInvokes = null;
+				if( hybridIndex ) {
+					curridx_lowInvokes = lowInvokes.get( i );
 				}
-
 				int invoke = 0;
 
-				for( QGram twogram : availableQGrams.get( i ) ) {
-					int count = curridx_invokes.getInt( twogram );
+				for( QGram qgram : availableQGrams.get( i ) ) {
+					int count = curridx_invokes.getInt( qgram );
+
+					if( !isLowRecord ) {
+						count += curridx_lowInvokes.getInt( qgram );
+					}
+
 					if( count != 0 ) {
 						// upper bound
 						invoke += count;

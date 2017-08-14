@@ -95,7 +95,7 @@ public class JoinBK extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker );
+		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker, true );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

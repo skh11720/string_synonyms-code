@@ -203,7 +203,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findConstants( sampleRatio );
 
-		joinThreshold = estimate.findThetaUnrestricted( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
+		joinThreshold = estimate.findThetaJoinMinNaive( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
 				query.oneSideJoin );
 
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
