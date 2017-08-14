@@ -153,7 +153,9 @@ public class JoinMinNaive extends AlgorithmTemplate {
 			if( query.oneSideJoin ) {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
-					joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+					if( s.getEstNumTransformed() > joinThreshold ) {
+						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+					}
 				}
 			}
 			else {
