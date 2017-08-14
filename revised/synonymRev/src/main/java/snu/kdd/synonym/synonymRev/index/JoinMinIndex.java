@@ -316,7 +316,7 @@ public class JoinMinIndex {
 				for( QGram qgram : availableQGrams.get( i ) ) {
 					int count = curridx_invokes.getInt( qgram );
 
-					if( !isLowRecord ) {
+					if( hybridIndex && !isLowRecord ) {
 						count += curridx_lowInvokes.getInt( qgram );
 					}
 
