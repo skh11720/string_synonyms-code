@@ -30,9 +30,17 @@ public class JoinMHIndex {
 	int qgramSize;
 	int[] indexPosition;
 
+	int qgramCount = 0;
+	long indexTime = 0;
+	int predictCount = 0;
+	long joinTime = 0;
+
+	double eta;
+	double theta;
+
 	public JoinMHIndex( int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
 			int[] indexPosition, boolean addStat, boolean useIndexCount ) {
-
+		long starttime = System.nanoTime();
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
@@ -67,7 +75,7 @@ public class JoinMHIndex {
 		long indexingTime = 0;
 
 		for( Record rec : indexedSet ) {
-
+			int minInvokes = Integer.MAX_VALUE;
 			long recordStartTime = System.currentTimeMillis();
 			List<List<QGram>> availableQGrams = null;
 			if( !query.oneSideJoin ) {
@@ -76,6 +84,7 @@ public class JoinMHIndex {
 			else {
 				availableQGrams = rec.getSelfQGrams( qgramSize, maxPosition + 1 );
 			}
+			qgramCount += availableQGrams.size();
 			long afterQGram = System.currentTimeMillis();
 
 			int indexedCount = 0;
@@ -99,8 +108,11 @@ public class JoinMHIndex {
 				}
 
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
-
-				for( QGram qgram : availableQGrams.get( actualIndex ) ) {
+				List<QGram> qgramList = availableQGrams.get( actualIndex );
+				if( minInvokes > qgramList.size() ) {
+					minInvokes = qgramList.size();
+				}
+				for( QGram qgram : qgramList ) {
 					// if( debug ) {
 					// System.out.println( qgram + " " + actualIndex );
 					// }
@@ -113,6 +125,7 @@ public class JoinMHIndex {
 				}
 				elements += availableQGrams.get( actualIndex ).size();
 			}
+			this.predictCount += minInvokes;
 			long afterIndexing = System.currentTimeMillis();
 
 			qGramTime += afterQGram - recordStartTime;
@@ -178,6 +191,10 @@ public class JoinMHIndex {
 				}
 			}
 		}
+
+		this.indexTime = System.nanoTime() - starttime;
+
+		this.eta = ( (double) this.indexTime ) / this.qgramCount;
 
 		Util.printGCStats( stat, "Stat_Index" );
 	}
@@ -255,6 +272,7 @@ public class JoinMHIndex {
 	}
 
 	public ArrayList<IntegerPair> join( StatContainer stat, Query query, Validator checker ) {
+		long startTime = System.nanoTime();
 		int maxPosition = 0;
 		for( int idx : indexPosition ) {
 			if( maxPosition < idx ) {
@@ -427,6 +445,8 @@ public class JoinMHIndex {
 			}
 			stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 		}
+		this.joinTime = System.nanoTime() - startTime;
+		this.theta = ( (double) this.joinTime / this.predictCount );
 		return rslt;
 	}
 
@@ -520,4 +540,13 @@ public class JoinMHIndex {
 			}
 		}
 	}
+
+	public double getEta() {
+		return this.eta;
+	}
+
+	public double getTheta() {
+		return this.theta;
+	}
+
 }
