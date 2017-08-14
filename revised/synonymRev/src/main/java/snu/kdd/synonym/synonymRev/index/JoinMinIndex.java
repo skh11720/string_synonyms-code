@@ -128,6 +128,13 @@ public class JoinMinIndex {
 
 				invokes.add( inv );
 
+				if( lowInvokes != null ) {
+					Object2IntOpenHashMap<QGram> invLow = new Object2IntOpenHashMap<QGram>();
+					invLow.defaultReturnValue( 0 );
+
+					lowInvokes.add( invLow );
+				}
+
 				if( DEBUG.JoinMinIndexON ) {
 					this.countPerPosition.add( 0 );
 				}
