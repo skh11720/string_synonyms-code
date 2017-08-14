@@ -275,6 +275,8 @@ public class JoinMinIndex {
 			if( query.oneSideJoin ) {
 				if( isLowRecord ) {
 					// this record is not indexed
+					// DEBUG
+					System.out.println( rec.getID() + " " + rec + " skipped" );
 					continue;
 				}
 				availableQGrams = rec.getSelfQGrams( qSize, searchmax );
