@@ -72,27 +72,27 @@ public class JoinCatesian extends AlgorithmTemplate {
 	public List<IntegerPair> runAfterPreprocess() {
 		List<IntegerPair> rslt = new ArrayList<>();
 		long lengthFiltered = 0;
-		for( Record r : query.indexedSet.get() ) {
-			for( Record s : query.searchedSet.get() ) {
+		for( Record indexedR : query.indexedSet.get() ) {
+			for( Record searchedS : query.searchedSet.get() ) {
 				if( !noLength ) {
 					if( query.oneSideJoin ) {
-						if( !StaticFunctions.overlap( r.getTokenCount(), r.getTokenCount(), s.getMinTransLength(),
-								s.getMaxTransLength() ) ) {
+						if( !StaticFunctions.overlap( indexedR.getTokenCount(), indexedR.getTokenCount(),
+								searchedS.getMinTransLength(), searchedS.getMaxTransLength() ) ) {
 							lengthFiltered++;
 							continue;
 						}
 					}
 					else {
-						if( !StaticFunctions.overlap( r.getMinTransLength(), r.getMaxTransLength(), s.getMinTransLength(),
-								s.getMaxTransLength() ) ) {
+						if( !StaticFunctions.overlap( indexedR.getMinTransLength(), indexedR.getMaxTransLength(),
+								searchedS.getMinTransLength(), searchedS.getMaxTransLength() ) ) {
 							lengthFiltered++;
 							continue;
 						}
 					}
 				}
 
-				if( checker.isEqual( s, r ) >= 0 ) {
-					rslt.add( new IntegerPair( r.getID(), s.getID() ) );
+				if( checker.isEqual( searchedS, indexedR ) >= 0 ) {
+					rslt.add( new IntegerPair( searchedS.getID(), indexedR.getID() ) );
 				}
 			}
 		}
