@@ -153,9 +153,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 			if( query.oneSideJoin ) {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
-					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
-					}
+					joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 				}
 			}
 			else {
@@ -203,7 +201,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 		int naiveSearch = 0;
 		long starttime = System.nanoTime();
 		for( Record s : query.searchedSet.get() ) {
-			if( s.getEstNumTransformed() > joinThreshold ) {
+			if( !query.oneSideJoin && s.getEstNumTransformed() > joinThreshold ) {
 				continue;
 			}
 			else {
