@@ -276,7 +276,7 @@ public class JoinMinIndex {
 				if( isLowRecord ) {
 					// this record is not indexed
 					// DEBUG
-					System.out.println( rec.getID() + " " + rec + " skipped" );
+					System.out.println( rec.getID() + " " + rec + " skipped " + rec.getEstNumTransformed() + " " + threshold );
 					continue;
 				}
 				availableQGrams = rec.getSelfQGrams( qSize, searchmax );
