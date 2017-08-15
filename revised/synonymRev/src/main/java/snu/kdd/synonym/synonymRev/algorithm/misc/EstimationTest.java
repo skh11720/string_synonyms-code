@@ -116,12 +116,12 @@ public class EstimationTest extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		// USPS
-		int[] USPSRange = { 3, 4, 6, 8, 9, 10, 12, 14, 16, 18, 20, 21, 24, 27, 28, 30, 36, 40 };
+		// int[] USPSRange = { 3, 4, 6, 8, 9, 10, 12, 14, 16, 18, 20, 21, 24, 27, 28, 30, 36, 40 };
 
 		// SPROT
-		// int[] SPROTRange = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23, 24, 25, 30, 33, 34, 35,
-		// 36, 40, 41, 43, 49, 50, 55, 70, 75, 80, 82, 85, 120, 125, 150, 152, 180, 225, 238, 275, 375, 625, 1080, 1421,
-		// 1764 };
+		int[] SPROTRange = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23, 24, 25, 30, 33, 34, 35,
+				36, 40, 41, 43, 49, 50, 55, 70, 75, 80, 82, 85, 120, 125, 150, 152, 180, 225, 238, 275, 375, 625, 1080, 1421,
+				1764 };
 
 		// AOL
 		// int[] AOLRange = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
@@ -175,7 +175,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		// Synthetic
 		// int[] SyntheticRange = { 1, 2, 3, 4, 6, 8, 9, 12, 16, 18, 24, 54 };
 
-		for( int idx : USPSRange ) {
+		for( int idx : SPROTRange ) {
 			actualJoinThreshold( idx );
 		}
 
