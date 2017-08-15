@@ -160,7 +160,7 @@ public class JoinMHNaive extends AlgorithmTemplate {
 		int naiveSearch = 0;
 		long starttime = System.nanoTime();
 		for( Record s : query.searchedSet.get() ) {
-			if( !query.oneSideJoin && s.getEstNumTransformed() > joinThreshold ) {
+			if( s.getEstNumTransformed() > joinThreshold ) {
 				continue;
 			}
 			else {

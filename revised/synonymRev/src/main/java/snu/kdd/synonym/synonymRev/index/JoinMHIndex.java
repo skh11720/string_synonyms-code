@@ -50,8 +50,6 @@ public class JoinMHIndex {
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
 
-		boolean isHybridIndex = threshold != 0;
-
 		if( indexPosition.length != indexK ) {
 			throw new RuntimeException( "The length of indexPosition should match indexK" );
 		}
@@ -82,11 +80,7 @@ public class JoinMHIndex {
 		long indexingTime = 0;
 
 		for( Record rec : indexedSet ) {
-			
-			if( isHybridIndex && rec.getEstNumTransformed() <= threshold ) {
-				continue;
-			}
-			
+
 			int minInvokes = Integer.MAX_VALUE;
 			long recordStartTime = System.currentTimeMillis();
 			List<List<QGram>> availableQGrams = null;
