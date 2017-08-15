@@ -129,7 +129,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findConstants( sampleRatio );
 
-		joinThreshold = estimate.findThetaJoinHybridAll( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
+		joinThreshold = estimate.findThetaJoinHybridAll( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
 				query.oneSideJoin );
 
 		joinMinSelected = estimate.getJoinMinSelected();

@@ -1214,13 +1214,11 @@ public class SampleEstimate {
 				}
 			}
 
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
-						naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
-				Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
-						naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation ) );
-				Util.printLog( "JoinMinSelected " + tempJoinMinSelected );
-			}
+			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
+					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
+			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
+					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation ) );
+			Util.printLog( "JoinMinSelected " + tempJoinMinSelected );
 
 			double tempBestTime = naiveEstimation;
 
@@ -1265,5 +1263,9 @@ public class SampleEstimate {
 		stat.add( "Auto_Best_Estimated_Time", bestEstTime );
 		stat.add( "Auto_JoinMin_Selected", "" + joinMinSelected );
 		return bestThreshold;
+	}
+
+	public boolean getJoinMinSelected() {
+		return joinMinSelected;
 	}
 }
