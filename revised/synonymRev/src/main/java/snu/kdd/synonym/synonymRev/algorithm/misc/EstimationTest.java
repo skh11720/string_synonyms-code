@@ -579,6 +579,17 @@ public class EstimationTest extends AlgorithmTemplate {
 	private ArrayList<IntegerPair> actualJoinMHNaiveThreshold( int joinThreshold ) {
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
+		BufferedWriter bwEstimation = null;
+		if( DEBUG.PrintEstimationON ) {
+			bwEstimation = getWriter();
+			try {
+				bwEstimation.write( "Threshold " + joinThreshold + "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+
 		if( joinMHRequired ) {
 			buildJoinMHIndex();
 		}
@@ -615,11 +626,23 @@ public class EstimationTest extends AlgorithmTemplate {
 			}
 
 			joinMinResultSize = rslt.size();
-			stat.add( "Join_Min_Result", joinMinResultSize );
+			// stat.add( "Join_Min_Result", joinMinResultSize );
 			// stat.add( "Stat_Equiv_Comparison", joinMHIndex.equivComparisons );
 		}
 
 		double joinmhJointime = System.nanoTime() - joinstart;
+
+		if( DEBUG.PrintEstimationON ) {
+			try {
+				bwEstimation.write( "[Theta] " + joinmhJointime / (double) joinMHIdx.predictCount );
+				bwEstimation.write( " JoinTime " + joinmhJointime );
+				bwEstimation.write( " PredictedCount " + joinMHIdx.predictCount );
+				bwEstimation.write( " ActualCount " + joinMHIdx.equivComparisons + "\n" );
+			}
+			catch( Exception e ) {
+				e.printStackTrace();
+			}
+		}
 
 		if( DEBUG.JoinMHNaiveON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
@@ -665,7 +688,6 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		if( DEBUG.JoinMHNaiveON ) {
 			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinNanoTime / naiveIndex.totalExp ) );
-			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
 			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
 
 			stat.add( "Stat_Naive search count", naiveSearch );

@@ -32,7 +32,7 @@ public class JoinMHIndex {
 
 	int qgramCount = 0;
 	long indexTime = 0;
-	int predictCount = 0;
+	public int predictCount = 0;
 	long joinTime = 0;
 
 	double eta;
