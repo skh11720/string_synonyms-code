@@ -209,7 +209,7 @@ public class JoinBK extends AlgorithmTemplate {
 
 	private void buildIndex() {
 		int[] indexPosition = estimateIndexPosition( indexK );
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, true, true );
+		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, true, true, 0 );
 	}
 
 	@Override

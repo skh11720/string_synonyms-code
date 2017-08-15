@@ -228,13 +228,13 @@ public class EstimationTest extends AlgorithmTemplate {
 		closeWriter();
 	}
 
-	private void buildJoinMHIndex() {
+	private void buildJoinMHIndex( int threshold ) {
 		// Build an index
 		int[] index = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
 			index[ i ] = i;
 		}
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true );
+		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, threshold );
 	}
 
 	private void buildJoinMinIndex( boolean writeResult, int threshold ) {
@@ -273,7 +273,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		Util.printLog( "Selected Threshold: " + joinThreshold );
 
 		if( joinMHRequired ) {
-			buildJoinMHIndex();
+			buildJoinMHIndex( joinThreshold );
 		}
 		int joinMHResultSize = 0;
 
@@ -472,9 +472,8 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 
 		if( joinMHRequired ) {
-			buildJoinMHIndex();
+			buildJoinMHIndex( joinThreshold );
 		}
-		int joinMinResultSize = 0;
 		if( DEBUG.JoinMHNaiveON ) {
 			if( joinMHRequired ) {
 				// stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMHIndex.gamma ) );
@@ -505,8 +504,6 @@ public class EstimationTest extends AlgorithmTemplate {
 					joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 				}
 			}
-
-			joinMinResultSize = rslt.size();
 			// stat.add( "Join_Min_Result", joinMinResultSize );
 			// stat.add( "Stat_Equiv_Comparison", joinMHIndex.equivComparisons );
 		}

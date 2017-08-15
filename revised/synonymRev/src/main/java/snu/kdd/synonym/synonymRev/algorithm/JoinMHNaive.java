@@ -94,7 +94,7 @@ public class JoinMHNaive extends AlgorithmTemplate {
 		for( int i = 0; i < indexK; i++ ) {
 			index[ i ] = i;
 		}
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true );
+		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
 	}
 
 	private void buildNaiveIndex() {

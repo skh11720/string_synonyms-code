@@ -98,14 +98,14 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private void buildJoinMHIndex() {
+	private void buildJoinMHIndex(int threshold) {
 		// Build an index
 		int[] index = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
 			index[ i ] = i;
 		}
 
-		joinMHIndex = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true );
+		joinMHIndex = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, threshold );
 	}
 
 	private void buildNaiveIndex() {
@@ -122,7 +122,7 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMHRequired ) {
-			buildJoinMHIndex();
+			buildJoinMHIndex( joinThreshold );
 		}
 		int joinMinResultSize = 0;
 		if( DEBUG.JoinMHNaiveON ) {

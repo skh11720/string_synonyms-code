@@ -216,7 +216,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 			estimateIndex.stopQuiet();
 
 			JoinMHIndex idx = new JoinMHIndex( indexPosition.length, qgramSize, recordList, query, stat, indexPosition, false,
-					false );
+					false, 0 );
 			idxList.add( idx );
 		}
 		stat.add( estimateIndex );
