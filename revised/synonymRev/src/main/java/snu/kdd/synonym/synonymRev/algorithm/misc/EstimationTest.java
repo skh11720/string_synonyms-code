@@ -539,7 +539,7 @@ public class EstimationTest extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}
 
-		buildNaiveIndex( true, joinThreshold );
+		buildNaiveIndex( false, joinThreshold );
 
 		if( DEBUG.JoinMHNaiveON ) {
 			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
@@ -584,6 +584,15 @@ public class EstimationTest extends AlgorithmTemplate {
 			stepTime.stopAndAdd( stat );
 		}
 
+		if( DEBUG.PrintEstimationON ) {
+			bwEstimation = getWriter();
+			try {
+				bwEstimation.write( "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
 		return rslt;
 	}
 
