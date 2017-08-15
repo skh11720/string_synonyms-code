@@ -1,5 +1,7 @@
 package snu.kdd.synonym.synonymRev.index;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -37,7 +40,7 @@ public class JoinMHIndex {
 
 	double eta;
 	double theta;
-	
+
 	public long equivComparisons;
 
 	public JoinMHIndex( int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
@@ -198,6 +201,18 @@ public class JoinMHIndex {
 
 		this.eta = ( (double) this.indexTime ) / this.qgramCount;
 
+		if( DEBUG.PrintEstimationON ) {
+			BufferedWriter bwEstimation = EstimationTest.getWriter();
+			try {
+				bwEstimation.write( "[Eta] " + eta );
+				bwEstimation.write( " IndexTime " + indexTime );
+				bwEstimation.write( " IndexedSigCount " + qgramCount + "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+
 		Util.printGCStats( stat, "Stat_Index" );
 	}
 
@@ -264,7 +279,7 @@ public class JoinMHIndex {
 				System.out.println( "prevCand: " + prevCandidate.size() );
 			}
 		}
-		
+
 		equivComparisons += prevCandidate.size();
 		for( Record recR : prevCandidate ) {
 			int compare = checker.isEqual( recS, recR );
@@ -541,7 +556,7 @@ public class JoinMHIndex {
 				candidates.add( record );
 			}
 		}
-		
+
 		equivComparisons += candidates.size();
 
 		for( Record recR : candidates ) {
