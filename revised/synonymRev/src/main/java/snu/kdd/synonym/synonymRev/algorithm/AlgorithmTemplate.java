@@ -32,6 +32,7 @@ public abstract class AlgorithmTemplate {
 		JoinMinNaiveThres,
 		JoinMHNaive,
 		JoinMHNaiveThres,
+		JoinHybridAll,
 		EstimationTest
 	}
 

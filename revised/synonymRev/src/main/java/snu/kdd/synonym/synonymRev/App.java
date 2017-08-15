@@ -14,6 +14,7 @@ import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinCatesian;
+import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThres;
@@ -152,6 +153,9 @@ public class App {
 		case JoinCatesian:
 			alg = new JoinCatesian( query, stat );
 			break;
+
+		case JoinHybridAll:
+			alg = new JoinHybridAll( query, stat );
 
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
