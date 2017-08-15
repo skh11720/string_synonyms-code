@@ -63,16 +63,6 @@ public class JoinMHNaive extends AlgorithmTemplate {
 	}
 
 	@Override
-	public String getName() {
-		return "joinMHNaive";
-	}
-
-	@Override
-	public String getVersion() {
-		return "2.0";
-	}
-
-	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
 		// Setup parameters
@@ -133,19 +123,19 @@ public class JoinMHNaive extends AlgorithmTemplate {
 		buildTime.stopQuiet();
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
-		long joinstart = System.nanoTime();
+
 		if( joinMHRequired ) {
 			if( query.oneSideJoin ) {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1  );
+						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1  );
+					joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 				}
 			}
 
@@ -153,7 +143,6 @@ public class JoinMHNaive extends AlgorithmTemplate {
 			stat.add( "Join_MH_Result", joinMHResultSize );
 			stat.add( "Stat_Equiv_Comparison", joinMHIdx.equivComparisons );
 		}
-		double joinmhJointime = System.nanoTime() - joinstart;
 		joinTime.stopQuiet();
 
 		buildTime.start();
@@ -201,4 +190,13 @@ public class JoinMHNaive extends AlgorithmTemplate {
 		estimate.estimateWithSample( stat, checker, indexK, qSize );
 	}
 
+	@Override
+	public String getName() {
+		return "JoinMHNaive";
+	}
+
+	@Override
+	public String getVersion() {
+		return "2.0";
+	}
 }
