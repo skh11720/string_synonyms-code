@@ -577,7 +577,7 @@ public class EstimationTest extends AlgorithmTemplate {
 	}
 
 	private ArrayList<IntegerPair> actualJoinMHNaiveThreshold( int joinThreshold ) {
-		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMHRequired ) {
 			buildJoinMHIndex();
@@ -596,9 +596,6 @@ public class EstimationTest extends AlgorithmTemplate {
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		}
-		buildTime.stopQuiet();
-
-		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long joinstart = System.nanoTime();
@@ -622,8 +619,6 @@ public class EstimationTest extends AlgorithmTemplate {
 			// stat.add( "Stat_Equiv_Comparison", joinMHIndex.equivComparisons );
 		}
 
-		joinTime.stopQuiet();
-
 		double joinmhJointime = System.nanoTime() - joinstart;
 
 		if( DEBUG.JoinMHNaiveON ) {
@@ -640,9 +635,7 @@ public class EstimationTest extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
 		}
 
-		buildTime.start();
 		buildNaiveIndex( true, joinThreshold );
-		buildTime.stopAndAdd( stat );
 
 		if( DEBUG.JoinMHNaiveON ) {
 			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
@@ -653,7 +646,6 @@ public class EstimationTest extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
 		}
 
-		joinTime.start();
 		@SuppressWarnings( "unused" )
 		int naiveSearch = 0;
 		long starttime = System.nanoTime();
@@ -666,7 +658,7 @@ public class EstimationTest extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
-		joinTime.stopAndAdd( stat );
+
 		double joinNanoTime = System.nanoTime() - starttime;
 
 		stat.add( "Join_Naive_Result", rslt.size() - joinMinResultSize );
