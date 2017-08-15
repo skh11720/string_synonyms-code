@@ -160,8 +160,8 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		range = SPROTRange;
 
-		runMinNaive( query, args );
-		// runMHNaive( query, args );
+		// runMinNaive( query, args );
+		runMHNaive( query, args );
 	}
 
 	public void runMHNaive( Query query, String[] args ) throws IOException, ParseException {
