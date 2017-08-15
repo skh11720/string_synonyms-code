@@ -37,6 +37,8 @@ public class JoinMHIndex {
 
 	double eta;
 	double theta;
+	
+	public long equivComparisons;
 
 	public JoinMHIndex( int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
 			int[] indexPosition, boolean addStat, boolean useIndexCount ) {
@@ -262,7 +264,8 @@ public class JoinMHIndex {
 				System.out.println( "prevCand: " + prevCandidate.size() );
 			}
 		}
-
+		
+		equivComparisons += prevCandidate.size();
 		for( Record recR : prevCandidate ) {
 			int compare = checker.isEqual( recS, recR );
 			if( compare >= 0 ) {
@@ -394,6 +397,7 @@ public class JoinMHIndex {
 			}
 
 			equivTime.start();
+			equivComparisons += candidates.size();
 			for( Record recR : candidates ) {
 				int compare = checker.isEqual( recS, recR );
 				if( compare >= 0 ) {
@@ -537,6 +541,8 @@ public class JoinMHIndex {
 				candidates.add( record );
 			}
 		}
+		
+		equivComparisons += candidates.size();
 
 		for( Record recR : candidates ) {
 			int compare = checker.isEqual( recS, recR );
