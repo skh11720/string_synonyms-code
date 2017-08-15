@@ -814,21 +814,6 @@ public class SampleEstimate {
 
 				if( indexedIdx > prevAddedIndex ) {
 					// for naive estimation
-
-					List<List<QGram>> availableQGrams = null;
-
-					if( oneSideJoin ) {
-						availableQGrams = rec.getSelfQGrams( qSize, indexK );
-					}
-					else {
-						availableQGrams = rec.getQGrams( qSize, indexK );
-					}
-
-					for( int i = 0; i < availableQGrams.size(); i++ ) {
-						List<QGram> qgramList = availableQGrams.get( i );
-						indexedTotalSigCount -= qgramList.size();
-					}
-
 					if( !oneSideJoin ) {
 						currExpLengthSize += est * rec.getTokenCount();
 					}

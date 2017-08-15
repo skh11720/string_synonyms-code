@@ -134,7 +134,7 @@ public class JoinMHIndex {
 				}
 				elements += availableQGrams.get( actualIndex ).size();
 			}
-			this.predictCount += minInvokes;
+
 			long afterIndexing = System.currentTimeMillis();
 
 			qGramTime += afterQGram - recordStartTime;
