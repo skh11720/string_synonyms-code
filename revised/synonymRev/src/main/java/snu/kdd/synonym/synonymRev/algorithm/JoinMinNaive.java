@@ -230,7 +230,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 	private void findConstants( double sampleratio ) {
 		// Sample
 		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
-		estimate.estimateWithSample( stat, checker, indexK, qSize );
+		estimate.estimateJoinMinNaiveWithSample( stat, checker, indexK, qSize );
 	}
 
 	@Override

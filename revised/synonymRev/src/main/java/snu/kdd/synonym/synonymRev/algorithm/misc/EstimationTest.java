@@ -192,15 +192,76 @@ public class EstimationTest extends AlgorithmTemplate {
 			actualJoinMHNaiveThreshold( idx );
 		}
 
-		rslt = joinMHNaive();
+		closeWriter();
+	}
+
+	public void runMinNaive( Query query, String[] args ) throws IOException, ParseException {
+		Param params = Param.parseArgs( args, stat, query );
+		// Setup parameters
+		checker = params.validator;
+		qSize = params.qgramSize;
+		indexK = params.indexK;
+		sampleRatio = params.sampleRatio;
+
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		preprocess();
+		stepTime.stopAndAdd( stat );
+		// Retrieve statistics
+
+		stepTime.resetAndStart( "Result_3_Run_Time" );
+		// Estimate constants
+
+		Collection<IntegerPair> rslt = joinMinNaive();
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
+
+		stepTime.resetAndStart( "Result_4_Write_Time" );
+		writeResult( rslt );
+		stepTime.stopAndAdd( stat );
+
+		for( int idx : this.range ) {
+			actualJoinMinNaiveThreshold( idx );
+		}
+
+		rslt = joinMinNaive();
 
 		closeWriter();
+	}
+
+	private void buildJoinMHIndex() {
+		// Build an index
+		int[] index = new int[ indexK ];
+		for( int i = 0; i < indexK; i++ ) {
+			index[ i ] = i;
+		}
+		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true );
+	}
+
+	private void buildJoinMinIndex( boolean writeResult, int threshold ) {
+		// Build an index
+		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, threshold, writeResult );
+	}
+
+	private void buildNaiveIndex( boolean writeResult, int joinThreshold ) {
+		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, writeResult, query );
+	}
+
+	private void findJoinMHConstants( double sampleratio ) {
+		// Sample
+		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
+		estimate.estimateJoinMHNaiveWithSample( stat, checker, indexK, qSize );
+	}
+	
+	private void findJoinMinConstants( double sampleratio ) {
+		// Sample
+		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
+		estimate.estimateJoinMinNaiveWithSample( stat, checker, indexK, qSize );
 	}
 
 	private ArrayList<IntegerPair> joinMHNaive() {
 
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		findConstants( sampleRatio );
+		findJoinMHConstants( sampleRatio );
 
 		joinThreshold = estimate.findThetaJoinMHNaive( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
 				query.oneSideJoin );
@@ -280,66 +341,9 @@ public class EstimationTest extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private void buildJoinMHIndex() {
-		// Build an index
-		int[] index = new int[ indexK ];
-		for( int i = 0; i < indexK; i++ ) {
-			index[ i ] = i;
-		}
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true );
-	}
-
-	public void runMinNaive( Query query, String[] args ) throws IOException, ParseException {
-		Param params = Param.parseArgs( args, stat, query );
-		// Setup parameters
-		checker = params.validator;
-		qSize = params.qgramSize;
-		indexK = params.indexK;
-		sampleRatio = params.sampleRatio;
-
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stepTime.stopAndAdd( stat );
-		// Retrieve statistics
-
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-		// Estimate constants
-
-		Collection<IntegerPair> rslt = joinMinNaive();
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_4_Joined" );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult( rslt );
-		stepTime.stopAndAdd( stat );
-
-		for( int idx : this.range ) {
-			actualJoinMinNaiveThreshold( idx );
-		}
-
-		rslt = joinMinNaive();
-
-		closeWriter();
-	}
-
-	private void buildJoinMinIndex( boolean writeResult, int threshold ) {
-		// Build an index
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, threshold, writeResult );
-	}
-
-	private void buildNaiveIndex( boolean writeResult, int joinThreshold ) {
-		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, writeResult, query );
-	}
-
-	private void findConstants( double sampleratio ) {
-		// Sample
-		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
-		estimate.estimateWithSample( stat, checker, indexK, qSize );
-	}
-
 	private ArrayList<IntegerPair> joinMinNaive() {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		findConstants( sampleRatio );
+		findJoinMinConstants( sampleRatio );
 
 		joinThreshold = estimate.findThetaJoinMinNaive( qSize, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
 				query.oneSideJoin );

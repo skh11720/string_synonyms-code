@@ -229,7 +229,23 @@ public class SampleEstimate {
 		}
 	}
 
-	public void estimateWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
+	public void estimateJoinMHNaiveWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
+		estimateJoinMH( stat, checker, indexK, qSize );
+		estimateNaive( stat );
+
+		if( DEBUG.PrintEstimationON ) {
+			BufferedWriter bw = EstimationTest.getWriter();
+
+			try {
+				bw.write( "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void estimateJoinMinNaiveWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
 		estimateJoinMin( stat, checker, indexK, qSize );
 		estimateNaive( stat );
 
