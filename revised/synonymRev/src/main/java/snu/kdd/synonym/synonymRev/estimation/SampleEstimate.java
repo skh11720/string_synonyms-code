@@ -691,6 +691,7 @@ public class SampleEstimate {
 			}
 
 			List<List<QGram>> availableQGrams = null;
+			System.out.println("IndexK " + indexK );
 			if( oneSideJoin ) {
 				availableQGrams = rec.getSelfQGrams( qSize, indexK );
 			}
