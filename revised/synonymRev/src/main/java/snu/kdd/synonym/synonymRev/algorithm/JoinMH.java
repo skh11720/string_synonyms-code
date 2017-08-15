@@ -119,7 +119,7 @@ public class JoinMH extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.3";
+		return "2.5";
 	}
 
 	@Override
