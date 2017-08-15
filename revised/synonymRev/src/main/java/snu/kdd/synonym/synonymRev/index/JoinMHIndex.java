@@ -89,7 +89,7 @@ public class JoinMHIndex {
 			else {
 				availableQGrams = rec.getSelfQGrams( qgramSize, maxPosition + 1 );
 			}
-			qgramCount += availableQGrams.size();
+
 			long afterQGram = System.currentTimeMillis();
 
 			int indexedCount = 0;
@@ -114,6 +114,9 @@ public class JoinMHIndex {
 
 				Map<QGram, List<Record>> map = joinMHIndex.get( i );
 				List<QGram> qgramList = availableQGrams.get( actualIndex );
+
+				qgramCount += qgramList.size();
+
 				if( minInvokes > qgramList.size() ) {
 					minInvokes = qgramList.size();
 				}

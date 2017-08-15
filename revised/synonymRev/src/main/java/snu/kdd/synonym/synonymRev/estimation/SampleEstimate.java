@@ -691,7 +691,7 @@ public class SampleEstimate {
 			}
 
 			List<List<QGram>> availableQGrams = null;
-			System.out.println("IndexK " + indexK );
+			
 			if( oneSideJoin ) {
 				availableQGrams = rec.getSelfQGrams( qSize, indexK );
 			}
@@ -712,6 +712,10 @@ public class SampleEstimate {
 				long comparison = 0;
 
 				indexedTotalSigCount += qgrams.size();
+				
+				if( qgrams.size() > 1 ) {
+					System.out.println( qgrams );
+				}
 
 				for( QGram qgram : qgrams ) {
 					BinaryCountEntry entry = curridxInvokes.get( qgram );
