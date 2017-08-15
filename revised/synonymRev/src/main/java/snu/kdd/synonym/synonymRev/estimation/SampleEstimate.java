@@ -691,7 +691,7 @@ public class SampleEstimate {
 			}
 
 			List<List<QGram>> availableQGrams = null;
-			
+
 			if( oneSideJoin ) {
 				availableQGrams = rec.getSelfQGrams( qSize, indexK );
 			}
@@ -712,10 +712,6 @@ public class SampleEstimate {
 				long comparison = 0;
 
 				indexedTotalSigCount += qgrams.size();
-				
-				if( qgrams.size() > 1 ) {
-					System.out.println( qgrams );
-				}
 
 				for( QGram qgram : qgrams ) {
 					BinaryCountEntry entry = curridxInvokes.get( qgram );
@@ -814,6 +810,20 @@ public class SampleEstimate {
 					nextThresholdIndexed = est;
 					indexedIdx--;
 					break;
+				}
+				
+				List<List<QGram>> availableQGrams = null;
+
+				if( oneSideJoin ) {
+					availableQGrams = rec.getSelfQGrams( qSize, indexK );
+				}
+				else {
+					availableQGrams = rec.getQGrams( qSize, indexK );
+				}
+				
+				for( int i = 0; i < availableQGrams.size(); i++ ) {
+					List<QGram> qgramList = availableQGrams.get( i );
+					indexedTotalSigCount -= qgramList.size();
 				}
 
 				if( indexedIdx > prevAddedIndex ) {
