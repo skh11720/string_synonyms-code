@@ -2,8 +2,8 @@
 
 ./package.sh
 
-#oneSide=True
-oneSide=False
+oneSide=True
+#oneSide=False
 
 SIZE=10000
 
@@ -11,21 +11,22 @@ SIZE=10000
 #inputfile_two=data_store/JiahengLu/splitted/USPS_$SIZE.txt
 #rulefile=data_store/JiahengLu/USPS_rule.txt
 
-#inputfile_one=data_store/sprot/splitted/SPROT_$SIZE.txt
-#inputfile_two=data_store/sprot/splitted/SPROT_$SIZE.txt
-#rulefile=data_store/sprot/rule.txt
+inputfile_one=data_store/sprot/splitted/SPROT_$SIZE.txt
+inputfile_two=data_store/sprot/splitted/SPROT_$SIZE.txt
+rulefile=data_store/sprot/rule.txt
 
-inputfile_one=data_store/aol/splitted/$SIZE/aol_$SIZE\_data.txt
-inputfile_two=data_store/aol/splitted/$SIZE/aol_$SIZE\_data.txt
-rulefile=data_store/wordnet/rules.noun
+#inputfile_one=data_store/aol/splitted/$SIZE/aol_$SIZE\_data.txt
+#inputfile_two=data_store/aol/splitted/$SIZE/aol_$SIZE\_data.txt
+#rulefile=data_store/wordnet/rules.noun
 
 
 outputPath=output
 logdir=logs
 LIBS=../target/Synonym.jar
 
-k=1
-qSize=2
+k=2
+qSize=3
+#qSize=2
 s=1
 xmx=8G
 
