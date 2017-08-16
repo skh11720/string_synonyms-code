@@ -4,7 +4,8 @@ LIBS=../target/Synonym.jar
 
 dir=logs
 
-SIZES=( 1000 )
+#SIZES=( 1259 )
+SIZES=( 1000 1259 1585 1995 2512 3162 3981 5012 6310 7944 10000 12589 15849 19953 25119 31623 39811 50119 63096 79433 100000 )
 #SIZES=( 1000 1259 1585 1995 2512 3162 3981 5012 6310 7944 10000 12589 15849 19953 25119 31623 39811 50119 63096 79433 100000 125893 158490 199527 251190 316229 398109 501190 630961 794333 1000000 )
 
 oneSide=$1
@@ -20,17 +21,26 @@ RUN_NaiveSP=False
 #RUN_JoinMHSP=True
 RUN_JoinMHSP=False
 
-RUN_JoinMin=True
-#RUN_JoinMin=False
+#RUN_JoinMin=True
+RUN_JoinMin=False
 
 #RUN_JoinMH=True
 RUN_JoinMH=False
 
-RUN_JoinMinNaive=True
-#RUN_JoinMinNaive=False
+#RUN_JoinMinNaive=True
+RUN_JoinMinNaive=False
 
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
+
+RUN_JoinMHNaive=True
+PRUN_JoinMHNaive=False
+
+RUN_JoinMHNaiveThres=True
+PRUN_JoinMHNaiveThres=False
+
+RUN_JoinHybridAll=True
+#RUN_JoinHybridAll=False
 
 #RUN_JoinBK=True
 RUN_JoinBK=False
@@ -38,8 +48,8 @@ RUN_JoinBK=False
 #RUN_JoinBKSP=True
 RUN_JoinBKSP=False
 
-RUN_DEBUG=True
-#RUN_DEBUG=False
+#RUN_DEBUG=True
+RUN_DEBUG=False
 
 for SIZE in ${SIZES[@]};
 do
@@ -51,7 +61,7 @@ do
 	rulefile=data_store/wordnet/rules.noun
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_NaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinMinNaive $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_NaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinMinNaive $RUN_JoinHybridThres $RUN_JoinMHNaive $RUN_JoinMHNaiveThres $RUN_JoinHybridAll $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
 
 	if [[ $UPLOAD == "True" ]];
 	then
