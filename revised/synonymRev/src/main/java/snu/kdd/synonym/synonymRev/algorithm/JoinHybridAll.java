@@ -275,6 +275,6 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMinNaive";
+		return "JoinHybridAll";
 	}
 }
