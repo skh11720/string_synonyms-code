@@ -200,7 +200,12 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 			joinMinResultSize = rslt.size();
 			stat.add( "Join_Min_Result", joinMinResultSize );
-			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
+			if( joinMinSelected ) {
+				stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
+			}
+			else {
+				stat.add( "Stat_Equiv_Comparison", joinMHIdx.equivComparisons );
+			}
 		}
 		double joinminJointime = System.nanoTime() - joinstart;
 		joinTime.stopQuiet();
