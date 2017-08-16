@@ -31,8 +31,8 @@ RUN_JoinNaiveSP=False
 #RUN_JoinMHSP=True
 RUN_JoinMHSP=False
 
-RUN_JoinMin=True
-#RUN_JoinMin=False
+#RUN_JoinMin=True
+RUN_JoinMin=False
 
 #RUN_JoinMH=True
 RUN_JoinMH=False
@@ -40,8 +40,17 @@ RUN_JoinMH=False
 #RUN_JoinMinNaive=True
 RUN_JoinMinNaive=False
 
-RUN_JoinMinNaive_Thres=True
-#RUN_JoinMinNaive_Thres=False
+#RUN_JoinMinNaive_Thres=True
+RUN_JoinMinNaive_Thres=False
+
+RUN_JoinMHNaive=True
+#RUN_JoinMHNaive=False
+
+RUN_JoinMHNaiveThres=True
+#RUN_JoinMHNaiveThres=False
+
+RUN_JoinHybridAll=True
+#RUN_JoinHybridAll=False
 
 #RUN_JoinBK=True
 RUN_JoinBK=False
@@ -69,7 +78,7 @@ do
 		rulefile=`java -cp $CLASSPATH snu.kdd.synonym.synonymRev.data.Generator -cr $nTokensInRule $avgLhsLen $avgRhsLen $nRules 0 $seedRule data_store`
 		outputPath=output
 
-		./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_JoinNaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinMinNaive  $RUN_JoinMinNaive_Thres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
+		./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_JoinNaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinMinNaive $RUN_JoinMinNaive_Thres $RUN_JoinMHNaive $RUN_JoinMHNaiveThres $RUN_JoinHybridAll $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
 
 		if [[ $UPLOAD == "True" ]];
 		then

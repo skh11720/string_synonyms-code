@@ -10,12 +10,15 @@ RUN_JoinMHSP=$9
 RUN_JoinMin=${10}
 RUN_JoinMH=${11}
 RUN_JoinMinNaive=${12}
-RUN_JoinMinNaive_Thres=${13}
-RUN_JoinBK=${14}
-RUN_JoinBKSP=${15}
-RUN_DEBUG=${16}
-oneSide=${17}
-UPLOAD=${18}
+RUN_JoinMinNaiveThres=${13}
+RUN_JoinMHNaive=${14}
+RUN_JoinMHNaiveThres=${15}
+RUN_JoinHybridAll=${16}
+RUN_JoinBK=${17}
+RUN_JoinBKSP=${18}
+RUN_DEBUG=${19}
+oneSide=${20}
+UPLOAD=${21}
 
 LIBS=../target/Synonym.jar
 
@@ -32,7 +35,10 @@ echo RUN_JoinMHSP $RUN_JoinMHSP
 echo RUN_JoinMin $RUN_JoinMin
 echo RUN_JoinMH $RUN_JoinMH
 echo RUN_JoinMinNaive $RUN_JoinMinNaive
-echo RUN_JoinMinNaive_Thres $RUN_JoinMinNaive_Thres
+echo RUN_JoinMinNaiveThres $RUN_JoinMinNaiveThres
+echo RUN_JoinMHNaive $RUN_JoinMHNaive
+echo RUN_JoinMHNaiveThres $RUN_JoinMHNaiveThres
+echo RUN_JoinHybridAll $RUN_JoinHybridAll
 echo RUN_JoinBK $RUN_JoinBK
 echo RUN_JoinBKSP $RUN_JoinBKSP
 echo RUN_DEBUG $RUN_DEBUG
@@ -94,9 +100,13 @@ MH_NAIVE_THRES_K_END=1
 MH_NAIVE_THRES_Q_START=2
 MH_NAIVE_THRES_Q_END=2
 
+HYBRID_SAMPLE=( 0.01 )
+HYBRID_K_START=1
+HYBRID_K_END=3
+HYBRID_Q_START=1
+HYBRID_Q_END=3 
 
-
-if [[ $# -ne 18 ]];
+if [[ $# -ne 21 ]];
 	then
 		echo 'illegal number of parameters'
 	else
@@ -205,7 +215,7 @@ if [[ $# -ne 18 ]];
 	fi
 
 	#JoinHybridThres
-	if [[ $RUN_JoinMinNaive_Thres == "True" ]];
+	if [[ $RUN_JoinMinNaiveThres == "True" ]];
 	then
 		for ((k=MIN_NAIVE_THRES_K_START;k<=MIN_NAIVE_THRES_K_END;k++)); do
 			for ((q=MIN_NAIVE_THRES_Q_START;q<=MIN_NAIVE_THRES_Q_END;q++)); do
@@ -248,15 +258,8 @@ if [[ $# -ne 18 ]];
 		PREV="JoinBKSP"
 	fi
 
-	#JoinMH_QL
-	if [[ $RUN_DEBUG == "True" ]];
+	if [[ $RUN_JoinMHNaive == "True" ]];
 	then
-		#./joinCatesian.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide False $UPLOAD
-		#./compare.sh $PREV JoinCatesian
-		#./joinCatesian.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide True $UPLOAD
-		#./compare.sh $PREV JoinCatesian
-		#PREV="JoinCatesian"
-
 		for sample in "${MH_NAIVE_SAMPLE[@]}"; do
 			for ((k=MH_NAIVE_K_START;k<=MH_NAIVE_K_END;k++)); do
 				for ((q=MH_NAIVE_Q_START;q<=MH_NAIVE_Q_END;q++)); do
@@ -268,27 +271,55 @@ if [[ $# -ne 18 ]];
 			done
 		done
 		PREV="JoinMHNaive"
+	fi
 
-		#for ((k=MH_NAIVE_THRES_K_START;k<=MH_NAIVE_THRES_K_END;k++)); do
-		#	for ((q=MH_NAIVE_THRES_Q_START;q<=MH_NAIVE_THRES_Q_END;q++)); do
-		#		for threshold in "${MH_NAIVE_THRES[@]}"; do
-		#			date
-		#			./joinMHNaiveThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $k $q $project $oneSide $UPLOAD
-		#			date
-		#			./compare.sh $PREV JoinMHNaiveThres
-		#		done
-		#	done
-		#done
-		#PREV="JoinMHNaiveThres"
+	if [[ $RUN_JoinMHNaiveThres == "True" ]];
+	then
+		for ((k=MH_NAIVE_THRES_K_START;k<=MH_NAIVE_THRES_K_END;k++)); do
+			for ((q=MH_NAIVE_THRES_Q_START;q<=MH_NAIVE_THRES_Q_END;q++)); do
+				for threshold in "${MH_NAIVE_THRES[@]}"; do
+					date
+					./joinMHNaiveThres.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $threshold $k $q $project $oneSide $UPLOAD
+					date
+					./compare.sh $PREV JoinMHNaiveThres
+				done
+			done
+		done
+		PREV="JoinMHNaiveThres"
+	fi
 
-		#for ((k=MIN_RANGE_K_START;k<=MIN_RANGE_K_END;k++)); do
-		#	for ((q=MIN_RANGE_Q_START;q<=MIN_RANGE_Q_END;q++)); do
-		#		date
-		#		#./joinMinRange.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
-		#		./joinMHNaiveThres.sh
-		#		#./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
-		#		./compare.sh $PREV JoinMinRange
-		#	done
-		#done
+	if [[ $RUN_JoinHybridAll == "True" ]];
+	then
+		for ((k=HYBRID_K_START;k<=HYBRID_K_END;k++)); do
+			for ((q=HYBRID_Q_START;q<=HYBRID_Q_END;q++)); do
+				for sample in "${HYBRID_SAMPLE[@]}"; do
+					date
+					./joinHybridAll.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sample $k $q $project $oneSide $UPLOAD
+					date
+					./compare.sh $PREV JoinHybridAll
+				done
+			done
+		done
+		PREV="JoinHybridAll"
+
+	fi
+
+	#JoinMH_QL
+	if [[ $RUN_DEBUG == "True" ]];
+	then
+		#./joinCatesian.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide False $UPLOAD
+		#./compare.sh $PREV JoinCatesian
+		#./joinCatesian.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide True $UPLOAD
+		#./compare.sh $PREV JoinCatesian
+		#PREV="JoinCatesian"
+
+		for ((k=MIN_RANGE_K_START;k<=MIN_RANGE_K_END;k++)); do
+			for ((q=MIN_RANGE_Q_START;q<=MIN_RANGE_Q_END;q++)); do
+				date
+				./joinMinRange.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
+				#./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
+				./compare.sh $PREV JoinMinRange
+			done
+		done
 	fi
 fi
