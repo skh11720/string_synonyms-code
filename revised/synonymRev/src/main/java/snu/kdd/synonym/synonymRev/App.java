@@ -156,6 +156,7 @@ public class App {
 
 		case JoinHybridAll:
 			alg = new JoinHybridAll( query, stat );
+			break;
 
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
