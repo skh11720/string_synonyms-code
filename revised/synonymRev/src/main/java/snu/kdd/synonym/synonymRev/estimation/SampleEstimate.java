@@ -938,7 +938,6 @@ public class SampleEstimate {
 		// Find the best threshold
 		int bestThreshold = 0;
 		double bestEstTime = Double.MAX_VALUE;
-		boolean bestIsJoinMin = false;
 
 		// Indicates the minimum indices which have more that 'theta' expanded
 		// records
@@ -1062,7 +1061,7 @@ public class SampleEstimate {
 			}
 
 			for( QGram qgram : availableQGrams.get( minJoinMHIndex ) ) {
-				BinaryCountEntry entry = minJoinMinInvokes.get( qgram );
+				BinaryCountEntry entry = minJoinMHInvokes.get( qgram );
 				if( entry != null ) {
 					joinMHList.add( entry );
 				}
