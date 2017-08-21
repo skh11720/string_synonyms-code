@@ -18,13 +18,13 @@ else
 	echo data already exists in $dir
 fi
 
-if [ ! -f $dir/USPS_$Size\_tf.txt ];
-then
-	echo creating transformed data set with size $Size
-	./data_transform.sh $rulefile $dir/USPS_$Size.txt
-else
-	echo transformed data already exists in $dir
-fi
+#if [ ! -f $dir/USPS_$Size\_tf.txt ];
+#then
+#	echo creating transformed data set with size $Size
+#	./data_transform.sh $rulefile $dir/USPS_$Size.txt
+#else
+#	echo transformed data already exists in $dir
+#fi
 
 
 #rm data_store/JiahengLu/current_data

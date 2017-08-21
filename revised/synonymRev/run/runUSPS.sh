@@ -49,8 +49,8 @@ do
 
 	project=usps_$SIZE
 	inputfile_one=data_store/JiahengLu/splitted/USPS_$SIZE.txt
-	inputfile_two=data_store/JiahengLu/splitted/USPS_$SIZE\_tf.txt
-	#inputfile_two=data_store/JiahengLu/splitted/USPS_$SIZE.txt
+	#inputfile_two=data_store/JiahengLu/splitted/USPS_$SIZE\_tf.txt
+	inputfile_two=data_store/JiahengLu/splitted/USPS_$SIZE.txt
 	rulefile=data_store/JiahengLu/USPS_rule.txt
 	outputPath=output
 
