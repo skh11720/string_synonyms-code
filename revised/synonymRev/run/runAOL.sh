@@ -4,17 +4,7 @@ LIBS=../target/Synonym.jar
 
 dir=logs
 
-#SIZES=( 1000000 )
-#SIZES=( 1000000 )
-#SIZES=( 1500000 2000000 2500000 )
-#SIZES=( 30000 )
-#SIZES=( 1000 3000 10000 )
-#SIZES=( 1000000 )
-#SIZES=( 1000 3000 10000 30000 100000 )
-SIZES=( 10000 15848 25118 39810 63095 100000 )
-#SIZES=( 1000 3000 10000 30000 100000 300000 1000000 3000000 5000000 )
-#SIZES=( 1000000 )
-#SIZES=( 1000 3000 10000 30000 100000 )
+SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 398107 630957 1000000 )
 
 oneSide=$1
 
@@ -41,6 +31,15 @@ RUN_JoinMinNaive=False
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
 
+RUN_JoinMHNaive=True
+#RUN_JoinMHNaive=False
+
+RUN_JoinMHNaiveThres=True
+#RUN_JoinMHNaiveThres=False
+
+RUN_JoinHybridAll=True
+#RUN_JoinHybridAll=False
+
 RUN_JoinBK=True
 #RUN_JoinBK=False
 
@@ -55,12 +54,12 @@ do
 	./setAOL.sh $SIZE
 
 	project=aol_$SIZE
-	inputfile_one=data_store/aol/splitted/$SIZE/aol_$SIZE\_data.txt
-	inputfile_two=data_store/aol/splitted/$SIZE/aol_$SIZE\_data.txt
+	inputfile_one=data_store/aol/splitted/aol_$SIZE\_data.txt
+	inputfile_two=data_store/aol/splitted/aol_$SIZE\_data.txt
 	rulefile=data_store/wordnet/rules.noun
 	outputPath=output
 
-	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_NaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinMinNaive $RUN_JoinHybridThres $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
+	./runAlgorithms.sh $project $inputfile_one $inputfile_two $rulefile $outputPath $dir $RUN_Naive $RUN_NaiveSP $RUN_JoinMHSP $RUN_JoinMin $RUN_JoinMH $RUN_JoinMinNaive $RUN_JoinHybridThres $RUN_JoinMHNaive $RUN_JoinMHNaiveThres $RUN_JoinHybridAll $RUN_JoinBK $RUN_JoinBKSP $RUN_DEBUG $oneSide $UPLOAD
 
 	if [[ $UPLOAD == "True" ]];
 	then
