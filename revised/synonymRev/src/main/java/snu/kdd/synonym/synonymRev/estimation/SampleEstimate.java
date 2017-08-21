@@ -54,7 +54,9 @@ public class SampleEstimate {
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
 
 	public SampleEstimate( final Query query, double sampleratio, boolean isSelfJoin ) {
-		Random rn = new Random( 0 );
+		long seed = System.currentTimeMillis();
+		Util.printLog( "Random seed: " + seed );
+		Random rn = new Random( seed );
 
 		this.query = query;
 
