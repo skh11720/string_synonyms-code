@@ -55,8 +55,8 @@ RUN_JoinBK=False
 #RUN_JoinBKSP=True
 RUN_JoinBKSP=False
 
-RUN_DEBUG=True
-#RUN_DEBUG=False
+#RUN_DEBUG=True
+RUN_DEBUG=False
 
 for SIZE in ${SIZES[@]};
 do
