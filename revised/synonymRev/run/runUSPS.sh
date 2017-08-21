@@ -9,9 +9,10 @@ dir=logs
 #SIZES=( 3000 )
 #SIZES=( 1000 )
 #SIZES=( 1000 3000 10000 30000 )
-SIZES=( 1000 3000 10000 30000 100000 300000 )
+#SIZES=( 1000 3000 10000 30000 100000 300000 )
 #SIZES=( 10000 30000 100000 300000 1000000 )
 #SIZES=( 1000 3000 10000 30000 100000 300000 1000000 )
+SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 398107 630957 1000000 )
 
 RUN_Naive=True
 #RUN_Naive=False
@@ -19,14 +20,14 @@ RUN_Naive=True
 #RUN_NaiveSP=True
 RUN_NaiveSP=False
 
-RUN_JoinMH=True
-#RUN_JoinMH=False
+#RUN_JoinMH=True
+RUN_JoinMH=False
 
 #RUN_JoinMHSP=True
 RUN_JoinMHSP=False
 
-RUN_JoinMin=True
-#RUN_JoinMin=False
+#RUN_JoinMin=True
+RUN_JoinMin=False
 
 #RUN_JoinMinNaive=True
 RUN_JoinMinNaive=False
@@ -34,20 +35,20 @@ RUN_JoinMinNaive=False
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
 
-RUN_JoinMHNaive=True
-#RUN_JoinMHNaive=False
+#RUN_JoinMHNaive=True
+RUN_JoinMHNaive=False
 
-RUN_JoinMHNaiveThres=True
-#RUN_JoinMHNaiveThres=False
+#RUN_JoinMHNaiveThres=True
+RUN_JoinMHNaiveThres=False
 
 RUN_JoinHybridAll=True
 #RUN_JoinHybridAll=False
 
-RUN_JoinBK=True
-#RUN_JoinBK=False
+#RUN_JoinBK=True
+RUN_JoinBK=False
 
-RUN_JoinBKSP=True
-#RUN_JoinBKSP=False
+#RUN_JoinBKSP=True
+RUN_JoinBKSP=False
 
 #RUN_DEBUG=True
 RUN_DEBUG=False
