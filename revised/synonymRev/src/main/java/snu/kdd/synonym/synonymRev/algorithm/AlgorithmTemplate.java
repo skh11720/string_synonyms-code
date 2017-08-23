@@ -33,7 +33,8 @@ public abstract class AlgorithmTemplate {
 		JoinMHNaive,
 		JoinMHNaiveThres,
 		JoinHybridAll,
-		EstimationTest
+		SIJoin,
+		EstimationTest,
 	}
 
 	// contains statistics of the algorithm

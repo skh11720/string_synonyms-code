@@ -232,7 +232,7 @@ public class NaiveIndex {
 				idx.putNonExist( expanded, list );
 			}
 			else {
-				idx.putNonExist( new Record( expanded.getTokens() ), list );
+				idx.putNonExist( new Record( expanded.getTokensArray() ), list );
 			}
 		}
 

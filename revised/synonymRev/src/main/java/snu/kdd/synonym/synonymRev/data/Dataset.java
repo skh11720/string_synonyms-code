@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Dataset {
 	String name;
-	ObjectArrayList<Record> recordList;
+	public ObjectArrayList<Record> recordList;
 	int nRecord;
 
 	public Dataset( String dataFile, TokenIndex tokenIndex ) throws IOException {

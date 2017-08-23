@@ -23,8 +23,8 @@ public abstract class Validator {
 			return false;
 		}
 
-		int[] si = s.getTokens();
-		int[] ti = t.getTokens();
+		int[] si = s.getTokensArray();
+		int[] ti = t.getTokensArray();
 		for( int i = 0; i < si.length; ++i ) {
 			if( si[ i ] != ti[ i ] ) {
 				return false;

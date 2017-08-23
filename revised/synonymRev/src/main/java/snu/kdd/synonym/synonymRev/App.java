@@ -26,6 +26,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMinPosition;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinRange;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
+import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -157,6 +158,9 @@ public class App {
 		case JoinHybridAll:
 			alg = new JoinHybridAll( query, stat );
 			break;
+
+		case SIJoin:
+			alg = new SIJoin( query, stat );
 
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );

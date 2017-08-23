@@ -57,7 +57,7 @@ public class TopDownOneSide extends Validator {
 			int[] lhs = rule.getLeft();
 			int[] rhs = rule.getRight();
 
-			int[] yTokens = y.getTokens();
+			int[] yTokens = y.getTokensArray();
 
 			boolean candidate = true;
 			int baseIdx = yIdx - rhs.length + 1;

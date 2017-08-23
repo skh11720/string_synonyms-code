@@ -94,6 +94,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 	}
 
+	@SuppressWarnings( "unused" )
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 

@@ -239,7 +239,7 @@ public class Generator {
 
 	public Record randomTransform( Record rec, ACAutomataR atm, Random rand ) {
 		List<Integer> list = new ArrayList<Integer>();
-		Rule[][] rules = atm.applicableRules( rec.getTokens() );
+		Rule[][] rules = atm.applicableRules( rec.getTokensArray() );
 		int idx = 0;
 		while( idx < rec.getTokenCount() ) {
 			int ruleidx = rand.nextInt( rules[ idx ].length );

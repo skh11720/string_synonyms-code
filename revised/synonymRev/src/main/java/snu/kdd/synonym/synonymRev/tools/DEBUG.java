@@ -13,6 +13,8 @@ public class DEBUG {
 
 	public static final boolean JoinMinNaiveON = false;
 	public static final boolean JoinMHNaiveON = false;
+	
+	public static final boolean SIJoinON = false;
 
 	// Print index contents and detailed information
 	public static final boolean printSelfJoinON = false;

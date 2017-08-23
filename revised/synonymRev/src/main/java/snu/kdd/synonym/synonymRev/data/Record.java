@@ -1,21 +1,27 @@
 package snu.kdd.synonym.synonymRev.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Stack;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import sigmod13.RecordInterface;
+import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
+import snu.kdd.synonym.synonymRev.tools.IntegerSet;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramEntry;
 import snu.kdd.synonym.synonymRev.tools.QGramRange;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
+import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class Record implements Comparable<Record> {
+public class Record implements Comparable<Record>, RecordInterface, RecordInterface.Expanded {
 	public static int expandAllCount = 0;
 
 	private int[] tokens;
@@ -69,7 +75,7 @@ public class Record implements Comparable<Record> {
 		return 0;
 	}
 
-	public int[] getTokens() {
+	public int[] getTokensArray() {
 		return tokens;
 	}
 
@@ -709,5 +715,102 @@ public class Record implements Comparable<Record> {
 		}
 
 		return positionalQGram;
+	}
+
+	@Override
+	public RecordInterface toRecord() {
+		return this;
+	}
+
+	@Override
+	public double similarity( Expanded rec, Validator checker ) {
+		if( rec.getClass() != Record.class )
+			return 0;
+		int compare = checker.isEqual( this, (Record) rec );
+		if( compare >= 0 )
+			return 1;
+		else
+			return 0;
+	}
+
+	@Override
+	public int getMinLength() {
+		return transformLengths[ transformLengths.length - 1 ][ 0 ];
+	}
+
+	@Override
+	public int getMaxLength() {
+		return transformLengths[ transformLengths.length - 1 ][ 1 ];
+	}
+
+	@Override
+	public int size() {
+		return tokens.length;
+	}
+
+	@Override
+	public Collection<Integer> getTokens() {
+		List<Integer> list = new ArrayList<Integer>();
+		for( int i : tokens )
+			list.add( i );
+		return list;
+	}
+
+	@Override
+	public double similarity( RecordInterface rec, Validator checker ) {
+		if( rec.getClass() != Record.class )
+			return 0;
+		int compare = checker.isEqual( this, (Record) rec );
+		if( compare >= 0 )
+			return 1;
+		else
+			return 0;
+	}
+
+	protected IntegerSet[] availableTokens = null;
+
+	public void preprocessAvailableTokens( int maxlength ) {
+		assert ( maxlength > 0 );
+		maxlength = Math.min( maxlength, transformLengths[ tokens.length - 1 ][ 1 ] );
+		availableTokens = new IntegerSet[ maxlength ];
+		for( int i = 0; i < maxlength; ++i )
+			availableTokens[ i ] = new IntegerSet();
+		for( int i = 0; i < tokens.length; ++i ) {
+			Rule[] rules = applicableRules[ i ];
+			int[] range;
+			if( i == 0 )
+				range = new int[] { 0, 0 };
+			else
+				range = transformLengths[ i - 1 ];
+			int from = range[ 0 ];
+			int to = range[ 1 ];
+			for( Rule rule : rules ) {
+				int[] tokens = rule.getRight();
+				for( int j = 0; j < tokens.length; ++j ) {
+					for( int k = from; k <= to; ++k ) {
+						if( k + j >= maxlength )
+							break;
+						availableTokens[ k + j ].add( tokens[ j ] );
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public Set<Integer> getSignatures( ITF_Filter filter, double theta ) {
+		IntegerSet sig = new IntegerSet();
+		if( availableTokens != null )
+			for( int token : availableTokens[ 0 ] )
+				sig.add( token );
+		else
+			sig.addAll( this.availableTokens[ 0 ] );
+		return sig;
+	}
+
+	@Override
+	public Set<? extends Expanded> generateAll() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
