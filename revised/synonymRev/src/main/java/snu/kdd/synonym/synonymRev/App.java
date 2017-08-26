@@ -161,6 +161,7 @@ public class App {
 
 		case SIJoin:
 			alg = new SIJoin( query, stat );
+			break;
 
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
