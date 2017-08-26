@@ -31,11 +31,13 @@ public class SIJoin extends AlgorithmTemplate {
 
 		for( Record r : query.indexedSet.get() ) {
 			r.preprocessAvailableTokens( Integer.MAX_VALUE );
+			r.preprocessSuffixApplicableRules();
 		}
 
 		if( !query.selfJoin ) {
 			for( Record r : query.searchedSet.get() ) {
 				r.preprocessAvailableTokens( Integer.MAX_VALUE );
+				r.preprocessSuffixApplicableRules();
 			}
 		}
 	}
