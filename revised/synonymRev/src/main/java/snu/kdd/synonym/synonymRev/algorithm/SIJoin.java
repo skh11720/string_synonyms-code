@@ -25,6 +25,21 @@ public class SIJoin extends AlgorithmTemplate {
 		super( query, stat );
 	}
 
+	@Override
+	public void preprocess() {
+		super.preprocess();
+
+		for( Record r : query.indexedSet.get() ) {
+			r.preprocessAvailableTokens( Integer.MAX_VALUE );
+		}
+
+		if( !query.selfJoin ) {
+			for( Record r : query.searchedSet.get() ) {
+				r.preprocessAvailableTokens( Integer.MAX_VALUE );
+			}
+		}
+	}
+
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		if( query.oneSideJoin ) {
 			checker = new TopDownOneSide();
