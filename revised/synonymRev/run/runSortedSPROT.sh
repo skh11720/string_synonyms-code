@@ -28,11 +28,11 @@ RUN_JoinNaiveSP=False
 #RUN_JoinMHSP=True
 RUN_JoinMHSP=False
 
-#RUN_JoinMin=True
-RUN_JoinMin=False
+RUN_JoinMin=True
+#RUN_JoinMin=False
 
-#RUN_JoinMH=True
-RUN_JoinMH=False
+RUN_JoinMH=True
+#RUN_JoinMH=False
 
 #RUN_JoinMinNaive=True
 RUN_JoinMinNaive=False
@@ -40,14 +40,14 @@ RUN_JoinMinNaive=False
 #RUN_JoinHybridThres=True
 RUN_JoinHybridThres=False
 
-RUN_JoinMHNaive=True
-#RUN_JoinMHNaive=False
+#RUN_JoinMHNaive=True
+RUN_JoinMHNaive=False
 
-RUN_JoinMHNaiveThres=True
-#RUN_JoinMHNaiveThres=False
+#RUN_JoinMHNaiveThres=True
+RUN_JoinMHNaiveThres=False
 
 RUN_JoinHybridAll=True
-#RUN_JoinHybridAll=False
+PRUN_JoinHybridAll=False
 
 #RUN_JoinBK=True
 RUN_JoinBK=False
@@ -55,8 +55,8 @@ RUN_JoinBK=False
 #RUN_JoinBKSP=True
 RUN_JoinBKSP=False
 
-#RUN_DEBUG=True
-RUN_DEBUG=False
+RUN_DEBUG=True
+#RUN_DEBUG=False
 
 for SIZE in ${SIZES[@]};
 do

@@ -313,13 +313,16 @@ if [[ $# -ne 21 ]];
 		#./compare.sh $PREV JoinCatesian
 		#PREV="JoinCatesian"
 
-		for ((k=MIN_RANGE_K_START;k<=MIN_RANGE_K_END;k++)); do
-			for ((q=MIN_RANGE_Q_START;q<=MIN_RANGE_Q_END;q++)); do
-				date
-				./joinMinRange.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
-				#./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
-				./compare.sh $PREV JoinMinRange
-			done
-		done
+		#for ((k=MIN_RANGE_K_START;k<=MIN_RANGE_K_END;k++)); do
+		#	for ((q=MIN_RANGE_Q_START;q<=MIN_RANGE_Q_END;q++)); do
+		#		date
+		#		./joinMinRange.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
+		#		#./joinDebug.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $k $q $project $oneSide $UPLOAD
+		#		./compare.sh $PREV JoinMinRange
+		#	done
+		#done
+
+		./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
+
 	fi
 fi
