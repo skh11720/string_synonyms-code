@@ -72,6 +72,9 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		else {
 			maxSearchedEstNumRecords = maxIndexedEstNumRecords;
 		}
+
+		stat.add( "MaxIndexedEstNumRecords", maxIndexedEstNumRecords );
+		stat.add( "MaxSearchedEstNumRecords", maxSearchedEstNumRecords );
 	}
 
 	@Override
