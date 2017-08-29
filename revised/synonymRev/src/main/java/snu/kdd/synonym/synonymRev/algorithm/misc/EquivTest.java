@@ -78,6 +78,7 @@ public class EquivTest extends AlgorithmTemplate {
 
 		StopWatch watch = StopWatch.getWatchStarted( "Total Time" );
 		int count = 0;
+		int totalComp = 0;
 		for( int i = 0; i < 100; i++ ) {
 
 			Record x = sampleX.get( i );
@@ -103,9 +104,12 @@ public class EquivTest extends AlgorithmTemplate {
 				if( val.isEqual( x, y ) > 0 ) {
 					count++;
 				}
+				totalComp++;
 			}
 		}
 		watch.stopQuietAndAdd( stat );
+		stat.add( "Final Result Size", count );
+		stat.add( "Total Comparisons", totalComp );
 
 		Util.printLog( val.getName() + " " + count + " " + watch.getTotalTime() );
 	}
