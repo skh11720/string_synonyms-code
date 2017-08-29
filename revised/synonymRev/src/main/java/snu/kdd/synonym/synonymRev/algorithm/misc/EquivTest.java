@@ -9,6 +9,7 @@ import org.apache.commons.cli.ParseException;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
@@ -79,6 +80,7 @@ public class EquivTest extends AlgorithmTemplate {
 		StopWatch watch = StopWatch.getWatchStarted( "Total Time" );
 		int count = 0;
 		int totalComp = 0;
+		ArrayList<IntegerPair> rslt = new ArrayList<>();
 		for( int i = 0; i < 1000; i++ ) {
 
 			Record x = sampleX.get( i );
@@ -103,6 +105,7 @@ public class EquivTest extends AlgorithmTemplate {
 
 				if( val.isEqual( x, y ) > 0 ) {
 					count++;
+					rslt.add( new IntegerPair( x.getID(), y.getID() ) );
 				}
 				totalComp++;
 			}
@@ -113,6 +116,8 @@ public class EquivTest extends AlgorithmTemplate {
 		stat.add( "Avg Time", watch.getTotalTime() / (double) totalComp );
 
 		Util.printLog( val.getName() + " " + count + " " + watch.getTotalTime() );
+		
+		writeResult( rslt );
 	}
 
 }
