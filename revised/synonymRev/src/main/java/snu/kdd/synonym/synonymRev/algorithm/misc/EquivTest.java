@@ -48,11 +48,11 @@ public class EquivTest extends AlgorithmTemplate {
 		preprocess();
 
 		int seed = 0;
-		double threshold = 0.5;
+		double threshold = 1;
 		ArrayList<Record> sampleX = new ArrayList<>();
 		Random rn = new Random( seed );
 		for( Record x : query.searchedSet.get() ) {
-			if( x.getEstNumTransformed() > 100000 ) {
+			if( x.getEstNumTransformed() > 10000000 ) {
 				continue;
 			}
 
@@ -63,7 +63,7 @@ public class EquivTest extends AlgorithmTemplate {
 
 		ArrayList<Record> sampleY = new ArrayList<>();
 		for( Record y : query.searchedSet.get() ) {
-			if( y.getEstNumTransformed() > 100000 ) {
+			if( y.getEstNumTransformed() > 10000000 ) {
 				continue;
 			}
 
@@ -81,14 +81,14 @@ public class EquivTest extends AlgorithmTemplate {
 		int count = 0;
 		int totalComp = 0;
 		ArrayList<IntegerPair> rslt = new ArrayList<>();
-		for( int i = 0; i < 1000; i++ ) {
+		for( int i = 0; i < sampleX.size(); i++ ) {
 
 			Record x = sampleX.get( i );
 			if( topDown ) {
 				x.preprocessSuffixApplicableRules();
 			}
 
-			for( int j = 0; j < 1000; j++ ) {
+			for( int j = 0; j < sampleY.size(); j++ ) {
 
 				Record y = sampleY.get( j );
 
