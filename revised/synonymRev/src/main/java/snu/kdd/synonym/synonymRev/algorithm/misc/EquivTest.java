@@ -48,7 +48,7 @@ public class EquivTest extends AlgorithmTemplate {
 		preprocess();
 
 		int seed = 0;
-		double threshold = 1;
+		double threshold = 0;
 		ArrayList<Record> sampleX = new ArrayList<>();
 		Random rn = new Random( seed );
 		for( Record x : query.searchedSet.get() ) {
