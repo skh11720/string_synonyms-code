@@ -7,21 +7,21 @@ dir=logs
 
 #SIZES=( 1000000 )
 #SIZES=( 158489 251188 466158 )
-#SIZES=( 100000 )
+SIZES=( 10000 )
 #SIZES=( 63095 )
 #SIZES=( 158489 )
 #SIZES=( 15848 )
 #SIZES=( 10000 15848 25118 39810 63095 100000 )
 #SIZES=( 10000 15848 25118 39810 46415 54116 63095 66408 69895 73564 85770 100000 158489 251188 466158 )
-SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 466158 )
+#SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 466158 )
 #SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 466158 )
 
 oneSide=$1
 UPLOAD=$2
 
 
-RUN_Naive=True
-#RUN_Naive=False
+#RUN_Naive=True
+RUN_Naive=False
 
 #RUN_JoinNaiveSP=True
 RUN_JoinNaiveSP=False
@@ -29,11 +29,11 @@ RUN_JoinNaiveSP=False
 #RUN_JoinMHSP=True
 RUN_JoinMHSP=False
 
-RUN_JoinMin=True
-#RUN_JoinMin=False
+#RUN_JoinMin=True
+RUN_JoinMin=False
 
-RUN_JoinMH=True
-#RUN_JoinMH=False
+#RUN_JoinMH=True
+RUN_JoinMH=False
 
 #RUN_JoinMinNaive=True
 RUN_JoinMinNaive=False
@@ -47,8 +47,8 @@ RUN_JoinMHNaive=False
 #RUN_JoinMHNaiveThres=True
 RUN_JoinMHNaiveThres=False
 
-RUN_JoinHybridAll=True
-#RUN_JoinHybridAll=False
+#RUN_JoinHybridAll=True
+RUN_JoinHybridAll=False
 
 #RUN_JoinBK=True
 RUN_JoinBK=False
@@ -56,8 +56,8 @@ RUN_JoinBK=False
 #RUN_JoinBKSP=True
 RUN_JoinBKSP=False
 
-#RUN_DEBUG=True
-RUN_DEBUG=False
+RUN_DEBUG=True
+#RUN_DEBUG=False
 
 for SIZE in ${SIZES[@]};
 do

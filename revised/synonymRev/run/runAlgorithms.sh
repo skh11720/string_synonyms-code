@@ -322,7 +322,9 @@ if [[ $# -ne 21 ]];
 		#	done
 		#done
 
-		./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
+		#./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
+
+		./equivTest.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
 
 	fi
 fi

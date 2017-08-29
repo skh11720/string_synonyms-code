@@ -4,8 +4,8 @@ nTokens=1000000
 SIZES=( 10000 )
 #SIZES=( 10000 15848 25118 39810 63095 100000 158489 251188 398107 630957 1000000 )
 
-RULES=( 10000 )
-#RULES=( 10000 30000 100000 300000 1000000 )
+#RULES=( 173200 519600 )
+RULES=( 10000 30000 100000 173200 300000 519600 1000000 3000000 )
 #nRules=100000
 nTokensInRule=30000
 avgRecLen=5
@@ -43,14 +43,14 @@ RUN_JoinMinNaive=False
 #RUN_JoinMinNaive_Thres=True
 RUN_JoinMinNaive_Thres=False
 
-RUN_JoinMHNaive=True
-#RUN_JoinMHNaive=False
+#RUN_JoinMHNaive=True
+RUN_JoinMHNaive=False
 
-RUN_JoinMHNaiveThres=True
-#RUN_JoinMHNaiveThres=False
+#RUN_JoinMHNaiveThres=True
+RUN_JoinMHNaiveThres=False
 
-RUN_JoinHybridAll=True
-#RUN_JoinHybridAll=False
+#RUN_JoinHybridAll=True
+RUN_JoinHybridAll=False
 
 #RUN_JoinBK=True
 RUN_JoinBK=False
@@ -58,8 +58,8 @@ RUN_JoinBK=False
 #RUN_JoinBKSP=True
 RUN_JoinBKSP=False
 
-#RUN_DEBUG=True
-RUN_DEBUG=False
+RUN_DEBUG=True
+#RUN_DEBUG=False
 
 seedRule=0
 seedDataOne=1
