@@ -99,16 +99,12 @@ public class EquivTest extends AlgorithmTemplate {
 				}
 
 				if( !query.oneSideJoin ) {
-					if( y.getSuffixApplicableRules( 0 ) == null && topDown ) {
+					if( topDown && y.getSuffixApplicableRules( 0 ) == null ) {
 						y.preprocessSuffixApplicableRules();
 					}
 				}
 
-				if( x.getID() == 8160 && y.getID() == 3184 ) {
-					System.out.println( "DEBUG" );
-					System.out.println( val.isEqual( x, y ) );
-				}
-				if( val.isEqual( x, y ) > 0 ) {
+				if( val.isEqual( x, y ) >= 0 ) {
 					count++;
 					rslt.add( new IntegerPair( x.getID(), y.getID() ) );
 				}
