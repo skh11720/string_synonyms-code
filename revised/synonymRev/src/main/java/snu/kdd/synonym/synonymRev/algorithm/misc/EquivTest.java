@@ -72,7 +72,7 @@ public class EquivTest extends AlgorithmTemplate {
 			}
 		}
 
-		if( sampleX.size() < 100 && sampleY.size() < 100 ) {
+		if( sampleX.size() < 1000 && sampleY.size() < 1000 ) {
 			Util.printLog( "Too small dataset" );
 			return;
 		}
