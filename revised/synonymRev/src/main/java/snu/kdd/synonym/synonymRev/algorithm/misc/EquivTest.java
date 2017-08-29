@@ -110,6 +110,7 @@ public class EquivTest extends AlgorithmTemplate {
 		watch.stopQuietAndAdd( stat );
 		stat.add( "Final Result Size", count );
 		stat.add( "Total Comparisons", totalComp );
+		stat.add( "Avg Time", watch.getTotalTime() / (double) totalComp );
 
 		Util.printLog( val.getName() + " " + count + " " + watch.getTotalTime() );
 	}
