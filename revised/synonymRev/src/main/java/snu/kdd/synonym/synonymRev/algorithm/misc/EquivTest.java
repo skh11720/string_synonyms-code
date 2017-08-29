@@ -79,14 +79,14 @@ public class EquivTest extends AlgorithmTemplate {
 		StopWatch watch = StopWatch.getWatchStarted( "Total Time" );
 		int count = 0;
 		int totalComp = 0;
-		for( int i = 0; i < 100; i++ ) {
+		for( int i = 0; i < 1000; i++ ) {
 
 			Record x = sampleX.get( i );
 			if( topDown ) {
 				x.preprocessSuffixApplicableRules();
 			}
 
-			for( int j = 0; j < 100; j++ ) {
+			for( int j = 0; j < 1000; j++ ) {
 				if( query.selfJoin ) {
 					if( i == j ) {
 						continue;
