@@ -104,6 +104,10 @@ public class EquivTest extends AlgorithmTemplate {
 					}
 				}
 
+				if( x.getID() == 8160 && y.getID() == 3184 ) {
+					System.out.println( "DEBUG" );
+					System.out.println( val.isEqual( x, y ) );
+				}
 				if( val.isEqual( x, y ) > 0 ) {
 					count++;
 					rslt.add( new IntegerPair( x.getID(), y.getID() ) );
