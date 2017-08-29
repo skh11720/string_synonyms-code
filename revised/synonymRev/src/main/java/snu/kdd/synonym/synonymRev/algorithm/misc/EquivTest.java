@@ -89,13 +89,14 @@ public class EquivTest extends AlgorithmTemplate {
 			}
 
 			for( int j = 0; j < 1000; j++ ) {
+
+				Record y = sampleY.get( j );
+
 				if( query.selfJoin ) {
-					if( i == j ) {
+					if( x.getID() == y.getID() ) {
 						continue;
 					}
 				}
-
-				Record y = sampleY.get( j );
 
 				if( query.selfJoin ) {
 					if( y.getSuffixApplicableRules( 0 ) != null && topDown ) {
@@ -116,7 +117,7 @@ public class EquivTest extends AlgorithmTemplate {
 		stat.add( "Avg Time", watch.getTotalTime() / (double) totalComp );
 
 		Util.printLog( val.getName() + " " + count + " " + watch.getTotalTime() );
-		
+
 		writeResult( rslt );
 	}
 
