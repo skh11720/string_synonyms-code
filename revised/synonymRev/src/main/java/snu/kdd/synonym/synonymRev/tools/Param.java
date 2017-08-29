@@ -9,6 +9,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.validator.Naive;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
@@ -62,7 +63,7 @@ public class Param {
 				param.validator = new NaiveOneSide();
 			}
 			else {
-				// TODO
+				param.validator = new Naive();
 			}
 		}
 		else {
