@@ -41,6 +41,8 @@ public class EquivTest extends AlgorithmTemplate {
 		Param params = Param.parseArgs( args, stat, query );
 
 		val = params.validator;
+		String valName = val.getName();
+		boolean topDown = valName.contains( "TopDown" );
 
 		preprocess();
 
@@ -77,13 +79,26 @@ public class EquivTest extends AlgorithmTemplate {
 		StopWatch watch = StopWatch.getWatchStarted( "Total Time" );
 		int count = 0;
 		for( int i = 0; i < 100; i++ ) {
+
 			Record x = sampleX.get( i );
+			if( topDown ) {
+				x.preprocessSuffixApplicableRules();
+			}
+
 			for( int j = 0; j < 100; j++ ) {
-				if( query.selfJoin && i == j ) {
-					continue;
+				if( query.selfJoin ) {
+					if( i == j ) {
+						continue;
+					}
 				}
 
 				Record y = sampleY.get( j );
+
+				if( query.selfJoin ) {
+					if( y.getSuffixApplicableRules( 0 ) != null && topDown ) {
+						y.preprocessSuffixApplicableRules();
+					}
+				}
 
 				if( val.isEqual( x, y ) > 0 ) {
 					count++;
