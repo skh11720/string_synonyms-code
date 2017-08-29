@@ -98,7 +98,7 @@ public class EquivTest extends AlgorithmTemplate {
 					}
 				}
 
-				if( query.selfJoin ) {
+				if( !query.oneSideJoin ) {
 					if( y.getSuffixApplicableRules( 0 ) != null && topDown ) {
 						y.preprocessSuffixApplicableRules();
 					}
