@@ -8,7 +8,7 @@ public class TopDownOneSide extends Validator {
 	@Override
 	public int isEqual( Record x, Record y ) {
 		// Check whether x -> y
-		
+
 		++checked;
 		if( areSameString( x, y ) )
 			return 0;
@@ -90,5 +90,9 @@ public class TopDownOneSide extends Validator {
 		isEquiv[ xIdx ][ yIdx ] = false;
 
 		return false;
+	}
+
+	public String getName() {
+		return "TopDownOneSide";
 	}
 }

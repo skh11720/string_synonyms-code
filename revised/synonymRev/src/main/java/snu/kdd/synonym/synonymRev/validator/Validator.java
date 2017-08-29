@@ -59,4 +59,6 @@ public abstract class Validator {
 			Util.printLog( "Length filtered: " + filtered );
 		}
 	}
+
+	public abstract String getName();
 }

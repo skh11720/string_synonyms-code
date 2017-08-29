@@ -9,6 +9,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -23,6 +24,7 @@ public class Param {
 		options.addOption( "sample", true, "Sampling Ratio" );
 		options.addOption( "t", true, "Threshold" );
 		options.addOption( "noLength", false, "No Length Filtering" );
+		options.addOption( "naiveVal", false, "Naive Validator" );
 
 		argOptions = options;
 	}
@@ -55,11 +57,21 @@ public class Param {
 			param.noLength = true;
 		}
 
-		if( query.oneSideJoin ) {
-			param.validator = new TopDownOneSide();
+		if( cmd.hasOption( "naiveVal" ) ) {
+			if( query.oneSideJoin ) {
+				param.validator = new NaiveOneSide();
+			}
+			else {
+				// TODO
+			}
 		}
 		else {
-			param.validator = new TopDown();
+			if( query.oneSideJoin ) {
+				param.validator = new TopDownOneSide();
+			}
+			else {
+				param.validator = new TopDown();
+			}
 		}
 
 		return param;

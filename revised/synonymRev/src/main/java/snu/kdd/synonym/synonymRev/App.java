@@ -27,6 +27,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMinRange;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -161,6 +162,10 @@ public class App {
 
 		case SIJoin:
 			alg = new SIJoin( query, stat );
+			break;
+			
+		case EquivTest:
+			alg = new EquivTest( query, stat );
 			break;
 
 		default:
