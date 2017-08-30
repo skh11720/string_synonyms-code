@@ -52,7 +52,7 @@ public class EquivTest extends AlgorithmTemplate {
 		ArrayList<Record> sampleX = new ArrayList<>();
 		Random rn = new Random( seed );
 		for( Record x : query.searchedSet.get() ) {
-			if( x.getEstNumTransformed() > 10000 ) {
+			if( x.getEstNumTransformed() > 100 ) {
 				continue;
 			}
 
@@ -63,7 +63,7 @@ public class EquivTest extends AlgorithmTemplate {
 
 		ArrayList<Record> sampleY = new ArrayList<>();
 		for( Record y : query.searchedSet.get() ) {
-			if( y.getEstNumTransformed() > 10000 ) {
+			if( y.getEstNumTransformed() > 100 ) {
 				continue;
 			}
 
