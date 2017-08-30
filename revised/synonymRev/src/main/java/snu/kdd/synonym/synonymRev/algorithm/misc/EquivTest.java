@@ -82,6 +82,7 @@ public class EquivTest extends AlgorithmTemplate {
 		int totalComp = 0;
 		ArrayList<IntegerPair> rslt = new ArrayList<>();
 		for( int i = 0; i < sampleX.size(); i++ ) {
+			System.out.println( i );
 
 			Record x = sampleX.get( i );
 			if( topDown ) {
