@@ -193,6 +193,14 @@ public class JoinMinIndex {
 			}
 		}
 
+		int distinctPQgram = 0;
+		for( int i = 0; i < invokes.size(); i++ ) {
+			Object2IntOpenHashMap<QGram> count = invokes.get( i );
+
+			distinctPQgram += count.size();
+		}
+		stat.add( "Stat_Distinct_PQ", distinctPQgram );
+
 		if( DEBUG.JoinMinIndexON ) {
 			try {
 				for( int i = 0; i < invokes.size(); i++ ) {
