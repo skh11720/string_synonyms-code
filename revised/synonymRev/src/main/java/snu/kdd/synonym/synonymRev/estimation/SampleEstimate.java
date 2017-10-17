@@ -350,21 +350,21 @@ public class SampleEstimate {
 		}
 
 		if( DEBUG.PrintEstimationON ) {
-			if( DEBUG.PrintEstimationON ) {
-				BufferedWriter bwEstimation = EstimationTest.getWriter();
-				try {
-					bwEstimation.write( "[Eta] " + eta + " IndexTime " + ( eta * indexedTotalSigCount ) + " IndexedSigCount "
-							+ indexedTotalSigCount + "\n" );
-					bwEstimation.write( "[Theta] " + theta + " JoinTime " + ( theta * estimatedInvokes ) + " PredictCount "
-							+ estimatedInvokes + "\n" );
-				}
-				catch( IOException e ) {
-					e.printStackTrace();
-				}
+			BufferedWriter bwEstimation = EstimationTest.getWriter();
+			try {
+				bwEstimation.write( "[Eta] " + eta + " IndexTime " + ( eta * indexedTotalSigCount ) + " IndexedSigCount "
+						+ indexedTotalSigCount + "\n" );
+				bwEstimation.write( "[Theta] " + theta + " JoinTime " + ( theta * estimatedInvokes ) + " PredictCount "
+						+ estimatedInvokes + "\n" );
+				bwEstimation.write( "[Iota] " + iota + " QgramTime " + ( iota * searchedTotalSigCount )
+						+ " searchedTotalSigCount " + searchedTotalSigCount );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
 			}
 		}
 
-		return eta * indexedTotalSigCount + theta * estimatedInvokes;
+		return iota * searchedTotalSigCount + eta * indexedTotalSigCount + theta * estimatedInvokes;
 	}
 
 	public int findThetaJoinMinNaive( int qSize, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords,
@@ -886,7 +886,8 @@ public class SampleEstimate {
 				}
 			}
 
-			double joinmhEstimation = this.getEstimateJoinMH( searchedTotalSigCount, indexedTotalSigCount, totalInvokes - removedComparison );
+			double joinmhEstimation = this.getEstimateJoinMH( searchedTotalSigCount, indexedTotalSigCount,
+					totalInvokes - removedComparison );
 
 			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 
@@ -1227,7 +1228,7 @@ public class SampleEstimate {
 					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
 			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
 					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation ) );
-			Util.printLog( "JoinMinSelected " + tempJoinMinSelected );
+			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
 
 			double tempBestTime = naiveEstimation;
 
