@@ -51,7 +51,7 @@ public class JoinMinIndex {
 	public long comparisonTime;
 	public long appliedRulesSum;
 
-	long getQGramTime;
+	double getQGramTime;
 	public long comparisonCount;
 	public long lengthFiltered;
 
@@ -225,7 +225,6 @@ public class JoinMinIndex {
 		// we have the number of occurrence of a positional q-grams
 
 		this.countTime = System.nanoTime() - starttime;
-		this.gamma = this.countTime / this.searchedTotalSigCount;
 
 		if( DEBUG.JoinMinON ) {
 			Util.printLog( "Step 1 Time : " + this.countTime );
@@ -496,13 +495,9 @@ public class JoinMinIndex {
 
 		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
-		long joinStartTime = System.nanoTime();
 		for( Record recS : query.searchedSet.get() ) {
-
 			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
-
 		}
-		joinTime = System.nanoTime() - joinStartTime;
 
 		if( DEBUG.PrintJoinMinJoinON ) {
 			try {
@@ -522,7 +517,8 @@ public class JoinMinIndex {
 			Util.printLog( "Warning: predictCount is zero" );
 			predictCount = 1;
 		}
-		epsilon = joinTime / predictCount;
+		epsilon = ( joinTime - getQGramTime ) / predictCount;
+		this.gamma = this.countTime + getQGramTime / this.searchedTotalSigCount;
 
 		// DEBUG
 		epsilonPrime = joinTime / comparisonCount;
@@ -535,7 +531,7 @@ public class JoinMinIndex {
 			if( writeResult ) {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
 				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
-				
+
 				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime / 1000000 );
 			}
 		}
@@ -708,27 +704,17 @@ public class JoinMinIndex {
 
 	public void joinRecordMaxK( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
 			Validator checker, boolean oneSideJoin ) {
-		long qgramStartTime = 0;
-		long joinStartTime = 0;
-		long qgramCount = 0;
+		long joinStartTime = System.nanoTime();
 
-		if( DEBUG.JoinMinON ) {
-			qgramStartTime = System.nanoTime();
-		}
+		long qgramCount = 0;
 
 		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
 
-		if( DEBUG.JoinMinON ) {
-			getQGramTime += System.nanoTime() - qgramStartTime;
-		}
+		getQGramTime += System.nanoTime() - joinStartTime;
 
 		int[] range = recS.getTransLengths();
 		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 		ArrayList<String> debugArray = new ArrayList<String>();
-
-		if( DEBUG.PrintJoinMinJoinON ) {
-			joinStartTime = System.nanoTime();
-		}
 
 		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
 
@@ -819,6 +805,7 @@ public class JoinMinIndex {
 				e.printStackTrace();
 			}
 		}
+		joinTime += System.nanoTime() - joinStartTime;
 	}
 
 	public void joinRecordMaxKThres( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
