@@ -518,7 +518,7 @@ public class JoinMinIndex {
 			predictCount = 1;
 		}
 		epsilon = ( joinTime - getQGramTime ) / predictCount;
-		this.gamma = this.countTime + getQGramTime / this.searchedTotalSigCount;
+		this.gamma = ( this.countTime + getQGramTime ) / this.searchedTotalSigCount;
 
 		// DEBUG
 		epsilonPrime = joinTime / comparisonCount;
