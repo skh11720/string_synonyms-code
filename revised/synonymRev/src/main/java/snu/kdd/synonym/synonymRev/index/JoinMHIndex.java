@@ -37,9 +37,12 @@ public class JoinMHIndex {
 	long indexTime = 0;
 	public int predictCount = 0;
 	long joinTime = 0;
+	long countTime = 0;
+	long countValue = 0;
 
 	double eta;
 	double theta;
+	double iota;
 
 	public long equivComparisons;
 
@@ -297,6 +300,8 @@ public class JoinMHIndex {
 
 	public ArrayList<IntegerPair> join( StatContainer stat, Query query, Validator checker, boolean writeResult ) {
 		long startTime = System.nanoTime();
+		long totalCountTime = 0;
+		long totalCountValue = 0;
 		int maxPosition = 0;
 		for( int idx : indexPosition ) {
 			if( maxPosition < idx ) {
@@ -335,7 +340,12 @@ public class JoinMHIndex {
 			Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 			candidatesCount.defaultReturnValue( -1 );
 
+			long countStartTime = System.nanoTime();
+
 			List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
+
+			totalCountValue += availableQGrams.size();
+			totalCountTime += System.nanoTime() - countStartTime;
 
 			// long recordStartTime = System.nanoTime();
 			int[] range = recS.getTransLengths();
@@ -475,8 +485,11 @@ public class JoinMHIndex {
 				stat.add( "Stat_Candidate_Times_Per_Index", candTimeStr );
 			}
 		}
-		this.joinTime = System.nanoTime() - startTime;
+		this.joinTime = System.nanoTime() - startTime - totalCountTime;
 		this.theta = ( (double) this.joinTime / this.predictCount );
+		this.countTime = totalCountTime;
+		this.countValue = totalCountValue;
+		this.iota = (double) totalCountTime / totalCountValue;
 		return rslt;
 	}
 
@@ -579,6 +592,10 @@ public class JoinMHIndex {
 
 	public double getTheta() {
 		return this.theta;
+	}
+
+	public double getIota() {
+		return this.iota;
 	}
 
 }

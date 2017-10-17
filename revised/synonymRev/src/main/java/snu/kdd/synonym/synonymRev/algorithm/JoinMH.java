@@ -94,7 +94,7 @@ public class JoinMH extends AlgorithmTemplate {
 		}
 
 		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker, writeResult );
-		
+
 		if( writeResult ) {
 			stat.addMemory( "Mem_4_Joined" );
 			stepTime.stopAndAdd( stat );
@@ -133,6 +133,10 @@ public class JoinMH extends AlgorithmTemplate {
 
 	public double getTheta() {
 		return idx.getTheta();
+	}
+
+	public double getIota() {
+		return idx.getIota();
 	}
 
 }
