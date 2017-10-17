@@ -357,7 +357,7 @@ public class SampleEstimate {
 				bwEstimation.write( "[Theta] " + theta + " JoinTime " + ( theta * estimatedInvokes ) + " PredictCount "
 						+ estimatedInvokes + "\n" );
 				bwEstimation.write( "[Iota] " + iota + " QgramTime " + ( iota * searchedTotalSigCount )
-						+ " searchedTotalSigCount " + searchedTotalSigCount );
+						+ " searchedTotalSigCount " + searchedTotalSigCount + "\n" );
 			}
 			catch( IOException e ) {
 				e.printStackTrace();
