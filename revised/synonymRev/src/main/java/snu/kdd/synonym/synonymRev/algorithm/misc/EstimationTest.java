@@ -520,6 +520,10 @@ public class EstimationTest extends AlgorithmTemplate {
 				bwEstimation.write( " JoinTime " + joinmhJointime );
 				bwEstimation.write( " PredictedCount " + joinMHIdx.predictCount );
 				bwEstimation.write( " ActualCount " + joinMHIdx.equivComparisons + "\n" );
+
+				bwEstimation.write( "[Iota] " + 0 );
+				bwEstimation.write( " QgramTime " + 0 );
+				bwEstimation.write( " searchedTotalSigCount " + joinMHIdx.countValue + "\n" );
 			}
 			catch( Exception e ) {
 				e.printStackTrace();

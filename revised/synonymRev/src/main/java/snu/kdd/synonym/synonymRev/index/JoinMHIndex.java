@@ -38,7 +38,7 @@ public class JoinMHIndex {
 	public int predictCount = 0;
 	long joinTime = 0;
 	long countTime = 0;
-	long countValue = 0;
+	public long countValue = 0;
 
 	double eta;
 	double theta;
@@ -344,7 +344,9 @@ public class JoinMHIndex {
 
 			List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
 
-			totalCountValue += availableQGrams.size();
+			for( List<QGram> list : availableQGrams ) {
+				totalCountValue += list.size();
+			}
 			totalCountTime += System.nanoTime() - countStartTime;
 
 			// long recordStartTime = System.nanoTime();
@@ -491,18 +493,6 @@ public class JoinMHIndex {
 		this.countValue = totalCountValue;
 		this.iota = (double) totalCountTime / totalCountValue;
 
-		if( DEBUG.PrintEstimationON ) {
-			BufferedWriter bwEstimation = EstimationTest.getWriter();
-			try {
-				bwEstimation.write( "[Iota] " + iota );
-				bwEstimation.write( " QgramTime " + totalCountTime );
-				bwEstimation.write( " searchedTotalSigCount " + totalCountValue + "\n" );
-			}
-			catch( IOException e ) {
-				e.printStackTrace();
-			}
-		}
-
 		return rslt;
 	}
 
@@ -516,6 +506,9 @@ public class JoinMHIndex {
 		candidatesCount.defaultReturnValue( -1 );
 
 		List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize, maxPosition + 1 );
+		for( List<QGram> list : availableQGrams ) {
+			this.countValue += list.size();
+		}
 
 		// long recordStartTime = System.nanoTime();
 		int[] range = recS.getTransLengths();
