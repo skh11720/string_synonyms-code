@@ -490,6 +490,19 @@ public class JoinMHIndex {
 		this.countTime = totalCountTime;
 		this.countValue = totalCountValue;
 		this.iota = (double) totalCountTime / totalCountValue;
+
+		if( DEBUG.PrintEstimationON ) {
+			BufferedWriter bwEstimation = EstimationTest.getWriter();
+			try {
+				bwEstimation.write( "[Iota] " + iota );
+				bwEstimation.write( " QgramTime " + totalCountTime );
+				bwEstimation.write( " searchedTotalSigCount " + totalCountValue + "\n" );
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+
 		return rslt;
 	}
 
