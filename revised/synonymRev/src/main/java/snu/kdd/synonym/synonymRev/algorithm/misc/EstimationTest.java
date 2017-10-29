@@ -513,11 +513,12 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		if( DEBUG.PrintEstimationON ) {
 			try {
-				System.out.println( "joinMH: " + joinMHIdx );
-				bwEstimation.write( "[Theta] " + joinmhJointime / (double) joinMHIdx.predictCount );
-				bwEstimation.write( " JoinTime " + joinmhJointime );
-				bwEstimation.write( " PredictedCount " + joinMHIdx.predictCount );
-				bwEstimation.write( " ActualCount " + joinMHIdx.equivComparisons + "\n" );
+				if( joinMHRequired ) {
+					bwEstimation.write( "[Theta] " + joinmhJointime / (double) joinMHIdx.predictCount );
+					bwEstimation.write( " JoinTime " + joinmhJointime );
+					bwEstimation.write( " PredictedCount " + joinMHIdx.predictCount );
+					bwEstimation.write( " ActualCount " + joinMHIdx.equivComparisons + "\n" );
+				}
 			}
 			catch( Exception e ) {
 				e.printStackTrace();
