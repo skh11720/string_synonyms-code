@@ -268,6 +268,7 @@ public class EstimationTest extends AlgorithmTemplate {
 				query.oneSideJoin );
 
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
+			System.out.println( "maxSearch: " + maxSearchedEstNumRecords + " " + maxIndexedEstNumRecords );
 			joinMHRequired = false;
 		}
 
