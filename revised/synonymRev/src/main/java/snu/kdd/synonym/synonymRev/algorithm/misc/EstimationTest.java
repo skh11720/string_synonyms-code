@@ -159,10 +159,10 @@ public class EstimationTest extends AlgorithmTemplate {
 		// Synthetic
 		int[] SyntheticRange = { 1, 2, 3, 4, 6, 8, 9, 12, 16, 18, 24, 54 };
 
-		range = SPROTRange;
+		range = USPSRange;
 
-		runMinNaive( query, args );
-		// runMHNaive( query, args );
+		// runMinNaive( query, args );
+		runMHNaive( query, args );
 	}
 
 	public void runMHNaive( Query query, String[] args ) throws IOException, ParseException {
