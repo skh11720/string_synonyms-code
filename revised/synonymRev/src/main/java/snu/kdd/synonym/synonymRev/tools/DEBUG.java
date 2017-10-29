@@ -21,7 +21,7 @@ public class DEBUG {
 	public static final boolean PrintNaiveIndexON = false;
 	public static final boolean PrintJoinMinIndexON = false;
 	public static final boolean PrintJoinMinJoinON = false;
-	public static final boolean PrintEstimationON = false;
+	public static final boolean PrintEstimationON = true;
 
 	public static final boolean ValidateON = false;
 	public static final boolean SampleStatON = false;
