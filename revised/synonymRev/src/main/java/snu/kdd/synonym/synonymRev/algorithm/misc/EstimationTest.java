@@ -513,6 +513,7 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		if( DEBUG.PrintEstimationON ) {
 			try {
+				System.out.println( "joinMH: " + joinMHIdx );
 				bwEstimation.write( "[Theta] " + joinmhJointime / (double) joinMHIdx.predictCount );
 				bwEstimation.write( " JoinTime " + joinmhJointime );
 				bwEstimation.write( " PredictedCount " + joinMHIdx.predictCount );
