@@ -190,6 +190,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 
 		for( int idx : this.range ) {
+
 			actualJoinMHNaiveThreshold( idx );
 		}
 
@@ -268,7 +269,8 @@ public class EstimationTest extends AlgorithmTemplate {
 				query.oneSideJoin );
 
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
-			System.out.println( "maxSearch: " + maxSearchedEstNumRecords + " " + maxIndexedEstNumRecords );
+			System.out.println(
+					"maxSearch: " + maxSearchedEstNumRecords + " " + maxIndexedEstNumRecords + " join " + joinThreshold );
 			joinMHRequired = false;
 		}
 
@@ -473,9 +475,9 @@ public class EstimationTest extends AlgorithmTemplate {
 			}
 		}
 
-		if( joinMHRequired ) {
-			buildJoinMHIndex( joinThreshold );
-		}
+		// if( joinMHRequired ) {
+		buildJoinMHIndex( joinThreshold );
+		// }
 		if( DEBUG.JoinMHNaiveON ) {
 			if( joinMHRequired ) {
 				// stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMHIndex.gamma ) );
@@ -514,12 +516,10 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		if( DEBUG.PrintEstimationON ) {
 			try {
-				if( joinMHRequired ) {
-					bwEstimation.write( "[Theta] " + joinmhJointime / (double) joinMHIdx.predictCount );
-					bwEstimation.write( " JoinTime " + joinmhJointime );
-					bwEstimation.write( " PredictedCount " + joinMHIdx.predictCount );
-					bwEstimation.write( " ActualCount " + joinMHIdx.equivComparisons + "\n" );
-				}
+				bwEstimation.write( "[Theta] " + joinmhJointime / (double) joinMHIdx.predictCount );
+				bwEstimation.write( " JoinTime " + joinmhJointime );
+				bwEstimation.write( " PredictedCount " + joinMHIdx.predictCount );
+				bwEstimation.write( " ActualCount " + joinMHIdx.equivComparisons + "\n" );
 			}
 			catch( Exception e ) {
 				e.printStackTrace();
