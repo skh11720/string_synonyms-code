@@ -1,8 +1,8 @@
 package snu.kdd.synonym.synonymRev.algorithm.misc;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
 
 import org.apache.commons.cli.ParseException;
 
@@ -42,6 +42,8 @@ public class PrintManyEstimated extends AlgorithmTemplate {
 
 		preprocess();
 
+		BufferedWriter bw = new BufferedWriter( new FileWriter( "new_aol.txt" ) );
+
 		for( Record x : query.searchedSet.get() ) {
 			if( x.getEstNumTransformed() > 10000000 ) {
 				System.out.println( x );
@@ -56,6 +58,10 @@ public class PrintManyEstimated extends AlgorithmTemplate {
 				}
 
 				System.out.println( "\n" );
+			}
+			else {
+				bw.write( x.toString() );
+				bw.write( "\n" );
 			}
 		}
 	}
