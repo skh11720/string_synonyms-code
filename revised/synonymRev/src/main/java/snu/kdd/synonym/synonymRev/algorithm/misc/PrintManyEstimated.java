@@ -45,7 +45,7 @@ public class PrintManyEstimated extends AlgorithmTemplate {
 		BufferedWriter bw = new BufferedWriter( new FileWriter( "new_aol.txt" ) );
 
 		for( Record x : query.searchedSet.get() ) {
-			if( x.getEstNumTransformed() > 10000000 ) {
+			if( x.getEstNumTransformed() > 1000000 ) {
 				System.out.println( x );
 
 				for( int i = 0; i < x.applicableRules.length; i++ ) {
