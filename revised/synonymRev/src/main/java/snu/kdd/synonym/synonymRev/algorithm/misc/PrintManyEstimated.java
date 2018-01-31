@@ -45,6 +45,15 @@ public class PrintManyEstimated extends AlgorithmTemplate {
 		for( Record x : query.searchedSet.get() ) {
 			if( x.getEstNumTransformed() > 10000000 ) {
 				System.out.println( x );
+
+				for( int i = 0; i < x.applicableRules.length; i++ ) {
+					System.out.println( i );
+					for( int j = 0; j < x.applicableRules[ i ].length; j++ ) {
+						System.out.println( x.applicableRules[ i ][ j ] );
+					}
+				}
+
+				System.out.println( "\n" );
 			}
 		}
 	}

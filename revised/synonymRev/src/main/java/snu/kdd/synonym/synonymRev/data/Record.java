@@ -27,7 +27,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	private int[] tokens;
 	private int id;
 
-	protected Rule[][] applicableRules = null;
+	public Rule[][] applicableRules = null;
 	protected int[][] transformLengths = null;
 
 	private long[] estTrans;
