@@ -29,6 +29,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
+import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -163,9 +164,13 @@ public class App {
 		case SIJoin:
 			alg = new SIJoin( query, stat );
 			break;
-			
+
 		case EquivTest:
 			alg = new EquivTest( query, stat );
+			break;
+
+		case EstimatedOut:
+			alg = new PrintManyEstimated( query, stat );
 			break;
 
 		default:

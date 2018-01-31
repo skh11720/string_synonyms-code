@@ -35,6 +35,7 @@ public abstract class AlgorithmTemplate {
 		JoinHybridAll,
 		SIJoin,
 		EquivTest,
+		EstimatedOut,
 		EstimationTest,
 	}
 
