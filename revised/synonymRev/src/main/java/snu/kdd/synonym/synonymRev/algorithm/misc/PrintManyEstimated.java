@@ -49,7 +49,9 @@ public class PrintManyEstimated extends AlgorithmTemplate {
 				for( int i = 0; i < x.applicableRules.length; i++ ) {
 					System.out.println( i );
 					for( int j = 0; j < x.applicableRules[ i ].length; j++ ) {
-						System.out.println( x.applicableRules[ i ][ j ] );
+						if( !x.applicableRules[ i ][ j ].isSelfRule() ) {
+							System.out.println( x.applicableRules[ i ][ j ].toOriginalString( query.tokenIndex ) );
+						}
 					}
 				}
 
