@@ -1004,6 +1004,7 @@ public class SampleEstimate {
 		double currExpLengthSize = 0;
 
 		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
+			// index 될 record 
 			Record rec = sampleIndexedList.get( recId );
 
 			if( oneSideJoin ) {
