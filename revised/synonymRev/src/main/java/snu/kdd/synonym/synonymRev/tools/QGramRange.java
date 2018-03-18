@@ -25,7 +25,7 @@ public class QGramRange {
 		}
 
 		if( ( this.min == oip.min ) && ( this.max == oip.max ) ) {
-			return this.qgram.equals( oip );
+			return this.qgram.equals( oip.qgram );
 		}
 		else {
 			return false;

@@ -16,8 +16,8 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 public class PrintManyEstimated extends AlgorithmTemplate {
 	Validator val;
 
-	public PrintManyEstimated( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
+	public PrintManyEstimated(Query query, StatContainer stat) throws IOException {
+		super(query, stat);
 	}
 
 	public void preprocess() {
@@ -35,34 +35,34 @@ public class PrintManyEstimated extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		Param params = Param.parseArgs( args, stat, query );
+	public void run(Query query, String[] args) throws IOException, ParseException {
+		Param params = Param.parseArgs(args, stat, query);
 
 		val = params.validator;
 
 		preprocess();
 
-		BufferedWriter bw = new BufferedWriter( new FileWriter( "new_aol.txt" ) );
+		BufferedWriter bw = new BufferedWriter(new FileWriter("new_aol.txt"));
 
-		for( Record x : query.searchedSet.get() ) {
-			if( x.getEstNumTransformed() > 1000000 ) {
-				System.out.println( x );
+		for (Record x : query.searchedSet.get()) {
+			if (x.getEstNumTransformed() > 1000000) {
+				System.out.println(x);
 
-				for( int i = 0; i < x.applicableRules.length; i++ ) {
-					System.out.println( i );
-					for( int j = 0; j < x.applicableRules[ i ].length; j++ ) {
-						if( !x.applicableRules[ i ][ j ].isSelfRule() ) {
-							System.out.println( x.applicableRules[ i ][ j ].toOriginalString( query.tokenIndex ) );
+				for (int i = 0; i < x.applicableRules.length; i++) {
+					System.out.println(i);
+					for (int j = 0; j < x.applicableRules[i].length; j++) {
+						if (!x.applicableRules[i][j].isSelfRule()) {
+							System.out.println(x.applicableRules[i][j].toOriginalString(query.tokenIndex));
 						}
 					}
 				}
 
-				System.out.println( "\n" );
-			}
-			else {
-				bw.write( x.toString() );
-				bw.write( "\n" );
+				System.out.println("\n");
+			} else {
+				bw.write(x.toString());
+				bw.write("\n");
 			}
 		}
+		bw.close();
 	}
 }

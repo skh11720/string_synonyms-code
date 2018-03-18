@@ -69,36 +69,36 @@ public class JoinMinRangeIndex {
 
 		public Int2IntOpenHashMap rangeToCount;
 
-		public RangeCount( int min, int max ) {
-			int size = ( max - min ) * 2;
-			if( size < 10 ) {
+		public RangeCount(int min, int max) {
+			int size = (max - min) * 2;
+			if (size < 10) {
 				size = 10;
 			}
-			rangeToCount = new Int2IntOpenHashMap( size );
-			increase( min, max );
+			rangeToCount = new Int2IntOpenHashMap(size);
+			increase(min, max);
 		}
 
-		public void increase( int min, int max ) {
-			for( int i = min; i <= max; i++ ) {
-				increaseOne( i );
+		public void increase(int min, int max) {
+			for (int i = min; i <= max; i++) {
+				increaseOne(i);
 			}
 		}
 
-		public void increaseOne( int x ) {
-			int count = rangeToCount.get( x );
-			rangeToCount.put( x, count + 1 );
+		public void increaseOne(int x) {
+			int count = rangeToCount.get(x);
+			rangeToCount.put(x, count + 1);
 		}
 
-		public int getCount( int x ) {
-			return rangeToCount.get( x );
+		public int getCount(int x) {
+			return rangeToCount.get(x);
 		}
 	}
 
-	public JoinMinRangeIndex( int nIndex, int qSize, StatContainer stat, Query query, boolean writeResult ) {
+	public JoinMinRangeIndex(int nIndex, int qSize, StatContainer stat, Query query, boolean writeResult) {
 		this.idx = new WYK_HashMap<QGram, List<RecordInt>>();
 		this.qSize = qSize;
 
-		if( DEBUG.JoinMinIndexON ) {
+		if (DEBUG.JoinMinIndexON) {
 			this.countPerPosition = new ArrayList<Integer>();
 		}
 
@@ -112,42 +112,40 @@ public class JoinMinRangeIndex {
 
 		BufferedWriter bw_debug_count = null;
 
-		if( DEBUG.PrintJoinMinIndexON ) {
+		if (DEBUG.PrintJoinMinIndexON) {
 			try {
-				bw_debug_count = new BufferedWriter( new FileWriter( "JoinMinRange_Index_Count_Debug.txt" ) );
-			}
-			catch( IOException e ) {
+				bw_debug_count = new BufferedWriter(new FileWriter("JoinMinRange_Index_Count_Debug.txt"));
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_1_Index_Count_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted("Result_3_1_1_Index_Count_Time");
 		// count number of occurrence of a positional q-grams
 		long recordStartTime = 0;
 		long recordMidTime = 0;
 
-		for( Record rec : query.searchedSet.get() ) {
-			if( DEBUG.JoinMinON ) {
+		for (Record rec : query.searchedSet.get()) {
+			if (DEBUG.JoinMinON) {
 				recordStartTime = System.nanoTime();
 			}
 
-			List<QGramRange> availableQGrams = rec.getQGramRange( qSize );
+			List<QGramRange> availableQGrams = rec.getQGramRange(qSize);
 
-			if( DEBUG.JoinMinON ) {
+			if (DEBUG.JoinMinON) {
 				recordMidTime = System.nanoTime();
 				getQGramTime += recordMidTime - recordStartTime;
 			}
 
 			long qgramCount = 0;
-			for( QGramRange qgram : availableQGrams ) {
+			for (QGramRange qgram : availableQGrams) {
 				qgramCount += qgram.max - qgram.min + 1;
 
-				RangeCount count = invokes.get( qgram.qgram );
-				if( count == null ) {
-					invokes.put( qgram.qgram, new RangeCount( qgram.min, qgram.max ) );
-				}
-				else {
-					count.increase( qgram.min, qgram.max );
+				RangeCount count = invokes.get(qgram.qgram);
+				if (count == null) {
+					invokes.put(qgram.qgram, new RangeCount(qgram.min, qgram.max));
+				} else {
+					count.increase(qgram.min, qgram.max);
 				}
 
 				// if( DEBUG.JoinMinIndexON ) {
@@ -163,41 +161,39 @@ public class JoinMinRangeIndex {
 			}
 			this.searchedTotalSigCount += qgramCount;
 
-			if( DEBUG.JoinMinON ) {
+			if (DEBUG.JoinMinON) {
 				countIndexingTime += System.nanoTime() - recordMidTime;
 			}
 
-			if( DEBUG.PrintJoinMinIndexON ) {
+			if (DEBUG.PrintJoinMinIndexON) {
 				try {
-					bw_debug_count.write( qgramCount + " " );
-					bw_debug_count.write( recordMidTime - recordStartTime + " " );
-					bw_debug_count.write( "\n" );
-				}
-				catch( IOException e ) {
+					bw_debug_count.write(qgramCount + " ");
+					bw_debug_count.write(recordMidTime - recordStartTime + " ");
+					bw_debug_count.write("\n");
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
 
-		if( DEBUG.PrintJoinMinIndexON ) {
+		if (DEBUG.PrintJoinMinIndexON) {
 			ObjectIterator<Entry<QGram, RangeCount>> iter = invokes.entrySet().iterator();
 			try {
-				while( iter.hasNext() ) {
+				while (iter.hasNext()) {
 					Entry<QGram, RangeCount> entry = iter.next();
 					RangeCount c = entry.getValue();
 					QGram q = entry.getKey();
 
-					ObjectIterator<it.unimi.dsi.fastutil.ints.Int2IntMap.Entry> count_iter = c.rangeToCount.int2IntEntrySet()
-							.iterator();
-					while( count_iter.hasNext() ) {
+					ObjectIterator<it.unimi.dsi.fastutil.ints.Int2IntMap.Entry> count_iter = c.rangeToCount
+							.int2IntEntrySet().iterator();
+					while (count_iter.hasNext()) {
 
-						bw_debug_count.write( "Inv: " + q + " " + count_iter.next() + "\n" );
+						bw_debug_count.write("Inv: " + q + " " + count_iter.next() + "\n");
 
 					}
 				}
 				bw_debug_count.close();
-			}
-			catch( IOException e ) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -206,40 +202,38 @@ public class JoinMinRangeIndex {
 		this.countTime = System.nanoTime() - starttime;
 		this.gamma = this.countTime / this.searchedTotalSigCount;
 
-		if( DEBUG.JoinMinON ) {
-			Util.printLog( "Step 1 Time : " + this.countTime );
-			Util.printLog( "Gamma (buildTime / signature): " + this.gamma );
+		if (DEBUG.JoinMinON) {
+			Util.printLog("Step 1 Time : " + this.countTime);
+			Util.printLog("Gamma (buildTime / signature): " + this.gamma);
 
-			if( writeResult ) {
-				stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
-				stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
+			if (writeResult) {
+				stat.add("Est_Index_0_GetQGramTime", getQGramTime);
+				stat.add("Est_Index_0_CountIndexingTime", countIndexingTime);
 
-				stat.add( "Est_Index_1_Index_Count_Time", this.countTime );
-				stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( this.gamma ) );
+				stat.add("Est_Index_1_Index_Count_Time", this.countTime);
+				stat.add("Est_Index_1_Time_Per_Sig", Double.toString(this.gamma));
 			}
 		}
 
 		starttime = System.nanoTime();
 
-		if( writeResult ) {
-			stepTime.stopAndAdd( stat );
-		}
-		else {
+		if (writeResult) {
+			stepTime.stopAndAdd(stat);
+		} else {
 			stepTime.stop();
 		}
 
 		BufferedWriter bw_index = null;
 
-		if( DEBUG.PrintJoinMinIndexON ) {
+		if (DEBUG.PrintJoinMinIndexON) {
 			try {
-				bw_index = new BufferedWriter( new FileWriter( "JoinMinRange_Index_Content.txt" ) );
-			}
-			catch( IOException e ) {
+				bw_index = new BufferedWriter(new FileWriter("JoinMinRange_Index_Content.txt"));
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 
-		stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
+		stepTime.resetAndStart("Result_3_1_2_Indexing_Time");
 
 		this.predictCount = 0;
 		long indexedElements = 0;
@@ -247,198 +241,190 @@ public class JoinMinRangeIndex {
 		// find best K positions for each string in T
 		indexedCountMap = new Object2IntOpenHashMap<>();
 		estimatedCountMap = new Object2IntOpenHashMap<>();
-		for( Record rec : query.indexedSet.get() ) {
+		for (Record rec : query.indexedSet.get()) {
 
-			int searchmax = Math.min( rec.getMinTransLength(), invokes.size() );
+			int searchmax = Math.min(rec.getMinTransLength(), invokes.size());
 
 			List<QGramRange> availableQGrams = null;
 
-			if( query.oneSideJoin ) {
-				availableQGrams = rec.getSelfQGramsWithRange( qSize );
-			}
-			else {
-				availableQGrams = rec.getQGramRange( qSize );
+			if (query.oneSideJoin) {
+				availableQGrams = rec.getSelfQGramsWithRange(qSize);
+			} else {
+				availableQGrams = rec.getQGramRange(qSize);
 			}
 
-			for( QGramRange qgram : availableQGrams ) {
+			for (QGramRange qgram : availableQGrams) {
 				this.indexedTotalSigCount += qgram.max - qgram.min + 1;
 			}
 
-			MinPositionQueue mpq = new MinPositionQueue( nIndex );
+			MinPositionQueue mpq = new MinPositionQueue(nIndex);
 
-			int[] positionalCount = new int[ searchmax ];
-			for( QGramRange qgramRange : availableQGrams ) {
+			int[] positionalCount = new int[searchmax];
+			for (QGramRange qgramRange : availableQGrams) {
 				// There is no invocation count: this is the minimum point
-				RangeCount range = invokes.get( qgramRange.qgram );
-				if( range != null ) {
-					for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
-						if( i >= searchmax ) {
+				RangeCount range = invokes.get(qgramRange.qgram);
+				if (range != null) {
+					for (int i = qgramRange.min; i <= qgramRange.max; i++) {
+						if (i >= searchmax) {
 							break;
 						}
-						int c = range.getCount( i );
-						positionalCount[ i ] += c;
+						int c = range.getCount(i);
+						positionalCount[i] += c;
 					}
 				}
 			}
 
-			for( int i = 0; i < searchmax; i++ ) {
-				if( DEBUG.PrintJoinMinIndexON ) {
+			for (int i = 0; i < searchmax; i++) {
+				if (DEBUG.PrintJoinMinIndexON) {
 					try {
-						bw_index.write( "pos " + i + " " + positionalCount[ i ] + "\n" );
-					}
-					catch( IOException e ) {
+						bw_index.write("pos " + i + " " + positionalCount[i] + "\n");
+					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
-				mpq.add( i, positionalCount[ i ] );
+				mpq.add(i, positionalCount[i]);
 			}
 
 			this.predictCount += mpq.minInvokes;
 
 			int indexedCount = 0;
-			int[] indexedPosition = new int[ mpq.size() ];
-			double[] candidateCount = new double[ mpq.size() ];
+			int[] indexedPosition = new int[mpq.size()];
+			double[] candidateCount = new double[mpq.size()];
 			int p = 0;
-			while( !mpq.isEmpty() ) {
+			while (!mpq.isEmpty()) {
 				indexedCount++;
 				MinPosition minPos = mpq.poll();
-				indexedPosition[ p ] = minPos.positionIndex;
-				candidateCount[ p ] = minPos.candidateCount;
+				indexedPosition[p] = minPos.positionIndex;
+				candidateCount[p] = minPos.candidateCount;
 
-				if( maxPosition < minPos.positionIndex ) {
+				if (maxPosition < minPos.positionIndex) {
 					maxPosition = minPos.positionIndex;
 				}
 
-				if( DEBUG.PrintJoinMinIndexON ) {
+				if (DEBUG.PrintJoinMinIndexON) {
 
 					try {
-						bw_index.write( minPos.positionIndex + " " + minPos.candidateCount + "\n" );
-					}
-					catch( IOException e ) {
+						bw_index.write(minPos.positionIndex + " " + minPos.candidateCount + "\n");
+					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
 				p++;
 			}
 
-			Arrays.sort( indexedPosition );
-			if( DEBUG.PrintJoinMinIndexON ) {
+			Arrays.sort(indexedPosition);
+			if (DEBUG.PrintJoinMinIndexON) {
 				try {
-					bw_index.write( "indexed " + Arrays.toString( indexedPosition ) + "\n" );
-				}
-				catch( IOException e ) {
+					bw_index.write("indexed " + Arrays.toString(indexedPosition) + "\n");
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 
-			for( QGramRange qgramRange : availableQGrams ) {
+			for (QGramRange qgramRange : availableQGrams) {
 				// since indexedPosition is sorted by ascending order,
 				// if minIdx > qgramRange.max, we skip the qgramRange
-				if( DEBUG.PrintJoinMinIndexON ) {
+				if (DEBUG.PrintJoinMinIndexON) {
 					try {
-						bw_index.write( "qgramRange " + qgramRange.qgram + " " + qgramRange.min + " " + qgramRange.max + "\n" );
-					}
-					catch( IOException e ) {
+						bw_index.write(
+								"qgramRange " + qgramRange.qgram + " " + qgramRange.min + " " + qgramRange.max + "\n");
+					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
-				for( int minIdx : indexedPosition ) {
+				for (int minIdx : indexedPosition) {
 					// write2File(bw, minIdx, twogram, rec.getID());
 
-					if( minIdx > qgramRange.max ) {
+					if (minIdx > qgramRange.max) {
 						break;
-					}
-					else if( qgramRange.min <= minIdx ) {
-						if( DEBUG.PrintJoinMinIndexON ) {
+					} else if (qgramRange.min <= minIdx) {
+						if (DEBUG.PrintJoinMinIndexON) {
 							try {
-								bw_index.write( minIdx + ", " + qgramRange.qgram + " : " + rec + " " + "\n" );
-							}
-							catch( IOException e ) {
+								bw_index.write(minIdx + ", " + qgramRange.qgram + " : " + rec + " " + "\n");
+							} catch (IOException e) {
 								e.printStackTrace();
 							}
 						}
 
-						this.put( minIdx, qgramRange.qgram, rec );
-						if( DEBUG.JoinMinON ) {
+						this.put(minIdx, qgramRange.qgram, rec);
+						if (DEBUG.JoinMinON) {
 							indexedElements += 1;
 						}
 					}
 				}
 			}
 
-			indexedCountMap.put( rec, indexedCount );
+			indexedCountMap.put(rec, indexedCount);
 		}
 
 		this.indexTime = System.nanoTime() - starttime;
 		this.delta = this.indexTime / this.indexedTotalSigCount;
 
-		if( writeResult ) {
-			stepTime.stopAndAdd( stat );
-		}
-		else {
+		if (writeResult) {
+			stepTime.stopAndAdd(stat);
+		} else {
 			stepTime.stop();
 		}
 
-		if( DEBUG.JoinMinON ) {
-			Util.printLog( "Idx size : " + indexedElements );
-			Util.printLog( "Predict : " + this.predictCount );
-			Util.printLog( "Step 2 Time : " + this.indexTime );
-			Util.printLog( "Delta (index build / signature ): " + this.delta );
+		if (DEBUG.JoinMinON) {
+			Util.printLog("Idx size : " + indexedElements);
+			Util.printLog("Predict : " + this.predictCount);
+			Util.printLog("Step 2 Time : " + this.indexTime);
+			Util.printLog("Delta (index build / signature ): " + this.delta);
 
-			if( writeResult ) {
-				stat.add( "Stat_JoinMin_Index_Size", indexedElements );
-				stat.add( "Stat_Predicted_Comparison", this.predictCount );
+			if (writeResult) {
+				stat.add("Stat_JoinMin_Index_Size", indexedElements);
+				stat.add("Stat_Predicted_Comparison", this.predictCount);
 
-				stat.add( "Est_Index_2_Build_Index_Time", this.indexTime );
-				stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( this.delta ) );
+				stat.add("Est_Index_2_Build_Index_Time", this.indexTime);
+				stat.add("Est_Index_2_Time_Per_Sig", Double.toString(this.delta));
 			}
 		}
 
-		if( DEBUG.PrintJoinMinIndexON ) {
+		if (DEBUG.PrintJoinMinIndexON) {
 			try {
 				bw_index.close();
-			}
-			catch( IOException e ) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 
-		if( writeResult ) {
-			this.addStat( stat );
-			stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
-			stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
+		if (writeResult) {
+			this.addStat(stat);
+			stat.add("Counter_Index_1_HashCollision", WYK_HashSet.collision);
+			stat.add("Counter_Index_1_HashResize", WYK_HashSet.resize);
 		}
 		invokes.clear();
 	}
 
-	public void addStat( StatContainer stat ) {
-		if( DEBUG.JoinMinIndexON ) {
-			for( int i = 0; i < countPerPosition.size(); i++ ) {
-				stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
+	public void addStat(StatContainer stat) {
+		if (DEBUG.JoinMinIndexON) {
+			for (int i = 0; i < countPerPosition.size(); i++) {
+				stat.add(String.format("Stat_JoinMin_COUNT%02d", i), countPerPosition.get(i));
 			}
 		}
 	}
 
-	public void put( int position, QGram qgram, Record rec ) {
-		List<RecordInt> list = idx.get( qgram );
+	public void put(int position, QGram qgram, Record rec) {
+		List<RecordInt> list = idx.get(qgram);
 
-		if( list == null ) {
+		if (list == null) {
 			list = new ArrayList<RecordInt>();
-			idx.put( qgram, list );
+			idx.put(qgram, list);
 		}
 
-		list.add( new RecordInt( rec, position ) );
+		list.add(new RecordInt(rec, position));
 	}
 
 	// utilizes k positions
-	public List<IntegerPair> joinMaxK( int indexK, boolean writeResult, StatContainer stat, Validator checker, Query query ) {
+	public List<IntegerPair> joinMaxK(int indexK, boolean writeResult, StatContainer stat, Validator checker,
+			Query query) {
 		BufferedWriter bw = null;
 
-		if( DEBUG.PrintJoinMinJoinON ) {
+		if (DEBUG.PrintJoinMinJoinON) {
 			try {
-				bw = new BufferedWriter( new FileWriter( "JoinMinRange_Join_Debug.txt" ) );
-			}
-			catch( Exception e ) {
+				bw = new BufferedWriter(new FileWriter("JoinMinRange_Join_Debug.txt"));
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -446,10 +432,10 @@ public class JoinMinRangeIndex {
 		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
 		long joinStartTime = System.nanoTime();
-		for( Record recS : query.searchedSet.get() ) {
+		for (Record recS : query.searchedSet.get()) {
 			// long startTime = System.currentTimeMillis();
 
-			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
+			joinRecordMaxK(indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin);
 
 			// long executionTime = System.currentTimeMillis() - startTime;
 			// if( executionTime > 0 ) {
@@ -458,22 +444,21 @@ public class JoinMinRangeIndex {
 		}
 		joinTime = System.nanoTime() - joinStartTime;
 
-		if( DEBUG.PrintJoinMinJoinON ) {
+		if (DEBUG.PrintJoinMinJoinON) {
 			try {
 				bw.close();
-			}
-			catch( IOException e ) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 
-		if( comparisonCount == 0 ) {
+		if (comparisonCount == 0) {
 			// To avoid NaN
 			comparisonCount = 1;
 		}
 
-		if( predictCount == 0 ) {
-			Util.printLog( "Warning: predictCount is zero" );
+		if (predictCount == 0) {
+			Util.printLog("Warning: predictCount is zero");
 			predictCount = 1;
 		}
 		epsilon = joinTime / predictCount;
@@ -481,29 +466,28 @@ public class JoinMinRangeIndex {
 		// DEBUG
 		epsilonPrime = joinTime / comparisonCount;
 
-		if( DEBUG.JoinMinON ) {
-			Util.printLog( "Est weight : " + comparisonCount );
-			Util.printLog( "Join time : " + joinTime );
-			Util.printLog( "Epsilon : " + epsilon );
+		if (DEBUG.JoinMinON) {
+			Util.printLog("Est weight : " + comparisonCount);
+			Util.printLog("Join time : " + joinTime);
+			Util.printLog("Epsilon : " + epsilon);
 
-			if( writeResult ) {
+			if (writeResult) {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
-				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
-				stat.add( "Stat_Length_Filtered", lengthFiltered );
-				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime / 1000000 );
+				stat.add("Est_Join_0_GetQGramTime", getQGramTime);
+				stat.add("Stat_Length_Filtered", lengthFiltered);
+				stat.add("Result_3_2_1_Equiv_Checking_Time", comparisonTime / 1000000);
 			}
 		}
 
-		if( writeResult ) {
-			stat.add( "Stat_Equiv_Comparison", equivComparisons );
-			stat.add( "Join_Min_Result", rslt.size() );
+		if (writeResult) {
+			stat.add("Stat_Equiv_Comparison", equivComparisons);
+			stat.add("Join_Min_Result", rslt.size());
 		}
 
-		if( DEBUG.PrintJoinMinJoinON ) {
+		if (DEBUG.PrintJoinMinJoinON) {
 			try {
 				bw.close();
-			}
-			catch( Exception e ) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -511,17 +495,17 @@ public class JoinMinRangeIndex {
 		return rslt;
 	}
 
-	public void joinRecord( Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker,
-			boolean oneSideJoin ) {
+	public void joinRecord(Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
+			Validator checker, boolean oneSideJoin) {
 		long qgramStartTime = 0;
 		long joinStartTime = 0;
 		long qgramCount = 0;
 
-		if( DEBUG.JoinMinIndexON ) {
+		if (DEBUG.JoinMinIndexON) {
 			qgramStartTime = System.nanoTime();
 		}
 
-		List<QGramRange> availableQGrams = recS.getQGramRange( qSize );
+		List<QGramRange> availableQGrams = recS.getQGramRange(qSize);
 
 		// DEBUG
 		// boolean debug = false;
@@ -529,20 +513,20 @@ public class JoinMinRangeIndex {
 		// debug = true;
 		// }
 
-		if( DEBUG.JoinMinON ) {
+		if (DEBUG.JoinMinON) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
 		}
 
 		int[] range = recS.getTransLengths();
 
-		if( DEBUG.PrintJoinMinJoinON ) {
+		if (DEBUG.PrintJoinMinJoinON) {
 			joinStartTime = System.nanoTime();
 		}
 
 		Set<Record> candidates = new WYK_HashSet<Record>();
 
-		for( QGramRange qgramRange : availableQGrams ) {
-			if( DEBUG.PrintJoinMinJoinON ) {
+		for (QGramRange qgramRange : availableQGrams) {
+			if (DEBUG.PrintJoinMinJoinON) {
 				qgramCount++;
 			}
 
@@ -550,31 +534,28 @@ public class JoinMinRangeIndex {
 			// System.out.println( "D " + qgram );
 			// }
 
-			List<RecordInt> tree = idx.get( qgramRange.qgram );
+			List<RecordInt> tree = idx.get(qgramRange.qgram);
 
-			if( tree == null ) {
+			if (tree == null) {
 				continue;
 			}
 
-			for( RecordInt e : tree ) {
-				if( qgramRange.min <= e.index && e.index <= qgramRange.max ) {
-					if( oneSideJoin ) {
+			for (RecordInt e : tree) {
+				if (qgramRange.min <= e.index && e.index <= qgramRange.max) {
+					if (oneSideJoin) {
 						int eTokenCount = e.record.getTokenCount();
-						if( StaticFunctions.overlap( eTokenCount, eTokenCount, range[ 0 ], range[ 1 ] ) ) {
-							candidates.add( e.record );
+						if (StaticFunctions.overlap(eTokenCount, eTokenCount, range[0], range[1])) {
+							candidates.add(e.record);
 							comparisonCount++;
-						}
-						else {
+						} else {
 							lengthFiltered++;
 						}
-					}
-					else {
+					} else {
 						int[] eTransLength = e.record.getTransLengths();
-						if( StaticFunctions.overlap( eTransLength[ 0 ], eTransLength[ 1 ], range[ 0 ], range[ 1 ] ) ) {
-							candidates.add( e.record );
+						if (StaticFunctions.overlap(eTransLength[0], eTransLength[1], range[0], range[1])) {
+							candidates.add(e.record);
 							comparisonCount++;
-						}
-						else {
+						} else {
 							lengthFiltered++;
 						}
 					}
@@ -582,7 +563,7 @@ public class JoinMinRangeIndex {
 			}
 
 			equivComparisons += candidates.size();
-			for( Record recR : candidates ) {
+			for (Record recR : candidates) {
 				// long ruleiters = 0;
 				// long reccalls = 0;
 				// long entryiters = 0;
@@ -594,10 +575,11 @@ public class JoinMinRangeIndex {
 				// }
 
 				long st = System.nanoTime();
-				int compare = checker.isEqual( recS, recR );
+				int compare = checker.isEqual(recS, recR);
 
 				// if( debug ) {
-				// System.out.println( "comp " + recR.toString() + " " + recR.getID() + " " + recS.toString() + " "
+				// System.out.println( "comp " + recR.toString() + " " + recR.getID() + " " +
+				// recS.toString() + " "
 				// + recS.getID() + " " + compare );
 				// }
 
@@ -610,93 +592,90 @@ public class JoinMinRangeIndex {
 				// }
 
 				comparisonTime += duration;
-				if( compare >= 0 ) {
-					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+				if (compare >= 0) {
+					rslt.add(new IntegerPair(recS.getID(), recR.getID()));
 					appliedRulesSum += compare;
 				}
 			}
 		}
 
-		if( DEBUG.PrintJoinMinJoinON ) {
+		if (DEBUG.PrintJoinMinJoinON) {
 			long joinTime = System.nanoTime() - joinStartTime;
 
 			try {
-				bw.write( "" + qgramCount );
-				bw.write( " " + joinTime );
-				bw.write( "\n" );
-			}
-			catch( IOException e ) {
+				bw.write("" + qgramCount);
+				bw.write(" " + joinTime);
+				bw.write("\n");
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	public void joinRecordMaxK( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
-			Validator checker, boolean oneSideJoin ) {
+	public void joinRecordMaxK(int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
+			Validator checker, boolean oneSideJoin) {
 		long qgramStartTime = 0;
 		long joinStartTime = 0;
 		long qgramCount = 0;
 
-		if( DEBUG.JoinMinON ) {
+		if (DEBUG.JoinMinON) {
 			qgramStartTime = System.nanoTime();
 		}
 
-		List<QGramRange> availableQGrams = recS.getQGramRange( qSize );
+		List<QGramRange> availableQGrams = recS.getQGramRange(qSize);
 		// int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 
-		if( DEBUG.JoinMinON ) {
+		if (DEBUG.JoinMinON) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
 		}
 
 		int[] range = recS.getTransLengths();
 		ArrayList<String> debugArray = new ArrayList<String>();
-		if( DEBUG.PrintJoinMinJoinON ) {
+		if (DEBUG.PrintJoinMinJoinON) {
 			joinStartTime = System.nanoTime();
 		}
 
-		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
+		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet(nIndex, recS, estimatedCountMap.getInt(recS));
 
-		for( QGramRange qgramRange : availableQGrams ) {
-			if( DEBUG.PrintJoinMinJoinON ) {
-				for( int i = qgramRange.min; i <= qgramRange.max; i++ ) {
-					if( i > maxPosition ) {
+		for (QGramRange qgramRange : availableQGrams) {
+			if (DEBUG.PrintJoinMinJoinON) {
+				for (int i = qgramRange.min; i <= qgramRange.max; i++) {
+					if (i > maxPosition) {
 						break;
 					}
-					debugArray.add( "q :" + qgramRange.qgram + " " + i + "\n" );
+					debugArray.add("q :" + qgramRange.qgram + " " + i + "\n");
 					qgramCount++;
 				}
 			}
 
-			List<RecordInt> tree = idx.get( qgramRange.qgram );
+			List<RecordInt> tree = idx.get(qgramRange.qgram);
 
-			if( tree == null ) {
+			if (tree == null) {
 				continue;
 			}
 
-			for( RecordInt e : tree ) {
-				if( qgramRange.min <= e.index && e.index <= qgramRange.max ) {
-					if( oneSideJoin ) {
-						if( StaticFunctions.overlap( e.record.getTokenCount(), e.record.getTokenCount(), range[ 0 ],
-								range[ 1 ] ) ) {
+			for (RecordInt e : tree) {
+				if (qgramRange.min <= e.index && e.index <= qgramRange.max) {
+					if (oneSideJoin) {
+						if (StaticFunctions.overlap(e.record.getTokenCount(), e.record.getTokenCount(), range[0],
+								range[1])) {
 
-							if( DEBUG.PrintJoinMinJoinON ) {
-								debugArray.add( "Cand: " + e.record + " by " + qgramRange.qgram + " at " + e.index + "\n" );
+							if (DEBUG.PrintJoinMinJoinON) {
+								debugArray
+										.add("Cand: " + e.record + " by " + qgramRange.qgram + " at " + e.index + "\n");
 							}
-							allCandidateSet.add( e.record, e.index );
+							allCandidateSet.add(e.record, e.index);
 
 							comparisonCount++;
-						}
-						else {
+						} else {
 							lengthFiltered++;
 						}
-					}
-					else {
-						if( StaticFunctions.overlap( e.record.getMinTransLength(), e.record.getMaxTransLength(), range[ 0 ],
-								range[ 1 ] ) ) {
-							allCandidateSet.add( e.record, e.index );
+					} else {
+						if (StaticFunctions.overlap(e.record.getMinTransLength(), e.record.getMaxTransLength(),
+								range[0], range[1])) {
+							allCandidateSet.add(e.record, e.index);
 							comparisonCount++;
-						}
-						else {
+						} else {
 							lengthFiltered++;
 						}
 					}
@@ -704,17 +683,17 @@ public class JoinMinRangeIndex {
 			}
 		}
 
-		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, debugArray );
+		ArrayList<Record> candSet = allCandidateSet.getCandSet(indexedCountMap, debugArray);
 
 		equivComparisons += candSet.size();
-		for( Record recR : candSet ) {
+		for (Record recR : candSet) {
 
-			if( DEBUG.PrintJoinMinJoinON ) {
-				debugArray.add( "Test " + recR + "\n" );
+			if (DEBUG.PrintJoinMinJoinON) {
+				debugArray.add("Test " + recR + "\n");
 			}
 
 			long st = System.nanoTime();
-			int compare = checker.isEqual( recS, recR );
+			int compare = checker.isEqual(recS, recR);
 			long duration = System.nanoTime() - st;
 
 			// if( DEBUG.JoinMinON ) {
@@ -724,73 +703,68 @@ public class JoinMinRangeIndex {
 			// }
 
 			comparisonTime += duration;
-			if( compare >= 0 ) {
-				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+			if (compare >= 0) {
+				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
 				appliedRulesSum += compare;
-				if( DEBUG.PrintJoinMinJoinON ) {
-					debugArray.add( "Val " + recS + " : " + recR + "\n" );
+				if (DEBUG.PrintJoinMinJoinON) {
+					debugArray.add("Val " + recS + " : " + recR + "\n");
 				}
 
 			}
 		}
 
-		if( DEBUG.PrintJoinMinJoinON ) {
+		if (DEBUG.PrintJoinMinJoinON) {
 			long joinTime = System.nanoTime() - joinStartTime;
 
 			try {
-				Collections.sort( debugArray );
-				for( String temp : debugArray ) {
-					bw.write( temp );
+				Collections.sort(debugArray);
+				for (String temp : debugArray) {
+					bw.write(temp);
 				}
 
-				bw.write( "" + qgramCount );
-				bw.write( " " + joinTime );
-				bw.write( "\n" );
-			}
-			catch( IOException e ) {
+				bw.write("" + qgramCount);
+				bw.write(" " + joinTime);
+				bw.write("\n");
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
 	public void clear() {
-		for( int i = 0; i < idx.size(); i++ ) {
-			idx.get( i ).clear();
-		}
 		idx.clear();
 	}
 
-	public void DebugWriteToFile( String filename ) {
+	public void DebugWriteToFile(String filename) {
 		try {
-			BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
+			BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
 
-			for( Entry<QGram, List<RecordInt>> entry : idx.entrySet() ) {
-				bw.write( entry.getKey().toString() );
+			for (Entry<QGram, List<RecordInt>> entry : idx.entrySet()) {
+				bw.write(entry.getKey().toString());
 
 				List<RecordInt> list = entry.getValue();
 
-				for( int idx = 0; idx < list.size(); idx++ ) {
-					bw.write( " " + list.get( idx ).record.getID() );
+				for (int idx = 0; idx < list.size(); idx++) {
+					bw.write(" " + list.get(idx).record.getID());
 				}
-				bw.write( "\n" );
+				bw.write("\n");
 			}
 
 			bw.close();
-		}
-		catch( IOException e ) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public double estimatedCountTime( double gamma ) {
+	public double estimatedCountTime(double gamma) {
 		return gamma * searchedTotalSigCount;
 	}
 
-	public double estimatedIndexTime( double delta ) {
+	public double estimatedIndexTime(double delta) {
 		return delta * indexedTotalSigCount;
 	}
 
-	public double estimatedJoinTime( double epsilon ) {
+	public double estimatedJoinTime(double epsilon) {
 		return epsilon * predictCount;
 	}
 
@@ -800,50 +774,49 @@ public class JoinMinRangeIndex {
 		WYK_HashMap<Record, Integer> appearingMap = null;
 		WYK_HashMap<Record, IntArrayList> appearingPositionMap = null;
 
-		public JoinMinCandidateSet( int nIndex, Record rec, int predictedInvokes ) {
+		public JoinMinCandidateSet(int nIndex, Record rec, int predictedInvokes) {
 			this.nIndex = nIndex;
 
 			this.appearingPositionMap = new WYK_HashMap<Record, IntArrayList>();
-			if( predictedInvokes < 10 ) {
-				appearingMap = new WYK_HashMap<Record, Integer>( 10 );
-			}
-			else {
-				appearingMap = new WYK_HashMap<Record, Integer>( predictedInvokes * 2 );
+			if (predictedInvokes < 10) {
+				appearingMap = new WYK_HashMap<Record, Integer>(10);
+			} else {
+				appearingMap = new WYK_HashMap<Record, Integer>(predictedInvokes * 2);
 			}
 		}
 
-		public void add( Record record, int position ) {
-			IntArrayList list = appearingPositionMap.get( record );
-			if( list == null ) {
-				list = new IntArrayList( 3 );
-				list.add( position );
-				appearingPositionMap.put( record, list );
-				appearingMap.put( record, 1 );
-			}
-			else {
-				if( !list.contains( position ) ) {
-					list.add( position );
-					Integer count = appearingMap.get( record );
-					appearingMap.put( record, count + 1 );
+		public void add(Record record, int position) {
+			IntArrayList list = appearingPositionMap.get(record);
+			if (list == null) {
+				list = new IntArrayList(3);
+				list.add(position);
+				appearingPositionMap.put(record, list);
+				appearingMap.put(record, 1);
+			} else {
+				if (!list.contains(position)) {
+					list.add(position);
+					Integer count = appearingMap.get(record);
+					appearingMap.put(record, count + 1);
 				}
 			}
 		}
 
-		public ArrayList<Record> getCandSet( Object2IntOpenHashMap<Record> indexedCountMap, ArrayList<String> debugArray ) {
-			ArrayList<Record> list = new ArrayList<Record>( appearingMap.size() );
+		public ArrayList<Record> getCandSet(Object2IntOpenHashMap<Record> indexedCountMap,
+				ArrayList<String> debugArray) {
+			ArrayList<Record> list = new ArrayList<Record>(appearingMap.size());
 			Iterator<Entry<Record, Integer>> iter = appearingMap.entrySet().iterator();
 
-			while( iter.hasNext() ) {
+			while (iter.hasNext()) {
 				Entry<Record, Integer> entry = iter.next();
 
 				Record r = entry.getKey();
 
-				if( DEBUG.PrintJoinMinJoinON ) {
-					debugArray.add( r + " " + indexedCountMap.getInt( r ) + " " + entry.getValue() + "\n" );
+				if (DEBUG.PrintJoinMinJoinON) {
+					debugArray.add(r + " " + indexedCountMap.getInt(r) + " " + entry.getValue() + "\n");
 				}
 
-				if( indexedCountMap.getInt( r ) == entry.getValue() ) {
-					list.add( r );
+				if (indexedCountMap.getInt(r) == entry.getValue()) {
+					list.add(r);
 				}
 			}
 
