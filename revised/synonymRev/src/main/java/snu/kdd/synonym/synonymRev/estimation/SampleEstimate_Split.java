@@ -948,6 +948,8 @@ public class SampleEstimate_Split {
 
 	public int findThetaJoinHybridAll( int qSize, int indexK, StatContainer stat, long maxIndexedEstNumRecords,
 			long maxSearchedEstNumRecords, boolean oneSideJoin ) {
+		// TODO: fix index to use only the low entries
+		
 		// Find the best threshold
 		int bestThreshold = 0;
 		double bestEstTime = Double.MAX_VALUE;

@@ -40,7 +40,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 	private int indexK = 0;
 	private double sampleRatio = 0;
 	private int joinThreshold = 1;
-	private boolean joinQGramRequired = true;
+	private boolean joinWithQGramFilteringRequired = true;
 	private boolean joinMinSelectedForLowHigh = false;
 	private boolean joinMinSelectedForHighHigh = false;
 
@@ -134,25 +134,27 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 		joinMinSelectedForHighHigh = estimate.getJoinMinSelectedHighHigh();
 
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
-			joinQGramRequired = false;
+			joinWithQGramFilteringRequired = false;
 		}
 
 		Util.printLog( "Selected Threshold: " + joinThreshold );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 
-		if( joinQGramRequired ) {
+		if( joinWithQGramFilteringRequired ) {
 			if( joinMinSelectedForLowHigh ) {
+				// TODO: fix index to use only the low entries
 				buildJoinMinIndex();
 			}
 			else {
+				// TODO: fix index to use only the low entries
 				// joinMH selected
 				buildJoinMHIndex();
 			}
 		}
 		int joinMinResultSize = 0;
 		if( DEBUG.JoinMinNaiveON ) {
-			if( joinQGramRequired ) {
+			if( joinWithQGramFilteringRequired ) {
 				if( joinMinSelectedForLowHigh ) {
 					stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
 					stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
@@ -170,8 +172,9 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long joinstart = System.nanoTime();
-		if( joinQGramRequired ) {
+		if( joinWithQGramFilteringRequired ) {
 			if( query.oneSideJoin ) {
+				// No need to be changed
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
@@ -189,9 +192,11 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 			else {
 				for( Record s : query.searchedSet.get() ) {
 					if( joinMinSelectedForLowHigh ) {
+						// TODO: fix index to use only the low entries
 						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 					}
 					else {
+						// TODO: fix index to use only the low entries
 						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 					}
 				}
@@ -212,7 +217,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 		if( DEBUG.JoinMinNaiveON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
 			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
-			if( joinQGramRequired ) {
+			if( joinWithQGramFilteringRequired ) {
 				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
 				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
 
