@@ -1,0 +1,74 @@
+[Query]     ruleFile: data_store/rule/30000_2_2_100000_0.0_0.txt (100000)
+[Query]  indexedFile: data_store/data/1000000_5_25118_1.0_0.0_1.txt (25118)
+[Query] searchedFile: data_store/data/1000000_5_25118_1.0_0.0_2.txt (25118)
+[Query]  oneSideJoin: false
+[Query]     selfJoin: false
+2017/10/24 23:47:47 [StopWatch.stop] Result_1_Initialize_Time ran for 705ms (total: 705ms)
+2017/10/24 23:47:48 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 474ms (total: 474ms)
+2017/10/24 23:47:48 [JoinMin.statistics] Average str length: 226317/50236
+2017/10/24 23:47:48 [JoinMin.statistics] Maximum str length: 10
+2017/10/24 23:47:48 [JoinMin.statistics] Average rhs length: 150237/100000
+2017/10/24 23:47:48 [JoinMin.statistics] Maximum rhs length: 2
+2017/10/24 23:47:49 [StopWatch.stop] Result_3_1_1_Index_Count_Time ran for 1242ms (total: 1242ms)
+2017/10/24 23:47:50 [StopWatch.stop] Result_3_1_2_Indexing_Time ran for 1464ms (total: 1464ms)
+2017/10/24 23:47:50 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 2713ms (total: 2713ms)
+2017/10/24 23:47:51 [StopWatch.stop] Result_3_2_Join_Time ran for 473ms (total: 473ms)
+2017/10/24 23:47:51 [StopWatch.stop] Result_4_Write_Time ran for 1ms (total: 1ms)
+2017/10/24 23:47:51 [StopWatch.stop] Result_3_Run_Time ran for 3211ms (total: 3211ms)
+2017/10/24 23:47:51 [StopWatch.stop] Result_0_Total_Time ran for 4406ms (total: 4406ms)
+=============[JoinMin stats]=============
+Date                                 "Tue_Oct_24_23:47:47_KST_2017"
+cmd_dataOnePath                      data/1000000_5_25118_1.0_0.0_1.txt
+cmd_dataTwoPath                      data/1000000_5_25118_1.0_0.0_2.txt
+cmd_rulePath                         rule/30000_2_2_100000_0.0_0.txt
+cmd_outputPath                       output
+cmd_oneSideJoin                      False
+cmd_upload                           True
+cmd_K                                1
+cmd_qSize                            5
+Final Result Size                    10
+Result_0_Total_Time                  4406
+cmd_alg                              JoinMin
+cmd_alg_v                            2.5
+Result_1_Initialize_Time             705
+Mem_1_Initialized                    246
+Result_2_Preprocess_Total_Time       474
+Mem_2_Preprocessed                   410
+Stat_Distinct_PQ                     2351413
+Result_3_1_1_Index_Count_Time        1242
+Result_3_1_2_Indexing_Time           1464
+Counter_Index_1_HashCollision        761193
+Counter_Index_1_HashResize           0
+Stat_Index_Garbage_Collections       1
+Stat_Index_Garbage_Collections_Time  260
+Mem_3_BuildIndex                     616
+Result_3_1_Index_Building_Time       2713
+Stat_Equiv_Comparison                16
+Stat_Length_Filtered                 1
+Join_Min_Result                      10
+Result_3_2_Join_Time                 473
+Mem_4_Joined                         1058
+Result_4_Write_Time                  1
+Result_3_Run_Time                    3211
+Val_Comparisons                      16
+Val_Recursive_Calls                  33
+Val_Iter_entries                     33
+Val_Iter_rules                       107
+Val_Iter_matches                     0
+Val_Iter_tokens                      0
+Val_Early_evaled                     0
+Val_Early_stopped                    0
+Val_Length_filtered                  0
+Stat_Garbage_Collections             1
+Stat_Garbage_Collections_Time        260
+hm_getCount                          2196286
+hm_getIterCount                      812241
+hm_putCount                          561350
+hm_resizeCount                       40
+hm_removeCount                       561350
+hm_removeIterCount                   221775
+hm_putRemovedCount                   0
+hm_removeFoundCount                  0
+=========================================
+One size:501777,data_store/data/1000000_5_25118_1.0_0.0_1.txt rule size: 1989900
+2017/10/24 23:47:51 [App.main] JoinMin finished

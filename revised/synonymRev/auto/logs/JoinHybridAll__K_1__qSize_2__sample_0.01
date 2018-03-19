@@ -1,0 +1,277 @@
+[Query]     ruleFile: data_store/rule/30000_2_2_100000_0.0_0.txt (100000)
+[Query]  indexedFile: data_store/data/1000000_5_25118_1.0_0.0_1.txt (25118)
+[Query] searchedFile: data_store/data/1000000_5_25118_1.0_0.0_2.txt (25118)
+[Query]  oneSideJoin: true
+[Query]     selfJoin: false
+2017/10/21 11:28:44 [StopWatch.stop] Result_1_Initialize_Time ran for 781ms (total: 781ms)
+2017/10/21 11:28:45 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 431ms (total: 431ms)
+2017/10/21 11:28:45 [SampleEstimate.<init>] Random seed: 1508552925209
+2017/10/21 11:28:45 [SampleEstimate.<init>] 247 Searched records are sampled
+2017/10/21 11:28:45 [SampleEstimate.<init>] 247 Indexed records are sampled
+[Query]     ruleFile: rules (100000)
+[Query]  indexedFile: sampled one (247)
+[Query] searchedFile: sampled two (247)
+[Query]  oneSideJoin: true
+[Query]     selfJoin: false
+2017/10/21 11:28:45 [JoinMinIndex.joinMaxK] Warning: predictCount is zero
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 1 nT: 2 NT: 980147.93 JT: 33182534.34 TT: 34162682.27
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 1 nT: 2 NT: 980147.93 JT: 137190532.05 TT: 138170679.98
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 2 nT: 3 NT: 1012757.87 JT: 33182534.34 TT: 34195292.21
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 2 nT: 3 NT: 1012757.87 JT: 137190532.05 TT: 138203289.92
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 3 nT: 4 NT: 1050163.39 JT: 33182534.34 TT: 34232697.74
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 3 nT: 4 NT: 1050163.39 JT: 137190532.05 TT: 138240695.45
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 4 nT: 5 NT: 1115383.28 JT: 33182534.34 TT: 34297917.62
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 4 nT: 5 NT: 1115383.28 JT: 137190532.05 TT: 138305915.33
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 5 nT: 6 NT: 1129770.02 JT: 33182534.34 TT: 34312304.36
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 5 nT: 6 NT: 1129770.02 JT: 137190532.05 TT: 138320302.07
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 6 nT: 7 NT: 1256373.32 JT: 33182534.34 TT: 34438907.67
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 6 nT: 7 NT: 1256373.32 JT: 137162153.25 TT: 138418526.57
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 7 nT: 8 NT: 1263087.13 JT: 33182534.34 TT: 34445621.48
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 7 nT: 8 NT: 1263087.13 JT: 137162153.25 TT: 138425240.38
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 8 nT: 9 NT: 1378181.05 JT: 33182534.34 TT: 34560715.39
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 8 nT: 9 NT: 1378181.05 JT: 137162153.25 TT: 138540334.30
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 9 nT: 10 NT: 1447237.40 JT: 33182534.34 TT: 34629771.74
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 9 nT: 10 NT: 1447237.40 JT: 137162153.25 TT: 138609390.65
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 10 nT: 12 NT: 1514375.52 JT: 33182534.34 TT: 34696909.86
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 10 nT: 12 NT: 1514375.52 JT: 137162153.25 TT: 138676528.76
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 12 nT: 14 NT: 1733053.95 JT: 33182534.34 TT: 34915588.30
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 12 nT: 14 NT: 1733053.95 JT: 137162153.25 TT: 138895207.20
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 14 nT: 15 NT: 1786764.45 JT: 33182534.34 TT: 34969298.79
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 14 nT: 15 NT: 1786764.45 JT: 137162153.25 TT: 138948917.69
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 15 nT: 16 NT: 1829924.67 JT: 33182534.34 TT: 35012459.01
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 15 nT: 16 NT: 1829924.67 JT: 137162153.25 TT: 138992077.91
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 16 nT: 18 NT: 1952691.51 JT: 33182534.34 TT: 35135225.85
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 16 nT: 18 NT: 1952691.51 JT: 137162153.25 TT: 139114844.75
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 18 nT: 20 NT: 2039011.94 JT: 33182534.34 TT: 35221546.29
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 18 nT: 20 NT: 2039011.94 JT: 137162153.25 TT: 139201165.19
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 20 nT: 21 NT: 2154105.86 JT: 33182534.34 TT: 35336640.20
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 20 nT: 21 NT: 2154105.86 JT: 137162153.25 TT: 139316259.11
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 21 nT: 24 NT: 2214530.16 JT: 33182534.34 TT: 35397064.51
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 21 nT: 24 NT: 2214530.16 JT: 137162153.25 TT: 139376683.41
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 24 nT: 27 NT: 2536793.13 JT: 33182534.34 TT: 35719327.47
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 24 nT: 27 NT: 2536793.13 JT: 137162153.25 TT: 139698946.37
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 27 nT: 28 NT: 2614481.52 JT: 33182534.34 TT: 35797015.86
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 27 nT: 28 NT: 2614481.52 JT: 137162153.25 TT: 139776634.77
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 28 nT: 30 NT: 2748757.75 JT: 33182534.34 TT: 35931292.10
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 28 nT: 30 NT: 2748757.75 JT: 137162153.25 TT: 139910911.00
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 30 nT: 32 NT: 2892625.15 JT: 33182534.34 TT: 36075159.49
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 30 nT: 32 NT: 2892625.15 JT: 137162153.25 TT: 140054778.39
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 32 nT: 36 NT: 3015391.99 JT: 33182534.34 TT: 36197926.33
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 32 nT: 36 NT: 3015391.99 JT: 137162153.25 TT: 140177545.24
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 36 nT: 40 NT: 3257089.21 JT: 33182534.34 TT: 36439623.55
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 36 nT: 40 NT: 3257089.21 JT: 137162153.25 TT: 140419242.46
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 40 nT: 42 NT: 3410547.76 JT: 33182534.34 TT: 36593082.11
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 40 nT: 42 NT: 3410547.76 JT: 137162153.25 TT: 140572701.01
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 42 nT: 45 NT: 3491113.50 JT: 33182534.34 TT: 36673647.85
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 42 nT: 45 NT: 3491113.50 JT: 137133774.44 TT: 140624887.94
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 45 nT: 48 NT: 3534273.72 JT: 33182534.34 TT: 36716808.06
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 45 nT: 48 NT: 3534273.72 JT: 137133774.44 TT: 140668048.16
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 48 nT: 50 NT: 3856536.68 JT: 33182534.34 TT: 37039071.03
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 48 nT: 50 NT: 3856536.68 JT: 137077016.83 TT: 140933553.51
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 50 nT: 54 NT: 3856536.68 JT: 33182534.34 TT: 37039071.03
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 50 nT: 54 NT: 3856536.68 JT: 137077016.83 TT: 140933553.51
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 54 nT: 60 NT: 4011913.47 JT: 33182534.34 TT: 37194447.81
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 54 nT: 60 NT: 4011913.47 JT: 137048638.02 TT: 141060551.49
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 60 nT: 64 NT: 4242101.30 JT: 33182534.34 TT: 37424635.64
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 60 nT: 64 NT: 4242101.30 JT: 137048638.02 TT: 141290739.32
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 64 nT: 70 NT: 4242101.30 JT: 33182534.34 TT: 37424635.64
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 64 nT: 70 NT: 4242101.30 JT: 137048638.02 TT: 141290739.32
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 70 nT: 72 NT: 4376377.53 JT: 33182534.34 TT: 37558911.87
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 70 nT: 72 NT: 4376377.53 JT: 137048638.02 TT: 141425015.56
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 72 nT: 80 NT: 4583546.58 JT: 33182534.34 TT: 37766080.92
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 72 nT: 80 NT: 4583546.58 JT: 137048638.02 TT: 141632184.60
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 80 nT: 84 NT: 4660275.85 JT: 33182534.34 TT: 37842810.20
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 80 nT: 84 NT: 4660275.85 JT: 137048638.02 TT: 141708913.88
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 84 nT: 90 NT: 4821407.33 JT: 33182534.34 TT: 38003941.68
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 84 nT: 90 NT: 4821407.33 JT: 137048638.02 TT: 141870045.36
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 90 nT: 96 NT: 5080368.64 JT: 33182534.34 TT: 38262902.99
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 90 nT: 96 NT: 5080368.64 JT: 137048638.02 TT: 142129006.67
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 96 nT: 112 NT: 5264518.91 JT: 33182534.34 TT: 38447053.25
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 96 nT: 112 NT: 5264518.91 JT: 137048638.02 TT: 142313156.93
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 112 nT: 120 NT: 5264518.91 JT: 33182534.34 TT: 38447053.25
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 112 nT: 120 NT: 5264518.91 JT: 137048638.02 TT: 142313156.93
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 120 nT: 128 NT: 5264518.91 JT: 33182534.34 TT: 38447053.25
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 120 nT: 128 NT: 5264518.91 JT: 137048638.02 TT: 142313156.93
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 128 nT: 140 NT: 5387285.75 JT: 33182534.34 TT: 38569820.09
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 128 nT: 140 NT: 5387285.75 JT: 137048638.02 TT: 142435923.77
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 140 nT: 144 NT: 5521561.98 JT: 33182534.34 TT: 38704096.33
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 140 nT: 144 NT: 5521561.98 JT: 137048638.02 TT: 142570200.01
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 144 nT: 150 NT: 5659674.68 JT: 33182534.34 TT: 38842209.02
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 144 nT: 150 NT: 5659674.68 JT: 137048638.02 TT: 142708312.71
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 150 nT: 160 NT: 5659674.68 JT: 33182534.34 TT: 38842209.02
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 150 nT: 160 NT: 5659674.68 JT: 137048638.02 TT: 142708312.71
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 160 nT: 162 NT: 5813133.23 JT: 33182534.34 TT: 38995667.58
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 160 nT: 162 NT: 5813133.23 JT: 137048638.02 TT: 142861771.26
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 162 nT: 168 NT: 5813133.23 JT: 33182534.34 TT: 38995667.58
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 162 nT: 168 NT: 5813133.23 JT: 137048638.02 TT: 142861771.26
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 168 nT: 180 NT: 5974264.71 JT: 33182534.34 TT: 39156799.06
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 168 nT: 180 NT: 5974264.71 JT: 137048638.02 TT: 143022902.74
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 180 nT: 200 NT: 6146905.59 JT: 33182534.34 TT: 39329439.93
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 180 nT: 200 NT: 6146905.59 JT: 137048638.02 TT: 143195543.61
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 200 nT: 210 NT: 6146905.59 JT: 33182534.34 TT: 39329439.93
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 200 nT: 210 NT: 6146905.59 JT: 137048638.02 TT: 143195543.61
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 210 nT: 216 NT: 6146905.59 JT: 33182534.34 TT: 39329439.93
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 210 nT: 216 NT: 6146905.59 JT: 137048638.02 TT: 143195543.61
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 216 nT: 224 NT: 6561243.68 JT: 33182534.34 TT: 39743778.02
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 216 nT: 224 NT: 6561243.68 JT: 137048638.02 TT: 143609881.70
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 224 nT: 240 NT: 6776085.65 JT: 33182534.34 TT: 39958620.00
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 224 nT: 240 NT: 6776085.65 JT: 137048638.02 TT: 143824723.68
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 240 nT: 252 NT: 7006273.48 JT: 33182534.34 TT: 40188807.83
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 240 nT: 252 NT: 7006273.48 JT: 137048638.02 TT: 144054911.51
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 252 nT: 280 NT: 7247970.71 JT: 33182534.34 TT: 40430505.05
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 252 nT: 280 NT: 7247970.71 JT: 137048638.02 TT: 144296608.73
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 280 nT: 300 NT: 7516523.17 JT: 33182534.34 TT: 40699057.52
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 280 nT: 300 NT: 7516523.17 JT: 137048638.02 TT: 144565161.20
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 300 nT: 324 NT: 7516523.17 JT: 33182534.34 TT: 40699057.52
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 300 nT: 324 NT: 7516523.17 JT: 137048638.02 TT: 144565161.20
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 324 nT: 336 NT: 7516523.17 JT: 33182534.34 TT: 40699057.52
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 324 nT: 336 NT: 7516523.17 JT: 137048638.02 TT: 144565161.20
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 336 nT: 350 NT: 7516523.17 JT: 33182534.34 TT: 40699057.52
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 336 nT: 350 NT: 7516523.17 JT: 137048638.02 TT: 144565161.20
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 350 nT: 360 NT: 7852213.76 JT: 33182534.34 TT: 41034748.10
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 350 nT: 360 NT: 7852213.76 JT: 137048638.02 TT: 144900851.78
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 360 nT: 378 NT: 8197495.50 JT: 33182534.34 TT: 41380029.85
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 360 nT: 378 NT: 8197495.50 JT: 137048638.02 TT: 145246133.53
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 378 nT: 420 NT: 8197495.50 JT: 33182534.34 TT: 41380029.85
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 378 nT: 420 NT: 8197495.50 JT: 137048638.02 TT: 145246133.53
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 420 nT: 432 NT: 8197495.50 JT: 33182534.34 TT: 41380029.85
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 420 nT: 432 NT: 8197495.50 JT: 137048638.02 TT: 145246133.53
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 432 nT: 720 NT: 8611833.60 JT: 33182534.34 TT: 41794367.94
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 432 nT: 720 NT: 8611833.60 JT: 137048638.02 TT: 145660471.62
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 720 nT: 840 NT: 8611833.60 JT: 33182534.34 TT: 41794367.94
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 720 nT: 840 NT: 8611833.60 JT: 137048638.02 TT: 145660471.62
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 840 nT: 5761 NT: 9417491.00 JT: 33182534.34 TT: 42600025.34
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] T: 840 nT: 5761 NT: 9417491.00 JT: 137048638.02 TT: 146466129.02
+2017/10/21 11:28:45 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected true
+2017/10/21 11:28:45 [JoinHybridAll.join] Selected Threshold: 1
+2017/10/21 11:28:46 [StopWatch.stop] Result_3_1_1_Index_Count_Time ran for 586ms (total: 586ms)
+2017/10/21 11:28:46 [StopWatch.stop] Result_3_1_2_Indexing_Time ran for 168ms (total: 168ms)
+2017/10/21 11:28:46 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 25ms (total: 987ms)
+2017/10/21 11:28:46 [StopWatch.stop] Result_3_2_Join_Time ran for 9ms (total: 265ms)
+2017/10/21 11:28:46 [StopWatch.stop] Result_3_Run_Time ran for 1252ms (total: 1252ms)
+2017/10/21 11:28:46 [StopWatch.stop] Result_4_Write_Time ran for 1ms (total: 1ms)
+2017/10/21 11:28:46 [StopWatch.stop] Result_0_Total_Time ran for 2479ms (total: 2479ms)
+=============[JoinHybridAll stats]=============
+Date                                 "Sat_Oct_21_11:28:44_KST_2017"
+cmd_dataOnePath                      data/1000000_5_25118_1.0_0.0_1.txt
+cmd_dataTwoPath                      data/1000000_5_25118_1.0_0.0_2.txt
+cmd_rulePath                         rule/30000_2_2_100000_0.0_0.txt
+cmd_outputPath                       output
+cmd_oneSideJoin                      True
+cmd_upload                           True
+cmd_K                                1
+cmd_qSize                            2
+cmd_sample                           0.01
+Final Result Size                    10
+Result_0_Total_Time                  2479
+cmd_alg                              JoinHybridAll
+cmd_alg_v                            2.6
+Result_1_Initialize_Time             781
+Mem_1_Initialized                    245
+MaxIndexedEstNumRecords              16128
+MaxSearchedEstNumRecords             5760
+Result_2_Preprocess_Total_Time       431
+Stat_Distinct_PQ                     8130
+Result_3_1_1_qGramTime               5
+Result_3_1_2_indexingTime            1
+Stat_Index_Size                      247
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+idx_skipped_counter                  0
+Auto_Best_Threshold                  1
+Auto_Best_Estimated_Time             3.416268227072044E7
+Auto_JoinMin_Selected                true
+Stat_Distinct_PQ                     705759
+Result_3_1_1_Index_Count_Time        586
+Result_3_1_2_Indexing_Time           168
+Counter_Index_1_HashCollision        120793
+Counter_Index_1_HashResize           0
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Join_Min_Result                      8
+Stat_Equiv_Comparison                239
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_Index_Building_Time       987
+Join_Naive_Result                    2
+Result_3_2_Join_Time                 265
+Result_3_1_Index_Building_Time       987
+Result_3_Run_Time                    1252
+Mem_4_Joined                         819
+Result_4_Write_Time                  1
+Stat_Garbage_Collections             0
+Stat_Garbage_Collections_Time        0
+hm_getCount                          805438
+hm_getIterCount                      343022
+hm_putCount                          58994
+hm_resizeCount                       169
+hm_removeCount                       33629
+hm_removeIterCount                   13203
+hm_putRemovedCount                   0
+hm_removeFoundCount                  0
+===============================================
+One size:501777,data_store/data/1000000_5_25118_1.0_0.0_1.txt rule size: 1989900
+2017/10/21 11:28:46 [App.main] JoinHybridAll finished

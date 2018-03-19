@@ -1,0 +1,82 @@
+[Query]     ruleFile: data_store/wordnet/rules.noun (215672)
+[Query]  indexedFile: data_store/aol/splitted/aol_158489_data.txt (158489)
+[Query] searchedFile: data_store/aol/splitted/aol_158489_data.txt (158489)
+[Query]  oneSideJoin: false
+[Query]     selfJoin: true
+2017/08/22 17:45:02 [StopWatch.stop] Result_1_Initialize_Time ran for 1024ms (total: 1024ms)
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 646 size 137644920
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 27076 size 23905728
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 27640 size 105868224
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 29569 size 75301632
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 82226 size 36385440
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 88160 size 140063660352
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 90816 size 20527500
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 93294 size 24009216
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 101073 size 549246096
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 115916 size 32332608
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 127238 size 27467440
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 127678 size 29795040
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 130966 size 416987424
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 133065 size 1149603840
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 134889 size 78408000
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 134890 size 213840000
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 136041 size 339738624
+2017/08/22 17:45:03 [Record.preprocessEstimatedRecords] Too many generalizations: 152134 size 23908500
+2017/08/22 17:45:03 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 1032ms (total: 1032ms)
+2017/08/22 17:45:06 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 3264ms (total: 3264ms)
+2017/08/22 17:45:46 [StopWatch.stop] Result_3_2_Join_Time ran for 39312ms (total: 39312ms)
+2017/08/22 17:45:46 [StopWatch.stop] Result_3_Run_Time ran for 42577ms (total: 42577ms)
+2017/08/22 17:45:46 [StopWatch.stop] Result_4_Write_Time ran for 43ms (total: 43ms)
+2017/08/22 17:45:46 [StopWatch.stop] Result_0_Total_Time ran for 44691ms (total: 44691ms)
+=============[JoinMH stats]=============
+Date                                 "Tue_Aug_22_17:45:02_KST_2017"
+cmd_dataOnePath                      aol/aol_158489_data.txt
+cmd_dataTwoPath                      aol/aol_158489_data.txt
+cmd_rulePath                         wordnet/rules.noun
+cmd_outputPath                       output
+cmd_oneSideJoin                      False
+cmd_upload                           True
+cmd_K                                1
+cmd_qSize                            3
+Final Result Size                    161301
+Result_0_Total_Time                  44691
+cmd_alg                              JoinMH
+cmd_alg_v                            2.5
+Result_1_Initialize_Time             1024
+Mem_1_Initialized                    532
+Mem_2_Preprocessed                   962
+Result_2_Preprocess_Total_Time       1032
+Result_3_1_1_qGramTime               1941
+Result_3_1_2_indexingTime            1295
+Stat_Index_Size                      4989433
+Stat_Index_Garbage_Collections       2
+Stat_Index_Garbage_Collections_Time  848
+Mem_3_BuildIndex                     1198
+Result_3_1_Index_Building_Time       3264
+Stat_Equiv_Comparison                0
+Mem_4_Joined                         1272
+Result_3_2_Join_Time                 39312
+Result_3_Run_Time                    42577
+Result_4_Write_Time                  43
+Val_Comparisons                      24288157
+Val_Recursive_Calls                  134875887
+Val_Iter_entries                     134334376
+Val_Iter_rules                       616648747
+Val_Iter_matches                     0
+Val_Iter_tokens                      0
+Val_Early_evaled                     0
+Val_Early_stopped                    0
+Val_Length_filtered                  0
+Stat_Garbage_Collections             13
+Stat_Garbage_Collections_Time        2739
+hm_getCount                          9978866
+hm_getIterCount                      8712807
+hm_putCount                          3292640
+hm_resizeCount                       8
+hm_removeCount                       3292640
+hm_removeIterCount                   1294347
+hm_putRemovedCount                   0
+hm_removeFoundCount                  0
+========================================
+One size:4434548,data_store/aol/splitted/aol_158489_data.txt rule size: 5460848
+2017/08/22 17:45:46 [App.main] JoinMH finished

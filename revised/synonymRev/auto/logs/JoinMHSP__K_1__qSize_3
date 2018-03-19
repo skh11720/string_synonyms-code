@@ -1,0 +1,55 @@
+2017/08/11 15:15:24 [StopWatch.stop] Result_1_Initialize_Time ran for 923ms (total: 923ms)
+2017/08/11 15:15:24 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 689ms (total: 689ms)
+2017/08/11 15:15:24 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 91ms (total: 91ms)
+2017/08/11 15:15:26 [StopWatch.stop] Result_3_2_Join_Time ran for 1111ms (total: 1111ms)
+2017/08/11 15:15:26 [StopWatch.stop] Result_3_Run_Time ran for 1203ms (total: 1203ms)
+2017/08/11 15:15:26 [StopWatch.stop] Result_4_Write_Time ran for 1ms (total: 1ms)
+2017/08/11 15:15:26 [StopWatch.stop] Result_0_Total_Time ran for 2831ms (total: 2831ms)
+=============[JoinMHSP stats]=============
+Date                            "Fri_Aug_11_15:15:24_KST_2017"
+cmd_dataOnePath                 data/1000000_5_39810_1.0_0.0_1.txt
+cmd_dataTwoPath                 data/1000000_5_39810_1.0_0.0_2.txt
+cmd_rulePath                    rule/30000_2_2_173200_0.0_0.txt
+cmd_outputPath                  output
+cmd_split                       null
+cmd_oneSideJoin                 True
+cmd_upload                      True
+cmd_K                           1
+cmd_qSize                       3
+Final Result Size               24
+Result_0_Total_Time             2831
+cmd_alg                         JoinMHSP
+cmd_alg_v                       2.3
+Result_1_Initialize_Time        923
+Mem_1_Initialized               368
+Mem_2_Preprocessed              635
+Result_2_Preprocess_Total_Time  689
+Mem_3_BuildIndex                655
+Result_3_1_Index_Building_Time  91
+Stat_Equiv_Comparison           483
+Mem_4_Joined                    881
+Result_3_2_Join_Time            1111
+Result_3_Run_Time               1203
+Result_4_Write_Time             1
+Val_Comparisons                 203
+Val_Recursive_Calls             180
+Val_Iter_entries                0
+Val_Iter_rules                  569
+Val_Iter_matches                0
+Val_Iter_tokens                 0
+Val_Early_evaled                0
+Val_Early_stopped               0
+Val_Length_filtered             0
+Stat_Garbage_Collections        0
+Stat_Garbage_Collections_Time   0
+hm_getCount                     3307756
+hm_getIterCount                 1192619
+hm_putCount                     39781
+hm_resizeCount                  92
+hm_removeCount                  39781
+hm_removeIterCount              15690
+hm_putRemovedCount              0
+hm_removeFoundCount             0
+==========================================
+One size:794441,data_store/data/1000000_5_39810_1.0_0.0_1.txt rule size: 3445890
+2017/08/11 15:15:26 [App.main] JoinMHSP finished

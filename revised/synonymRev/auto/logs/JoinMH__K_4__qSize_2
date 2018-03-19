@@ -1,0 +1,8 @@
+[Query]     ruleFile: data_store/JiahengLu/USPS_rule.txt (284)
+[Query]  indexedFile: data_store/JiahengLu/splitted/USPS_1000000.txt (1000000)
+[Query] searchedFile: data_store/JiahengLu/splitted/USPS_1000000.txt (1000000)
+[Query]  oneSideJoin: false
+[Query]     selfJoin: true
+2017/10/22 11:19:09 [StopWatch.stop] Result_1_Initialize_Time ran for 3042ms (total: 3042ms)
+2017/10/22 11:19:13 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 4139ms (total: 4139ms)
+2017/10/22 11:19:19 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 5274ms (total: 5274ms)

@@ -1,0 +1,64 @@
+[Query]     ruleFile: data_store/rule/30000_2_2_100000_0.0_0.txt (100000)
+[Query]  indexedFile: data_store/data/1000000_5_251188_1.0_0.0_1.txt (251188)
+[Query] searchedFile: data_store/data/1000000_5_251188_1.0_0.0_2.txt (251188)
+[Query]  oneSideJoin: false
+[Query]     selfJoin: false
+2017/10/24 23:48:03 [StopWatch.stop] Result_1_Initialize_Time ran for 1533ms (total: 1533ms)
+2017/10/24 23:48:06 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 2692ms (total: 2692ms)
+2017/10/24 23:48:11 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 4732ms (total: 4732ms)
+2017/10/25 00:17:34 [StopWatch.stop] Result_3_2_Join_Time ran for 1763153ms (total: 1763153ms)
+2017/10/25 00:17:34 [StopWatch.stop] Result_3_Run_Time ran for 1767886ms (total: 1767886ms)
+2017/10/25 00:17:34 [StopWatch.stop] Result_4_Write_Time ran for 6ms (total: 6ms)
+2017/10/25 00:17:34 [StopWatch.stop] Result_0_Total_Time ran for 1772131ms (total: 1772131ms)
+=============[JoinMH stats]=============
+Date                                 "Tue_Oct_24_23:48:03_KST_2017"
+cmd_dataOnePath                      data/1000000_5_251188_1.0_0.0_1.txt
+cmd_dataTwoPath                      data/1000000_5_251188_1.0_0.0_2.txt
+cmd_rulePath                         rule/30000_2_2_100000_0.0_0.txt
+cmd_outputPath                       output
+cmd_oneSideJoin                      False
+cmd_upload                           True
+cmd_K                                5
+cmd_qSize                            2
+Final Result Size                    309
+Result_0_Total_Time                  1772131
+cmd_alg                              JoinMH
+cmd_alg_v                            2.5
+Result_1_Initialize_Time             1533
+Mem_1_Initialized                    860
+Mem_2_Preprocessed                   458
+Result_2_Preprocess_Total_Time       2692
+Result_3_1_1_qGramTime               2425
+Result_3_1_2_indexingTime            2268
+Stat_Index_Size                      7260250
+Stat_Index_Garbage_Collections       3
+Stat_Index_Garbage_Collections_Time  1569
+Mem_3_BuildIndex                     1441
+Result_3_1_Index_Building_Time       4732
+Stat_Equiv_Comparison                0
+Mem_4_Joined                         2217
+Result_3_2_Join_Time                 1763153
+Result_3_Run_Time                    1767886
+Result_4_Write_Time                  6
+Val_Comparisons                      945572427
+Val_Recursive_Calls                  3700675217
+Val_Iter_entries                     3572215531
+Val_Iter_rules                       8382601895
+Val_Iter_matches                     0
+Val_Iter_tokens                      0
+Val_Early_evaled                     0
+Val_Early_stopped                    0
+Val_Length_filtered                  0
+Stat_Garbage_Collections             289
+Stat_Garbage_Collections_Time        6824
+hm_getCount                          14066882
+hm_getIterCount                      10018426
+hm_putCount                          4898742
+hm_resizeCount                       22
+hm_removeCount                       4898742
+hm_removeIterCount                   2025159
+hm_putRemovedCount                   0
+hm_removeFoundCount                  0
+========================================
+One size:5011656,data_store/data/1000000_5_251188_1.0_0.0_1.txt rule size: 1989900
+2017/10/25 00:17:34 [App.main] JoinMH finished

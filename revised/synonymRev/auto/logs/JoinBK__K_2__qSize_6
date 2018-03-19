@@ -1,0 +1,67 @@
+[Query]     ruleFile: data_store/rule/30000_2_2_10000_0.0_0.txt (10000)
+[Query]  indexedFile: data_store/data/1000000_5_15848_1.0_0.0_1.txt (15848)
+[Query] searchedFile: data_store/data/1000000_5_15848_1.0_0.0_2.txt (15848)
+[Query]  oneSideJoin: false
+[Query]     selfJoin: false
+2017/08/16 18:33:18 [StopWatch.stop] Result_1_Initialize_Time ran for 440ms (total: 440ms)
+2017/08/16 18:33:18 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 250ms (total: 250ms)
+2017/08/16 18:33:18 [StopWatch.stop] Result_3_1_1_Index_Count_Time ran for 252ms (total: 252ms)
+2017/08/16 18:33:18 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 356ms (total: 356ms)
+2017/08/16 18:33:19 [StopWatch.stop] Result_3_2_Join_Time ran for 110ms (total: 110ms)
+2017/08/16 18:33:19 [StopWatch.stop] Result_3_Run_Time ran for 466ms (total: 466ms)
+2017/08/16 18:33:19 [StopWatch.stop] Result_4_Write_Time ran for 1ms (total: 1ms)
+2017/08/16 18:33:19 [StopWatch.stop] Result_0_Total_Time ran for 1177ms (total: 1177ms)
+=============[JoinBK stats]=============
+Date                                 "Wed_Aug_16_18:33:18_KST_2017"
+cmd_dataOnePath                      data/1000000_5_15848_1.0_0.0_1.txt
+cmd_dataTwoPath                      data/1000000_5_15848_1.0_0.0_2.txt
+cmd_rulePath                         rule/30000_2_2_10000_0.0_0.txt
+cmd_outputPath                       output
+cmd_oneSideJoin                      False
+cmd_upload                           True
+cmd_K                                2
+cmd_qSize                            6
+Final Result Size                    7
+Result_0_Total_Time                  1177
+cmd_alg                              JoinBK
+cmd_alg_v                            2.3
+Result_1_Initialize_Time             440
+Mem_1_Initialized                    102
+Mem_2_Preprocessed                   204
+Result_2_Preprocess_Total_Time       250
+Result_3_1_1_Index_Count_Time        252
+Auto_BestPosition                    "10 0 "
+Result_3_1_1_qGramTime               51
+Result_3_1_2_indexingTime            42
+Stat_Index_Size                      27166
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Mem_3_BuildIndex                     307
+Result_3_1_Index_Building_Time       356
+Stat_Equiv_Comparison                0
+Mem_4_Joined                         368
+Result_3_2_Join_Time                 110
+Result_3_Run_Time                    466
+Result_4_Write_Time                  1
+Val_Comparisons                      7
+Val_Recursive_Calls                  0
+Val_Iter_entries                     0
+Val_Iter_rules                       0
+Val_Iter_matches                     0
+Val_Iter_tokens                      0
+Val_Early_evaled                     0
+Val_Early_stopped                    0
+Val_Length_filtered                  0
+Stat_Garbage_Collections             0
+Stat_Garbage_Collections_Time        0
+hm_getCount                          54170
+hm_getIterCount                      18444
+hm_putCount                          27166
+hm_resizeCount                       3
+hm_removeCount                       27166
+hm_removeIterCount                   9165
+hm_putRemovedCount                   0
+hm_removeFoundCount                  0
+========================================
+One size:315816,data_store/data/1000000_5_15848_1.0_0.0_1.txt rule size: 199324
+2017/08/16 18:33:19 [App.main] JoinBK finished

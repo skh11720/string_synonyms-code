@@ -1,0 +1,105 @@
+[Query]     ruleFile: data_store/JiahengLu/USPS_rule.txt (284)
+[Query]  indexedFile: data_store/JiahengLu/splitted/USPS_10000.txt (10000)
+[Query] searchedFile: data_store/JiahengLu/splitted/USPS_10000.txt (10000)
+[Query]  oneSideJoin: false
+[Query]     selfJoin: true
+2017/08/29 15:14:03 [StopWatch.stop] Result_1_Initialize_Time ran for 188ms (total: 188ms)
+2017/08/29 15:14:03 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 128ms (total: 128ms)
+2017/08/29 15:14:03 [SampleEstimate.<init>] Random seed: 1503987243700
+2017/08/29 15:14:03 [SampleEstimate.<init>] 99 Searched records are sampled
+2017/08/29 15:14:03 [SampleEstimate.<init>] 99 Indexed records are sampled
+[Query]     ruleFile: rules (284)
+[Query]  indexedFile: sampled one (99)
+[Query] searchedFile: sampled two (99)
+[Query]  oneSideJoin: false
+[Query]     selfJoin: true
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 4 nT: 6 NT: 1297526.63 JT: 29323363.30 TT: 30620889.93
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 4 nT: 6 NT: 1297526.63 JT: 13801816.54 TT: 15099343.17
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 6 nT: 8 NT: 2224512.76 JT: 27846852.38 TT: 30071365.14
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 6 nT: 8 NT: 2224512.76 JT: 7874307.19 TT: 10098819.94
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 8 nT: 10 NT: 2880611.83 JT: 27012302.73 TT: 29892914.56
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 8 nT: 10 NT: 2880611.83 JT: 6373671.91 TT: 9254283.74
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 10 nT: 12 NT: 3230118.48 JT: 26691322.10 TT: 29921440.57
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 10 nT: 12 NT: 3230118.48 JT: 5248195.45 TT: 8478313.92
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 12 nT: 14 NT: 3380162.98 JT: 26562929.84 TT: 29943092.82
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 12 nT: 14 NT: 3380162.98 JT: 4647941.34 TT: 8028104.31
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 14 nT: 16 NT: 3478024.84 JT: 26498733.72 TT: 29976758.55
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 14 nT: 16 NT: 3478024.84 JT: 4422846.04 TT: 7900870.88
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 16 nT: 18 NT: 3583960.74 JT: 26434537.59 TT: 30018498.33
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 16 nT: 18 NT: 3583960.74 JT: 4347814.28 TT: 7931775.02
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 18 nT: 20 NT: 3862183.55 JT: 26306145.34 TT: 30168328.89
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 18 nT: 20 NT: 3862183.55 JT: 3372401.35 TT: 7234584.90
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 20 nT: 55 NT: 4009369.00 JT: 26241949.21 TT: 30251318.21
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] T: 20 nT: 55 NT: 4009369.00 JT: 2847179.00 TT: 6856548.00
+2017/08/29 15:14:03 [SampleEstimate.findThetaJoinHybridAll] JoinMinSelected false
+2017/08/29 15:14:03 [JoinHybridAll.join] Selected Threshold: 20
+2017/08/29 15:14:04 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 44ms (total: 236ms)
+2017/08/29 15:14:04 [StopWatch.stop] Result_3_2_Join_Time ran for 41ms (total: 320ms)
+2017/08/29 15:14:04 [StopWatch.stop] Result_3_Run_Time ran for 557ms (total: 557ms)
+2017/08/29 15:14:04 [StopWatch.stop] Result_4_Write_Time ran for 3ms (total: 3ms)
+2017/08/29 15:14:04 [StopWatch.stop] Result_0_Total_Time ran for 895ms (total: 895ms)
+=============[JoinHybridAll stats]=============
+Date                                 "Tue_Aug_29_15:14:03_KST_2017"
+cmd_dataOnePath                      JiahengLu/USPS_10000.txt
+cmd_dataTwoPath                      JiahengLu/USPS_10000.txt
+cmd_rulePath                         JiahengLu/USPS_rule.txt
+cmd_outputPath                       output
+cmd_oneSideJoin                      False
+cmd_upload                           True
+cmd_K                                2
+cmd_qSize                            3
+cmd_sample                           0.01
+cmd_naiveVal                         null
+Final Result Size                    10000
+Result_0_Total_Time                  895
+cmd_alg                              JoinHybridAll
+cmd_alg_v                            2.5
+Result_1_Initialize_Time             188
+Mem_1_Initialized                    61
+Result_2_Preprocess_Total_Time       128
+Result_3_1_1_qGramTime               1
+Result_3_1_2_indexingTime            1
+Stat_Index_Size                      453
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+idx_skipped_counter                  0
+Auto_Best_Threshold                  20
+Auto_Best_Estimated_Time             6856548.0
+Auto_JoinMin_Selected                false
+Result_3_1_1_qGramTime               48
+Result_3_1_2_indexingTime            45
+Stat_Index_Size                      42357
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Join_Min_Result                      45
+Stat_Equiv_Comparison                10005
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_Index_Building_Time       236
+Join_Naive_Result                    9955
+Result_3_2_Join_Time                 320
+Result_3_1_Index_Building_Time       236
+Result_3_Run_Time                    557
+Mem_4_Joined                         266
+Result_4_Write_Time                  3
+Stat_Garbage_Collections             0
+Stat_Garbage_Collections_Time        0
+hm_getCount                          209476
+hm_getIterCount                      173114
+hm_putCount                          93835
+hm_resizeCount                       146
+hm_removeCount                       36581
+hm_removeIterCount                   12634
+hm_putRemovedCount                   121
+hm_removeFoundCount                  121
+===============================================
+One size:450625,data_store/JiahengLu/splitted/USPS_10000.txt rule size: 5422
+2017/08/29 15:14:04 [App.main] JoinHybridAll finished

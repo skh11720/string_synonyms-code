@@ -1,0 +1,201 @@
+[Query]     ruleFile: data_store/rule/30000_2_2_519600_0.0_0.txt (519600)
+[Query]  indexedFile: data_store/data/1000000_5_158489_1.0_0.0_1.txt (158489)
+[Query] searchedFile: data_store/data/1000000_5_158489_1.0_0.0_2.txt (158489)
+[Query]  oneSideJoin: true
+[Query]     selfJoin: false
+2017/08/19 12:44:53 [StopWatch.stop] Result_1_Initialize_Time ran for 1797ms (total: 1797ms)
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 667 size 55598400
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 1721 size 150543360
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 3307 size 37065600
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 4674 size 79073280
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 5112 size 275212080
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 6851 size 24161280
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 15526 size 21991200
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 16323 size 33541200
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 19460 size 47308800
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 19461 size 23362560
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 21994 size 25713688
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 22365 size 35235200
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 22449 size 31711680
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 25311 size 27675648
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 26049 size 24306480
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 28195 size 59799168
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 31381 size 25740000
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 31767 size 33454080
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 33886 size 115315200
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 40927 size 25159680
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 41249 size 28304640
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 42608 size 35675640
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 42878 size 272563200
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 46809 size 154828800
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 48614 size 39029760
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 49880 size 39803400
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 50936 size 27747720
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 53155 size 37065600
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 56100 size 26282880
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 56622 size 29937600
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 57520 size 25482600
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 59728 size 26417664
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 61346 size 25698816
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 62244 size 146622960
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 71129 size 23587200
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 72013 size 23849280
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 72753 size 20217600
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 75035 size 89689600
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 75274 size 27181440
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 79627 size 28108080
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 82762 size 21403200
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 84049 size 29887000
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 85302 size 42882840
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 85822 size 28342314
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 88343 size 20300280
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 89849 size 38438400
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 92144 size 34594560
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 92146 size 21902400
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 100067 size 28619136
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 106028 size 56840784
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 106676 size 21235500
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 111785 size 55135080
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 112873 size 31539456
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 116623 size 32902272
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 118478 size 31933440
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 120604 size 28028000
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 127485 size 23063040
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 131184 size 35675640
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 131248 size 30270240
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 133444 size 20669376
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 133468 size 190270080
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 133489 size 363242880
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 134815 size 30888000
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 135858 size 181621440
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 143299 size 90574848
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 144055 size 38063025
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 145620 size 37908000
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 147115 size 22643712
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 150362 size 126720000
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 150774 size 31135104
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 154270 size 122304000
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 155178 size 34594560
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 562 size 20386080
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 877 size 33116160
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 2298 size 25698816
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 3894 size 24092640
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 4439 size 20247552
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 4487 size 229028800
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 4709 size 22424688
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 17304 size 26499200
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 19947 size 47567520
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 22367 size 94089600
+2017/08/19 12:44:54 [Record.preprocessEstimatedRecords] Too many generalizations: 27019 size 137060352
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 28747 size 26265600
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 32973 size 28540512
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 37132 size 20756736
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 38485 size 20386080
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 41847 size 22014720
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 42864 size 36691200
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 45243 size 28252224
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 47831 size 37761360
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 49436 size 92160000
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 53870 size 65585520
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 54954 size 73389888
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 55264 size 20908800
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 59116 size 21805056
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 62909 size 28108080
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 64008 size 23849280
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 69287 size 55738368
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 73330 size 102643200
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 76798 size 20547072
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 78324 size 62726400
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 80112 size 25625600
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 82674 size 28828800
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 83087 size 153753600
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 85552 size 24161280
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 92966 size 45302400
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 96809 size 20763600
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 99025 size 46964736
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 100815 size 24916320
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 102142 size 71663616
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 106135 size 23557248
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 107811 size 31933440
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 113629 size 26687232
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 124062 size 37477440
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 125066 size 38438400
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 125534 size 23232000
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 126690 size 56609280
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 127149 size 49969920
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 127494 size 43243200
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 127953 size 247351104
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 127956 size 144144000
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 134565 size 20868120
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 138862 size 26501904
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 142519 size 20217600
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 142860 size 20134400
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 143994 size 27181440
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 145419 size 23721984
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 147324 size 27518400
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 150993 size 23795200
+2017/08/19 12:44:55 [Record.preprocessEstimatedRecords] Too many generalizations: 156752 size 319334400
+2017/08/19 12:44:56 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 3340ms (total: 3340ms)
+2017/08/19 12:44:56 [JoinMinRange.statistics] Average str length: 1427756/316978
+2017/08/19 12:44:56 [JoinMinRange.statistics] Maximum str length: 10
+2017/08/19 12:44:56 [JoinMinRange.statistics] Average rhs length: 779281/519600
+2017/08/19 12:44:56 [JoinMinRange.statistics] Maximum rhs length: 2
+2017/08/19 12:45:00 [StopWatch.stop] Result_3_1_1_Index_Count_Time ran for 3469ms (total: 3469ms)
+2017/08/19 12:45:00 [StopWatch.stop] Result_3_1_2_Indexing_Time ran for 359ms (total: 359ms)
+2017/08/19 12:45:00 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 3837ms (total: 3837ms)
+2017/08/19 12:45:04 [StopWatch.stop] Result_3_2_Join_Time ran for 3814ms (total: 3814ms)
+2017/08/19 12:45:04 [StopWatch.stop] Result_4_Write_Time ran for 2ms (total: 2ms)
+2017/08/19 12:45:04 [StopWatch.stop] Result_3_Run_Time ran for 7693ms (total: 7693ms)
+2017/08/19 12:45:04 [StopWatch.stop] Result_0_Total_Time ran for 12847ms (total: 12847ms)
+=============[JoinMinRange stats]=============
+Date                            "Sat_Aug_19_12:44:53_KST_2017"
+cmd_dataOnePath                 data/1000000_5_158489_1.0_0.0_1.txt
+cmd_dataTwoPath                 data/1000000_5_158489_1.0_0.0_2.txt
+cmd_rulePath                    rule/30000_2_2_519600_0.0_0.txt
+cmd_outputPath                  output
+cmd_oneSideJoin                 True
+cmd_upload                      True
+cmd_K                           1
+cmd_qSize                       1
+Final Result Size               180
+Result_0_Total_Time             12847
+cmd_alg                         JoinMinRange
+cmd_alg_v                       1.1
+Result_1_Initialize_Time        1797
+Mem_1_Initialized               211
+Result_2_Preprocess_Total_Time  3340
+Mem_2_Preprocessed              424
+Result_3_1_1_Index_Count_Time   3469
+Result_3_1_2_Indexing_Time      359
+Counter_Index_1_HashCollision   0
+Counter_Index_1_HashResize      0
+Mem_3_BuildIndex                1463
+Result_3_1_Index_Building_Time  3837
+Stat_Equiv_Comparison           1267809
+Join_Min_Result                 180
+Result_3_2_Join_Time            3814
+Mem_4_Joined                    1112
+Result_4_Write_Time             2
+Result_3_Run_Time               7693
+Val_Comparisons                 1267809
+Val_Recursive_Calls             1390250
+Val_Iter_entries                0
+Val_Iter_rules                  11425946
+Val_Iter_matches                0
+Val_Iter_tokens                 0
+Val_Early_evaled                0
+Val_Early_stopped               0
+Val_Length_filtered             0
+Stat_Garbage_Collections        5
+Stat_Garbage_Collections_Time   1586
+hm_getCount                     9409564
+hm_getIterCount                 3252103
+hm_putCount                     2650982
+hm_resizeCount                  399240
+hm_removeCount                  2650982
+hm_removeIterCount              711810
+hm_putRemovedCount              0
+hm_removeFoundCount             0
+==============================================
+One size:3162293,data_store/data/1000000_5_158489_1.0_0.0_1.txt rule size: 10330009
+2017/08/19 12:45:04 [App.main] JoinMinRange finished

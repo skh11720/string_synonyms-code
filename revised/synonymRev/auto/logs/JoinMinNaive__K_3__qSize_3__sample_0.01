@@ -1,0 +1,75 @@
+[Query]     ruleFile: data_store/wordnet/rules.noun (215672)
+[Query]  indexedFile: data_store/aol/splitted/aol_15848_data.txt (15848)
+[Query] searchedFile: data_store/aol/splitted/aol_15848_data.txt (15848)
+[Query]  oneSideJoin: true
+[Query]     selfJoin: true
+2017/08/22 13:55:20 [StopWatch.stop] Result_1_Initialize_Time ran for 661ms (total: 661ms)
+2017/08/22 13:55:21 [Record.preprocessEstimatedRecords] Too many generalizations: 646 size 137644920
+2017/08/22 13:55:21 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 364ms (total: 364ms)
+2017/08/22 13:55:21 [SampleEstimate.<init>] Random seed: 1503377721141
+2017/08/22 13:55:21 [SampleEstimate.<init>] 175 Searched records are sampled
+2017/08/22 13:55:21 [SampleEstimate.<init>] 175 Indexed records are sampled
+[Query]     ruleFile: rules (215672)
+[Query]  indexedFile: sampled one (175)
+[Query] searchedFile: sampled two (175)
+[Query]  oneSideJoin: true
+[Query]     selfJoin: true
+2017/08/22 13:55:21 [JoinMinNaive.join] Selected Threshold: 609
+2017/08/22 13:55:22 [StopWatch.stop] Result_3_1_1_Index_Count_Time ran for 1489ms (total: 1489ms)
+2017/08/22 13:55:22 [StopWatch.stop] Result_3_1_2_Indexing_Time ran for 65ms (total: 65ms)
+2017/08/22 13:55:23 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 12ms (total: 1841ms)
+2017/08/22 13:55:23 [StopWatch.stop] Result_3_2_Join_Time ran for 169ms (total: 586ms)
+2017/08/22 13:55:23 [StopWatch.stop] Result_3_Run_Time ran for 2427ms (total: 2427ms)
+2017/08/22 13:55:23 [StopWatch.stop] Result_4_Write_Time ran for 7ms (total: 7ms)
+2017/08/22 13:55:23 [StopWatch.stop] Result_0_Total_Time ran for 3481ms (total: 3481ms)
+=============[JoinMinNaive stats]=============
+Date                                 "Tue_Aug_22_13:55:20_KST_2017"
+cmd_dataOnePath                      aol/aol_15848_data.txt
+cmd_dataTwoPath                      aol/aol_15848_data.txt
+cmd_rulePath                         wordnet/rules.noun
+cmd_outputPath                       output
+cmd_oneSideJoin                      True
+cmd_upload                           True
+cmd_K                                3
+cmd_qSize                            3
+cmd_sample                           0.01
+Final Result Size                    16030
+Result_0_Total_Time                  3481
+cmd_alg                              JoinMinNaive
+cmd_alg_v                            2.5
+Result_1_Initialize_Time             661
+Mem_1_Initialized                    348
+Result_2_Preprocess_Total_Time       364
+idx_skipped_counter                  0
+Auto_Best_Threshold                  609
+Auto_Best_Estimated_Time             8.244807100128232E7
+Result_3_1_1_Index_Count_Time        1489
+Result_3_1_2_Indexing_Time           65
+Counter_Index_1_HashCollision        531397
+Counter_Index_1_HashResize           0
+Stat_Index_Garbage_Collections       1
+Stat_Index_Garbage_Collections_Time  150
+Join_Min_Result                      1744
+Stat_Equiv_Comparison                1752
+Stat_Index_Garbage_Collections       1
+Stat_Index_Garbage_Collections_Time  150
+Result_3_1_Index_Building_Time       1841
+Join_Naive_Result                    14286
+Result_3_2_Join_Time                 586
+Result_3_1_Index_Building_Time       1841
+Result_3_Run_Time                    2427
+Mem_4_Joined                         659
+Result_4_Write_Time                  7
+Stat_Garbage_Collections             1
+Stat_Garbage_Collections_Time        150
+hm_getCount                          3528991
+hm_getIterCount                      1406667
+hm_putCount                          100558
+hm_resizeCount                       659
+hm_removeCount                       84536
+hm_removeIterCount                   34493
+hm_putRemovedCount                   4030
+hm_removeFoundCount                  4030
+==============================================
+One size:439096,data_store/aol/splitted/aol_15848_data.txt rule size: 5460848
+2017/08/22 13:55:23 [App.main] JoinMinNaive finished

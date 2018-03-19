@@ -1,0 +1,105 @@
+2017/08/09 19:29:44 [StopWatch.stop] Result_1_Initialize_Time ran for 659ms (total: 659ms)
+2017/08/09 19:29:44 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 485ms (total: 485ms)
+2017/08/09 19:29:45 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 339ms (total: 339ms)
+2017/08/09 19:29:48 [StopWatch.stop] Result_3_2_Join_Time ran for 3100ms (total: 3100ms)
+2017/08/09 19:29:48 [StopWatch.stop] Result_3_Run_Time ran for 3439ms (total: 3439ms)
+2017/08/09 19:29:48 [StopWatch.stop] Result_4_Write_Time ran for 0ms (total: 0ms)
+2017/08/09 19:29:48 [StopWatch.stop] Result_0_Total_Time ran for 4603ms (total: 4603ms)
+=============[JoinBKSP stats]=============
+Date                                 "Wed_Aug_09_19:29:44_KST_2017"
+cmd_dataOnePath                      data/1000000_5_25118_1.0_0.0_1.txt
+cmd_dataTwoPath                      data/1000000_5_25118_1.0_0.0_2.txt
+cmd_rulePath                         rule/30000_2_2_100000_0.0_0.txt
+cmd_outputPath                       output
+cmd_split                            null
+cmd_oneSideJoin                      False
+cmd_upload                           True
+cmd_K                                2
+cmd_qSize                            1
+Final Result Size                    10
+Result_0_Total_Time                  4603
+cmd_alg                              JoinBKSP
+cmd_alg_v                            2.3
+Result_1_Initialize_Time             659
+Mem_1_Initialized                    245
+Mem_2_Preprocessed                   409
+Result_2_Preprocess_Total_Time       485
+Result_3_1_1_qGramTime               0
+Result_3_1_2_indexingTime            1
+Stat_Index_Size                      46
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               2
+Result_3_1_2_indexingTime            7
+Stat_Index_Size                      2677
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               13
+Result_3_1_2_indexingTime            8
+Stat_Index_Size                      16778
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               26
+Result_3_1_2_indexingTime            15
+Stat_Index_Size                      43912
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               7
+Result_3_1_2_indexingTime            9
+Stat_Index_Size                      41662
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               4
+Result_3_1_2_indexingTime            3
+Stat_Index_Size                      16993
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               1
+Result_3_1_2_indexingTime            0
+Stat_Index_Size                      2754
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               0
+Result_3_1_2_indexingTime            0
+Stat_Index_Size                      9
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               0
+Result_3_1_2_indexingTime            0
+Stat_Index_Size                      231
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_qGramTime               0
+Result_3_1_2_indexingTime            0
+Stat_Index_Size                      2
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Result_3_1_1_Index_Count_Time        232
+Mem_3_BuildIndex                     573
+Result_3_1_Index_Building_Time       339
+Mem_4_Joined                         560
+Result_3_2_Join_Time                 3100
+Result_3_Run_Time                    3439
+Result_4_Write_Time                  0
+Val_Comparisons                      1356631
+Val_Recursive_Calls                  4393366
+Val_Iter_entries                     4386751
+Val_Iter_rules                       9692986
+Val_Iter_matches                     0
+Val_Iter_tokens                      0
+Val_Early_evaled                     0
+Val_Early_stopped                    0
+Val_Length_filtered                  0
+Stat_Garbage_Collections             1
+Stat_Garbage_Collections_Time        96
+hm_getCount                          607793
+hm_getIterCount                      384772
+hm_putCount                          59235
+hm_resizeCount                       0
+hm_removeCount                       59235
+hm_removeIterCount                   4387
+hm_putRemovedCount                   0
+hm_removeFoundCount                  0
+==========================================
+One size:501777,data_store/data/1000000_5_25118_1.0_0.0_1.txt rule size: 1989900
+2017/08/09 19:29:48 [App.main] JoinBKSP finished

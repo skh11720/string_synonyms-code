@@ -1,0 +1,55 @@
+2017/08/11 02:07:53 [StopWatch.stop] Result_1_Initialize_Time ran for 903ms (total: 903ms)
+2017/08/11 02:07:54 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 717ms (total: 717ms)
+2017/08/11 02:07:54 [JoinMinNaiveThres.run] Selected Threshold: 1000
+2017/08/11 02:07:56 [StopWatch.stop] Result_3_1_1_Index_Count_Time ran for 2171ms (total: 2171ms)
+2017/08/11 02:07:58 [StopWatch.stop] Result_3_1_2_Indexing_Time ran for 1971ms (total: 1971ms)
+2017/08/11 02:08:01 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 1711ms (total: 5863ms)
+2017/08/11 02:08:03 [StopWatch.stop] Result_3_2_Join_Time ran for 1785ms (total: 3135ms)
+2017/08/11 02:08:03 [StopWatch.stop] Result_3_Run_Time ran for 8999ms (total: 8999ms)
+2017/08/11 02:08:03 [StopWatch.stop] Result_4_Write_Time ran for 1ms (total: 1ms)
+2017/08/11 02:08:03 [StopWatch.stop] Result_0_Total_Time ran for 10637ms (total: 10637ms)
+=============[JoinMinNaiveThres stats]=============
+Date                                 "Fri_Aug_11_02:07:53_KST_2017"
+cmd_dataOnePath                      data/1000000_5_25118_1.0_0.0_1.txt
+cmd_dataTwoPath                      data/1000000_5_25118_1.0_0.0_2.txt
+cmd_rulePath                         rule/30000_2_2_300000_0.0_0.txt
+cmd_outputPath                       output
+cmd_oneSideJoin                      False
+cmd_upload                           True
+cmd_K                                1
+cmd_qSize                            2
+cmd_t                                1000
+Final Result Size                    10
+Result_0_Total_Time                  10637
+cmd_alg                              JoinMinNaiveThres
+cmd_alg_v                            2.0
+Result_1_Initialize_Time             903
+Mem_1_Initialized                    512
+Result_2_Preprocess_Total_Time       717
+Result_3_1_1_Index_Count_Time        2171
+Result_3_1_2_Indexing_Time           1971
+Counter_Index_1_HashCollision        1271742
+Counter_Index_1_HashResize           0
+Stat_Index_Garbage_Collections       2
+Stat_Index_Garbage_Collections_Time  586
+Join_Min_Result                      0
+Stat_Equiv_Comparison                170960
+Result_3_1_Index_Building_Time       5863
+Result_3_2_Join_Time                 3135
+Join_Naive_Result                    10
+Result_3_Run_Time                    8999
+Mem_4_Joined                         1405
+Result_4_Write_Time                  1
+Stat_Garbage_Collections             3
+Stat_Garbage_Collections_Time        1657
+hm_getCount                          13278237
+hm_getIterCount                      5168505
+hm_putCount                          4493920
+hm_resizeCount                       26101
+hm_removeCount                       660862
+hm_removeIterCount                   237822
+hm_putRemovedCount                   0
+hm_removeFoundCount                  0
+===================================================
+One size:501777,data_store/data/1000000_5_25118_1.0_0.0_1.txt rule size: 5965440
+2017/08/11 02:08:03 [App.main] JoinMinNaiveThres finished

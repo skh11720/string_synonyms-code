@@ -48,9 +48,9 @@ echo "--------------------------------------"
 
 
 MH_K_START=1
-MH_K_END=3
-MH_Q_START=1
-MH_Q_END=3
+MH_K_END=1
+MH_Q_START=4
+MH_Q_END=5
 
 MHSP_K_START=1
 MHSP_K_END=3
@@ -67,10 +67,10 @@ BKSP_K_END=3
 BKSP_Q_START=1
 BKSP_Q_END=3
 
-MIN_K_START=1
-MIN_K_END=3
-MIN_Q_START=1
-MIN_Q_END=3
+MIN_K_START=4
+MIN_K_END=5
+MIN_Q_START=2
+MIN_Q_END=2
 
 MIN_NAIVE_K_START=1
 MIN_NAIVE_K_END=3
@@ -102,9 +102,9 @@ MH_NAIVE_THRES_Q_END=2
 
 HYBRID_SAMPLE=( 0.01 )
 HYBRID_K_START=1
-HYBRID_K_END=3
-HYBRID_Q_START=1
-HYBRID_Q_END=3 
+HYBRID_K_END=1
+HYBRID_Q_START=2
+HYBRID_Q_END=2
 
 if [[ $# -ne 21 ]];
 	then
@@ -324,7 +324,8 @@ if [[ $# -ne 21 ]];
 
 		#./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
 
-		./equivTest.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
+		./printManyEstimated.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
+		#./equivTest.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
 
 	fi
 fi

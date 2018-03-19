@@ -1,0 +1,108 @@
+[Query]     ruleFile: data_store/rule/30000_2_2_10000_0.0_0.txt (10000)
+[Query]  indexedFile: data_store/data/1000000_5_100000_1.0_0.0_1.txt (100000)
+[Query] searchedFile: data_store/data/1000000_5_100000_1.0_0.0_2.txt (100000)
+[Query]  oneSideJoin: true
+[Query]     selfJoin: false
+2017/10/29 20:19:00 [StopWatch.stop] Result_1_Initialize_Time ran for 902ms (total: 902ms)
+2017/10/29 20:19:01 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 728ms (total: 728ms)
+2017/10/29 20:19:01 [SampleEstimate.<init>] Random seed: 1509275941546
+2017/10/29 20:19:01 [SampleEstimate.<init>] 1017 Searched records are sampled
+2017/10/29 20:19:01 [SampleEstimate.<init>] 982 Indexed records are sampled
+[Query]     ruleFile: rules (10000)
+[Query]  indexedFile: sampled one (982)
+[Query] searchedFile: sampled two (1017)
+[Query]  oneSideJoin: true
+[Query]     selfJoin: false
+2017/10/29 20:19:01 [JoinMinIndex.joinMaxK] Warning: predictCount is zero
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 1 nT: 2 NT: 4732577.48 JT: 43364443.02 TT: 48097020.50
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 1 nT: 2 NT: 4732577.48 JT: 27816060.85 TT: 32548638.33
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 2 nT: 3 NT: 6119995.82 JT: 43364443.02 TT: 49484438.85
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 2 nT: 3 NT: 6119995.82 JT: 27816060.85 TT: 33936056.67
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 3 nT: 4 NT: 6881599.94 JT: 43364443.02 TT: 50246042.96
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 3 nT: 4 NT: 6881599.94 JT: 27816060.85 TT: 34697660.78
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 4 nT: 6 NT: 7401143.83 JT: 43364443.02 TT: 50765586.85
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 4 nT: 6 NT: 7401143.83 JT: 27816060.85 TT: 35217204.68
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 6 nT: 8 NT: 7808513.47 JT: 43364443.02 TT: 51172956.49
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 6 nT: 8 NT: 7808513.47 JT: 27816060.85 TT: 35624574.32
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 8 nT: 9 NT: 7855744.73 JT: 43364443.02 TT: 51220187.75
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 8 nT: 9 NT: 7855744.73 JT: 27816060.85 TT: 35671805.58
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 9 nT: 12 NT: 7988582.66 JT: 43364443.02 TT: 51353025.68
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 9 nT: 12 NT: 7988582.66 JT: 27816060.85 TT: 35804643.51
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 12 nT: 24 NT: 8094853.00 JT: 43364443.02 TT: 51459296.02
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 12 nT: 24 NT: 8094853.00 JT: 27816060.85 TT: 35910913.85
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 24 nT: 73 NT: 8094853.00 JT: 43364443.02 TT: 51459296.02
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] T: 24 nT: 73 NT: 8094853.00 JT: 27816060.85 TT: 35910913.85
+2017/10/29 20:19:01 [SampleEstimate.findThetaJoinHybridAll] JoinMin Selected false
+2017/10/29 20:19:01 [JoinHybridAll.join] Selected Threshold: 1
+2017/10/29 20:19:03 [StopWatch.stop] Result_3_1_Index_Building_Time ran for 54ms (total: 519ms)
+2017/10/29 20:19:03 [StopWatch.stop] Result_3_2_Join_Time ran for 75ms (total: 1054ms)
+2017/10/29 20:19:03 [StopWatch.stop] Result_3_Run_Time ran for 1574ms (total: 1574ms)
+2017/10/29 20:19:03 [StopWatch.stop] Result_4_Write_Time ran for 1ms (total: 1ms)
+2017/10/29 20:19:03 [StopWatch.stop] Result_0_Total_Time ran for 3220ms (total: 3220ms)
+=============[JoinHybridAll stats]=============
+Date                                 "Sun_Oct_29_20:19:00_KST_2017"
+cmd_dataOnePath                      data/1000000_5_100000_1.0_0.0_1.txt
+cmd_dataTwoPath                      data/1000000_5_100000_1.0_0.0_2.txt
+cmd_rulePath                         rule/30000_2_2_10000_0.0_0.txt
+cmd_outputPath                       output
+cmd_oneSideJoin                      True
+cmd_upload                           True
+cmd_K                                3
+cmd_qSize                            3
+cmd_sample                           0.01
+Final Result Size                    87
+Result_0_Total_Time                  3220
+cmd_alg                              JoinHybridAll
+cmd_alg_v                            2.6
+Result_1_Initialize_Time             902
+Mem_1_Initialized                    327
+MaxIndexedEstNumRecords              72
+MaxSearchedEstNumRecords             72
+Result_2_Preprocess_Total_Time       728
+Stat_Distinct_PQ                     6811
+Result_3_1_1_qGramTime               5
+Result_3_1_2_indexingTime            4
+Stat_Index_Size                      2923
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+idx_skipped_counter                  0
+Auto_Best_Threshold                  1
+Auto_Best_Estimated_Time             3.2548638327174224E7
+Auto_JoinMin_Selected                false
+Result_3_1_1_qGramTime               38
+Result_3_1_2_indexingTime            223
+Stat_Index_Size                      297704
+Stat_Index_Garbage_Collections       0
+Stat_Index_Garbage_Collections_Time  0
+Join_Min_Result                      17
+Stat_Equiv_Comparison                313498
+Stat_Index_Garbage_Collections       1
+Stat_Index_Garbage_Collections_Time  256
+Result_3_1_Index_Building_Time       519
+Join_Naive_Result                    70
+Result_3_2_Join_Time                 1054
+Result_3_1_Index_Building_Time       519
+Result_3_Run_Time                    1574
+Mem_4_Joined                         406
+Result_4_Write_Time                  1
+Stat_Garbage_Collections             1
+Stat_Garbage_Collections_Time        256
+hm_getCount                          745915
+hm_getIterCount                      276190
+hm_putCount                          399988
+hm_resizeCount                       174
+hm_removeCount                       299006
+hm_removeIterCount                   94232
+hm_putRemovedCount                   0
+hm_removeFoundCount                  0
+===============================================
+One size:1995588,data_store/data/1000000_5_100000_1.0_0.0_1.txt rule size: 199324
+2017/10/29 20:19:03 [App.main] JoinHybridAll finished
