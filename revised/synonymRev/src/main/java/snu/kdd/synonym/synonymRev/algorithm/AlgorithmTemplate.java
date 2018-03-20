@@ -37,6 +37,7 @@ public abstract class AlgorithmTemplate {
 		EquivTest,
 		EstimatedOut,
 		EstimationTest,
+		JoinHybridOpt,
 	}
 
 	// contains statistics of the algorithm
