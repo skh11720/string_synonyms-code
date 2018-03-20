@@ -24,7 +24,7 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class SampleEstimate {
+public class SampleEstimate_Split {
 
 	// alpha: Naive indexing time per transformed strings of table T
 	public double alpha;
@@ -50,14 +50,15 @@ public class SampleEstimate {
 	Dataset originalSearched;
 	Dataset originalIndexed;
 
-	boolean joinMinSelected = false;
+	boolean joinMinSelectedHighHigh = false;
+	boolean joinMinSelectedLowHigh = false;
 
 	final Query query;
 	final Query sampleQuery;
 	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
 
-	public SampleEstimate( final Query query, double sampleratio, boolean isSelfJoin ) {
+	public SampleEstimate_Split( final Query query, double sampleratio, boolean isSelfJoin ) {
 		long seed = System.currentTimeMillis();
 		Util.printLog( "Random seed: " + seed );
 		Random rn = new Random( seed );
@@ -288,6 +289,7 @@ public class SampleEstimate {
 	}
 
 	public double getEstimateNaive( double totalExpLengthIndex, double totalExpJoin ) {
+		// computes estimated execution time of JoinNaive
 		if( DEBUG.SampleStatON ) {
 			Util.printLog( "totalExpLength " + totalExpLengthIndex + ", TotalExp " + totalExpJoin );
 			Util.printLog( "Naive Index Time " + ( alpha * totalExpLengthIndex ) );
@@ -946,6 +948,8 @@ public class SampleEstimate {
 
 	public int findThetaJoinHybridAll( int qSize, int indexK, StatContainer stat, long maxIndexedEstNumRecords,
 			long maxSearchedEstNumRecords, boolean oneSideJoin ) {
+		// TODO: fix index to use only the low entries
+		
 		// Find the best threshold
 		int bestThreshold = 0;
 		double bestEstTime = Double.MAX_VALUE;
@@ -1004,7 +1008,6 @@ public class SampleEstimate {
 		double currExpLengthSize = 0;
 
 		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
-			// index 될 record 
 			Record rec = sampleIndexedList.get( recId );
 
 			if( oneSideJoin ) {
@@ -1204,13 +1207,16 @@ public class SampleEstimate {
 				}
 			}
 
-			double joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
+			double joinminEstimationHighHigh = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
 					totalJoinMinInvokes - removedJoinMinComparison );
-
-			double joinmhEstimation = this.getEstimateJoinMH( searchedTotalSigCount, joinMHIndexedSigCount,
+			double joinmhEstimationHighHigh = this.getEstimateJoinMH( searchedTotalSigCount, joinMHIndexedSigCount,
 					totalJoinMHInvokes - removedJoinMHComparison );
+			
+			double joinminEstimationLowHigh = 0;
+			double joinmhEstimationLowHigh = 0;
 
-			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
+			boolean tempJoinMinSelectedHighHigh = joinminEstimationHighHigh < joinmhEstimationHighHigh;
+			boolean tempJoinMinSelectedLowHigh = joinminEstimationLowHigh < joinmhEstimationLowHigh;
 
 			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 
@@ -1226,23 +1232,30 @@ public class SampleEstimate {
 			}
 
 			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
-					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
+					naiveEstimation, joinminEstimationHighHigh, naiveEstimation + joinminEstimationHighHigh ) );
 			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
-					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation ) );
-			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
+					naiveEstimation, joinmhEstimationHighHigh, naiveEstimation + joinmhEstimationHighHigh ) );
+			Util.printLog( "JoinMin Selected " + tempJoinMinSelectedHighHigh );
 
 			double tempBestTime = naiveEstimation;
 
-			if( tempJoinMinSelected ) {
-				tempBestTime += joinminEstimation;
+			if( tempJoinMinSelectedHighHigh ) {
+				tempBestTime += joinminEstimationHighHigh;
 			}
 			else {
-				tempBestTime += joinmhEstimation;
+				tempBestTime += joinmhEstimationHighHigh;
+			}
+			
+			if( tempJoinMinSelectedLowHigh ) {
+				tempBestTime += joinminEstimationLowHigh;
+			}
+			else {
+				tempBestTime += joinmhEstimationLowHigh;
 			}
 
 			if( bestEstTime > tempBestTime ) {
 				bestEstTime = tempBestTime;
-				joinMinSelected = tempJoinMinSelected;
+				joinMinSelectedHighHigh = tempJoinMinSelectedHighHigh;
 
 				if( currentThreshold < Integer.MAX_VALUE ) {
 					bestThreshold = (int) currentThreshold;
@@ -1252,7 +1265,7 @@ public class SampleEstimate {
 				}
 
 				if( DEBUG.SampleStatON ) {
-					Util.printLog( "New Best " + bestThreshold + " with " + joinMinSelected );
+					Util.printLog( "New Best " + bestThreshold + " with " + joinMinSelectedHighHigh );
 				}
 			}
 
@@ -1272,11 +1285,16 @@ public class SampleEstimate {
 
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_Best_Estimated_Time", bestEstTime );
-		stat.add( "Auto_JoinMin_Selected", "" + joinMinSelected );
+		stat.add( "Auto_JoinMin_Selected_HighHigh", "" + joinMinSelectedHighHigh );
+		stat.add( "Auto_JoinMin_Selected_LowHigh", "" + joinMinSelectedLowHigh );
 		return bestThreshold;
 	}
 
-	public boolean getJoinMinSelected() {
-		return joinMinSelected;
+	public boolean getJoinMinSelectedHighHigh() {
+		return joinMinSelectedHighHigh;
+	}
+	
+	public boolean getJoinMinSelectedLowHigh() {
+		return joinMinSelectedLowHigh;
 	}
 }
