@@ -48,6 +48,11 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 
 	JoinMinIndex joinMinIdx = null;
 	JoinMHIndex joinMHIdx = null;
+	
+	// Added for HybridJoin
+	// TODO:!!!!! 
+	JoinMinIndex joinMinIdxHighHigh = null;
+	JoinMHIndex joinMHIdxHighHigh = null;
 
 	private long maxSearchedEstNumRecords = 0;
 	private long maxIndexedEstNumRecords = 0;
@@ -104,18 +109,22 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private void buildJoinMinIndex() {
+	private void buildJoinMinIndex( int mode ) {
 		// Build an index
+		query.setTargetIndexSet( mode ); // 0:Whole, 1:LowHigh, 2:HighHigh
 		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
+		query.setTargetIndexSet( 0 ); // Default 0
 	}
 
-	private void buildJoinMHIndex() {
+	private void buildJoinMHIndex( int mode ) {
 		// Build an index
 		int[] index = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
 			index[ i ] = i;
 		}
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
+		query.setTargetIndexSet( mode ); // 0:Whole, 1:LowHigh, 2:HighHigh
+		joinMHIdx = new JoinMHIndex( indexK, qSize, query.targetIndexedSet.get(), query, stat, index, true, true, joinThreshold );
+		query.setTargetIndexSet( 0 ); // Default 0
 	}
 
 	private void buildNaiveIndex() {
@@ -126,7 +135,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findConstants( sampleRatio );
-
+		
 		joinThreshold = estimate.findThetaJoinHybridAll( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
 				query.oneSideJoin );
 
@@ -142,14 +151,20 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 
 		if( joinWithQGramFilteringRequired ) {
+			// TODO: Divide the Indexed part into 2 groups and use the different indexing(Min-BK, MH-FK)
+			query.divideIndexedSet( joinThreshold );
+			
 			if( joinMinSelectedForLowHigh ) {
-				// TODO: fix index to use only the low entries
-				buildJoinMinIndex();
+				buildJoinMinIndex(1);
 			}
 			else {
-				// TODO: fix index to use only the low entries
-				// joinMH selected
-				buildJoinMHIndex();
+				buildJoinMHIndex(1);
+			}
+			if( joinMinSelectedForHighHigh ) {
+				buildJoinMinIndex(2);
+			}
+			else {
+				buildJoinMHIndex(2);
 			}
 		}
 		int joinMinResultSize = 0;
@@ -191,13 +206,20 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
+					// TODO: fix index to use only the low entries					
 					if( joinMinSelectedForLowHigh ) {
-						// TODO: fix index to use only the low entries
 						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 					}
 					else {
-						// TODO: fix index to use only the low entries
 						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+					}
+					if( s.getEstNumTransformed() > joinThreshold ) {
+						if( joinMinSelectedForHighHigh ) {
+							joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+						}
+						else {
+							joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						}
 					}
 				}
 			}

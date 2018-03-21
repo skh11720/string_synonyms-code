@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.data;
 
 import java.io.IOException;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 
 public class Query {
@@ -13,6 +14,12 @@ public class Query {
 	public Ruleset ruleSet;
 	public Dataset indexedSet;
 	public Dataset searchedSet;
+	
+	// Added for HybridJoin. HJ Koo
+	public Dataset lowHighSet;
+	public Dataset highHighSet;
+	public Dataset targetIndexedSet;
+	
 	public TokenIndex tokenIndex;
 
 	public boolean oneSideJoin;
@@ -51,7 +58,9 @@ public class Query {
 				searchedSet = indexedSet;
 			}
 		}
-
+		// Added for HybridJoin
+		targetIndexedSet = indexedSet;
+		
 		if( DEBUG.PrintQueryON ) {
 			System.out.println( "[Query]     ruleFile: " + ruleFile + " (" + ruleSet.size() + ")" );
 			System.out.println( "[Query]  indexedFile: " + indexedFile + " (" + indexedSet.size() + ")" );
@@ -66,16 +75,58 @@ public class Query {
 		this.ruleSet = ruleSet;
 		this.indexedSet = indexedSet;
 		this.searchedSet = searchedSet;
+		
+		//Added for HybridJoin
+		this.lowHighSet = null;
+		this.highHighSet = null;
+		this.targetIndexedSet = indexedSet;
+		
 		this.tokenIndex = tokenIndex;
 		this.oneSideJoin = oneSideJoin;
 		this.selfJoin = selfJoin;
-
+		
 		if( DEBUG.PrintQueryON ) {
 			System.out.println( "[Query]     ruleFile: rules (" + ruleSet.size() + ")" );
 			System.out.println( "[Query]  indexedFile: sampled one (" + indexedSet.size() + ")" );
 			System.out.println( "[Query] searchedFile: sampled two (" + searchedSet.size() + ")" );
 			System.out.println( "[Query]  oneSideJoin: " + oneSideJoin );
 			System.out.println( "[Query]     selfJoin: " + selfJoin );
+		}
+	}
+	
+	// Added for HybridJoin
+	public void divideIndexedSet(int threshold) {
+		ObjectArrayList<Record> lowhighList = new ObjectArrayList<Record>(); 
+		ObjectArrayList<Record> highhighList = new ObjectArrayList<Record>();
+		for ( Record s : this.indexedSet.get() ){
+			if ( s.getEstNumTransformed() <= threshold ){
+				lowhighList.add( s );
+			}
+			else {
+				highhighList.add( s );
+			}
+		}
+		this.lowHighSet = new Dataset( lowhighList );
+		this.highHighSet = new Dataset( highhighList );
+		
+		if ( this.indexedSet.nRecord != this.lowHighSet.nRecord + this.highHighSet.nRecord ) {
+			System.out.println( "Length MissMatch! in Query::divideIndexedSet - HJ Koo" );
+		}
+	}
+	
+	// Added for HybridJoin
+	public void setTargetIndexSet( int mode ) {
+		if ( mode == 0 ) {
+			// Original Set
+			this.targetIndexedSet = this.indexedSet;	
+		}
+		else if ( mode == 1 ) {
+			// LowHigh Set
+			this.targetIndexedSet = this.lowHighSet;
+		}
+		else if ( mode == 2 ) {
+			// HighHigh Set
+			this.targetIndexedSet = this.highHighSet;
 		}
 	}
 }

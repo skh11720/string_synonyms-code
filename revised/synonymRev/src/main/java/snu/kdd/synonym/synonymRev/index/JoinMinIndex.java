@@ -62,6 +62,9 @@ public class JoinMinIndex {
 	public long predictCount;
 
 	public JoinMinIndex( int nIndex, int qSize, StatContainer stat, Query query, int threshold, boolean writeResult ) {
+		// TODO: Need to be fixed to make index just for given sequences
+		// NOW, it makes index for all sequences
+		
 		this.idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 		this.qSize = qSize;
 
@@ -281,7 +284,7 @@ public class JoinMinIndex {
 		// find best K positions for each string in T
 		indexedCountMap = new Object2IntOpenHashMap<>();
 		estimatedCountMap = new Object2IntOpenHashMap<>();
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : query.targetIndexedSet.get() ) {
 			int[] range = rec.getTransLengths();
 
 			int searchmax = Math.min( range[ 0 ], invokes.size() );
