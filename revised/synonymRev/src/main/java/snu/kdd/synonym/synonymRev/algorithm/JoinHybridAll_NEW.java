@@ -189,6 +189,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 			
 		}
 		int joinMinResultSize = 0;
+		// TODO:: Debug Messages & adding stats are not modified as using 2 different indexes
 		if( DEBUG.JoinMinNaiveON ) {
 			if( joinWithQGramFilteringRequired ) {
 				if( joinMinSelectedForLowHigh ) {
@@ -230,14 +231,14 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					if( joinMinSelectedForLowHigh ) {
+					if( joinMinSelectedForHighHigh ) {
 						joinMinIdxHighHigh.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 					}
 					else {
 						joinMHIdxHighHigh.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 					}
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						if( joinMinSelectedForHighHigh ) {
+						if( joinMinSelectedForLowHigh ) {
 							joinMinIdxLowHigh.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 						}
 						else {
