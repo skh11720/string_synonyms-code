@@ -45,12 +45,12 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 	private boolean joinMinSelectedForHighHigh = false;
 
 	NaiveIndex naiveIndex;
-
-	JoinMinIndex joinMinIdx = null;
-	JoinMHIndex joinMHIdx = null;
 	
 	// Added for HybridJoin
 	// TODO:!!!!! 
+	JoinMinIndex joinMinIdxLowHigh = null;
+	JoinMHIndex joinMHIdxLowHigh = null;
+	
 	JoinMinIndex joinMinIdxHighHigh = null;
 	JoinMHIndex joinMHIdxHighHigh = null;
 
@@ -110,10 +110,16 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 	}
 
 	private void buildJoinMinIndex( int mode ) {
+		// TODO:: Need to save in different variable
 		// Build an index
 		query.setTargetIndexSet( mode ); // 0:Whole, 1:LowHigh, 2:HighHigh
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
-		query.setTargetIndexSet( 0 ); // Default 0
+		if ( mode == 2 ) { // HighHigh
+			joinMinIdxHighHigh = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
+		}
+		else { // LowHigh, Default
+			joinMinIdxLowHigh = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
+		}
+		query.setTargetIndexSet( 0 ); 
 	}
 
 	private void buildJoinMHIndex( int mode ) {
@@ -123,7 +129,12 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 			index[ i ] = i;
 		}
 		query.setTargetIndexSet( mode ); // 0:Whole, 1:LowHigh, 2:HighHigh
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.targetIndexedSet.get(), query, stat, index, true, true, joinThreshold );
+		if ( mode == 2 ) { // HighHigh
+			joinMHIdxHighHigh = new JoinMHIndex( indexK, qSize, query.targetIndexedSet.get(), query, stat, index, true, true, joinThreshold );
+		}
+		else { // LowHigh, Default
+			joinMHIdxLowHigh = new JoinMHIndex( indexK, qSize, query.targetIndexedSet.get(), query, stat, index, true, true, joinThreshold );
+		}
 		query.setTargetIndexSet( 0 ); // Default 0
 	}
 
@@ -151,54 +162,67 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 
 		if( joinWithQGramFilteringRequired ) {
-			// TODO: Divide the Indexed part into 2 groups and use the different indexing(Min-BK, MH-FK)
-			query.divideIndexedSet( joinThreshold );
+			if( query.oneSideJoin ) {
+				if( joinMinSelectedForLowHigh ) {
+					buildJoinMinIndex(0);
+				}
+				else {
+					buildJoinMHIndex(0);
+				}
+			}
+			else {
+				// Divide the Indexed part into 2 groups and use the different indexing(Min-BK, MH-FK)
+				query.divideIndexedSet( joinThreshold );
+				if( joinMinSelectedForLowHigh ) {
+					buildJoinMinIndex(1);
+				}
+				else {
+					buildJoinMHIndex(1);
+				}
+				if( joinMinSelectedForHighHigh ) {
+					buildJoinMinIndex(2);
+				}
+				else {
+					buildJoinMHIndex(2);
+				}
+			}
 			
-			if( joinMinSelectedForLowHigh ) {
-				buildJoinMinIndex(1);
-			}
-			else {
-				buildJoinMHIndex(1);
-			}
-			if( joinMinSelectedForHighHigh ) {
-				buildJoinMinIndex(2);
-			}
-			else {
-				buildJoinMHIndex(2);
-			}
 		}
 		int joinMinResultSize = 0;
 		if( DEBUG.JoinMinNaiveON ) {
 			if( joinWithQGramFilteringRequired ) {
 				if( joinMinSelectedForLowHigh ) {
-					stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
-					stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
-					stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
+					stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdxLowHigh.gamma ) );
+					stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdxLowHigh.searchedTotalSigCount );
+					stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdxLowHigh.countTime ) );
 
-					stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
-					stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
-					stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
+					stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdxLowHigh.delta ) );
+					stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdxLowHigh.indexedTotalSigCount );
+					stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdxLowHigh.indexTime ) );
 				}
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		}
 		buildTime.stopQuiet();
+		
+		
+		// Join!
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 		long joinstart = System.nanoTime();
 		if( joinWithQGramFilteringRequired ) {
 			if( query.oneSideJoin ) {
-				// No need to be changed
+				// No need to be changed, By Default, it uses *LowHigh Index
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
 						if( joinMinSelectedForLowHigh ) {
-							joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold,
+							joinMinIdxLowHigh.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold,
 									query.oneSideJoin );
 						}
 						else {
-							joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin,
+							joinMHIdxLowHigh.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin,
 									indexK - 1 );
 						}
 					}
@@ -206,19 +230,18 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					// TODO: fix index to use only the low entries					
 					if( joinMinSelectedForLowHigh ) {
-						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+						joinMinIdxHighHigh.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 					}
 					else {
-						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIdxHighHigh.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 					}
 					if( s.getEstNumTransformed() > joinThreshold ) {
 						if( joinMinSelectedForHighHigh ) {
-							joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
+							joinMinIdxLowHigh.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 						}
 						else {
-							joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+							joinMHIdxLowHigh.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
 						}
 					}
 				}
@@ -227,10 +250,10 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 			joinMinResultSize = rslt.size();
 			stat.add( "Join_Min_Result", joinMinResultSize );
 			if( joinMinSelectedForLowHigh ) {
-				stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
+				stat.add( "Stat_Equiv_Comparison", joinMinIdxLowHigh.equivComparisons );
 			}
 			else {
-				stat.add( "Stat_Equiv_Comparison", joinMHIdx.equivComparisons );
+				stat.add( "Stat_Equiv_Comparison", joinMHIdxLowHigh.equivComparisons );
 			}
 		}
 		double joinminJointime = System.nanoTime() - joinstart;
@@ -240,11 +263,11 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
 			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
 			if( joinWithQGramFilteringRequired ) {
-				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
-				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
+				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdxLowHigh.predictCount );
+				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdxLowHigh.predictCount ) );
 
-				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
-				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdxLowHigh.comparisonCount ) );
+				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdxLowHigh.comparisonCount );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
