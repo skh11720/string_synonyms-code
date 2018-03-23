@@ -47,7 +47,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 	NaiveIndex naiveIndex;
 	
 	// Added for HybridJoin
-	// TODO:!!!!! 
+	// LowHighs are used as default (oneSideJoin)
 	JoinMinIndex joinMinIdxLowHigh = null;
 	JoinMHIndex joinMHIdxLowHigh = null;
 	
@@ -110,7 +110,6 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 	}
 
 	private void buildJoinMinIndex( int mode ) {
-		// TODO:: Need to save in different variable
 		// Build an index
 		query.setTargetIndexSet( mode ); // 0:Whole, 1:LowHigh, 2:HighHigh
 		if ( mode == 2 ) { // HighHigh
