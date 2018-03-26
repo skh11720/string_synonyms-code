@@ -1181,6 +1181,7 @@ public class SampleEstimate_Split {
 					break;
 				}
 
+				
 				// Added 
 				// To calculate removedIndexedSigCount and removedMHIndexedSigCount
 				List<List<QGram>> availableQGrams = null;
@@ -1197,6 +1198,8 @@ public class SampleEstimate_Split {
 					}
 					removedIndexedSigCount += qgrams.size();
 				}
+				
+				
 				
 				if( indexedIdx > prevAddedIndex ) {
 					// for naive estimation
@@ -1219,6 +1222,39 @@ public class SampleEstimate_Split {
 				}
 			}
 
+			
+			
+			// Added
+			// Implementing....
+			// TODO::Estimation of 2 + 3
+			for( long index = prevAddedIndex+1; index <= indexedIdx; index++ ) {
+				
+				// Need to compute in all Searched region
+				for( int recId = 0; recId < tableSearchedSize; recId++ ) {
+					Record rec = sampleSearchedList.get( recId );
+
+					List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
+
+					int searchmax = availableQGrams.size();
+				}
+				List<BinaryCountEntry> list = indexedJoinMinPositions.get( indexedIdx );
+
+				for( BinaryCountEntry count : list ) {
+					// for joinmin estimation
+					removedJoinMinComparison += count.smallListSize;
+				}
+
+				list = indexedJoinMHPositions.get( indexedIdx );
+				for( BinaryCountEntry count : list ) {
+					// for joinmh estimation
+					removedJoinMHComparison += count.smallListSize;
+				}
+			}
+			
+			
+			
+			
+			
 			prevAddedIndex = indexedIdx;
 			long nextThreshold;
 
@@ -1260,8 +1296,8 @@ public class SampleEstimate_Split {
 			*/
 			
 			// Added for HybridJoin
-			// TODO: removedMHIndexedSigCount, removedIndexedSigCount
-			// Done: removedSearchedSigCount
+			// TODO:: # of comparisons needs to be estimated
+			// removedMHIndexedSigCount, removedIndexedSigCount, removedSearchedSigCount
 			double joinminEstimationHighHigh = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount - removedIndexedSigCount,
 					totalJoinMinInvokesHighHigh - removedJoinMinComparison );
 			double joinmhEstimationHighHigh = this.getEstimateJoinMH( searchedTotalSigCount, joinMHIndexedSigCount - removedMHIndexedSigCount,
