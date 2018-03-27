@@ -1012,13 +1012,9 @@ public class SampleEstimate_Split {
 		
 		// Added for HybridJoin
 		long removedSearchedSigCount = 0;
+		List<Long> comparisonMHList = new ArrayList<Long>();
+		List<Long> comparisonMinList = new ArrayList<Long>();
 		
-		double totalJoinMinInvokesHighHigh = 0;
-		double totalJoinMHInvokesHighHigh = 0;
-		double totalJoinMinInvokesLowHigh = 0;
-		double totalJoinMHInvokesLowHigh = 0;
-		
-		// TODO:: Does not need to be modified ...!?
 		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
 			Record rec = sampleIndexedList.get( recId );
 
@@ -1076,10 +1072,13 @@ public class SampleEstimate_Split {
 			
 			// TODO: Question
 			// Min indexes are fixed without considering threshold. Is it correct?
-			
 			Map<QGram, BinaryCountEntry> minJoinMinInvokes = invokes.get( minJoinMinIndex );
 			Map<QGram, BinaryCountEntry> minJoinMHInvokes = invokes.get( minJoinMHIndex );
-
+			
+			// Added
+			comparisonMinList.add(minJoinMinComparison);
+			comparisonMHList.add(minJoinMHComparison);
+			
 			totalJoinMinInvokes += minJoinMinComparison;
 			totalJoinMHInvokes += minJoinMHComparison;
 
@@ -1104,6 +1103,10 @@ public class SampleEstimate_Split {
 		// Prefix sums
 		double currExpSize = 0;
 
+		// Added
+		long removedMinTwoThree = 0;
+		long removedMHTwoThree = 0;
+		
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		int prevAddedIndex = -1;
 
@@ -1145,7 +1148,7 @@ public class SampleEstimate_Split {
 				for( int i = 0; i < searchmax; ++i ) {
 					// From Searched
 					Map<QGram, BinaryCountEntry> currPositionalCount = invokes.get( i );
-					// From Indexed
+					// From Searched
 					List<QGram> positionalQGram = availableQGrams.get( i );
 					
 					// Added
@@ -1222,38 +1225,14 @@ public class SampleEstimate_Split {
 				}
 			}
 
-			
-			
 			// Added
 			// Implementing....
 			// TODO::Estimation of 2 + 3
-			for( long index = prevAddedIndex+1; index <= indexedIdx; index++ ) {
-				
-				// Need to compute in all Searched region
-				for( int recId = 0; recId < tableSearchedSize; recId++ ) {
-					Record rec = sampleSearchedList.get( recId );
-
-					List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
-
-					int searchmax = availableQGrams.size();
-				}
-				List<BinaryCountEntry> list = indexedJoinMinPositions.get( indexedIdx );
-
-				for( BinaryCountEntry count : list ) {
-					// for joinmin estimation
-					removedJoinMinComparison += count.smallListSize;
-				}
-
-				list = indexedJoinMHPositions.get( indexedIdx );
-				for( BinaryCountEntry count : list ) {
-					// for joinmh estimation
-					removedJoinMHComparison += count.smallListSize;
-				}
+			for( int index = prevAddedIndex+1; index <= indexedIdx && index < tableIndexedSize; index++ ) {
+				removedMinTwoThree += comparisonMinList.get(index); 
+				removedMHTwoThree += comparisonMHList.get(index); 
 			}
-			
-			
-			
-			
+						
 			
 			prevAddedIndex = indexedIdx;
 			long nextThreshold;
@@ -1299,14 +1278,14 @@ public class SampleEstimate_Split {
 			// TODO:: # of comparisons needs to be estimated
 			// removedMHIndexedSigCount, removedIndexedSigCount, removedSearchedSigCount
 			double joinminEstimationHighHigh = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount - removedIndexedSigCount,
-					totalJoinMinInvokesHighHigh - removedJoinMinComparison );
+					totalJoinMinInvokes- removedMinTwoThree );
 			double joinmhEstimationHighHigh = this.getEstimateJoinMH( searchedTotalSigCount, joinMHIndexedSigCount - removedMHIndexedSigCount,
-					totalJoinMHInvokesHighHigh - removedJoinMHComparison );
+					totalJoinMHInvokes- removedMHTwoThree );
 			
 			double joinminEstimationLowHigh = this.getEstimateJoinMin( searchedTotalSigCount - removedSearchedSigCount, removedIndexedSigCount,
-					totalJoinMinInvokesLowHigh - removedJoinMinComparison );
+					removedMinTwoThree - removedJoinMinComparison );
 			double joinmhEstimationLowHigh = this.getEstimateJoinMH( searchedTotalSigCount - removedSearchedSigCount, removedMHIndexedSigCount,
-					totalJoinMHInvokesLowHigh - removedJoinMHComparison );
+					removedMHTwoThree - removedJoinMHComparison );
 			
 
 			boolean tempJoinMinSelectedHighHigh = joinminEstimationHighHigh < joinmhEstimationHighHigh;
@@ -1326,8 +1305,11 @@ public class SampleEstimate_Split {
 			}
 			
 			// Added
-			Util.printLog( String.format( "S_Total: %d S_removed: %d I_Total: %d I_Min_removed: %d I_MH_removed: %d", searchedTotalSigCount, removedSearchedSigCount,
+			Util.printLog( String.format( "COMPARISON MinTotal: %.1f MHTotal: %.1f 23_Min_removed: %d 23_MH_removed: %d 12_Min_removed: %.1f 12_MH_removed %.1f", totalJoinMinInvokes, totalJoinMHInvokes,
+					removedMinTwoThree, removedMHTwoThree, removedJoinMinComparison, removedJoinMHComparison ) );
+			Util.printLog( String.format( "INDEX_SIZE S_Total: %d S_removed: %d I_Total: %d I_Min_removed: %d I_MH_removed: %d", searchedTotalSigCount, removedSearchedSigCount,
 					indexedTotalSigCount, removedIndexedSigCount, removedMHIndexedSigCount ) );
+			
 			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
 					naiveEstimation, joinminEstimationHighHigh, naiveEstimation + joinminEstimationHighHigh ) );
 			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
