@@ -154,7 +154,7 @@ public class GuiMain extends JFrame {
 			}
 
 			String arg = "-dataOnePath " + dataFilePath + " -dataTwoPath " + dataFilePath + " -rulePath " + ruleFilePath
-					+ " -outputPath output -oneSideJoin true";
+					+ " -outputPath output -oneSideJoin False";
 			String additional = null;
 
 			String command = evt.getActionCommand();

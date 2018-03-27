@@ -1155,7 +1155,6 @@ public class SampleEstimate_Split {
 					removedSearchedSigCount += positionalQGram.size();
 					
 					for( QGram qgram : positionalQGram ) {
-						// TODO:: What if there is no qgram in currPositionalCount?
 						BinaryCountEntry count = currPositionalCount.get( qgram );
 						count.fromLargeToSmall();
 					}
@@ -1305,10 +1304,24 @@ public class SampleEstimate_Split {
 			}
 			
 			// Added
-			Util.printLog( String.format( "COMPARISON MinTotal: %.1f MHTotal: %.1f 23_Min_removed: %d 23_MH_removed: %d 12_Min_removed: %.1f 12_MH_removed %.1f", totalJoinMinInvokes, totalJoinMHInvokes,
-					removedMinTwoThree, removedMHTwoThree, removedJoinMinComparison, removedJoinMHComparison ) );
+			Util.printLog("Min");
+			Util.printLog( String.format( "COMPARISON MinTotal: %.1f 23_removed: %d 12_removed: %.1f", totalJoinMinInvokes,
+					removedMinTwoThree, removedJoinMinComparison ) );
+			Util.printLog( String.format( "TIME Naive: %.1f LowHigh: %.1f HighHigh: %.1f", naiveEstimation, joinminEstimationLowHigh,
+					joinminEstimationHighHigh) );
+			Util.printLog("MH");
+			Util.printLog( String.format( "COMPARISON MinTotal: %.1f 23_removed: %d 12_removed: %.1f", totalJoinMHInvokes,
+					removedMHTwoThree, removedJoinMHComparison ) );
+			Util.printLog( String.format( "TIME Naive: %.1f LowHigh: %.1f HighHigh: %.1f", naiveEstimation, joinmhEstimationLowHigh,
+					joinmhEstimationHighHigh) );
+			
+			Util.printLog( String.format( "TIME COMPARISON Min %.1f VS MH %.1f", (naiveEstimation+joinminEstimationLowHigh+joinminEstimationHighHigh)/10000,
+					(naiveEstimation+joinmhEstimationLowHigh+joinmhEstimationHighHigh)/10000) );
+			
+			
 			Util.printLog( String.format( "INDEX_SIZE S_Total: %d S_removed: %d I_Total: %d I_Min_removed: %d I_MH_removed: %d", searchedTotalSigCount, removedSearchedSigCount,
 					indexedTotalSigCount, removedIndexedSigCount, removedMHIndexedSigCount ) );
+			
 			
 			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
 					naiveEstimation, joinminEstimationHighHigh, naiveEstimation + joinminEstimationHighHigh ) );
