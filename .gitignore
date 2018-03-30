@@ -18,7 +18,7 @@ JiahengLu/
 result/
 output/
 exp/~$exp.xlsx
-/data/
+data/
 exp/~$exp2.xlsx
 exp/~$JoinNaive1_1.0.xlsx
 exp/~$JoinMH_QL_1.1.xlsx
@@ -31,3 +31,6 @@ exp/JoinBKSP_2.0
 exp/JoinMHSP_2.0
 exp/JoinBKSP_2.1
 exp/JoinBK_2.1
+yjpark_*.xml
+revised/synonymRev/.settings/*
+Image4Qst/*

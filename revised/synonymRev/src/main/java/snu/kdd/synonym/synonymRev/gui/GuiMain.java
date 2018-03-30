@@ -154,7 +154,7 @@ public class GuiMain extends JFrame {
 			}
 
 			String arg = "-dataOnePath " + dataFilePath + " -dataTwoPath " + dataFilePath + " -rulePath " + ruleFilePath
-					+ " -outputPath output -oneSideJoin true";
+					+ " -outputPath output -oneSideJoin False";
 			String additional = null;
 
 			String command = evt.getActionCommand();
@@ -184,7 +184,9 @@ public class GuiMain extends JFrame {
 			else if( command.equals( "JoinHybridOpt" ) ) {
 				String sample = sampleTextField.getText();
 				arg = arg + " -algorithm JoinHybridOpt -additional";
-				additional = "-compact -v TopDownHashSetSinglePathDS 0 -s " + sample;
+				// TODO:: compact option is not implemented and it is not clear which option it is
+				// additional = "-compact -v TopDownHashSetSinglePathDS 0 -s " + sample;
+				additional = "TopDownHashSetSinglePathDS 0 -sample " + sample;
 			}
 			else if( command.equals( "JoinBKSP" ) ) {
 				arg = arg + " -algorithm JoinBK -split -additional";

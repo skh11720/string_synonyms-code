@@ -62,6 +62,9 @@ public class JoinMHIndex {
 
 	public JoinMHIndex(int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
 			int[] indexPosition, boolean addStat, boolean useIndexCount, int threshold) {
+		// TODO: Need to be fixed to make index just for given sequences
+		// NOW, it makes index for all sequences
+		
 		long starttime = System.nanoTime();
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;

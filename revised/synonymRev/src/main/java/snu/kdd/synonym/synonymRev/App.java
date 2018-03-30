@@ -27,6 +27,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMinRange;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll_NEW;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
@@ -173,6 +174,10 @@ public class App {
 			alg = new PrintManyEstimated( query, stat );
 			break;
 
+		case JoinHybridOpt:
+			alg = new JoinHybridAll_NEW( query, stat );
+			break;
+			
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );
