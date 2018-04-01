@@ -38,8 +38,8 @@ RUN_JoinMHNaive=False
 #RUN_JoinMHNaiveThres=True
 RUN_JoinMHNaiveThres=False
 
-#RUN_JoinHybridAll=True
-RUN_JoinHybridAll=False
+RUN_JoinHybridAll=True
+#RUN_JoinHybridAll=False
 
 #RUN_JoinBK=True
 RUN_JoinBK=False

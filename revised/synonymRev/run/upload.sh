@@ -13,7 +13,7 @@ then
         git clone ssh://yjpark@147.46.143.74/home/yjpark/repository/ExperimentUploader/
 else
         cd uploader/ExperimentUploader
-        git pull
+#        git pull
 fi
 
 cd -
