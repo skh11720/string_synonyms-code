@@ -1,7 +1,0 @@
-2017/08/11 12:50:45 [StopWatch.stop] Result_1_Initialize_Time ran for 4505ms (total: 4505ms)
-2017/08/11 12:50:54 [StopWatch.stop] Result_2_Preprocess_Total_Time ran for 8959ms (total: 8959ms)
-2017/08/11 12:50:54 [JoinMinRange.statistics] Average str length: 9011850/2000000
-2017/08/11 12:50:54 [JoinMinRange.statistics] Maximum str length: 10
-2017/08/11 12:50:54 [JoinMinRange.statistics] Average rhs length: 150237/100000
-2017/08/11 12:50:54 [JoinMinRange.statistics] Maximum rhs length: 2
-2017/08/11 12:52:10 [StopWatch.stop] Result_3_1_1_Index_Count_Time ran for 75829ms (total: 75829ms)
