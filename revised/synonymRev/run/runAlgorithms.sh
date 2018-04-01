@@ -307,6 +307,18 @@ if [[ $# -ne 21 ]];
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
+		for ((k=HYBRID_K_START;k<=HYBRID_K_END;k++)); do
+			for ((q=HYBRID_Q_START;q<=HYBRID_Q_END;q++)); do
+				for sample in "${HYBRID_SAMPLE[@]}"; do
+					date
+					./joinHybridAll_NEW.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sample $k $q $project $oneSide $UPLOAD
+					date
+					./compare.sh $PREV JoinHybridAll_NEW
+				done
+			done
+		done
+		PREV="JoinHybridAll"
+
 		#./joinCatesian.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide False $UPLOAD
 		#./compare.sh $PREV JoinCatesian
 		#./joinCatesian.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide True $UPLOAD
@@ -324,8 +336,7 @@ if [[ $# -ne 21 ]];
 
 		#./joinSI.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
 
-		./printManyEstimated.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
-		#./equivTest.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
+		#./printManyEstimated.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide $UPLOAD
 
 	fi
 fi

@@ -162,6 +162,10 @@ public class App {
 			alg = new JoinHybridAll( query, stat );
 			break;
 
+		case JoinHybridAll_NEW:
+			alg = new JoinHybridAll_NEW( query, stat ); 
+			break;
+
 		case SIJoin:
 			alg = new SIJoin( query, stat );
 			break;
@@ -177,7 +181,7 @@ public class App {
 		case JoinHybridOpt:
 			alg = new JoinHybridAll_NEW( query, stat );
 			break;
-			
+
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );

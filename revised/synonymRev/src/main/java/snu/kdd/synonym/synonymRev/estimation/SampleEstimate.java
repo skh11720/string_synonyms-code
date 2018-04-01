@@ -24,6 +24,8 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
+// Refactoring code for estimate
+
 public class SampleEstimate {
 
 	// alpha: Naive indexing time per transformed strings of table T
