@@ -164,6 +164,7 @@ public class App {
 
 		case JoinHybridAll_NEW:
 			alg = new JoinHybridAll_NEW( query, stat ); 
+			break;
 
 		case SIJoin:
 			alg = new SIJoin( query, stat );
