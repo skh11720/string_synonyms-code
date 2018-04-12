@@ -33,6 +33,7 @@ public abstract class AlgorithmTemplate {
 		JoinMHNaive,
 		JoinMHNaiveThres,
 		JoinHybridAll,
+		JoinHybridAll_NEW,
 		SIJoin,
 		EquivTest,
 		EstimatedOut,
