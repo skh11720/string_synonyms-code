@@ -350,7 +350,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.6";
+		return "2.7";
 	}
 
 	@Override
