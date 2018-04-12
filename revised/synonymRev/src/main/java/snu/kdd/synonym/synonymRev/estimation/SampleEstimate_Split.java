@@ -1227,6 +1227,7 @@ public class SampleEstimate_Split {
 			// Added
 			// Implementing....
 			// TODO::Estimation of 2 + 3
+			Util.printLog(String.format( "prevIdx: %d, Idx: %d, currThreshold: %d", prevAddedIndex, indexedIdx, currentThreshold ));
 			for( int index = prevAddedIndex+1; index <= indexedIdx && index < tableIndexedSize; index++ ) {
 				removedMinTwoThree += comparisonMinList.get(index); 
 				removedMHTwoThree += comparisonMHList.get(index); 
@@ -1274,8 +1275,6 @@ public class SampleEstimate_Split {
 			*/
 			
 			// Added for HybridJoin
-			// TODO:: # of comparisons needs to be estimated
-			// removedMHIndexedSigCount, removedIndexedSigCount, removedSearchedSigCount
 			double joinminEstimationHighHigh = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount - removedIndexedSigCount,
 					totalJoinMinInvokes- removedMinTwoThree );
 			double joinmhEstimationHighHigh = this.getEstimateJoinMH( searchedTotalSigCount, joinMHIndexedSigCount - removedMHIndexedSigCount,
@@ -1327,8 +1326,8 @@ public class SampleEstimate_Split {
 					naiveEstimation, joinminEstimationHighHigh, naiveEstimation + joinminEstimationHighHigh ) );
 			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
 					naiveEstimation, joinmhEstimationHighHigh, naiveEstimation + joinmhEstimationHighHigh ) );
-			Util.printLog( "JoinMin Selected HighHigh " + tempJoinMinSelectedHighHigh );
-			Util.printLog( "JoinMin Selected LowHigh " + tempJoinMinSelectedLowHigh );
+			Util.printLog( "JoinMin Selected HighHigh & Low High" + tempJoinMinSelectedHighHigh + tempJoinMinSelectedLowHigh);
+			//Util.printLog( "JoinMin Selected LowHigh " +  );
 			
 			double tempBestTime = naiveEstimation;
 

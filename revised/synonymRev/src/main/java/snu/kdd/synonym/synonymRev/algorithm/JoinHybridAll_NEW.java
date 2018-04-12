@@ -146,17 +146,43 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findConstants( sampleRatio );
 		
+		//Original
 		joinThreshold = estimate.findThetaJoinHybridAll( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
 				query.oneSideJoin );
-
 		joinMinSelectedForLowHigh = estimate.getJoinMinSelectedLowHigh();
 		joinMinSelectedForHighHigh = estimate.getJoinMinSelectedHighHigh();
-
+		
+		int Min4LowHigh = (joinMinSelectedForLowHigh) ? 1 : 0;
+		int Min4HighHigh = (joinMinSelectedForHighHigh) ? 1 : 0;
+		
+		stat.add( "Auto_Best_Threshold", joinThreshold );
+		stat.add( "joinMinSelectedForLowHigh", Min4LowHigh );
+		stat.add( "joinMinSelectedForHighHigh", Min4HighHigh );
+		
+//		// For Testing
+//		ArrayList<Integer> thresholds = new ArrayList<Integer>();
+//		for (int i=0; i< 10; i++) {
+//			// Modify the constants
+//			// JoinMin( gamma, delta, epsilon ), Naive ( alpha, beta ), JoinMH ( eta, theta, iota )
+//			estimate.gamma = estimate.gamma * 0.8;
+//			estimate.delta = estimate.delta * 0.8;
+//			estimate.epsilon = estimate.epsilon * 0.8;
+//			
+//			// Calculate the threshold with modified constants
+//			int newJoinThreshold = estimate.findThetaJoinHybridAll( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
+//					query.oneSideJoin );
+//			thresholds.add(newJoinThreshold);
+//		}
+//		Util.printLog( "Original Selected Threshold: " + joinThreshold );
+//		for (int threshold : thresholds) {
+//			Util.printLog( "new threshold: " + threshold );
+//		}
+		
+		
 		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
 			joinWithQGramFilteringRequired = false;
 		}
 
-		Util.printLog( "Selected Threshold: " + joinThreshold );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 
