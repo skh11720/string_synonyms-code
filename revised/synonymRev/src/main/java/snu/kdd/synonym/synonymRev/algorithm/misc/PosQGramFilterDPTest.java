@@ -22,14 +22,12 @@ class PosQGramFilterDP {
 	
 	private final Record record;
 	private final int q;
-	private final Query query;
 	private Boolean[][] bTransLen;
 	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
 	
-	public PosQGramFilterDP(final Record record, final int q, final Query query) {
+	public PosQGramFilterDP(final Record record, final int q) {
 		this.record = record;
 		this.q = q;
-		this.query = query;
 		computeTransformedLength();
 	}
 	
@@ -58,53 +56,14 @@ class PosQGramFilterDP {
 		// bottom-up recursion
 		for (int i=1; i<=record.size(); i++) {
 			for (int j=1; j<=q; j++) {
-				for (final Rule rule : record.getSuffixApplicableRules( i-1 )) {
-					int i_back = i - rule.leftSize();
-					assert i_back >= 0;
 
-					// prepare
-					int start;
-					int[] rhs_padded;
-					if (i == record.size()) {
-						rhs_padded = new int[rule.rightSize()+q-1]; // TODO: make more efficient!
-						for (int ii=0; ii<rhs_padded.length; ii++) {
-							if (ii < rule.rightSize()) rhs_padded[ii] = rule.getRight()[ii];
-							else rhs_padded[ii] = Integer.MAX_VALUE;
-						}
-					}
-					else rhs_padded = rule.getRight();
-
-//					if (debug) System.out.println( ""+i+", "+j+", "+i_back+", "+rule.toString() );
-					
-					// Case 0-1
-					for (int j_start=0; j_start<j; j_start++) {
-						if ( Arrays.equals( Arrays.copyOfRange( qgram.qgram, j_start, j ), rule.getRight() ) ) bGen[0][i][j] |= bGen[0][i_back][j_start];
-					}
-					
-					// Case 0-2
-					if (isSuffixOf( qgram.qgram, 0, j, rhs_padded )) bGen[0][i][j] |= getBTransLen(i_back, k - (rhs_padded.length - j) );
-					
-					// Case 1-1
-					if (bGen[0][i][j]) bGen[1][i][j] = true;
-					
-					// Case 1-2
-					bGen[1][i][j] |= bGen[1][i_back][j];
-//					if (debug) System.out.println( "case 1: "+bGen[1][i][j] );
-					
-					// Case 1-3
-					for (int j_start=0; j_start<j; j_start++) {
-						Boolean aa = isPrefixOf( qgram.qgram, j_start, j, rule.getRight() );
-						if (debug) System.out.println( aa+", "+bGen[1][i_back][j_start]+", "+Arrays.toString( qgram.qgram )+", "+j_start+", "+j+", "+Arrays.toString( rule.getRight() ));
-						if ( isPrefixOf( qgram.qgram, j_start, j, rule.getRight() ) ) bGen[1][i][j] |= bGen[0][i_back][j_start];
-					}
-//					if (debug) System.out.println( "case 2: "+bGen[1][i][j] );
-					
-					// Case 1-4
-					start = isSubstringOf( qgram.qgram, j, rhs_padded );
-					if (start != -1) bGen[1][i][j] |= getBTransLen(i_back, k-start);
-//					if (debug) System.out.println( "case 3: "+bGen[1][i][j]+"\t"+start);
-//					if (debug) System.out.println( Arrays.toString( qgram.qgram )+"\t"+Arrays.toString( rule.getRight() ));
+				if (i == record.size() && qgram.qgram[j-1] == Integer.MAX_VALUE) {
+					bGen[0][i][j] = bGen[1][i][j] = bGen[0][i][j-1];
+					continue;
 				}
+
+				bGen[0][i][j] |= recursion0( qgram, k, i, j, bGen );
+				bGen[1][i][j] |= recursion1( qgram, k, i, j, bGen );
 			}
 		}
 		if (debug) System.out.println( "["+Arrays.toString( qgram.qgram )+", "+k+"]" );
@@ -119,6 +78,58 @@ class PosQGramFilterDP {
 	public Boolean getBTransLen(final int i, final int l) {
 		if (l < 0) return false;
 		else return bTransLen[i][l];
+	}
+	
+	public Boolean recursion0(final QGram qgram, final int k, final int i, final int j, final Boolean[][][] bGen) {
+		/*
+		 * Compute bGen[0][i][j] and return the result.
+		 */
+
+		for (final Rule rule : record.getSuffixApplicableRules( i-1 )) {
+			int i_back = i - rule.leftSize();
+			assert i_back >= 0;
+			
+			// Case 0-1
+			// TODO: can be improved
+			for (int j_start=0; j_start<j; j_start++) {
+				if ( Arrays.equals( Arrays.copyOfRange( qgram.qgram, j_start, j ), rule.getRight() ) ) if (bGen[0][i_back][j_start]) return true;
+			}
+			
+			// Case 0-2
+			if (isSuffixOf( qgram.qgram, 0, j, rule.getRight())) if(getBTransLen(i_back, k - (rule.rightSize() - j) )) return true;
+		}
+		return false;
+	}
+	
+	public Boolean recursion1(final QGram qgram, final int k, final int i, final int j, final Boolean[][][] bGen) {
+		/*
+		 * Compute bGen[1][i][j] and return the result.
+		 */
+
+		for (final Rule rule : record.getSuffixApplicableRules( i-1 )) {
+			int i_back = i - rule.leftSize();
+			assert i_back >= 0;
+			
+			// Case 1-1
+			if (bGen[0][i][j]) return true;
+			
+			// Case 1-2
+			if (bGen[1][i_back][j]) return true;
+			
+			// Case 1-3
+			// TODO: can be improved
+			for (int j_start=0; j_start<j; j_start++) {
+				if ( isPrefixOf( qgram.qgram, j_start, j, rule.getRight() ) ) 
+					if (bGen[0][i_back][j_start]) return true;
+			}
+			
+			// Case 1-4
+			int start = isSubstringOf( qgram.qgram, j, rule.getRight());
+			if (start != -1 && getBTransLen(i_back, k-start)) return true;
+	//		if (debug) System.out.println( "case 3: "+bGen[1][i][j]+"\t"+start);
+	//		if (debug) System.out.println( Arrays.toString( qgram.qgram )+"\t"+Arrays.toString( rule.getRight() ));
+		}
+		return false;
 	}
 	
 	public void testIsSubstringOf() {
@@ -351,7 +362,7 @@ public class PosQGramFilterDPTest {
 //		final int[] idxArray = {2, 5, 8077, 11165, 12444};
 		final int[] idxArray = {};
 		final IntOpenHashSet idxSet = new IntOpenHashSet(idxArray);
-		for (int i=0; i<1000; i++) idxSet.add( i );
+		for (int i=0; i<2000; i++) idxSet.add( i );
 		final int pos_max = 30;
 		ObjectArrayList<Record> sample_records = new ObjectArrayList<Record>();
 		ObjectOpenHashSet<Rule> sample_rules = new ObjectOpenHashSet<Rule>();
@@ -409,6 +420,12 @@ public class PosQGramFilterDPTest {
 		/* check the retrieved data */
 //		check_samples( query, sample_records, sample_rules, sample_pos_qgrams );
 		
+		System.out.println( "Number of records: "+sample_records.size() );
+		System.out.println( "Number of rules: "+sample_rules.size() );
+		int n_pos_qgrams = 0;
+		for (int i=0; i<sample_pos_qgrams.size(); i++) n_pos_qgrams += sample_pos_qgrams.get( i ).size();
+		System.out.println( "Number of pos q-grams: "+n_pos_qgrams);
+		
 		int ridx = 0;
 		StopWatch totalTime = StopWatch.getWatchStarted( "total time" );
 		for (final Record record : sample_records) {
@@ -417,7 +434,7 @@ public class PosQGramFilterDPTest {
 			System.out.println( "record "+ridx+": "+Arrays.toString( record.getTokensArray()) );
 //		final Record record = sample_records.get( 4 );
 //			inspect_record( record, query, q );
-			PosQGramFilterDP posQGramFilterDP = new PosQGramFilterDP(record, q, query);
+			PosQGramFilterDP posQGramFilterDP = new PosQGramFilterDP(record, q);
 //			posQGramFilterDP.testIsSubstringOf();
 //			posQGramFilterDP.testIsPrefixOf();
 			for (int pos=0; pos<sample_pos_qgrams.size(); pos++ ) {
