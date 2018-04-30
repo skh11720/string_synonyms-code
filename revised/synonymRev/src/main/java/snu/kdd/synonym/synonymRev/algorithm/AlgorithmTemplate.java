@@ -39,6 +39,7 @@ public abstract class AlgorithmTemplate {
 		EstimatedOut,
 		EstimationTest,
 		JoinHybridOpt,
+		JoinPkduck,
 	}
 
 	// contains statistics of the algorithm

@@ -37,6 +37,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
+import vldb17.JoinPkduck;
 
 public class App {
 	private static Options argOptions;
@@ -180,6 +181,10 @@ public class App {
 
 		case JoinHybridOpt:
 			alg = new JoinHybridAll_NEW( query, stat );
+			break;
+			
+		case JoinPkduck:
+			alg = new JoinPkduck( query, stat );
 			break;
 
 		default:

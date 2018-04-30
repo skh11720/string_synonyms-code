@@ -39,6 +39,17 @@ public class QGram {
 			return false;
 		}
 	}
+	
+	public boolean equals( int[] o ) {
+		if (o == null ) return false;
+		if (qgram.length == o.length) {
+			for (int i=0; i<qgram.length; i++) {
+				if ( qgram[i] != o[i] ) return false;
+			}
+			return true;
+		}
+		else return false;
+	}
 
 	@Override
 	public int hashCode() {

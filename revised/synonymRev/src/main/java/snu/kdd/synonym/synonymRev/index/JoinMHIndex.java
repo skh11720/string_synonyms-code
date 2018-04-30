@@ -436,6 +436,11 @@ public class JoinMHIndex {
 				Record record = entry.getKey();
 				int recordCount = entry.getIntValue();
 
+				/*
+				 *  04.27.18, ghsong: in the below condition A || B, why do we check B?
+				 *  Since indexedCountList has no info for recS in S, condition B is useless.
+				 *  Thus,it seems that checking A only is enough.
+				 */
 				if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 					candidates.add(record);
 				}
