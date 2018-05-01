@@ -1,5 +1,6 @@
 package snu.kdd.synonym.synonymRev.validator;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -9,7 +10,9 @@ public class Naive extends Validator {
 
 	public int isEqual( Record x, Record y ) {
 		// If there is no pre-expanded records, do expand
-		if( x.equals( y ) ) {
+		++checked;
+//		if( x.equals( y ) ) {
+		if (Arrays.equals( x.getTokensArray(), y.getTokensArray() )) {
 			return 1;
 		}
 
@@ -53,6 +56,6 @@ public class Naive extends Validator {
 	}
 
 	public String getName() {
-		return "NaiveOneSide";
+		return "NaiveValidator";
 	}
 }
