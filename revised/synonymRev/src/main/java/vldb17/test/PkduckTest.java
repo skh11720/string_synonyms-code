@@ -3,6 +3,8 @@ package vldb17.test;
 import java.io.IOException;
 import java.util.Set;
 
+import org.apache.commons.cli.ParseException;
+
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -59,13 +61,13 @@ public class PkduckTest {
 		System.out.println( "PkduckTest.dpTest finished" );
 	}
 	
-	public static void joinTest() throws IOException {
+	public static void joinTest(GlobalOrder globalOrder) throws IOException, ParseException {
 		StatContainer stat = new StatContainer();
 		JoinPkduck joinPkduck = new JoinPkduck( query, stat );
-		joinPkduck.run( query, null );
+			joinPkduck.run( query, new String[] {"-globalOrder", globalOrder.toString()});
 	}
 	
-	public static void main( String[] args ) throws IOException {
+	public static void main( String[] args ) throws IOException, ParseException {
 		SampleDataTest data = new SampleDataTest( 1 );
 		query = data.query;
 		PkduckIndex index;
@@ -73,13 +75,15 @@ public class PkduckTest {
 
 		globalOrder = GlobalOrder.PositionFirst;
 		System.out.println( "Global order: "+globalOrder.name() );
-		index = indexTest(globalOrder);
-		dpTest(index);
+//		index = indexTest(globalOrder);
+//		dpTest(index);
+		joinTest( globalOrder );
 
 		globalOrder = GlobalOrder.TokenIndexFirst;
 		System.out.println( "Global order: "+globalOrder.name() );
-		index = indexTest(globalOrder);
-		dpTest(index);
-//		joinTest();
+//		index = indexTest(globalOrder);
+//		dpTest(index);
+		joinTest( globalOrder );
+
 	}
 }

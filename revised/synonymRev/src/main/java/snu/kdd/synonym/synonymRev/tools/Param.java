@@ -14,6 +14,7 @@ import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
+import vldb17.PkduckIndex.GlobalOrder;
 
 public class Param {
 	private static final Options argOptions;
@@ -25,6 +26,7 @@ public class Param {
 		options.addOption( "sample", true, "Sampling Ratio" );
 		options.addOption( "t", true, "Threshold" );
 		options.addOption( "noLength", false, "No Length Filtering" );
+		options.addOption( "globalOrder", true, "Global order of pos q-grams" );
 		options.addOption( "naiveVal", false, "Naive Validator" );
 
 		argOptions = options;
@@ -57,6 +59,14 @@ public class Param {
 		if( cmd.hasOption( "noLength" ) ) {
 			param.noLength = true;
 		}
+		
+		if( cmd.hasOption( "globalOrder" ) ) {
+			param.globalOrder = GlobalOrder.valueOf( cmd.getOptionValue( "globalOrder" ) );
+			if (param.globalOrder == null) {
+				try { throw new Exception( "globalOrder cannot be null"); }
+				catch (Exception e ) {e.printStackTrace();}
+			}
+		}
 
 		if( cmd.hasOption( "naiveVal" ) ) {
 			if( query.oneSideJoin ) {
@@ -84,4 +94,5 @@ public class Param {
 	public Validator validator;
 	public int threshold = 10;
 	public boolean noLength = false;
+	public GlobalOrder globalOrder = null;
 }
