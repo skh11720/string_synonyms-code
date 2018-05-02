@@ -17,7 +17,17 @@ public class GreedyValidator extends Validator{
 	private final Boolean oneSideJoin;
 	private long nCorrect = 0;
 	
-	private final static Boolean debug = false;
+	private final static Boolean getTime = false;
+	private final static Boolean debugPrint = false;
+	public long ts;
+	public long totalTime = 0;
+	public long ruleCopyTime = 0;
+	public long computeScoreTime = 0;
+	public long bestRuleTime = 0;
+	public long removeRuleTime = 0;
+	public long bTransformTime = 0;
+	public long reconstTime = 0;
+	public long compareTime = 0;
 	
 	public GreedyValidator(Boolean oneSideJoin) {
 		this.oneSideJoin = oneSideJoin;
@@ -31,6 +41,7 @@ public class GreedyValidator extends Validator{
 		if( areSameString( x, y )) return 0; 
 		
 		if (this.oneSideJoin) {
+			ts = System.nanoTime();
 			// Make a copy of applicable rules to x.
 			List<PosRule> candidateRules = new ObjectArrayList<PosRule>( x.getNumApplicableRules() );
 			for (int i=0; i<x.size(); i++) {
@@ -38,6 +49,7 @@ public class GreedyValidator extends Validator{
 					candidateRules.add( new PosRule(rule, i) );
 				}
 			}
+			if (getTime) ruleCopyTime += System.nanoTime() - ts;
 			
 			Boolean[] bAvailable = new Boolean[x.size()];
 			Arrays.fill( bAvailable, true );
@@ -46,8 +58,9 @@ public class GreedyValidator extends Validator{
 			Set<PosRule> appliedRuleSet = new ObjectOpenHashSet<PosRule>();
 			
 			while (!bTransformedAll) {
-				if (debug) System.out.println( "loop start" );
-				if (debug) System.out.println( "bAvailable: "+Arrays.toString( bAvailable ) );
+				if (getTime) ts = System.nanoTime();
+				if (debugPrint) System.out.println( "loop start" );
+				if (debugPrint) System.out.println( "bAvailable: "+Arrays.toString( bAvailable ) );
 				// Compute scores of the remaining candidate rules.
 				float bestScore = -1;
 				int bestRuleIdx = -1;
@@ -62,7 +75,14 @@ public class GreedyValidator extends Validator{
 						bestScore = score;
 						bestRuleIdx = i;
 					}
-					if (debug) System.out.println( rule.rule+"\t"+rule.pos+"\t"+score+"\t"+bestScore+"\t"+bestRuleIdx );
+					
+					if (bestScore == 1) break;
+					if (debugPrint) System.out.println( rule.rule+"\t"+rule.pos+"\t"+score+"\t"+bestScore+"\t"+bestRuleIdx );
+				}
+				
+				if (getTime) {
+					computeScoreTime += System.nanoTime() - ts;
+					ts = System.nanoTime();
 				}
 				
 				// Apply a rule with the largest score.
@@ -70,6 +90,11 @@ public class GreedyValidator extends Validator{
 				for (int j=0; j<bestRule.leftSize(); j++) bAvailable[bestRule.pos-j] = false;
 				candidateRules.remove( bestRuleIdx );
 				appliedRuleSet.add( bestRule );
+
+				if (getTime) {
+					bestRuleTime += System.nanoTime() - ts;
+					ts = System.nanoTime();
+				}
 				
 				// Update the remaining token set.
 				for (Integer token : bestRule.getRight()) tokenSet.remove( token );
@@ -82,18 +107,28 @@ public class GreedyValidator extends Validator{
 					if (!isValid) candidateRules.remove( i-- );
 				}
 				
+				if (getTime) {
+					removeRuleTime += System.nanoTime() - ts;
+					ts = System.nanoTime();
+				}
+				
 				// Update bTransformedAll.
 				bTransformedAll = true;
 				for (int i=0; i<x.size(); i++) bTransformedAll &= !bAvailable[i];
-				if (debug) System.out.println( "bTransformedAll: "+bTransformedAll );
+				if (debugPrint) System.out.println( "bTransformedAll: "+bTransformedAll );
+
+				if (getTime) {
+					bTransformTime += System.nanoTime() - ts;
+					ts = System.nanoTime();
+				}
 			} // end while
-			
+
 			// Construct the transformed string.
 			int transformedSize = 0;
 			for (PosRule rule : appliedRuleSet) transformedSize += rule.rightSize();
 			int[] transformedRecord = new int[transformedSize];
 
-			if (debug) {
+			if (debugPrint) {
 				System.out.println( "transformedSize: "+transformedSize );
 				for (PosRule rule : appliedRuleSet) {
 					System.out.println( rule.rule+", "+rule.pos );
@@ -103,9 +138,9 @@ public class GreedyValidator extends Validator{
 			for (int i=x.size()-1, j=transformedSize-1; i>=0;) {
 				for (PosRule rule : appliedRuleSet) {
 					if ( rule.pos == i ) {
-						if (debug) System.out.println( rule.rule+", "+rule.pos );
+						if (debugPrint) System.out.println( rule.rule+", "+rule.pos );
 						for (int k=0; k<rule.rightSize(); k++) {
-							if (debug) System.out.println( i+"\t"+j+"\t"+k+"\t"+(j-k)+"\t"+(rule.rightSize()-k-1) );
+							if (debugPrint) System.out.println( i+"\t"+j+"\t"+k+"\t"+(j-k)+"\t"+(rule.rightSize()-k-1) );
 							transformedRecord[j-k] = rule.getRight()[rule.rightSize()-k-1];
 						}
 						i -= rule.leftSize();
@@ -115,8 +150,21 @@ public class GreedyValidator extends Validator{
 				}
 			}
 
-			if (debug) System.out.println( Arrays.toString( transformedRecord ) );
-			if ( Arrays.equals( transformedRecord, y.getTokensArray() )) return 1;
+			if (getTime) {
+				reconstTime += System.nanoTime() - ts;
+				ts = System.nanoTime();
+			}
+
+			if (debugPrint) System.out.println( Arrays.toString( transformedRecord ) );
+			Boolean res = Arrays.equals( transformedRecord, y.getTokensArray() );
+
+			if (getTime) {
+				compareTime += System.nanoTime() - ts;
+				ts = System.nanoTime();
+			}
+
+			totalTime += System.nanoTime() - ts;
+			if (res) return 1;
 			else return -1;
 		}
 		else {
@@ -124,9 +172,11 @@ public class GreedyValidator extends Validator{
 		}
 	}
 	
-//	public int isEqual( Record x, Record y, Boolean bIsIqual ) {
-//		
-//	}
+	public int isEqual( Record x, Record y, Boolean bIsEqual ) {
+		int res = isEqual(x, y);
+		if (bIsEqual && res>=0) nCorrect++;
+		return res;
+	}
 	
 	@Override
 	public void addStat( StatContainer stat ) {
@@ -162,6 +212,11 @@ public class GreedyValidator extends Validator{
 		
 		public int[] getRight() {
 			return rule.getRight();
+		}
+		
+		@Override
+		public int hashCode() {
+			return rule.hashCode();
 		}
 	}
 }
