@@ -172,9 +172,11 @@ public class GreedyValidator extends Validator{
 		}
 	}
 	
-//	public int isEqual( Record x, Record y, Boolean bIsIqual ) {
-//		
-//	}
+	public int isEqual( Record x, Record y, Boolean bIsEqual ) {
+		int res = isEqual(x, y);
+		if (bIsEqual && res>=0) nCorrect++;
+		return res;
+	}
 	
 	@Override
 	public void addStat( StatContainer stat ) {

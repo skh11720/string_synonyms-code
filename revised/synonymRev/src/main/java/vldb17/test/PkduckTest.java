@@ -11,6 +11,7 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import vldb17.GreedyValidator;
 import vldb17.JoinPkduck;
 import vldb17.PkduckIndex;
@@ -67,6 +68,36 @@ public class PkduckTest {
 		JoinPkduck joinPkduck = new JoinPkduck( query, stat );
 			joinPkduck.run( query, new String[] {"-globalOrder", globalOrder.toString()});
 	}
+
+	public static void naiveValidatorTest() {
+		NaiveOneSide checker = new NaiveOneSide();
+		int n = query.searchedSet.size();
+		int m = query.indexedSet.size();
+		long sec = 0;
+		long tic = 0;
+		for (int i=0; i<n; i++) {
+			long recordTime = System.currentTimeMillis();
+			for (int j=0; j<m; j++) {
+				Record recS = query.searchedSet.getRecord( i );
+				Record recT = query.indexedSet.getRecord( j );
+//				System.out.println( i+", "+j );
+//				System.out.println( "Compare: "+recS+", "+recT );
+//				System.out.println( "VALIDATE "+recS+" AND "+recT );
+//				SampleDataTest.inspect_record( recS, query, 1 );
+//				SampleDataTest.inspect_record( recT, query, 1 );
+//				System.out.println( "recS: "+recS );
+//				System.out.println( "recT: "+recT );
+				int res = checker.isEqual( recS, recT );
+				if (res >= 0) System.out.println( recS.getID()+", "+recT.getID() );
+			}
+			tic += System.currentTimeMillis() - recordTime;
+			if (tic >= 1000) {
+				tic -= 1000;
+				sec++;
+				System.out.println( sec+" sec: "+i+" records are processed, " );
+			}
+		}
+	}
 	
 	public static void greedyValidatorTest() {
 		GreedyValidator checker = new GreedyValidator( true );
@@ -93,7 +124,15 @@ public class PkduckTest {
 			if (tic >= 1000) {
 				tic -= 1000;
 				sec++;
-				System.out.println( sec+" sec: "+i+" records are processed" );
+				System.out.print( sec+" sec: "+i+" records are processed, " );
+				System.out.print( String.format( "%.3f, ", checker.ruleCopyTime/1.0e9 ) );
+				System.out.print( String.format( "%.3f, ", checker.computeScoreTime/1.0e9 ) );
+				System.out.print( String.format( "%.3f, ", checker.bestRuleTime/1.0e9 ) );
+				System.out.print( String.format( "%.3f, ", checker.removeRuleTime/1.0e9 ) );
+				System.out.print( String.format( "%.3f, ", checker.bTransformTime/1.0e9 ) );
+				System.out.print( String.format( "%.3f, ", checker.reconstTime/1.0e9 ) );
+				System.out.print( String.format( "%.3f, ", checker.compareTime/1.0e9 ) );
+				System.out.println(  );
 			}
 		}
 	}
@@ -109,6 +148,7 @@ public class PkduckTest {
 	//		dpTest(index);
 //			joinTest( globalOrder );
 			greedyValidatorTest();
+//			naiveValidatorTest();
 		}
 	}
 }
