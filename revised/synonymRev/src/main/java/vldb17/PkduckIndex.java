@@ -69,8 +69,7 @@ public class PkduckIndex {
 			recordStartTime = System.currentTimeMillis();
 			List<List<QGram>> availableQGrams = null;
 			if (!query.oneSideJoin) {
-				try { throw new Exception("DISABLED CASE"); }
-				catch( Exception e ) { e.printStackTrace(); }
+				throw new RuntimeException("UNIMPLEMENTED CASE");
 			}
 			else {
 				availableQGrams = rec.getSelfQGrams( qgramSize, rec.size() );
@@ -232,8 +231,7 @@ public class PkduckIndex {
 		}
 			
 		default:
-			try { throw new Exception("DISABLED CASE"); }
-			catch ( Exception e ) { e.printStackTrace(); }
+			throw new RuntimeException("UNIMPLEMENTED CASE");
 		}
 	}
 	
@@ -253,8 +251,7 @@ public class PkduckIndex {
 			break;
 
 		default:
-			try { throw new Exception("DISABLED CASE"); }
-			catch ( Exception e ) { e.printStackTrace(); }
+			throw new RuntimeException("UNIMPLEMENTED CASE");
 		}
 		assert res != Integer.MAX_VALUE;
 		return res;

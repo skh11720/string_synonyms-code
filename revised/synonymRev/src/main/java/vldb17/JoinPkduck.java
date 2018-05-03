@@ -13,7 +13,6 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
@@ -27,14 +26,13 @@ public class JoinPkduck extends AlgorithmTemplate {
 //	private long threshold = Long.MAX_VALUE;
 	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
 	private GlobalOrder globalOrder;
-	private Validator naiveChecker = new NaiveOneSide();
+	private Validator checker;
 
 	// staticitics used for building indexes
 	double avgTransformed;
 	
 	private long candTokenTime = 0;
-	private long naiveValidateTime = 0;
-	private long greedyValidateTime = 0;
+	private long validateTime = 0;
 
 	public JoinPkduck( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -57,9 +55,10 @@ public class JoinPkduck extends AlgorithmTemplate {
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
-		Param params = Param.parseArgs( args, stat, query );
+		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
 		globalOrder = params.globalOrder;
-//		checker = params.validator;
+		if (params.verifier.equals( "naive" )) checker = new NaiveOneSide();
+		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( true );
 //		this.threshold = -1;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
@@ -90,7 +89,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 //			if( DEBUG.SampleStatON ) {
 //				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
 //			}
-			try { throw new Exception("DISABLED CASE"); }
+			try { throw new Exception("UNIMPLEMENTED CASE"); }
 			catch( Exception e ) { e.printStackTrace(); }
 		}
 
@@ -141,8 +140,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		
 		for ( int sid=0; sid<query.searchedSet.size(); sid++ ) {
 			if ( !query.oneSideJoin ) {
-				try { throw new Exception("DISABLED CASE"); }
-				catch( Exception e ) { e.printStackTrace(); }
+				throw new RuntimeException("UNIMPLEMENTED CASE");
 			}
 
 			final Record recS = query.searchedSet.getRecord( sid );
@@ -151,8 +149,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		
 		if ( addStat ) {
 			stat.add( "CandTokenTime", candTokenTime );
-			stat.add( "naiveValidateTime", naiveValidateTime );
-			stat.add( "greedyValidateTime", greedyValidateTime );
+			stat.add( "ValidateTime", validateTime );
 		}
 		return rslt;
 	}
@@ -184,7 +181,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 				List<Record> indexedList = idx.get( i, qgram );
 				if ( indexedList == null ) continue;
 				for (Record recT : indexedList) {
-					int comp = naiveChecker.isEqual( recS, recT );
+					int comp = checker.isEqual( recS, recT );
 					if (comp >= 0) {
 //						System.out.println( recS+", "+recT );
 //						List<Record> expList = recS.expandAll();
@@ -197,13 +194,9 @@ public class JoinPkduck extends AlgorithmTemplate {
 				}
 			}
 		}
-		long afterNaiveValidateTime = System.currentTimeMillis();
-		
-		
-		long afterGreedyValidateTime = System.currentTimeMillis();
+		long afterValidateTime = System.currentTimeMillis();
 
-		this.naiveValidateTime += (afterNaiveValidateTime - afterCandTokenTime);
-		this.greedyValidateTime += (afterGreedyValidateTime - afterNaiveValidateTime);
 		this.candTokenTime += (afterCandTokenTime - startTime);
+		this.validateTime += (afterValidateTime - afterCandTokenTime);
 	}
 }
