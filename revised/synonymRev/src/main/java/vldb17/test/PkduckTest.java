@@ -139,16 +139,22 @@ public class PkduckTest {
 	}
 	
 	public static void loadData() throws IOException {
+		
+		// synthetic 
 //		final String dataOnePath = "D:\\ghsong\\data\\yjpark_data\\data1_1000000_5_10000_1.0_0.0_1.txt";
-		final String dataOnePath = "D:\\ghsong\\data\\JiahengLu\\splitted\\USPS_10000.txt";
-
-
 //		final String dataTwoPath = "D:\\ghsong\\data\\yjpark_data\\data2_1000000_5_15848_1.0_0.0_2.txt";
-		final String dataTwoPath = "D:\\ghsong\\data\\JiahengLu\\splitted\\USPS_10000.txt";
-
 //		final String rulePath = "D:\\ghsong\\data\\yjpark_data\\rule1_30000_2_2_10000_0.0_0.txt";
-		final String rulePath = "D:\\ghsong\\data\\JiahengLu\\USPS_rule.txt";
+		
+		// USPS
+//		final String dataOnePath = "D:\\ghsong\\data\\JiahengLu\\splitted\\USPS_10000.txt";
+//		final String dataTwoPath = "D:\\ghsong\\data\\JiahengLu\\splitted\\USPS_10000.txt";
+//		final String rulePath = "D:\\ghsong\\data\\JiahengLu\\USPS_rule.txt";
 
+		// AOL
+		final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+		final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+		final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
+		
 
 //		final String rulePath = "D:\\ghsong\\data\\yjpark_data\\rule2_30000_2_2_30000_0.0_0.txt";
 		final String outputPath = "output";
@@ -181,7 +187,7 @@ public class PkduckTest {
 		loadData();
 		PkduckIndex index;
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst, GlobalOrder.TokenIndexFirst};
-		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
+		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
 		for (GlobalOrder globalOrder: globalOrderList) {
 			System.out.println( "Global order: "+globalOrder.name() );
 			index = indexTest(globalOrder);

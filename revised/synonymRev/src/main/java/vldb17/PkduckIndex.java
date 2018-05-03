@@ -182,6 +182,7 @@ public class PkduckIndex {
 			for (int i=0; i<idx.size(); i++ ) {
 				bw.write(  i + "-th index\n" );
 				WYK_HashMap<QGram, List<Record>> invList = idx.get( i );
+				if (invList == null) continue;
 				for ( QGram qgram : invList.keySet() ) {
 					bw.write( "qgram: "+qgram.toString()+"\n" );
 					for ( Record rec : invList.get( qgram )) {
@@ -196,7 +197,12 @@ public class PkduckIndex {
 	}
 	
 	public List<Record> get(int pos, QGram qgram) {
-		return idx.get( pos ).get( qgram );
+		try {
+			return idx.get( pos ).get( qgram );
+		}
+		catch (NullPointerException e) {
+			return null;
+		}
 	}
 	
 	public int getIndexRange() {
