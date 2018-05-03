@@ -108,7 +108,7 @@ HYBRID_Q_END=2
 
 if [[ $# -ne 21 ]];
 	then
-		echo 'illegal number of parameters'
+		echo "illegal number of parameters: $#"
 	else
 
 	PREV="None"
@@ -307,17 +307,28 @@ if [[ $# -ne 21 ]];
 	#JoinMH_QL
 	if [[ $RUN_DEBUG == "True" ]];
 	then
-		for ((k=HYBRID_K_START;k<=HYBRID_K_END;k++)); do
-			for ((q=HYBRID_Q_START;q<=HYBRID_Q_END;q++)); do
-				for sample in "${HYBRID_SAMPLE[@]}"; do
-					date
-					./joinHybridAll_NEW.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sample $k $q $project $oneSide $UPLOAD
-					date
-					./compare.sh $PREV JoinHybridAll_NEW
-				done
-			done
-		done
-		PREV="JoinHybridAll"
+        globOrderList=('PositionFirst' 'TokenIndexFirst')
+        verifyList=('naive' 'greedy')
+        for globOrder in ${globOrderList[@]}; do
+            for verify in ${verifyList[@]}; do
+                date
+                ./joinPkduck.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide false $UPLOAD $globOrder $verify
+                date
+                ./compare.sh $PREV JoinPkduck
+            done
+        done
+        PREV="JoinPkduck"
+		#for ((k=HYBRID_K_START;k<=HYBRID_K_END;k++)); do
+		#	for ((q=HYBRID_Q_START;q<=HYBRID_Q_END;q++)); do
+		#		for sample in "${HYBRID_SAMPLE[@]}"; do
+		#			date
+		#			./joinHybridAll_NEW.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $sample $k $q $project $oneSide $UPLOAD
+		#			date
+		#			./compare.sh $PREV JoinHybridAll_NEW
+		#		done
+		#	done
+		#done
+		#PREV="JoinHybridAll"
 
 		#./joinCatesian.sh $inputfile_one $inputfile_two $rulefile $outputPath $dir $LIBS $project $oneSide False $UPLOAD
 		#./compare.sh $PREV JoinCatesian

@@ -18,6 +18,12 @@ ratio=0
 oneSide=$1
 UPLOAD=$2
 
+if [[ $# -ne 2 ]]; then
+    echo "runSynthetic.sh: illegal number of parameters: $#"
+    exit
+fi
+
+
 LIBS=../target/Synonym.jar
 CLASSPATH=../target/Synonym.jar
 
