@@ -39,9 +39,9 @@ public class PkduckIndex {
 	/**
 	 * PkduckIndex: build a Pkduck Index
 	 * 
-	 * @param indexedSet
 	 * @param query
 	 * @param stat
+	 * @param globalOrder
 	 * @param addStat
 	 */
 	

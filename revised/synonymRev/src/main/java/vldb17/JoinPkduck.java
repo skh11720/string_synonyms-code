@@ -3,10 +3,12 @@ package vldb17;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -166,7 +168,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 
 	private void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
-		List<QGram> candidateQGrams = new ObjectArrayList<QGram>(100);
+		Set<QGram> candidateQGrams = new ObjectOpenHashSet<QGram>(100);
 		for (int i=0; i<recS.size(); i++) {
 			for (Rule rule : recS.getSuffixApplicableRules( i )) {
 				for (int j=0; j<rule.rightSize()+1-qgramSize; j++) {
