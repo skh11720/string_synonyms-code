@@ -85,10 +85,11 @@ public class PkduckIndex {
 			indexingTime += afterIndexing - afterQGram;
 		} // end for record in T
 		
-		stat.add(  "PkduckIndex.maxlenTime", maxlenTime );
+		stat.add(  "PkduckIndex.maxlenTime", maxlenTime/1e6 );
 		stat.add( "PkduckIndex.qGramTime", qGramTime );
 		stat.add(  "PuduckIndex.indexingTime", indexingTime );
 		stat.add( "PkduckIndex.size", elements );
+		stat.add( "PkduckIndex.nList", nInvList());
 		
 		this.indexTime = System.nanoTime() - startTime;
 		Util.printGCStats( stat, "PkduckIndex" );
@@ -208,6 +209,14 @@ public class PkduckIndex {
 	
 	public Set<Integer> keySet() {
 		return idx.keySet();
+	}
+	
+	public int nInvList() {
+		int nList = 0;
+		for (int pos : idx.keySet()) {
+			nList += idx.get( pos ).size();
+		}
+		return nList;
 	}
 	
 	private void indexRecord(final Record record, final List<List<QGram>> availableQGrams ) {
