@@ -151,9 +151,15 @@ public class PkduckTest {
 //		final String rulePath = "D:\\ghsong\\data\\JiahengLu\\USPS_rule.txt";
 
 		// AOL
-		final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-		final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-		final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
+//		final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+//		final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+//		final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
+		
+		// SPROT
+		final String dataOnePath = "D:\\ghsong\\data\\sprot\\splitted\\SPROT_two_15848.txt";
+		final String dataTwoPath = "D:\\ghsong\\data\\sprot\\splitted\\SPROT_two_15848.txt";
+		final String rulePath = "D:\\ghsong\\data\\sprot\\rule.txt";
+
 		
 
 //		final String rulePath = "D:\\ghsong\\data\\yjpark_data\\rule2_30000_2_2_30000_0.0_0.txt";
@@ -190,7 +196,7 @@ public class PkduckTest {
 		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
 		for (GlobalOrder globalOrder: globalOrderList) {
 			System.out.println( "Global order: "+globalOrder.name() );
-			index = indexTest(globalOrder);
+//			index = indexTest(globalOrder);
 	//		dpTest(index);
 			joinTest( globalOrder );
 //			greedyValidatorTest();

@@ -178,7 +178,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 		long afterCandTokenTime = System.currentTimeMillis();
 		
-		for (int i=0; i<idx.getIndexRange(); i++) {
+		for (int i : idx.keySet() ) {
 			for (QGram qgram : candidateQGrams) {
 				List<Record> indexedList = idx.get( i, qgram );
 				if ( indexedList == null ) continue;

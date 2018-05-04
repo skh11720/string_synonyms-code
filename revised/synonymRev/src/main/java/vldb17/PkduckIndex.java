@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -179,7 +180,7 @@ public class PkduckIndex {
 	public void writeToFile( String filename ) {
 		try {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( filename) );
-			for (int i=0; i<idx.size(); i++ ) {
+			for (Integer i : idx.keySet()) {
 				bw.write(  i + "-th index\n" );
 				WYK_HashMap<QGram, List<Record>> invList = idx.get( i );
 				if (invList == null) continue;
@@ -205,8 +206,8 @@ public class PkduckIndex {
 		}
 	}
 	
-	public int getIndexRange() {
-		return idx.size();
+	public Set<Integer> keySet() {
+		return idx.keySet();
 	}
 	
 	private void indexRecord(final Record record, final List<List<QGram>> availableQGrams ) {
