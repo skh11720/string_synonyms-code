@@ -27,7 +27,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex {
 	ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
-	Object2IntOpenHashMap<Record> indexedCountList;
+	public Object2IntOpenHashMap<Record> indexedCountList;
 
 	int indexK;
 	int qgramSize;
@@ -165,6 +165,7 @@ public class JoinMHIndex {
 		stat.add("Result_3_1_1_qGramTime", qGramTime);
 		stat.add("Result_3_1_2_indexingTime", indexingTime);
 		stat.add("Stat_Index_Size", elements);
+		stat.add( "nList", nInvList());
 
 		if (DEBUG.JoinMHIndexON) {
 			if (addStat) {
@@ -618,5 +619,20 @@ public class JoinMHIndex {
 	public double getIota() {
 		return this.iota;
 	}
+	
+	public int size() {
+		return joinMHIndex.size();
+	}
+	
+	public WYK_HashMap<QGram, List<Record>> get(int i) {
+		return joinMHIndex.get( i );
+	}
 
+	public int nInvList() {
+		int n = 0;
+		for (int i=0; i<joinMHIndex.size(); i++) {
+			n += joinMHIndex.get( i ).size();
+		}
+		return n;
+	}
 }
