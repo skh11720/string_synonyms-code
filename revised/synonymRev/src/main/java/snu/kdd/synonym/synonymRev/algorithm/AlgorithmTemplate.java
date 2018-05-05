@@ -40,6 +40,8 @@ public abstract class AlgorithmTemplate {
 		EstimationTest,
 		JoinHybridOpt,
 		JoinPkduck,
+		JoinPQFilterDPNaive,
+		JoinPQFilterDP1,
 	}
 
 	// contains statistics of the algorithm

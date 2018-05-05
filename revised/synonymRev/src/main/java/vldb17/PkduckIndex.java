@@ -27,7 +27,6 @@ public class PkduckIndex {
 	private final GlobalOrder globalOrder;
 	private final int prefixSize = 1;
 	private final int initCapacity;
-	private int len_max_S = 0;
 	
 	long indexTime = 0;
 	long joinTime = 0;
@@ -61,10 +60,6 @@ public class PkduckIndex {
 		long maxlenTime = 0;
 		long recordStartTime, afterQGram, afterIndexing;
 		
-		// find the maximum length of records in S.
-		for (Record rec : query.searchedSet.recordList) len_max_S = Math.max( len_max_S, rec.size() );
-		maxlenTime = System.nanoTime() - startTime;
-		
 		// Index records in T in the inverted lists.
 		for (Record rec : query.indexedSet.recordList) {
 			recordStartTime = System.currentTimeMillis();
@@ -93,89 +88,6 @@ public class PkduckIndex {
 		
 		this.indexTime = System.nanoTime() - startTime;
 		Util.printGCStats( stat, "PkduckIndex" );
-	}
-	
-	public Boolean isInSigU( Record rec, QGram target_qgram, int k ) {
-		/*
-		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
-		 * g[1][i][l] is X_l in the MIT paper.
-		 */
-//		System.out.println( "PkduckIndex.isInSigU, "+target_qgram+", "+k );
-		
-		// initialize g.
-		int[][][] g = new int[2][rec.size()+1][len_max_S+1];
-		for (int o=0; o<2; o++) {
-			for (int i=0; i<=rec.size(); i++ ) {
-				Arrays.fill( g[o][i], Integer.MAX_VALUE/2 ); // divide by 2 to prevent overflow
-			}
-		}
-		g[0][0][0] = 0;
-		List<List<QGram>> availableQgrams = rec.getSelfQGrams( 1, rec.size() );
-
-		// compute g[0][i][l].
-		for (int i=1; i<=rec.size(); i++) {
-			QGram current_qgram = availableQgrams.get( i-1 ).get( 0 );
-			for (int l=1; l<=len_max_S; l++) {
-				int comp = comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
-//				System.out.println( "comp: "+comp );
-//				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
-				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
-//				System.out.println( "g[0]["+(i-1)+"]["+(l-1)+"]: "+g[0][i-1][l-1] );
-//				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
-				for (Rule rule : rec.getSuffixApplicableRules( i-1 )) {
-//					System.out.println( rule );
-					int[] rhs = rule.getRight();
-					int num_smaller = 0;
-					Boolean isValid = true;
-					for (int j=0; j<rhs.length; j++) {
-						// check whether the rule does not generate [target_token, k].
-						isValid &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
-						num_smaller += comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
-					}
-//					System.out.println( "isValid: "+isValid );
-//					System.out.println( "num_smaller: "+num_smaller );
-					if (isValid && i-rule.leftSize() >= 0 && l-rule.rightSize() >= 0) 
-						g[0][i][l] = Math.min( g[0][i][l], g[0][i-rule.leftSize()][l-rule.rightSize()] + num_smaller );
-				}
-//				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
-			}
-		}
-//		System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
-		
-		// compute g[1][i][l].
-		for (int i=1; i<=rec.size(); i++ ) {
-			QGram current_qgram = availableQgrams.get( i-1 ).get( 0 );
-			for (int l=1; l<=len_max_S; l++) {
-				int comp = comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
-//				System.out.println( "comp: "+comp );
-				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], g[1][i-1][l-1] + (comp<0?1:0) );
-				else g[1][i][l] = Math.min( g[1][i][l], g[0][i-1][l-1] );
-//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
-				for (Rule rule : rec.getSuffixApplicableRules( i-1 )) {
-//					System.out.println( rule );
-					int[] rhs = rule.getRight();
-					int num_smaller = 0;
-					Boolean isValid = false;
-					for (int j=0; j<rhs.length; j++) {
-						// check whether the rule generates [target_token, k].
-						isValid |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-						num_smaller += comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
-					}
-//					System.out.println( "isValid: "+isValid );
-//					System.out.println( "num_smaller: "+num_smaller );
-					if ( i-rule.leftSize() >= 0 && l-rule.rightSize() >= 0) {
-						g[1][i][l] = Math.min( g[1][i][l], g[1][i-rule.leftSize()][l-rule.rightSize()] + num_smaller );
-						if (isValid) g[1][i][l] = Math.min( g[1][i][l], g[0][i-rule.leftSize()][l-rule.rightSize()] + num_smaller );
-					}
-				}
-//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
-			}
-		}
-//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
-
-		Boolean res = false;
-		for (int l=1; l<=len_max_S; l++) res |= (g[1][rec.size()][l] == 0);
-		return res;
 	}
 	
 	public void writeToFile( String filename ) {
@@ -251,29 +163,7 @@ public class PkduckIndex {
 		}
 	}
 	
-	private int comparePosQGrams(int[] qgram0, int pos0, int[] qgram1, int pos1 ) {
-		int res = Integer.MAX_VALUE;
-		switch (globalOrder) {
-		case PositionFirst:
-			res = Integer.compare( pos0, pos1 );
-			if (res != 0 ) return res;
-			else res = compareQGrams( qgram0, qgram1 );
-			break;
-
-		case TokenIndexFirst:
-			res = compareQGrams( qgram0, qgram1 );
-			if (res != 0 ) return res;
-			else res = Integer.compare( pos0, pos1 );
-			break;
-
-		default:
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
-		assert res != Integer.MAX_VALUE;
-		return res;
-	}
-	
-	private int compareQGrams(int[] qgram0, int[] qgram1) {
+	public static int compareQGrams(int[] qgram0, int[] qgram1) {
 		int len = Math.min( qgram0.length, qgram1.length );
 		int res = Integer.MAX_VALUE;
 		for (int i=0; i<len; i++) {
