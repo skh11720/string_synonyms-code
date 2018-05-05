@@ -2,7 +2,6 @@ package vldb17.test;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
@@ -35,16 +34,15 @@ public class PkduckTest {
 		return index;
 	}
 	
-	public static void dpTest(PkduckIndex index, Boolean useRuleComp) throws IOException {
+	public static void dpTest(PkduckIndex index, GlobalOrder globalOrder, Boolean useRuleComp) throws IOException {
 		System.out.println( "PkduckTest.dpTest "+(useRuleComp?"with":"without")+" RC" );
-		StatContainer stat = new StatContainer();
-		JoinPkduck joinPkduck = new JoinPkduck( query, stat );
+
+		
+		final int m = 1000;
+		final int n = query.searchedSet.size();
+//		final int n = 5;
+		
 		List<ObjectOpenHashSet<QGram>> qgram_candidates = new ObjectArrayList<ObjectOpenHashSet<QGram>>();
-		
-		final int m = 10;
-//		final int n = query.searchedSet.size();
-		final int n = 3;
-		
 		for (int i=0; i<m; i++) {
 			Record record = query.searchedSet.getRecord( i );
 			for (int j=0; j<record.size(); j++) {
@@ -55,33 +53,41 @@ public class PkduckTest {
 			}
 		}
 		
+		long sec = 0;
 		long tic = 0;
+		
+		int len_max_S = 0;
+		for ( int i=0; i<n; i++) len_max_S = Math.max( len_max_S, query.searchedSet.getRecord( i ).size() );
 		
 		for (int i=0; i<n; i++) {
 			long recordTime = System.currentTimeMillis();
 			Record record = query.searchedSet.getRecord( i );
 			List<List<QGram>> availableQGrams = record.getQGrams( 1 );
 			PkduckDP pkduckDP;
-			if (useRuleComp) pkduckDP = new PkduckDPWithRC( record, joinPkduck);
-			else pkduckDP = new PkduckDP( record, joinPkduck);
-			SampleDataTest.inspect_record( record, query, 1 );
+			if (useRuleComp) pkduckDP = new PkduckDPWithRC( record, globalOrder, len_max_S);
+			else pkduckDP = new PkduckDP( record, globalOrder, len_max_S);
+//			SampleDataTest.inspect_record( record, query, 1 );
 			for ( int pos=0; pos<qgram_candidates.size(); pos++) {
 				for (QGram qgram : qgram_candidates.get( pos )) {
-					Boolean isInSigU =  pkduckDP.isInSigU( record, qgram, 0 );
+					Boolean isInSigU =  pkduckDP.isInSigU( record, qgram, pos );
 					
 					// true answer
 					Boolean answer = false;
 					if ( availableQGrams.size() > pos ) answer = availableQGrams.get( pos ).contains( qgram );
 
-					System.out.println( "["+qgram.toString()+", "+pos+"] : "+answer+"\t"+isInSigU );
-//					assert answer == isInSigU;
+//					System.out.println( "["+qgram.toString()+", "+pos+"] : "+answer+"\t"+isInSigU );
+//					if ( isInSigU && !answer ) System.err.println( "ERROR" );
+					assert (!isInSigU || answer );
 				}
 			}
 			tic += System.currentTimeMillis() - recordTime;
 			if (tic >= 1000) {
 				tic -= 1000;
-				System.out.println( i+" records are processed" );
+				sec++;
+				System.out.println( sec+" sec: "+i+" records are processed, " );
 			}
+			
+			if (sec > 5) break;
 		}
 		System.out.println( "PkduckTest.dpTest "+(useRuleComp?"with":"without")+" RC finised" );
 	}
@@ -215,13 +221,14 @@ public class PkduckTest {
 	public static void main( String[] args ) throws IOException, ParseException {
 		loadData();
 		PkduckIndex index;
-//		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst, GlobalOrder.TokenIndexFirst};
-		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
+		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst, GlobalOrder.TokenIndexFirst};
+//		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
+//		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
 		for (GlobalOrder globalOrder: globalOrderList) {
 			System.out.println( "Global order: "+globalOrder.name() );
 			index = indexTest(globalOrder);
-			dpTest(index, false);
-//			dpTest(index, true);
+			dpTest(index, globalOrder, false);
+			dpTest(index, globalOrder, true);
 //			joinTest( globalOrder );
 //			greedyValidatorTest();
 //			naiveValidatorTest();

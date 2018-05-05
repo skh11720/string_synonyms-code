@@ -27,14 +27,17 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private PkduckIndex idx = null;
 //	private long threshold = Long.MAX_VALUE;
 	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
-	private GlobalOrder globalOrder;
+	GlobalOrder globalOrder;
+	private Boolean useRuleComp;
 	private Validator checker;
 
 	// staticitics used for building indexes
 	double avgTransformed;
 	
 	private long candTokenTime = 0;
+	private long isInSigUTime = 0;
 	private long validateTime = 0;
+	int len_max_S;
 
 	public JoinPkduck( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -47,6 +50,9 @@ public class JoinPkduck extends AlgorithmTemplate {
 			rec.preprocessSuffixApplicableRules();
 		}
 
+		// find the maximum length of records in S.
+		for (Record rec : query.searchedSet.recordList) len_max_S = Math.max( len_max_S, rec.size() );
+		
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {
 //			estTransformed += rec.getEstNumTransformed();
@@ -59,6 +65,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
 		globalOrder = params.globalOrder;
+		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new NaiveOneSide();
 		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( true );
 //		this.threshold = -1;
@@ -152,7 +159,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 		
 		if ( addStat ) {
 			stat.add( "CandTokenTime", candTokenTime );
-			stat.add( "ValidateTime", validateTime );
+			stat.add( "IsInSigUTime", isInSigUTime/1e6);
+			stat.add( "ValidateTime", validateTime/1e6 );
 		}
 		return rslt;
 	}
@@ -177,29 +185,36 @@ public class JoinPkduck extends AlgorithmTemplate {
 				}
 			}
 		}
-		long afterCandTokenTime = System.currentTimeMillis();
+		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
-		for (int i : idx.keySet() ) {
+		PkduckDP pkduckDP;
+		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, this );
+		else pkduckDP = new PkduckDP( recS, this );
+		for (int pos : idx.keySet() ) {
 			for (QGram qgram : candidateQGrams) {
-				List<Record> indexedList = idx.get( i, qgram );
-				if ( indexedList == null ) continue;
-				for (Record recT : indexedList) {
-					int comp = checker.isEqual( recS, recT );
-					if (comp >= 0) {
-//						System.out.println( recS+", "+recT );
-//						List<Record> expList = recS.expandAll();
-//						for (Record exp : expList) {
-//							System.out.println( exp );
-//						}
-//						System.out.println(  );
-						rslt.add( new IntegerPair(recS.getID(), recT.getID()) );
+				long startDpTime = System.nanoTime();
+				Boolean isInSigU = pkduckDP.isInSigU( recS, qgram, pos );
+				isInSigUTime += System.nanoTime() - startDpTime;
+				if ( isInSigU ) {
+					List<Record> indexedList = idx.get( pos, qgram );
+					if ( indexedList == null ) continue;
+					for (Record recT : indexedList) {
+						long startValidateTime = System.nanoTime();
+						int comp = checker.isEqual( recS, recT );
+						validateTime += System.nanoTime() - startValidateTime;
+						if (comp >= 0) {
+	//						System.out.println( recS+", "+recT );
+	//						List<Record> expList = recS.expandAll();
+	//						for (Record exp : expList) {
+	//							System.out.println( exp );
+	//						}
+	//						System.out.println(  );
+							rslt.add( new IntegerPair(recS.getID(), recT.getID()) );
+						}
 					}
 				}
 			}
 		}
-		long afterValidateTime = System.currentTimeMillis();
 
-		this.candTokenTime += (afterCandTokenTime - startTime);
-		this.validateTime += (afterValidateTime - afterCandTokenTime);
 	}
 }
