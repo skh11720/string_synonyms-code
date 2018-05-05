@@ -1,10 +1,12 @@
 package vldb17.test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
@@ -15,6 +17,8 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import vldb17.GreedyValidator;
 import vldb17.JoinPkduck;
+import vldb17.PkduckDP;
+import vldb17.PkduckDPWithRC;
 import vldb17.PkduckIndex;
 import vldb17.PkduckIndex.GlobalOrder;
 
@@ -31,16 +35,23 @@ public class PkduckTest {
 		return index;
 	}
 	
-	public static void dpTest(PkduckIndex index) {
-		Set<QGram> qgram_cadidates = new ObjectOpenHashSet<QGram>();
+	public static void dpTest(PkduckIndex index, Boolean useRuleComp) throws IOException {
+		System.out.println( "PkduckTest.dpTest "+(useRuleComp?"with":"without")+" RC" );
+		StatContainer stat = new StatContainer();
+		JoinPkduck joinPkduck = new JoinPkduck( query, stat );
+		List<ObjectOpenHashSet<QGram>> qgram_candidates = new ObjectArrayList<ObjectOpenHashSet<QGram>>();
 		
-		final int m = 100;
-		final int n = query.searchedSet.size();
+		final int m = 10;
+//		final int n = query.searchedSet.size();
+		final int n = 3;
 		
 		for (int i=0; i<m; i++) {
 			Record record = query.searchedSet.getRecord( i );
-			for (QGram qgram : record.getSelfQGrams( 1, record.size() ).get( 0 )) {
-				qgram_cadidates.add( qgram );
+			for (int j=0; j<record.size(); j++) {
+				if ( qgram_candidates.size() <= j ) qgram_candidates.add( new ObjectOpenHashSet<QGram>() );
+				for (QGram qgram : record.getSelfQGrams( 1, record.size() ).get( j )) {
+					qgram_candidates.get(j).add( qgram );
+				}
 			}
 		}
 		
@@ -49,11 +60,22 @@ public class PkduckTest {
 		for (int i=0; i<n; i++) {
 			long recordTime = System.currentTimeMillis();
 			Record record = query.searchedSet.getRecord( i );
-//			SampleDataTest.inspect_record( record, query, 1 );
-			for (QGram qgram : qgram_cadidates) {
-				Boolean isInSigU =  index.isInSigU( record, qgram, 0 );
-//				System.out.println( qgram.toString()+" : "+isInSigU );
-				assert qgram_cadidates.equals( record.getSelfQGrams( 1, 1 ).get( 0 ).get( 0 ) ) == isInSigU;
+			List<List<QGram>> availableQGrams = record.getQGrams( 1 );
+			PkduckDP pkduckDP;
+			if (useRuleComp) pkduckDP = new PkduckDPWithRC( record, joinPkduck);
+			else pkduckDP = new PkduckDP( record, joinPkduck);
+			SampleDataTest.inspect_record( record, query, 1 );
+			for ( int pos=0; pos<qgram_candidates.size(); pos++) {
+				for (QGram qgram : qgram_candidates.get( pos )) {
+					Boolean isInSigU =  pkduckDP.isInSigU( record, qgram, 0 );
+					
+					// true answer
+					Boolean answer = false;
+					if ( availableQGrams.size() > pos ) answer = availableQGrams.get( pos ).contains( qgram );
+
+					System.out.println( "["+qgram.toString()+", "+pos+"] : "+answer+"\t"+isInSigU );
+//					assert answer == isInSigU;
+				}
 			}
 			tic += System.currentTimeMillis() - recordTime;
 			if (tic >= 1000) {
@@ -61,13 +83,13 @@ public class PkduckTest {
 				System.out.println( i+" records are processed" );
 			}
 		}
-		System.out.println( "PkduckTest.dpTest finished" );
+		System.out.println( "PkduckTest.dpTest "+(useRuleComp?"with":"without")+" RC finised" );
 	}
 	
 	public static void joinTest(GlobalOrder globalOrder) throws IOException, ParseException {
 		StatContainer stat = new StatContainer();
 		JoinPkduck joinPkduck = new JoinPkduck( query, stat );
-			joinPkduck.run( query, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"});
+		joinPkduck.run( query, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"});
 	}
 
 	public static void naiveValidatorTest() {
@@ -141,9 +163,10 @@ public class PkduckTest {
 	public static void loadData() throws IOException {
 		
 		// synthetic 
-//		final String dataOnePath = "D:\\ghsong\\data\\yjpark_data\\data1_1000000_5_10000_1.0_0.0_1.txt";
-//		final String dataTwoPath = "D:\\ghsong\\data\\yjpark_data\\data2_1000000_5_15848_1.0_0.0_2.txt";
-//		final String rulePath = "D:\\ghsong\\data\\yjpark_data\\rule1_30000_2_2_10000_0.0_0.txt";
+		final String dataOnePath = "D:\\ghsong\\data\\yjpark_data\\data\\1000000_5_15848_1.0_0.0_1.txt";
+		final String dataTwoPath = "D:\\ghsong\\data\\yjpark_data\\data\\1000000_5_15848_1.0_0.0_2.txt";
+		final String rulePath = "D:\\ghsong\\data\\yjpark_data\\rule\\30000_2_2_10000_0.0_0.txt";
+
 		
 		// USPS
 //		final String dataOnePath = "D:\\ghsong\\data\\JiahengLu\\splitted\\USPS_10000.txt";
@@ -156,9 +179,9 @@ public class PkduckTest {
 //		final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
 		
 		// SPROT
-		final String dataOnePath = "D:\\ghsong\\data\\sprot\\splitted\\SPROT_two_15848.txt";
-		final String dataTwoPath = "D:\\ghsong\\data\\sprot\\splitted\\SPROT_two_15848.txt";
-		final String rulePath = "D:\\ghsong\\data\\sprot\\rule.txt";
+//		final String dataOnePath = "D:\\ghsong\\data\\sprot\\splitted\\SPROT_two_15848.txt";
+//		final String dataTwoPath = "D:\\ghsong\\data\\sprot\\splitted\\SPROT_two_15848.txt";
+//		final String rulePath = "D:\\ghsong\\data\\sprot\\rule.txt";
 
 		
 
@@ -193,12 +216,13 @@ public class PkduckTest {
 		loadData();
 		PkduckIndex index;
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst, GlobalOrder.TokenIndexFirst};
-		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
+		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
 		for (GlobalOrder globalOrder: globalOrderList) {
 			System.out.println( "Global order: "+globalOrder.name() );
-//			index = indexTest(globalOrder);
-	//		dpTest(index);
-			joinTest( globalOrder );
+			index = indexTest(globalOrder);
+			dpTest(index, false);
+//			dpTest(index, true);
+//			joinTest( globalOrder );
 //			greedyValidatorTest();
 //			naiveValidatorTest();
 		}
