@@ -26,7 +26,6 @@ public class Param {
 		options.addOption( "sample", true, "Sampling Ratio" );
 		options.addOption( "t", true, "Threshold" );
 		options.addOption( "noLength", false, "No Length Filtering" );
-		options.addOption( "globalOrder", true, "Global order of pos q-grams" );
 		options.addOption( "naiveVal", false, "Naive Validator" );
 
 		argOptions = options;
@@ -60,14 +59,6 @@ public class Param {
 			param.noLength = true;
 		}
 		
-		if( cmd.hasOption( "globalOrder" ) ) {
-			param.globalOrder = GlobalOrder.valueOf( cmd.getOptionValue( "globalOrder" ) );
-			if (param.globalOrder == null) {
-				try { throw new Exception( "globalOrder cannot be null"); }
-				catch (Exception e ) {e.printStackTrace();}
-			}
-		}
-
 		if( cmd.hasOption( "naiveVal" ) ) {
 			if( query.oneSideJoin ) {
 				param.validator = new NaiveOneSide();
@@ -94,5 +85,4 @@ public class Param {
 	public Validator validator;
 	public int threshold = 10;
 	public boolean noLength = false;
-	public GlobalOrder globalOrder = null;
 }

@@ -6,24 +6,21 @@ import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
+import snu.kdd.synonym.synonymRev.validator.TopDown;
+import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinPQFilterDPNaive extends AlgorithmTemplate {
+public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 
 	public JoinMHIndex idx;
 	public int indexK = 3;
@@ -58,11 +55,12 @@ public class JoinPQFilterDPNaive extends AlgorithmTemplate {
 
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
-		Param params = Param.parseArgs( args, stat, query );
-
+//		Param params = Param.parseArgs( args, stat, query );
+		
 		indexK = params.indexK;
 		qgramSize = params.qgramSize;
-		checker = params.validator;
+		if( query.oneSideJoin ) checker = new TopDownOneSide();
+		else checker = new TopDown(); 
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 

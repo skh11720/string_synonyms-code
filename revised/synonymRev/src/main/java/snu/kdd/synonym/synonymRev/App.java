@@ -31,6 +31,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll_NEW;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.JoinPQFilterDP;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.JoinPQFilterDP1;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.JoinPQFilterDPNaive;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
@@ -189,14 +190,10 @@ public class App {
 			alg = new JoinPkduck( query, stat );
 			break;
 			
-		case JoinPQFilterDPNaive:
-			alg = new JoinPQFilterDPNaive( query, stat );
+		case JoinPQFilterDP:
+			alg = new JoinPQFilterDP( query, stat );
 			break;
 		
-		case JoinPQFilterDP1:
-			alg = new JoinPQFilterDP1( query, stat );
-			break;
-
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
 			System.exit( 0 );
