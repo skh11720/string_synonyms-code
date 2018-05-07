@@ -40,7 +40,8 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
-import vldb17.JoinPkduck;
+import vldb17.seq.JoinPkduck;
+import vldb17.set.JoinPkduckSet;
 
 public class App {
 	private static Options argOptions;
@@ -192,6 +193,10 @@ public class App {
 			
 		case JoinPQFilterDP:
 			alg = new JoinPQFilterDP( query, stat );
+			break;
+		
+		case JoinPkduckSet:
+			alg = new JoinPkduckSet( query, stat );
 			break;
 		
 		default:

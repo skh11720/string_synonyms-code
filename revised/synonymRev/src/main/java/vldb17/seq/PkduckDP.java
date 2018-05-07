@@ -1,4 +1,4 @@
-package vldb17;
+package vldb17.seq;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.PkduckIndex.GlobalOrder;
+import vldb17.ParamPkduck.GlobalOrder;
 
 public class PkduckDP {
 	

@@ -14,7 +14,6 @@ import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.PkduckIndex.GlobalOrder;
 
 public class Param {
 	private static final Options argOptions;

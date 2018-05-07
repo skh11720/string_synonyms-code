@@ -1,4 +1,4 @@
-package vldb17;
+package vldb17.seq;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -15,6 +15,7 @@ import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
+import vldb17.ParamPkduck.GlobalOrder;
 
 public class PkduckIndex {
 	private WYK_HashMap<Integer, WYK_HashMap< QGram, List<Record>>> idx;
@@ -30,11 +31,6 @@ public class PkduckIndex {
 	
 	long indexTime = 0;
 	long joinTime = 0;
-	
-	public enum GlobalOrder {
-		PositionFirst,
-		TokenIndexFirst,
-	}
 	
 	/**
 	 * PkduckIndex: build a Pkduck Index

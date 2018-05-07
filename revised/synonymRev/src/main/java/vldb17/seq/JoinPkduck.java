@@ -1,4 +1,4 @@
-package vldb17;
+package vldb17.seq;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,7 +20,9 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.PkduckIndex.GlobalOrder;
+import vldb17.GreedyValidator;
+import vldb17.ParamPkduck;
+import vldb17.ParamPkduck.GlobalOrder;
 
 public class JoinPkduck extends AlgorithmTemplate {
 
@@ -67,7 +69,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		globalOrder = params.globalOrder;
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new NaiveOneSide();
-		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( true );
+		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( true, false );
 //		this.threshold = -1;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );

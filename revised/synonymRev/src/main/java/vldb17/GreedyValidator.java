@@ -15,6 +15,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 public class GreedyValidator extends Validator{
 	
 	private final Boolean oneSideJoin;
+	private final Boolean isSetBased;
 	private long nCorrect = 0;
 	
 	private final static Boolean getTime = false;
@@ -29,8 +30,9 @@ public class GreedyValidator extends Validator{
 	public long reconstTime = 0;
 	public long compareTime = 0;
 	
-	public GreedyValidator(Boolean oneSideJoin) {
+	public GreedyValidator(Boolean oneSideJoin, Boolean isSetBased) {
 		this.oneSideJoin = oneSideJoin;
+		this.isSetBased = isSetBased;
 		if (!this.oneSideJoin) 
 			throw new RuntimeException("GreedyValidator currently does not accept bothSidejoin.");
 	}
@@ -45,7 +47,7 @@ public class GreedyValidator extends Validator{
 			// Make a copy of applicable rules to x.
 			List<PosRule> candidateRules = new ObjectArrayList<PosRule>( x.getNumApplicableRules() );
 			for (int i=0; i<x.size(); i++) {
-				for (Rule rule : x.getSuffixApplicableRules( i ))  {
+				for (Rule rule : x.getSuffixApplicableRules( i )) {
 					candidateRules.add( new PosRule(rule, i) );
 				}
 			}
@@ -156,7 +158,14 @@ public class GreedyValidator extends Validator{
 			}
 
 			if (debugPrint) System.out.println( Arrays.toString( transformedRecord ) );
-			Boolean res = Arrays.equals( transformedRecord, y.getTokensArray() );
+			Boolean res;
+			if (isSetBased) {
+				Arrays.sort( transformedRecord );
+				int[] y_sorted = Arrays.copyOf( y.getTokensArray(), y.size() );
+				Arrays.sort( y_sorted );
+				res = Arrays.equals( transformedRecord, y_sorted );
+			}
+			else res = Arrays.equals( transformedRecord, y.getTokensArray() );
 
 			if (getTime) {
 				compareTime += System.nanoTime() - ts;

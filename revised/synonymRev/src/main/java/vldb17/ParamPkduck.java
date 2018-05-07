@@ -13,7 +13,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import vldb17.PkduckIndex.GlobalOrder;
 
 public class ParamPkduck extends Param {
 	private static final Options argOptions;
@@ -63,4 +62,9 @@ public class ParamPkduck extends Param {
 	public GlobalOrder globalOrder = null;
 	public String verifier = null;
 	public Boolean useRuleComp = null;
+	
+	public enum GlobalOrder {
+		PositionFirst,
+		TokenIndexFirst,
+	}
 }
