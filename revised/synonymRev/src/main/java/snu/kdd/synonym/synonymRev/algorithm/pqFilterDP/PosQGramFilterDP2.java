@@ -7,56 +7,59 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 
-public class PosQGramFilterDP {
+public class PosQGramFilterDP2 {
 	
 	private final Record record;
 	private final int q;
 	private Boolean[][] bTransLen;
-	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
 	private Boolean[][][] bGen;
+	public int[] qgramPrefix;
+	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
 	
-	public PosQGramFilterDP(final Record record, final int q) {
+	public PosQGramFilterDP2(final Record record, final int q) {
 		this.record = record;
 		this.q = q;
-		bGen = new Boolean[2][record.size()+1][q+1];
+		qgramPrefix = new int[q];
 		computeTransformedLength();
-	}
-	
-	public Boolean existence(final QGram qgram, final int k) {
-		/*
-		 * Return true if the pos q-gram [qgram, k] is in TPQ of this.record; otherwise return false.
-		 * Use dynamic programming to compute the matrix bGen
-		 * whose element bGen[i][j] indicates that [qgram[1,j], k] is in TPQ of this.record[1,i].
-		 * The return value is equal to bGen[record.size()][q].
-		 */
-		
-		final Boolean debug = false;
-		
-		// trivial case
-		if (record.getMaxTransLength() <= k ) return false;
-		
+
 		/*
 		 * initialize:
 		 * bGen[0][i][j] is true iff there is a transformed string of s[1,i] which ends with g[1,j] and "generates" [g[1,j], k].
 		 * bGen[1][i][j] is true iff there is a transformed string o s[1,i] which "generates" [g[1,j], k].
 		 */
+		bGen = new Boolean[2][record.size()+1][q+1];
 		for (int i=0; i<=record.size(); i++) Arrays.fill(  bGen[0][i], false );
 		for (int i=0; i<=record.size(); i++) Arrays.fill(  bGen[1][i], false );
+	}
+	
+	public Boolean existence(final int token, final int d, final int k) {
+		/*
+		 * Compute the existence of qgramPrefix[:d-1] + [token]. 
+		 */
 		
-		// bottom-up recursion
+		final Boolean debug = false;
+		
+		// trivial case
+		// Note that k starts from 0.
+		if (record.getMaxTransLength() <= k ) return false;
+
+		// bottom-up recursion at depth d.
+		qgramPrefix[d-1] = token;
 		for (int i=1; i<=record.size(); i++) {
-			for (int j=1; j<=q; j++) {
 
-				if (i == record.size() && qgram.qgram[j-1] == Integer.MAX_VALUE) {
-					bGen[0][i][j] = bGen[1][i][j] = bGen[0][i][j-1];
-					continue;
-				}
-
-				bGen[0][i][j] |= recursion0( qgram, k, i, j, bGen );
-				bGen[1][i][j] |= recursion1( qgram, k, i, j, bGen );
+			if (i == record.size() && token == Integer.MAX_VALUE) {
+				bGen[0][i][d] = bGen[1][i][d] = bGen[0][i][d-1];
+				continue;
 			}
+			
+			// initialize.
+			bGen[0][i][d] = bGen[1][i][d] = false;
+
+			// re-compute.
+			bGen[0][i][d] |= recursion0( k, i, d, bGen );
+			bGen[1][i][d] |= recursion1( k, i, d, bGen );
 		}
-		if (debug) System.out.println( "["+Arrays.toString( qgram.qgram )+", "+k+"]" );
+		if (debug) System.out.println( "["+Arrays.toString( qgramPrefix )+", "+k+"]" );
 		if (debug) System.out.println(Arrays.deepToString(bTransLen).replaceAll( "],", "]\n" ));
 		if (debug) System.out.println(  );
 		if (debug) System.out.println(Arrays.deepToString(bGen[0]).replaceAll( "],", "]\n" ));
@@ -135,7 +138,7 @@ public class PosQGramFilterDP {
 		}
 	}
 
-	private Boolean recursion0(final QGram qgram, final int k, final int i, final int j, final Boolean[][][] bGen) {
+	private Boolean recursion0(final int k, final int i, final int j, final Boolean[][][] bGen) {
 		/*
 		 * Compute bGen[0][i][j] and return the result.
 		 */
@@ -147,16 +150,16 @@ public class PosQGramFilterDP {
 			// Case 0-1
 			// TODO: can be improved
 			for (int j_start=0; j_start<j; j_start++) {
-				if ( Arrays.equals( Arrays.copyOfRange( qgram.qgram, j_start, j ), rule.getRight() ) ) if (bGen[0][i_back][j_start]) return true;
+				if ( Arrays.equals( Arrays.copyOfRange( qgramPrefix, j_start, j ), rule.getRight() ) ) if (bGen[0][i_back][j_start]) return true;
 			}
 			
 			// Case 0-2
-			if (isSuffixOf( qgram.qgram, 0, j, rule.getRight())) if(getBTransLen(i_back, k - (rule.rightSize() - j) )) return true;
+			if (isSuffixOf( qgramPrefix, 0, j, rule.getRight())) if(getBTransLen(i_back, k - (rule.rightSize() - j) )) return true;
 		}
 		return false;
 	}
 
-	private Boolean recursion1(final QGram qgram, final int k, final int i, final int j, final Boolean[][][] bGen) {
+	private Boolean recursion1(final int k, final int i, final int j, final Boolean[][][] bGen) {
 		/*
 		 * Compute bGen[1][i][j] and return the result.
 		 */
@@ -174,12 +177,12 @@ public class PosQGramFilterDP {
 			// Case 1-3
 			// TODO: can be improved
 			for (int j_start=0; j_start<j; j_start++) {
-				if ( isPrefixOf( qgram.qgram, j_start, j, rule.getRight() ) ) 
+				if ( isPrefixOf( qgramPrefix, j_start, j, rule.getRight() ) ) 
 					if (bGen[0][i_back][j_start]) return true;
 			}
 			
 			// Case 1-4
-			int start = isSubstringOf( qgram.qgram, j, rule.getRight());
+			int start = isSubstringOf( qgramPrefix, j, rule.getRight());
 			if (start != -1 && getBTransLen(i_back, k-start)) return true;
 	//		if (debug) System.out.println( "case 3: "+bGen[1][i][j]+"\t"+start);
 	//		if (debug) System.out.println( Arrays.toString( qgram.qgram )+"\t"+Arrays.toString( rule.getRight() ));
