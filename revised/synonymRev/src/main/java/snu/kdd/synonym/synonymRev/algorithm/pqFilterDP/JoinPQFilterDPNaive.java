@@ -226,14 +226,14 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 //	}
 
 
-	@Override
-	public String getName() {
-		return "JoinPQFilterDPNaive";
-	}
-
-	@Override
-	public String getVersion() {
-		return "1.0";
-	}
+//	@Override
+//	public String getName() {
+//		return "JoinPQFilterDPNaive";
+//	}
+//
+//	@Override
+//	public String getVersion() {
+//		return "1.0";
+//	}
 
 }

@@ -64,14 +64,14 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 		return candidatePQGrams;
 	}
 	
-	@Override
-	public String getName() {
-		return "JoinPQFilterDP1";
-	}
-
-	@Override
-	public String getVersion() {
-		return "1.0";
-	}
+//	@Override
+//	public String getName() {
+//		return "JoinPQFilterDP1";
+//	}
+//
+//	@Override
+//	public String getVersion() {
+//		return "1.0";
+//	}
 
 }
