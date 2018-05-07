@@ -13,10 +13,12 @@ public class PosQGramFilterDP {
 	private final int q;
 	private Boolean[][] bTransLen;
 	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
+	private Boolean[][][] bGen;
 	
 	public PosQGramFilterDP(final Record record, final int q) {
 		this.record = record;
 		this.q = q;
+		bGen = new Boolean[2][record.size()+1][q+1];
 		computeTransformedLength();
 	}
 	
@@ -38,7 +40,6 @@ public class PosQGramFilterDP {
 		 * bGen[0][i][j] is true iff there is a transformed string of s[1,i] which ends with g[1,j] and "generates" [g[1,j], k].
 		 * bGen[1][i][j] is true iff there is a transformed string o s[1,i] which "generates" [g[1,j], k].
 		 */
-		Boolean[][][] bGen = new Boolean[2][record.size()+1][q+1];
 		for (int i=0; i<=record.size(); i++) Arrays.fill(  bGen[0][i], false );
 		for (int i=0; i<=record.size(); i++) Arrays.fill(  bGen[1][i], false );
 		
