@@ -35,6 +35,7 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 		if ( params.mode.equals( "naive" ) ) alg = new JoinPQFilterDPNaive( query, stat );
 		else if ( params.mode.equals(  "dp1" )) alg = new JoinPQFilterDP1( query, stat );
 		else if ( params.mode.equals(  "dp2" )) alg = new JoinPQFilterDP2( query, stat );
+		else if ( params.mode.equals(  "dp3" )) alg = new JoinPQFilterDP3( query, stat );
 		else throw new RuntimeException("Unexpected exception");
 		alg.params = params;
 		alg.run( query, args );

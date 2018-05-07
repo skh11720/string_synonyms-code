@@ -45,6 +45,7 @@ public class ParamPQFilterDP extends Param {
 			if ( param.mode.equals( "naive" ) );
 			else if ( param.mode.equals("dp1") );
 			else if ( param.mode.equals("dp2") );
+			else if ( param.mode.equals("dp3") );
 			else throw new RuntimeException("Unexpected mode: "+param.mode );
 		}
 		else throw new RuntimeException("mode is not specified");
