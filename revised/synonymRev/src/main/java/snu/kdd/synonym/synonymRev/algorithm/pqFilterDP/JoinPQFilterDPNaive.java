@@ -13,8 +13,10 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.QGramComparator;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
+import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
@@ -32,6 +34,9 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	protected long dpTime = 0;
 	protected long validateTime = 0;
 	protected long nScanList = 0;
+
+	protected ObjectArrayList<WYK_HashMap<Integer, WYK_HashSet<QGram>>> mapToken2qgram = null;
+
 
 	// staticitics used for building indexes
 	double avgTransformed;
@@ -213,27 +218,42 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		return candidatePQGrams;
 	}
 	
-//	public double getEta() {
-//		return idx.getEta();
-//	}
-//
-//	public double getTheta() {
-//		return idx.getTheta();
-//	}
-//
-//	public double getIota() {
-//		return idx.getIota();
-//	}
+	// used in dp1 and dp3
+	protected void buildMapToken2qgram() {
+		mapToken2qgram = new ObjectArrayList<>();
+		for ( int pos=0; pos<indexK; pos++ ) {
+			WYK_HashMap<Integer, WYK_HashSet<QGram>> map = new WYK_HashMap<Integer, WYK_HashSet<QGram>>();
+			for (QGram qgram : idx.get( pos ).keySet()) {
+				for ( int token : qgram.qgram ) {
+					if ( map.get( token ) == null ) map.put(token, new WYK_HashSet<QGram>());
+					map.get( token ).add( qgram );
+				}
+			}
+			mapToken2qgram.add( map );
+		}
+	}
 
-
-//	@Override
-//	public String getName() {
-//		return "JoinPQFilterDPNaive";
-//	}
-//
-//	@Override
-//	public String getVersion() {
-//		return "1.0";
-//	}
-
+	// used in dp2 and dp3
+	protected ObjectArrayList<IntegerPair> getQGramPrefixList(Set<QGram> qgramSet) {
+		ObjectArrayList<IntegerPair> qgramPrefixList = new ObjectArrayList<IntegerPair>();
+		List<QGram> keyList = new ObjectArrayList<QGram>( qgramSet );
+		keyList.sort( new QGramComparator() );
+		int d = 1;
+		QGram qgramPrev = null;
+		for (QGram qgram : keyList ) {
+			if ( qgramPrev != null ) {
+				--d;
+				while ( d > 1 ) {
+					if ( qgram.qgram[d-2] != qgramPrev.qgram[d-2] ) --d;
+					else break;
+				}
+			}
+			for (; d<=qgramSize; d++) {
+				qgramPrefixList.add(new IntegerPair( qgram.qgram[d-1], d ));
+//					System.out.println( new IntegerPair( qgram.qgram[d-1], d) );
+			}
+			qgramPrev = qgram;
+		}
+		return qgramPrefixList;
+	}
 }

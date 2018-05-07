@@ -11,7 +11,6 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import snu.kdd.synonym.synonymRev.tools.QGramComparator;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
@@ -91,29 +90,6 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 		candPQGramTime += afterCandidateTime - startTime;
 		filteringTime += afterFilteringTime - afterCandidateTime;
 		validateTime += afterValidateTime - afterFilteringTime;
-	}
-	
-	protected ObjectArrayList<IntegerPair> getQGramPrefixList(Set<QGram> qgramSet) {
-		ObjectArrayList<IntegerPair> qgramPrefixList = new ObjectArrayList<IntegerPair>();
-		List<QGram> keyList = new ObjectArrayList<QGram>( qgramSet );
-		keyList.sort( new QGramComparator() );
-		int d = 1;
-		QGram qgramPrev = null;
-		for (QGram qgram : keyList ) {
-			if ( qgramPrev != null ) {
-				--d;
-				while ( d > 1 ) {
-					if ( qgram.qgram[d-2] != qgramPrev.qgram[d-2] ) --d;
-					else break;
-				}
-			}
-			for (; d<=qgramSize; d++) {
-				qgramPrefixList.add(new IntegerPair( qgram.qgram[d-1], d ));
-//					System.out.println( new IntegerPair( qgram.qgram[d-1], d) );
-			}
-			qgramPrev = qgram;
-		}
-		return qgramPrefixList;
 	}
 	
 //	@Override

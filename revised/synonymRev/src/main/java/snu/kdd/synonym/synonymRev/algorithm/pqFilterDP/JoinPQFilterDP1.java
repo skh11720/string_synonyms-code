@@ -11,13 +11,10 @@ import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
 public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 	
-	private ObjectArrayList<WYK_HashMap<Integer, WYK_HashSet<QGram>>> mapToken2qgram;
-
 	public JoinPQFilterDP1( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
@@ -29,18 +26,7 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 			indexPosition[ i ] = i;
 		}
 		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
-		
-		mapToken2qgram = new ObjectArrayList<>();
-		for ( int pos=0; pos<indexK; pos++ ) {
-			WYK_HashMap<Integer, WYK_HashSet<QGram>> map = new WYK_HashMap<Integer, WYK_HashSet<QGram>>();
-			for (QGram qgram : idx.get( pos ).keySet()) {
-				for ( int token : qgram.qgram ) {
-					if ( map.get( token ) == null ) map.put(token, new WYK_HashSet<QGram>());
-					map.get( token ).add( qgram );
-				}
-			}
-			mapToken2qgram.add( map );
-		}
+		buildMapToken2qgram();
 	}
 	
 	@Override
@@ -63,15 +49,4 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 		}
 		return candidatePQGrams;
 	}
-	
-//	@Override
-//	public String getName() {
-//		return "JoinPQFilterDP1";
-//	}
-//
-//	@Override
-//	public String getVersion() {
-//		return "1.0";
-//	}
-
 }
