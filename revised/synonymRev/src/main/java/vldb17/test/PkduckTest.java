@@ -220,7 +220,7 @@ public class PkduckTest {
 	public static void main( String[] args ) throws IOException, ParseException {
 		loadData();
 		PkduckIndex index;
-		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst, GlobalOrder.TokenIndexFirst};
+		GlobalOrder[] globalOrderList = {GlobalOrder.PF, GlobalOrder.TF};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
 		for (GlobalOrder globalOrder: globalOrderList) {

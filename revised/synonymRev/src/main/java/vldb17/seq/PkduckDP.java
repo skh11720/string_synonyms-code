@@ -114,13 +114,13 @@ public class PkduckDP {
 	protected int comparePosQGrams(int[] qgram0, int pos0, int[] qgram1, int pos1 ) {
 		int res = Integer.MAX_VALUE;
 		switch (globalOrder) {
-		case PositionFirst:
+		case PF:
 			res = Integer.compare( pos0, pos1 );
 			if (res != 0 ) return res;
 			else res = PkduckIndex.compareQGrams( qgram0, qgram1 );
 			break;
 
-		case TokenIndexFirst:
+		case TF:
 			res = PkduckIndex.compareQGrams( qgram0, qgram1 );
 			if (res != 0 ) return res;
 			else res = Integer.compare( pos0, pos1 );

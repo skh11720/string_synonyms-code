@@ -116,11 +116,11 @@ public class PkduckSetIndex {
 	
 	private void indexRecord(final Record record, final List<List<QGram>> availableQGrams ) {
 		switch (globalOrder) {
-		case PositionFirst: {
+		case PF: {
 			throw new RuntimeException("PositionFirst is disabled in JoinPkduckSet.");
 		}
 			
-		case TokenIndexFirst: {
+		case TF: {
 			QGram key = availableQGrams.get( 0 ).get( 0 );
 			for (int i=0; i<record.size(); i++) {
 				QGram qgram = availableQGrams.get( i ).get( 0 );

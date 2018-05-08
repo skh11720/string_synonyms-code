@@ -129,7 +129,7 @@ public class PkduckIndex {
 	
 	private void indexRecord(final Record record, final List<List<QGram>> availableQGrams ) {
 		switch (globalOrder) {
-		case PositionFirst: {
+		case PF: {
 			if ( idx.get( 0 ) == null ) idx.put( 0, new WYK_HashMap<QGram, List<Record>>() );
 //			WYK_HashMap<QGram, List<Record>> invList = idx.get( 0 );
 			QGram key = availableQGrams.get( 0 ).get( 0 ); // there is a single qgram at position 0.
@@ -138,7 +138,7 @@ public class PkduckIndex {
 			break;
 		}
 			
-		case TokenIndexFirst: {
+		case TF: {
 			int pos = 0;
 			QGram key = availableQGrams.get( 0 ).get( 0 );
 			for (int i=1; i<record.size(); i++) {
