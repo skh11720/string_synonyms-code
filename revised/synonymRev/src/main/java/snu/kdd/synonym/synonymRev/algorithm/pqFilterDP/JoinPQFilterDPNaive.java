@@ -15,6 +15,7 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramComparator;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
@@ -28,12 +29,14 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	public int indexK = 3;
 	public int qgramSize = 2;
 
+	protected Boolean useLF;
 	protected Validator checker;
+	protected long lengthFiltered = 0;
 	protected long candPQGramTime = 0;
 	protected long filteringTime = 0;
 	protected long dpTime = 0;
 	protected long validateTime = 0;
-	protected long nScanList = 0;
+	protected long checkTPQ = 0;
 
 	protected ObjectArrayList<WYK_HashMap<Integer, WYK_HashSet<QGram>>> mapToken2qgram = null;
 
@@ -64,6 +67,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		
 		indexK = params.indexK;
 		qgramSize = params.qgramSize;
+		useLF = params.useLF;
 		if( query.oneSideJoin ) checker = new TopDownOneSide();
 		else checker = new TopDown(); 
 
@@ -142,11 +146,12 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		}
 		
 		if ( addStat ) {
-			stat.add( "CandPQGramTime", candPQGramTime );
-			stat.add( "DpTime", dpTime/1e6 );
-			stat.add( "FilteringTime", filteringTime );
-			stat.add( "ValidateTime", validateTime );
-			stat.add( "nScanList", nScanList );
+			stat.add( "Result_3_3_CandPQGramTime", candPQGramTime );
+			stat.add( "Result_3_4_DpTime", dpTime/1e6 );
+			stat.add( "Result_3_5_FilteringTime", filteringTime );
+			stat.add( "Result_3_6_ValidateTime", validateTime );
+			stat.add( "Result_3_7_lengthFiltered", lengthFiltered );
+			stat.add( "Result_3_8_checkTPQ", checkTPQ );
 		}
 		return rslt;
 	}
@@ -169,18 +174,31 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		PosQGramFilterDP filter = new PosQGramFilterDP(recS, qgramSize);
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(-1);
+		int[] range = recS.getTransLengths();
 
 		// Scan the index and verify candidate record pairs.
 		for ( int pos=0; pos<indexK; pos++ ) {
 			for ( QGram qgram : candidatePQGrams.get( pos ) ) {
-				nScanList++;
+				checkTPQ++;
 				long startDPTime = System.nanoTime();
 				Boolean isInTPQ = filter.existence( qgram, pos );
 				dpTime += System.nanoTime() - startDPTime;
 				if (isInTPQ) {
 					for ( Record recT : idx.get( pos ).get( qgram ) ) {
-						// TODO: length filtering
+						// length filtering
+						if ( useLF ) {
+							int[] otherRange = new int[2];
+							if ( query.oneSideJoin ) {
+								otherRange[0] = otherRange[1] = recT.getTokenCount();
+							}
+							else throw new RuntimeException("oneSideJoin is supported only.");
+							if (!StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
+								lengthFiltered++;
+								continue;
+							}
+						}
 						
+						// count the number of appearance of recT in the index.
 						int candCount = candidatesCount.getInt( recT );
 						if (candCount == -1) candidatesCount.put( recT, 1 );
 						else candidatesCount.put( recT, candCount+1 );

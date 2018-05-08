@@ -4,17 +4,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import snu.kdd.synonym.synonymRev.tools.QGramComparator;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
@@ -45,11 +42,12 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		PosQGramFilterDP2 filter = new PosQGramFilterDP2(recS, qgramSize);
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(-1);
+		int[] range = recS.getTransLengths();
 
 		// Scan the index and verify candidate record pairs.
 		for ( int pos=0; pos<indexK; pos++ ) {
 			for ( IntegerPair ipair : mapQGramPrefixList.get( pos )) {
-				nScanList++;
+				checkTPQ++;
 				int token = ipair.i1;
 				int depth = ipair.i2;
 				long startDPTime = System.nanoTime();
@@ -57,8 +55,20 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 				dpTime += System.nanoTime() - startDPTime;
 				if (isInTPQ && depth == qgramSize) {
 					for ( Record recT : idx.get( pos ).get( new QGram(filter.qgramPrefix) ) ) {
-						// TODO: length filtering
+						// length filtering
+						if ( useLF ) {
+							int[] otherRange = new int[2];
+							if ( query.oneSideJoin ) {
+								otherRange[0] = otherRange[1] = recT.getTokenCount();
+							}
+							else throw new RuntimeException("oneSideJoin is supported only.");
+							if (!StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
+								lengthFiltered++;
+								continue;
+							}
+						}
 						
+						// count the number of appearance of recT in the index.
 						int candCount = candidatesCount.getInt( recT );
 						if (candCount == -1) candidatesCount.put( recT, 1 );
 						else candidatesCount.put( recT, candCount+1 );

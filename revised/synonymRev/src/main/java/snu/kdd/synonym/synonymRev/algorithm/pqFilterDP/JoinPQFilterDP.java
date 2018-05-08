@@ -26,7 +26,7 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 
 	@Override
 	public String getVersion() {
-		return "1.0";
+		return "1.01";
 	}
 
 	@Override

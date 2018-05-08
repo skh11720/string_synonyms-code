@@ -19,6 +19,7 @@ public class ParamPQFilterDP extends Param {
 		Options options = new Options();
 		options.addOption( "K", true, "Represents a number of indexes" );
 		options.addOption( "qSize", true, "Q gram size" );
+		options.addOption( "useLF", true, "use length filtering (default: true)" );
 		options.addOption( "mode", true, "mode" );
 
 		argOptions = options;
@@ -39,6 +40,11 @@ public class ParamPQFilterDP extends Param {
 		if( cmd.hasOption( "qSize" ) ) {
 			param.qgramSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
 		}
+		
+		if ( cmd.hasOption( "useLF" ) ) {
+			param.useLF = Boolean.parseBoolean( cmd.getOptionValue( "useLF" ) );
+		}
+		else param.useLF = true;
 
 		if( cmd.hasOption( "mode" ) ) {
 			param.mode = cmd.getOptionValue( "mode" );
@@ -53,5 +59,6 @@ public class ParamPQFilterDP extends Param {
 		return param;
 	}
 	
+	public Boolean useLF;
 	public String mode;
 }
