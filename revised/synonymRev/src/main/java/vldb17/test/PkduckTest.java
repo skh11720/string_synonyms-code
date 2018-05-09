@@ -7,7 +7,6 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -15,11 +14,11 @@ import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import vldb17.GreedyValidator;
-import vldb17.JoinPkduck;
-import vldb17.PkduckDP;
-import vldb17.PkduckDPWithRC;
-import vldb17.PkduckIndex;
-import vldb17.PkduckIndex.GlobalOrder;
+import vldb17.ParamPkduck.GlobalOrder;
+import vldb17.seq.JoinPkduck;
+import vldb17.seq.PkduckDP;
+import vldb17.seq.PkduckDPWithRC;
+import vldb17.seq.PkduckIndex;
 
 public class PkduckTest {
 	
@@ -129,7 +128,7 @@ public class PkduckTest {
 	}
 	
 	public static void greedyValidatorTest() {
-		GreedyValidator checker = new GreedyValidator( true );
+		GreedyValidator checker = new GreedyValidator( true, false );
 		int n = query.searchedSet.size();
 		int m = query.indexedSet.size();
 		long sec = 0;
@@ -221,7 +220,7 @@ public class PkduckTest {
 	public static void main( String[] args ) throws IOException, ParseException {
 		loadData();
 		PkduckIndex index;
-		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst, GlobalOrder.TokenIndexFirst};
+		GlobalOrder[] globalOrderList = {GlobalOrder.PF, GlobalOrder.TF};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
 		for (GlobalOrder globalOrder: globalOrderList) {

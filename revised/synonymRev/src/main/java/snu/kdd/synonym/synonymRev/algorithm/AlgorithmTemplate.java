@@ -41,6 +41,7 @@ public abstract class AlgorithmTemplate {
 		JoinHybridOpt,
 		JoinPkduck,
 		JoinPQFilterDP,
+		JoinPkduckSet,
 	}
 
 	// contains statistics of the algorithm

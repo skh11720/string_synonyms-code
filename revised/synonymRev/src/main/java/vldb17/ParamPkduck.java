@@ -13,16 +13,15 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import vldb17.PkduckIndex.GlobalOrder;
 
 public class ParamPkduck extends Param {
 	private static final Options argOptions;
 
 	static {
 		Options options = new Options();
-		options.addOption( "globalOrder", true, "Global order of pos q-grams" );
+		options.addOption( "ord", true, "Global order of pos q-grams" );
 		options.addOption( "verify", true, "Verification method" );
-		options.addOption( "ruleComp", true, "Use rule compression" );
+		options.addOption( "rc", true, "Use rule compression" );
 
 		argOptions = options;
 	}
@@ -35,10 +34,10 @@ public class ParamPkduck extends Param {
 
 		stat.add( cmd );
 
-		if( cmd.hasOption( "globalOrder" ) ) {
-			param.globalOrder = GlobalOrder.valueOf( cmd.getOptionValue( "globalOrder" ) );
+		if( cmd.hasOption( "ord" ) ) {
+			param.globalOrder = GlobalOrder.valueOf( cmd.getOptionValue( "ord" ) );
 			if (param.globalOrder == null) {
-				throw new RuntimeException( "globalOrder cannot be null");
+				throw new RuntimeException( "the value for option -ord is not specified.");
 			}
 		}
 
@@ -49,13 +48,13 @@ public class ParamPkduck extends Param {
 				throw new RuntimeException("unexpected value for option -verify: "+param.verifier);
 		}
 		
-		if ( cmd.hasOption( "ruleComp" ) ) {
-			param.useRuleComp = Boolean.valueOf( cmd.getOptionValue( "ruleComp" ) );
+		if ( cmd.hasOption( "rc" ) ) {
+			param.useRuleComp = Boolean.valueOf( cmd.getOptionValue( "rc" ) );
 			System.out.println( param.useRuleComp );
 			if ( param.useRuleComp == null )
-				throw new RuntimeException("unexpected value for option -ruleComp: "+param.useRuleComp);
+				throw new RuntimeException("unexpected value for option -rc: "+param.useRuleComp);
 		}
-		else throw new RuntimeException("the vaule for option -ruleComp is not specified.");
+		else throw new RuntimeException("the vaule for option -rc is not specified.");
 
 		return param;
 	}
@@ -63,4 +62,9 @@ public class ParamPkduck extends Param {
 	public GlobalOrder globalOrder = null;
 	public String verifier = null;
 	public Boolean useRuleComp = null;
+	
+	public enum GlobalOrder {
+		PF, // PositionFirst
+		TF, // TokenIndexFirst
+	}
 }

@@ -1,4 +1,4 @@
-package vldb17;
+package vldb17.seq;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -15,6 +15,7 @@ import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
+import vldb17.ParamPkduck.GlobalOrder;
 
 public class PkduckIndex {
 	private WYK_HashMap<Integer, WYK_HashMap< QGram, List<Record>>> idx;
@@ -30,11 +31,6 @@ public class PkduckIndex {
 	
 	long indexTime = 0;
 	long joinTime = 0;
-	
-	public enum GlobalOrder {
-		PositionFirst,
-		TokenIndexFirst,
-	}
 	
 	/**
 	 * PkduckIndex: build a Pkduck Index
@@ -133,7 +129,7 @@ public class PkduckIndex {
 	
 	private void indexRecord(final Record record, final List<List<QGram>> availableQGrams ) {
 		switch (globalOrder) {
-		case PositionFirst: {
+		case PF: {
 			if ( idx.get( 0 ) == null ) idx.put( 0, new WYK_HashMap<QGram, List<Record>>() );
 //			WYK_HashMap<QGram, List<Record>> invList = idx.get( 0 );
 			QGram key = availableQGrams.get( 0 ).get( 0 ); // there is a single qgram at position 0.
@@ -142,7 +138,7 @@ public class PkduckIndex {
 			break;
 		}
 			
-		case TokenIndexFirst: {
+		case TF: {
 			int pos = 0;
 			QGram key = availableQGrams.get( 0 ).get( 0 );
 			for (int i=1; i<record.size(); i++) {
