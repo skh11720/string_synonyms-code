@@ -5,9 +5,9 @@ import java.util.Arrays;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 
-public class PosQGramFilterDPInc extends PosQGramFilterDP {
+public class PosQGramFilterDPInc extends PosQGramFilterDP implements IncrementalDP {
 	
-	public int[] qgram;
+	protected int[] qgram;
 	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
 	
 	public PosQGramFilterDPInc(final Record record, final int q) {
@@ -22,6 +22,7 @@ public class PosQGramFilterDPInc extends PosQGramFilterDP {
 		init_bGen();
 	}
 	
+	@Override
 	public Boolean existence(final int token, final int d, final int k) {
 		/*
 		 * Compute the existence of qgram[:d-1] + [token]. 
@@ -108,5 +109,10 @@ public class PosQGramFilterDPInc extends PosQGramFilterDP {
 	//		if (debug) System.out.println( Arrays.toString( qgram.qgram )+"\t"+Arrays.toString( rule.getRight() ));
 		}
 		return false;
+	}
+
+	@Override
+	public int[] getQGram() {
+		return qgram;
 	}
 }

@@ -2,7 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 
-public class PosQGramFilterDPIncTopDown extends PosQGramFilterDPTopDown {
+public class PosQGramFilterDPIncTopDown extends PosQGramFilterDPTopDown implements IncrementalDP {
 	
 	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
 	
@@ -32,5 +32,10 @@ public class PosQGramFilterDPIncTopDown extends PosQGramFilterDPTopDown {
 		}
 
 		return existenceRecursive( record.size(), d, 1 );
+	}
+
+	@Override
+	public int[] getQGram() {
+		return qgram;
 	}
 }

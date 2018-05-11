@@ -6,7 +6,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 
-public class PosQGramFilterDP extends AbstractPosQGramFilterDP {
+public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveDP {
 	
 	protected Boolean[][][] bGen;
 	

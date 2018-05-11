@@ -18,8 +18,6 @@ public abstract class AbstractPosQGramFilterDP {
 		this.q = q;
 		computeTransformedLength();
 	}
-	
-	abstract public Boolean existence(final QGram qgram, final int k);
 
 	public void testIsSubstringOf() {
 		System.out.println( "test PosQGramFilterDP.isSubstringOf()" );
@@ -144,7 +142,7 @@ public abstract class AbstractPosQGramFilterDP {
 	
 	protected int isSubstringOf(final int[] pat, final int end, final int[] seq) {
 		/*
-		 * Return the start position of pat[start:end] if pat[start:end] is a substring of seq; otherwise return -1.
+		 * Return the start position of pat[start:end] if pat[start:end] iGs a substring of seq; otherwise return -1.
 		 * Current implementation is naive: takes O(|pat|*|seq|).
 		 * TODO: Need to be improved later!! (use AC automata)
 		 */
@@ -159,4 +157,13 @@ public abstract class AbstractPosQGramFilterDP {
 		}
 		return -1;
 	}
+}
+
+interface NaiveDP {
+	abstract public Boolean existence(final QGram qgram, final int k);
+}
+
+interface IncrementalDP {
+	abstract public Boolean existence(final int token, final int d, final int k);
+	abstract public int[] getQGram();
 }
