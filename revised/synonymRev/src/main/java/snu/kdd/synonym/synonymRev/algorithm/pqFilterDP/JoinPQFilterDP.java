@@ -26,6 +26,10 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 
 	@Override
 	public String getVersion() {
+		/*
+		 * 1.00: initial version
+		 * 1.01: with length filtering
+		 */
 		return "1.01";
 	}
 

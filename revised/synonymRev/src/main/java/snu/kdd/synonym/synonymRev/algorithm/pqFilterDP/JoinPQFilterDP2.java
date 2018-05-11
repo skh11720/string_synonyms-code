@@ -65,7 +65,7 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 				Boolean isInTPQ = filter.existence( token, depth, pos );
 				dpTime += System.nanoTime() - startDPTime;
 				if (isInTPQ && depth == qgramSize) {
-					for ( Record recT : idx.get( pos ).get( new QGram(filter.qgramPrefix) ) ) {
+					for ( Record recT : idx.get( pos ).get( new QGram(filter.qgram) ) ) {
 						// length filtering
 						if ( useLF ) {
 							int[] otherRange = new int[2];
