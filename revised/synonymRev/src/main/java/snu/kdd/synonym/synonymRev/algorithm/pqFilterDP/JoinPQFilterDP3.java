@@ -39,7 +39,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 
 
 		// prepare filtering
-		PosQGramFilterDP2 filter = new PosQGramFilterDP2(recS, qgramSize);
+		PosQGramFilterDPInc filter = new PosQGramFilterDPInc(recS, qgramSize);
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(-1);
 		int[] range = recS.getTransLengths();
@@ -54,7 +54,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 				Boolean isInTPQ = filter.existence( token, depth, pos );
 				dpTime += System.nanoTime() - startDPTime;
 				if (isInTPQ && depth == qgramSize) {
-					for ( Record recT : idx.get( pos ).get( new QGram(filter.qgramPrefix) ) ) {
+					for ( Record recT : idx.get( pos ).get( new QGram(filter.qgram) ) ) {
 						// length filtering
 						if ( useLF ) {
 							int[] otherRange = new int[2];
