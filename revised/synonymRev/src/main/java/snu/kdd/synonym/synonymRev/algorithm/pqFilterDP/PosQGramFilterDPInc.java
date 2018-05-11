@@ -6,7 +6,7 @@ import java.util.Random;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 
-public class PosQGramFilterDP2 {
+public class PosQGramFilterDPInc {
 	
 	private final Record record;
 	private final int q;
@@ -15,7 +15,7 @@ public class PosQGramFilterDP2 {
 	public int[] qgramPrefix;
 	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
 	
-	public PosQGramFilterDP2(final Record record, final int q) {
+	public PosQGramFilterDPInc(final Record record, final int q) {
 		this.record = record;
 		this.q = q;
 		qgramPrefix = new int[q];
@@ -64,7 +64,7 @@ public class PosQGramFilterDP2 {
 		if (debug) System.out.println(Arrays.deepToString(bGen[0]).replaceAll( "],", "]\n" ));
 		if (debug) System.out.println(  );
 		if (debug) System.out.println(Arrays.deepToString(bGen[1]).replaceAll( "],", "]\n" ));
-		return bGen[1][record.size()][q];
+		return bGen[1][record.size()][d];
 	}
 	
 	public void testIsSubstringOf() {

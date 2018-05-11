@@ -35,6 +35,7 @@ public class PosQGramFilterDPTopDown {
 		 */
 
 		// trivial case
+		// Note that k starts from 0.
 		if (record.getMaxTransLength() <= k ) return false;
 		
 		this.qgram = qgram;
