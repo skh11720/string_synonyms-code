@@ -50,7 +50,6 @@ public class ParamPkduck extends Param {
 		
 		if ( cmd.hasOption( "rc" ) ) {
 			param.useRuleComp = Boolean.valueOf( cmd.getOptionValue( "rc" ) );
-			System.out.println( param.useRuleComp );
 			if ( param.useRuleComp == null )
 				throw new RuntimeException("unexpected value for option -rc: "+param.useRuleComp);
 		}

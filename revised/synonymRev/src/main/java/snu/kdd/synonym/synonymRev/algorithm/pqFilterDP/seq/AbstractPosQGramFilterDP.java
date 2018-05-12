@@ -1,4 +1,4 @@
-package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP;
+package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.util.Arrays;
 import java.util.Random;

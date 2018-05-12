@@ -1,4 +1,4 @@
-package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP;
+package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.io.IOException;
 import java.util.List;
@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -15,28 +16,38 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
-public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
+public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 	
-//	private WYK_HashMap<Integer, ObjectArrayList<IntegerPair>> mapQGramPrefixList;
+	private WYK_HashMap<Integer, ObjectArrayList<IntegerPair>> mapQGramPrefixList;
 	/*
 	 * mapQGramPrefixList[pos] has a list of (token, depth) pairs at position pos.
 	 * The pairs are sorted in the preorder of keys in 
 	 */
 
-	public JoinPQFilterDP3( Query query, StatContainer stat ) throws IOException {
+	public JoinPQFilterDP2( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
+	}
+
+	@Override
+	protected void buildIndex( boolean writeResult ) {
+		int[] indexPosition = new int[ indexK ];
+		for( int i = 0; i < indexK; i++ ) {
+			indexPosition[ i ] = i;
+		}
+		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		
+		mapQGramPrefixList = new WYK_HashMap<Integer, ObjectArrayList<IntegerPair>>(indexK);
+		for ( int pos=0; pos<indexK; pos++ ) {
+			ObjectArrayList<IntegerPair> qgramPrefixList = getQGramPrefixList( idx.get( pos ).keySet() );
+			mapQGramPrefixList.put( pos, qgramPrefixList );
+		}
 	}
 	
 	@Override
 	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
-		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
-		// Build mapQGramPrefixList from candidatePQGrams.
-		WYK_HashMap<Integer, ObjectArrayList<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, ObjectArrayList<IntegerPair>>(indexK);
-		for ( int pos=0; pos<indexK; pos++ ) mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
 		long afterCandidateTime = System.currentTimeMillis();
-
 
 		// prepare filtering
 		AbstractPosQGramFilterDP filter;
@@ -96,4 +107,15 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		filteringTime += afterFilteringTime - afterCandidateTime;
 		validateTime += afterValidateTime - afterFilteringTime;
 	}
+	
+//	@Override
+//	public String getName() {
+//		return "JoinPQFilterDP2";
+//	}
+//
+//	@Override
+//	public String getVersion() {
+//		return "1.0";
+//	}
+
 }

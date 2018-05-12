@@ -190,11 +190,11 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
 		PkduckSetDP pkduckSetDP;
-		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( recS, this );
-		else pkduckSetDP = new PkduckSetDP( recS, this );
+		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( recS, globalOrder );
+		else pkduckSetDP = new PkduckSetDP( recS, globalOrder );
 		for (QGram qgram : candidateQGrams) {
 			long startDpTime = System.nanoTime();
-			Boolean isInSigU = pkduckSetDP.isInSigU( recS, qgram );
+			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
 			isInSigUTime += System.nanoTime() - startDpTime;
 			if ( isInSigU ) {
 				List<Record> indexedList = idx.get( qgram );

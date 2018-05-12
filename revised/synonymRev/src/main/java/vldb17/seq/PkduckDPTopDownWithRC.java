@@ -11,9 +11,11 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import vldb17.ParamPkduck.GlobalOrder;
 
-public class PkduckDPWithRC extends PkduckDP {
+public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
+
+	private Map<IntegerPair, Map<IntegerPair, int[]>> rcTable;
 	
-	public PkduckDPWithRC( Record rec, GlobalOrder globalOrder ) {
+	public PkduckDPTopDownWithRC( Record rec, GlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 	}
 
@@ -23,69 +25,67 @@ public class PkduckDPWithRC extends PkduckDP {
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
 		 */
-//		System.out.println( "PkduckIndex.isInSigU, "+target_qgram+", "+k );
 		
-		// initialize g.
-		int[][][] g = new int[2][rec.size()+1][len_max_s+1];
-		for (int o=0; o<2; o++) {
-			for (int i=0; i<=rec.size(); i++ ) {
-				Arrays.fill( g[o][i], inf ); // divide by 2 to prevent overflow
-			}
-		}
-		g[0][0][0] = 0;
-		
-		// build the rule compression map.
-		Map<IntegerPair, Map<IntegerPair, int[]>> rcTable = getRCTable( rec, target_qgram, k );
+		this.target_qgram = target_qgram;
+		this.k = k;
+		g.clear();
 
-		// compute g[0][i][l].
-		for (int i=1; i<=rec.size(); i++) {
-			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			for (int l=1; l<=len_max_s; l++) {
-				int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
+		// build the rule compression map.
+		rcTable = getRCTable( rec, target_qgram, k );
+		
+		for (int l=1; l<=len_max_s; l++) {
+			int val = isInSigURecursive( rec.size(), l, 1 );
+			if ( val == 0 ) return true;
+		}
+		return false;
+	}
+
+	@Override
+	public int isInSigURecursive( int i, int l, int o ) {
+		
+		// base cases.
+		if ( i <= 0 && l <= 0 && o == 0 ) return 0;
+		if ( i <= 0 || l <= 0 ) return inf;
+		
+		// memoization.
+		IntTriple key = new IntTriple( i, l, o );
+		if ( g.containsKey( key ) ) return g.getInt( key );
+
+		// recursion.
+		QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
+		int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
+		if ( o == 0 ) {
+			// compute g[0][i][l].
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
-				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
+			if ( comp != 0 ) update( isInSigURecursive( i-1, l-1, o ) + (comp==-1?1:0), i, l, o );
 //				System.out.println( "g[0]["+(i-1)+"]["+(l-1)+"]: "+g[0][i-1][l-1] );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
-				Map<IntegerPair, int[]> map = rcTable.get( new IntegerPair(i,l) );
-				for ( Entry<IntegerPair, int[]> entry : map.entrySet() ) {
-					int aside = entry.getKey().i1;
-					int wside = entry.getKey().i2;
-					int[] num_smaller = entry.getValue();
-					if ( i-aside >= 0 && l-wside >= 0 ) g[0][i][l] = Math.min(  g[0][i][l], g[0][i-aside][l-wside] + num_smaller[1] );
-				}
-//				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
+			Map<IntegerPair, int[]> map = rcTable.get( new IntegerPair(i,l) );
+			for ( Entry<IntegerPair, int[]> entry : map.entrySet() ) {
+				int aside = entry.getKey().i1;
+				int wside = entry.getKey().i2;
+				int[] num_smaller = entry.getValue();
+				if ( i-aside >= 0 && l-wside >= 0 ) update( isInSigURecursive( i-aside, l-wside, o ) + num_smaller[1], i, l, o );
 			}
 		}
-//		System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
-		
-		// compute g[1][i][l].
-		for (int i=1; i<=rec.size(); i++ ) {
-			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			for (int l=1; l<=len_max_s; l++) {
-				int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
-//				System.out.println( "comp: "+comp );
-				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], g[1][i-1][l-1] + (comp<0?1:0) );
-				else g[1][i][l] = Math.min( g[1][i][l], g[0][i-1][l-1] );
-//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
-				Map<IntegerPair, int[]> map = rcTable.get( new IntegerPair(i,l) );
-				for ( Entry<IntegerPair, int[]> entry : map.entrySet() ) {
-					int aside = entry.getKey().i1;
-					int wside = entry.getKey().i2;
-					int[] num_smaller = entry.getValue();
-					if ( i-aside >= 0 && l-wside >= 0 ) {
-						g[1][i][l] = Math.min(  g[1][i][l], g[1][i-aside][l-wside] + num_smaller[0] );
-						g[1][i][l] = Math.min(  g[1][i][l], g[0][i-aside][l-wside] + num_smaller[2] );
-					}
+		else { // o == 1
+			// compute g[1][i][l].
+			if ( comp != 0 ) update( isInSigURecursive( i-1, l-1, o ) + (comp<0?1:0), i, l, o );
+			else update( isInSigURecursive( i-1, l-1, 0 ), i, l, o );
+	//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
+			Map<IntegerPair, int[]> map = rcTable.get( new IntegerPair(i,l) );
+			for ( Entry<IntegerPair, int[]> entry : map.entrySet() ) {
+				int aside = entry.getKey().i1;
+				int wside = entry.getKey().i2;
+				int[] num_smaller = entry.getValue();
+				if ( i-aside >= 0 && l-wside >= 0 ) {
+					update( isInSigURecursive( i-aside, l-wside, 1 ) + num_smaller[0], i, l, o );
+					update( isInSigURecursive( i-aside, l-wside, 0 ) + num_smaller[2], i, l, o ); 
 				}
-//				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
 			}
 		}
-//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
-
-		Boolean res = false;
-		for (int l=1; l<=len_max_s; l++) res |= (g[1][rec.size()][l] == 0);
-		return res;
+		return g.getInt( key );
 	}
 
 	private Map<IntegerPair, Map<IntegerPair, int[]>> getRCTable( Record rec, QGram target_qgram, int k ) {
