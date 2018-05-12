@@ -1,4 +1,4 @@
-package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP;
+package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
 
 import java.io.IOException;
 import java.util.List;
