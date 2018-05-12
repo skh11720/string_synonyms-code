@@ -170,7 +170,12 @@ public class JoinPkduck extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "1.01";
+		/*
+		 * 1.00: initial version
+		 * 1.01: ?
+		 * 1.02: bug fix
+		 */
+		return "1.02";
 	}
 
 	private void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
