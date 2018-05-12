@@ -11,40 +11,35 @@ import vldb17.ParamPkduck.GlobalOrder;
 
 public class PkduckDPTopDown {
 	
-	public final GlobalOrder globalOrder;
-	public final int len_max_S;
+	protected final GlobalOrder globalOrder;
 
 	protected Object2IntOpenHashMap<IntTriple> g;
 	protected List<List<QGram>> availableQGrams;
 	protected static final int inf = Integer.MAX_VALUE/2;
-	private QGram target_qgram;
-	private int k;
-	private Record rec;
+	protected QGram target_qgram;
+	protected int k;
+	protected Record rec;
+	protected final int len_max_s;
 	
-	// For debugging
-	public PkduckDPTopDown( Record rec, GlobalOrder globalOrder, int len_max_S) {
-		this.len_max_S = len_max_S;
+	public PkduckDPTopDown( Record rec, GlobalOrder globalOrder) {
+		this.rec = rec;
 		this.globalOrder = globalOrder;
+		this.len_max_s = rec.getMaxTransLength();
 		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
 		g = new Object2IntOpenHashMap<IntTriple>();
 	}
-
-	public PkduckDPTopDown( Record rec, JoinPkduck joinPkduck ) {
-		this( rec, joinPkduck.globalOrder, joinPkduck.len_max_S );
-	}
 	
-	public Boolean isInSigU( Record rec, QGram target_qgram, int k) {
+	public Boolean isInSigU( QGram target_qgram, int k) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
 		 */
 		
-		this.rec = rec;
 		this.target_qgram = target_qgram;
 		this.k = k;
 		g.clear();
 
-		for (int l=1; l<=len_max_S; l++) {
+		for (int l=1; l<=len_max_s; l++) {
 			int val = isInSigURecursive( rec.size(), l, 1 );
 			if ( val == 0 ) return true;
 		}
@@ -147,7 +142,7 @@ public class PkduckDPTopDown {
 		return res;
 	}
 
-	private class IntTriple {
+	protected class IntTriple {
 		int n1, n2, n3;
 		private int hash;
 		
