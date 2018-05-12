@@ -11,25 +11,21 @@ import vldb17.ParamPkduck.GlobalOrder;
 public class PkduckDP {
 	
 	public final GlobalOrder globalOrder;
-	public final int len_max_S;
 	protected List<List<QGram>> availableQGrams;
-	
+	protected final int len_max_s;
+	protected final Record rec;
+
 	protected static final int inf = Integer.MAX_VALUE/2;
 	
 	// For debugging
-	public PkduckDP( Record rec, GlobalOrder globalOrder, int len_max_S) {
-		this.len_max_S = len_max_S;
+	public PkduckDP( Record rec, GlobalOrder globalOrder ) {
+		this.rec = rec;
 		this.globalOrder = globalOrder;
+		this.len_max_s = rec.getMaxTransLength();
 		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
 	}
 
-	public PkduckDP( Record rec, JoinPkduck joinPkduck ) {
-		this.len_max_S = joinPkduck.len_max_S;
-		this.globalOrder = joinPkduck.globalOrder;
-		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
-	}
-
-	public Boolean isInSigU( Record rec, QGram target_qgram, int k ) {
+	public Boolean isInSigU( QGram target_qgram, int k ) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
@@ -37,7 +33,7 @@ public class PkduckDP {
 //		System.out.println( "PkduckIndex.isInSigU, "+target_qgram+", "+k );
 		
 		// initialize g.
-		int[][][] g = new int[2][rec.size()+1][len_max_S+1];
+		int[][][] g = new int[2][rec.size()+1][len_max_s+1];
 		for (int o=0; o<2; o++) {
 			for (int i=0; i<=rec.size(); i++ ) {
 				Arrays.fill( g[o][i], inf ); // divide by 2 to prevent overflow
@@ -48,8 +44,8 @@ public class PkduckDP {
 		// compute g[0][i][l].
 		for (int i=1; i<=rec.size(); i++) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			for (int l=1; l<=len_max_S; l++) {
-				int comp = comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+			for (int l=1; l<=len_max_s; l++) {
+				int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
@@ -63,7 +59,7 @@ public class PkduckDP {
 					for (int j=0; j<rhs.length; j++) {
 						// check whether the rule does not generate [target_token, k].
 						isValid &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
-						num_smaller += comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+						num_smaller += JoinPkduck.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k, globalOrder )==-1?1:0;
 					}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
@@ -78,8 +74,8 @@ public class PkduckDP {
 		// compute g[1][i][l].
 		for (int i=1; i<=rec.size(); i++ ) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			for (int l=1; l<=len_max_S; l++) {
-				int comp = comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+			for (int l=1; l<=len_max_s; l++) {
+				int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
 //				System.out.println( "comp: "+comp );
 				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], g[1][i-1][l-1] + (comp<0?1:0) );
 				else g[1][i][l] = Math.min( g[1][i][l], g[0][i-1][l-1] );
@@ -92,7 +88,7 @@ public class PkduckDP {
 					for (int j=0; j<rhs.length; j++) {
 						// check whether the rule generates [target_token, k].
 						isValid |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-						num_smaller += comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+						num_smaller += JoinPkduck.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k, globalOrder )==-1?1:0;
 					}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
@@ -107,29 +103,7 @@ public class PkduckDP {
 //		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 
 		Boolean res = false;
-		for (int l=1; l<=len_max_S; l++) res |= (g[1][rec.size()][l] == 0);
-		return res;
-	}
-
-	protected int comparePosQGrams(int[] qgram0, int pos0, int[] qgram1, int pos1 ) {
-		int res = Integer.MAX_VALUE;
-		switch (globalOrder) {
-		case PF:
-			res = Integer.compare( pos0, pos1 );
-			if (res != 0 ) return res;
-			else res = PkduckIndex.compareQGrams( qgram0, qgram1 );
-			break;
-
-		case TF:
-			res = PkduckIndex.compareQGrams( qgram0, qgram1 );
-			if (res != 0 ) return res;
-			else res = Integer.compare( pos0, pos1 );
-			break;
-
-		default:
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
-		assert res != Integer.MAX_VALUE;
+		for (int l=1; l<=len_max_s; l++) res |= (g[1][rec.size()][l] == 0);
 		return res;
 	}
 }

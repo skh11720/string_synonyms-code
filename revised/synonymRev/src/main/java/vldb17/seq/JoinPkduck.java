@@ -39,7 +39,6 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
 	private long validateTime = 0;
-	int len_max_S;
 
 	public JoinPkduck( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -52,9 +51,6 @@ public class JoinPkduck extends AlgorithmTemplate {
 			rec.preprocessSuffixApplicableRules();
 		}
 
-		// find the maximum length of records in S.
-		for (Record rec : query.searchedSet.recordList) len_max_S = Math.max( len_max_S, rec.size() );
-		
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {
 //			estTransformed += rec.getEstNumTransformed();
@@ -190,12 +186,12 @@ public class JoinPkduck extends AlgorithmTemplate {
 		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
 		PkduckDP pkduckDP;
-		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, this );
-		else pkduckDP = new PkduckDP( recS, this );
+//		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, globalOrder );
+		pkduckDP = new PkduckDP( recS, globalOrder );
 		for (int pos : idx.keySet() ) {
 			for (QGram qgram : candidateQGrams) {
 				long startDpTime = System.nanoTime();
-				Boolean isInSigU = pkduckDP.isInSigU( recS, qgram, pos );
+				Boolean isInSigU = pkduckDP.isInSigU( qgram, pos );
 				isInSigUTime += System.nanoTime() - startDpTime;
 				if ( isInSigU ) {
 					List<Record> indexedList = idx.get( pos, qgram );
@@ -217,6 +213,27 @@ public class JoinPkduck extends AlgorithmTemplate {
 				}
 			}
 		}
+	}
 
+	public static int comparePosQGrams(int[] qgram0, int pos0, int[] qgram1, int pos1, GlobalOrder globalOrder ) {
+		int res = Integer.MAX_VALUE;
+		switch (globalOrder) {
+		case PF:
+			res = Integer.compare( pos0, pos1 );
+			if (res != 0 ) return res;
+			else res = PkduckIndex.compareQGrams( qgram0, qgram1 );
+			break;
+
+		case TF:
+			res = PkduckIndex.compareQGrams( qgram0, qgram1 );
+			if (res != 0 ) return res;
+			else res = Integer.compare( pos0, pos1 );
+			break;
+
+		default:
+			throw new RuntimeException("UNIMPLEMENTED CASE");
+		}
+		assert res != Integer.MAX_VALUE;
+		return res;
 	}
 }

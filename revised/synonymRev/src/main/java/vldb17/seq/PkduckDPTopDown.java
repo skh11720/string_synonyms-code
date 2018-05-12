@@ -12,7 +12,6 @@ import vldb17.ParamPkduck.GlobalOrder;
 public class PkduckDPTopDown {
 	
 	public final GlobalOrder globalOrder;
-	public final int len_max_S;
 
 	protected Object2IntOpenHashMap<IntTriple> g;
 	protected List<List<QGram>> availableQGrams;
@@ -20,26 +19,22 @@ public class PkduckDPTopDown {
 	private QGram target_qgram;
 	private int k;
 	private Record rec;
+	private final int len_max_S;
 	
-	// For debugging
-	public PkduckDPTopDown( Record rec, GlobalOrder globalOrder, int len_max_S) {
-		this.len_max_S = len_max_S;
+	public PkduckDPTopDown( Record rec, GlobalOrder globalOrder) {
+		this.rec = rec;
 		this.globalOrder = globalOrder;
+		this.len_max_S = rec.getMaxTransLength();
 		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
 		g = new Object2IntOpenHashMap<IntTriple>();
 	}
-
-	public PkduckDPTopDown( Record rec, JoinPkduck joinPkduck ) {
-		this( rec, joinPkduck.globalOrder, joinPkduck.len_max_S );
-	}
 	
-	public Boolean isInSigU( Record rec, QGram target_qgram, int k) {
+	public Boolean isInSigU( QGram target_qgram, int k) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
 		 */
 		
-		this.rec = rec;
 		this.target_qgram = target_qgram;
 		this.k = k;
 		g.clear();

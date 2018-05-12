@@ -11,26 +11,21 @@ import vldb17.seq.PkduckIndex;
 
 public class PkduckSetDP {
 	
-	public final GlobalOrder globalOrder;
-	public final int len_max_S;
+	protected final GlobalOrder globalOrder;
+	protected final int len_max_S;
+	protected final Record rec;
 	protected List<List<QGram>> availableQGrams;
 	
 	protected static final int inf = Integer.MAX_VALUE/2;
 	
-	// For debugging
-	public PkduckSetDP( Record rec, GlobalOrder globalOrder, int len_max_S) {
-		this.len_max_S = len_max_S;
+	public PkduckSetDP( Record rec, GlobalOrder globalOrder ) {
+		this.rec = rec;
+		this.len_max_S = rec.getMaxTransLength();
 		this.globalOrder = globalOrder;
 		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
 	}
 
-	public PkduckSetDP( Record rec, JoinPkduckSet joinPkduckSet ) {
-		this.len_max_S = joinPkduckSet.len_max_S;
-		this.globalOrder = joinPkduckSet.globalOrder;
-		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
-	}
-
-	public Boolean isInSigU( Record rec, QGram target_qgram ) {
+	public Boolean isInSigU( QGram target_qgram ) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.

@@ -15,16 +15,12 @@ import vldb17.ParamPkduck.GlobalOrder;
 
 public class PkduckSetDPWithRC extends PkduckSetDP {
 	
-	public PkduckSetDPWithRC( Record rec, GlobalOrder globalOrder, int len_max_S ) {
-		super( rec, globalOrder, len_max_S	);
-	}
-
-	public PkduckSetDPWithRC( Record rec, JoinPkduckSet joinPkduckSet ) {
-		super( rec, joinPkduckSet );
+	public PkduckSetDPWithRC( Record rec, GlobalOrder globalOrder ) {
+		super( rec, globalOrder );
 	}
 
 	@Override
-	public Boolean isInSigU( Record rec, QGram target_qgram ) {
+	public Boolean isInSigU( QGram target_qgram ) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.

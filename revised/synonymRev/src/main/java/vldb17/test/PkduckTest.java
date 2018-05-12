@@ -63,12 +63,12 @@ public class PkduckTest {
 			Record record = query.searchedSet.getRecord( i );
 			List<List<QGram>> availableQGrams = record.getQGrams( 1 );
 			PkduckDP pkduckDP;
-			if (useRuleComp) pkduckDP = new PkduckDPWithRC( record, globalOrder, len_max_S);
-			else pkduckDP = new PkduckDP( record, globalOrder, len_max_S);
+			if (useRuleComp) pkduckDP = new PkduckDPWithRC( record, globalOrder );
+			else pkduckDP = new PkduckDP( record, globalOrder );
 //			SampleDataTest.inspect_record( record, query, 1 );
 			for ( int pos=0; pos<qgram_candidates.size(); pos++) {
 				for (QGram qgram : qgram_candidates.get( pos )) {
-					Boolean isInSigU =  pkduckDP.isInSigU( record, qgram, pos );
+					Boolean isInSigU =  pkduckDP.isInSigU( qgram, pos );
 					
 					// true answer
 					Boolean answer = false;

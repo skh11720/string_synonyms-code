@@ -13,16 +13,12 @@ import vldb17.ParamPkduck.GlobalOrder;
 
 public class PkduckDPWithRC extends PkduckDP {
 	
-	public PkduckDPWithRC( Record rec, GlobalOrder globalOrder, int len_max_S ) {
-		super( rec, globalOrder, len_max_S	);
-	}
-
-	public PkduckDPWithRC( Record rec, JoinPkduck joinPkduck ) {
-		super( rec, joinPkduck );
+	public PkduckDPWithRC( Record rec, GlobalOrder globalOrder ) {
+		super( rec, globalOrder );
 	}
 
 	@Override
-	public Boolean isInSigU( Record rec, QGram target_qgram, int k ) {
+	public Boolean isInSigU( QGram target_qgram, int k ) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
@@ -30,7 +26,7 @@ public class PkduckDPWithRC extends PkduckDP {
 //		System.out.println( "PkduckIndex.isInSigU, "+target_qgram+", "+k );
 		
 		// initialize g.
-		int[][][] g = new int[2][rec.size()+1][len_max_S+1];
+		int[][][] g = new int[2][rec.size()+1][len_max_s+1];
 		for (int o=0; o<2; o++) {
 			for (int i=0; i<=rec.size(); i++ ) {
 				Arrays.fill( g[o][i], inf ); // divide by 2 to prevent overflow
@@ -44,8 +40,8 @@ public class PkduckDPWithRC extends PkduckDP {
 		// compute g[0][i][l].
 		for (int i=1; i<=rec.size(); i++) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			for (int l=1; l<=len_max_S; l++) {
-				int comp = comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+			for (int l=1; l<=len_max_s; l++) {
+				int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
@@ -66,8 +62,8 @@ public class PkduckDPWithRC extends PkduckDP {
 		// compute g[1][i][l].
 		for (int i=1; i<=rec.size(); i++ ) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			for (int l=1; l<=len_max_S; l++) {
-				int comp = comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+			for (int l=1; l<=len_max_s; l++) {
+				int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
 //				System.out.println( "comp: "+comp );
 				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], g[1][i-1][l-1] + (comp<0?1:0) );
 				else g[1][i][l] = Math.min( g[1][i][l], g[0][i-1][l-1] );
@@ -88,7 +84,7 @@ public class PkduckDPWithRC extends PkduckDP {
 //		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 
 		Boolean res = false;
-		for (int l=1; l<=len_max_S; l++) res |= (g[1][rec.size()][l] == 0);
+		for (int l=1; l<=len_max_s; l++) res |= (g[1][rec.size()][l] == 0);
 		return res;
 	}
 
@@ -104,7 +100,7 @@ public class PkduckDPWithRC extends PkduckDP {
 		 */
 		Map<IntegerPair, Map<IntegerPair, int[]>> rcTable = new Object2ObjectOpenHashMap<IntegerPair, Map<IntegerPair, int[]>>();
 		for ( int i=1; i<=rec.size(); i++ ) {
-			for ( int l=1; l<=len_max_S; l++ ) {
+			for ( int l=1; l<=len_max_s; l++ ) {
 				Map<IntegerPair, int[]> map = new Object2ObjectOpenHashMap<IntegerPair, int[]>();
 				for ( Rule rule : rec.getSuffixApplicableRules( i-1 ) ) {
 					int[] rhs = rule.getRight();
@@ -114,7 +110,7 @@ public class PkduckDPWithRC extends PkduckDP {
 					for ( int j=0; j<rhs.length; j++ ) {
 						isValidF &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
 						isValidT |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-						num_smaller += comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+						num_smaller += JoinPkduck.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k, globalOrder )==-1?1:0;
 					}
 					int aside = rule.leftSize();
 					int wside = rule.rightSize();
