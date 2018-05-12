@@ -15,6 +15,8 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 	
 	private JoinPQFilterDP alg;
 	protected ParamPQFilterDP params;
+	protected Boolean useTopDown;
+
 	public JoinPQFilterDP( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
@@ -26,7 +28,14 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 
 	@Override
 	public String getVersion() {
-		return "1.01";
+		/*
+		 * 1.00: initial version
+		 * 1.01: with length filtering
+		 * 1.02: 
+		 * 	- enable recurse option (botton-up/top-down)
+		 *  - disable inefficient modes: naive and dp2
+		 */
+		return "1.02";
 	}
 
 	@Override

@@ -61,6 +61,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		}
 	}
 
+	// TODO: refactor; move run(), runAfter...(), ... to the parent.
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		Param params = Param.parseArgs( args, stat, query );
@@ -68,6 +69,8 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		indexK = params.indexK;
 		qgramSize = params.qgramSize;
 		useLF = params.useLF;
+		useTopDown = params.useTopDown;
+
 		if( query.oneSideJoin ) checker = new TopDownOneSide();
 		else checker = new TopDown(); 
 
@@ -171,7 +174,9 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		long afterCandidateTime = System.currentTimeMillis();
 
 		// prepare filtering
-		PosQGramFilterDP filter = new PosQGramFilterDP(recS, qgramSize);
+		AbstractPosQGramFilterDP filter;
+		if ( useTopDown ) filter = new PosQGramFilterDPTopDown( recS, qgramSize );
+		else filter = new PosQGramFilterDP(recS, qgramSize);
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(-1);
 		int[] range = recS.getTransLengths();
@@ -181,7 +186,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 			for ( QGram qgram : candidatePQGrams.get( pos ) ) {
 				checkTPQ++;
 				long startDPTime = System.nanoTime();
-				Boolean isInTPQ = filter.existence( qgram, pos );
+				Boolean isInTPQ = ((NaiveDP)filter).existence( qgram, pos );
 				dpTime += System.nanoTime() - startDPTime;
 				if (isInTPQ) {
 					for ( Record recT : idx.get( pos ).get( qgram ) ) {

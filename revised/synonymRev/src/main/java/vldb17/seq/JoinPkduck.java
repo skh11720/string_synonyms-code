@@ -160,9 +160,9 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 		
 		if ( addStat ) {
-			stat.add( "CandTokenTime", candTokenTime );
-			stat.add( "IsInSigUTime", isInSigUTime/1e6);
-			stat.add( "ValidateTime", validateTime/1e6 );
+			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
+			stat.add( "Result_3_4_IsInSigUTime", isInSigUTime/1e6);
+			stat.add( "Result_3_5_ValidateTime", validateTime/1e6 );
 		}
 		return rslt;
 	}
