@@ -31,7 +31,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 	public int indexK;
 	public int qgramSize;
 
-	protected SetTopDownOneSide checker;
+	protected Validator checker;
 	protected long candTokenTime = 0;
 	protected long filteringTime = 0;
 	protected long dpTime = 0;
@@ -66,10 +66,13 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
-//		Param params = Param.parseArgs( args, stat, query );
-//		ParamPQFilterDP params = ParamPQFilterDP.parseArgs( args, stat, query );
+		ParamPQFilterDPSet params = ParamPQFilterDPSet.parseArgs( args, stat, query );
 		
-		if( query.oneSideJoin ) checker = new SetTopDownOneSide();
+		if( query.oneSideJoin ) {
+			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide();
+			else if ( params.verifier.equals( "GR" ) ) checker = new SetGreedyOneSide();
+			else throw new RuntimeException("Unexpected value for verifier: "+params.verifier);
+		}
 		else throw new RuntimeException("BothSide is not supported.");
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );

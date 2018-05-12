@@ -94,7 +94,7 @@ public class SetTopDownOneSide extends Validator {
 	}
 
 	public String getName() {
-		return "TopDownOneSide";
+		return "SetTopDownOneSide";
 	}
 	
 	private class MemKey {
