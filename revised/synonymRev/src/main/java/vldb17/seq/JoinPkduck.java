@@ -174,8 +174,9 @@ public class JoinPkduck extends AlgorithmTemplate {
 		 * 1.00: initial version
 		 * 1.01: ?
 		 * 1.02: bug fix
+		 * 1.03: bug fix
 		 */
-		return "1.02";
+		return "1.03";
 	}
 
 	private void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
@@ -191,7 +192,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
 		PkduckDP pkduckDP;
-//		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, globalOrder );
+		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, globalOrder );
 		pkduckDP = new PkduckDP( recS, globalOrder );
 		for (int pos : idx.keySet() ) {
 			for (QGram qgram : candidateQGrams) {
