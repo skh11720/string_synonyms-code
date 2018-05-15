@@ -38,11 +38,11 @@ public class PkduckSetIndex {
 	 * @param addStat
 	 */
 	
-	public PkduckSetIndex(Query query, StatContainer stat, GlobalOrder globalOrder, boolean addStat) {
+	public PkduckSetIndex(List<Record> recordList, Query query, StatContainer stat, GlobalOrder globalOrder, boolean addStat) {
 		
 		long startTime = System.nanoTime();
 		this.globalOrder = globalOrder;
-		this.initCapacity = query.indexedSet.size() / 100;
+		this.initCapacity = recordList.size() / 100;
 		
 		idx = new WYK_HashMap<QGram, List<Record>>();
 		
@@ -52,8 +52,8 @@ public class PkduckSetIndex {
 		long maxlenTime = 0;
 		long recordStartTime, afterQGram, afterIndexing;
 		
-		// Index records in T in the inverted lists.
-		for (Record rec : query.indexedSet.recordList) {
+		// Index records in recordList in the inverted lists.
+		for (Record rec : recordList) {
 			recordStartTime = System.currentTimeMillis();
 			List<List<QGram>> availableQGrams = null;
 			if (!query.oneSideJoin) {
@@ -72,9 +72,9 @@ public class PkduckSetIndex {
 			indexingTime += afterIndexing - afterQGram;
 		} // end for record in T
 		
-		stat.add(  "PkduckSetIndex.maxlenTime", maxlenTime/1e6 );
+		stat.add( "PkduckSetIndex.maxlenTime", maxlenTime/1e6 );
 		stat.add( "PkduckSetIndex.qGramTime", qGramTime );
-		stat.add(  "PuduckIndex.indexingTime", indexingTime );
+		stat.add( "PuduckIndex.indexingTime", indexingTime );
 		stat.add( "PkduckSetIndex.size", elements );
 		stat.add( "PkduckSetIndex.nList", nInvList());
 		
