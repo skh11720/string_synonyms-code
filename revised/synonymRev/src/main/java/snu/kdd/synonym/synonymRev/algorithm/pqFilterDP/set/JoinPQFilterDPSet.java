@@ -71,8 +71,9 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		ParamPQFilterDPSet params = ParamPQFilterDPSet.parseArgs( args, stat, query );
 		
 		if( query.oneSideJoin ) {
-			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide();
-			else if ( params.verifier.equals( "GR" ) ) checker = new SetGreedyOneSide();
+			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
+			else if ( params.verifier.equals( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin );
+			else if ( params.verifier.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
 			else throw new RuntimeException("Unexpected value for verifier: "+params.verifier);
 		}
 		else throw new RuntimeException("BothSide is not supported.");

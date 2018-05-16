@@ -44,7 +44,7 @@ public class SetGreedyValidator extends AbstractSetValidator {
 //			System.out.println( "y: "+y.toString()+", "+Arrays.toString( y.getTokensArray() ) );
 //		}
 
-		ts = System.nanoTime();
+		if (getTime) ts = System.nanoTime();
 		// Make a copy of applicable rules to x.
 		List<PosRule> candidateRules = new ObjectArrayList<PosRule>( x.getNumApplicableRules() );
 		for (int i=0; i<x.size(); i++) {
@@ -173,7 +173,7 @@ public class SetGreedyValidator extends AbstractSetValidator {
 			ts = System.nanoTime();
 		}
 
-		totalTime += System.nanoTime() - ts;
+		if (getTime) totalTime += System.nanoTime() - ts;
 		if (res) return 1;
 		else return -1;
 	}
