@@ -76,7 +76,7 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 							}
 							else throw new RuntimeException("oneSideJoin is supported only.");
 							if (!StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
-								lengthFiltered++;
+								++checker.filtered;
 								continue;
 							}
 						}

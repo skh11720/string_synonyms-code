@@ -31,7 +31,6 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 
 	protected Boolean useLF;
 	protected Validator checker;
-	protected long lengthFiltered = 0;
 	protected long candPQGramTime = 0;
 	protected long filteringTime = 0;
 	protected long dpTime = 0;
@@ -153,8 +152,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 			stat.add( "Result_3_4_DpTime", dpTime/1e6 );
 			stat.add( "Result_3_5_FilteringTime", filteringTime );
 			stat.add( "Result_3_6_ValidateTime", validateTime );
-			stat.add( "Result_3_7_lengthFiltered", lengthFiltered );
-			stat.add( "Result_3_8_checkTPQ", checkTPQ );
+			stat.add( "Result_3_7_checkTPQ", checkTPQ );
 		}
 		return rslt;
 	}
@@ -198,7 +196,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 							}
 							else throw new RuntimeException("oneSideJoin is supported only.");
 							if (!StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
-								lengthFiltered++;
+								++checker.filtered;
 								continue;
 							}
 						}

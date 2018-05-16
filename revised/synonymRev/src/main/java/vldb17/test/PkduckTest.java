@@ -128,7 +128,7 @@ public class PkduckTest {
 	}
 	
 	public static void greedyValidatorTest() {
-		GreedyValidator checker = new GreedyValidator( true, false );
+		GreedyValidator checker = new GreedyValidator( query.oneSideJoin );
 		int n = query.searchedSet.size();
 		int m = query.indexedSet.size();
 		long sec = 0;

@@ -1,47 +1,49 @@
 package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import snu.kdd.synonym.synonymRev.tools.QGramComparator;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
-import snu.kdd.synonym.synonymRev.validator.TopDown;
-import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
+import vldb17.GreedyValidator;
+import vldb17.set.SetGreedyValidator;
 
 public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
-	public WYK_HashMap<Integer, List<Record>> idx;
+	public WYK_HashMap<Integer, List<Record>> idxS = null;
+	public WYK_HashMap<Integer, List<Record>> idxT = null;
 	public int indexK;
 	public int qgramSize;
 
 	protected Validator checker;
 	protected long candTokenTime = 0;
-	protected long filteringTime = 0;
 	protected long dpTime = 0;
+	protected long filteringTime = 0;
 	protected long validateTime = 0;
 	protected long nScanList = 0;
-	protected long lengthFiltered = 0;
 
 	protected WYK_HashMap<Integer, WYK_HashSet<QGram>> mapToken2qgram = null;
 	
-	private Boolean useLF = true;
+	private final Boolean useLF = true;
 
 
 	// staticitics used for building indexes
@@ -69,8 +71,9 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		ParamPQFilterDPSet params = ParamPQFilterDPSet.parseArgs( args, stat, query );
 		
 		if( query.oneSideJoin ) {
-			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide();
-			else if ( params.verifier.equals( "GR" ) ) checker = new SetGreedyOneSide();
+			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
+			else if ( params.verifier.equals( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin );
+			else if ( params.verifier.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
 			else throw new RuntimeException("Unexpected value for verifier: "+params.verifier);
 		}
 		else throw new RuntimeException("BothSide is not supported.");
@@ -87,7 +90,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 
-		final List<IntegerPair> list = runAfterPreprocess( true );
+		final Set<IntegerPair> list = runAfterPreprocess( true );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
@@ -98,7 +101,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		checker.addStat( stat );
 	}
 
-	public List<IntegerPair> runAfterPreprocess( boolean addStat ) {
+	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
 		// Index building
 		StopWatch stepTime = null;
 		if( addStat ) {
@@ -127,7 +130,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		}
 
 		// Join
-		final List<IntegerPair> rslt = join( stat, query, addStat );
+		final Set<IntegerPair> rslt = join( stat, query, addStat );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -137,16 +140,20 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		return rslt;
 	}
 	
-	public List<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectArrayList<IntegerPair> rslt = new ObjectArrayList<IntegerPair>();
+	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
+		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		if ( !query.oneSideJoin ) throw new RuntimeException("UNIMPLEMENTED CASE");
 		
-		for ( int sid=0; sid<query.searchedSet.size(); sid++ ) {
-			if ( !query.oneSideJoin ) {
-				throw new RuntimeException("UNIMPLEMENTED CASE");
-			}
+		// S -> S' ~ T
+		for ( Record recS : query.searchedSet.recordList ) {
+			joinOneRecord( recS, rslt, idxT );
+		}
 
-			final Record recS = query.searchedSet.getRecord( sid );
-			joinOneRecord( recS, rslt );
+		if ( !query.selfJoin ) {
+			// T -> T' ~ S
+			for ( Record recT : query.indexedSet.recordList ) {
+				joinOneRecord( recT, rslt, idxS );
+			}
 		}
 		
 		if ( addStat ) {
@@ -160,56 +167,84 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		idx = new WYK_HashMap<Integer, List<Record>>();
+		idxT = new WYK_HashMap<Integer, List<Record>>();
 		for ( Record recT : query.indexedSet.recordList ) {
 			for ( int token : recT.getTokensArray() ) {
-				if ( idx.get( token ) == null ) idx.put( token, new ObjectArrayList<Record>() );
-				idx.get( token ).add( recT );
+				if ( idxT.get( token ) == null ) idxT.put( token, new ObjectArrayList<Record>() );
+				idxT.get( token ).add( recT );
+			}
+		}
+		
+		if ( !query.selfJoin ) {
+			idxS = new WYK_HashMap<Integer, List<Record>>();
+			for ( Record recS : query.searchedSet.recordList ) {
+				for ( int token : recS.getTokensArray() ) {
+					if ( idxS.get( token ) == null ) idxS.put( token, new ObjectArrayList<Record>() );
+					idxS.get( token ).add( recS );
+				}
+			}
+		}
+		
+		if (writeResult) {
+			try {
+				BufferedWriter bw = new BufferedWriter( new FileWriter( "./tmp/PQFilterDPSetIndex_idxT.txt" ) );
+				for ( int key : idxT.keySet() ) {
+					bw.write( "token: "+query.tokenIndex.getToken( key )+" ("+key+")\n" );
+					for ( Record rec : idxT.get( key ) ) bw.write( ""+rec.getID()+", " );
+					bw.write( "\n" );
+				}
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+				System.exit( 1 );
 			}
 		}
 	}
 	
-	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+	protected void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<Integer, List<Record>> idx ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate tokens of recS.
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
-		for ( int pos=0; pos<recS.size(); pos++ ) {
-			for ( Rule rule : recS.getSuffixApplicableRules( pos )) {
+		for ( int pos=0; pos<rec.size(); pos++ ) {
+			for ( Rule rule : rec.getSuffixApplicableRules( pos )) {
 				for (int token : rule.getRight() ) candidateTokens.add( token );
 			}
 		}
 		long afterCandidateTime = System.currentTimeMillis();
 
 		// Scan the index and verify candidate record pairs.
-		Set<Record> candidatesAfterLF = new WYK_HashSet<Record>(100);
-		int[] range = recS.getTransLengths();
+		Set<Record> candidateAfterLF = new ObjectOpenHashSet<Record>();
+		int rec_maxlen = rec.getMaxTransLength();
 		for ( int token : candidateTokens ) {
 			if ( !idx.containsKey( token ) ) continue;
 			nScanList++;
-			for ( Record recT : idx.get( token ) ) {
-				// length filtering
+			for ( Record recOther : idx.get( token ) ) {
 				if ( useLF ) {
-					int[] otherRange = new int[2];
-					if ( query.oneSideJoin ) {
-						otherRange[0] = otherRange[1] = recT.getTokenCount();
-					}
-					else throw new RuntimeException("oneSideJoin is supported only.");
-					if (!StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
-						lengthFiltered++;
+					if ( rec_maxlen < recOther.size() ) {
+						++checker.filtered;
 						continue;
 					}
-					candidatesAfterLF.add( recT );
+					candidateAfterLF.add( recOther );
 				}
 			}
 		}
 		long afterFilteringTime = System.currentTimeMillis();
-
+		
 		// verification
-		for ( Record recT : candidatesAfterLF ) {
-			if ( checker.isEqual( recS, recT ) >= 0 ) 
-				rslt.add( new IntegerPair( recS.getID(), recT.getID()) );
+		for ( Record recOther : candidateAfterLF ) {
+			if ( checker.isEqual( rec, recOther ) >= 0 ) {
+				if ( query.selfJoin ) {
+					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
+					int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
+					rslt.add( new IntegerPair( id_smaller, id_larger) );
+				}
+				else {
+					if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
+					else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
+					else throw new RuntimeException("Unexpected error");
+				}
+			}
 		}
-
 		long afterValidateTime = System.currentTimeMillis();
 		
 		candTokenTime += afterCandidateTime - startTime;
@@ -224,6 +259,10 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "1.0";
+		/*
+		 * 1.0: initial version, transform s and compare to t
+		 * 1.01: transform s or t and compare to the other
+		 */
+		return "1.01";
 	}
 }

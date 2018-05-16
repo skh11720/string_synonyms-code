@@ -6,47 +6,36 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class SetTopDownOneSide extends Validator {
+public class SetTopDownOneSide extends AbstractSetValidator {
 	
 	private Object2BooleanOpenHashMap<MemKey> isEquiv = new Object2BooleanOpenHashMap<MemKey>();
-	private Record x, y;
-	private IntOpenHashSet ySet;
+	private Record leftRec, rightRec;
+	private IntOpenHashSet rightTokenSet;
 	
-	protected static boolean areSameString( Record s, Record t ) {
-		if( s.getTokenCount() != t.getTokenCount() ) {
-			return false;
-		}
-
-		int[] si = s.getTokensArray();
-		int[] ti = t.getTokensArray();
-		Arrays.sort( si );
-		Arrays.sort( ti );
-		for( int i = 0; i < si.length; ++i ) {
-			if( si[ i ] != ti[ i ] ) {
-				return false;
-			}
-		}
-		return true;
+	public SetTopDownOneSide( Boolean selfJoin ) {
+		super( selfJoin );
 	}
 
 	@Override
-	public int isEqual( Record x, Record y ) {
+	protected int isEqualOneSide( Record x, Record y ) {
 		// Check whether x -> y
 
-		++checked;
-		if( areSameString( x, y ) )
-			return 0;
 		// DEBUG
 		// System.out.println( "x " + x );
 		// System.out.println( "y " + y );
 		
-		this.x = x;
-		this.y = y;
-		this.ySet = new IntOpenHashSet(y.getTokensArray());
+		this.leftRec = x;
+		this.rightRec = y;
+		this.rightTokenSet = new IntOpenHashSet(y.getTokensArray());
 		isEquiv.clear();
 
+		// DEBUG
+//		debug = false;
+//		if ( leftRec.getID() == 7706 && rightRec.getID() == 7707 ) debug = true;
+//		if ( rightRec.getID() == 7706 && leftRec.getID() == 7707 ) debug = true;
+//		if (debug) System.out.println( leftRec.toString() + ", "+ Arrays.toString( leftRec.getTokensArray() ) );
+//		if (debug) System.out.println( rightRec.toString() + ", "+ Arrays.toString( rightRec.getTokensArray() ) );
 		
 		boolean isEqual = getMyEqual( new IntOpenHashSet(), x.size() );
 		if( isEqual ) {
@@ -62,7 +51,18 @@ public class SetTopDownOneSide extends Validator {
 	 */
 	private boolean getMyEqual( IntOpenHashSet generated, int pos ) {
 		++recursivecalls;
-		if ( Arrays.equals( y.getTokensArray(), generated.toIntArray() ) && pos <= 0 ) return true;
+
+		// DEBUG
+//		if (debug) System.out.println( generated.toString()+"\t"+pos );
+//		if (debug && pos == 0) {
+//			System.out.println( "RESULT" );
+//			System.out.println( (new IntOpenHashSet( rightRec.getTokensArray() )).toString() );
+//			System.out.println( generated.toString() );
+//			System.out.println( generated.equals( new IntOpenHashSet( rightRec.getTokensArray()) ) );
+//		}
+		/////////////
+
+		if ( generated.equals( new IntOpenHashSet( rightRec.getTokensArray()) ) && pos <= 0 ) return true;
 		if ( pos == 0 ) return false;
 
 		// If this value is already computed, simply return the computed value.
@@ -70,15 +70,19 @@ public class SetTopDownOneSide extends Validator {
 		if( isEquiv.containsKey( key ) ) return isEquiv.getBoolean( key );
 
 		// recursion
-		for ( Rule rule : x.getSuffixApplicableRules( pos-1 ) ) {
+		for ( Rule rule : leftRec.getSuffixApplicableRules( pos-1 ) ) {
 			++niterrules;
 			// check whether all tokens in rhs are in y.
 			Boolean isValidRule = true;
 			for ( int token : rule.getRight() )
-				if ( !ySet.contains( token ) ) {
+				if ( !rightTokenSet.contains( token ) ) {
 					isValidRule = false;
 					break;
 				}
+
+			// DEBUG
+//			if ( debug ) System.out.println( rule.toString()+", "+isValidRule );
+
 			if ( !isValidRule ) continue;
 			
 			// make the union set of generated tokens by applying the current rule.
@@ -93,6 +97,7 @@ public class SetTopDownOneSide extends Validator {
 		return false;
 	}
 
+	@Override
 	public String getName() {
 		return "SetTopDownOneSide";
 	}

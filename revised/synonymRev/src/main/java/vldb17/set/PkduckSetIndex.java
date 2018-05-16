@@ -38,23 +38,23 @@ public class PkduckSetIndex {
 	 * @param addStat
 	 */
 	
-	public PkduckSetIndex(Query query, StatContainer stat, GlobalOrder globalOrder, boolean addStat) {
+	public PkduckSetIndex(List<Record> recordList, Query query, StatContainer stat, GlobalOrder globalOrder, boolean addStat) {
 		
 		long startTime = System.nanoTime();
 		this.globalOrder = globalOrder;
-		this.initCapacity = query.indexedSet.size() / 100;
+		this.initCapacity = recordList.size() / 100;
 		
 		idx = new WYK_HashMap<QGram, List<Record>>();
 		
 		long elements = 0;
-		long qGramTime = 0;
-		long indexingTime = 0;
-		long maxlenTime = 0;
-		long recordStartTime, afterQGram, afterIndexing;
+//		long qGramTime = 0;
+//		long indexingTime = 0;
+//		long maxlenTime = 0;
+//		long recordStartTime, afterQGram, afterIndexing;
 		
-		// Index records in T in the inverted lists.
-		for (Record rec : query.indexedSet.recordList) {
-			recordStartTime = System.currentTimeMillis();
+		// Index records in recordList in the inverted lists.
+		for (Record rec : recordList) {
+//			recordStartTime = System.currentTimeMillis();
 			List<List<QGram>> availableQGrams = null;
 			if (!query.oneSideJoin) {
 				throw new RuntimeException("UNIMPLEMENTED CASE");
@@ -62,19 +62,19 @@ public class PkduckSetIndex {
 			else {
 				availableQGrams = rec.getSelfQGrams( qgramSize, rec.size() );
 			}
-			afterQGram = System.currentTimeMillis();
+//			afterQGram = System.currentTimeMillis();
 			
 			indexRecord( rec, availableQGrams );
 			elements++;
-			afterIndexing = System.currentTimeMillis();
+//			afterIndexing = System.currentTimeMillis();
 			
-			qGramTime += afterQGram - recordStartTime;
-			indexingTime += afterIndexing - afterQGram;
+//			qGramTime += afterQGram - recordStartTime;
+//			indexingTime += afterIndexing - afterQGram;
 		} // end for record in T
 		
-		stat.add(  "PkduckSetIndex.maxlenTime", maxlenTime/1e6 );
-		stat.add( "PkduckSetIndex.qGramTime", qGramTime );
-		stat.add(  "PuduckIndex.indexingTime", indexingTime );
+//		stat.add( "PkduckSetIndex.maxlenTime", maxlenTime/1e6 );
+//		stat.add( "PkduckSetIndex.qGramTime", qGramTime );
+//		stat.add( "PuduckIndex.indexingTime", indexingTime );
 		stat.add( "PkduckSetIndex.size", elements );
 		stat.add( "PkduckSetIndex.nList", nInvList());
 		
