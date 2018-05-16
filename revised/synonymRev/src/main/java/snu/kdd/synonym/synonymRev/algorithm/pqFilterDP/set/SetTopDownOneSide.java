@@ -1,7 +1,5 @@
 package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
 
-import java.util.Arrays;
-
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;

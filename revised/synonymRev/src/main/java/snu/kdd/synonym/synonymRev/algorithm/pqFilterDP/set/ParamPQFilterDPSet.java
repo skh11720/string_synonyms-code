@@ -33,9 +33,12 @@ public class ParamPQFilterDPSet extends Param {
 		stat.add( cmd );
 
 		if( cmd.hasOption( "verify" ) ) {
-			Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"TD", "GR", "MIT_GR"} );
 			param.verifier = cmd.getOptionValue( "verify" );
-			if ( !possibleValues.contains( param.verifier ) )
+			Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"TD", "MIT_GR"} );
+			if ( param.verifier.startsWith( "GR" ) ) {
+				param.beamWidth = Integer.parseInt( param.verifier.substring( 2 ) );
+			}
+			else if ( !possibleValues.contains( param.verifier ) )
 				throw new RuntimeException("unexpected value for option -verify: "+param.verifier);
 		}
 		else throw new RuntimeException("verify is not specified.");
@@ -43,4 +46,5 @@ public class ParamPQFilterDPSet extends Param {
 	}
 	
 	public String verifier;
+	public int beamWidth;
 }
