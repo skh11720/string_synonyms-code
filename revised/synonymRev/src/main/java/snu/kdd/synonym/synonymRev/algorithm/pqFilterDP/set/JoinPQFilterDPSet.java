@@ -1,6 +1,9 @@
 package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +24,8 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
+import vldb17.GreedyValidator;
+import vldb17.set.SetGreedyValidator;
 
 public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
@@ -31,15 +36,14 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
 	protected Validator checker;
 	protected long candTokenTime = 0;
-	protected long filteringTime = 0;
 	protected long dpTime = 0;
+	protected long filteringTime = 0;
 	protected long validateTime = 0;
 	protected long nScanList = 0;
-	protected long lengthFiltered = 0;
 
 	protected WYK_HashMap<Integer, WYK_HashSet<QGram>> mapToken2qgram = null;
 	
-	private Boolean useLF = true;
+	private final Boolean useLF = true;
 
 
 	// staticitics used for building indexes
@@ -67,8 +71,9 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		ParamPQFilterDPSet params = ParamPQFilterDPSet.parseArgs( args, stat, query );
 		
 		if( query.oneSideJoin ) {
-			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide();
-			else if ( params.verifier.equals( "GR" ) ) checker = new SetGreedyOneSide();
+			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
+			else if ( params.verifier.equals( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin );
+			else if ( params.verifier.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
 			else throw new RuntimeException("Unexpected value for verifier: "+params.verifier);
 		}
 		else throw new RuntimeException("BothSide is not supported.");
@@ -179,6 +184,21 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 				}
 			}
 		}
+		
+		if (writeResult) {
+			try {
+				BufferedWriter bw = new BufferedWriter( new FileWriter( "./tmp/PQFilterDPSetIndex_idxT.txt" ) );
+				for ( int key : idxT.keySet() ) {
+					bw.write( "token: "+query.tokenIndex.getToken( key )+" ("+key+")\n" );
+					for ( Record rec : idxT.get( key ) ) bw.write( ""+rec.getID()+", " );
+					bw.write( "\n" );
+				}
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+				System.exit( 1 );
+			}
+		}
 	}
 	
 	protected void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<Integer, List<Record>> idx ) {
@@ -193,38 +213,38 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		long afterCandidateTime = System.currentTimeMillis();
 
 		// Scan the index and verify candidate record pairs.
-		Set<Record> candidatesAfterLF = new WYK_HashSet<Record>(100);
-		int[] range = rec.getTransLengths();
+		Set<Record> candidateAfterLF = new ObjectOpenHashSet<Record>();
+		int rec_maxlen = rec.getMaxTransLength();
 		for ( int token : candidateTokens ) {
 			if ( !idx.containsKey( token ) ) continue;
 			nScanList++;
 			for ( Record recOther : idx.get( token ) ) {
-				// length filtering
 				if ( useLF ) {
-					int[] otherRange = new int[2];
-					if ( query.oneSideJoin ) {
-						otherRange[0] = otherRange[1] = recOther.getTokenCount();
-					}
-					else throw new RuntimeException("oneSideJoin is supported only.");
-					if (!StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
-						lengthFiltered++;
+					if ( rec_maxlen < recOther.size() ) {
+						++checker.filtered;
 						continue;
 					}
-					candidatesAfterLF.add( recOther );
+					candidateAfterLF.add( recOther );
 				}
 			}
 		}
 		long afterFilteringTime = System.currentTimeMillis();
-
+		
 		// verification
-		for ( Record recOther : candidatesAfterLF ) {
+		for ( Record recOther : candidateAfterLF ) {
 			if ( checker.isEqual( rec, recOther ) >= 0 ) {
-				if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
-				else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
-				else throw new RuntimeException("Unexpected error");
+				if ( query.selfJoin ) {
+					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
+					int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
+					rslt.add( new IntegerPair( id_smaller, id_larger) );
+				}
+				else {
+					if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
+					else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
+					else throw new RuntimeException("Unexpected error");
+				}
 			}
 		}
-
 		long afterValidateTime = System.currentTimeMillis();
 		
 		candTokenTime += afterCandidateTime - startTime;

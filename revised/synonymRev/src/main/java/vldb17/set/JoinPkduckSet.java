@@ -9,6 +9,7 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -17,9 +18,7 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.GreedyValidator;
 import vldb17.ParamPkduck;
 import vldb17.ParamPkduck.GlobalOrder;
 
@@ -38,7 +37,11 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
+	private long filteringTime = 0;
 	private long validateTime = 0;
+	private long nScanList = 0;
+
+	private final Boolean useLF = true;
 
 	public JoinPkduckSet( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -71,8 +74,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
 		globalOrder = params.globalOrder;
 		useRuleComp = params.useRuleComp;
-		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide();
-		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( true, true );
+		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
+		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
 //		this.threshold = -1;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
@@ -108,7 +111,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 			catch( Exception e ) { e.printStackTrace(); }
 		}
 
-		buildIndex( addStat );
+		buildIndex( false );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -123,7 +126,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		}
 
 		// Join
-		final Set<IntegerPair> rslt = join( stat, query, true );
+		final Set<IntegerPair> rslt = join( stat, query, addStat );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -168,9 +171,11 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		}
 		
 		if ( addStat ) {
-			stat.add( "CandTokenTime", candTokenTime );
-			stat.add( "IsInSigUTime", isInSigUTime/1e6);
-			stat.add( "ValidateTime", validateTime/1e6 );
+			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
+			stat.add( "Result_3_4_IsInSigUTime", isInSigUTime/1e6 );
+			stat.add( "Result_3_5_FilteringTime", filteringTime );
+			stat.add( "Result_3_6_ValidateTime", validateTime );
+			stat.add( "Result_3_7_nScanList", nScanList );
 		}
 		return rslt;
 	}
@@ -199,35 +204,54 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				}
 			}
 		}
-		this.candTokenTime += (System.currentTimeMillis() - startTime);
+		long afterCandTokenTime = System.currentTimeMillis();
 		
+		Set<Record> candidateAfterLF = new ObjectOpenHashSet<Record>();
+		int rec_maxlen = rec.getMaxTransLength();
 		PkduckSetDP pkduckSetDP;
 		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( rec, globalOrder );
 		else pkduckSetDP = new PkduckSetDP( rec, globalOrder );
 		for (QGram qgram : candidateQGrams) {
-			long startDpTime = System.nanoTime();
+			long startDPTime = System.nanoTime();
 			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
-			isInSigUTime += System.nanoTime() - startDpTime;
+			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
 				List<Record> indexedList = idx.get( qgram );
 				if ( indexedList == null ) continue;
+				++nScanList;
 				for (Record recOther : indexedList) {
-					long startValidateTime = System.nanoTime();
-					int comp = checker.isEqual( rec, recOther );
-					validateTime += System.nanoTime() - startValidateTime;
-					if (comp >= 0) {
-//						System.out.println( recS+", "+recT );
-//						List<Record> expList = recS.expandAll();
-//						for (Record exp : expList) {
-//							System.out.println( exp );
-//						}
-//						System.out.println(  );
-						if ( idx == idxT ) rslt.add( new IntegerPair(rec.getID(), recOther.getID()) );
-						else if ( idx == idxS ) rslt.add(  new IntegerPair(recOther.getID(), rec.getID()) );
-						else throw new RuntimeException("Unexpected error");
+					if ( useLF ) {
+						if ( rec_maxlen < recOther.size() ) {
+							++checker.filtered;
+							continue;
+						}
+						candidateAfterLF.add( recOther );
 					}
 				}
 			}
 		}
+		long afterFilteringTime = System.currentTimeMillis();
+		
+		// verification
+		for (Record recOther : candidateAfterLF ) {
+			int comp = checker.isEqual( rec, recOther );
+			if (comp >= 0) {
+				if ( query.selfJoin ) {
+					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
+					int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
+					rslt.add( new IntegerPair( id_smaller, id_larger) );
+				}
+				else {
+					if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
+					else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
+					else throw new RuntimeException("Unexpected error");
+				}
+			}
+		}
+		long afterValidateTime = System.currentTimeMillis();
+		
+		candTokenTime += afterCandTokenTime - startTime;
+		filteringTime += afterFilteringTime - afterCandTokenTime;
+		validateTime += afterValidateTime - afterFilteringTime;
 	}
 }
