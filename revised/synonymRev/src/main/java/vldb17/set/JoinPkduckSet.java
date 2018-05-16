@@ -9,6 +9,7 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -17,9 +18,7 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.GreedyValidator;
 import vldb17.ParamPkduck;
 import vldb17.ParamPkduck.GlobalOrder;
 
@@ -71,8 +70,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
 		globalOrder = params.globalOrder;
 		useRuleComp = params.useRuleComp;
-		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide();
-		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( true, true );
+		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
+		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
 //		this.threshold = -1;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
@@ -108,7 +107,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 			catch( Exception e ) { e.printStackTrace(); }
 		}
 
-		buildIndex( addStat );
+		buildIndex( false );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -216,15 +215,16 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 					int comp = checker.isEqual( rec, recOther );
 					validateTime += System.nanoTime() - startValidateTime;
 					if (comp >= 0) {
-//						System.out.println( recS+", "+recT );
-//						List<Record> expList = recS.expandAll();
-//						for (Record exp : expList) {
-//							System.out.println( exp );
-//						}
-//						System.out.println(  );
-						if ( idx == idxT ) rslt.add( new IntegerPair(rec.getID(), recOther.getID()) );
-						else if ( idx == idxS ) rslt.add(  new IntegerPair(recOther.getID(), rec.getID()) );
-						else throw new RuntimeException("Unexpected error");
+						if ( query.selfJoin ) {
+							int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
+							int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
+							rslt.add( new IntegerPair( id_smaller, id_larger) );
+						}
+						else {
+							if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
+							else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
+							else throw new RuntimeException("Unexpected error");
+						}
 					}
 				}
 			}

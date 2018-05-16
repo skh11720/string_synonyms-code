@@ -3,45 +3,28 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
 import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class SetGreedyOneSide extends Validator {
+public class SetGreedyOneSide extends AbstractSetValidator {
 	
-	private Record x, y;
-	
-	protected static boolean areSameString( Record s, Record t ) {
-		if( s.getTokenCount() != t.getTokenCount() ) {
-			return false;
-		}
-
-		int[] si = s.getTokensArray();
-		int[] ti = t.getTokensArray();
-		Arrays.sort( si );
-		Arrays.sort( ti );
-		for( int i = 0; i < si.length; ++i ) {
-			if( si[ i ] != ti[ i ] ) {
-				return false;
-			}
-		}
-		return true;
+	public SetGreedyOneSide( Boolean selfJoin ) {
+		super( selfJoin	 );
 	}
 
 	@Override
-	public int isEqual( Record x, Record y ) {
-		// Check whether x -> y
-
-		++checked;
-		if( areSameString( x, y ) )
-			return 0;
-		// DEBUG
-		// System.out.println( "x " + x );
-		// System.out.println( "y " + y );
+	protected int isEqualOneSide( Record x, Record y ) {
+		// check whether x -> y
 		
-		this.x = x;
-		this.y = y;
+		// DEBUG
+//		Boolean debug = false;
+//		if ( x.getID() == 4199 && y.getID() == 4566 ) debug = true;
+//		if ( y.getID() == 4199 && x.getID() == 4566 ) debug = true;
+//		if (debug) {
+//			System.out.println( x.toString()+", "+Arrays.toString( x.getTokensArray() ) );
+//			System.out.println( y.toString()+", "+Arrays.toString( y.getTokensArray() ) );
+//		}
+		
 		IntOpenHashSet ySet = new IntOpenHashSet(y.getTokensArray());
 		IntOpenHashSet remaining = ySet.clone();
 		int pos = x.size();
@@ -52,6 +35,9 @@ public class SetGreedyOneSide extends Validator {
 			float bestScore = -1;
 			Rule bestRule = null;
 			for ( Rule rule : x.getSuffixApplicableRules( pos-1 ) ) {
+
+//				if (debug) System.out.println( ""+(pos-1)+", "+rule.toString() );
+
 				++niterrules;
 				// check whether all tokens in rhs are in y.
 				float score = 0;
@@ -74,13 +60,18 @@ public class SetGreedyOneSide extends Validator {
 			
 			// If there is no valid rule, return -1.
 			if ( bestRule == null ) return -1;
+
+			// DEBUG
+//			if ( debug ) System.out.println( "best: "+bestRule.toString() );
 			
 			// apply the best rule.
 			for ( int token : bestRule.getRight() ) {
 				remaining.remove( token );
-			pos -= bestRule.leftSize();
 			}
+			pos -= bestRule.leftSize();
 		} // end while
+		
+//		if ( debug ) System.out.println( "result: "+(remaining.size() == 0) );
 		
 		if ( remaining.size() == 0 ) return 1;
 		else return -1;

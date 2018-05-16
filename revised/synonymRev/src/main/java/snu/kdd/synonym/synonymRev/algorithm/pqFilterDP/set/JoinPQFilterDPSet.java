@@ -1,6 +1,9 @@
 package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +24,8 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
+import vldb17.GreedyValidator;
+import vldb17.set.SetGreedyValidator;
 
 public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
@@ -31,7 +36,6 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
 	protected Validator checker;
 	protected long candTokenTime = 0;
-	protected long filteringTime = 0;
 	protected long dpTime = 0;
 	protected long validateTime = 0;
 	protected long nScanList = 0;
@@ -154,9 +158,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		if ( addStat ) {
 			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
 			stat.add( "Result_3_4_DpTime", dpTime/1e6 );
-			stat.add( "Result_3_5_FilteringTime", filteringTime );
-			stat.add( "Result_3_6_ValidateTime", validateTime );
-			stat.add( "Result_3_7_nScanList", nScanList );
+			stat.add( "Result_3_5_ValidateTime", validateTime );
+			stat.add( "Result_3_6_nScanList", nScanList );
 		}
 		return rslt;
 	}
@@ -179,6 +182,21 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 				}
 			}
 		}
+		
+		if (writeResult) {
+			try {
+				BufferedWriter bw = new BufferedWriter( new FileWriter( "./tmp/PQFilterDPSetIndex_idxT.txt" ) );
+				for ( int key : idxT.keySet() ) {
+					bw.write( "token: "+query.tokenIndex.getToken( key )+" ("+key+")\n" );
+					for ( Record rec : idxT.get( key ) ) bw.write( ""+rec.getID()+", " );
+					bw.write( "\n" );
+				}
+			}
+			catch( IOException e ) {
+				e.printStackTrace();
+				System.exit( 1 );
+			}
+		}
 	}
 	
 	protected void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<Integer, List<Record>> idx ) {
@@ -193,43 +211,29 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		long afterCandidateTime = System.currentTimeMillis();
 
 		// Scan the index and verify candidate record pairs.
-		Set<Record> candidatesAfterLF = new WYK_HashSet<Record>(100);
-		int[] range = rec.getTransLengths();
 		for ( int token : candidateTokens ) {
 			if ( !idx.containsKey( token ) ) continue;
 			nScanList++;
 			for ( Record recOther : idx.get( token ) ) {
-				// length filtering
-				if ( useLF ) {
-					int[] otherRange = new int[2];
-					if ( query.oneSideJoin ) {
-						otherRange[0] = otherRange[1] = recOther.getTokenCount();
+				// verification
+				if ( checker.isEqual( rec, recOther ) >= 0 ) {
+					if ( query.selfJoin ) {
+						int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
+						int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
+						rslt.add( new IntegerPair( id_smaller, id_larger) );
 					}
-					else throw new RuntimeException("oneSideJoin is supported only.");
-					if (!StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
-						lengthFiltered++;
-						continue;
+					else {
+						if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
+						else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
+						else throw new RuntimeException("Unexpected error");
 					}
-					candidatesAfterLF.add( recOther );
 				}
 			}
 		}
-		long afterFilteringTime = System.currentTimeMillis();
-
-		// verification
-		for ( Record recOther : candidatesAfterLF ) {
-			if ( checker.isEqual( rec, recOther ) >= 0 ) {
-				if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
-				else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
-				else throw new RuntimeException("Unexpected error");
-			}
-		}
-
 		long afterValidateTime = System.currentTimeMillis();
 		
 		candTokenTime += afterCandidateTime - startTime;
-		filteringTime += afterFilteringTime - afterCandidateTime;
-		validateTime += afterValidateTime - afterFilteringTime;
+		validateTime += afterValidateTime - afterCandidateTime;
 	}
 
 	@Override
