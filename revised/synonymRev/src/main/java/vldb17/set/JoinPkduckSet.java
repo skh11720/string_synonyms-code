@@ -37,7 +37,11 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
+	private long filteringTime = 0;
 	private long validateTime = 0;
+	private long nScanList = 0;
+
+	private final Boolean useLF = true;
 
 	public JoinPkduckSet( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -122,7 +126,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		}
 
 		// Join
-		final Set<IntegerPair> rslt = join( stat, query, true );
+		final Set<IntegerPair> rslt = join( stat, query, addStat );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -167,9 +171,11 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		}
 		
 		if ( addStat ) {
-			stat.add( "CandTokenTime", candTokenTime );
-			stat.add( "IsInSigUTime", isInSigUTime/1e6);
-			stat.add( "ValidateTime", validateTime/1e6 );
+			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
+			stat.add( "Result_3_4_IsInSigUTime", isInSigUTime/1e6 );
+			stat.add( "Result_3_5_FilteringTime", filteringTime );
+			stat.add( "Result_3_6_ValidateTime", validateTime );
+			stat.add( "Result_3_7_nScanList", nScanList );
 		}
 		return rslt;
 	}
@@ -198,36 +204,54 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				}
 			}
 		}
-		this.candTokenTime += (System.currentTimeMillis() - startTime);
+		long afterCandTokenTime = System.currentTimeMillis();
 		
+		Set<Record> candidateAfterLF = new ObjectOpenHashSet<Record>();
+		int rec_maxlen = rec.getMaxTransLength();
 		PkduckSetDP pkduckSetDP;
 		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( rec, globalOrder );
 		else pkduckSetDP = new PkduckSetDP( rec, globalOrder );
 		for (QGram qgram : candidateQGrams) {
-			long startDpTime = System.nanoTime();
+			long startDPTime = System.nanoTime();
 			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
-			isInSigUTime += System.nanoTime() - startDpTime;
+			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
 				List<Record> indexedList = idx.get( qgram );
 				if ( indexedList == null ) continue;
+				++nScanList;
 				for (Record recOther : indexedList) {
-					long startValidateTime = System.nanoTime();
-					int comp = checker.isEqual( rec, recOther );
-					validateTime += System.nanoTime() - startValidateTime;
-					if (comp >= 0) {
-						if ( query.selfJoin ) {
-							int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
-							int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
-							rslt.add( new IntegerPair( id_smaller, id_larger) );
+					if ( useLF ) {
+						if ( rec_maxlen < recOther.size() ) {
+							++checker.filtered;
+							continue;
 						}
-						else {
-							if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
-							else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
-							else throw new RuntimeException("Unexpected error");
-						}
+						candidateAfterLF.add( recOther );
 					}
 				}
 			}
 		}
+		long afterFilteringTime = System.currentTimeMillis();
+		
+		// verification
+		for (Record recOther : candidateAfterLF ) {
+			int comp = checker.isEqual( rec, recOther );
+			if (comp >= 0) {
+				if ( query.selfJoin ) {
+					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
+					int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
+					rslt.add( new IntegerPair( id_smaller, id_larger) );
+				}
+				else {
+					if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
+					else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
+					else throw new RuntimeException("Unexpected error");
+				}
+			}
+		}
+		long afterValidateTime = System.currentTimeMillis();
+		
+		candTokenTime += afterCandTokenTime - startTime;
+		filteringTime += afterFilteringTime - afterCandTokenTime;
+		validateTime += afterValidateTime - afterFilteringTime;
 	}
 }

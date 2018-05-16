@@ -37,13 +37,13 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 	protected Validator checker;
 	protected long candTokenTime = 0;
 	protected long dpTime = 0;
+	protected long filteringTime = 0;
 	protected long validateTime = 0;
 	protected long nScanList = 0;
-	protected long lengthFiltered = 0;
 
 	protected WYK_HashMap<Integer, WYK_HashSet<QGram>> mapToken2qgram = null;
 	
-	private Boolean useLF = true;
+	private final Boolean useLF = true;
 
 
 	// staticitics used for building indexes
@@ -159,8 +159,9 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		if ( addStat ) {
 			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
 			stat.add( "Result_3_4_DpTime", dpTime/1e6 );
-			stat.add( "Result_3_5_ValidateTime", validateTime );
-			stat.add( "Result_3_6_nScanList", nScanList );
+			stat.add( "Result_3_5_FilteringTime", filteringTime );
+			stat.add( "Result_3_6_ValidateTime", validateTime );
+			stat.add( "Result_3_7_nScanList", nScanList );
 		}
 		return rslt;
 	}
@@ -212,29 +213,43 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		long afterCandidateTime = System.currentTimeMillis();
 
 		// Scan the index and verify candidate record pairs.
+		Set<Record> candidateAfterLF = new ObjectOpenHashSet<Record>();
+		int rec_maxlen = rec.getMaxTransLength();
 		for ( int token : candidateTokens ) {
 			if ( !idx.containsKey( token ) ) continue;
 			nScanList++;
 			for ( Record recOther : idx.get( token ) ) {
-				// verification
-				if ( checker.isEqual( rec, recOther ) >= 0 ) {
-					if ( query.selfJoin ) {
-						int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
-						int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
-						rslt.add( new IntegerPair( id_smaller, id_larger) );
+				if ( useLF ) {
+					if ( rec_maxlen < recOther.size() ) {
+						++checker.filtered;
+						continue;
 					}
-					else {
-						if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
-						else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
-						else throw new RuntimeException("Unexpected error");
-					}
+					candidateAfterLF.add( recOther );
+				}
+			}
+		}
+		long afterFilteringTime = System.currentTimeMillis();
+		
+		// verification
+		for ( Record recOther : candidateAfterLF ) {
+			if ( checker.isEqual( rec, recOther ) >= 0 ) {
+				if ( query.selfJoin ) {
+					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
+					int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
+					rslt.add( new IntegerPair( id_smaller, id_larger) );
+				}
+				else {
+					if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
+					else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
+					else throw new RuntimeException("Unexpected error");
 				}
 			}
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		
 		candTokenTime += afterCandidateTime - startTime;
-		validateTime += afterValidateTime - afterCandidateTime;
+		filteringTime += afterFilteringTime - afterCandidateTime;
+		validateTime += afterValidateTime - afterFilteringTime;
 	}
 
 	@Override
