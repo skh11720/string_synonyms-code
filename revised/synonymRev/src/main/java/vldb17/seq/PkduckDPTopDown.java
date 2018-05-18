@@ -9,6 +9,7 @@ import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import vldb17.ParamPkduck.GlobalOrder;
 
+@Deprecated
 public class PkduckDPTopDown {
 	
 	protected final GlobalOrder globalOrder;
