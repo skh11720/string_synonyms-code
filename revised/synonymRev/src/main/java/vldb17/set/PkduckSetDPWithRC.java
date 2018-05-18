@@ -14,16 +14,10 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 	private final RCTableSet rcTable;
 //	private Boolean debug = false;
 
-	public static int safeAdd( int a, int b ) {
-		if ( a > 0 && b > 0 && a+b < 0 ) // positive overflow detected
-			return Integer.MAX_VALUE;
-		else return a+b;
-	}
-
 	public PkduckSetDPWithRC( Record rec, GlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 		rcTable = new RCTableSet( rec, globalOrder );
-//		if (rec.getID() == 209) debug = true;
+//		if (rec.getID() == 0) debug = true;
 //		if (debug) System.out.println( rcTable );
 	}
 

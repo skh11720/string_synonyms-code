@@ -17,6 +17,12 @@ public class PkduckSetDP {
 	protected List<List<QGram>> availableQGrams;
 	
 	protected static final int inf = Integer.MAX_VALUE/2;
+
+	protected static int safeAdd( int a, int b ) {
+		if ( a > 0 && b > 0 && a+b < 0 ) // positive overflow detected
+			return Integer.MAX_VALUE;
+		else return a+b;
+	}
 	
 	public PkduckSetDP( Record rec, GlobalOrder globalOrder ) {
 		this.rec = rec;
@@ -48,7 +54,7 @@ public class PkduckSetDP {
 				int comp = PkduckSetIndex.compareQGrams( current_qgram.qgram, target_qgram.qgram );
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
-				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
+				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], safeAdd(g[0][i-1][l-1], (comp==-1?1:0) ) );
 //				System.out.println( "g[0]["+(i-1)+"]["+(l-1)+"]: "+g[0][i-1][l-1] );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				for (Rule rule : rec.getSuffixApplicableRules( i-1 )) {
@@ -64,7 +70,7 @@ public class PkduckSetDP {
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
 					if (isValid && i-rule.leftSize() >= 0 && l-rule.rightSize() >= 0) 
-						g[0][i][l] = Math.min( g[0][i][l], g[0][i-rule.leftSize()][l-rule.rightSize()] + num_smaller );
+						g[0][i][l] = Math.min( g[0][i][l], safeAdd(g[0][i-rule.leftSize()][l-rule.rightSize()], num_smaller) );
 				}
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 			}
@@ -77,7 +83,7 @@ public class PkduckSetDP {
 			for (int l=1; l<=len_max_S; l++) {
 				int comp = PkduckSetIndex.compareQGrams( current_qgram.qgram, target_qgram.qgram );
 //				System.out.println( "comp: "+comp );
-				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], g[1][i-1][l-1] + (comp<0?1:0) );
+				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], safeAdd(g[1][i-1][l-1], (comp<0?1:0)) );
 				else g[1][i][l] = Math.min( g[1][i][l], g[0][i-1][l-1] );
 //				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
 				for (Rule rule : rec.getSuffixApplicableRules( i-1 )) {
@@ -93,8 +99,8 @@ public class PkduckSetDP {
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
 					if ( i-rule.leftSize() >= 0 && l-rule.rightSize() >= 0) {
-						g[1][i][l] = Math.min( g[1][i][l], g[1][i-rule.leftSize()][l-rule.rightSize()] + num_smaller );
-						if (isValid) g[1][i][l] = Math.min( g[1][i][l], g[0][i-rule.leftSize()][l-rule.rightSize()] + num_smaller );
+						g[1][i][l] = Math.min( g[1][i][l], safeAdd( g[1][i-rule.leftSize()][l-rule.rightSize()], num_smaller ) );
+						if (isValid) g[1][i][l] = Math.min( g[1][i][l], safeAdd( g[0][i-rule.leftSize()][l-rule.rightSize()], num_smaller ) );
 					}
 				}
 //				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );

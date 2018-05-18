@@ -64,18 +64,20 @@ public class RCTableSet {
 		}
 		return str;
 	}
-
+	
 	public class RCEntry {
 		/*
 		 * 	"smaller" contains the least number of smaller tokens for all applicable rules.
 		 * 	"smallerF" contains the least number of smaller tokens for all applicable rules which DO NOT GENERATE the target pos q-gram.
 		 * 	"smallerT" contains the least number of smaller tokens for all applicable rules which GENERATE the target pos q-gram.
+		 * 
+		 * 	The three arrays are merged into a 2d-array "smaller".
 		 */
 		
 		private int[] tokenList;
-		private int[] smaller;
-		private int[] smallerF;
-		private int[] smallerT;
+		private int[][] smaller;
+//		private int[] smallerF;
+//		private int[] smallerT;
 		
 		public RCEntry( Set<Rule>	ruleSet ) {
 			// Enumerate all pos qgrams generated from rules in the ruleSet.
@@ -87,19 +89,21 @@ public class RCTableSet {
 					tokenSet.add( rhs[j] );
 				}
 			}
+			tokenSet.add( Integer.MIN_VALUE ); // left end
+			tokenSet.add( Integer.MAX_VALUE ); // right end
 			tokenList = new int[tokenSet.size()];
 			tokenSet.toArray( tokenList );
 			Arrays.sort( tokenList );
 //			System.out.println( Arrays.toString( tokenList ) );
 //			System.out.println( Arrays.toString( pqgramList ) );
 			
-			// Fill the arrays.
-			smaller = new int[tokenList.length];
-			smallerF = new int[tokenList.length];
-			smallerT = new int[tokenList.length];
-			Arrays.fill( smaller, Integer.MAX_VALUE-1 );
-			Arrays.fill( smallerF, Integer.MAX_VALUE-1 );
-			Arrays.fill( smallerT, Integer.MAX_VALUE-1 );
+			// Fill the arrays with bounding values at the both ends.
+			smaller = new int[3][tokenList.length];
+//			smallerF = new int[tokenList.length];
+//			smallerT = new int[tokenList.length];
+			for ( int i=0; i<3; i++ ) Arrays.fill( smaller[i], Integer.MAX_VALUE-1 );
+//			Arrays.fill( smallerF, Integer.MAX_VALUE );
+//			Arrays.fill( smallerT, Integer.MAX_VALUE );
 			for ( Rule rule : ruleSet ) {
 				IntOpenHashSet rule_tokenSet = new IntOpenHashSet( rule.getRight() );
 				int[] rule_tokenList = new int[rule_tokenSet.size()];
@@ -110,9 +114,9 @@ public class RCTableSet {
 				int n_small = 0;
 				// Note that both rule_pqgramList and pqgramList are sorted.
 				for ( int k=0; k<tokenList.length; k++ ) {
-					smaller[k] = Math.min( smaller[k], n_small );
+					smaller[0][k] = Math.min( smaller[0][k], n_small );
 					if ( j >= rule_tokenList.length ) {
-						smallerF[k] = Math.min( smallerF[k], n_small );
+						smaller[1][k] = Math.min( smaller[1][k], n_small );
 						continue;
 					}
 //						System.out.println( pqgram+", "+pqgramList[k]+": "+pqgram.compareTo( pqgramList[k] ) );
@@ -120,15 +124,17 @@ public class RCTableSet {
 						throw new RuntimeException("Unexpected error");
 					}
 					else if ( rule_tokenList[j] > tokenList[k] ) { // rule_pqgram > pqgramList[k]
-						smallerF[k] = Math.min( smallerF[k], n_small );
+						smaller[1][k] = Math.min( smaller[1][k], n_small );
 					}
 					else { // rule_pqgram == pqgramList[k]
-						smallerT[k] = Math.min( smallerT[k], n_small++ );
+						smaller[2][k] = Math.min( smaller[2][k], n_small++ );
 						++j;
 					}
 				}
 //				System.out.println( "rule_pqgramList: "+Arrays.toString( rule_pqgramList ) );
 			}
+			
+			setBound();
 //			System.out.println( "pqgramList: "+Arrays.toString( pqgramList ) );
 //			System.out.println( "smaller: "+Arrays.toString( smaller ) );
 //			System.out.println( "smallerF: "+Arrays.toString( smallerF ) );
@@ -143,18 +149,18 @@ public class RCTableSet {
 		
 		public int getSmaller( int token, int flag ) {
 			/*
-			 * flag == 0: smaller
-			 * flag == 1: smallerF
-			 * flag == 2: smallerT
+			 * flag == 0: smaller[0]
+			 * flag == 1: smaller[1]
+			 * flag == 2: smaller[2]
 			 */
-			int[] arr;
-			if ( flag == 0 ) arr = smaller;
-			else if ( flag == 1 ) arr = smallerF;
-			else if ( flag == 2 ) arr = smallerT;
-			else throw new RuntimeException("Unexpected error");
+			int[] arr = smaller[flag];
+//			if ( flag == 0 ) arr = smaller;
+//			else if ( flag == 1 ) arr = smallerF;
+//			else if ( flag == 2 ) arr = smallerT;
+//			else throw new RuntimeException("Unexpected error");
 			
 			int l = 0;
-			int r = arr.length;
+			int r = tokenList.length;
 			while ( l < r ) {
 				int m = (l+r)/2;
 				if ( token < tokenList[m] ) { // token < tokenList[m]
@@ -177,9 +183,14 @@ public class RCTableSet {
 //				System.err.println( ""+l+", "+r );
 //				System.exit( 1 );
 //			}
-			if ( r == arr.length ) return arr[r-1] + 1;
-			if ( flag == 2 ) return tokenList[r] == token? arr[r]: Integer.MAX_VALUE;
+			if ( flag == 2 ) {
+				if ( tokenList[r] == token ) return arr[r];
+				else return Integer.MAX_VALUE;
+			}
 			else return arr[r];
+//			if ( r == arr.length ) return arr[r-1] + 1;
+//			if ( flag == 2 ) return tokenList[r] == token? arr[r]: Integer.MAX_VALUE;
+//			else return arr[r];
 //			return arr[r];
 		}
 		
@@ -187,10 +198,18 @@ public class RCTableSet {
 		public String toString() {
 			String str = "";
 			str += "tokenList: "+Arrays.toString( tokenList ) +"\n";
-			str += "smaller: "+Arrays.toString( smaller ) +"\n";
-			str += "smallerF: "+Arrays.toString( smallerF ) +"\n";
-			str += "smallerT: "+Arrays.toString( smallerT ) +"\n";
+			str += "smaller: "+Arrays.toString( smaller[0] ) +"\n";
+			str += "smallerF: "+Arrays.toString( smaller[1] ) +"\n";
+			str += "smallerT: "+Arrays.toString( smaller[2] ) +"\n";
 			return str;
 		}
+
+		private void setBound() {
+			smaller[0][0] = smaller[1][0] = 0;
+			smaller[0][tokenList.length-1] = smaller[0][tokenList.length-2]+1;
+			smaller[1][tokenList.length-1] = smaller[1][tokenList.length-2];
+			smaller[2][0] = smaller[2][tokenList.length-1] = Integer.MAX_VALUE;
+		}
+
 	}
 }
