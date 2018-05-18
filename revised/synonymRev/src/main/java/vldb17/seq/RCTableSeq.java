@@ -111,7 +111,7 @@ public class RCTableSeq {
 						smallerF[k] = Math.min( smallerF[k], n_small );
 					}
 					else { // rule_pqgram == pqgramList[k]
-						smallerT[k] = Math.min( smallerF[k], n_small++ );
+						smallerT[k] = Math.min( smallerT[k], n_small++ );
 						++j;
 					}
 				}
