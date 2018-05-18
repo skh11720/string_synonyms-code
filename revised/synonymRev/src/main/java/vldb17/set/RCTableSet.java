@@ -113,7 +113,7 @@ public class RCTableSet {
 				int j = 0;
 				int n_small = 0;
 				// Note that both rule_pqgramList and pqgramList are sorted.
-				for ( int k=0; k<tokenList.length; k++ ) {
+				for ( int k=1; k<tokenList.length-1; k++ ) {
 					smaller[0][k] = Math.min( smaller[0][k], n_small );
 					if ( j >= rule_tokenList.length ) {
 						smaller[1][k] = Math.min( smaller[1][k], n_small );
@@ -186,6 +186,10 @@ public class RCTableSet {
 			if ( flag == 2 ) {
 				if ( tokenList[r] == token ) return arr[r];
 				else return Integer.MAX_VALUE;
+			}
+			else if ( flag == 1 ) {
+				if ( tokenList[r] == token ) return arr[r];
+				else return smaller[0][r];
 			}
 			else return arr[r];
 //			if ( r == arr.length ) return arr[r-1] + 1;
