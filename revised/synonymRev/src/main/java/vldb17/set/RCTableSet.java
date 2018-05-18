@@ -49,6 +49,21 @@ public class RCTableSet {
 	public Map<IntegerPair, RCEntry> getMap( int i ) {
 		return rcTable.get( i );
 	}
+	
+	@Override
+	public String toString() {
+		String str = "";
+		for ( int i=0; i<rcTable.size(); i++ ) {
+			str += "pos: "+i+"\n";
+			Map<IntegerPair, RCEntry> map = rcTable.get( i );
+			for ( IntegerPair key : map.keySet()) {
+				str += "key: "+key+"\n";
+				RCEntry entry = map.get( key );
+				str += entry.toString();
+			}
+		}
+		return str;
+	}
 
 	public class RCEntry {
 		/*
@@ -73,8 +88,9 @@ public class RCTableSet {
 				}
 			}
 			tokenList = new int[tokenSet.size()];
-			tokenSet.toArray();
+			tokenSet.toArray( tokenList );
 			Arrays.sort( tokenList );
+//			System.out.println( Arrays.toString( tokenList ) );
 //			System.out.println( Arrays.toString( pqgramList ) );
 			
 			// Fill the arrays.
@@ -89,6 +105,7 @@ public class RCTableSet {
 				int[] rule_tokenList = new int[rule_tokenSet.size()];
 				rule_tokenSet.toArray( rule_tokenList );
 				Arrays.sort( rule_tokenList );
+//				System.out.println( Arrays.toString( rule_tokenList ) );
 				int j = 0;
 				int n_small = 0;
 				// Note that both rule_pqgramList and pqgramList are sorted.
@@ -106,7 +123,7 @@ public class RCTableSet {
 						smallerF[k] = Math.min( smallerF[k], n_small );
 					}
 					else { // rule_pqgram == pqgramList[k]
-						smallerT[k] = Math.min( smallerF[k], n_small++ );
+						smallerT[k] = Math.min( smallerT[k], n_small++ );
 						++j;
 					}
 				}
@@ -150,7 +167,30 @@ public class RCTableSet {
 					return arr[m];
 				}
 			}
-			return arr[r];
+//			try {int a = arr[r];}
+//			catch ( Exception e ) {
+//				System.err.println( token );
+//				System.err.println( Arrays.toString( tokenList ) );
+//				System.err.println( Arrays.toString( smaller ) );
+//				System.err.println( Arrays.toString( smallerF ) );
+//				System.err.println( Arrays.toString( smallerT ) );
+//				System.err.println( ""+l+", "+r );
+//				System.exit( 1 );
+//			}
+			if ( r == arr.length ) return arr[r-1] + 1;
+			if ( r == 0 && arr[r] != token ) return 0;
+			else return arr[r];
+//			return arr[r];
+		}
+		
+		@Override
+		public String toString() {
+			String str = "";
+			str += "tokenList: "+Arrays.toString( tokenList ) +"\n";
+			str += "smaller: "+Arrays.toString( smaller ) +"\n";
+			str += "smallerF: "+Arrays.toString( smallerF ) +"\n";
+			str += "smallerT: "+Arrays.toString( smallerT ) +"\n";
+			return str;
 		}
 	}
 }

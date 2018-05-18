@@ -9,6 +9,7 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -211,9 +212,11 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		PkduckSetDP pkduckSetDP;
 		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( rec, globalOrder );
 		else pkduckSetDP = new PkduckSetDP( rec, globalOrder );
+		SampleDataTest.inspect_record( rec, query, 1 );
 		for (QGram qgram : candidateQGrams) {
 			long startDPTime = System.nanoTime();
 			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
+			System.out.println( ""+qgram+": "+isInSigU );
 			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
 				List<Record> indexedList = idx.get( qgram );
@@ -230,6 +233,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				}
 			}
 		}
+		System.exit( 1 );
 		long afterFilteringTime = System.currentTimeMillis();
 		
 		// verification

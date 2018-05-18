@@ -1,14 +1,10 @@
 package vldb17.set;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import vldb17.ParamPkduck.GlobalOrder;
@@ -39,10 +35,11 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 		}
 		g[0][0][0] = 0;
 
+		int target_token = target_qgram.qgram[0];
+
 		// compute g[0][i][l].
 		for (int i=1; i<=rec.size(); i++) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			int target_token = current_qgram.qgram[0];
 			int comp = PkduckSetIndex.compareQGrams( current_qgram.qgram, target_qgram.qgram );
 			Map<IntegerPair, RCTableSet.RCEntry> map = rcTable.getMap( i-1 );
 			for (int l=1; l<=len_max_S; l++) {
@@ -66,7 +63,6 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 		// compute g[1][i][l].
 		for (int i=1; i<=rec.size(); i++ ) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			int target_token = current_qgram.qgram[0];
 			int comp = PkduckSetIndex.compareQGrams( current_qgram.qgram, target_qgram.qgram );
 			Map<IntegerPair, RCTableSet.RCEntry> map = rcTable.getMap( i-1 );
 			for (int l=1; l<=len_max_S; l++) {
@@ -92,6 +88,9 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 
 		Boolean res = false;
 		for (int l=1; l<=len_max_S; l++) res |= (g[1][rec.size()][l] == 0);
+		
+		// DEBUG
+		System.out.println( rcTable );
 		return res;
 	}
 }
