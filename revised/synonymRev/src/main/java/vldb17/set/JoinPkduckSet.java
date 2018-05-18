@@ -212,11 +212,13 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		PkduckSetDP pkduckSetDP;
 		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( rec, globalOrder );
 		else pkduckSetDP = new PkduckSetDP( rec, globalOrder );
-		SampleDataTest.inspect_record( rec, query, 1 );
+//		Boolean debug = false;
+//		if ( rec.getID() == 209 ) debug = true;
+//		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
 		for (QGram qgram : candidateQGrams) {
 			long startDPTime = System.nanoTime();
 			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
-			System.out.println( ""+qgram+": "+isInSigU );
+//			if (debug) System.out.println( ""+qgram+": "+isInSigU );
 			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
 				List<Record> indexedList = idx.get( qgram );
@@ -233,7 +235,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				}
 			}
 		}
-		System.exit( 1 );
+//		System.exit( 1 );
 		long afterFilteringTime = System.currentTimeMillis();
 		
 		// verification

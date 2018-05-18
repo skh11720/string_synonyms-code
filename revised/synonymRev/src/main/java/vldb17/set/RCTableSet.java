@@ -97,9 +97,9 @@ public class RCTableSet {
 			smaller = new int[tokenList.length];
 			smallerF = new int[tokenList.length];
 			smallerT = new int[tokenList.length];
-			Arrays.fill( smaller, Integer.MAX_VALUE );
-			Arrays.fill( smallerF, Integer.MAX_VALUE );
-			Arrays.fill( smallerT, Integer.MAX_VALUE );
+			Arrays.fill( smaller, Integer.MAX_VALUE-1 );
+			Arrays.fill( smallerF, Integer.MAX_VALUE-1 );
+			Arrays.fill( smallerT, Integer.MAX_VALUE-1 );
 			for ( Rule rule : ruleSet ) {
 				IntOpenHashSet rule_tokenSet = new IntOpenHashSet( rule.getRight() );
 				int[] rule_tokenList = new int[rule_tokenSet.size()];
@@ -178,7 +178,7 @@ public class RCTableSet {
 //				System.exit( 1 );
 //			}
 			if ( r == arr.length ) return arr[r-1] + 1;
-			if ( r == 0 && arr[r] != token ) return 0;
+			if ( flag == 2 ) return tokenList[r] == token? arr[r]: Integer.MAX_VALUE;
 			else return arr[r];
 //			return arr[r];
 		}
