@@ -190,8 +190,9 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		/*
 		 * 1.0: initial version, transform s and compare to t
 		 * 1.01: transform s or t and compare to the other
+		 * 1.02: optimized rule compression
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
@@ -211,9 +212,13 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		PkduckSetDP pkduckSetDP;
 		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( rec, globalOrder );
 		else pkduckSetDP = new PkduckSetDP( rec, globalOrder );
+//		Boolean debug = false;
+//		if ( rec.getID() == 0 ) debug = true;
+//		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
 		for (QGram qgram : candidateQGrams) {
 			long startDPTime = System.nanoTime();
 			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
+//			if (debug) System.out.println( ""+qgram+": "+isInSigU );
 			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
 				List<Record> indexedList = idx.get( qgram );
@@ -230,6 +235,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				}
 			}
 		}
+//		if (debug) System.exit( 1 );
 		long afterFilteringTime = System.currentTimeMillis();
 		
 		// verification

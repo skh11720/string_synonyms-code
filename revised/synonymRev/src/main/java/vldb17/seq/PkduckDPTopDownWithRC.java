@@ -11,6 +11,7 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import vldb17.ParamPkduck.GlobalOrder;
 
+@Deprecated
 public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 
 	private Map<IntegerPair, Map<IntegerPair, int[]>> rcTable;

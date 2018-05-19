@@ -175,8 +175,9 @@ public class JoinPkduck extends AlgorithmTemplate {
 		 * 1.01: ?
 		 * 1.02: bug fix
 		 * 1.03: bug fix
+		 * 1.04: optimized rule compression
 		 */
-		return "1.03";
+		return "1.04";
 	}
 
 	private void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
