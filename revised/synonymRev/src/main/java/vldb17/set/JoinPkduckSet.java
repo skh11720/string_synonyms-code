@@ -9,7 +9,6 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -191,8 +190,9 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		/*
 		 * 1.0: initial version, transform s and compare to t
 		 * 1.01: transform s or t and compare to the other
+		 * 1.02: optimized rule compression
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
@@ -213,7 +213,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( rec, globalOrder );
 		else pkduckSetDP = new PkduckSetDP( rec, globalOrder );
 //		Boolean debug = false;
-//		if ( rec.getID() == 209 ) debug = true;
+//		if ( rec.getID() == 0 ) debug = true;
 //		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
 		for (QGram qgram : candidateQGrams) {
 			long startDPTime = System.nanoTime();
@@ -235,7 +235,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				}
 			}
 		}
-//		System.exit( 1 );
+//		if (debug) System.exit( 1 );
 		long afterFilteringTime = System.currentTimeMillis();
 		
 		// verification
