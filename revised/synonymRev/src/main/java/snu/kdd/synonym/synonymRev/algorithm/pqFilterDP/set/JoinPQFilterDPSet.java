@@ -4,14 +4,18 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -22,25 +26,30 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
+import vldb17.GlobalOrder;
 import vldb17.set.SetGreedyValidator;
 
 public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
 	public WYK_HashMap<Integer, List<Record>> idxS = null;
 	public WYK_HashMap<Integer, List<Record>> idxT = null;
-	public int indexK;
+	public Object2IntOpenHashMap<Record> idxCountS = null;
+	public Object2IntOpenHashMap<Record> idxCountT = null;
+	public int indexK = 0;
 	public int qgramSize;
 
 	protected Validator checker;
 	protected long candTokenTime = 0;
 	protected long dpTime = 0;
-	protected long filteringTime = 0;
+	protected long CountingTime = 0;
 	protected long validateTime = 0;
 	protected long nScanList = 0;
 
 	protected WYK_HashMap<Integer, WYK_HashSet<QGram>> mapToken2qgram = null;
 	
 	private final Boolean useLF = true;
+
+	private GlobalOrder globalOrder = new GlobalOrder("FF");
 
 
 	// staticitics used for building indexes
@@ -56,16 +65,22 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		for( Record rec : query.indexedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
 		}
+		idxT = new WYK_HashMap<Integer, List<Record>>();
+		idxCountT = new Object2IntOpenHashMap<Record>(query.indexedSet.size());
 		if( !query.selfJoin ) {
 			for( Record rec : query.searchedSet.get() ) {
 				rec.preprocessSuffixApplicableRules();
 			}
+			idxS = new WYK_HashMap<Integer, List<Record>>();
+			idxCountS = new Object2IntOpenHashMap<Record>(query.searchedSet.size());
 		}
+		globalOrder.initOrder( query );
 	}
 
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		ParamPQFilterDPSet params = ParamPQFilterDPSet.parseArgs( args, stat, query );
+		indexK = params.K;
 		
 		if( query.oneSideJoin ) {
 			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
@@ -111,7 +126,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 			throw new RuntimeException("UNIMPLEMENTED CASE");
 		}
 
-		buildIndex( false );
+		buildIndex( query.indexedSet, false );
+		if ( !query.selfJoin ) buildIndex( query.searchedSet, false );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -143,51 +159,66 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		
 		// S -> S' ~ T
 		for ( Record recS : query.searchedSet.recordList ) {
-			joinOneRecord( recS, rslt, idxT );
+			joinOneRecord( recS, rslt, idxT, idxCountT );
 		}
 
 		if ( !query.selfJoin ) {
 			// T -> T' ~ S
 			for ( Record recT : query.indexedSet.recordList ) {
-				joinOneRecord( recT, rslt, idxS );
+				joinOneRecord( recT, rslt, idxS, idxCountS );
 			}
 		}
 		
 		if ( addStat ) {
 			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
 			stat.add( "Result_3_4_DpTime", dpTime/1e6 );
-			stat.add( "Result_3_5_FilteringTime", filteringTime );
+			stat.add( "Result_3_5_CountingTime", CountingTime );
 			stat.add( "Result_3_6_ValidateTime", validateTime );
 			stat.add( "Result_3_7_nScanList", nScanList );
 		}
 		return rslt;
 	}
 
-	protected void buildIndex( boolean writeResult ) {
-		idxT = new WYK_HashMap<Integer, List<Record>>();
-		for ( Record recT : query.indexedSet.recordList ) {
-			for ( int token : recT.getTokensArray() ) {
-				if ( idxT.get( token ) == null ) idxT.put( token, new ObjectArrayList<Record>() );
-				idxT.get( token ).add( recT );
-			}
+	protected void buildIndex( Dataset dataset, boolean writeResult ) {
+		WYK_HashMap<Integer, List<Record>> idx = null;
+		Object2IntOpenHashMap<Record> idxCount = null;
+		if ( dataset == query.indexedSet ) {
+			idx = idxT;
+			idxCount = idxCountT;
 		}
-		
-		if ( !query.selfJoin ) {
-			idxS = new WYK_HashMap<Integer, List<Record>>();
-			for ( Record recS : query.searchedSet.recordList ) {
-				for ( int token : recS.getTokensArray() ) {
-					if ( idxS.get( token ) == null ) idxS.put( token, new ObjectArrayList<Record>() );
-					idxS.get( token ).add( recS );
+		else if ( dataset == query.searchedSet ) {
+			idx = idxS;
+			idxCount = idxCountS;
+		}
+		idxCount.defaultReturnValue( 0 );
+
+		for ( Record rec : dataset.recordList ) {
+			int[] tokens = rec.getTokensArray();
+			IntOpenHashSet smallestK = new IntOpenHashSet(indexK);
+			for ( int j=0; j<indexK && j<tokens.length; j++ ) {
+				int smallest = tokens[0];
+				for ( int i=1; i<tokens.length; i++ ) {
+					if ( smallestK.contains( tokens[j] )) continue;
+					if ( globalOrder.compareTokens( tokens[i], smallest ) == -1 ) smallest = tokens[i];
 				}
+				smallestK.add( smallest );
+			}
+			idxCount.put( rec, smallestK.size() );
+			for ( int token : smallestK ) {
+				if ( idx.get( token ) == null ) idx.put( token, new ObjectArrayList<Record>() );
+				idx.get( token ).add( rec );
 			}
 		}
 		
 		if (writeResult) {
 			try {
-				BufferedWriter bw = new BufferedWriter( new FileWriter( "./tmp/PQFilterDPSetIndex_idxT.txt" ) );
-				for ( int key : idxT.keySet() ) {
+				String name = "";
+				if ( idx == idxS ) name = "idxS";
+				else if ( idx == idxT ) name = "idxT";
+				BufferedWriter bw = new BufferedWriter( new FileWriter( "./tmp/PQFilterDPSetIndex_"+name+".txt" ) );
+				for ( int key : idx.keySet() ) {
 					bw.write( "token: "+query.tokenIndex.getToken( key )+" ("+key+")\n" );
-					for ( Record rec : idxT.get( key ) ) bw.write( ""+rec.getID()+", " );
+					for ( Record rec : idx.get( key ) ) bw.write( ""+rec.getID()+", " );
 					bw.write( "\n" );
 				}
 			}
@@ -198,7 +229,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		}
 	}
 	
-	protected void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<Integer, List<Record>> idx ) {
+	protected void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<Integer, List<Record>> idx, Object2IntOpenHashMap<Record> idxCount ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate tokens of recS.
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
@@ -208,27 +239,39 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 			}
 		}
 		long afterCandidateTime = System.currentTimeMillis();
-
-		// Scan the index and verify candidate record pairs.
-		Set<Record> candidateAfterLF = new ObjectOpenHashSet<Record>();
-		int rec_maxlen = rec.getMaxTransLength();
+		
+		// Count the number of matches.
+		Object2IntOpenHashMap<Record> count = new Object2IntOpenHashMap<Record>();
+		count.defaultReturnValue(0);
 		for ( int token : candidateTokens ) {
 			if ( !idx.containsKey( token ) ) continue;
 			nScanList++;
 			for ( Record recOther : idx.get( token ) ) {
-				if ( useLF ) {
-					if ( rec_maxlen < recOther.size() ) {
-						++checker.filtered;
-						continue;
-					}
-					candidateAfterLF.add( recOther );
-				}
+				count.put( recOther, count.getInt( recOther )+1 );
+//				if ( useLF ) {
+//					if ( rec_maxlen < recOther.size() ) {
+//						++checker.filtered;
+//						continue;
+//					}
+//					candidateAfterLF.add( recOther );
+//				}
 			}
 		}
-		long afterFilteringTime = System.currentTimeMillis();
+		Set<Record> candidateAfterCount = new ObjectOpenHashSet<Record>();
+		for ( Record recOther : count.keySet() ) {
+			if ( count.getInt( recOther ) >= idxCount.getInt( recOther ) ) candidateAfterCount.add( recOther );
+		}
+		long afterCountTime = System.currentTimeMillis();
 		
-		// verification
-		for ( Record recOther : candidateAfterLF ) {
+		// length filtering and verification
+		int rec_maxlen = rec.getMaxTransLength();
+		for ( Record recOther : candidateAfterCount ) {
+			if ( useLF ) {
+				if ( rec_maxlen < recOther.size() ) {
+					++checker.filtered;
+					continue;
+				}
+			}
 			if ( checker.isEqual( rec, recOther ) >= 0 ) {
 				if ( query.selfJoin ) {
 					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
@@ -245,8 +288,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		long afterValidateTime = System.currentTimeMillis();
 		
 		candTokenTime += afterCandidateTime - startTime;
-		filteringTime += afterFilteringTime - afterCandidateTime;
-		validateTime += afterValidateTime - afterFilteringTime;
+		CountingTime += afterCountTime - afterCandidateTime;
+		validateTime += afterValidateTime - afterCountTime;
 	}
 
 	@Override
@@ -259,7 +302,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		/*
 		 * 1.0: initial version, transform s and compare to t
 		 * 1.01: transform s or t and compare to the other
+		 * 1.02: index by considering token frequencies
 		 */
-		return "1.01";
+		return "1.02";
 	}
 }
