@@ -60,7 +60,7 @@ public class SetTopDownOneSide extends AbstractSetValidator {
 //		}
 		/////////////
 
-		if ( generated.equals( new IntOpenHashSet( rightRec.getTokensArray()) ) && pos <= 0 ) return true;
+		if ( generated.equals( rightTokenSet ) && pos <= 0 ) return true;
 		if ( pos == 0 ) return false;
 
 		// If this value is already computed, simply return the computed value.

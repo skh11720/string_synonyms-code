@@ -10,6 +10,7 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -20,9 +21,9 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
+import vldb17.GlobalOrder;
 import vldb17.GreedyValidator;
 import vldb17.ParamPkduck;
-import vldb17.ParamPkduck.GlobalOrder;
 
 public class JoinPkduck extends AlgorithmTemplate {
 
@@ -39,7 +40,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
 	private long validateTime = 0;
-
+	
 	public JoinPkduck( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
@@ -50,6 +51,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		for (Record rec : query.searchedSet.get()) {
 			rec.preprocessSuffixApplicableRules();
 		}
+		globalOrder.initOrder( query );
 
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {
@@ -62,7 +64,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		globalOrder = params.globalOrder;
+		globalOrder = new GlobalOrder( params.globalOrder );
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new NaiveOneSide();
 		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( query.oneSideJoin );
@@ -192,6 +194,10 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
+		Boolean debug = false;
+		if ( recS.getID() == 0 ) debug = true;
+		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
+
 		PkduckDP pkduckDP;
 		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, globalOrder );
 		pkduckDP = new PkduckDP( recS, globalOrder );
@@ -200,6 +206,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 				long startDpTime = System.nanoTime();
 				Boolean isInSigU = pkduckDP.isInSigU( qgram, pos );
 				isInSigUTime += System.nanoTime() - startDpTime;
+				if (debug) System.out.println( "["+qgram+", "+pos+"]: "+isInSigU );
 				if ( isInSigU ) {
 					List<Record> indexedList = idx.get( pos, qgram );
 					if ( indexedList == null ) continue;
@@ -220,27 +227,6 @@ public class JoinPkduck extends AlgorithmTemplate {
 				}
 			}
 		}
-	}
-
-	public static int comparePosQGrams(int[] qgram0, int pos0, int[] qgram1, int pos1, GlobalOrder globalOrder ) {
-		int res = Integer.MAX_VALUE;
-		switch (globalOrder) {
-		case PF:
-			res = Integer.compare( pos0, pos1 );
-			if (res != 0 ) return res;
-			else res = PkduckIndex.compareQGrams( qgram0, qgram1 );
-			break;
-
-		case TF:
-			res = PkduckIndex.compareQGrams( qgram0, qgram1 );
-			if (res != 0 ) return res;
-			else res = Integer.compare( pos0, pos1 );
-			break;
-
-		default:
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
-		assert res != Integer.MAX_VALUE;
-		return res;
+		if (debug) System.exit( 1 );
 	}
 }

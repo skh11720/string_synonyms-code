@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.ParamPkduck.GlobalOrder;
+import vldb17.GlobalOrder;
 
 @Deprecated
 public class PkduckDPTopDown {
@@ -64,7 +64,7 @@ public class PkduckDPTopDown {
 		
 		// recursion.
 		QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-		int comp = comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+		int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
 		if ( o == 0 ) {
 			// compute g[0][i][l].
 //				System.out.println( "comp: "+comp );
@@ -80,7 +80,7 @@ public class PkduckDPTopDown {
 				for (int j=0; j<rhs.length; j++) {
 					// check whether the rule does not generate [target_token, k].
 					isValid &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
-					num_smaller += comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+					num_smaller += globalOrder.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
 				}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
@@ -102,7 +102,7 @@ public class PkduckDPTopDown {
 				for (int j=0; j<rhs.length; j++) {
 					// check whether the rule generates [target_token, k].
 					isValid |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-					num_smaller += comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+					num_smaller += globalOrder.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
 				}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
@@ -119,28 +119,6 @@ public class PkduckDPTopDown {
 		IntTriple key = new IntTriple(i, l, o);
 		if ( g.containsKey( key ) ) g.put( key, Math.min( val, g.getInt( key ) ) );
 		else g.put( key, val );
-	}
-
-	protected int comparePosQGrams(int[] qgram0, int pos0, int[] qgram1, int pos1 ) {
-		int res = Integer.MAX_VALUE;
-		switch (globalOrder) {
-		case PF:
-			res = Integer.compare( pos0, pos1 );
-			if (res != 0 ) return res;
-			else res = PkduckIndex.compareQGrams( qgram0, qgram1 );
-			break;
-
-		case TF:
-			res = PkduckIndex.compareQGrams( qgram0, qgram1 );
-			if (res != 0 ) return res;
-			else res = Integer.compare( pos0, pos1 );
-			break;
-
-		default:
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
-		assert res != Integer.MAX_VALUE;
-		return res;
 	}
 
 	protected class IntTriple {

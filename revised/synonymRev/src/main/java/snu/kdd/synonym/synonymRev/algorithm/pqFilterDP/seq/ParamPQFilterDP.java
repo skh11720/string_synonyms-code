@@ -20,7 +20,7 @@ public class ParamPQFilterDP extends Param {
 		options.addOption( "K", true, "Represents a number of indexes" );
 		options.addOption( "qSize", true, "Q gram size" );
 		options.addOption( "useLF", true, "use length filtering (default: true)" );
-		options.addOption( "recurse", true, "the way of recursion in DP" );
+		options.addOption( "recurse", true, "the way of recursion in DP (defualt: BU" );
 		options.addOption( "mode", true, "mode" );
 
 		argOptions = options;
@@ -47,13 +47,13 @@ public class ParamPQFilterDP extends Param {
 		}
 		else param.useLF = true;
 		
-		if ( cmd.hasOption( "recurse" ) ) {
-			String val = cmd.getOptionValue( "recurse" );
-			if ( val.equals( "TD" )) param.useTopDown = true;
-			else if (val.equals( "BU" )) param.useTopDown = false;
-			else throw new RuntimeException("invalid argument for option recurse: "+val);
-		}
-		else throw new RuntimeException("the way of recursion has to be specified.");
+//		if ( cmd.hasOption( "recurse" ) ) {
+//			String val = cmd.getOptionValue( "recurse" );
+//			if ( val.equals( "TD" )) param.useTopDown = true;
+//			else if (val.equals( "BU" )) param.useTopDown = false;
+//			else throw new RuntimeException("invalid argument for option recurse: "+val);
+//		}
+//		else throw new RuntimeException("the way of recursion has to be specified.");
 
 		if( cmd.hasOption( "mode" ) ) {
 			param.mode = cmd.getOptionValue( "mode" );
@@ -69,6 +69,6 @@ public class ParamPQFilterDP extends Param {
 	}
 	
 	public Boolean useLF;
-	public Boolean useTopDown;
+	public Boolean useTopDown = false;
 	public String mode;
 }

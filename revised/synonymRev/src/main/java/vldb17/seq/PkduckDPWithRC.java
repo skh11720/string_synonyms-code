@@ -7,15 +7,19 @@ import java.util.Map.Entry;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.ParamPkduck.GlobalOrder;
+import vldb17.GlobalOrder;
 
 public class PkduckDPWithRC extends PkduckDP {
 	
 	private final RCTableSeq rcTable;
 	
+	private Boolean debug = false;
+	
 	public PkduckDPWithRC( Record rec, GlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 		rcTable = new RCTableSeq( rec, globalOrder );
+		if (rec.getID() == 0 ) debug = true;
+		if (debug) System.out.println( rcTable );
 	}
 
 	@Override
@@ -39,7 +43,7 @@ public class PkduckDPWithRC extends PkduckDP {
 		for (int i=1; i<=rec.size(); i++) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
 			for (int l=1; l<=len_max_s; l++) {
-				int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
+				int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
@@ -62,7 +66,7 @@ public class PkduckDPWithRC extends PkduckDP {
 		for (int i=1; i<=rec.size(); i++ ) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
 			for (int l=1; l<=len_max_s; l++) {
-				int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
+				int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
 //				System.out.println( "comp: "+comp );
 				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], g[1][i-1][l-1] + (comp<0?1:0) );
 				else g[1][i][l] = Math.min( g[1][i][l], g[0][i-1][l-1] );
@@ -82,7 +86,9 @@ public class PkduckDPWithRC extends PkduckDP {
 //				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
 			}
 		}
-//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
+		// DEBUG
+		if (debug) System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
+		if (debug) System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 
 		Boolean res = false;
 		for (int l=1; l<=len_max_s; l++) res |= (g[1][rec.size()][l] == 0);

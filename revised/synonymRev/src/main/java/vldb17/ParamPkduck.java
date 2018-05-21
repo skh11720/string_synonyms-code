@@ -35,10 +35,10 @@ public class ParamPkduck extends Param {
 		stat.add( cmd );
 
 		if( cmd.hasOption( "ord" ) ) {
-			param.globalOrder = GlobalOrder.valueOf( cmd.getOptionValue( "ord" ) );
-			if (param.globalOrder == null) {
-				throw new RuntimeException( "the value for option -ord is not specified.");
-			}
+			Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"PF", "TF", "FF"} );
+			param.globalOrder = cmd.getOptionValue( "ord" );
+			if ( !possibleValues.contains( param.globalOrder ) )
+				throw new RuntimeException( "unexpected value for option -ord: "+param.globalOrder );
 		}
 
 		if( cmd.hasOption( "verify" ) ) {
@@ -58,12 +58,7 @@ public class ParamPkduck extends Param {
 		return param;
 	}
 
-	public GlobalOrder globalOrder = null;
+	public String globalOrder = null;
 	public String verifier = null;
 	public Boolean useRuleComp = null;
-	
-	public enum GlobalOrder {
-		PF, // PositionFirst
-		TF, // TokenIndexFirst
-	}
 }

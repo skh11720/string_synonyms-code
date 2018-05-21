@@ -10,7 +10,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.ParamPkduck.GlobalOrder;
+import vldb17.GlobalOrder;
 
 public class RCTableSeq {
 	/*
@@ -51,6 +51,21 @@ public class RCTableSeq {
 	
 	public Map<IntegerPair, RCEntry> getMap( int i, int l ) {
 		return rcTable.get( new IntegerPair(i, l) );
+	}
+
+	@Override
+	public String toString() {
+		String str = "";
+		for ( IntegerPair key1 : rcTable.keySet() ) {
+			str += "key1: "+key1+"\n";
+			Map<IntegerPair, RCEntry> map = rcTable.get( key1 );
+			for ( IntegerPair key2 : map.keySet()) {
+				str += "key2: "+key2+"\n";
+				RCEntry entry = map.get( key2 );
+				str += entry.toString();
+			}
+		}
+		return str;
 	}
 
 	public class RCEntry {
@@ -161,6 +176,16 @@ public class RCTableSeq {
 		public int getSmaller( int[] qgram, int pos, int flag ) {
 			return getSmaller( new PosQGram(qgram, pos), flag );
 		}
+
+		@Override
+		public String toString() {
+			String str = "";
+			str += "tokenList: "+Arrays.toString( pqgramList ) +"\n";
+			str += "smaller: "+Arrays.toString( smaller ) +"\n";
+			str += "smallerF: "+Arrays.toString( smallerF ) +"\n";
+			str += "smallerT: "+Arrays.toString( smallerT ) +"\n";
+			return str;
+		}
 	}
 	
 	private class PosQGram implements Comparable<PosQGram> {
@@ -195,7 +220,7 @@ public class RCTableSeq {
 		
 		@Override
 		public int compareTo( PosQGram o ) {
-			return JoinPkduck.comparePosQGrams( qgram.qgram, pos, o.qgram.qgram, o.pos, RCTableSeq.this.globalOrder );
+			return globalOrder.comparePosQGrams( qgram.qgram, pos, o.qgram.qgram, o.pos );
 		}
 		
 		@Override

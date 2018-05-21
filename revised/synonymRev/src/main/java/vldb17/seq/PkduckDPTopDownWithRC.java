@@ -9,7 +9,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.ParamPkduck.GlobalOrder;
+import vldb17.GlobalOrder;
 
 @Deprecated
 public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
@@ -54,7 +54,7 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 
 		// recursion.
 		QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-		int comp = JoinPkduck.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k, globalOrder );
+		int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
 		if ( o == 0 ) {
 			// compute g[0][i][l].
 //				System.out.println( "comp: "+comp );
@@ -111,7 +111,7 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 					for ( int j=0; j<rhs.length; j++ ) {
 						isValidF &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
 						isValidT |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-						num_smaller += JoinPkduck.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k, globalOrder )==-1?1:0;
+						num_smaller += globalOrder.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
 					}
 					int aside = rule.leftSize();
 					int wside = rule.rightSize();
