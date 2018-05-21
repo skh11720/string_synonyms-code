@@ -53,6 +53,21 @@ public class RCTableSeq {
 		return rcTable.get( new IntegerPair(i, l) );
 	}
 
+	@Override
+	public String toString() {
+		String str = "";
+		for ( IntegerPair key1 : rcTable.keySet() ) {
+			str += "key1: "+key1+"\n";
+			Map<IntegerPair, RCEntry> map = rcTable.get( key1 );
+			for ( IntegerPair key2 : map.keySet()) {
+				str += "key2: "+key2+"\n";
+				RCEntry entry = map.get( key2 );
+				str += entry.toString();
+			}
+		}
+		return str;
+	}
+
 	public class RCEntry {
 		/*
 		 * 	"smaller" contains the least number of smaller tokens for all applicable rules.
@@ -160,6 +175,16 @@ public class RCTableSeq {
 
 		public int getSmaller( int[] qgram, int pos, int flag ) {
 			return getSmaller( new PosQGram(qgram, pos), flag );
+		}
+
+		@Override
+		public String toString() {
+			String str = "";
+			str += "tokenList: "+Arrays.toString( pqgramList ) +"\n";
+			str += "smaller: "+Arrays.toString( smaller ) +"\n";
+			str += "smallerF: "+Arrays.toString( smallerF ) +"\n";
+			str += "smallerT: "+Arrays.toString( smallerT ) +"\n";
+			return str;
 		}
 	}
 	

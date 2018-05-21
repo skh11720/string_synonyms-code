@@ -10,6 +10,7 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -39,7 +40,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
 	private long validateTime = 0;
-
+	
 	public JoinPkduck( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
@@ -192,6 +193,10 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
+		Boolean debug = false;
+		if ( recS.getID() == 0 ) debug = true;
+		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
+
 		PkduckDP pkduckDP;
 		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, globalOrder );
 		pkduckDP = new PkduckDP( recS, globalOrder );
@@ -200,6 +205,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 				long startDpTime = System.nanoTime();
 				Boolean isInSigU = pkduckDP.isInSigU( qgram, pos );
 				isInSigUTime += System.nanoTime() - startDpTime;
+				if (debug) System.out.println( "["+qgram+", "+pos+"]: "+isInSigU );
 				if ( isInSigU ) {
 					List<Record> indexedList = idx.get( pos, qgram );
 					if ( indexedList == null ) continue;
@@ -220,6 +226,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 				}
 			}
 		}
+		if (debug) System.exit( 1 );
 	}
 
 	public static int comparePosQGrams(int[] qgram0, int pos0, int[] qgram1, int pos1, GlobalOrder globalOrder ) {

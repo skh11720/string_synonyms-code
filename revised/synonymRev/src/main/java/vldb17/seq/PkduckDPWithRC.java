@@ -13,9 +13,13 @@ public class PkduckDPWithRC extends PkduckDP {
 	
 	private final RCTableSeq rcTable;
 	
+	private Boolean debug = false;
+	
 	public PkduckDPWithRC( Record rec, GlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 		rcTable = new RCTableSeq( rec, globalOrder );
+		if (rec.getID() == 0 ) debug = true;
+		if (debug) System.out.println( rcTable );
 	}
 
 	@Override
@@ -82,7 +86,9 @@ public class PkduckDPWithRC extends PkduckDP {
 //				System.out.println( "g[1]["+i+"]["+l+"]: "+g[1][i][l] );
 			}
 		}
-//		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
+		// DEBUG
+		if (debug) System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));
+		if (debug) System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 
 		Boolean res = false;
 		for (int l=1; l<=len_max_s; l++) res |= (g[1][rec.size()][l] == 0);
