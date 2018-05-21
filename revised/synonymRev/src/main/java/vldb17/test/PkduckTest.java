@@ -13,8 +13,8 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
+import vldb17.GlobalOrder;
 import vldb17.GreedyValidator;
-import vldb17.ParamPkduck.GlobalOrder;
 import vldb17.seq.JoinPkduck;
 import vldb17.seq.PkduckDP;
 import vldb17.seq.PkduckDPWithRC;
@@ -220,11 +220,12 @@ public class PkduckTest {
 	public static void main( String[] args ) throws IOException, ParseException {
 		loadData();
 		PkduckIndex index;
-		GlobalOrder[] globalOrderList = {GlobalOrder.PF, GlobalOrder.TF};
+		String[] orderList = {"PF", "TF"};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
-		for (GlobalOrder globalOrder: globalOrderList) {
-			System.out.println( "Global order: "+globalOrder.name() );
+		for (String order: orderList) {
+			GlobalOrder globalOrder = new GlobalOrder(order);
+			System.out.println( "Global order: "+globalOrder );
 			index = indexTest(globalOrder);
 			dpTest(index, globalOrder, false);
 			dpTest(index, globalOrder, true);

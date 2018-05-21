@@ -12,7 +12,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import vldb17.ParamPkduck.GlobalOrder;
+import vldb17.GlobalOrder;
 
 public class RCTableSet {
 	/*

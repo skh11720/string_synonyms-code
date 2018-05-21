@@ -10,7 +10,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.ParamPkduck.GlobalOrder;
+import vldb17.GlobalOrder;
 
 public class RCTableSeq {
 	/*
@@ -220,7 +220,7 @@ public class RCTableSeq {
 		
 		@Override
 		public int compareTo( PosQGram o ) {
-			return JoinPkduck.comparePosQGrams( qgram.qgram, pos, o.qgram.qgram, o.pos, RCTableSeq.this.globalOrder );
+			return globalOrder.comparePosQGrams( qgram.qgram, pos, o.qgram.qgram, o.pos );
 		}
 		
 		@Override
