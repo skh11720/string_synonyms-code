@@ -21,9 +21,9 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
+import vldb17.GlobalOrder;
 import vldb17.GreedyValidator;
 import vldb17.ParamPkduck;
-import vldb17.ParamPkduck.GlobalOrder;
 
 public class JoinPkduck extends AlgorithmTemplate {
 
@@ -51,6 +51,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		for (Record rec : query.searchedSet.get()) {
 			rec.preprocessSuffixApplicableRules();
 		}
+		globalOrder.initOrder( query );
 
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {
@@ -63,7 +64,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		globalOrder = params.globalOrder;
+		globalOrder = new GlobalOrder( params.globalOrder );
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new NaiveOneSide();
 		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( query.oneSideJoin );
@@ -227,27 +228,5 @@ public class JoinPkduck extends AlgorithmTemplate {
 			}
 		}
 		if (debug) System.exit( 1 );
-	}
-
-	public static int comparePosQGrams(int[] qgram0, int pos0, int[] qgram1, int pos1, GlobalOrder globalOrder ) {
-		int res = Integer.MAX_VALUE;
-		switch (globalOrder) {
-		case PF:
-			res = Integer.compare( pos0, pos1 );
-			if (res != 0 ) return res;
-			else res = PkduckIndex.compareQGrams( qgram0, qgram1 );
-			break;
-
-		case TF:
-			res = PkduckIndex.compareQGrams( qgram0, qgram1 );
-			if (res != 0 ) return res;
-			else res = Integer.compare( pos0, pos1 );
-			break;
-
-		default:
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
-		assert res != Integer.MAX_VALUE;
-		return res;
 	}
 }

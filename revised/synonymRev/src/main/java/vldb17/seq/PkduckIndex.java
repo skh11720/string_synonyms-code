@@ -15,7 +15,7 @@ import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
-import vldb17.ParamPkduck.GlobalOrder;
+import vldb17.GlobalOrder;
 
 public class PkduckIndex {
 	private WYK_HashMap<Integer, WYK_HashMap< QGram, List<Record>>> idx;
@@ -128,7 +128,7 @@ public class PkduckIndex {
 	}
 	
 	private void indexRecord(final Record record, final List<List<QGram>> availableQGrams ) {
-		switch (globalOrder) {
+		switch (globalOrder.getMode()) {
 		case PF: {
 			if ( idx.get( 0 ) == null ) idx.put( 0, new WYK_HashMap<QGram, List<Record>>() );
 //			WYK_HashMap<QGram, List<Record>> invList = idx.get( 0 );
@@ -143,7 +143,7 @@ public class PkduckIndex {
 			QGram key = availableQGrams.get( 0 ).get( 0 );
 			for (int i=1; i<record.size(); i++) {
 				QGram qgram = availableQGrams.get( i ).get( 0 );
-				if ( compareQGrams( key.qgram, qgram.qgram ) == 1 ) {
+				if ( globalOrder.compareQGrams( key.qgram, qgram.qgram ) == 1 ) {
 					pos = i;
 					key = qgram;
 				}
@@ -157,17 +157,5 @@ public class PkduckIndex {
 		default:
 			throw new RuntimeException("UNIMPLEMENTED CASE");
 		}
-	}
-	
-	public static int compareQGrams(int[] qgram0, int[] qgram1) {
-		int len = Math.min( qgram0.length, qgram1.length );
-		int res = Integer.MAX_VALUE;
-		for (int i=0; i<len; i++) {
-			res = Integer.compare( qgram0[i], qgram1[i] );
-			if (res != 0) return res;
-		}
-		if (qgram0.length > len) return 1;
-		else if (qgram1.length > len) return -1;
-		else return 0;
 	}
 }

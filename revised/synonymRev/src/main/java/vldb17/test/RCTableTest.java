@@ -14,8 +14,8 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
+import vldb17.GlobalOrder;
 import vldb17.GreedyValidator;
-import vldb17.ParamPkduck.GlobalOrder;
 import vldb17.seq.JoinPkduck;
 import vldb17.seq.PkduckDP;
 import vldb17.seq.PkduckDPWithRC;
@@ -90,10 +90,11 @@ public class RCTableTest {
 		loadData();
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PF, GlobalOrder.TF};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PF};
-		GlobalOrder[] globalOrderList = {GlobalOrder.TF};
-		for (GlobalOrder globalOrder: globalOrderList) {
+		String[] orderList = {"TF"};
+		for (String order: orderList) {
+			GlobalOrder globalOrder = new GlobalOrder(order);
 			RCTableTest.globalOrder = globalOrder;
-			System.out.println( "Global order: "+globalOrder.name() );
+			System.out.println( "Global order: "+globalOrder.getMode() );
 			tableTest();
 		}
 	}
