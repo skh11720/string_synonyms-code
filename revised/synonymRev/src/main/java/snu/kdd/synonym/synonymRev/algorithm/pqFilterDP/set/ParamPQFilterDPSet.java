@@ -19,6 +19,7 @@ public class ParamPQFilterDPSet extends Param {
 
 	static {
 		Options options = new Options();
+		options.addOption( "K", true, "Number of indexing for a record" );
 		options.addOption( "verify", true, "Verification" );
 
 		argOptions = options;
@@ -31,6 +32,11 @@ public class ParamPQFilterDPSet extends Param {
 		CommandLine cmd = parser.parse( argOptions, args );
 
 		stat.add( cmd );
+		
+		if ( cmd.hasOption( "K" ) ) {
+			param.K = Integer.parseInt( cmd.getOptionValue( "K" ) );
+			if ( param.K < 0 ) throw new RuntimeException("K must be larger than 0, not "+param.K);
+		}
 
 		if( cmd.hasOption( "verify" ) ) {
 			param.verifier = cmd.getOptionValue( "verify" );
@@ -47,4 +53,5 @@ public class ParamPQFilterDPSet extends Param {
 	
 	public String verifier;
 	public int beamWidth;
+	public int K;
 }
