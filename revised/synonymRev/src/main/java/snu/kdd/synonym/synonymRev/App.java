@@ -27,6 +27,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMinPosition;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinRange;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
+import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
@@ -200,6 +201,10 @@ public class App {
 		
 		case JoinPQFilterDPSet:
 			alg = new JoinPQFilterDPSet( query, stat );
+			break;
+
+		case JoinSetNaive:
+			alg = new JoinSetNaive( query, stat );
 			break;
 		
 		default:
