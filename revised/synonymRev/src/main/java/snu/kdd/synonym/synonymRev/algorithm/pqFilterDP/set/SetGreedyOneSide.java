@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
 import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 
@@ -62,7 +63,7 @@ public class SetGreedyOneSide extends AbstractSetValidator {
 
 				finished = false;
 				Rule[] rules = x.getSuffixApplicableRules( beamPos-1 );
-				ScoreRule[] scoreRules = new ScoreRule[rules.length];
+				ObjectArrayList<ScoreRule> scoreRules = new ObjectArrayList<ScoreRule>();
 				for ( int i=0; i<rules.length; i++ ) {
 					Rule rule = rules[i];
 					if (debug) System.out.println( beamPos+", "+rule );
@@ -79,26 +80,21 @@ public class SetGreedyOneSide extends AbstractSetValidator {
 						}
 						if ( remaining.contains( token ) ) ++score;
 					}
-					if ( isValidRule ) {
-						scoreRules[i] = new ScoreRule( rule, score );
-//						if (debug) System.out.println( scoreRules[i] );
-					}
-					else scoreRules[i] = new ScoreRule();
+					if ( isValidRule ) scoreRules.add( new ScoreRule( rule, score ) );
 				} // end for rules
 				
-				// If there is no valid rule, return -1.
 //				if (debug) System.out.println( Arrays.toString( scoreRules ) );
-				Arrays.sort( scoreRules );
-				if (debug) System.out.println( "scoreRules: "+Arrays.toString( scoreRules ) );
+				scoreRules.sort( null );
+				if (debug) System.out.println( "scoreRules: "+scoreRules.toString() );
 				
 				// DEBUG
 	//			if ( debug ) System.out.println( "best: "+bestRule.toString() );
 				for ( int l=0; l<beamWidth; l++ ) {
-					if ( l >= rules.length || scoreRules[l].rule == null )
+					if ( l >= rules.length || l >= scoreRules.size() )
 						beamList[k+l*beamWidth].clear();
 					else {
-						Rule rule = scoreRules[l].rule;
-						int score = scoreRules[l].score;
+						Rule rule = scoreRules.get( l ).rule;
+						int score = scoreRules.get( l ).score;
 						IntOpenHashSet newRemaining = new IntOpenHashSet(remaining);
 						for ( int token : rule.getRight() ) newRemaining.remove( token );
 						beamList[k+l*beamWidth].set(beamScore+score, beamPos - rule.leftSize(), newRemaining);
