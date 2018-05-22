@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetTopDownOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -80,6 +81,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
 		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
+		else if (params.verifier.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
+		else throw new RuntimeException(getName()+" does not support verification: "+params.verifier);
 //		this.threshold = -1;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
