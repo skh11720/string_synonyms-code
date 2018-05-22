@@ -1,22 +1,21 @@
 package vldb17.set;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.TokenGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -28,7 +27,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
 	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
-	QGramGlobalOrder globalOrder;
+	TokenGlobalOrder globalOrder;
 	private Boolean useRuleComp;
 	private Validator checker;
 
@@ -74,7 +73,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		globalOrder = new QGramGlobalOrder( params.globalOrder, qgramSize );
+		globalOrder = new TokenGlobalOrder( params.globalOrder );
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
 		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
@@ -201,11 +200,12 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 
 	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
 		long startTime = System.currentTimeMillis();
-		Set<QGram> candidateQGrams = new ObjectOpenHashSet<QGram>(100);
+		IntOpenHashSet candidateTokens = new IntOpenHashSet();
 		for (int i=0; i<rec.size(); i++) {
 			for (Rule rule : rec.getSuffixApplicableRules( i )) {
+				int[] rhs = rule.getRight();
 				for (int j=0; j<rule.rightSize()+1-qgramSize; j++) {
-					candidateQGrams.add( new QGram(Arrays.copyOfRange( rule.getRight(), j, j+1 )) );
+					candidateTokens.add( rhs[j] );
 				}
 			}
 		}
@@ -219,14 +219,14 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 //		Boolean debug = false;
 //		if ( rec.getID() == 0 ) debug = true;
 //		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
-		for (QGram qgram : candidateQGrams) {
+		for (int token : candidateTokens) {
 			long startDPTime = System.nanoTime();
-			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
+			Boolean isInSigU = pkduckSetDP.isInSigU( token );
 			++nRunDP;
 //			if (debug) System.out.println( ""+qgram+": "+isInSigU );
 			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
-				List<Record> indexedList = idx.get( qgram );
+				List<Record> indexedList = idx.get( token );
 				if ( indexedList == null ) continue;
 				++nScanList;
 				for (Record recOther : indexedList) {
