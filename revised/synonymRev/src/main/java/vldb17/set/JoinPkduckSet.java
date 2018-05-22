@@ -1,5 +1,7 @@
 package vldb17.set;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +11,7 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -42,7 +45,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private long nRunDP = 0;
 
 	private final Boolean useLF = true;
-
+	
 	public JoinPkduckSet( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
@@ -194,8 +197,9 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		 * 1.01: transform s or t and compare to the other
 		 * 1.02: optimized rule compression
 		 * 1.03: support token frequency order
+		 * 1.04: optimization, bug fix in RC when using FF
 		 */
-		return "1.03";
+		return "1.04";
 	}
 
 	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
@@ -210,20 +214,22 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 			}
 		}
 		long afterCandTokenTime = System.currentTimeMillis();
+
+//		Boolean debug = false;
+//		if ( rec.getID() == 161 ) debug = true;
+//		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
 		
 		Set<Record> candidateAfterLF = new ObjectOpenHashSet<Record>();
 		int rec_maxlen = rec.getMaxTransLength();
 		PkduckSetDP pkduckSetDP;
 		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( rec, globalOrder );
 		else pkduckSetDP = new PkduckSetDP( rec, globalOrder );
-//		Boolean debug = false;
-//		if ( rec.getID() == 0 ) debug = true;
-//		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
 		for (int token : candidateTokens) {
 			long startDPTime = System.nanoTime();
 			Boolean isInSigU = pkduckSetDP.isInSigU( token );
 			++nRunDP;
-//			if (debug) System.out.println( ""+qgram+": "+isInSigU );
+//			if (debug) try { bw.write( rec.getID()+", "+token+": "+isInSigU+"\n" ); bw.flush(); } catch (IOException e ) {}
+//			if (debug) System.out.println( rec.getID()+", "+token+": "+isInSigU );
 			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
 				List<Record> indexedList = idx.get( token );

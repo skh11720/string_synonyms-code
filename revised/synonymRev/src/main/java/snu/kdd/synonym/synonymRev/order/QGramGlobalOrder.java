@@ -27,6 +27,11 @@ public class QGramGlobalOrder extends AbstractGlobalOrder<QGram> {
 		super( mode );
 		this.qgramSize = qgramSize;
 	}
+	
+	@Override
+	public int getOrder( QGram o ) {
+		throw new RuntimeException("Unexpected error");
+	}
 
 	@Override
 	protected List<QGram> parseRule( Rule rule, int pos ) {

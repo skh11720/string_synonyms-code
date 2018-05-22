@@ -26,8 +26,9 @@ abstract public class AbstractGlobalOrder<K> {
 		this.mode = Ordering.valueOf( mode );
 	}
 
-	abstract public int compare( K o1, K o2 );
 	abstract protected List<K> parseRule(Rule rule, int pos);
+	abstract public int compare( K o1, K o2 );
+	abstract public int getOrder( K o );
 	
 	public void initOrder( Query query ) {
 		if ( mode != Ordering.FF ) return;

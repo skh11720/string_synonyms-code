@@ -25,6 +25,7 @@ public class RCTableSet {
 	protected final TokenGlobalOrder globalOrder;
 
 	public RCTableSet( Record rec, TokenGlobalOrder globalOrder ) {
+//		System.out.println( "Record: "+rec.getID()+", "+Arrays.toString( rec.getTokensArray() ) );
 		this.globalOrder = globalOrder;
 		rcTable = new ObjectArrayList<Map<IntegerPair, RCEntry>>();
 		for ( int i=1; i<=rec.size(); i++ ) {
@@ -37,13 +38,25 @@ public class RCTableSet {
 				mapEquivRuleSet.get( key2 ).add( rule );
 			}
 
+			// DEBUG
+//			Boolean debug = false;
+//			if ( rec.getID() == 161 ) debug = true;
+//			if ( debug) {
+//				System.out.println( "mapEquivRuleSet" );
+//				for ( IntegerPair key : mapEquivRuleSet.keySet() ) {
+//					System.out.println( key+": "+mapEquivRuleSet.get( key ).toString() );
+//				}
+//			}
+
 			Map<IntegerPair, RCEntry> map = new Object2ObjectOpenHashMap<IntegerPair, RCEntry>();
 			for ( IntegerPair key2 : mapEquivRuleSet.keySet()) {
+//				if (debug) System.out.println( "key2: "+key2 );
 				RCEntry entry = new RCEntry( mapEquivRuleSet.get( key2 ) );
 				map.put( key2, entry );
 			}
 			rcTable.add( map );
 		} // end for i
+		
 	}
 	
 	public Map<IntegerPair, RCEntry> getMap( int i ) {
@@ -74,56 +87,68 @@ public class RCTableSet {
 		 * 	The three arrays are merged into a 2d-array "smaller".
 		 */
 		
-		private int[] tokenList;
+		private int[] orderList;
 		private int[][] smaller;
 //		private int[] smallerF;
 //		private int[] smallerT;
 		
 		public RCEntry( Set<Rule>	ruleSet ) {
+//			System.out.println( "RCEntry.ruleSet: "+ruleSet.toString() );
 			// Enumerate all pos qgrams generated from rules in the ruleSet.
-			IntOpenHashSet tokenSet = new IntOpenHashSet();
+			IntOpenHashSet orderSet = new IntOpenHashSet();
 			for ( Rule rule : ruleSet ) {
 //				System.out.println( "rule: "+rule );
 				int[] rhs = rule.getRight();
 				for (int j=0; j<rhs.length; j++) {
-					tokenSet.add( rhs[j] );
+					orderSet.add( globalOrder.getOrder( rhs[j] ) );
 				}
 			}
-			tokenSet.add( Integer.MIN_VALUE ); // left end
-			tokenSet.add( Integer.MAX_VALUE ); // right end
-			tokenList = new int[tokenSet.size()];
-			tokenSet.toArray( tokenList );
-			Arrays.sort( tokenList );
+			orderSet.add( Integer.MIN_VALUE ); // left end
+			orderSet.add( Integer.MAX_VALUE ); // right end
+			orderList = new int[orderSet.size()];
+			orderSet.toArray( orderList );
+			Arrays.sort( orderList );
 //			System.out.println( Arrays.toString( tokenList ) );
 //			System.out.println( Arrays.toString( pqgramList ) );
 			
 			// Fill the arrays with bounding values at the both ends.
-			smaller = new int[3][tokenList.length];
+			smaller = new int[3][orderList.length];
 //			smallerF = new int[tokenList.length];
 //			smallerT = new int[tokenList.length];
 			for ( int i=0; i<3; i++ ) Arrays.fill( smaller[i], Integer.MAX_VALUE-1 );
 //			Arrays.fill( smallerF, Integer.MAX_VALUE );
 //			Arrays.fill( smallerT, Integer.MAX_VALUE );
 			for ( Rule rule : ruleSet ) {
-				IntOpenHashSet rule_tokenSet = new IntOpenHashSet( rule.getRight() );
-				int[] rule_tokenList = new int[rule_tokenSet.size()];
-				rule_tokenSet.toArray( rule_tokenList );
-				Arrays.sort( rule_tokenList );
+				IntOpenHashSet rule_orderSet = new IntOpenHashSet();
+				int[] rhs = rule.getRight();
+				for ( int j=0; j<rhs.length; j++ ) rule_orderSet.add( globalOrder.getOrder( rhs[j] ) );
+				int[] rule_orderList = new int[rule_orderSet.size()];
+				rule_orderSet.toArray( rule_orderList );
+				Arrays.sort( rule_orderList );
 //				System.out.println( Arrays.toString( rule_tokenList ) );
 				int j = 0;
 				int n_small = 0;
 				// Note that both rule_pqgramList and pqgramList are sorted.
-				for ( int k=1; k<tokenList.length-1; k++ ) {
+				for ( int k=1; k<orderList.length-1; k++ ) {
 					smaller[0][k] = Math.min( smaller[0][k], n_small );
-					if ( j >= rule_tokenList.length ) {
+					if ( j >= rule_orderList.length ) {
 						smaller[1][k] = Math.min( smaller[1][k], n_small );
 						continue;
 					}
 //						System.out.println( pqgram+", "+pqgramList[k]+": "+pqgram.compareTo( pqgramList[k] ) );
-					if ( rule_tokenList[j] < tokenList[k] ) { // rule_pqgram < pqgramList[k]
+					if ( rule_orderList[j] < orderList[k] ) { // rule_pqgram < pqgramList[k]
+						System.out.println( "ruleSet:" );
+						for ( Rule rule0 : ruleSet ) {
+							System.out.println( rule0 );
+							for ( int token : rule0.getRight() ) System.out.print( "("+token+", "+globalOrder.getOrder( token )+"), " );
+							System.out.println(  );
+						}
+						System.out.println( "rule: "+rule );
+						System.out.println( "rule_orderList: "+Arrays.toString( rule_orderList )+", "+j );
+						System.out.println( "orderList: "+Arrays.toString( orderList )+", "+k );
 						throw new RuntimeException("Unexpected error");
 					}
-					else if ( rule_tokenList[j] > tokenList[k] ) { // rule_pqgram > pqgramList[k]
+					else if ( rule_orderList[j] > orderList[k] ) { // rule_pqgram > pqgramList[k]
 						smaller[1][k] = Math.min( smaller[1][k], n_small );
 					}
 					else { // rule_pqgram == pqgramList[k]
@@ -154,19 +179,20 @@ public class RCTableSet {
 			 * flag == 2: smaller[2]
 			 */
 			int[] arr = smaller[flag];
+			int order = globalOrder.getOrder( token );
 //			if ( flag == 0 ) arr = smaller;
 //			else if ( flag == 1 ) arr = smallerF;
 //			else if ( flag == 2 ) arr = smallerT;
 //			else throw new RuntimeException("Unexpected error");
 			
 			int l = 0;
-			int r = tokenList.length;
+			int r = orderList.length;
 			while ( l < r ) {
 				int m = (l+r)/2;
-				if ( token < tokenList[m] ) { // token < tokenList[m]
+				if ( order < orderList[m] ) { // token < tokenList[m]
 					r = m;
 				}
-				else if ( token > tokenList[m] ) { // token > tokenList[m]
+				else if ( order > orderList[m] ) { // token > tokenList[m]
 					l = m+1;
 				}
 				else { // token == tokenList[m]
@@ -184,11 +210,11 @@ public class RCTableSet {
 //				System.exit( 1 );
 //			}
 			if ( flag == 2 ) {
-				if ( tokenList[r] == token ) return arr[r];
+				if ( orderList[r] == order ) return arr[r];
 				else return Integer.MAX_VALUE;
 			}
 			else if ( flag == 1 ) {
-				if ( tokenList[r] == token ) return arr[r];
+				if ( orderList[r] == order ) return arr[r];
 				else return smaller[0][r];
 			}
 			else return arr[r];
@@ -201,7 +227,7 @@ public class RCTableSet {
 		@Override
 		public String toString() {
 			String str = "";
-			str += "tokenList: "+Arrays.toString( tokenList ) +"\n";
+			str += "tokenList: "+Arrays.toString( orderList ) +"\n";
 			str += "smaller: "+Arrays.toString( smaller[0] ) +"\n";
 			str += "smallerF: "+Arrays.toString( smaller[1] ) +"\n";
 			str += "smallerT: "+Arrays.toString( smaller[2] ) +"\n";
@@ -210,9 +236,9 @@ public class RCTableSet {
 
 		private void setBound() {
 			smaller[0][0] = smaller[1][0] = 0;
-			smaller[0][tokenList.length-1] = smaller[0][tokenList.length-2]+1;
-			smaller[1][tokenList.length-1] = smaller[1][tokenList.length-2];
-			smaller[2][0] = smaller[2][tokenList.length-1] = Integer.MAX_VALUE;
+			smaller[0][orderList.length-1] = smaller[0][orderList.length-2]+1;
+			smaller[1][orderList.length-1] = smaller[1][orderList.length-2];
+			smaller[2][0] = smaller[2][orderList.length-1] = Integer.MAX_VALUE;
 		}
 
 	}
