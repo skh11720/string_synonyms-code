@@ -11,10 +11,10 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
-import vldb17.GlobalOrder;
 import vldb17.GreedyValidator;
 import vldb17.seq.JoinPkduck;
 import vldb17.seq.PkduckDP;
@@ -25,7 +25,7 @@ import vldb17.seq.RCTableSeq;
 public class RCTableTest {
 	
 	public static Query query;
-	public static GlobalOrder globalOrder;
+	public static QGramGlobalOrder globalOrder;
 	
 	public static void loadData() throws IOException {
 		
@@ -90,9 +90,10 @@ public class RCTableTest {
 		loadData();
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PF, GlobalOrder.TF};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PF};
+		int qgramSize = 2;
 		String[] orderList = {"TF"};
 		for (String order: orderList) {
-			GlobalOrder globalOrder = new GlobalOrder(order);
+			QGramGlobalOrder globalOrder = new QGramGlobalOrder(order, qgramSize);
 			RCTableTest.globalOrder = globalOrder;
 			System.out.println( "Global order: "+globalOrder.getMode() );
 			tableTest();

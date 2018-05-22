@@ -19,6 +19,7 @@ import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -26,7 +27,6 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.GlobalOrder;
 import vldb17.set.SetGreedyValidator;
 
 public class JoinPQFilterDPSet extends AlgorithmTemplate {
@@ -49,7 +49,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 	
 	private final Boolean useLF = true;
 
-	private GlobalOrder globalOrder = new GlobalOrder("FF");
+	private QGramGlobalOrder globalOrder = new QGramGlobalOrder("FF", qgramSize);
 
 
 	// staticitics used for building indexes

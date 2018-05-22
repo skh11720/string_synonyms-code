@@ -14,6 +14,7 @@ import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
@@ -21,7 +22,6 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.GlobalOrder;
 import vldb17.GreedyValidator;
 import vldb17.ParamPkduck;
 
@@ -30,7 +30,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private PkduckIndex idx = null;
 //	private long threshold = Long.MAX_VALUE;
 	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
-	GlobalOrder globalOrder;
+	QGramGlobalOrder globalOrder;
 	private Boolean useRuleComp;
 	private Validator checker;
 
@@ -64,7 +64,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		globalOrder = new GlobalOrder( params.globalOrder );
+		globalOrder = new QGramGlobalOrder( params.globalOrder, qgramSize );
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new NaiveOneSide();
 		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( query.oneSideJoin );
@@ -195,7 +195,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
 		Boolean debug = false;
-		if ( recS.getID() == 0 ) debug = true;
+//		if ( recS.getID() == 0 ) debug = true;
 		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
 
 		PkduckDP pkduckDP;

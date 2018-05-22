@@ -1,15 +1,18 @@
 package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.QGramComparator;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -29,6 +32,11 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 	
 	@Override
 	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+
+		Boolean debug = false;
+//		if ( recS.getID() == 1901 ) debug = true;
+		if (debug) SampleDataTest.inspect_record( recS, query, qgramSize );
+
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
 		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
@@ -37,6 +45,26 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		for ( int pos=0; pos<indexK; pos++ ) mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
 		long afterCandidateTime = System.currentTimeMillis();
 
+		if (debug) {
+			for ( int pos=0; pos<indexK; pos++) {
+				System.out.println( "pos: "+pos );
+				System.out.println( "\ncandidatePQGrams" );
+				for ( QGram qgram : candidatePQGrams.get( pos ) ) {
+					System.out.println( qgram.toString() );
+				}
+				System.out.println( "\ncandidatePQGrams, sorted" );
+				List<QGram> keyList = new ObjectArrayList<QGram>( candidatePQGrams.get( pos ));
+				keyList.sort( new QGramComparator() );
+				for ( QGram qgram : keyList ) {
+					System.out.println( qgram.toString() );
+				}
+				
+				System.out.println( "\nmapQGramPrefixList" );
+				for ( IntegerPair ipair : mapQGramPrefixList.get( pos ) ) {
+					System.out.println( ipair.toString() );
+				}
+			}
+		}
 
 		// prepare filtering
 		AbstractPosQGramFilterDP filter;
@@ -55,7 +83,10 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 				long startDPTime = System.nanoTime();
 				Boolean isInTPQ = ((IncrementalDP)filter).existence( token, depth, pos );
 				dpTime += System.nanoTime() - startDPTime;
+				if (debug && depth == qgramSize) System.out.println( "["+Arrays.toString( ((IncrementalDP)filter ).getQGram() ) + ", "+pos+"] , "+isInTPQ );
 				if (isInTPQ && depth == qgramSize) {
+					QGram key = new QGram( ((IncrementalDP)filter).getQGram() );
+					if ( !idx.get( pos ).containsKey( key ) ) continue;
 					for ( Record recT : idx.get( pos ).get( new QGram( ((IncrementalDP)filter).getQGram() ) ) ) {
 						// length filtering
 						if ( useLF ) {
