@@ -263,10 +263,8 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		QGram qgramPrev = null;
 		for (QGram qgram : keyList ) {
 			if ( qgramPrev != null ) {
-				--d;
-				while ( d > 1 ) {
-					if ( qgram.qgram[d-2] != qgramPrev.qgram[d-2] ) --d;
-					else break;
+				for ( d=1; d<qgramSize; d++) {
+					if ( qgram.qgram[d-1] != qgramPrev.qgram[d-1] ) break;
 				}
 			}
 			for (; d<=qgramSize; d++) {

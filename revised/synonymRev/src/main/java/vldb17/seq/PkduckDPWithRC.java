@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.GlobalOrder;
 
 public class PkduckDPWithRC extends PkduckDP {
 	
@@ -15,10 +15,10 @@ public class PkduckDPWithRC extends PkduckDP {
 	
 	private Boolean debug = false;
 	
-	public PkduckDPWithRC( Record rec, GlobalOrder globalOrder ) {
+	public PkduckDPWithRC( Record rec, QGramGlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 		rcTable = new RCTableSeq( rec, globalOrder );
-		if (rec.getID() == 0 ) debug = true;
+//		if (rec.getID() == 0 ) debug = true;
 		if (debug) System.out.println( rcTable );
 	}
 

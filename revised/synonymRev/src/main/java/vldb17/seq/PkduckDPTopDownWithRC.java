@@ -7,16 +7,16 @@ import java.util.Map.Entry;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.GlobalOrder;
 
 @Deprecated
 public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 
 	private Map<IntegerPair, Map<IntegerPair, int[]>> rcTable;
 	
-	public PkduckDPTopDownWithRC( Record rec, GlobalOrder globalOrder ) {
+	public PkduckDPTopDownWithRC( Record rec, QGramGlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 	}
 

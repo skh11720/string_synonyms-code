@@ -10,10 +10,10 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
-import vldb17.GlobalOrder;
 import vldb17.GreedyValidator;
 import vldb17.seq.JoinPkduck;
 import vldb17.seq.PkduckDP;
@@ -24,7 +24,7 @@ public class PkduckTest {
 	
 	public static Query query;
 	
-	public static PkduckIndex indexTest(GlobalOrder globalOrder) {
+	public static PkduckIndex indexTest(QGramGlobalOrder globalOrder) {
 		StatContainer stat = new StatContainer();
 		PkduckIndex index = new PkduckIndex( query, stat, globalOrder, true );
 		index.writeToFile( "tmp/PkduckIndex.txt" );
@@ -33,7 +33,7 @@ public class PkduckTest {
 		return index;
 	}
 	
-	public static void dpTest(PkduckIndex index, GlobalOrder globalOrder, Boolean useRuleComp) throws IOException {
+	public static void dpTest(PkduckIndex index, QGramGlobalOrder globalOrder, Boolean useRuleComp) throws IOException {
 		System.out.println( "PkduckTest.dpTest "+(useRuleComp?"with":"without")+" RC" );
 
 		
@@ -91,7 +91,7 @@ public class PkduckTest {
 		System.out.println( "PkduckTest.dpTest "+(useRuleComp?"with":"without")+" RC finised" );
 	}
 	
-	public static void joinTest(GlobalOrder globalOrder) throws IOException, ParseException {
+	public static void joinTest(QGramGlobalOrder globalOrder) throws IOException, ParseException {
 		StatContainer stat = new StatContainer();
 		JoinPkduck joinPkduck = new JoinPkduck( query, stat );
 		joinPkduck.run( query, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"});
@@ -223,8 +223,9 @@ public class PkduckTest {
 		String[] orderList = {"PF", "TF"};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
+		int qgramSize = 2;
 		for (String order: orderList) {
-			GlobalOrder globalOrder = new GlobalOrder(order);
+			QGramGlobalOrder globalOrder = new QGramGlobalOrder(order, 2);
 			System.out.println( "Global order: "+globalOrder );
 			index = indexTest(globalOrder);
 			dpTest(index, globalOrder, false);

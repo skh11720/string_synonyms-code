@@ -1,25 +1,27 @@
 package vldb17.set;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.TokenGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.GlobalOrder;
 import vldb17.ParamPkduck;
 
 
@@ -28,7 +30,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
 	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
-	GlobalOrder globalOrder;
+	TokenGlobalOrder globalOrder;
 	private Boolean useRuleComp;
 	private Validator checker;
 
@@ -40,9 +42,10 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private long filteringTime = 0;
 	private long validateTime = 0;
 	private long nScanList = 0;
+	private long nRunDP = 0;
 
 	private final Boolean useLF = true;
-
+	
 	public JoinPkduckSet( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
@@ -73,7 +76,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		globalOrder = new GlobalOrder( params.globalOrder );
+		globalOrder = new TokenGlobalOrder( params.globalOrder );
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
 		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
@@ -177,6 +180,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 			stat.add( "Result_3_5_FilteringTime", filteringTime );
 			stat.add( "Result_3_6_ValidateTime", validateTime );
 			stat.add( "Result_3_7_nScanList", nScanList );
+			stat.add( "Result_3_8_nRunDP", nRunDP );
 		}
 		return rslt;
 	}
@@ -193,37 +197,42 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		 * 1.01: transform s or t and compare to the other
 		 * 1.02: optimized rule compression
 		 * 1.03: support token frequency order
+		 * 1.04: optimization, bug fix in RC when using FF
 		 */
-		return "1.03";
+		return "1.04";
 	}
 
 	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
 		long startTime = System.currentTimeMillis();
-		Set<QGram> candidateQGrams = new ObjectOpenHashSet<QGram>(100);
+		IntOpenHashSet candidateTokens = new IntOpenHashSet();
 		for (int i=0; i<rec.size(); i++) {
 			for (Rule rule : rec.getSuffixApplicableRules( i )) {
+				int[] rhs = rule.getRight();
 				for (int j=0; j<rule.rightSize()+1-qgramSize; j++) {
-					candidateQGrams.add( new QGram(Arrays.copyOfRange( rule.getRight(), j, j+1 )) );
+					candidateTokens.add( rhs[j] );
 				}
 			}
 		}
 		long afterCandTokenTime = System.currentTimeMillis();
+
+//		Boolean debug = false;
+//		if ( rec.getID() == 161 ) debug = true;
+//		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
 		
 		Set<Record> candidateAfterLF = new ObjectOpenHashSet<Record>();
 		int rec_maxlen = rec.getMaxTransLength();
 		PkduckSetDP pkduckSetDP;
 		if (useRuleComp) pkduckSetDP = new PkduckSetDPWithRC( rec, globalOrder );
 		else pkduckSetDP = new PkduckSetDP( rec, globalOrder );
-//		Boolean debug = false;
-//		if ( rec.getID() == 0 ) debug = true;
-//		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
-		for (QGram qgram : candidateQGrams) {
+		for (int token : candidateTokens) {
 			long startDPTime = System.nanoTime();
-			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
-//			if (debug) System.out.println( ""+qgram+": "+isInSigU );
+			Boolean isInSigU = pkduckSetDP.isInSigU( token );
+			++nRunDP;
+//			if (debug) try { bw.write( rec.getID()+", "+token+": "+isInSigU+"\n" ); bw.flush(); } catch (IOException e ) {}
+//			if (debug) System.out.println( rec.getID()+", "+token+": "+isInSigU );
 			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
-				List<Record> indexedList = idx.get( qgram );
+				List<Record> indexedList = idx.get( token );
 				if ( indexedList == null ) continue;
 				++nScanList;
 				for (Record recOther : indexedList) {

@@ -153,7 +153,7 @@ public class SampleDataTest {
 
 	public static void inspect_record(final Record record, final Query query, final int q) {
 		//System.out.println("record: "+record.toString(query.tokenIndex));
-		System.out.println("record: "+Arrays.toString(record.getTokensArray()) );
+		System.out.println("record ("+record.getID()+"): "+Arrays.toString(record.getTokensArray()) );
 
 		System.out.println( "applicable rules: " );
 		for (int pos=0; pos<record.size(); pos++ ) {
