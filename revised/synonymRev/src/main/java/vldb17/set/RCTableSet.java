@@ -11,8 +11,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import vldb17.GlobalOrder;
 
 public class RCTableSet {
 	/*
@@ -22,9 +22,9 @@ public class RCTableSet {
 	 */
 
 	private List<Map<IntegerPair, RCEntry>> rcTable;
-	protected final GlobalOrder globalOrder;
+	protected final QGramGlobalOrder globalOrder;
 
-	public RCTableSet( Record rec, GlobalOrder globalOrder ) {
+	public RCTableSet( Record rec, QGramGlobalOrder globalOrder ) {
 		this.globalOrder = globalOrder;
 		rcTable = new ObjectArrayList<Map<IntegerPair, RCEntry>>();
 		for ( int i=1; i<=rec.size(); i++ ) {

@@ -5,16 +5,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.GlobalOrder;
 
 public class PkduckSetDPWithRC extends PkduckSetDP {
 	
 	private final RCTableSet rcTable;
 //	private Boolean debug = false;
 
-	public PkduckSetDPWithRC( Record rec, GlobalOrder globalOrder ) {
+	public PkduckSetDPWithRC( Record rec, QGramGlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 		rcTable = new RCTableSet( rec, globalOrder );
 //		if (rec.getID() == 0) debug = true;
@@ -43,7 +43,7 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 		// compute g[0][i][l].
 		for (int i=1; i<=rec.size(); i++) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			int comp = globalOrder.compareQGrams( current_qgram.qgram, target_qgram.qgram );
+			int comp = globalOrder.compare( current_qgram, target_qgram );
 			Map<IntegerPair, RCTableSet.RCEntry> map = rcTable.getMap( i-1 );
 			for (int l=1; l<=len_max_S; l++) {
 //				System.out.println( "comp: "+comp );
@@ -66,7 +66,7 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 		// compute g[1][i][l].
 		for (int i=1; i<=rec.size(); i++ ) {
 			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-			int comp = globalOrder.compareQGrams( current_qgram.qgram, target_qgram.qgram );
+			int comp = globalOrder.compare( current_qgram, target_qgram );
 			Map<IntegerPair, RCTableSet.RCEntry> map = rcTable.getMap( i-1 );
 			for (int l=1; l<=len_max_S; l++) {
 //				System.out.println( "comp: "+comp );

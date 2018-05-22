@@ -6,13 +6,13 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.GlobalOrder;
 
 @Deprecated
 public class PkduckDPTopDown {
 	
-	protected final GlobalOrder globalOrder;
+	protected final QGramGlobalOrder globalOrder;
 
 	protected Object2IntOpenHashMap<IntTriple> g;
 	protected List<List<QGram>> availableQGrams;
@@ -22,7 +22,7 @@ public class PkduckDPTopDown {
 	protected Record rec;
 	protected final int len_max_s;
 	
-	public PkduckDPTopDown( Record rec, GlobalOrder globalOrder) {
+	public PkduckDPTopDown( Record rec, QGramGlobalOrder globalOrder) {
 		this.rec = rec;
 		this.globalOrder = globalOrder;
 		this.len_max_s = rec.getMaxTransLength();

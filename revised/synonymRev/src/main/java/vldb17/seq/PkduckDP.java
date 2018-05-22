@@ -5,12 +5,12 @@ import java.util.List;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.GlobalOrder;
 
 public class PkduckDP {
 	
-	protected final GlobalOrder globalOrder;
+	protected final QGramGlobalOrder globalOrder;
 	protected List<List<QGram>> availableQGrams;
 	protected final int len_max_s;
 	protected final Record rec;
@@ -18,7 +18,7 @@ public class PkduckDP {
 	protected static final int inf = Integer.MAX_VALUE/2;
 	
 	// For debugging
-	public PkduckDP( Record rec, GlobalOrder globalOrder ) {
+	public PkduckDP( Record rec, QGramGlobalOrder globalOrder ) {
 		this.rec = rec;
 		this.globalOrder = globalOrder;
 		this.len_max_s = rec.getMaxTransLength();

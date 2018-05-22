@@ -8,9 +8,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.QGram;
-import vldb17.GlobalOrder;
+import snu.kdd.synonym.synonymRev.tools.PosQGram;
 
 public class RCTableSeq {
 	/*
@@ -20,9 +20,9 @@ public class RCTableSeq {
 	 */
 
 	private Map<IntegerPair, Map<IntegerPair, RCEntry>> rcTable;
-	protected final GlobalOrder globalOrder;
+	protected final QGramGlobalOrder globalOrder;
 
-	public RCTableSeq( Record rec, GlobalOrder globalOrder ) {
+	public RCTableSeq( Record rec, QGramGlobalOrder globalOrder ) {
 		this.globalOrder = globalOrder;
 		int len_max_s = rec.getMaxTransLength();
 		rcTable = new Object2ObjectOpenHashMap<IntegerPair, Map<IntegerPair, RCEntry>>();
@@ -93,7 +93,7 @@ public class RCTableSeq {
 			}
 			pqgramList = new PosQGram[pqgramSet.size()];
 			pqgramSet.toArray( pqgramList );
-			Arrays.sort( pqgramList );
+			Arrays.sort( pqgramList, globalOrder.pqgramComparator );
 //			System.out.println( Arrays.toString( pqgramList ) );
 			
 			// Fill the arrays.
@@ -107,7 +107,7 @@ public class RCTableSeq {
 				int[] rhs = rule.getRight();
 				PosQGram[] rule_pqgramList = new PosQGram[rhs.length];
 				for ( int j=0; j<rhs.length; j++) rule_pqgramList[j] = new PosQGram( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j );
-				Arrays.sort( rule_pqgramList );
+				Arrays.sort( rule_pqgramList, globalOrder.pqgramComparator );
 				int j = 0;
 				int n_small = 0;
 				// Note that both rule_pqgramList and pqgramList are sorted.
@@ -118,7 +118,7 @@ public class RCTableSeq {
 						continue;
 					}
 //						System.out.println( pqgram+", "+pqgramList[k]+": "+pqgram.compareTo( pqgramList[k] ) );
-					int comp = rule_pqgramList[j].compareTo( pqgramList[k] );
+					int comp = globalOrder.compare( rule_pqgramList[j], pqgramList[k] );
 					if ( comp == -1 ) { // rule_pqgram < pqgramList[k]
 						throw new RuntimeException("Unexpected error");
 					}
@@ -160,10 +160,10 @@ public class RCTableSeq {
 			int r = arr.length;
 			while ( l < r ) {
 				int m = (l+r)/2;
-				if ( pqgram.compareTo( pqgramList[m] ) < 0 ) { // pqgram < pqgramList[m]
+				if ( globalOrder.compare( pqgram, pqgramList[m] ) < 0 ) { // pqgram < pqgramList[m]
 					r = m;
 				}
-				else if ( pqgram.compareTo( pqgramList[m] ) > 0 ) { // pqgram > pqgramList[m]
+				else if ( globalOrder.compare( pqgram, pqgramList[m] ) > 0 ) { // pqgram > pqgramList[m]
 					l = m+1;
 				}
 				else { // pqgram == pqgramList[m]
@@ -185,47 +185,6 @@ public class RCTableSeq {
 			str += "smallerF: "+Arrays.toString( smallerF ) +"\n";
 			str += "smallerT: "+Arrays.toString( smallerT ) +"\n";
 			return str;
-		}
-	}
-	
-	private class PosQGram implements Comparable<PosQGram> {
-		final QGram qgram;
-		final int pos; // 0-based
-		private final int hash;
-		
-		public PosQGram( QGram qgram, int pos ) {
-			this.qgram = qgram;
-			this.pos = pos;
-			int hash = 0;
-			hash = 0x1f1f1f1f ^ hash + qgram.hashCode();
-			hash = 0x1f1f1f1f ^ hash + pos;
-			this.hash = hash;
-		}
-		
-		public PosQGram( int[] qgram, int pos ) {
-			this( new QGram( qgram ), pos );
-		}
-		
-		@Override
-		public int hashCode() {
-			return hash;
-		}
-		
-		@Override
-		public boolean equals( Object obj ) {
-			if ( obj == null ) return false;
-			PosQGram o = (PosQGram)obj;
-			return ( qgram.equals( o.qgram ) && pos == o.pos );
-		}
-		
-		@Override
-		public int compareTo( PosQGram o ) {
-			return globalOrder.comparePosQGrams( qgram.qgram, pos, o.qgram.qgram, o.pos );
-		}
-		
-		@Override
-		public String toString() {
-			return "["+qgram.toString()+", "+pos+"]";
 		}
 	}
 }

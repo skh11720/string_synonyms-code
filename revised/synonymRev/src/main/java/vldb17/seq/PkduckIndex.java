@@ -11,11 +11,11 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
-import vldb17.GlobalOrder;
 
 public class PkduckIndex {
 	private WYK_HashMap<Integer, WYK_HashMap< QGram, List<Record>>> idx;
@@ -25,7 +25,7 @@ public class PkduckIndex {
 	 * since we are interested in the uni-directional equivalence only.
 	 */
 	private final int qgramSize = 1;
-	private final GlobalOrder globalOrder;
+	private final QGramGlobalOrder globalOrder;
 	private final int prefixSize = 1;
 	private final int initCapacity;
 	
@@ -41,7 +41,7 @@ public class PkduckIndex {
 	 * @param addStat
 	 */
 	
-	public PkduckIndex(Query query, StatContainer stat, GlobalOrder globalOrder, boolean addStat) {
+	public PkduckIndex(Query query, StatContainer stat, QGramGlobalOrder globalOrder, boolean addStat) {
 		
 		long startTime = System.nanoTime();
 //		this.prefixSize = prefixSize;
@@ -143,7 +143,7 @@ public class PkduckIndex {
 			QGram key = availableQGrams.get( 0 ).get( 0 );
 			for (int i=1; i<record.size(); i++) {
 				QGram qgram = availableQGrams.get( i ).get( 0 );
-				if ( globalOrder.compareQGrams( key.qgram, qgram.qgram ) == 1 ) {
+				if ( globalOrder.compare( key, qgram ) == 1 ) {
 					pos = i;
 					key = qgram;
 				}

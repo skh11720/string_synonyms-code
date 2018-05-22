@@ -13,13 +13,13 @@ import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.GlobalOrder;
 import vldb17.ParamPkduck;
 
 
@@ -28,7 +28,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
 	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
-	GlobalOrder globalOrder;
+	QGramGlobalOrder globalOrder;
 	private Boolean useRuleComp;
 	private Validator checker;
 
@@ -40,6 +40,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private long filteringTime = 0;
 	private long validateTime = 0;
 	private long nScanList = 0;
+	private long nRunDP = 0;
 
 	private final Boolean useLF = true;
 
@@ -73,7 +74,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		globalOrder = new GlobalOrder( params.globalOrder );
+		globalOrder = new QGramGlobalOrder( params.globalOrder, qgramSize );
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
 		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
@@ -177,6 +178,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 			stat.add( "Result_3_5_FilteringTime", filteringTime );
 			stat.add( "Result_3_6_ValidateTime", validateTime );
 			stat.add( "Result_3_7_nScanList", nScanList );
+			stat.add( "Result_3_8_nRunDP", nRunDP );
 		}
 		return rslt;
 	}
@@ -220,6 +222,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		for (QGram qgram : candidateQGrams) {
 			long startDPTime = System.nanoTime();
 			Boolean isInSigU = pkduckSetDP.isInSigU( qgram );
+			++nRunDP;
 //			if (debug) System.out.println( ""+qgram+": "+isInSigU );
 			isInSigUTime += System.nanoTime() - startDPTime;
 			if ( isInSigU ) {
