@@ -11,7 +11,6 @@ import snu.kdd.synonym.synonymRev.tools.QGram;
 public class PkduckDP {
 	
 	protected final AbstractGlobalOrder globalOrder;
-	protected List<List<QGram>> availableQGrams;
 	protected final int len_max_s;
 	protected final Record rec;
 	protected final int[] tokens;
@@ -24,7 +23,6 @@ public class PkduckDP {
 		this.tokens = rec.getTokensArray();
 		this.globalOrder = globalOrder;
 		this.len_max_s = rec.getMaxTransLength();
-		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
 	}
 
 	public Boolean isInSigU( int target_token, int k ) {
