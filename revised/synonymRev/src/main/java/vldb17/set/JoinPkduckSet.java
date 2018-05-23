@@ -196,23 +196,6 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	@Override
-	public String getName() {
-		return "JoinPkduckSet";
-	}
-
-	@Override
-	public String getVersion() {
-		/*
-		 * 1.0: initial version, transform s and compare to t
-		 * 1.01: transform s or t and compare to the other
-		 * 1.02: optimized rule compression
-		 * 1.03: support token frequency order
-		 * 1.04: optimization, bug fix in RC when using FF
-		 */
-		return "1.04";
-	}
-
 	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
 		long startTime = System.currentTimeMillis();
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
@@ -281,5 +264,23 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		candTokenTime += afterCandTokenTime - startTime;
 		filteringTime += afterFilteringTime - afterCandTokenTime;
 		validateTime += afterValidateTime - afterFilteringTime;
+	}
+
+	@Override
+	public String getName() {
+		return "JoinPkduckSet";
+	}
+
+	@Override
+	public String getVersion() {
+		/*
+		 * 1.0: initial version, transform s and compare to t
+		 * 1.01: transform s or t and compare to the other
+		 * 1.02: optimized rule compression
+		 * 1.03: support token frequency order
+		 * 1.04: optimization, bug fix in RC when using FF
+		 * 1.05: checkpoint
+		 */
+		return "1.05";
 	}
 }
