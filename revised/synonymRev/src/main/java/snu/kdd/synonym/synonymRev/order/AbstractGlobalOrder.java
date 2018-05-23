@@ -42,6 +42,16 @@ abstract public class AbstractGlobalOrder<K> {
 				}
 			}
 		}
+		if ( !query.selfJoin ) {
+			for ( Record recT : query.indexedSet.recordList ) {
+				for ( int i=0; i<recT.size(); i++ ) {
+					for ( Rule rule : recT.getSuffixApplicableRules( i ) ) {
+						List<K> keyList = parseRule( rule, i );
+						for ( K key : keyList ) counter.put( key, counter.getInt( key )+1 );
+					}
+				}
+			}
+		}
 
 		orderMap = new Object2IntOpenHashMap<K>( counter.size() );
 		Stream<Entry<K, Integer>> stream = counter.entrySet().stream().sorted( Map.Entry.comparingByValue() );

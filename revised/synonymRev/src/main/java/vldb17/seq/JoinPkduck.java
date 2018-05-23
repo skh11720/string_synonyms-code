@@ -68,6 +68,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new NaiveOneSide();
 		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( query.oneSideJoin );
+		else throw new RuntimeException(getName()+" does not support verification: "+params.verifier);
 //		this.threshold = -1;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
