@@ -17,7 +17,10 @@ import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetTopDownOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.TokenGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
+import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
+import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -31,7 +34,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
 	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
-	TokenGlobalOrder globalOrder;
+	AbstractGlobalOrder globalOrder;
 	private Boolean useRuleComp;
 	private Validator checker;
 
@@ -77,7 +80,12 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		globalOrder = new TokenGlobalOrder( params.globalOrder );
+		Ordering mode = Ordering.valueOf( params.globalOrder );
+		switch(mode) {
+		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
+		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
+		default: throw new RuntimeException("Unexpected error");
+		}
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
 		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
@@ -188,23 +196,6 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	@Override
-	public String getName() {
-		return "JoinPkduckSet";
-	}
-
-	@Override
-	public String getVersion() {
-		/*
-		 * 1.0: initial version, transform s and compare to t
-		 * 1.01: transform s or t and compare to the other
-		 * 1.02: optimized rule compression
-		 * 1.03: support token frequency order
-		 * 1.04: optimization, bug fix in RC when using FF
-		 */
-		return "1.04";
-	}
-
 	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
 		long startTime = System.currentTimeMillis();
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
@@ -273,5 +264,23 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		candTokenTime += afterCandTokenTime - startTime;
 		filteringTime += afterFilteringTime - afterCandTokenTime;
 		validateTime += afterValidateTime - afterFilteringTime;
+	}
+
+	@Override
+	public String getName() {
+		return "JoinPkduckSet";
+	}
+
+	@Override
+	public String getVersion() {
+		/*
+		 * 1.0: initial version, transform s and compare to t
+		 * 1.01: transform s or t and compare to the other
+		 * 1.02: optimized rule compression
+		 * 1.03: support token frequency order
+		 * 1.04: optimization, bug fix in RC when using FF
+		 * 1.05: checkpoint
+		 */
+		return "1.05";
 	}
 }

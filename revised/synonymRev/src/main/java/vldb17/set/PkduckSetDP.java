@@ -4,11 +4,11 @@ import java.util.Arrays;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.TokenGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 
 public class PkduckSetDP {
 	
-	protected final TokenGlobalOrder globalOrder;
+	protected final AbstractGlobalOrder globalOrder;
 	protected final int len_max_S;
 	protected final Record rec;
 	protected final int[] tokens;
@@ -21,7 +21,7 @@ public class PkduckSetDP {
 		else return a+b;
 	}
 	
-	public PkduckSetDP( Record rec, TokenGlobalOrder globalOrder ) {
+	public PkduckSetDP( Record rec, AbstractGlobalOrder globalOrder ) {
 		this.rec = rec;
 		this.tokens = rec.getTokensArray();
 		this.len_max_S = rec.getMaxTransLength();

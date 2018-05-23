@@ -11,7 +11,10 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
+import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
+import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
@@ -25,7 +28,7 @@ import vldb17.seq.RCTableSeq;
 public class RCTableTest {
 	
 	public static Query query;
-	public static QGramGlobalOrder globalOrder;
+	public static AbstractGlobalOrder globalOrder;
 	
 	public static void loadData() throws IOException {
 		
@@ -91,9 +94,14 @@ public class RCTableTest {
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PF, GlobalOrder.TF};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PF};
 		int qgramSize = 2;
-		String[] orderList = {"TF"};
-		for (String order: orderList) {
-			QGramGlobalOrder globalOrder = new QGramGlobalOrder(order, qgramSize);
+		Ordering[] orderList = {Ordering.TF};
+		for (Ordering order: orderList) {
+			AbstractGlobalOrder globalOrder;
+			switch (order) {
+			case PF: globalOrder = new PositionFirstOrder(qgramSize); break;
+			case FF: globalOrder = new FrequencyFirstOrder(qgramSize); break;
+			default: throw new RuntimeException("Unexpected error");
+			}
 			RCTableTest.globalOrder = globalOrder;
 			System.out.println( "Global order: "+globalOrder.getMode() );
 			tableTest();

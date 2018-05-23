@@ -5,27 +5,27 @@ import java.util.List;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 
 public class PkduckDP {
 	
-	protected final QGramGlobalOrder globalOrder;
-	protected List<List<QGram>> availableQGrams;
+	protected final AbstractGlobalOrder globalOrder;
 	protected final int len_max_s;
 	protected final Record rec;
+	protected final int[] tokens;
 
 	protected static final int inf = Integer.MAX_VALUE/2;
 	
 	// For debugging
-	public PkduckDP( Record rec, QGramGlobalOrder globalOrder ) {
+	public PkduckDP( Record rec, AbstractGlobalOrder globalOrder ) {
 		this.rec = rec;
+		this.tokens = rec.getTokensArray();
 		this.globalOrder = globalOrder;
 		this.len_max_s = rec.getMaxTransLength();
-		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
 	}
 
-	public Boolean isInSigU( QGram target_qgram, int k ) {
+	public Boolean isInSigU( int target_token, int k ) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
@@ -43,9 +43,9 @@ public class PkduckDP {
 
 		// compute g[0][i][l].
 		for (int i=1; i<=rec.size(); i++) {
-			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
+			int current_token = tokens[i-1];
 			for (int l=1; l<=len_max_s; l++) {
-				int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+				int comp = globalOrder.compare( current_token, i-1, target_token, k );
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
@@ -58,8 +58,8 @@ public class PkduckDP {
 					Boolean isValid = true;
 					for (int j=0; j<rhs.length; j++) {
 						// check whether the rule does not generate [target_token, k].
-						isValid &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
-						num_smaller += globalOrder.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+						isValid &= !( target_token == rhs[j] && l-rhs.length+j == k); 
+						num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )==-1?1:0;
 					}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
@@ -73,9 +73,9 @@ public class PkduckDP {
 		
 		// compute g[1][i][l].
 		for (int i=1; i<=rec.size(); i++ ) {
-			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
+			int current_token = tokens[i-1];
 			for (int l=1; l<=len_max_s; l++) {
-				int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+				int comp = globalOrder.compare( current_token, i-1, target_token, k );
 //				System.out.println( "comp: "+comp );
 				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], g[1][i-1][l-1] + (comp<0?1:0) );
 				else g[1][i][l] = Math.min( g[1][i][l], g[0][i-1][l-1] );
@@ -87,8 +87,8 @@ public class PkduckDP {
 					Boolean isValid = false;
 					for (int j=0; j<rhs.length; j++) {
 						// check whether the rule generates [target_token, k].
-						isValid |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-						num_smaller += globalOrder.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+						isValid |= ( target_token == rhs[j] && l-rhs.length+j == k );
+						num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )==-1?1:0;
 					}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );

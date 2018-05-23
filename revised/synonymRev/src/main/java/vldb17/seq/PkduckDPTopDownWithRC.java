@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 
@@ -16,7 +16,7 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 
 	private Map<IntegerPair, Map<IntegerPair, int[]>> rcTable;
 	
-	public PkduckDPTopDownWithRC( Record rec, QGramGlobalOrder globalOrder ) {
+	public PkduckDPTopDownWithRC( Record rec, AbstractGlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 	}
 
@@ -54,7 +54,7 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 
 		// recursion.
 		QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-		int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+		int comp = globalOrder.compare( current_qgram.qgram, i-1, target_qgram.qgram, k );
 		if ( o == 0 ) {
 			// compute g[0][i][l].
 //				System.out.println( "comp: "+comp );
@@ -111,7 +111,7 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 					for ( int j=0; j<rhs.length; j++ ) {
 						isValidF &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
 						isValidT |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-						num_smaller += globalOrder.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+						num_smaller += globalOrder.compare( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
 					}
 					int aside = rule.leftSize();
 					int wside = rule.rightSize();
