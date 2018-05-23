@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.QGram;
 
 public class PkduckDPWithRC extends PkduckDP {
 	
@@ -15,7 +14,7 @@ public class PkduckDPWithRC extends PkduckDP {
 	
 	private Boolean debug = false;
 	
-	public PkduckDPWithRC( Record rec, QGramGlobalOrder globalOrder ) {
+	public PkduckDPWithRC( Record rec, AbstractGlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 		rcTable = new RCTableSeq( rec, globalOrder );
 //		if (rec.getID() == 0 ) debug = true;
@@ -23,7 +22,7 @@ public class PkduckDPWithRC extends PkduckDP {
 	}
 
 	@Override
-	public Boolean isInSigU( QGram target_qgram, int k ) {
+	public Boolean isInSigU( int target_token, int k ) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
@@ -41,9 +40,9 @@ public class PkduckDPWithRC extends PkduckDP {
 
 		// compute g[0][i][l].
 		for (int i=1; i<=rec.size(); i++) {
-			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
+			int current_token = tokens[i-1];
 			for (int l=1; l<=len_max_s; l++) {
-				int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+				int comp = globalOrder.compare( current_token, i-1, target_token, k );
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
@@ -54,7 +53,7 @@ public class PkduckDPWithRC extends PkduckDP {
 					int aside = kvPair.getKey().i1;
 					int wside = kvPair.getKey().i2;
 					RCTableSeq.RCEntry entry = kvPair.getValue();
-					int num_smaller1 = entry.getSmaller( target_qgram.qgram, k, 1 );
+					int num_smaller1 = entry.getSmaller( target_token, k, 1 );
 					if ( i-aside >= 0 && l-wside >= 0 ) g[0][i][l] = Math.min(  g[0][i][l], g[0][i-aside][l-wside] + num_smaller1 );
 				}
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
@@ -64,9 +63,9 @@ public class PkduckDPWithRC extends PkduckDP {
 		
 		// compute g[1][i][l].
 		for (int i=1; i<=rec.size(); i++ ) {
-			QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
+			int current_token = tokens[i-1];
 			for (int l=1; l<=len_max_s; l++) {
-				int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+				int comp = globalOrder.compare( current_token, i-1, target_token, k );
 //				System.out.println( "comp: "+comp );
 				if ( comp != 0 ) g[1][i][l] = Math.min( g[1][i][l], g[1][i-1][l-1] + (comp<0?1:0) );
 				else g[1][i][l] = Math.min( g[1][i][l], g[0][i-1][l-1] );
@@ -76,8 +75,8 @@ public class PkduckDPWithRC extends PkduckDP {
 					int aside = kvPair.getKey().i1;
 					int wside = kvPair.getKey().i2;
 					RCTableSeq.RCEntry entry = kvPair.getValue();
-					int num_smaller0 = entry.getSmaller( target_qgram.qgram, k, 0 );
-					int num_smaller2 = entry.getSmaller( target_qgram.qgram, k, 2 );
+					int num_smaller0 = entry.getSmaller( target_token, k, 0 );
+					int num_smaller2 = entry.getSmaller( target_token, k, 2 );
 					if ( i-aside >= 0 && l-wside >= 0 ) {
 						g[1][i][l] = Math.min(  g[1][i][l], g[1][i-aside][l-wside] + num_smaller0 );
 						g[1][i][l] = Math.min(  g[1][i][l], g[0][i-aside][l-wside] + num_smaller2 );

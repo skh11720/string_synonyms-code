@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
-import snu.kdd.synonym.synonymRev.order.TokenGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -23,7 +23,7 @@ public class PkduckSetIndex {
 	 * Currently, qgramSize and prefixSize are fixed to 1,
 	 * since we are interested in the uni-directional equivalence only.
 	 */
-	private final TokenGlobalOrder globalOrder;
+	private final AbstractGlobalOrder globalOrder;
 	private final int initCapacity;
 	
 	long indexTime = 0;
@@ -38,7 +38,7 @@ public class PkduckSetIndex {
 	 * @param addStat
 	 */
 	
-	public PkduckSetIndex(List<Record> recordList, Query query, StatContainer stat, TokenGlobalOrder globalOrder, boolean addStat) {
+	public PkduckSetIndex(List<Record> recordList, Query query, StatContainer stat, AbstractGlobalOrder globalOrder, boolean addStat) {
 		
 		long startTime = System.nanoTime();
 		this.globalOrder = globalOrder;
@@ -111,12 +111,6 @@ public class PkduckSetIndex {
 	}
 	
 	private void indexRecord(final Record record ) {
-		
-		Ordering order = globalOrder.getMode();
-
-		if ( order != Ordering.TF && order != Ordering.FF ) 
-			throw new RuntimeException("PositionFirst is disabled in JoinPkduckSet.");
-			
 		int[] tokens = record.getTokensArray();
 		int key = tokens[0];
 		for (int i=1; i<tokens.length; i++) {

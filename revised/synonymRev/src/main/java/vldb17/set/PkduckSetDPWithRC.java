@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.order.TokenGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 
 public class PkduckSetDPWithRC extends PkduckSetDP {
@@ -13,7 +13,7 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 	private final RCTableSet rcTable;
 //	private Boolean debug = false;
 
-	public PkduckSetDPWithRC( Record rec, TokenGlobalOrder globalOrder ) {
+	public PkduckSetDPWithRC( Record rec, AbstractGlobalOrder globalOrder ) {
 		super( rec, globalOrder );
 		rcTable = new RCTableSet( rec, globalOrder );
 //		if (rec.getID() == 0) debug = true;

@@ -19,7 +19,8 @@ import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -36,7 +37,6 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 	public Object2IntOpenHashMap<Record> idxCountS = null;
 	public Object2IntOpenHashMap<Record> idxCountT = null;
 	public int indexK = 0;
-	public int qgramSize;
 
 	protected Validator checker;
 	protected long candTokenTime = 0;
@@ -49,7 +49,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 	
 	private final Boolean useLF = true;
 
-	private QGramGlobalOrder globalOrder = new QGramGlobalOrder("FF", qgramSize);
+	private AbstractGlobalOrder globalOrder = new FrequencyFirstOrder( 1 );
 
 
 	// staticitics used for building indexes
@@ -199,7 +199,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 				int smallest = tokens[0];
 				for ( int i=1; i<tokens.length; i++ ) {
 					if ( smallestK.contains( tokens[j] )) continue;
-					if ( globalOrder.compareTokens( tokens[i], smallest ) == -1 ) smallest = tokens[i];
+					if ( globalOrder.compare( tokens[i], smallest ) == -1 ) smallest = tokens[i];
 				}
 				smallestK.add( smallest );
 			}

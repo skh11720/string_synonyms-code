@@ -16,7 +16,10 @@ import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.TokenGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
+import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
+import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -30,7 +33,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
 	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
-	TokenGlobalOrder globalOrder;
+	AbstractGlobalOrder globalOrder;
 	private Boolean useRuleComp;
 	private Validator checker;
 
@@ -76,7 +79,12 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 //		this.threshold = Long.valueOf( args[ 0 ] );
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		globalOrder = new TokenGlobalOrder( params.globalOrder );
+		Ordering mode = Ordering.valueOf( params.globalOrder );
+		switch(mode) {
+		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
+		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
+		default: throw new RuntimeException("Unexpected error");
+		}
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
 		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
