@@ -11,7 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.TokenGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 
 public class RCTableSet {
@@ -22,9 +22,9 @@ public class RCTableSet {
 	 */
 
 	private List<Map<IntegerPair, RCEntry>> rcTable;
-	protected final TokenGlobalOrder globalOrder;
+	protected final AbstractGlobalOrder globalOrder;
 
-	public RCTableSet( Record rec, TokenGlobalOrder globalOrder ) {
+	public RCTableSet( Record rec, AbstractGlobalOrder globalOrder ) {
 //		System.out.println( "Record: "+rec.getID()+", "+Arrays.toString( rec.getTokensArray() ) );
 		this.globalOrder = globalOrder;
 		rcTable = new ObjectArrayList<Map<IntegerPair, RCEntry>>();
@@ -100,7 +100,7 @@ public class RCTableSet {
 //				System.out.println( "rule: "+rule );
 				int[] rhs = rule.getRight();
 				for (int j=0; j<rhs.length; j++) {
-					orderSet.add( globalOrder.getOrder( rhs[j] ) );
+					orderSet.add( (int) globalOrder.getOrder( rhs[j] ) );
 				}
 			}
 			orderSet.add( Integer.MIN_VALUE ); // left end
@@ -121,7 +121,7 @@ public class RCTableSet {
 			for ( Rule rule : ruleSet ) {
 				IntOpenHashSet rule_orderSet = new IntOpenHashSet();
 				int[] rhs = rule.getRight();
-				for ( int j=0; j<rhs.length; j++ ) rule_orderSet.add( globalOrder.getOrder( rhs[j] ) );
+				for ( int j=0; j<rhs.length; j++ ) rule_orderSet.add( (int)globalOrder.getOrder( rhs[j] ) );
 				int[] rule_orderList = new int[rule_orderSet.size()];
 				rule_orderSet.toArray( rule_orderList );
 				Arrays.sort( rule_orderList );
@@ -137,15 +137,15 @@ public class RCTableSet {
 					}
 //						System.out.println( pqgram+", "+pqgramList[k]+": "+pqgram.compareTo( pqgramList[k] ) );
 					if ( rule_orderList[j] < orderList[k] ) { // rule_pqgram < pqgramList[k]
-						System.out.println( "ruleSet:" );
-						for ( Rule rule0 : ruleSet ) {
-							System.out.println( rule0 );
-							for ( int token : rule0.getRight() ) System.out.print( "("+token+", "+globalOrder.getOrder( token )+"), " );
-							System.out.println(  );
-						}
-						System.out.println( "rule: "+rule );
-						System.out.println( "rule_orderList: "+Arrays.toString( rule_orderList )+", "+j );
-						System.out.println( "orderList: "+Arrays.toString( orderList )+", "+k );
+//						System.out.println( "ruleSet:" );
+//						for ( Rule rule0 : ruleSet ) {
+//							System.out.println( rule0 );
+//							for ( int token : rule0.getRight() ) System.out.print( "("+token+", "+globalOrder.getOrder( token )+"), " );
+//							System.out.println(  );
+//						}
+//						System.out.println( "rule: "+rule );
+//						System.out.println( "rule_orderList: "+Arrays.toString( rule_orderList )+", "+j );
+//						System.out.println( "orderList: "+Arrays.toString( orderList )+", "+k );
 						throw new RuntimeException("Unexpected error");
 					}
 					else if ( rule_orderList[j] > orderList[k] ) { // rule_pqgram > pqgramList[k]
@@ -179,7 +179,7 @@ public class RCTableSet {
 			 * flag == 2: smaller[2]
 			 */
 			int[] arr = smaller[flag];
-			int order = globalOrder.getOrder( token );
+			int order = (int)globalOrder.getOrder( token );
 //			if ( flag == 0 ) arr = smaller;
 //			else if ( flag == 1 ) arr = smallerF;
 //			else if ( flag == 2 ) arr = smallerT;

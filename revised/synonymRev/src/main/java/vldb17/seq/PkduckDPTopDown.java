@@ -6,13 +6,13 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 
 @Deprecated
 public class PkduckDPTopDown {
 	
-	protected final QGramGlobalOrder globalOrder;
+	protected final AbstractGlobalOrder globalOrder;
 
 	protected Object2IntOpenHashMap<IntTriple> g;
 	protected List<List<QGram>> availableQGrams;
@@ -22,7 +22,7 @@ public class PkduckDPTopDown {
 	protected Record rec;
 	protected final int len_max_s;
 	
-	public PkduckDPTopDown( Record rec, QGramGlobalOrder globalOrder) {
+	public PkduckDPTopDown( Record rec, AbstractGlobalOrder globalOrder) {
 		this.rec = rec;
 		this.globalOrder = globalOrder;
 		this.len_max_s = rec.getMaxTransLength();
@@ -64,7 +64,7 @@ public class PkduckDPTopDown {
 		
 		// recursion.
 		QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-		int comp = globalOrder.comparePosQGrams( current_qgram.qgram, i-1, target_qgram.qgram, k );
+		int comp = globalOrder.compare( current_qgram.qgram, i-1, target_qgram.qgram, k );
 		if ( o == 0 ) {
 			// compute g[0][i][l].
 //				System.out.println( "comp: "+comp );
@@ -80,7 +80,7 @@ public class PkduckDPTopDown {
 				for (int j=0; j<rhs.length; j++) {
 					// check whether the rule does not generate [target_token, k].
 					isValid &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
-					num_smaller += globalOrder.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+					num_smaller += globalOrder.compare( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
 				}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
@@ -102,7 +102,7 @@ public class PkduckDPTopDown {
 				for (int j=0; j<rhs.length; j++) {
 					// check whether the rule generates [target_token, k].
 					isValid |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-					num_smaller += globalOrder.comparePosQGrams( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+					num_smaller += globalOrder.compare( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
 				}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );

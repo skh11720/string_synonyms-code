@@ -4,11 +4,12 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.PosQGram;
 
@@ -20,9 +21,9 @@ public class RCTableSeq {
 	 */
 
 	private Map<IntegerPair, Map<IntegerPair, RCEntry>> rcTable;
-	protected final QGramGlobalOrder globalOrder;
+	protected final AbstractGlobalOrder globalOrder;
 
-	public RCTableSeq( Record rec, QGramGlobalOrder globalOrder ) {
+	public RCTableSeq( Record rec, AbstractGlobalOrder globalOrder ) {
 		this.globalOrder = globalOrder;
 		int len_max_s = rec.getMaxTransLength();
 		rcTable = new Object2ObjectOpenHashMap<IntegerPair, Map<IntegerPair, RCEntry>>();
@@ -75,7 +76,7 @@ public class RCTableSeq {
 		 * 	"smallerT" contains the least number of smaller tokens for all applicable rules which GENERATE the target pos q-gram.
 		 */
 		
-		private PosQGram[] pqgramList;
+		private long[] orderList;
 		private int[] smaller;
 		private int[] smallerF;
 		private int[] smallerT;
@@ -83,42 +84,44 @@ public class RCTableSeq {
 		public RCEntry( Set<Rule>	ruleSet, int l ) {
 //			System.out.println( "l: "+l );
 			// Enumerate all pos qgrams generated from rules in the ruleSet.
-			Set<PosQGram> pqgramSet = new ObjectOpenHashSet<>();
+			LongOpenHashSet orderSet = new LongOpenHashSet();
 			for ( Rule rule : ruleSet ) {
 //				System.out.println( "rule: "+rule );
 				int[] rhs = rule.getRight();
 				for (int j=0; j<rhs.length; j++) {
-					pqgramSet.add( new PosQGram( Arrays.copyOfRange( rhs, j, j+1 ) , l-rhs.length+j ) );
+					orderSet.add( globalOrder.getOrder( rhs[j], l-rhs.length+j ) );
 				}
 			}
-			pqgramList = new PosQGram[pqgramSet.size()];
-			pqgramSet.toArray( pqgramList );
-			Arrays.sort( pqgramList, globalOrder.pqgramComparator );
+			orderList = new long[orderSet.size()];
+			orderSet.toArray( orderList );
+			Arrays.sort( orderList );
 //			System.out.println( Arrays.toString( pqgramList ) );
 			
 			// Fill the arrays.
-			smaller = new int[pqgramList.length];
-			smallerF = new int[pqgramList.length];
-			smallerT = new int[pqgramList.length];
+			smaller = new int[orderList.length];
+			smallerF = new int[orderList.length];
+			smallerT = new int[orderList.length];
 			Arrays.fill( smaller, Integer.MAX_VALUE );
 			Arrays.fill( smallerF, Integer.MAX_VALUE );
 			Arrays.fill( smallerT, Integer.MAX_VALUE );
 			for ( Rule rule : ruleSet ) {
 				int[] rhs = rule.getRight();
-				PosQGram[] rule_pqgramList = new PosQGram[rhs.length];
-				for ( int j=0; j<rhs.length; j++) rule_pqgramList[j] = new PosQGram( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j );
-				Arrays.sort( rule_pqgramList, globalOrder.pqgramComparator );
+				LongOpenHashSet rule_orderSet = new LongOpenHashSet();
+				for ( int j=0; j<rhs.length; j++) rule_orderSet.add( globalOrder.getOrder( rhs[j], l-rhs.length+j ) );
+				long[] rule_orderList = new long[rule_orderSet.size()];
+				rule_orderSet.toArray( rule_orderList );
+				Arrays.sort( rule_orderList );
 				int j = 0;
 				int n_small = 0;
 				// Note that both rule_pqgramList and pqgramList are sorted.
-				for ( int k=0; k<pqgramList.length; k++ ) {
+				for ( int k=0; k<orderList.length; k++ ) {
 					smaller[k] = Math.min( smaller[k], n_small );
 					if ( j >= rhs.length ) {
 						smallerF[k] = Math.min( smallerF[k], n_small );
 						continue;
 					}
 //						System.out.println( pqgram+", "+pqgramList[k]+": "+pqgram.compareTo( pqgramList[k] ) );
-					int comp = globalOrder.compare( rule_pqgramList[j], pqgramList[k] );
+					int comp = Long.compare( rule_orderList[j], orderList[k] );
 					if ( comp == -1 ) { // rule_pqgram < pqgramList[k]
 						throw new RuntimeException("Unexpected error");
 					}
@@ -150,6 +153,17 @@ public class RCTableSeq {
 			 * flag == 1: smallerF
 			 * flag == 2: smallerT
 			 */
+			
+			long order = globalOrder.getOrder( pqgram );
+			return getSmaller_kernel( order, flag );
+		}
+
+		public int getSmaller( int token, int pos, int flag ) {
+			long order = globalOrder.getOrder( token, pos );
+			return getSmaller_kernel( order, flag );
+		}
+		
+		private int getSmaller_kernel( long order, int flag ) {
 			int[] arr;
 			if ( flag == 0 ) arr = smaller;
 			else if ( flag == 1 ) arr = smallerF;
@@ -160,10 +174,10 @@ public class RCTableSeq {
 			int r = arr.length;
 			while ( l < r ) {
 				int m = (l+r)/2;
-				if ( globalOrder.compare( pqgram, pqgramList[m] ) < 0 ) { // pqgram < pqgramList[m]
+				if ( order < orderList[m] ) { // pqgram < pqgramList[m]
 					r = m;
 				}
-				else if ( globalOrder.compare( pqgram, pqgramList[m] ) > 0 ) { // pqgram > pqgramList[m]
+				else if ( order > orderList[m] ) { // pqgram > pqgramList[m]
 					l = m+1;
 				}
 				else { // pqgram == pqgramList[m]
@@ -173,14 +187,10 @@ public class RCTableSeq {
 			return arr[r];
 		}
 
-		public int getSmaller( int[] qgram, int pos, int flag ) {
-			return getSmaller( new PosQGram(qgram, pos), flag );
-		}
-
 		@Override
 		public String toString() {
 			String str = "";
-			str += "tokenList: "+Arrays.toString( pqgramList ) +"\n";
+			str += "tokenList: "+Arrays.toString( orderList ) +"\n";
 			str += "smaller: "+Arrays.toString( smaller ) +"\n";
 			str += "smallerF: "+Arrays.toString( smallerF ) +"\n";
 			str += "smallerT: "+Arrays.toString( smallerT ) +"\n";

@@ -10,7 +10,10 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.order.QGramGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
+import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
@@ -24,7 +27,7 @@ public class PkduckTest {
 	
 	public static Query query;
 	
-	public static PkduckIndex indexTest(QGramGlobalOrder globalOrder) {
+	public static PkduckIndex indexTest(AbstractGlobalOrder globalOrder) {
 		StatContainer stat = new StatContainer();
 		PkduckIndex index = new PkduckIndex( query, stat, globalOrder, true );
 		index.writeToFile( "tmp/PkduckIndex.txt" );
@@ -33,7 +36,7 @@ public class PkduckTest {
 		return index;
 	}
 	
-	public static void dpTest(PkduckIndex index, QGramGlobalOrder globalOrder, Boolean useRuleComp) throws IOException {
+	public static void dpTest(PkduckIndex index, AbstractGlobalOrder globalOrder, Boolean useRuleComp) throws IOException {
 		System.out.println( "PkduckTest.dpTest "+(useRuleComp?"with":"without")+" RC" );
 
 		
@@ -68,7 +71,7 @@ public class PkduckTest {
 //			SampleDataTest.inspect_record( record, query, 1 );
 			for ( int pos=0; pos<qgram_candidates.size(); pos++) {
 				for (QGram qgram : qgram_candidates.get( pos )) {
-					Boolean isInSigU =  pkduckDP.isInSigU( qgram, pos );
+					Boolean isInSigU =  pkduckDP.isInSigU( qgram.qgram[0], pos );
 					
 					// true answer
 					Boolean answer = false;
@@ -91,7 +94,7 @@ public class PkduckTest {
 		System.out.println( "PkduckTest.dpTest "+(useRuleComp?"with":"without")+" RC finised" );
 	}
 	
-	public static void joinTest(QGramGlobalOrder globalOrder) throws IOException, ParseException {
+	public static void joinTest(AbstractGlobalOrder globalOrder) throws IOException, ParseException {
 		StatContainer stat = new StatContainer();
 		JoinPkduck joinPkduck = new JoinPkduck( query, stat );
 		joinPkduck.run( query, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"});
@@ -220,12 +223,17 @@ public class PkduckTest {
 	public static void main( String[] args ) throws IOException, ParseException {
 		loadData();
 		PkduckIndex index;
-		String[] orderList = {"PF", "TF"};
+		Ordering[] orderList = {Ordering.PF, Ordering.FF};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
 		int qgramSize = 2;
-		for (String order: orderList) {
-			QGramGlobalOrder globalOrder = new QGramGlobalOrder(order, 2);
+		for (Ordering order: orderList) {
+			AbstractGlobalOrder globalOrder;
+			switch (order) {
+			case PF: globalOrder = new PositionFirstOrder(qgramSize); break;
+			case FF: globalOrder = new FrequencyFirstOrder(qgramSize); break;
+			default: throw new RuntimeException("Unexpected error");
+			}
 			System.out.println( "Global order: "+globalOrder );
 			index = indexTest(globalOrder);
 			dpTest(index, globalOrder, false);
