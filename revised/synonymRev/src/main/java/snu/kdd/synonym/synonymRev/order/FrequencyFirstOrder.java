@@ -22,19 +22,23 @@ public class FrequencyFirstOrder extends AbstractGlobalOrder {
 	}
 
 	public int getOrder( PosQGram o ) {
-		return orderMap.getInt( o.qgram );
+		return orderMap.getInt( o.qgram )*max_pos + o.pos;
 	}
 	
 	public int getOrder( int token, int pos ) {
-		return token;
+		return token*max_pos + pos;
 	}
 
 	public int compare( PosQGram o1, PosQGram o2 ) {
-		return Integer.compare( orderMap.getInt( o1.qgram ), orderMap.getInt( o2.qgram ) );
+		int comp = Integer.compare( orderMap.getInt( o1.qgram ), orderMap.getInt( o2.qgram ) );
+		if ( comp != 0 ) return comp;
+		else return Integer.compare( o1.pos, o2.pos );
 	}
 	
 	public int compare( int[] qgram1, int pos1, int[] qgram2, int pos2 ) {
-		return Integer.compare( orderMap.getInt( new QGram(qgram1) ), orderMap.getInt( new QGram(qgram2) ) );
+		int comp = Integer.compare( orderMap.getInt( new QGram(qgram1) ), orderMap.getInt( new QGram(qgram2) ) );
+		if ( comp != 0 ) return comp;
+		else return Integer.compare( pos1, pos2 );
 	}
 
 	public int compare( int token1, int pos1, int token2, int pos2 ) {

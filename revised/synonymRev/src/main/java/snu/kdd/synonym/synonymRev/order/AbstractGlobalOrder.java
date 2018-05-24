@@ -31,6 +31,7 @@ abstract public class AbstractGlobalOrder {
 	protected Object2IntOpenHashMap<?> orderMap = null;
 	protected final int qgramSize;
 	protected int nEntry;
+	protected int max_pos = 0;
 	
 	public AbstractGlobalOrder( int qgramSize) {
 		this.qgramSize = qgramSize;
@@ -75,6 +76,7 @@ abstract public class AbstractGlobalOrder {
 	protected void indexByOrder( List<Record> recordList, boolean expand, IntOpenHashSet converted ) {
 		if ( qgramSize > 1 ) throw new RuntimeException("Unexpected error");
 		for ( Record rec : recordList ) {
+			max_pos = Math.max( max_pos, rec.getMaxTransLength() );
 //			Boolean debug = false;
 //			if ( rec.getID() == 11487 ) debug = true;
 //			if (debug) System.out.println( "ID: "+rec.getID() );

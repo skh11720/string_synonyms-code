@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -76,7 +76,7 @@ public class RCTableSeq {
 		 * 	"smallerT" contains the least number of smaller tokens for all applicable rules which GENERATE the target pos q-gram.
 		 */
 		
-		private long[] orderList;
+		private int[] orderList;
 		private int[] smaller;
 		private int[] smallerF;
 		private int[] smallerT;
@@ -84,7 +84,7 @@ public class RCTableSeq {
 		public RCEntry( Set<Rule>	ruleSet, int l ) {
 //			System.out.println( "l: "+l );
 			// Enumerate all pos qgrams generated from rules in the ruleSet.
-			LongOpenHashSet orderSet = new LongOpenHashSet();
+			IntOpenHashSet orderSet = new IntOpenHashSet();
 			for ( Rule rule : ruleSet ) {
 //				System.out.println( "rule: "+rule );
 				int[] rhs = rule.getRight();
@@ -92,7 +92,7 @@ public class RCTableSeq {
 					orderSet.add( globalOrder.getOrder( rhs[j], l-rhs.length+j ) );
 				}
 			}
-			orderList = new long[orderSet.size()];
+			orderList = new int[orderSet.size()];
 			orderSet.toArray( orderList );
 			Arrays.sort( orderList );
 //			System.out.println( Arrays.toString( pqgramList ) );
@@ -106,9 +106,9 @@ public class RCTableSeq {
 			Arrays.fill( smallerT, Integer.MAX_VALUE );
 			for ( Rule rule : ruleSet ) {
 				int[] rhs = rule.getRight();
-				LongOpenHashSet rule_orderSet = new LongOpenHashSet();
+				IntOpenHashSet rule_orderSet = new IntOpenHashSet();
 				for ( int j=0; j<rhs.length; j++) rule_orderSet.add( globalOrder.getOrder( rhs[j], l-rhs.length+j ) );
-				long[] rule_orderList = new long[rule_orderSet.size()];
+				int[] rule_orderList = new int[rule_orderSet.size()];
 				rule_orderSet.toArray( rule_orderList );
 				Arrays.sort( rule_orderList );
 				int j = 0;
@@ -121,7 +121,7 @@ public class RCTableSeq {
 						continue;
 					}
 //						System.out.println( pqgram+", "+pqgramList[k]+": "+pqgram.compareTo( pqgramList[k] ) );
-					int comp = Long.compare( rule_orderList[j], orderList[k] );
+					int comp = Integer.compare( rule_orderList[j], orderList[k] );
 					if ( comp == -1 ) { // rule_pqgram < pqgramList[k]
 						throw new RuntimeException("Unexpected error");
 					}
