@@ -14,31 +14,31 @@ public class PositionFirstOrder extends AbstractGlobalOrder {
 	public Ordering getMode() {
 		return Ordering.PF;
 	}
-
+	
 	public int getOrder( PosQGram o ) {
-		return o.pos * nEntry + orderMap.get( o.qgram );
+		return o.pos * nEntry + orderMap.getInt( o.qgram );
 	}
 	
 	public int getOrder( int token, int pos ) {
-		return pos * nEntry + orderMap.get(token);
+		return pos * nEntry + token;
 	}
 
 	public int compare( PosQGram o1, PosQGram o2 ) {
 		int comp = Integer.compare( o1.pos, o2.pos );
 		if ( comp != 0 ) return comp;
-		else return Integer.compare( orderMap.get( o1.qgram ), orderMap.get( o2.qgram ) );
+		else return Integer.compare( orderMap.getInt( o1.qgram ), orderMap.getInt( o2.qgram ) );
 	}
 	
 	public int compare( int[] qgram1, int pos1, int[] qgram2, int pos2 ) {
 		int comp = Integer.compare( pos1, pos2 );
 		if ( comp != 0 ) return comp;
-		else return Integer.compare( orderMap.get( new QGram(qgram1) ), orderMap.get( new QGram(qgram2) ) );
+		else return Integer.compare( orderMap.getInt( new QGram(qgram1) ), orderMap.getInt( new QGram(qgram2) ) );
 	}
 	
 	public int compare( int token1, int pos1, int token2, int pos2 ) {
 		int comp = Integer.compare( pos1, pos2 );
 		if ( comp != 0 ) return comp;
-		else return Integer.compare( orderMap.get( token1 ), orderMap.get( token2 ) );
+		else return Integer.compare( token1, token2 );
 	}
 
 	@Override

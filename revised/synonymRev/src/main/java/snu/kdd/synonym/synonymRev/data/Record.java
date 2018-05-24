@@ -267,6 +267,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 			}
 		}
 	}
+	
+	public int[][] getTransLengthsAll() {
+		return transformLengths;
+	}
 
 	public int[] getTransLengths() {
 		return transformLengths[ tokens.length - 1 ];

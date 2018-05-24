@@ -48,7 +48,7 @@ public class PkduckDP {
 				int comp = globalOrder.compare( current_token, i-1, target_token, k );
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
-				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp==-1?1:0) );
+				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], g[0][i-1][l-1] + (comp<0?1:0) );
 //				System.out.println( "g[0]["+(i-1)+"]["+(l-1)+"]: "+g[0][i-1][l-1] );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				for (Rule rule : rec.getSuffixApplicableRules( i-1 )) {
@@ -59,7 +59,7 @@ public class PkduckDP {
 					for (int j=0; j<rhs.length; j++) {
 						// check whether the rule does not generate [target_token, k].
 						isValid &= !( target_token == rhs[j] && l-rhs.length+j == k); 
-						num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )==-1?1:0;
+						num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )<0?1:0;
 					}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
@@ -88,7 +88,7 @@ public class PkduckDP {
 					for (int j=0; j<rhs.length; j++) {
 						// check whether the rule generates [target_token, k].
 						isValid |= ( target_token == rhs[j] && l-rhs.length+j == k );
-						num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )==-1?1:0;
+						num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )<0?1:0;
 					}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );

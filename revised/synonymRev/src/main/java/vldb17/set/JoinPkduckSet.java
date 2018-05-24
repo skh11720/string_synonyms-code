@@ -67,7 +67,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 			}
 		}
 
-		globalOrder.initOrder( query );
+		globalOrder.initializeForSet( query );
 		
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {
@@ -82,7 +82,6 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
 		Ordering mode = Ordering.valueOf( params.globalOrder );
 		switch(mode) {
-		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
