@@ -8,11 +8,14 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 public class Rule implements Comparable<Rule> {
 	int[] lefths;
 	int[] righths;
+	public final int id;
 
 	private final int hash;
 	boolean isSelfRule = false;
 
 	private static Int2ObjectOpenHashMap<Rule> selfRuleMap = new Int2ObjectOpenHashMap<Rule>();
+	
+	private static int count = 0;
 
 	protected static final Rule[] EMPTY_RULE = new Rule[ 0 ];
 
@@ -46,6 +49,7 @@ public class Rule implements Comparable<Rule> {
 			hash = 0x1f1f1f1f ^ hash + righths[ i ];
 		}
 		this.hash = hash;
+		id = count++;
 	}
 
 	// needed?
@@ -58,6 +62,7 @@ public class Rule implements Comparable<Rule> {
 		for( int i = 0; i < to.length; ++i )
 			hash = 0x1f1f1f1f ^ hash + to[ i ];
 		this.hash = hash;
+		id = count++;
 	}
 
 	// mostly used for self rule
@@ -70,6 +75,7 @@ public class Rule implements Comparable<Rule> {
 		this.righths[ 0 ] = to;
 		hash = 0x1f1f1f1f ^ hash + this.righths[ 0 ];
 		this.hash = hash;
+		id = count++;
 	}
 
 	public boolean isSelfRule() {

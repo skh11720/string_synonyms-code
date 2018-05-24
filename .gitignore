@@ -34,3 +34,5 @@ exp/JoinBK_2.1
 yjpark_*.xml
 revised/synonymRev/.settings/*
 Image4Qst/*
+revised/synonymRev/src/test/java/TestMain.java
+revised/synonymRev/rule/

@@ -100,7 +100,7 @@ public class RCTableSet {
 //				System.out.println( "rule: "+rule );
 				int[] rhs = rule.getRight();
 				for (int j=0; j<rhs.length; j++) {
-					orderSet.add( (int) globalOrder.getOrder( rhs[j] ) );
+					orderSet.add( rhs[j] );
 				}
 			}
 			orderSet.add( Integer.MIN_VALUE ); // left end
@@ -121,7 +121,7 @@ public class RCTableSet {
 			for ( Rule rule : ruleSet ) {
 				IntOpenHashSet rule_orderSet = new IntOpenHashSet();
 				int[] rhs = rule.getRight();
-				for ( int j=0; j<rhs.length; j++ ) rule_orderSet.add( (int)globalOrder.getOrder( rhs[j] ) );
+				for ( int j=0; j<rhs.length; j++ ) rule_orderSet.add( rhs[j] );
 				int[] rule_orderList = new int[rule_orderSet.size()];
 				rule_orderSet.toArray( rule_orderList );
 				Arrays.sort( rule_orderList );
@@ -179,7 +179,7 @@ public class RCTableSet {
 			 * flag == 2: smaller[2]
 			 */
 			int[] arr = smaller[flag];
-			int order = (int)globalOrder.getOrder( token );
+			int order = token;
 //			if ( flag == 0 ) arr = smaller;
 //			else if ( flag == 1 ) arr = smallerF;
 //			else if ( flag == 2 ) arr = smallerT;

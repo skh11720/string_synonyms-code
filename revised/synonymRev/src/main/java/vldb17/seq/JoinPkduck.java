@@ -2,9 +2,11 @@ package vldb17.seq;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
@@ -39,6 +41,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
 	private long validateTime = 0;
+	private long nScanList = 0;
+	private long nRunDP = 0;
 	
 	public JoinPkduck( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -50,7 +54,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		for (Record rec : query.searchedSet.get()) {
 			rec.preprocessSuffixApplicableRules();
 		}
-		globalOrder.initOrder( query );
+		globalOrder.initializeForSequence( query );
 
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {
@@ -165,57 +169,72 @@ public class JoinPkduck extends AlgorithmTemplate {
 			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
 			stat.add( "Result_3_4_IsInSigUTime", isInSigUTime/1e6);
 			stat.add( "Result_3_5_ValidateTime", validateTime/1e6 );
+			stat.add( "Result_3_6_nScanList", nScanList );
+			stat.add( "Result_3_7_nRunDP", nRunDP );
 		}
 		return rslt;
 	}
 
-	@Override
-	public String getName() {
-		return "JoinPkduck";
-	}
-
-	@Override
-	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 * 1.01: ?
-		 * 1.02: bug fix
-		 * 1.03: bug fix
-		 * 1.04: optimized rule compression
-		 */
-		return "1.04";
-	}
-
 	private void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
-		IntOpenHashSet candidateTokens = new IntOpenHashSet();
+		final int[][] transLen = recS.getTransLengthsAll();
+		Int2ObjectOpenHashMap<IntOpenHashSet> candidateTokens = new Int2ObjectOpenHashMap<IntOpenHashSet>();
 		for (int i=0; i<recS.size(); i++) {
 			for (Rule rule : recS.getSuffixApplicableRules( i )) {
 				int[] rhs = rule.getRight();
+				int prefLen = i - rule.leftSize(); // pos means the prefix length of the rule is s[0:pos+1). pos can be -1.
 				for (int j=0; j<rule.rightSize(); j++) {
-					candidateTokens.add( rhs[j] );
+					// rhs[j] can have a position from recS[0:pos+1).transLength.min+j ~ max+j (both side inclusive).
+					if ( prefLen < 0 ) {
+						if ( !candidateTokens.containsKey( j ) ) candidateTokens.put( j, new IntOpenHashSet() );
+						candidateTokens.get( j ).add( rhs[j] );
+					}
+					else {
+						for ( int pos=transLen[prefLen][0]+j; pos<=transLen[prefLen][1]+j; pos++ ) {
+							if ( !candidateTokens.containsKey( pos ) ) candidateTokens.put( pos, new IntOpenHashSet() );
+							candidateTokens.get( pos ).add( rhs[j] );
+						}
+						
+					}
 				}
 			}
 		}
 		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
-		Boolean debug = false;
-//		if ( recS.getID() == 0 ) debug = true;
-		if (debug) System.out.println( recS.getID() );
+//		Boolean debug = false;
+//		if ( recS.getID() == 11487 ) debug = true;
+//		if (debug) {
+//			System.out.println( recS.getID() );
+//			System.out.println( candidateTokens.toString() );
+//			System.out.println( idx.keySet().toString() );
+//
+//			for (int i=0; i<recS.size(); i++) {
+//				System.out.println( "pos: "+i );
+//				for (Rule rule : recS.getSuffixApplicableRules( i )) {
+//					System.out.println( rule );
+//				}
+//			}
+//		}
 //		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
 
 		PkduckDP pkduckDP;
 		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, globalOrder );
 		pkduckDP = new PkduckDP( recS, globalOrder );
-		for (int pos : idx.keySet() ) {
-			for (int token : candidateTokens) {
+		for ( Entry<Integer, IntOpenHashSet> entry : candidateTokens.entrySet() ) {
+			int pos = entry.getKey();
+			if ( !idx.keySet().contains( pos ) ) continue;
+			IntOpenHashSet tokenSet = entry.getValue();
+			for (int token : tokenSet) {
 				long startDpTime = System.nanoTime();
 				Boolean isInSigU = pkduckDP.isInSigU( token, pos );
+//				Boolean isInSigU = true; // DEBUGgg
 				isInSigUTime += System.nanoTime() - startDpTime;
+				++nRunDP;
 //				if (debug) System.out.println( "["+token+", "+pos+"]: "+isInSigU );
 				if ( isInSigU ) {
 					List<Record> indexedList = idx.get( pos, token );
 					if ( indexedList == null ) continue;
+					++nScanList;
 					for (Record recT : indexedList) {
 						long startValidateTime = System.nanoTime();
 						int comp = checker.isEqual( recS, recT );
@@ -234,5 +253,23 @@ public class JoinPkduck extends AlgorithmTemplate {
 			}
 		}
 //		if (debug) System.exit( 1 );
+	}
+
+	@Override
+	public String getName() {
+		return "JoinPkduck";
+	}
+
+	@Override
+	public String getVersion() {
+		/*
+		 * 1.00: initial version
+		 * 1.01: ?
+		 * 1.02: bug fix
+		 * 1.03: bug fix
+		 * 1.04: optimized rule compression
+		 * 1.05: FF based indexing, improved DP, RC
+		 */
+		return "1.05";
 	}
 }
