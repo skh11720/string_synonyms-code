@@ -237,6 +237,55 @@ public class Generator {
 		bw.close();
 	}
 
+	public void genSkewRuleAbbr( int lhsmax, int rhsmax, int nRules, String filename ) throws IOException {
+		HashSet<Rule> rules = new HashSet<Rule>();
+
+		// To file
+		BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
+
+		// generate rule
+		while( rules.size() < nRules ) {
+			int lhslen = random.nextInt( lhsmax ) + 1;
+			int[] lhs = random( lhslen );
+
+			for ( int i=0; i<10; i++ ) {
+				int rhslen = random.nextInt( rhsmax ) + 1;
+				int[] rhs = random( rhslen );
+
+				if( lhslen == rhslen ) {
+					boolean equals = true;
+					for( int t = 0; t < lhslen; ++t ) {
+						if( lhs[ t ] != rhs[ t ] ) {
+							equals = false;
+							break;
+						}
+					}
+
+					if( equals ) {
+						--i;
+						continue;
+					}
+				}
+
+				Rule rule = new Rule( lhs, rhs );
+				boolean added = rules.add( rule );
+
+				if( added ) {
+					for( int from : rule.getLeft() )
+						bw.write( from + " " );
+					bw.write( ", " );
+					for( int to : rule.getRight() )
+						bw.write( to + " " );
+					bw.newLine();
+				}
+				else --i;
+				
+				if ( rules.size() >= nRules ) break;
+			}
+		}
+		bw.close();
+	}
+
 	public Record randomTransform( Record rec, ACAutomataR atm, Random rand ) {
 		List<Integer> list = new ArrayList<Integer>();
 		Rule[][] rules = atm.applicableRules( rec.getTokensArray() );
