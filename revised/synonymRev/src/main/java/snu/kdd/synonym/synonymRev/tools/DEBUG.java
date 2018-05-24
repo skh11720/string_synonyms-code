@@ -31,7 +31,7 @@ public class DEBUG {
 	public static final boolean PrintQueryON = true;
 	public static final boolean ToLowerON = true;
 
-	public static final boolean EstTooManyWarningON = true;
+	public static final boolean EstTooManyWarningON = false;
 	public static final boolean JoinNaiveSkipTooMany = true;
 	public static final int EstTooManyThreshold = 20_000_000;
 }

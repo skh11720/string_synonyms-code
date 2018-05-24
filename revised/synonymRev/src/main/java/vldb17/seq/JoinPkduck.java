@@ -226,8 +226,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 			IntOpenHashSet tokenSet = entry.getValue();
 			for (int token : tokenSet) {
 				long startDpTime = System.nanoTime();
-//				Boolean isInSigU = pkduckDP.isInSigU( token, pos );
-				Boolean isInSigU = true; // DEBUGgg
+				Boolean isInSigU = pkduckDP.isInSigU( token, pos );
+//				Boolean isInSigU = true; // DEBUGgg
 				isInSigUTime += System.nanoTime() - startDpTime;
 				++nRunDP;
 //				if (debug) System.out.println( "["+token+", "+pos+"]: "+isInSigU );
@@ -268,7 +268,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		 * 1.02: bug fix
 		 * 1.03: bug fix
 		 * 1.04: optimized rule compression
-		 * 1.05: FF based indexing, improved DP
+		 * 1.05: FF based indexing, improved DP, RC
 		 */
 		return "1.05";
 	}
