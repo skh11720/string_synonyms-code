@@ -114,7 +114,7 @@ public class PkduckSetIndex {
 		int[] tokens = record.getTokensArray();
 		int key = tokens[0];
 		for (int i=1; i<tokens.length; i++) {
-			if ( globalOrder.compare( key, tokens[i]) == 1 ) key = tokens[i];
+			if ( globalOrder.compare( key, tokens[i]) > 0 ) key = tokens[i];
 		}
 		if ( idx.get( key ) == null ) idx.put( key, new ObjectArrayList<Record>(this.initCapacity) );
 		idx.get( key ).add( record );

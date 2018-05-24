@@ -66,6 +66,10 @@ abstract public class AbstractGlobalOrder {
 	public void initializeForSet( Query query ) {
 		count( query.searchedSet.recordList, true );
 		if ( !query.selfJoin ) count( query.indexedSet.recordList, true );
+		buildOrderMap();
+		IntOpenHashSet converted = new IntOpenHashSet();
+		indexByOrder( query.searchedSet.recordList, true, converted );
+		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, true, converted );
 	}
 
 	protected void indexByOrder( List<Record> recordList, boolean expand, IntOpenHashSet converted ) {
