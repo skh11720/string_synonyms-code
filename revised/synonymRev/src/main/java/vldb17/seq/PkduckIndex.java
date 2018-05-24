@@ -70,6 +70,7 @@ public class PkduckIndex {
 		
 		this.indexTime = System.nanoTime() - startTime;
 		Util.printGCStats( stat, "PkduckIndex" );
+		writeToFile( "tmp/PkduckIndex.txt" ); // DEBUG
 	}
 	
 	public void writeToFile( String filename ) {
@@ -118,7 +119,7 @@ public class PkduckIndex {
 		int pos=0;
 		int key = tokens[pos];
 		for ( int i=1; i<record.size(); i++ ) {
-			if ( globalOrder.compare( key,  pos, tokens[i], i ) == 1 ) {
+			if ( globalOrder.compare( key,  pos, tokens[i], i ) > 0 ) {
 				pos = i;
 				key = tokens[i];
 			}

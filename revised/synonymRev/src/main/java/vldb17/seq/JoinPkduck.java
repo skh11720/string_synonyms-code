@@ -39,6 +39,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
 	private long validateTime = 0;
+	private long nScanList = 0;
+	private long nRunDP = 0;
 	
 	public JoinPkduck( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -50,7 +52,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		for (Record rec : query.searchedSet.get()) {
 			rec.preprocessSuffixApplicableRules();
 		}
-		globalOrder.initOrder( query );
+		globalOrder.initializeForSequence( query );
 
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {
@@ -165,6 +167,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
 			stat.add( "Result_3_4_IsInSigUTime", isInSigUTime/1e6);
 			stat.add( "Result_3_5_ValidateTime", validateTime/1e6 );
+			stat.add( "Result_3_6_nScanList", nScanList );
+			stat.add( "Result_3_7_nRunDP", nRunDP );
 		}
 		return rslt;
 	}
@@ -199,9 +203,20 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 		this.candTokenTime += (System.currentTimeMillis() - startTime);
 		
-		Boolean debug = false;
-//		if ( recS.getID() == 0 ) debug = true;
-		if (debug) System.out.println( recS.getID() );
+//		Boolean debug = false;
+//		if ( recS.getID() == 11487 ) debug = true;
+//		if (debug) {
+//			System.out.println( recS.getID() );
+//			System.out.println( candidateTokens.toString() );
+//			System.out.println( idx.keySet().toString() );
+//
+//			for (int i=0; i<recS.size(); i++) {
+//				System.out.println( "pos: "+i );
+//				for (Rule rule : recS.getSuffixApplicableRules( i )) {
+//					System.out.println( rule );
+//				}
+//			}
+//		}
 //		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
 
 		PkduckDP pkduckDP;
@@ -211,11 +226,14 @@ public class JoinPkduck extends AlgorithmTemplate {
 			for (int token : candidateTokens) {
 				long startDpTime = System.nanoTime();
 				Boolean isInSigU = pkduckDP.isInSigU( token, pos );
+//				Boolean isInSigU = true; // DEBUGgg
 				isInSigUTime += System.nanoTime() - startDpTime;
+				++nRunDP;
 //				if (debug) System.out.println( "["+token+", "+pos+"]: "+isInSigU );
 				if ( isInSigU ) {
 					List<Record> indexedList = idx.get( pos, token );
 					if ( indexedList == null ) continue;
+					++nScanList;
 					for (Record recT : indexedList) {
 						long startValidateTime = System.nanoTime();
 						int comp = checker.isEqual( recS, recT );

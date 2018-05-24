@@ -67,7 +67,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 			}
 		}
 
-		globalOrder.initOrder( query );
+		globalOrder.initializeForSet( query );
 		
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {

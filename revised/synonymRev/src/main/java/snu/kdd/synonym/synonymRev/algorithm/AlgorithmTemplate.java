@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -179,8 +180,9 @@ public abstract class AlgorithmTemplate {
 					}
 				}
 
-				bw.write( r.toString( query.tokenIndex ) + "(" + r.getID() + ")\t==\t" + s.toString( query.tokenIndex ) + "("
-						+ s.getID() + ")\n" );
+//				bw.write( r.toString( query.tokenIndex ) + "(" + r.getID() + ")\t==\t" + s.toString( query.tokenIndex ) + "("+ s.getID() + ")\n" );
+//				bw.write( "(" + r.getID() + ")\t==\t" + "("+ s.getID() + ")\n" );
+				bw.write( Arrays.toString( r.getTokensArray() ) + "(" + r.getID() + ")\t==\t" + Arrays.toString( s.getTokensArray() ) + "("+ s.getID() + ")\n" );
 			}
 			bw.close();
 		}
