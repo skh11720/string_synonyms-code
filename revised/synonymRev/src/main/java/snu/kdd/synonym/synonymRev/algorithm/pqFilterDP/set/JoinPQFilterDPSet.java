@@ -74,7 +74,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 			idxS = new WYK_HashMap<Integer, List<Record>>();
 			idxCountS = new Object2IntOpenHashMap<Record>(query.searchedSet.size());
 		}
-		globalOrder.initOrder( query );
+		globalOrder.initializeForSet( query );
 	}
 
 	@Override
