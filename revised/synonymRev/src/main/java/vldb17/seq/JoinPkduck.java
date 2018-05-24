@@ -2,9 +2,11 @@ package vldb17.seq;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
@@ -173,31 +175,27 @@ public class JoinPkduck extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	@Override
-	public String getName() {
-		return "JoinPkduck";
-	}
-
-	@Override
-	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 * 1.01: ?
-		 * 1.02: bug fix
-		 * 1.03: bug fix
-		 * 1.04: optimized rule compression
-		 */
-		return "1.04";
-	}
-
 	private void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
-		IntOpenHashSet candidateTokens = new IntOpenHashSet();
+		final int[][] transLen = recS.getTransLengthsAll();
+		Int2ObjectOpenHashMap<IntOpenHashSet> candidateTokens = new Int2ObjectOpenHashMap<IntOpenHashSet>();
 		for (int i=0; i<recS.size(); i++) {
 			for (Rule rule : recS.getSuffixApplicableRules( i )) {
 				int[] rhs = rule.getRight();
+				int prefLen = i - rule.leftSize(); // pos means the prefix length of the rule is s[0:pos+1). pos can be -1.
 				for (int j=0; j<rule.rightSize(); j++) {
-					candidateTokens.add( rhs[j] );
+					// rhs[j] can have a position from recS[0:pos+1).transLength.min+j ~ max+j (both side inclusive).
+					if ( prefLen < 0 ) {
+						if ( !candidateTokens.containsKey( j ) ) candidateTokens.put( j, new IntOpenHashSet() );
+						candidateTokens.get( j ).add( rhs[j] );
+					}
+					else {
+						for ( int pos=transLen[prefLen][0]+j; pos<=transLen[prefLen][1]+j; pos++ ) {
+							if ( !candidateTokens.containsKey( pos ) ) candidateTokens.put( pos, new IntOpenHashSet() );
+							candidateTokens.get( pos ).add( rhs[j] );
+						}
+						
+					}
 				}
 			}
 		}
@@ -222,11 +220,14 @@ public class JoinPkduck extends AlgorithmTemplate {
 		PkduckDP pkduckDP;
 		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, globalOrder );
 		pkduckDP = new PkduckDP( recS, globalOrder );
-		for (int pos : idx.keySet() ) {
-			for (int token : candidateTokens) {
+		for ( Entry<Integer, IntOpenHashSet> entry : candidateTokens.entrySet() ) {
+			int pos = entry.getKey();
+			if ( !idx.keySet().contains( pos ) ) continue;
+			IntOpenHashSet tokenSet = entry.getValue();
+			for (int token : tokenSet) {
 				long startDpTime = System.nanoTime();
-				Boolean isInSigU = pkduckDP.isInSigU( token, pos );
-//				Boolean isInSigU = true; // DEBUGgg
+//				Boolean isInSigU = pkduckDP.isInSigU( token, pos );
+				Boolean isInSigU = true; // DEBUGgg
 				isInSigUTime += System.nanoTime() - startDpTime;
 				++nRunDP;
 //				if (debug) System.out.println( "["+token+", "+pos+"]: "+isInSigU );
@@ -252,5 +253,23 @@ public class JoinPkduck extends AlgorithmTemplate {
 			}
 		}
 //		if (debug) System.exit( 1 );
+	}
+
+	@Override
+	public String getName() {
+		return "JoinPkduck";
+	}
+
+	@Override
+	public String getVersion() {
+		/*
+		 * 1.00: initial version
+		 * 1.01: ?
+		 * 1.02: bug fix
+		 * 1.03: bug fix
+		 * 1.04: optimized rule compression
+		 * 1.05: FF based indexing, improved DP
+		 */
+		return "1.05";
 	}
 }
