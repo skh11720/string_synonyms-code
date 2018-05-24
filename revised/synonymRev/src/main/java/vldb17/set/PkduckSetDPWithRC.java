@@ -45,7 +45,7 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 			for (int l=1; l<=len_max_S; l++) {
 //				System.out.println( "comp: "+comp );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
-				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], safeAdd(g[0][i-1][l-1], (comp==-1?1:0) ) );
+				if ( comp != 0 ) g[0][i][l] = Math.min( g[0][i][l], safeAdd(g[0][i-1][l-1], (comp<0?1:0) ) );
 //				System.out.println( "g[0]["+(i-1)+"]["+(l-1)+"]: "+g[0][i-1][l-1] );
 //				System.out.println( "g[0]["+i+"]["+l+"]: "+g[0][i][l] );
 				for ( Entry<IntegerPair, RCTableSet.RCEntry> kvPair : map.entrySet() ) {
