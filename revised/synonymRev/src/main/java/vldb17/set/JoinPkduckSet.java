@@ -230,6 +230,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				++nScanList;
 				for (Record recOther : indexedList) {
 					if ( useLF ) {
+//						if (debug) System.out.println( "length filtered?: "+(rec_maxlen < recOther.size()) );
 						if ( rec_maxlen < recOther.size() ) {
 							++checker.filtered;
 							continue;
@@ -245,6 +246,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		// verification
 		for (Record recOther : candidateAfterLF ) {
 			int comp = checker.isEqual( rec, recOther );
+//			if (debug) System.out.println( "compare "+rec.getID()+" and "+recOther.getID()+": "+comp );
 			if (comp >= 0) {
 				if ( query.selfJoin ) {
 					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
