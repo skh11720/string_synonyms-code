@@ -279,7 +279,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		 * 1.03: support token frequency order
 		 * 1.04: optimization, bug fix in RC when using FF
 		 * 1.05: checkpoint
+		 * 1.06: reduce memory usage
 		 */
-		return "1.05";
+		return "1.06";
 	}
 }
