@@ -127,4 +127,13 @@ public class Util {
 		stat.add( prefix + "_Garbage_Collections", totalGarbageCollections );
 		stat.add( prefix + "_Garbage_Collections_Time", garbageCollectionTime );
 	}
+
+	public static boolean equalsToSubArray( int[] a, int start, int end, int[] b ) {
+		// return true if a[start:end] is equal to b; otherwise false.
+		if ( b.length != end - start ) return false;
+		for ( int i=0; i<b.length; i++ ) {
+			if ( a[start+i] != b[i] ) return false;
+		}
+		return true;
+	}
 }
