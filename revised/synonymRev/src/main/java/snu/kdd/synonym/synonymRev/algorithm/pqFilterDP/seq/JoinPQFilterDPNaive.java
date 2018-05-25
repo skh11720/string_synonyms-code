@@ -219,14 +219,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 
 		for ( Record recT : candidatesAfterDP ) {
 			int comp = checker.isEqual( recS, recT );
-			if (comp >= 0) {
-				if ( query.selfJoin ) {
-					int id_smaller = recS.getID() < recT.getID()? recS.getID() : recT.getID();
-					int id_larger = recS.getID() >= recT.getID()? recS.getID() : recT.getID();
-					rslt.add( new IntegerPair( id_smaller, id_larger) );
-				}
-				else rslt.add( new IntegerPair(recS.getID(), recT.getID()) );
-			}
+			if (comp >= 0) addSeqResult( recS, recT, rslt );
 		}
 
 		long afterValidateTime = System.currentTimeMillis();
