@@ -210,7 +210,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 			}
 		}
 		
-		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>(100);
+		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
 			if ( idx.indexedCountList.getInt( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
 		}
@@ -231,7 +231,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	protected ObjectArrayList<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
 		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = new ObjectArrayList<WYK_HashSet<QGram>>();
 		for ( int pos=0; pos<indexK; pos++ ) {
-			candidatePQGrams.add( new WYK_HashSet<QGram>(100) );
+			candidatePQGrams.add( new WYK_HashSet<QGram>() );
 			for (QGram qgram : idx.get( pos ).keySet()) {
 				candidatePQGrams.get( pos ).add( qgram );
 			}

@@ -24,7 +24,6 @@ public class PkduckSetIndex {
 	 * since we are interested in the uni-directional equivalence only.
 	 */
 	private final AbstractGlobalOrder globalOrder;
-	private final int initCapacity;
 	
 	long indexTime = 0;
 	long joinTime = 0;
@@ -42,7 +41,6 @@ public class PkduckSetIndex {
 		
 		long startTime = System.nanoTime();
 		this.globalOrder = globalOrder;
-		this.initCapacity = recordList.size() / 100;
 		
 		idx = new Int2ObjectOpenHashMap<List<Record>>();
 		
@@ -116,7 +114,7 @@ public class PkduckSetIndex {
 		for (int i=1; i<tokens.length; i++) {
 			if ( globalOrder.compare( key, tokens[i]) > 0 ) key = tokens[i];
 		}
-		if ( idx.get( key ) == null ) idx.put( key, new ObjectArrayList<Record>(this.initCapacity) );
+		if ( idx.get( key ) == null ) idx.put( key, new ObjectArrayList<Record>() );
 		idx.get( key ).add( record );
 	}
 }
