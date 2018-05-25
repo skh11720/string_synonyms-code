@@ -90,7 +90,7 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 			}
 		}
 		
-		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>(100);
+		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
 			if ( idx.indexedCountList.getInt( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
 		}

@@ -40,7 +40,7 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 		}
 
 		for ( int pos=0; pos<indexK; pos++ ) {
-			WYK_HashSet<QGram> candQGrams = new WYK_HashSet<QGram>(100);
+			WYK_HashSet<QGram> candQGrams = new WYK_HashSet<QGram>();
 			for ( int token : candTokens ) {
 				Set<QGram> qgrams = mapToken2qgram.get( pos ).get( token );
 				if (qgrams != null) candQGrams.addAll( qgrams );

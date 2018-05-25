@@ -22,7 +22,6 @@ public class PkduckIndex {
 	 * since we are interested in the uni-directional equivalence only.
 	 */
 	private final AbstractGlobalOrder globalOrder;
-	private final int initCapacity;
 	
 	long indexTime = 0;
 	long joinTime = 0;
@@ -41,7 +40,6 @@ public class PkduckIndex {
 		long startTime = System.nanoTime();
 //		this.prefixSize = prefixSize;
 		this.globalOrder = globalOrder;
-		this.initCapacity = query.indexedSet.size() / 100;
 		
 		idx = new WYK_HashMap<Integer, WYK_HashMap<Integer, List<Record>>>();
 		
@@ -125,7 +123,7 @@ public class PkduckIndex {
 			}
 		}
 		if ( idx.get( pos ) == null ) idx.put( pos, new WYK_HashMap<Integer, List<Record>>() );
-		if ( idx.get( pos ).get( key ) == null ) idx.get( pos ).put( key,  new ObjectArrayList<Record>(this.initCapacity) );
+		if ( idx.get( pos ).get( key ) == null ) idx.get( pos ).put( key,  new ObjectArrayList<Record>() );
 		idx.get( pos ).get( key ).add( record );
 	}
 }
