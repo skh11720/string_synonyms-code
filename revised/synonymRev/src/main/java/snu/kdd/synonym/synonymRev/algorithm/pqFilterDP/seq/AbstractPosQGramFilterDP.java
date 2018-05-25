@@ -124,6 +124,7 @@ public abstract class AbstractPosQGramFilterDP {
 		/*
 		 * Return true if pat[start:end] is a prefix of seq; otherwise return false.
 		 */
+		if ( start >= end ) throw new RuntimeException("start must be smaller than end.");
 		if (end - start > seq.length ) return false;
 		for (int i=start; i<end; i++)
 			if (pat[i] != seq[i-start]) return false;
