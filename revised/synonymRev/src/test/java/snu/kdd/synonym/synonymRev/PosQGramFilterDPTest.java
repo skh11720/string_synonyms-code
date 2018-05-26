@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.AbstractPosQGramFilterDP;
@@ -134,12 +135,15 @@ public class PosQGramFilterDPTest {
 		for ( int itr=0; itr<nTest; itr++ ) {
 //			System.out.println( "itr: "+itr );
 			int patLen = random.nextInt( 5 ) + 1;
-			int seqLen = random.nextInt( 15 ) + 6;
+			int seqLen = random.nextInt( 15 ) + 26;
 			int[] pat = random.ints( patLen, 0, nv ).toArray();
 			int[] seq = random.ints( seqLen, 0, nv ).toArray();
 			int[] failure = prepare_search( pat );
-//			System.out.println( Arrays.toString( pat ) );
-//			System.out.println( Arrays.toString( seq ) );
+			System.out.println( Arrays.toString( pat ) );
+			System.out.println( Arrays.toString( seq ) );
+			
+			// answer by this.isPrefixSubArrayOf
+			Int2ObjectOpenHashMap<IntOpenHashSet> posSet2 = isPrefixSubArrayOf( pat, failure, seq );
 			
 			for ( int i=1; i<=patLen; ++i ) { // search pat[0:i], right exclusive
 				// true answer
@@ -150,20 +154,20 @@ public class PosQGramFilterDPTest {
 					for ( k=0; k<i && j+k<seqLen && match; ++k ) match &= pat[k] == seq[j+k];
 					if ( k == i && match ) posSet0.add( j+i );
 				}
-//				System.out.println( "i: "+i );
-//				System.out.println( "posSet0: "+posSet0.toString() );
+				System.out.println( "i: "+i );
+				System.out.println( "posSet0: "+posSet0.toString() );
+				System.out.println( "posSet2: "+posSet2.get( i ).toString() );
 
 				// answer by AbstractPosQGramFilterDP.isSubstringOf; may be failed if a pattern appears multiple times in a sequence.
 //				int ansByMethod = (int)(method.invoke( target, pat, i, seq ));
 //				System.out.println( "ansByMethod: "+ansByMethod );
 				
 				// answer by this.isSubArrayOf which is based on AC automata
-				IntOpenHashSet posSet1 = isSubArrayOf( Arrays.copyOfRange( pat, 0, i ), 0, 0, failure, seq );
+				IntOpenHashSet posSet1 = isSubArrayOf( Arrays.copyOfRange( pat, 0, i ), failure, seq );
 //				System.out.println( "posSet1: "+posSet1.toString() );
 				assertTrue( posSet0.equals( posSet1 ) );
+				assertTrue( posSet0.equals( posSet2.get( i ) ) );
 			}
-			
-
 		}
 	}
 	
@@ -183,7 +187,7 @@ public class PosQGramFilterDPTest {
 		return failure;
 	}
 	
-	public IntOpenHashSet isSubArrayOf( int[] pat, int start, int end, int[] failure, int[] seq ) {
+	public IntOpenHashSet isSubArrayOf( int[] pat, int[] failure, int[] seq ) {
 		/*
 		 * Search pat in seq, and return the positions of occurrences.
 		 * A position x in the result means that seq[x-len(pat):x] matches the pattern.
@@ -197,6 +201,30 @@ public class PosQGramFilterDPTest {
 				posSet.add( j+1 );
 				i = failure[i-1];
 			}
+		}
+		return posSet;
+	}
+
+	public Int2ObjectOpenHashMap<IntOpenHashSet> isPrefixSubArrayOf( int[] pat, int[] failure, int[] seq ) {
+		/*
+		 * Search all prefixes of pat in seq, and return the positions of occurrences.
+		 * A position x in the result means that seq[x-len(pat):x] matches the pattern.
+		 */
+		Int2ObjectOpenHashMap<IntOpenHashSet> posSet = new Int2ObjectOpenHashMap<IntOpenHashSet>();
+		posSet.defaultReturnValue( new IntOpenHashSet() );
+		int i = 0;
+		for ( int j=0; j<seq.length; j++ ) {
+			while ( i > 0 && pat[i] != seq[j] ) i = failure[i-1];
+			if ( pat[i] == seq[j] ) ++i;
+			if ( i > 0 ) {
+				int k = i;
+				while ( k > 0 && pat[k-1] == seq[j] ) {
+					if ( !posSet.containsKey( k ) ) posSet.put( k, new IntOpenHashSet() );
+					posSet.get( k ).add( j+1 );
+					k = failure[k-1];
+				}
+			}
+			if ( i == pat.length ) i = failure[i-1];
 		}
 		return posSet;
 	}
