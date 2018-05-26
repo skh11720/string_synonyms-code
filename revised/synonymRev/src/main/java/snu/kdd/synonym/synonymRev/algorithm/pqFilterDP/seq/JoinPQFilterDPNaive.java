@@ -230,6 +230,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	}
 	
 	protected ObjectArrayList<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
+		// Since the algorithm is "Naive", the input record is not used.
 		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = new ObjectArrayList<WYK_HashSet<QGram>>();
 		for ( int pos=0; pos<indexK; pos++ ) {
 			candidatePQGrams.add( new WYK_HashSet<QGram>() );

@@ -143,7 +143,7 @@ public abstract class AbstractPosQGramFilterDP {
 	
 	protected int isSubstringOf(final int[] pat, final int end, final int[] seq) {
 		/*
-		 * Return the start position of pat[start:end] if pat[start:end] iGs a substring of seq; otherwise return -1.
+		 * Return the start position of pat[start:end] if pat[start:end] is a substring of seq; otherwise return -1.
 		 * Current implementation is naive: takes O(|pat|*|seq|).
 		 * TODO: Need to be improved later!! (use AC automata)
 		 */
