@@ -9,6 +9,7 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
@@ -70,6 +71,11 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		qgramSize = params.qgramSize;
 		useLF = params.useLF;
 		useTopDown = params.useTopDown;
+
+		indexPosition = new int[ indexK ];
+		for( int i = 0; i < indexK; i++ ) {
+			indexPosition[ i ] = i;
+		}
 
 		if( query.oneSideJoin ) checker = new TopDownOneSide();
 		else checker = new TopDown(); 
@@ -159,10 +165,6 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		int[] indexPosition = new int[ indexK ];
-		for( int i = 0; i < indexK; i++ ) {
-			indexPosition[ i ] = i;
-		}
 		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 	}
 	
@@ -185,7 +187,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 			for ( QGram qgram : candidatePQGrams.get( pos ) ) {
 				checkTPQ++;
 				long startDPTime = System.nanoTime();
-				Boolean isInTPQ = ((NaiveDP)filter).existence( qgram, pos );
+				Boolean isInTPQ = ((NaiveDP)filter).existence( qgram, indexPosition[pos] );
 				dpTime += System.nanoTime() - startDPTime;
 				if (isInTPQ) {
 					for ( Record recT : idx.get( pos ).get( qgram ) ) {
