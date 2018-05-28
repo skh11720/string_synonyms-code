@@ -92,7 +92,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 
-		final Set<IntegerPair> list = runAfterPreprocess( true );
+		final List<IntegerPair> list = runAfterPreprocess( true );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
@@ -103,7 +103,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		checker.addStat( stat );
 	}
 
-	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
+	public List<IntegerPair> runAfterPreprocess( boolean addStat ) {
 		// Index building
 		StopWatch stepTime = null;
 		if( addStat ) {
@@ -132,7 +132,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		}
 
 		// Join
-		final Set<IntegerPair> rslt = join( stat, query, addStat );
+		final List<IntegerPair> rslt = join( stat, query, addStat );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -142,8 +142,8 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		return rslt;
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet <IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public List<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
+		ObjectArrayList <IntegerPair> rslt = new ObjectArrayList<IntegerPair>();
 		
 		for ( int sid=0; sid<query.searchedSet.size(); sid++ ) {
 			if ( !query.oneSideJoin ) {
@@ -168,7 +168,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 	}
 	
-	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
+	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
 		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );

@@ -31,7 +31,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 	}
 	
 	@Override
-	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
+	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 
 		Boolean debug = false;
 //		if ( recS.getID() == 1901 ) debug = true;

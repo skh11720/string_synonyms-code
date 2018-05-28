@@ -88,7 +88,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 
-		final Set<IntegerPair> rslt = runAfterPreprocess( true );
+		final List<IntegerPair> rslt = runAfterPreprocess( true );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
@@ -99,7 +99,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		checker.addStat( stat );
 	}
 
-	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
+	public List<IntegerPair> runAfterPreprocess( boolean addStat ) {
 		// Index building
 		StopWatch stepTime = null;
 		if( addStat ) {
@@ -128,7 +128,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 
 		// Join
-		final Set<IntegerPair> rslt = join( stat, query, true );
+		final List<IntegerPair> rslt = join( stat, query, true );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -155,8 +155,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 		idx = new PkduckIndex( query, stat, globalOrder, addStat );
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public List<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
+		ObjectArrayList <IntegerPair> rslt = new ObjectArrayList<IntegerPair>();
 		
 		for ( int sid=0; sid<query.searchedSet.size(); sid++ ) {
 			if ( !query.oneSideJoin ) {
@@ -177,7 +177,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
+	private void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
 		final int[][] transLen = recS.getTransLengthsAll();
 		Int2ObjectOpenHashMap<IntOpenHashSet> candidateTokens = new Int2ObjectOpenHashMap<IntOpenHashSet>();
