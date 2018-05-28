@@ -10,6 +10,7 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveDP {
 	
 	protected Boolean[][][] bGen;
+	Boolean debug = false;
 	
 	public PosQGramFilterDP(final Record record, final int q) {
 		super( record, q );
@@ -24,7 +25,8 @@ public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveD
 		 * The return value is equal to bGen[record.size()][q].
 		 */
 		
-		final Boolean debug = false;
+		debug = false;
+//		if ( record.getID() == 1458 && Arrays.equals( qgram.qgram, new int[] {27840, 21051, 4788} )) debug = true;
 		
 		// trivial case
 		if (record.getMaxTransLength() <= k ) return false;

@@ -9,6 +9,7 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
@@ -179,6 +180,10 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(-1);
 		int[] range = recS.getTransLengths();
+		
+		boolean debug = false;
+//		if (recS.getID() == 1458) debug = true;
+		if (debug) SampleDataTest.inspect_record( recS, query, qgramSize );
 
 		// Scan the index and verify candidate record pairs.
 		for ( int pos=0; pos<indexK; pos++ ) {
