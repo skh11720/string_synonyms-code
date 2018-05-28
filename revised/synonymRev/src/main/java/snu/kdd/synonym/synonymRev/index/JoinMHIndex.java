@@ -1,8 +1,10 @@
 package snu.kdd.synonym.synonymRev.index;
 
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -634,5 +636,22 @@ public class JoinMHIndex {
 			n += joinMHIndex.get( i ).size();
 		}
 		return n;
+	}
+	
+	public void writeToFile() {
+		try { 
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "tmp/JoinMHIndex.txt" ) ); 
+			for ( int pos=0; pos<joinMHIndex.size(); ++pos ) {
+				bw.write( "pos: "+indexPosition[pos]+"\n" );
+				for ( Map.Entry<QGram, List<Record>> entry : joinMHIndex.get( pos ).entrySet() ) {
+					bw.write( "qgram: "+entry.getKey()+"\n" );
+					for ( Record rec : entry.getValue() ) {
+						bw.write( Arrays.toString( rec.getTokensArray() ) + "\n");
+					}
+				}
+			}
+			bw.flush();
+		}
+		catch (IOException e ) { e.printStackTrace(); }
 	}
 }

@@ -3,9 +3,9 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 import java.util.Arrays;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
@@ -42,6 +42,7 @@ public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveD
 		 * bGen[1][i][j] is true iff there is a transformed string o s[1,i] which "generates" [g[1,j], k].
 		 */
 		init_bGen();
+		failure = prepare_search( qgram.qgram );
 		
 		validRules.clear();
 		IntOpenHashSet qgramTokenSet = new IntOpenHashSet(qgram.qgram);
@@ -132,8 +133,17 @@ public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveD
 			}
 			
 			// Case 1-4
-			int start = isSubstringOf( qgram.qgram, j, rule.getRight());
-			if (start != -1 && getBTransLen(i_back, k-start)) return true;
+			
+			// the previous implementation
+//			int start = isSubstringOf( qgram.qgram, j, rule.getRight());
+//			if (start != -1 && getBTransLen(i_back, k-start)) return true;
+
+			// the new implementation
+			IntArrayList posList = isPrefixSubArrayOf( qgram.qgram, failure, j, rule.getRight() );
+			for ( int pos : posList ) {
+				int start = pos - j;
+				if (start != -1 && getBTransLen(i_back, k-start)) return true;
+			}
 	//		if (debug) System.out.println( "case 3: "+bGen[1][i][j]+"\t"+start);
 	//		if (debug) System.out.println( Arrays.toString( qgram.qgram )+"\t"+Arrays.toString( rule.getRight() ));
 		}

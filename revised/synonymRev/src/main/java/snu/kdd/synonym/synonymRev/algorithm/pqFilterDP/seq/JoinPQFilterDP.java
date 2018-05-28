@@ -16,6 +16,7 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 	private JoinPQFilterDP alg;
 	protected ParamPQFilterDP params;
 	protected Boolean useTopDown;
+	protected int[] indexPosition;
 
 	public JoinPQFilterDP( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
