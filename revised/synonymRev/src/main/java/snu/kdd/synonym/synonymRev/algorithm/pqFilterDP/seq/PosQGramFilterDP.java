@@ -2,10 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.util.Arrays;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
@@ -14,7 +11,6 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveDP {
 	
 	protected Boolean[][][] bGen;
-	protected Int2ObjectOpenHashMap<ObjectArrayList<Rule>> validRules = new Int2ObjectOpenHashMap<ObjectArrayList<Rule>>();
 	Boolean debug = false;
 	
 	public PosQGramFilterDP(final Record record, final int q) {
@@ -43,24 +39,7 @@ public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveD
 		 */
 		init_bGen();
 		failure = prepare_search( qgram.qgram );
-		
-		validRules.clear();
-		IntOpenHashSet qgramTokenSet = new IntOpenHashSet(qgram.qgram);
-		for ( int i=0; i<record.size(); ++i ) {
-			for ( Rule rule : record.getSuffixApplicableRules( i ) ) {
-				boolean isValid = false;
-				for ( int rhs_token : rule.getRight() ) {
-					if ( qgramTokenSet.contains( rhs_token ) ) {
-						isValid = true;
-						break;
-					}
-				}
-				if (isValid) {
-					if ( !validRules.containsKey( i ) ) validRules.put( i, new ObjectArrayList<Rule>() );
-					validRules.get( i ).add( rule );
-				}
-			}
-		}
+		setValidRules(qgram);
 		
 		// bottom-up recursion
 		for (int i=1; i<=record.size(); i++) {

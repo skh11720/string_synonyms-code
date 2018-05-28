@@ -6,6 +6,7 @@ import java.util.Random;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
@@ -16,7 +17,7 @@ public abstract class AbstractPosQGramFilterDP {
 	protected Boolean[][] bTransLen;
 	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
 	protected int[] failure;
-	protected Int2ObjectOpenHashMap<IntOpenHashSet> posSet;
+	protected Int2ObjectOpenHashMap<ObjectArrayList<Rule>> validRules = new Int2ObjectOpenHashMap<ObjectArrayList<Rule>>();
 	
 	public AbstractPosQGramFilterDP(final Record record, final int q) {
 		this.record = record;
@@ -196,6 +197,26 @@ public abstract class AbstractPosQGramFilterDP {
 			}
 		}
 		return posList;
+	}
+
+	protected void setValidRules(QGram qgram) {
+		validRules.clear();
+		IntOpenHashSet qgramTokenSet = new IntOpenHashSet(qgram.qgram);
+		for ( int i=0; i<record.size(); ++i ) {
+			for ( Rule rule : record.getSuffixApplicableRules( i ) ) {
+				boolean isValid = false;
+				for ( int rhs_token : rule.getRight() ) {
+					if ( qgramTokenSet.contains( rhs_token ) ) {
+						isValid = true;
+						break;
+					}
+				}
+				if (isValid) {
+					if ( !validRules.containsKey( i ) ) validRules.put( i, new ObjectArrayList<Rule>() );
+					validRules.get( i ).add( rule );
+				}
+			}
+		}
 	}
 }
 

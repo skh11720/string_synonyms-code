@@ -81,7 +81,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 				int token = ipair.i1;
 				int depth = ipair.i2;
 				long startDPTime = System.nanoTime();
-				Boolean isInTPQ = ((IncrementalDP)filter).existence( token, depth, pos );
+				Boolean isInTPQ = ((IncrementalDP)filter).existence( token, depth, indexPosition[pos] );
 				dpTime += System.nanoTime() - startDPTime;
 				if (debug && depth == qgramSize) System.out.println( "["+Arrays.toString( ((IncrementalDP)filter ).getQGram() ) + ", "+pos+"] , "+isInTPQ );
 				if (isInTPQ && depth == qgramSize) {
