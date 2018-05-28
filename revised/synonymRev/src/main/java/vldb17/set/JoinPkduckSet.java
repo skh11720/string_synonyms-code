@@ -247,18 +247,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		for (Record recOther : candidateAfterLF ) {
 			int comp = checker.isEqual( rec, recOther );
 //			if (debug) System.out.println( "compare "+rec.getID()+" and "+recOther.getID()+": "+comp );
-			if (comp >= 0) {
-				if ( query.selfJoin ) {
-					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
-					int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
-					rslt.add( new IntegerPair( id_smaller, id_larger) );
-				}
-				else {
-					if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
-					else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
-					else throw new RuntimeException("Unexpected error");
-				}
-			}
+			if (comp >= 0) addSetResult( rec, recOther, rslt, idx == idxT );
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		

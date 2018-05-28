@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -229,6 +230,29 @@ public abstract class AlgorithmTemplate {
 		}
 		catch( IOException e ) {
 			e.printStackTrace();
+		}
+	}
+	
+	protected void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt ) {
+		if ( query.selfJoin ) {
+			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
+			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();
+			rslt.add( new IntegerPair( id_smaller, id_larger) );
+		}
+		else rslt.add( new IntegerPair(rec1.getID(), rec2.getID()) );
+	}
+	
+	protected void addSetResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean leftFromS ) {
+		if ( query.selfJoin ) {
+			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
+			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();
+			rslt.add( new IntegerPair( id_smaller, id_larger) );
+		}
+		else {
+			// idx == idxT
+			if ( leftFromS ) rslt.add( new IntegerPair( rec1.getID(), rec2.getID()) );
+			// idx == idxS
+			else rslt.add( new IntegerPair( rec2.getID(), rec1.getID()) );
 		}
 	}
 }

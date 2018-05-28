@@ -96,8 +96,8 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 		long afterFilteringTime = System.currentTimeMillis();
 
 		for ( Record recT : candidatesAfterDP ) {
-			if ( checker.isEqual( recS, recT ) >= 0 ) 
-				rslt.add( new IntegerPair( recS.getID(), recT.getID()) );
+			int comp = checker.isEqual( recS, recT );
+			if ( comp >= 0 ) addSeqResult( recS, recT, rslt );
 		}
 
 		long afterValidateTime = System.currentTimeMillis();

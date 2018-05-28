@@ -21,18 +21,17 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 	}
 
 	@Override
-	public Boolean isInSigU( QGram target_qgram, int k ) {
+	public Boolean isInSigU( int target_token, int k ) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
 		 */
 		
-		this.target_qgram = target_qgram;
 		this.k = k;
 		g.clear();
 
 		// build the rule compression map.
-		rcTable = getRCTable( rec, target_qgram, k );
+		rcTable = getRCTable( rec, target_token, k );
 		
 		for (int l=1; l<=len_max_s; l++) {
 			int val = isInSigURecursive( rec.size(), l, 1 );
@@ -53,8 +52,8 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 		if ( g.containsKey( key ) ) return g.getInt( key );
 
 		// recursion.
-		QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-		int comp = globalOrder.compare( current_qgram.qgram, i-1, target_qgram.qgram, k );
+		int current_token = tokens[i-1];
+		int comp = globalOrder.compare( current_token, i-1, target_token, k );
 		if ( o == 0 ) {
 			// compute g[0][i][l].
 //				System.out.println( "comp: "+comp );
@@ -89,7 +88,7 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 		return g.getInt( key );
 	}
 
-	private Map<IntegerPair, Map<IntegerPair, int[]>> getRCTable( Record rec, QGram target_qgram, int k ) {
+	private Map<IntegerPair, Map<IntegerPair, int[]>> getRCTable( Record rec, int target_token, int k ) {
 		/*
 		 * Return the Rule Compression Table.
 		 * The table consists of two cascaded map.
@@ -109,9 +108,9 @@ public class PkduckDPTopDownWithRC extends PkduckDPTopDown {
 					Boolean isValidF = true;
 					Boolean isValidT = false;
 					for ( int j=0; j<rhs.length; j++ ) {
-						isValidF &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
-						isValidT |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-						num_smaller += globalOrder.compare( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+						isValidF &= !(target_token == rhs[j] && l-rhs.length+j == k); 
+						isValidT |= target_token == rhs[j]  && l-rhs.length+j == k;
+						num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )==-1?1:0;
 					}
 					int aside = rule.leftSize();
 					int wside = rule.rightSize();

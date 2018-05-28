@@ -1,11 +1,10 @@
 package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
-import java.util.Arrays;
-
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class PosQGramFilterDPTopDown extends AbstractPosQGramFilterDP implements NaiveDP {
 	
@@ -62,7 +61,7 @@ public class PosQGramFilterDPTopDown extends AbstractPosQGramFilterDP implements
 				// Case 0-1
 				// TODO: can be improved
 				for (int j_start=0; j_start<j; j_start++) {
-					if ( Arrays.equals( Arrays.copyOfRange( qgram, j_start, j ), rule.getRight() ) ) {
+					if ( Util.equalsToSubArray( qgram, j_start, j, rule.getRight() ) ) {
 						if ( existenceRecursive(i_back, j_start, o) ) return returnOutput( true, i, j, o );
 					}
 				}

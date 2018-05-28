@@ -124,6 +124,7 @@ public abstract class AbstractPosQGramFilterDP {
 		/*
 		 * Return true if pat[start:end] is a prefix of seq; otherwise return false.
 		 */
+		if ( start >= end ) throw new RuntimeException("start must be smaller than end.");
 		if (end - start > seq.length ) return false;
 		for (int i=start; i<end; i++)
 			if (pat[i] != seq[i-start]) return false;
@@ -142,7 +143,7 @@ public abstract class AbstractPosQGramFilterDP {
 	
 	protected int isSubstringOf(final int[] pat, final int end, final int[] seq) {
 		/*
-		 * Return the start position of pat[start:end] if pat[start:end] iGs a substring of seq; otherwise return -1.
+		 * Return the start position of pat[start:end] if pat[start:end] is a substring of seq; otherwise return -1.
 		 * Current implementation is naive: takes O(|pat|*|seq|).
 		 * TODO: Need to be improved later!! (use AC automata)
 		 */

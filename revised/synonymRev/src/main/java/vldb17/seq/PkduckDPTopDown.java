@@ -15,28 +15,28 @@ public class PkduckDPTopDown {
 	protected final AbstractGlobalOrder globalOrder;
 
 	protected Object2IntOpenHashMap<IntTriple> g;
-	protected List<List<QGram>> availableQGrams;
 	protected static final int inf = Integer.MAX_VALUE/2;
-	protected QGram target_qgram;
+	protected int target_token;
 	protected int k;
 	protected Record rec;
 	protected final int len_max_s;
+	protected final int[] tokens;
 	
 	public PkduckDPTopDown( Record rec, AbstractGlobalOrder globalOrder) {
 		this.rec = rec;
 		this.globalOrder = globalOrder;
 		this.len_max_s = rec.getMaxTransLength();
-		availableQGrams = rec.getSelfQGrams( 1, rec.size() );
+		tokens = rec.getTokensArray();
 		g = new Object2IntOpenHashMap<IntTriple>();
 	}
 	
-	public Boolean isInSigU( QGram target_qgram, int k) {
+	public Boolean isInSigU( int target_token, int k) {
 		/*
 		 * Compute g[o][i][l] for o=0,1, i=0~|rec|, l=0~max(|recS|).
 		 * g[1][i][l] is X_l in the MIT paper.
 		 */
 		
-		this.target_qgram = target_qgram;
+		this.target_token = target_token;
 		this.k = k;
 		g.clear();
 
@@ -63,8 +63,8 @@ public class PkduckDPTopDown {
 		if ( g.containsKey( key ) ) return g.getInt( key );
 		
 		// recursion.
-		QGram current_qgram = availableQGrams.get( i-1 ).get( 0 );
-		int comp = globalOrder.compare( current_qgram.qgram, i-1, target_qgram.qgram, k );
+		int current_token = tokens[i-1];
+		int comp = globalOrder.compare( current_token, i-1, target_token, k );
 		if ( o == 0 ) {
 			// compute g[0][i][l].
 //				System.out.println( "comp: "+comp );
@@ -79,8 +79,8 @@ public class PkduckDPTopDown {
 				Boolean isValid = true;
 				for (int j=0; j<rhs.length; j++) {
 					// check whether the rule does not generate [target_token, k].
-					isValid &= !(target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k); 
-					num_smaller += globalOrder.compare( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+					isValid &= !(target_token == rhs[j] && l-rhs.length+j == k); 
+					num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )==-1?1:0;
 				}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );
@@ -101,8 +101,8 @@ public class PkduckDPTopDown {
 				Boolean isValid = false;
 				for (int j=0; j<rhs.length; j++) {
 					// check whether the rule generates [target_token, k].
-					isValid |= target_qgram.equals( Arrays.copyOfRange( rhs, j, j+1 ) ) && l-rhs.length+j == k;
-					num_smaller += globalOrder.compare( Arrays.copyOfRange( rhs, j, j+1 ), l-rhs.length+j, target_qgram.qgram, k )==-1?1:0;
+					isValid |= target_token == rhs[j] && l-rhs.length+j == k;
+					num_smaller += globalOrder.compare( rhs[j], l-rhs.length+j, target_token, k )==-1?1:0;
 				}
 //					System.out.println( "isValid: "+isValid );
 //					System.out.println( "num_smaller: "+num_smaller );

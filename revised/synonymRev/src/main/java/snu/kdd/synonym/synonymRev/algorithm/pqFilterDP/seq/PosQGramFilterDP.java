@@ -2,13 +2,20 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.util.Arrays;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveDP {
 	
 	protected Boolean[][][] bGen;
+	protected Int2ObjectOpenHashMap<ObjectArrayList<Rule>> validRules = new Int2ObjectOpenHashMap<ObjectArrayList<Rule>>();
+	Boolean debug = false;
 	
 	public PosQGramFilterDP(final Record record, final int q) {
 		super( record, q );
@@ -23,7 +30,8 @@ public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveD
 		 * The return value is equal to bGen[record.size()][q].
 		 */
 		
-		final Boolean debug = false;
+		debug = false;
+//		if ( record.getID() == 1458 && Arrays.equals( qgram.qgram, new int[] {27840, 21051, 4788} )) debug = true;
 		
 		// trivial case
 		if (record.getMaxTransLength() <= k ) return false;
@@ -34,6 +42,24 @@ public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveD
 		 * bGen[1][i][j] is true iff there is a transformed string o s[1,i] which "generates" [g[1,j], k].
 		 */
 		init_bGen();
+		
+		validRules.clear();
+		IntOpenHashSet qgramTokenSet = new IntOpenHashSet(qgram.qgram);
+		for ( int i=0; i<record.size(); ++i ) {
+			for ( Rule rule : record.getSuffixApplicableRules( i ) ) {
+				boolean isValid = false;
+				for ( int rhs_token : rule.getRight() ) {
+					if ( qgramTokenSet.contains( rhs_token ) ) {
+						isValid = true;
+						break;
+					}
+				}
+				if (isValid) {
+					if ( !validRules.containsKey( i ) ) validRules.put( i, new ObjectArrayList<Rule>() );
+					validRules.get( i ).add( rule );
+				}
+			}
+		}
 		
 		// bottom-up recursion
 		for (int i=1; i<=record.size(); i++) {
@@ -61,15 +87,16 @@ public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveD
 		/*
 		 * Compute bGen[0][i][j] and return the result.
 		 */
-	
-		for (final Rule rule : record.getSuffixApplicableRules( i-1 )) {
+		
+		if ( !validRules.containsKey( i-1 ) ) return false;
+		for (final Rule rule : validRules.get( i-1 ) ) {
 			int i_back = i - rule.leftSize();
 			assert i_back >= 0;
 			
 			// Case 0-1
 			// TODO: can be improved
 			for (int j_start=0; j_start<j; j_start++) {
-				if ( Arrays.equals( Arrays.copyOfRange( qgram.qgram, j_start, j ), rule.getRight() ) ) if (bGen[0][i_back][j_start]) return true;
+				if ( Util.equalsToSubArray( qgram.qgram, j_start, j, rule.getRight() ) ) if (bGen[0][i_back][j_start]) return true;
 			}
 			
 			// Case 0-2
@@ -92,7 +119,11 @@ public class PosQGramFilterDP extends AbstractPosQGramFilterDP implements NaiveD
 			
 			// Case 1-2
 			if (bGen[1][i_back][j]) return true;
-			
+		}	
+
+		if ( !validRules.containsKey( i-1 ) ) return false;
+		for (final Rule rule : validRules.get( i-1 )) {
+			int i_back = i - rule.leftSize();
 			// Case 1-3
 			// TODO: can be improved
 			for (int j_start=0; j_start<j; j_start++) {

@@ -241,20 +241,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 						long startValidateTime = System.nanoTime();
 						int comp = checker.isEqual( recS, recT );
 						validateTime += System.nanoTime() - startValidateTime;
-						if (comp >= 0) {
-	//						System.out.println( recS+", "+recT );
-	//						List<Record> expList = recS.expandAll();
-	//						for (Record exp : expList) {
-	//							System.out.println( exp );
-	//						}
-	//						System.out.println(  );
-							if ( query.selfJoin ) {
-								int id_smaller = recS.getID() < recT.getID()? recS.getID() : recT.getID();
-								int id_larger = recS.getID() >= recT.getID()? recS.getID() : recT.getID();
-								rslt.add( new IntegerPair( id_smaller, id_larger) );
-							}
-							else rslt.add( new IntegerPair(recS.getID(), recT.getID()) );
-						}
+						if (comp >= 0) addSeqResult( recS, recT, rslt );
 					}
 				}
 			}

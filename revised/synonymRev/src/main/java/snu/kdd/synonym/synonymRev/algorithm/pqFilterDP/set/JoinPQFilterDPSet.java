@@ -272,18 +272,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 					continue;
 				}
 			}
-			if ( checker.isEqual( rec, recOther ) >= 0 ) {
-				if ( query.selfJoin ) {
-					int id_smaller = rec.getID() < recOther.getID()? rec.getID() : recOther.getID();
-					int id_larger = rec.getID() >= recOther.getID()? rec.getID() : recOther.getID();
-					rslt.add( new IntegerPair( id_smaller, id_larger) );
-				}
-				else {
-					if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), recOther.getID()) );
-					else if ( idx == idxS ) rslt.add( new IntegerPair( recOther.getID(), rec.getID()) );
-					else throw new RuntimeException("Unexpected error");
-				}
-			}
+			int comp = checker.isEqual( rec, recOther );
+			if ( comp >= 0 ) addSetResult( rec, recOther, rslt, idx == idxT );
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		
