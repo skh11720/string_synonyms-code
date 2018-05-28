@@ -21,10 +21,6 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 
 	@Override
 	protected void buildIndex( boolean writeResult ) {
-		int[] indexPosition = new int[ indexK ];
-		for( int i = 0; i < indexK; i++ ) {
-			indexPosition[ i ] = i;
-		}
 		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 		buildMapToken2qgram();
 	}

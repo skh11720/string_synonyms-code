@@ -143,7 +143,7 @@ public class PosQGramFilterDPTest {
 			System.out.println( Arrays.toString( seq ) );
 			
 			// answer by this.isPrefixSubArrayOf
-			Int2ObjectOpenHashMap<IntOpenHashSet> posSet2 = isPrefixSubArrayOf( pat, failure, seq );
+			Int2ObjectOpenHashMap<IntOpenHashSet> posSet2 = isPrefixSubArrayOfAll( pat, failure, seq );
 			
 			for ( int i=1; i<=patLen; ++i ) { // search pat[0:i], right exclusive
 				// true answer
@@ -205,7 +205,25 @@ public class PosQGramFilterDPTest {
 		return posSet;
 	}
 
-	public Int2ObjectOpenHashMap<IntOpenHashSet> isPrefixSubArrayOf( int[] pat, int[] failure, int[] seq ) {
+	public IntOpenHashSet isPrefixSubArrayOf( int[] pat, int[] failure, int end, int[] seq ) {
+		/*
+		 * Search pat[0,end) in seq, and return the positions of occurrences.
+		 * A position x in the result means that seq[x-len(pat):x] matches the pattern.
+		 */
+		IntOpenHashSet posSet = new IntOpenHashSet();
+		int i = 0;
+		for ( int j=0; j<seq.length; j++ ) {
+			while ( i > 0 && pat[i] != seq[j] ) i = failure[i-1];
+			if ( pat[i] == seq[j] ) ++i;
+			if ( i == end ) {
+				posSet.add( j+1 );
+				i = failure[i-1];
+			}
+		}
+		return posSet;
+	}
+
+	public Int2ObjectOpenHashMap<IntOpenHashSet> isPrefixSubArrayOfAll( int[] pat, int[] failure, int[] seq ) {
 		/*
 		 * Search all prefixes of pat in seq, and return the positions of occurrences.
 		 * A position x in the result means that seq[x-len(pat):x] matches the pattern.
