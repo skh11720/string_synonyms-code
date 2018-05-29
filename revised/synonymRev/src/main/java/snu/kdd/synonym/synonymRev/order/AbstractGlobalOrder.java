@@ -32,6 +32,9 @@ abstract public class AbstractGlobalOrder {
 	protected final int qgramSize;
 	protected int nEntry;
 	protected int max_pos = 0;
+
+	protected static final boolean bGlobalOrderWriteToFile = true;
+	protected static final boolean bCounterWriteToFile = true;
 	
 	public AbstractGlobalOrder( int qgramSize) {
 		this.qgramSize = qgramSize;
@@ -50,20 +53,23 @@ abstract public class AbstractGlobalOrder {
 	public void initializeForSequence( Query query, boolean indexByOrder ) {
 		count( query.searchedSet.recordList, true );
 		if ( !query.selfJoin ) count( query.indexedSet.recordList, false );
-//		try {
-//			BufferedWriter bw = new BufferedWriter( new FileWriter( "tmp/counter.txt" ) );
-//			for ( Object key : counter.keySet() ) {
-//				bw.write( key.toString() +": "+counter.getInt( key )+"\n");
-//			}
-//			bw.flush();
-//		}
-//		catch ( IOException e ) {}
+		if ( bCounterWriteToFile ) {
+			try {
+				BufferedWriter bw = new BufferedWriter( new FileWriter( "tmp/counter.txt" ) );
+				for ( Object key : counter.keySet() ) {
+					bw.write( key.toString() +": "+counter.getInt( key )+"\n");
+				}
+				bw.flush();
+			}
+			catch ( IOException e ) {}
+		}
 		buildOrderMap();
 		if ( indexByOrder ) {
 			IntOpenHashSet converted = new IntOpenHashSet();
 			indexByOrder( query.searchedSet.recordList, true, converted );
 			if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
 		}
+		if ( bGlobalOrderWriteToFile ) writeToFile();
 	}
 
 	public void initializeForSet( Query query ) {
@@ -78,7 +84,6 @@ abstract public class AbstractGlobalOrder {
 	protected void indexByOrder( List<Record> recordList, boolean expand, IntOpenHashSet converted ) {
 		if ( qgramSize > 1 ) throw new RuntimeException("Unexpected error");
 		for ( Record rec : recordList ) {
-			max_pos = Math.max( max_pos, rec.getMaxTransLength() );
 //			Boolean debug = false;
 //			if ( rec.getID() == 11487 ) debug = true;
 //			if (debug) System.out.println( "ID: "+rec.getID() );
@@ -131,13 +136,17 @@ abstract public class AbstractGlobalOrder {
 	protected void countQGrams( List<Record> recordList, boolean expand ) {
 		Object2IntOpenHashMap<QGram> _counter = (Object2IntOpenHashMap<QGram>)counter;
 		for ( Record rec : recordList ) {
+			max_pos = Math.max( max_pos, rec.getMaxTransLength() );
 			List<List<QGram>> selfQGrams = rec.getSelfQGrams( qgramSize, rec.size() );
 			for ( int i=0; i<rec.size(); i++ ) {
 				if ( expand ) {
 					for ( Rule rule : rec.getSuffixApplicableRules( i ) ) {
 						int[] rhs = rule.getRight();
-						for ( int j=0; j<rhs.length+1-qgramSize; j++ ) {
-							QGram qgram = new QGram( Arrays.copyOfRange( rhs, j, j+qgramSize ));
+						int[] rhs_padded = new int[rule.rightSize()+qgramSize-1];
+						for (int j=0; j<rhs.length; ++j ) rhs_padded[j] = rhs[j];
+						for ( int j=rhs.length; j<rhs_padded.length; ++j ) rhs_padded[j] = Integer.MAX_VALUE;
+						for ( int j=0; j<rhs.length; j++ ) {
+							QGram qgram = new QGram( Arrays.copyOfRange( rhs_padded, j, j+qgramSize ));
 							_counter.put( qgram, _counter.getInt( qgram )+1 );
 						}
 					}
@@ -152,6 +161,7 @@ abstract public class AbstractGlobalOrder {
 	protected void countTokens( List<Record> recordList, boolean expand ) {
 		Object2IntOpenHashMap<Integer> _counter = (Object2IntOpenHashMap<Integer>)counter;
 		for ( Record rec : recordList ) {
+			max_pos = Math.max( max_pos, rec.getMaxTransLength() );
 			int[] tokens = rec.getTokensArray();
 			for ( int i=0; i<rec.size(); i++ ) {
 				if ( expand ) {
