@@ -3,22 +3,20 @@ package vldb17.seq;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
-import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -56,7 +54,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		for (Record rec : query.searchedSet.get()) {
 			rec.preprocessSuffixApplicableRules();
 		}
-		globalOrder.initializeForSequence( query );
+		globalOrder.initializeForSequence( query, true );
 
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {

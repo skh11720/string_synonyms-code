@@ -47,7 +47,7 @@ abstract public class AbstractGlobalOrder {
 		}
 	}
 	
-	public void initializeForSequence( Query query ) {
+	public void initializeForSequence( Query query, boolean indexByOrder ) {
 		count( query.searchedSet.recordList, true );
 		if ( !query.selfJoin ) count( query.indexedSet.recordList, false );
 //		try {
@@ -59,9 +59,11 @@ abstract public class AbstractGlobalOrder {
 //		}
 //		catch ( IOException e ) {}
 		buildOrderMap();
-		IntOpenHashSet converted = new IntOpenHashSet();
-		indexByOrder( query.searchedSet.recordList, true, converted );
-		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
+		if ( indexByOrder ) {
+			IntOpenHashSet converted = new IntOpenHashSet();
+			indexByOrder( query.searchedSet.recordList, true, converted );
+			if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
+		}
 	}
 
 	public void initializeForSet( Query query ) {
@@ -203,6 +205,43 @@ abstract public class AbstractGlobalOrder {
 			orderMap.put( entry.getKey(), i );
 		}
 		return orderMap;
+	}
+	
+	public void writeToFile() {
+		BufferedWriter bw;
+		// counter
+		try {
+			bw = new BufferedWriter( new FileWriter( "./tmp/counter.txt" ) );
+			Stream<?> stream = counter.entrySet().stream().sorted( Map.Entry.comparingByValue() );
+			Iterator<Entry<?, Integer>> iter = (Iterator<Entry<?, Integer>>) stream.iterator();
+			for ( int i=0; i<counter.size(); i++ ) {
+				Entry<?, Integer> entry = iter.next();
+				bw.write( entry.getKey()+": "+entry.getValue()+"\n" );
+			}
+			bw.flush();
+			bw.close();
+		}
+		catch ( IOException e ) {}
+		
+		// orderMap
+		try {
+			bw = new BufferedWriter( new FileWriter( "./tmp/orderMap.txt" ) );
+			for ( Entry<?, Integer> entry : orderMap.entrySet() ) {
+				bw.write( entry.getKey()+": "+entry.getValue()+"\n" );
+			}
+			bw.flush();
+			bw.close();
+		}
+		catch ( IOException e ) {}
+//		orderMap.entrySet()
+//		Stream<?> stream = counter.entrySet().stream().sorted( Map.Entry.comparingByValue() );
+//		Iterator<Entry<?, Integer>> iter = (Iterator<Entry<?, Integer>>) stream.iterator();
+////		System.out.println( "Counter size: "+counter.size() );
+//		for ( int i=0; i<counter.size(); i++ ) {
+//			Entry<?, Integer> entry = iter.next();
+//			if( qgramSize == 1 ) ((Object2IntOpenHashMap<Integer>)orderMap).put( (Integer)entry.getKey(), i );
+//			else ((Object2IntOpenHashMap<QGram>)orderMap).put( (QGram)entry.getKey(), i );
+//		}
 	}
 	
 //	protected Object2IntOpenHashMap orderTokens( Query query ) {
