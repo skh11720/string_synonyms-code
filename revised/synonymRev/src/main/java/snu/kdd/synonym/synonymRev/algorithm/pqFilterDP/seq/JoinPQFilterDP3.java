@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
@@ -39,14 +40,14 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
-		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
+		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
 		// Build mapQGramPrefixList from candidatePQGrams.
 		WYK_HashMap<Integer, ObjectArrayList<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, ObjectArrayList<IntegerPair>>(indexK);
-		for ( int pos=0; pos<indexK; pos++ ) mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
+		for ( int pos : idx.getPosSet() ) mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
 		long afterCandidateTime = System.currentTimeMillis();
 
 		if (debug) {
-			for ( int pos=0; pos<indexK; pos++) {
+			for ( int pos : idx.getPosSet() ) {
 				System.out.println( "pos: "+pos );
 				System.out.println( "\ncandidatePQGrams" );
 				for ( QGram qgram : candidatePQGrams.get( pos ) ) {
@@ -75,7 +76,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		int[] range = recS.getTransLengths();
 
 		// Scan the index and verify candidate record pairs.
-		for ( int pos=0; pos<indexK; pos++ ) {
+		for ( int pos : idx.getPosSet() ) {
 			for ( IntegerPair ipair : mapQGramPrefixList.get( pos )) {
 				checkTPQ++;
 				int token = ipair.i1;
@@ -112,13 +113,13 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		
 		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
-			if ( idx.indexedCountList.getInt( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
+			if ( idx.getIndexedCount( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
 		}
 		long afterFilteringTime = System.currentTimeMillis();
 
 		for ( Record recT : candidatesAfterDP ) {
-			if ( checker.isEqual( recS, recT ) >= 0 ) 
-				rslt.add( new IntegerPair( recS.getID(), recT.getID()) );
+			int comp = checker.isEqual( recS, recT );
+			if ( comp >= 0 ) addSeqResult( recS, recT, rslt );
 		}
 
 		long afterValidateTime = System.currentTimeMillis();

@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class PosQGramFilterDPInc extends PosQGramFilterDP implements IncrementalDP {
 	
@@ -71,7 +72,7 @@ public class PosQGramFilterDPInc extends PosQGramFilterDP implements Incremental
 			// Case 0-1
 			// TODO: can be improved
 			for (int j_start=0; j_start<j; j_start++) {
-				if ( Arrays.equals( Arrays.copyOfRange( qgram, j_start, j ), rule.getRight() ) ) if (bGen[0][i_back][j_start]) return true;
+				if ( Util.equalsToSubArray( qgram, j_start, j, rule.getRight() ) ) if (bGen[0][i_back][j_start]) return true;
 			}
 			
 			// Case 0-2

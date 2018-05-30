@@ -3,6 +3,10 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 import java.util.Arrays;
 import java.util.Random;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
@@ -12,6 +16,8 @@ public abstract class AbstractPosQGramFilterDP {
 	protected final int q;
 	protected Boolean[][] bTransLen;
 	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
+	protected int[] failure;
+	protected Int2ObjectOpenHashMap<ObjectArrayList<Rule>> validRules = new Int2ObjectOpenHashMap<ObjectArrayList<Rule>>();
 	
 	public AbstractPosQGramFilterDP(final Record record, final int q) {
 		this.record = record;
@@ -124,6 +130,7 @@ public abstract class AbstractPosQGramFilterDP {
 		/*
 		 * Return true if pat[start:end] is a prefix of seq; otherwise return false.
 		 */
+		if ( start >= end ) throw new RuntimeException("start must be smaller than end.");
 		if (end - start > seq.length ) return false;
 		for (int i=start; i<end; i++)
 			if (pat[i] != seq[i-start]) return false;
@@ -142,7 +149,7 @@ public abstract class AbstractPosQGramFilterDP {
 	
 	protected int isSubstringOf(final int[] pat, final int end, final int[] seq) {
 		/*
-		 * Return the start position of pat[start:end] if pat[start:end] iGs a substring of seq; otherwise return -1.
+		 * Return the start position of pat[start:end] if pat[start:end] is a substring of seq; otherwise return -1.
 		 * Current implementation is naive: takes O(|pat|*|seq|).
 		 * TODO: Need to be improved later!! (use AC automata)
 		 */
@@ -156,6 +163,60 @@ public abstract class AbstractPosQGramFilterDP {
 			if (res) return i;
 		}
 		return -1;
+	}
+
+	public int[] prepare_search( int[] pat ) {
+		/*
+		 * Create the failure array of pat.
+		 * failure[i] = k means that pat[0:k] is the longest proper suffix of pat[0:i+1].
+		 */
+		int[] failure = new int[pat.length];
+		failure[0] = 0;
+		for ( int i=1; i<pat.length; i++ ) {
+			int j = i;
+			while ( j > 0 && pat[failure[j-1]] != pat[i] ) j = failure[j-1];
+			if ( j == 0 ) failure[i] = 0;
+			else if ( pat[failure[j-1]] == pat[i] ) failure[i] = failure[j-1]+1;
+		}
+		return failure;
+	}
+
+	public IntArrayList isPrefixSubArrayOf( int[] pat, int[] failure, int end, int[] seq ) {
+		/*
+		 * Search pat[0,end) in seq, and return the positions of occurrences.
+		 * A position x in the result means that seq[x-len(pat):x] matches the pattern.
+		 */
+		IntArrayList posList = new IntArrayList();
+		int i = 0;
+		for ( int j=0; j<seq.length; j++ ) {
+			while ( i > 0 && pat[i] != seq[j] ) i = failure[i-1];
+			if ( pat[i] == seq[j] ) ++i;
+			if ( i == end ) {
+				posList.add( j+1 );
+				i = failure[i-1];
+			}
+		}
+		return posList;
+	}
+
+	protected void setValidRules(QGram qgram) {
+		validRules.clear();
+		IntOpenHashSet qgramTokenSet = new IntOpenHashSet(qgram.qgram);
+		for ( int i=0; i<record.size(); ++i ) {
+			for ( Rule rule : record.getSuffixApplicableRules( i ) ) {
+				boolean isValid = false;
+				for ( int rhs_token : rule.getRight() ) {
+					if ( qgramTokenSet.contains( rhs_token ) ) {
+						isValid = true;
+						break;
+					}
+				}
+				if (isValid) {
+					if ( !validRules.containsKey( i ) ) validRules.put( i, new ObjectArrayList<Rule>() );
+					validRules.get( i ).add( rule );
+				}
+			}
+		}
 	}
 }
 

@@ -14,9 +14,9 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
-import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -54,7 +54,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		for (Record rec : query.searchedSet.get()) {
 			rec.preprocessSuffixApplicableRules();
 		}
-		globalOrder.initializeForSequence( query );
+		globalOrder.initializeForSequence( query, true );
 
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {
@@ -154,7 +154,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	}
 	
 	public List<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectArrayList<IntegerPair> rslt = new ObjectArrayList<IntegerPair>();
+		ObjectArrayList <IntegerPair> rslt = new ObjectArrayList<IntegerPair>();
 		
 		for ( int sid=0; sid<query.searchedSet.size(); sid++ ) {
 			if ( !query.oneSideJoin ) {
@@ -239,15 +239,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 						long startValidateTime = System.nanoTime();
 						int comp = checker.isEqual( recS, recT );
 						validateTime += System.nanoTime() - startValidateTime;
-						if (comp >= 0) {
-	//						System.out.println( recS+", "+recT );
-	//						List<Record> expList = recS.expandAll();
-	//						for (Record exp : expList) {
-	//							System.out.println( exp );
-	//						}
-	//						System.out.println(  );
-							rslt.add( new IntegerPair(recS.getID(), recT.getID()) );
-						}
+						if (comp >= 0) addSeqResult( recS, recT, rslt );
 					}
 				}
 			}

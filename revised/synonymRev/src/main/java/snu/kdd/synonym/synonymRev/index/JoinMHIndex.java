@@ -1,8 +1,10 @@
 package snu.kdd.synonym.synonymRev.index;
 
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,8 +28,8 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex {
-	ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
-	public Object2IntOpenHashMap<Record> indexedCountList;
+	protected ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
+	protected Object2IntOpenHashMap<Record> indexedCountList;
 
 	int indexK;
 	int qgramSize;
@@ -628,11 +630,32 @@ public class JoinMHIndex {
 		return joinMHIndex.get( i );
 	}
 
+	public int getIndexedCount( Record rec ) {
+		return indexedCountList.getInt( rec );
+	}
+
 	public int nInvList() {
 		int n = 0;
 		for (int i=0; i<joinMHIndex.size(); i++) {
 			n += joinMHIndex.get( i ).size();
 		}
 		return n;
+	}
+	
+	public void writeToFile() {
+		try { 
+			BufferedWriter bw = new BufferedWriter( new FileWriter( "tmp/JoinMHIndex.txt" ) ); 
+			for ( int pos=0; pos<joinMHIndex.size(); ++pos ) {
+				bw.write( "pos: "+indexPosition[pos]+"\n" );
+				for ( Map.Entry<QGram, List<Record>> entry : joinMHIndex.get( pos ).entrySet() ) {
+					bw.write( "qgram: "+entry.getKey()+"\n" );
+					for ( Record rec : entry.getValue() ) {
+						bw.write( Arrays.toString( rec.getTokensArray() ) + "\n");
+					}
+				}
+			}
+			bw.flush();
+		}
+		catch (IOException e ) { e.printStackTrace(); }
 	}
 }

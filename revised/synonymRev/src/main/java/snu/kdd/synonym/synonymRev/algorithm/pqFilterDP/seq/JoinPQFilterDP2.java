@@ -34,10 +34,10 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		idx = new PQFilterMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 		
 		mapQGramPrefixList = new WYK_HashMap<Integer, ObjectArrayList<IntegerPair>>(indexK);
-		for ( int pos=0; pos<indexK; pos++ ) {
+		for ( int pos : idx.getPosSet() ) {
 			ObjectArrayList<IntegerPair> qgramPrefixList = getQGramPrefixList( idx.get( pos ).keySet() );
 			mapQGramPrefixList.put( pos, qgramPrefixList );
 		}
@@ -58,7 +58,7 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 		int[] range = recS.getTransLengths();
 
 		// Scan the index and verify candidate record pairs.
-		for ( int pos=0; pos<indexK; pos++ ) {
+		for ( int pos : idx.getPosSet() ) {
 			for ( IntegerPair ipair : mapQGramPrefixList.get( pos )) {
 				checkTPQ++;
 				int token = ipair.i1;
@@ -92,13 +92,13 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 		
 		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
-			if ( idx.indexedCountList.getInt( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
+			if ( idx.getIndexedCount( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
 		}
 		long afterFilteringTime = System.currentTimeMillis();
 
 		for ( Record recT : candidatesAfterDP ) {
-			if ( checker.isEqual( recS, recT ) >= 0 ) 
-				rslt.add( new IntegerPair( recS.getID(), recT.getID()) );
+			int comp = checker.isEqual( recS, recT );
+			if ( comp >= 0 ) addSeqResult( recS, recT, rslt );
 		}
 
 		long afterValidateTime = System.currentTimeMillis();

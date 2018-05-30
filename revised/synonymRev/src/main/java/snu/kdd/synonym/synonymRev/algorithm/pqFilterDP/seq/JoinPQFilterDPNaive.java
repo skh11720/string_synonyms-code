@@ -6,11 +6,13 @@ import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
+import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramComparator;
@@ -25,9 +27,10 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 
-	public JoinMHIndex idx;
-	public int indexK = 3;
-	public int qgramSize = 2;
+	public PQFilterIndexInterface idx;
+	public int indexK;
+	public int qgramSize;
+	protected String indexOpt;
 
 	protected Boolean useLF;
 	protected Validator checker;
@@ -37,7 +40,10 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	protected long validateTime = 0;
 	protected long checkTPQ = 0;
 
-	protected ObjectArrayList<WYK_HashMap<Integer, WYK_HashSet<QGram>>> mapToken2qgram = null;
+	protected Int2ObjectOpenHashMap<WYK_HashMap<Integer, WYK_HashSet<QGram>>> mapToken2qgram = null;
+	
+	// debug options
+	protected static final boolean bIndexWriteToFile = true;
 
 
 	// staticitics used for building indexes
@@ -58,6 +64,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 				rec.preprocessSuffixApplicableRules();
 			}
 		}
+		globalOrder.initializeForSequence( query, false );
 	}
 
 	// TODO: refactor; move run(), runAfter...(), ... to the parent.
@@ -69,6 +76,13 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		qgramSize = params.qgramSize;
 		useLF = params.useLF;
 		useTopDown = params.useTopDown;
+		indexOpt = params.indexOpt;
+		globalOrder = new FrequencyFirstOrder( qgramSize );
+
+//		indexPosition = new int[ indexK ];
+//		for( int i = 0; i < indexK; i++ ) {
+//			indexPosition[ i ] = i;
+//		}
 
 		if( query.oneSideJoin ) checker = new TopDownOneSide();
 		else checker = new TopDown(); 
@@ -110,6 +124,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		}
 
 		buildIndex( false );
+		if ( bIndexWriteToFile ) idx.writeToFile();
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -136,7 +151,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	}
 	
 	public List<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectArrayList<IntegerPair> rslt = new ObjectArrayList<IntegerPair>();
+		ObjectArrayList <IntegerPair> rslt = new ObjectArrayList<IntegerPair>();
 		
 		for ( int sid=0; sid<query.searchedSet.size(); sid++ ) {
 			if ( !query.oneSideJoin ) {
@@ -158,17 +173,13 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		int[] indexPosition = new int[ indexK ];
-		for( int i = 0; i < indexK; i++ ) {
-			indexPosition[ i ] = i;
-		}
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+//		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 	}
 	
 	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
-		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
+		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
 		long afterCandidateTime = System.currentTimeMillis();
 
 		// prepare filtering
@@ -178,14 +189,19 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(-1);
 		int[] range = recS.getTransLengths();
+		
+		boolean debug = false;
+//		if (recS.getID() == 8880) debug = true;
+		if (debug) SampleDataTest.inspect_record( recS, query, qgramSize );
 
 		// Scan the index and verify candidate record pairs.
-		for ( int pos=0; pos<indexK; pos++ ) {
+		for ( int pos : idx.getPosSet() ) {
 			for ( QGram qgram : candidatePQGrams.get( pos ) ) {
 				checkTPQ++;
 				long startDPTime = System.nanoTime();
 				Boolean isInTPQ = ((NaiveDP)filter).existence( qgram, pos );
 				dpTime += System.nanoTime() - startDPTime;
+				if (debug) System.out.println( qgram.toString()+", "+pos+": "+isInTPQ );
 				if (isInTPQ) {
 					for ( Record recT : idx.get( pos ).get( qgram ) ) {
 						// length filtering
@@ -212,13 +228,13 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		
 		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
-			if ( idx.indexedCountList.getInt( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
+			if ( idx.getIndexedCount( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
 		}
 		long afterFilteringTime = System.currentTimeMillis();
 
 		for ( Record recT : candidatesAfterDP ) {
-			if ( checker.isEqual( recS, recT ) >= 0 ) 
-				rslt.add( new IntegerPair( recS.getID(), recT.getID()) );
+			int comp = checker.isEqual( recS, recT );
+			if (comp >= 0) addSeqResult( recS, recT, rslt );
 		}
 
 		long afterValidateTime = System.currentTimeMillis();
@@ -228,10 +244,11 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		validateTime += afterValidateTime - afterFilteringTime;
 	}
 	
-	protected ObjectArrayList<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
-		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = new ObjectArrayList<WYK_HashSet<QGram>>();
-		for ( int pos=0; pos<indexK; pos++ ) {
-			candidatePQGrams.add( new WYK_HashSet<QGram>() );
+	protected Int2ObjectOpenHashMap<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
+		// Since the algorithm is "Naive", the input record is not used.
+		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<WYK_HashSet<QGram>>();
+		for ( int pos : idx.getPosSet() ) {
+			candidatePQGrams.put( pos, new WYK_HashSet<QGram>() );
 			for (QGram qgram : idx.get( pos ).keySet()) {
 				candidatePQGrams.get( pos ).add( qgram );
 			}
@@ -241,8 +258,8 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	
 	// used in dp1 and dp3
 	protected void buildMapToken2qgram() {
-		mapToken2qgram = new ObjectArrayList<>();
-		for ( int pos=0; pos<indexK; pos++ ) {
+		mapToken2qgram = new Int2ObjectOpenHashMap<>();
+		for ( int pos : idx.getPosSet() ) {
 			WYK_HashMap<Integer, WYK_HashSet<QGram>> map = new WYK_HashMap<Integer, WYK_HashSet<QGram>>();
 			for (QGram qgram : idx.get( pos ).keySet()) {
 				for ( int token : qgram.qgram ) {
@@ -250,12 +267,15 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 					map.get( token ).add( qgram );
 				}
 			}
-			mapToken2qgram.add( map );
+			mapToken2qgram.put( pos, map );
 		}
 	}
 
 	// used in dp2 and dp3
 	protected ObjectArrayList<IntegerPair> getQGramPrefixList(Set<QGram> qgramSet) {
+		/*
+		 * Return a list of integer pairs (token, depth).
+		 */
 		ObjectArrayList<IntegerPair> qgramPrefixList = new ObjectArrayList<IntegerPair>();
 		List<QGram> keyList = new ObjectArrayList<QGram>( qgramSet );
 		keyList.sort( new QGramComparator() );
