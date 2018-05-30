@@ -30,7 +30,7 @@ public class PkduckTest {
 	public static PkduckIndex indexTest(AbstractGlobalOrder globalOrder) {
 		StatContainer stat = new StatContainer();
 		PkduckIndex index = new PkduckIndex( query, stat, globalOrder, true );
-		index.writeToFile( "tmp/PkduckIndex.txt" );
+		index.writeToFile();
 		stat.printResult();
 		System.out.println( "PkduckTest.indexTest finished" );
 		return index;
