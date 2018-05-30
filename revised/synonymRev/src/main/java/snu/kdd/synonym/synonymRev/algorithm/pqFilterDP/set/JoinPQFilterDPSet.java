@@ -21,6 +21,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -126,8 +127,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 			throw new RuntimeException("UNIMPLEMENTED CASE");
 		}
 
-		buildIndex( query.indexedSet, false );
-		if ( !query.selfJoin ) buildIndex( query.searchedSet, false );
+		buildIndex( query.indexedSet );
+		if ( !query.selfJoin ) buildIndex( query.searchedSet );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -179,7 +180,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	protected void buildIndex( Dataset dataset, boolean writeResult ) {
+	protected void buildIndex( Dataset dataset ) {
 		WYK_HashMap<Integer, List<Record>> idx = null;
 		Object2IntOpenHashMap<Record> idxCount = null;
 		if ( dataset == query.indexedSet ) {
@@ -210,7 +211,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 			}
 		}
 		
-		if (writeResult) {
+		if (DEBUG.bIndexWriteToFile) {
 			try {
 				String name = "";
 				if ( idx == idxS ) name = "idxS";

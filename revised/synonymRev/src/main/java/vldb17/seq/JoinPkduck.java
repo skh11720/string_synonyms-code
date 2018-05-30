@@ -112,6 +112,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 
 		buildIndex( addStat );
+		if ( DEBUG.bIndexWriteToFile ) idx.writeToFile();
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
