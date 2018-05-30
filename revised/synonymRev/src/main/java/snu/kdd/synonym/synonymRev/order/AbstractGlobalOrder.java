@@ -8,18 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.ArrayUtils;
-
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.PosQGram;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 
@@ -33,9 +29,6 @@ abstract public class AbstractGlobalOrder {
 	protected int nEntry;
 	protected int max_pos = 0;
 
-	protected static final boolean bGlobalOrderWriteToFile = true;
-	protected static final boolean bCounterWriteToFile = true;
-	
 	public AbstractGlobalOrder( int qgramSize) {
 		this.qgramSize = qgramSize;
 		if ( qgramSize == 1 ) {
@@ -53,23 +46,13 @@ abstract public class AbstractGlobalOrder {
 	public void initializeForSequence( Query query, boolean indexByOrder ) {
 		count( query.searchedSet.recordList, true );
 		if ( !query.selfJoin ) count( query.indexedSet.recordList, false );
-		if ( bCounterWriteToFile ) {
-			try {
-				BufferedWriter bw = new BufferedWriter( new FileWriter( "tmp/counter.txt" ) );
-				for ( Object key : counter.keySet() ) {
-					bw.write( key.toString() +": "+counter.getInt( key )+"\n");
-				}
-				bw.flush();
-			}
-			catch ( IOException e ) {}
-		}
 		buildOrderMap();
 		if ( indexByOrder ) {
 			IntOpenHashSet converted = new IntOpenHashSet();
 			indexByOrder( query.searchedSet.recordList, true, converted );
 			if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
 		}
-		if ( bGlobalOrderWriteToFile ) writeToFile();
+		if ( DEBUG.bGlobalOrderWriteToFile ) writeToFile();
 	}
 
 	public void initializeForSet( Query query ) {

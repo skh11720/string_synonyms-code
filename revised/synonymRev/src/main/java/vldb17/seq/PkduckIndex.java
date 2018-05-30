@@ -68,11 +68,11 @@ public class PkduckIndex {
 		
 		this.indexTime = System.nanoTime() - startTime;
 		Util.printGCStats( stat, "PkduckIndex" );
-		writeToFile( "tmp/PkduckIndex.txt" ); // DEBUG
 	}
 	
-	public void writeToFile( String filename ) {
+	public void writeToFile() {
 		try {
+			String filename = "tmp/PkduckIndex.txt";
 			BufferedWriter bw = new BufferedWriter( new FileWriter( filename) );
 			for (Integer i : idx.keySet()) {
 				bw.write(  i + "-th index\n" );

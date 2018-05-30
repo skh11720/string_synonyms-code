@@ -13,6 +13,7 @@ import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramComparator;
@@ -41,9 +42,6 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	protected long checkTPQ = 0;
 
 	protected Int2ObjectOpenHashMap<WYK_HashMap<Integer, WYK_HashSet<QGram>>> mapToken2qgram = null;
-	
-	// debug options
-	protected static final boolean bIndexWriteToFile = true;
 
 
 	// staticitics used for building indexes
@@ -124,7 +122,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		}
 
 		buildIndex( false );
-		if ( bIndexWriteToFile ) idx.writeToFile();
+		if ( DEBUG.bIndexWriteToFile ) idx.writeToFile();
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
