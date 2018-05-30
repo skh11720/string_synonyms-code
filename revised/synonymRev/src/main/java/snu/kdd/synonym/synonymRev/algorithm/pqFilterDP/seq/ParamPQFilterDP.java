@@ -8,6 +8,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -22,6 +23,7 @@ public class ParamPQFilterDP extends Param {
 		options.addOption( "useLF", true, "use length filtering (default: true)" );
 		options.addOption( "recurse", true, "the way of recursion in DP (defualt: BU" );
 		options.addOption( "mode", true, "mode" );
+		options.addOption( "index", true, "index" );
 
 		argOptions = options;
 	}
@@ -37,15 +39,24 @@ public class ParamPQFilterDP extends Param {
 		if( cmd.hasOption( "K" ) ) {
 			param.indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
 		}
+		else throw new RuntimeException( "K must be specified." );
 
 		if( cmd.hasOption( "qSize" ) ) {
 			param.qgramSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
 		}
+		else throw new RuntimeException( "qSize indexOpt must be specified." );
 		
 		if ( cmd.hasOption( "useLF" ) ) {
 			param.useLF = Boolean.parseBoolean( cmd.getOptionValue( "useLF" ) );
 		}
 		else param.useLF = true;
+		
+		if ( cmd.hasOption( "index" ) ) {
+			ObjectOpenHashSet<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"FTK", "FF"} );
+			param.indexOpt = cmd.getOptionValue( "index" );
+			if ( !possibleValues.contains( param.indexOpt ) ) throw new RuntimeException( "Unexpected index: "+param.indexOpt);
+		}
+		else throw new RuntimeException( "index must be specified." );
 		
 //		if ( cmd.hasOption( "recurse" ) ) {
 //			String val = cmd.getOptionValue( "recurse" );
@@ -71,4 +82,5 @@ public class ParamPQFilterDP extends Param {
 	public Boolean useLF;
 	public Boolean useTopDown = false;
 	public String mode;
+	public String indexOpt;
 }

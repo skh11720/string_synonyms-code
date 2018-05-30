@@ -3,6 +3,9 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.management.RuntimeErrorException;
+
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -21,13 +24,22 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 
 	@Override
 	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		int[] indexPosition = new int[ indexK ];
+		for( int i = 0; i < indexK; i++ ) {
+			indexPosition[ i ] = i;
+		}
+
+		if ( indexOpt.equals( "FTK" ) ) 
+			idx = new PQFilterMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		else if ( indexOpt.equals( "FF" ) )
+			idx = new PQFilterIndex( indexK, qgramSize, query.indexedSet.get(), query, globalOrder, stat );
+		else throw new RuntimeException( "Unexpected error" );
 		buildMapToken2qgram();
 	}
 	
 	@Override
-	protected ObjectArrayList<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
-		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = new ObjectArrayList<WYK_HashSet<QGram>>();
+	protected Int2ObjectOpenHashMap<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
+		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<WYK_HashSet<QGram>>();
 		IntOpenHashSet candTokens = new IntOpenHashSet();
 		for ( int i=0; i<rec.size(); i++ ) {
 			for ( Rule rule : rec.getSuffixApplicableRules( i ) ) {
@@ -35,13 +47,13 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 			}
 		}
 
-		for ( int pos=0; pos<indexK; pos++ ) {
+		for ( int pos : idx.getPosSet() ) {
 			WYK_HashSet<QGram> candQGrams = new WYK_HashSet<QGram>();
 			for ( int token : candTokens ) {
 				Set<QGram> qgrams = mapToken2qgram.get( pos ).get( token );
 				if (qgrams != null) candQGrams.addAll( qgrams );
 			}
-			candidatePQGrams.add( candQGrams );
+			candidatePQGrams.put( pos, candQGrams );
 		}
 		return candidatePQGrams;
 	}

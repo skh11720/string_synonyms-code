@@ -28,8 +28,8 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex {
-	ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
-	public Object2IntOpenHashMap<Record> indexedCountList;
+	protected ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
+	protected Object2IntOpenHashMap<Record> indexedCountList;
 
 	int indexK;
 	int qgramSize;
@@ -628,6 +628,10 @@ public class JoinMHIndex {
 	
 	public WYK_HashMap<QGram, List<Record>> get(int i) {
 		return joinMHIndex.get( i );
+	}
+
+	public int getIndexedCount( Record rec ) {
+		return indexedCountList.getInt( rec );
 	}
 
 	public int nInvList() {

@@ -22,7 +22,8 @@ public class FrequencyFirstOrder extends AbstractGlobalOrder {
 	}
 
 	public int getOrder( PosQGram o ) {
-		return orderMap.getInt( o.qgram )*max_pos + o.pos;
+		if ( o.qgram.qgram.length > 1 ) return orderMap.getInt( o.qgram )*max_pos + o.pos;
+		else return orderMap.getInt( o.qgram.qgram[0] )*max_pos + o.pos;
 	}
 	
 	public int getOrder( int token, int pos ) {
