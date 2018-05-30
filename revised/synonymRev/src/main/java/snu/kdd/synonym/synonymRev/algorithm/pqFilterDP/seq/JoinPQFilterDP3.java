@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
@@ -31,7 +32,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 	}
 	
 	@Override
-	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
+	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
 
 		Boolean debug = false;
 //		if ( recS.getID() == 1901 ) debug = true;
@@ -39,14 +40,14 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
-		ObjectArrayList<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
+		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
 		// Build mapQGramPrefixList from candidatePQGrams.
 		WYK_HashMap<Integer, ObjectArrayList<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, ObjectArrayList<IntegerPair>>(indexK);
-		for ( int pos=0; pos<indexK; pos++ ) mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
+		for ( int pos : idx.getPosSet() ) mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
 		long afterCandidateTime = System.currentTimeMillis();
 
 		if (debug) {
-			for ( int pos=0; pos<indexK; pos++) {
+			for ( int pos : idx.getPosSet() ) {
 				System.out.println( "pos: "+pos );
 				System.out.println( "\ncandidatePQGrams" );
 				for ( QGram qgram : candidatePQGrams.get( pos ) ) {
@@ -75,13 +76,13 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		int[] range = recS.getTransLengths();
 
 		// Scan the index and verify candidate record pairs.
-		for ( int pos=0; pos<indexK; pos++ ) {
+		for ( int pos : idx.getPosSet() ) {
 			for ( IntegerPair ipair : mapQGramPrefixList.get( pos )) {
 				checkTPQ++;
 				int token = ipair.i1;
 				int depth = ipair.i2;
 				long startDPTime = System.nanoTime();
-				Boolean isInTPQ = ((IncrementalDP)filter).existence( token, depth, indexPosition[pos] );
+				Boolean isInTPQ = ((IncrementalDP)filter).existence( token, depth, pos );
 				dpTime += System.nanoTime() - startDPTime;
 				if (debug && depth == qgramSize) System.out.println( "["+Arrays.toString( ((IncrementalDP)filter ).getQGram() ) + ", "+pos+"] , "+isInTPQ );
 				if (isInTPQ && depth == qgramSize) {
@@ -112,7 +113,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		
 		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
-			if ( idx.indexedCountList.getInt( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
+			if ( idx.getIndexedCount( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
 		}
 		long afterFilteringTime = System.currentTimeMillis();
 

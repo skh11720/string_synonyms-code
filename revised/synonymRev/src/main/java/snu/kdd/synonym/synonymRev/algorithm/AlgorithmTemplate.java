@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -233,7 +234,7 @@ public abstract class AlgorithmTemplate {
 		}
 	}
 	
-	protected void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt ) {
+	protected void addSeqResult( Record rec1, Record rec2, List<IntegerPair> rslt ) {
 		if ( query.selfJoin ) {
 			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
 			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();

@@ -6,6 +6,7 @@ import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 /*
@@ -16,7 +17,7 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 	private JoinPQFilterDP alg;
 	protected ParamPQFilterDP params;
 	protected Boolean useTopDown;
-	protected int[] indexPosition;
+	protected AbstractGlobalOrder globalOrder;
 
 	public JoinPQFilterDP( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -35,8 +36,10 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 		 * 1.02: 
 		 * 	- enable recurse option (botton-up/top-down)
 		 *  - disable inefficient modes: naive and dp2
+		 * 1.03:
+		 *  - support frequency-based indexing
 		 */
-		return "1.02";
+		return "1.03";
 	}
 
 	@Override
