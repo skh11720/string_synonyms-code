@@ -1,19 +1,16 @@
 package snu.kdd.synonym.synonymRev;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.AbstractPosQGramFilterDP;
@@ -21,7 +18,6 @@ import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.PosQGramFilterDP;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class PosQGramFilterDPTest {
 	
@@ -32,12 +28,37 @@ public class PosQGramFilterDPTest {
 	
 	@BeforeClass
 	public static void initialize() throws IOException {
-		final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-		final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-		final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
-		final String outputPath = "output";
-		final Boolean oneSideJoin = true;
-		query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
+		String osName = System.getProperty( "os.name" );
+		if ( osName.startsWith( "Windows" ) ) {
+			final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+			final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+			final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
+			final String outputPath = "output";
+			final Boolean oneSideJoin = true;
+			query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
+		}
+		else if ( osName.startsWith( "Linux" ) ) {
+			final String dataOnePath = "run/data_store/aol/splitted/aol_10000_data.txt";
+			final String dataTwoPath = "run/data_store/aol/splitted/aol_10000_data.txt";
+			final String rulePath = "run/data_store/wordnet/rules.noun";
+			final String outputPath = "output";
+			final Boolean oneSideJoin = true;
+			query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
+		}
+		
+		// read
+//		ObjectInputStream ois = new ObjectInputStream( new FileInputStream( "tmp/test_query.obj" ) );
+//		SerializableQuery serialQuery = (SerializableQuery) ois.readObject();
+//		ois.close();
+//		serialQuery.query = query;
+
+		// write
+//		SerializableQuery serialQuery = new SerializableQuery();
+//		query = serialQuery.query;
+//		ObjectOutputStream oos = new ObjectOutputStream( new FileOutputStream( "tmp/test_query.obj" ) );
+//		oos.writeObject( serialQuery );
+//		oos.close();
+
 		q = 1;
 		record = query.searchedSet.getRecord( 0 );
 		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
@@ -138,12 +159,10 @@ public class PosQGramFilterDPTest {
 			int seqLen = random.nextInt( 15 ) + 26;
 			int[] pat = random.ints( patLen, 0, nv ).toArray();
 			int[] seq = random.ints( seqLen, 0, nv ).toArray();
-			int[] failure = prepare_search( pat );
-			System.out.println( Arrays.toString( pat ) );
-			System.out.println( Arrays.toString( seq ) );
+			int[] failure = target.prepare_search( pat );
+//			System.out.println( Arrays.toString( pat ) );
+//			System.out.println( Arrays.toString( seq ) );
 			
-			// answer by this.isPrefixSubArrayOf
-			Int2ObjectOpenHashMap<IntOpenHashSet> posSet2 = isPrefixSubArrayOfAll( pat, failure, seq );
 			
 			for ( int i=1; i<=patLen; ++i ) { // search pat[0:i], right exclusive
 				// true answer
@@ -154,96 +173,15 @@ public class PosQGramFilterDPTest {
 					for ( k=0; k<i && j+k<seqLen && match; ++k ) match &= pat[k] == seq[j+k];
 					if ( k == i && match ) posSet0.add( j+i );
 				}
-				System.out.println( "i: "+i );
-				System.out.println( "posSet0: "+posSet0.toString() );
-				System.out.println( "posSet2: "+posSet2.get( i ).toString() );
 
 				// answer by AbstractPosQGramFilterDP.isSubstringOf; may be failed if a pattern appears multiple times in a sequence.
 //				int ansByMethod = (int)(method.invoke( target, pat, i, seq ));
 //				System.out.println( "ansByMethod: "+ansByMethod );
 				
-				// answer by this.isSubArrayOf which is based on AC automata
-				IntOpenHashSet posSet1 = isSubArrayOf( Arrays.copyOfRange( pat, 0, i ), failure, seq );
-//				System.out.println( "posSet1: "+posSet1.toString() );
-				assertTrue( posSet0.equals( posSet1 ) );
-				assertTrue( posSet0.equals( posSet2.get( i ) ) );
+				// answer by this.isPrefixSubArrayOf
+				IntArrayList posSet1 = target.isPrefixSubArrayOf( pat, failure, i, seq );
+				assertTrue( posSet0.equals( new IntOpenHashSet(posSet1) ) );
 			}
 		}
-	}
-	
-	public int[] prepare_search( int[] pat ) {
-		/*
-		 * Create the failure array of pat.
-		 * failure[i] = k means that pat[0:k] is the longest proper suffix of pat[0:i+1].
-		 */
-		int[] failure = new int[pat.length];
-		failure[0] = 0;
-		for ( int i=1; i<pat.length; i++ ) {
-			int j = i;
-			while ( j > 0 && pat[failure[j-1]] != pat[i] ) j = failure[j-1];
-			if ( j == 0 ) failure[i] = 0;
-			else if ( pat[failure[j-1]] == pat[i] ) failure[i] = failure[j-1]+1;
-		}
-		return failure;
-	}
-	
-	public IntOpenHashSet isSubArrayOf( int[] pat, int[] failure, int[] seq ) {
-		/*
-		 * Search pat in seq, and return the positions of occurrences.
-		 * A position x in the result means that seq[x-len(pat):x] matches the pattern.
-		 */
-		IntOpenHashSet posSet = new IntOpenHashSet();
-		int i = 0;
-		for ( int j=0; j<seq.length; j++ ) {
-			while ( i > 0 && pat[i] != seq[j] ) i = failure[i-1];
-			if ( pat[i] == seq[j] ) ++i;
-			if ( i == pat.length ) {
-				posSet.add( j+1 );
-				i = failure[i-1];
-			}
-		}
-		return posSet;
-	}
-
-	public IntOpenHashSet isPrefixSubArrayOf( int[] pat, int[] failure, int end, int[] seq ) {
-		/*
-		 * Search pat[0,end) in seq, and return the positions of occurrences.
-		 * A position x in the result means that seq[x-len(pat):x] matches the pattern.
-		 */
-		IntOpenHashSet posSet = new IntOpenHashSet();
-		int i = 0;
-		for ( int j=0; j<seq.length; j++ ) {
-			while ( i > 0 && pat[i] != seq[j] ) i = failure[i-1];
-			if ( pat[i] == seq[j] ) ++i;
-			if ( i == end ) {
-				posSet.add( j+1 );
-				i = failure[i-1];
-			}
-		}
-		return posSet;
-	}
-
-	public Int2ObjectOpenHashMap<IntOpenHashSet> isPrefixSubArrayOfAll( int[] pat, int[] failure, int[] seq ) {
-		/*
-		 * Search all prefixes of pat in seq, and return the positions of occurrences.
-		 * A position x in the result means that seq[x-len(pat):x] matches the pattern.
-		 */
-		Int2ObjectOpenHashMap<IntOpenHashSet> posSet = new Int2ObjectOpenHashMap<IntOpenHashSet>();
-		posSet.defaultReturnValue( new IntOpenHashSet() );
-		int i = 0;
-		for ( int j=0; j<seq.length; j++ ) {
-			while ( i > 0 && pat[i] != seq[j] ) i = failure[i-1];
-			if ( pat[i] == seq[j] ) ++i;
-			if ( i > 0 ) {
-				int k = i;
-				while ( k > 0 && pat[k-1] == seq[j] ) {
-					if ( !posSet.containsKey( k ) ) posSet.put( k, new IntOpenHashSet() );
-					posSet.get( k ).add( j+1 );
-					k = failure[k-1];
-				}
-			}
-			if ( i == pat.length ) i = failure[i-1];
-		}
-		return posSet;
 	}
 }
