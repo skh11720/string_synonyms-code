@@ -36,10 +36,10 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 		 * 1.02: 
 		 * 	- enable recurse option (botton-up/top-down)
 		 *  - disable inefficient modes: naive and dp2
-		 * 1.03:
-		 *  - support frequency-based indexing
+		 * 1.03: support frequency-based indexing
+		 * 1.04: reduce candidate pos qgrams
 		 */
-		return "1.03";
+		return "1.04";
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.PosQGram;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.Util;
 
 abstract public class AbstractGlobalOrder {
 
@@ -124,11 +125,8 @@ abstract public class AbstractGlobalOrder {
 			for ( int i=0; i<rec.size(); i++ ) {
 				if ( expand ) {
 					for ( Rule rule : rec.getSuffixApplicableRules( i ) ) {
-						int[] rhs = rule.getRight();
-						int[] rhs_padded = new int[rule.rightSize()+qgramSize-1];
-						for (int j=0; j<rhs.length; ++j ) rhs_padded[j] = rhs[j];
-						for ( int j=rhs.length; j<rhs_padded.length; ++j ) rhs_padded[j] = Integer.MAX_VALUE;
-						for ( int j=0; j<rhs.length; j++ ) {
+						int[] rhs_padded = Util.pad( rule.getRight(), rule.rightSize()+qgramSize-1, Integer.MAX_VALUE );
+						for ( int j=0; j<rule.rightSize(); j++ ) {
 							QGram qgram = new QGram( Arrays.copyOfRange( rhs_padded, j, j+qgramSize ));
 							_counter.put( qgram, _counter.getInt( qgram )+1 );
 						}

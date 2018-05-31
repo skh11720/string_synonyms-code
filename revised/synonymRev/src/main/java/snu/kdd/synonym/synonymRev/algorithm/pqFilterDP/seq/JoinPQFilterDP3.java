@@ -32,7 +32,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 	}
 	
 	@Override
-	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
 
 		Boolean debug = false;
 //		if ( recS.getID() == 1901 ) debug = true;
@@ -43,26 +43,33 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
 		// Build mapQGramPrefixList from candidatePQGrams.
 		WYK_HashMap<Integer, ObjectArrayList<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, ObjectArrayList<IntegerPair>>(indexK);
-		for ( int pos : idx.getPosSet() ) mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
+		for ( int pos : idx.getPosSet() ) {
+			if ( !candidatePQGrams.containsKey( pos ) ) continue;
+			mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
+		}
 		long afterCandidateTime = System.currentTimeMillis();
 
 		if (debug) {
 			for ( int pos : idx.getPosSet() ) {
-				System.out.println( "pos: "+pos );
-				System.out.println( "\ncandidatePQGrams" );
-				for ( QGram qgram : candidatePQGrams.get( pos ) ) {
-					System.out.println( qgram.toString() );
+				if ( candidatePQGrams.containsKey( pos ) ) {
+					System.out.println( "pos: "+pos );
+					System.out.println( "\ncandidatePQGrams" );
+					for ( QGram qgram : candidatePQGrams.get( pos ) ) {
+						System.out.println( qgram.toString() );
+					}
+					System.out.println( "\ncandidatePQGrams, sorted" );
+					List<QGram> keyList = new ObjectArrayList<QGram>( candidatePQGrams.get( pos ));
+					keyList.sort( new QGramComparator() );
+					for ( QGram qgram : keyList ) {
+						System.out.println( qgram.toString() );
+					}
 				}
-				System.out.println( "\ncandidatePQGrams, sorted" );
-				List<QGram> keyList = new ObjectArrayList<QGram>( candidatePQGrams.get( pos ));
-				keyList.sort( new QGramComparator() );
-				for ( QGram qgram : keyList ) {
-					System.out.println( qgram.toString() );
-				}
-				
-				System.out.println( "\nmapQGramPrefixList" );
-				for ( IntegerPair ipair : mapQGramPrefixList.get( pos ) ) {
-					System.out.println( ipair.toString() );
+
+				if ( mapQGramPrefixList.containsKey( pos ) ) {
+					System.out.println( "\nmapQGramPrefixList" );
+					for ( IntegerPair ipair : mapQGramPrefixList.get( pos ) ) {
+						System.out.println( ipair.toString() );
+					}
 				}
 			}
 		}
@@ -77,6 +84,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 
 		// Scan the index and verify candidate record pairs.
 		for ( int pos : idx.getPosSet() ) {
+			if ( !mapQGramPrefixList.containsKey( pos ) ) continue;
 			for ( IntegerPair ipair : mapQGramPrefixList.get( pos )) {
 				checkTPQ++;
 				int token = ipair.i1;

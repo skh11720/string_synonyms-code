@@ -1,14 +1,12 @@
 package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -44,7 +42,7 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 	}
 	
 	@Override
-	protected void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
 		long afterCandidateTime = System.currentTimeMillis();

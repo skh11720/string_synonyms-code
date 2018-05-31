@@ -234,7 +234,7 @@ public abstract class AlgorithmTemplate {
 		}
 	}
 	
-	protected void addSeqResult( Record rec1, Record rec2, List<IntegerPair> rslt ) {
+	protected void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt ) {
 		if ( query.selfJoin ) {
 			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
 			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();
