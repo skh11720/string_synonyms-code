@@ -136,4 +136,20 @@ public class Util {
 		}
 		return true;
 	}
+	
+	public static int[] pad( int[] a, int len, int padding ) {
+		/*
+		 * Return the padded array of length len.
+		 * padding: the token used to pad.
+		 * 	- Integer.MAX_VALUE is the dummy token.
+		 * 	- -1: the wildcard.
+		 */
+		if ( a.length > len ) throw new RuntimeException( "the resulting length must be larger than the length of input array." );
+		int[] a_padded = new int[len];
+		int i;
+		for ( i=0; i<a.length; ++i ) a_padded[i] = a[i];
+		for ( ; i<len; ++i ) a_padded[i] = padding;
+		return a_padded;
+	}
+
 }
