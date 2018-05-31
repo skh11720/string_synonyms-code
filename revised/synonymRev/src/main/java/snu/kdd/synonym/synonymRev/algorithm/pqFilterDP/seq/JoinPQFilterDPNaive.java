@@ -20,7 +20,6 @@ import snu.kdd.synonym.synonymRev.tools.QGramComparator;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
@@ -28,7 +27,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 
-	public PQFilterIndexInterface idx;
+	public AbstractPQFilterIndex idx;
 	public int indexK;
 	public int qgramSize;
 	protected String indexOpt;
@@ -41,7 +40,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	protected long validateTime = 0;
 	protected long checkTPQ = 0;
 
-	protected Int2ObjectOpenHashMap<WYK_HashMap<Integer, WYK_HashSet<QGram>>> mapToken2qgram = null;
+//	protected Int2ObjectOpenHashMap<WYK_HashMap<Integer, WYK_HashSet<QGram>>> mapToken2qgram = null;
 
 
 	// staticitics used for building indexes
@@ -189,12 +188,15 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		int[] range = recS.getTransLengths();
 		
 		boolean debug = false;
-//		if (recS.getID() == 8880) debug = true;
+//		if (recS.getID() == 19964) debug = true;
 		if (debug) SampleDataTest.inspect_record( recS, query, qgramSize );
 
 		// Scan the index and verify candidate record pairs.
 		for ( int pos : idx.getPosSet() ) {
+			if (debug) System.out.println( "pos: "+pos );
+			if ( !candidatePQGrams.containsKey( pos ) ) continue;
 			for ( QGram qgram : candidatePQGrams.get( pos ) ) {
+				if ( !idx.get( pos ).containsKey( qgram ) ) continue;
 				checkTPQ++;
 				long startDPTime = System.nanoTime();
 				Boolean isInTPQ = ((NaiveDP)filter).existence( qgram, pos );
@@ -255,19 +257,23 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	}
 	
 	// used in dp1 and dp3
-	protected void buildMapToken2qgram() {
-		mapToken2qgram = new Int2ObjectOpenHashMap<>();
-		for ( int pos : idx.getPosSet() ) {
-			WYK_HashMap<Integer, WYK_HashSet<QGram>> map = new WYK_HashMap<Integer, WYK_HashSet<QGram>>();
-			for (QGram qgram : idx.get( pos ).keySet()) {
-				for ( int token : qgram.qgram ) {
-					if ( map.get( token ) == null ) map.put(token, new WYK_HashSet<QGram>());
-					map.get( token ).add( qgram );
-				}
-			}
-			mapToken2qgram.put( pos, map );
-		}
-	}
+//	protected void buildMapToken2qgram() {
+//		/*
+//		 * Build a map from a position p and a token t to a set of pos qgrams containing t and whose position is p.
+//		 * In fact, the structure is implemented using two nested maps: p -> t -> set of qgrams
+//		 */
+//		mapToken2qgram = new Int2ObjectOpenHashMap<>();
+//		for ( int pos : idx.getPosSet() ) {
+//			WYK_HashMap<Integer, WYK_HashSet<QGram>> map = new WYK_HashMap<Integer, WYK_HashSet<QGram>>();
+//			for (QGram qgram : idx.get( pos ).keySet()) {
+//				for ( int token : qgram.qgram ) {
+//					if ( map.get( token ) == null ) map.put(token, new WYK_HashSet<QGram>());
+//					map.get( token ).add( qgram );
+//				}
+//			}
+//			mapToken2qgram.put( pos, map );
+//		}
+//	}
 
 	// used in dp2 and dp3
 	protected ObjectArrayList<IntegerPair> getQGramPrefixList(Set<QGram> qgramSet) {

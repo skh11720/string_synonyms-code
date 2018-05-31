@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.IntStream;
+import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -17,12 +17,13 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
+import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.PosQGram;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
-public class PQFilterIndex implements PQFilterIndexInterface {
+public class PQFilterIndex extends AbstractPQFilterIndex {
 
 	protected Int2ObjectOpenHashMap<Map<QGram, List<Record>>> idx;
 	protected Object2IntOpenHashMap<Record> indexedCountList;
@@ -46,19 +47,19 @@ public class PQFilterIndex implements PQFilterIndexInterface {
 		
 		long elements = 0;
 		for ( Record rec : indexedSet ) {
-			boolean debug = false;
-//			if( rec.getID()==8880 ) debug = true;
+//			boolean debug = false;
+//			if( rec.getID()==20060) debug = true;
 			List<List<QGram>> availableQGrams = rec.getSelfQGrams( qgramSize, rec.size() );
 			ObjectArrayList<PosQGram> pqgrams = new ObjectArrayList<PosQGram>();
 			for ( int i=0; i<availableQGrams.size(); ++i ) {
 				for ( QGram qgram : availableQGrams.get( i ) ) pqgrams.add( new PosQGram( qgram, i ) );
 			}
 			pqgrams.sort(comparator);
-			if (debug) System.out.println( "pqgrams: "+pqgrams.toString() );
+//			if (debug) System.out.println( "pqgrams: "+pqgrams.toString() );
 
 			int indexedCount = Math.min( indexK, pqgrams.size() );
 			indexedCountList.put( rec, indexedCount );
-			if (debug) System.out.println( "indexedCount: "+indexedCount );
+//			if (debug) System.out.println( "indexedCount: "+indexedCount );
 
 			for ( int k=0; k<indexedCount; ++k ) {
 				PosQGram pqgram = pqgrams.get( k );
@@ -68,10 +69,12 @@ public class PQFilterIndex implements PQFilterIndexInterface {
 				Map<QGram, List<Record>> map = idx.get( pos );
 				if ( !map.containsKey( qgram ) ) map.put( qgram, new ObjectArrayList<Record>() );
 				map.get( qgram ).add( rec );
-				if (debug) System.out.println( "index record "+rec.getID()+": "+Arrays.toString( rec.getTokensArray() )+" with key "+qgram.toString()+", "+pos );
+//				if (debug) System.out.println( "index record "+rec.getID()+": "+Arrays.toString( rec.getTokensArray() )+" with key "+qgram.toString()+", "+pos );
 				++elements;
 			}
 		}
+		
+		buildInvertedIndex();
 
 //		stat.add("Result_3_1_1_qGramTime", qGramTime);
 //		stat.add("Result_3_1_2_indexingTime", indexingTime);
@@ -105,6 +108,14 @@ public class PQFilterIndex implements PQFilterIndexInterface {
 				}
 			}
 			bw.flush();
+			bw.close();
+			
+			bw = new BufferedWriter( new FileWriter( "tmp/PQFilterInvIndex.txt") );
+			for ( Entry<IntegerPair, Set<QGram>> entry : invIndex.entrySet() ) {
+				bw.write( entry.getKey().toString()+" : "+entry.getValue().toString()+"\n" );
+			}
+			bw.flush();
+			bw.close();
 		}
 		catch (IOException e ) { e.printStackTrace(); }
 	}
