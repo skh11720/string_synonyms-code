@@ -3,12 +3,14 @@ package vldb17.seq;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -86,7 +88,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 
-		final List<IntegerPair> rslt = runAfterPreprocess( true );
+		final Set<IntegerPair> rslt = runAfterPreprocess( true );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
@@ -97,7 +99,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		checker.addStat( stat );
 	}
 
-	public List<IntegerPair> runAfterPreprocess( boolean addStat ) {
+	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
 		// Index building
 		StopWatch stepTime = null;
 		if( addStat ) {
@@ -127,7 +129,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 
 		// Join
-		final List<IntegerPair> rslt = join( stat, query, true );
+		final Set<IntegerPair> rslt = join( stat, query, true );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -154,8 +156,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 		idx = new PkduckIndex( query, stat, globalOrder, addStat );
 	}
 	
-	public List<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectArrayList <IntegerPair> rslt = new ObjectArrayList<IntegerPair>();
+	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
+		ObjectOpenHashSet <IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 		
 		for ( int sid=0; sid<query.searchedSet.size(); sid++ ) {
 			if ( !query.oneSideJoin ) {
@@ -176,7 +178,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+	private void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
 		final int[][] transLen = recS.getTransLengthsAll();
 		Int2ObjectOpenHashMap<IntOpenHashSet> candidateTokens = new Int2ObjectOpenHashMap<IntOpenHashSet>();
