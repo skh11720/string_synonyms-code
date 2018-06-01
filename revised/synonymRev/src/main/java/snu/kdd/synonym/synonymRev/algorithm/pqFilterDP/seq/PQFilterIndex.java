@@ -33,11 +33,10 @@ public class PQFilterIndex extends AbstractPQFilterIndex {
 	protected final int indexK;
 	protected final int qgramSize;
 
-	protected int qgramCount = 0;
+//	protected int qgramCount = 0;
 	protected long indexTime = 0;
 	
 	public PQFilterIndex( int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, AbstractGlobalOrder globalOrder, StatContainer stat ) {
-		long ts = System.currentTimeMillis();
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;
 		this.globalOrder = globalOrder;
@@ -45,16 +44,20 @@ public class PQFilterIndex extends AbstractPQFilterIndex {
 		idx = new Int2ObjectOpenHashMap<Map<QGram, List<Record>>>();
 		indexedCountList = new Object2IntOpenHashMap<Record>();
 		
+		long qGramTime = 0;
+		long indexingTime = 0;
 		long elements = 0;
 		for ( Record rec : indexedSet ) {
 //			boolean debug = false;
 //			if( rec.getID()==20060) debug = true;
+			long ts = System.currentTimeMillis();
 			List<List<QGram>> availableQGrams = rec.getSelfQGrams( qgramSize, rec.size() );
 			ObjectArrayList<PosQGram> pqgrams = new ObjectArrayList<PosQGram>();
 			for ( int i=0; i<availableQGrams.size(); ++i ) {
 				for ( QGram qgram : availableQGrams.get( i ) ) pqgrams.add( new PosQGram( qgram, i ) );
 			}
 			pqgrams.sort(comparator);
+			long afterQGramTime = System.currentTimeMillis();
 //			if (debug) System.out.println( "pqgrams: "+pqgrams.toString() );
 
 			int indexedCount = Math.min( indexK, pqgrams.size() );
@@ -72,13 +75,16 @@ public class PQFilterIndex extends AbstractPQFilterIndex {
 //				if (debug) System.out.println( "index record "+rec.getID()+": "+Arrays.toString( rec.getTokensArray() )+" with key "+qgram.toString()+", "+pos );
 				++elements;
 			}
+			long afterIndexingTime = System.currentTimeMillis();
+			qGramTime += afterQGramTime - ts;
+			indexingTime += afterIndexingTime - afterQGramTime;
 		}
-		
 		buildInvertedIndex();
 
-//		stat.add("Result_3_1_1_qGramTime", qGramTime);
-//		stat.add("Result_3_1_2_indexingTime", indexingTime);
+		stat.add("Result_3_1_1_qGramTime", qGramTime);
+		stat.add("Result_3_1_2_indexingTime", indexingTime);
 		stat.add("Stat_Index_Size", elements);
+		stat.add( "nList", nInvList());
 
 		Util.printGCStats(stat, "Stat_Index");
 	}
@@ -93,6 +99,14 @@ public class PQFilterIndex extends AbstractPQFilterIndex {
 	
 	public Iterable<Integer> getPosSet() {
 		return idx.keySet();
+	}
+
+	public int nInvList() {
+		int n = 0;
+		for (int i=0; i<idx.size(); i++) {
+			n += idx.get( i ).size();
+		}
+		return n;
 	}
 
 	public void writeToFile() {
