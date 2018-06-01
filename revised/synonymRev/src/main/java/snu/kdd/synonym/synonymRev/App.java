@@ -32,6 +32,7 @@ import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinMHDPWrapper;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinPQFilterDP;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinPQFilterDPSet;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
@@ -193,6 +194,10 @@ public class App {
 			
 		case JoinPQFilterDP:
 			alg = new JoinPQFilterDP( query, stat );
+			break;
+		
+		case JoinMHDP:
+			alg = new JoinMHDPWrapper( query, stat );
 			break;
 		
 		case JoinPkduckSet:
