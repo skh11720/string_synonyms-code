@@ -1,22 +1,23 @@
 package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
+import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
 public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 	
-	private WYK_HashMap<Integer, ObjectArrayList<IntegerPair>> mapQGramPrefixList;
+	private WYK_HashMap<Integer, List<IntegerPair>> mapQGramPrefixList;
 	/*
 	 * mapQGramPrefixList[pos] has a list of (token, depth) pairs at position pos.
 	 * The pairs are sorted in the preorder of keys in 
@@ -34,9 +35,9 @@ public class JoinPQFilterDP2 extends JoinPQFilterDPNaive {
 		}
 		idx = new PQFilterMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 		
-		mapQGramPrefixList = new WYK_HashMap<Integer, ObjectArrayList<IntegerPair>>(indexK);
+		mapQGramPrefixList = new WYK_HashMap<Integer, List<IntegerPair>>(indexK);
 		for ( int pos : idx.getPosSet() ) {
-			ObjectArrayList<IntegerPair> qgramPrefixList = getQGramPrefixList( idx.get( pos ).keySet() );
+			List<IntegerPair> qgramPrefixList = Util.getQGramPrefixList( idx.get( pos ).keySet() );
 			mapQGramPrefixList.put( pos, qgramPrefixList );
 		}
 	}

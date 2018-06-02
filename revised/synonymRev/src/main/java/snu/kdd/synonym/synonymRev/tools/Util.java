@@ -2,10 +2,15 @@ package snu.kdd.synonym.synonymRev.tools;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -152,4 +157,28 @@ public class Util {
 		return a_padded;
 	}
 
+	public static List<IntegerPair> getQGramPrefixList(Collection<QGram> qgramSet) {
+		/*
+		 * Return a list of integer pairs (token, depth).
+		 */
+		List<IntegerPair> qgramPrefixList = new ObjectArrayList<IntegerPair>();
+		List<QGram> keyList = new ObjectArrayList<QGram>( qgramSet );
+		int qgramSize = keyList.get( 0 ).qgram.length;
+		keyList.sort( new QGramComparator() );
+		int d = 1;
+		QGram qgramPrev = null;
+		for (QGram qgram : keyList ) {
+			if ( qgramPrev != null ) {
+				for ( d=1; d<qgramSize; d++) {
+					if ( qgram.qgram[d-1] != qgramPrev.qgram[d-1] ) break;
+				}
+			}
+			for (; d<=qgramSize; d++) {
+				qgramPrefixList.add(new IntegerPair( qgram.qgram[d-1], d ));
+//					System.out.println( new IntegerPair( qgram.qgram[d-1], d) );
+			}
+			qgramPrev = qgram;
+		}
+		return qgramPrefixList;
+	}
 }

@@ -49,7 +49,7 @@ public class JoinMin extends AlgorithmTemplate {
 		}
 	}
 
-	private void buildIndex( boolean writeResult ) throws IOException {
+	protected void buildIndex( boolean writeResult ) throws IOException {
 		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
 	}
 
