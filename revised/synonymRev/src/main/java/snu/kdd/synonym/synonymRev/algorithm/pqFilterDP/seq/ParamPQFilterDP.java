@@ -56,7 +56,7 @@ public class ParamPQFilterDP extends Param {
 			param.indexOpt = cmd.getOptionValue( "index" );
 			if ( !possibleValues.contains( param.indexOpt ) ) throw new RuntimeException( "Unexpected index: "+param.indexOpt);
 		}
-		else throw new RuntimeException( "index must be specified." );
+//		else throw new RuntimeException( "index must be specified." );
 		
 //		if ( cmd.hasOption( "recurse" ) ) {
 //			String val = cmd.getOptionValue( "recurse" );
