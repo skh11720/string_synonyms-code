@@ -114,6 +114,6 @@ public class PosQGramFilterDPInc extends PosQGramFilterDP implements Incremental
 
 	@Override
 	public int[] getQGram() {
-		return qgram;
+		return Arrays.copyOf( qgram, qgram.length );
 	}
 }

@@ -43,7 +43,7 @@ public class JoinMinIndex {
 	public double epsilon;
 	public double epsilonPrime;
 
-	private int qSize;
+	protected int qSize;
 
 	public long searchedTotalSigCount;
 	public long indexedTotalSigCount;
@@ -704,6 +704,10 @@ public class JoinMinIndex {
 			}
 		}
 	}
+	
+	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
+		return rec.getQGrams( qSize );
+	}
 
 	public void joinRecordMaxK( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
 			Validator checker, boolean oneSideJoin ) {
@@ -711,8 +715,8 @@ public class JoinMinIndex {
 
 		long qgramCount = 0;
 
-		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
-
+		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
+		
 		getQGramTime += System.nanoTime() - joinStartTime;
 
 		int[] range = recS.getTransLengths();

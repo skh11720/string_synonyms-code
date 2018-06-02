@@ -16,6 +16,7 @@ import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.QGramComparator;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
+import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
@@ -42,10 +43,10 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		// Enumerate candidate pos-qgrams of recS.
 		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
 		// Build mapQGramPrefixList from candidatePQGrams.
-		WYK_HashMap<Integer, ObjectArrayList<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, ObjectArrayList<IntegerPair>>(indexK);
+		WYK_HashMap<Integer, List<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, List<IntegerPair>>(indexK);
 		for ( int pos : idx.getPosSet() ) {
 			if ( !candidatePQGrams.containsKey( pos ) ) continue;
-			mapQGramPrefixList.put( pos, getQGramPrefixList( candidatePQGrams.get( pos ) ) );
+			mapQGramPrefixList.put( pos, Util.getQGramPrefixList( candidatePQGrams.get( pos ) ) );
 		}
 		long afterCandidateTime = System.currentTimeMillis();
 

@@ -277,27 +277,4 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 //	}
 
 	// used in dp2 and dp3
-	protected ObjectArrayList<IntegerPair> getQGramPrefixList(Set<QGram> qgramSet) {
-		/*
-		 * Return a list of integer pairs (token, depth).
-		 */
-		ObjectArrayList<IntegerPair> qgramPrefixList = new ObjectArrayList<IntegerPair>();
-		List<QGram> keyList = new ObjectArrayList<QGram>( qgramSet );
-		keyList.sort( new QGramComparator() );
-		int d = 1;
-		QGram qgramPrev = null;
-		for (QGram qgram : keyList ) {
-			if ( qgramPrev != null ) {
-				for ( d=1; d<qgramSize; d++) {
-					if ( qgram.qgram[d-1] != qgramPrev.qgram[d-1] ) break;
-				}
-			}
-			for (; d<=qgramSize; d++) {
-				qgramPrefixList.add(new IntegerPair( qgram.qgram[d-1], d ));
-//					System.out.println( new IntegerPair( qgram.qgram[d-1], d) );
-			}
-			qgramPrev = qgram;
-		}
-		return qgramPrefixList;
-	}
 }
