@@ -32,8 +32,9 @@ public class JoinMHDPWrapper extends AlgorithmTemplate{
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: reduce cand pqgram size
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override

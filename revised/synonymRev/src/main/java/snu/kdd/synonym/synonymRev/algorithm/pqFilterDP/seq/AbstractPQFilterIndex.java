@@ -16,7 +16,7 @@ public abstract class AbstractPQFilterIndex {
 
 	abstract public Map<QGram, List<Record>> get( int pos );
 
-	abstract public Iterable<Integer> getPosSet();
+	abstract public Set<Integer> getPosSet();
 
 	abstract public int getIndexedCount( Record rec );
 	

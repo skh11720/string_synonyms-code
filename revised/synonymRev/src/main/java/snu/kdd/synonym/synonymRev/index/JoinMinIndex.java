@@ -32,11 +32,11 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMinIndex {
-	ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
-	ArrayList<Integer> countPerPosition = null;
-	Object2IntOpenHashMap<Record> indexedCountMap;
-	Object2IntOpenHashMap<Record> estimatedCountMap;
-	WYK_HashSet<Integer> bypassSet = null;
+	protected ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
+	protected ArrayList<Integer> countPerPosition = null;
+	protected Object2IntOpenHashMap<Record> indexedCountMap;
+	protected Object2IntOpenHashMap<Record> estimatedCountMap;
+	protected WYK_HashSet<Integer> bypassSet = null;
 
 	public double gamma;
 	public double delta;

@@ -97,13 +97,13 @@ public class PQFilterIndex extends AbstractPQFilterIndex {
 		return indexedCountList.getInt( rec );
 	}
 	
-	public Iterable<Integer> getPosSet() {
+	public Set<Integer> getPosSet() {
 		return idx.keySet();
 	}
 
 	public int nInvList() {
 		int n = 0;
-		for (int i=0; i<idx.size(); i++) {
+		for (int i : getPosSet() ) {
 			n += idx.get( i ).size();
 		}
 		return n;
