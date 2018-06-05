@@ -97,7 +97,7 @@ public class PQFilterIndex extends AbstractPQFilterIndex {
 		return indexedCountList.getInt( rec );
 	}
 	
-	public Iterable<Integer> getPosSet() {
+	public Set<Integer> getPosSet() {
 		return idx.keySet();
 	}
 

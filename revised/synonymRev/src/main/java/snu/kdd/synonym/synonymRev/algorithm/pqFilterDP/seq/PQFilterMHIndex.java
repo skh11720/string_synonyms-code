@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -25,7 +26,7 @@ public class PQFilterMHIndex extends AbstractPQFilterIndex {
 	}
 
 	@Override
-	public Iterable<Integer> getPosSet() {
+	public Set<Integer> getPosSet() {
 		return posSet;
 	}
 

@@ -25,7 +25,12 @@ public class JoinMHDP1 extends JoinPQFilterDP1 {
 		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<WYK_HashSet<QGram>>();
 		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
 		for ( int pos=0; pos<availableQGrams.size(); ++pos ) {
-			candidatePQGrams.put( pos, new WYK_HashSet<QGram>( availableQGrams.get( pos ) ) );
+			if ( !idx.getPosSet().contains( pos ) ) continue;
+			for ( QGram qgram : availableQGrams.get( pos ) ) {
+				if ( !idx.get( pos ).containsKey( qgram ) ) continue;
+				if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new WYK_HashSet<QGram>( availableQGrams.get( pos ) ) );
+				candidatePQGrams.get( pos ).add(qgram);
+			}
 		}
 		return candidatePQGrams;
 	}
