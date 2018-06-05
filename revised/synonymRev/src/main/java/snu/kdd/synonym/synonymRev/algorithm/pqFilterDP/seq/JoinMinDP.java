@@ -54,7 +54,11 @@ public class JoinMinDP extends JoinMin {
 
 	@Override
 	public String getVersion() {
-		return "1.0";
+		/*
+		 * 1.00: initial version
+		 * 1.01: reduce cand pqgram size
+		 */
+		return "1.01";
 	}
 
 	@Override
