@@ -11,6 +11,9 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class PQFilterMinIndex extends JoinMinIndex {
 
+	public long checkTPQ = 0;
+	public long nCand = 0;
+
 	public PQFilterMinIndex( int nIndex, int qSize, StatContainer stat, Query query, int threshold, boolean writeResult ) {
 		super( nIndex, qSize, stat, query, threshold, writeResult );
 		// TODO Auto-generated constructor stub
@@ -27,8 +30,10 @@ public class PQFilterMinIndex extends JoinMinIndex {
 			for ( QGram qgram : availableQGrams.get( k ) ) {
 				if ( !idx.get( k ).containsKey( qgram ) ) continue;
 				if ( filter.existence( qgram, k ) ) qgrams.add( qgram );
+				++checkTPQ;
 			}
 			candidatePQGrams.add( qgrams );
+			nCand += qgrams.size();
 		}
 		return candidatePQGrams;
 	}

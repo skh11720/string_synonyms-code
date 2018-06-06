@@ -714,6 +714,8 @@ public class JoinMinIndex {
 		long joinStartTime = System.nanoTime();
 
 		long qgramCount = 0;
+//		boolean debug = false;
+//		if ( recS.getID() == 15756 ) debug = true;
 
 		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
 		
@@ -741,6 +743,7 @@ public class JoinMinIndex {
 				}
 
 				List<Record> tree = curridx.get( qgram );
+//				if ( debug ) System.out.println( "i: "+i+", qgram: "+qgram+", tree: "+tree );
 
 				if( tree == null ) {
 					continue;
@@ -774,6 +777,7 @@ public class JoinMinIndex {
 		}
 
 		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, debugArray );
+//		if ( debug) System.out.println( "candSet: "+candSet );
 
 		equivComparisons += candSet.size();
 		for( Record recR : candSet ) {
