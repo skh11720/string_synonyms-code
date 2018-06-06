@@ -19,7 +19,7 @@ public class PQFilterMinIndexInc extends PQFilterMinIndex {
 		super( nIndex, qSize, stat, query, threshold, writeResult );
 		// TODO Auto-generated constructor stub
 		indexK = nIndex;
-		DebugWriteToFile( "tmp/PQFilterMinIndexInc.txt" );
+//		DebugWriteToFile( "tmp/PQFilterMinIndexInc.txt" );
 	}
 	
 	@Override
