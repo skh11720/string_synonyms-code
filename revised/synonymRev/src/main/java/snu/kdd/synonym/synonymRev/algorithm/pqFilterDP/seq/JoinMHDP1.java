@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -26,10 +27,12 @@ public class JoinMHDP1 extends JoinPQFilterDP1 {
 		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
 		for ( int pos=0; pos<availableQGrams.size(); ++pos ) {
 			if ( !idx.getPosSet().contains( pos ) ) continue;
+			Map<QGram, List<Record>> curidx = idx.get( pos );
+			if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new WYK_HashSet<QGram>( availableQGrams.get( pos ) ) );
+			WYK_HashSet<QGram> qgramSet = candidatePQGrams.get( pos );
 			for ( QGram qgram : availableQGrams.get( pos ) ) {
-				if ( !idx.get( pos ).containsKey( qgram ) ) continue;
-				if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new WYK_HashSet<QGram>( availableQGrams.get( pos ) ) );
-				candidatePQGrams.get( pos ).add(qgram);
+				if ( !curidx.containsKey( qgram ) ) continue;
+				qgramSet.add(qgram);
 			}
 		}
 		return candidatePQGrams;
