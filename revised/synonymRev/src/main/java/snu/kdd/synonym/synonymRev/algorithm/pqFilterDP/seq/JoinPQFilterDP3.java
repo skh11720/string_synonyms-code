@@ -46,6 +46,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 		WYK_HashMap<Integer, List<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, List<IntegerPair>>(indexK);
 		for ( int pos : idx.getPosSet() ) {
 			if ( !candidatePQGrams.containsKey( pos ) ) continue;
+			if ( candidatePQGrams.get( pos ).size() == 0 ) continue;
 			mapQGramPrefixList.put( pos, Util.getQGramPrefixList( candidatePQGrams.get( pos ) ) );
 		}
 		long afterCandidateTime = System.currentTimeMillis();
