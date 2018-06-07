@@ -703,7 +703,19 @@ public class JoinMinIndex {
 	}
 	
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		return rec.getQGrams( qgramSize );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
+		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
+		for ( int k=0; k<availableQGrams.size(); ++k ) {
+			if ( k >= idx.size() ) continue;
+			WYK_HashMap<QGram, List<Record>> curidx = idx.get( k );
+			List<QGram> qgrams = new ArrayList<QGram>();
+			for ( QGram qgram : availableQGrams.get( k ) ) {
+				if ( !curidx.containsKey( qgram ) ) continue;
+				qgrams.add( qgram );
+			}
+			candidatePQGrams.add( qgrams );
+		}
+		return candidatePQGrams;
 	}
 
 	public void joinRecordMaxK( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
@@ -983,7 +995,7 @@ public class JoinMinIndex {
 
 	public static class JoinMinCandidateSet {
 		int nIndex;
-		int pqgramFiltered = 0;
+		static int pqgramFiltered = 0;
 
 		WYK_HashMap<Record, Integer> appearingMap = null;
 
