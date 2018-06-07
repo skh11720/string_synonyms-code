@@ -12,6 +12,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 public class PQFilterMinIndex extends JoinMinIndex {
 
 	public long checkTPQ = 0;
+	public long checkTPQTime = 0;
 	public long nCand = 0;
 
 	public PQFilterMinIndex( int nIndex, int qSize, StatContainer stat, Query query, int threshold, boolean writeResult ) {
@@ -29,7 +30,10 @@ public class PQFilterMinIndex extends JoinMinIndex {
 			List<QGram> qgrams = new ArrayList<QGram>();
 			for ( QGram qgram : availableQGrams.get( k ) ) {
 				if ( !idx.get( k ).containsKey( qgram ) ) continue;
-				if ( filter.existence( qgram, k ) ) qgrams.add( qgram );
+				long ts = System.nanoTime();
+				boolean isInTPQ = filter.existence( qgram, k );
+				checkTPQTime += System.nanoTime() - ts;
+				if ( isInTPQ ) qgrams.add( qgram );
 				++checkTPQ;
 			}
 			candidatePQGrams.add( qgrams );

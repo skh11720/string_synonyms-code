@@ -52,7 +52,9 @@ public class PQFilterMinIndexInc extends PQFilterMinIndex {
 			for ( IntegerPair ipair : qgramPrefixList ) {
 				int token = ipair.i1;
 				int depth = ipair.i2;
+				long ts = System.nanoTime();
 				boolean isInTPQ = ((IncrementalDP)filter).existence( token, depth, k );
+				checkTPQTime += System.nanoTime() - ts;
 				++checkTPQ;
 				if (isInTPQ && depth == qgramSize) {
 					qgrams1.add( new QGram( ((IncrementalDP)filter).getQGram() ) );
