@@ -35,6 +35,7 @@ public class JoinMHIndex {
 	int indexK;
 	int qgramSize;
 	int[] indexPosition;
+	protected int maxPosition = 0;
 
 	int qgramCount = 0;
 	long indexTime = 0;
@@ -86,7 +87,6 @@ public class JoinMHIndex {
 			indexedCountList = new Object2IntOpenHashMap<Record>();
 		}
 
-		int maxPosition = 0;
 		for (int idx : indexPosition) {
 			if (maxPosition < idx) {
 				maxPosition = idx;
@@ -245,7 +245,7 @@ public class JoinMHIndex {
 
 		Util.printGCStats(stat, "Stat_Index");
 	}
-
+	
 	public void joinOneRecordForSplit(Record recS, List<List<QGram>> availableQGrams, Query query, Validator checker,
 			ArrayList<IntegerPair> rslt) {
 		long startTime = System.currentTimeMillis();
@@ -319,17 +319,28 @@ public class JoinMHIndex {
 			}
 		}
 	}
+	
+	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
+		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize, maxPosition+1 );
+		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
+		for ( int k=0; k<availableQGrams.size(); ++k ) {
+			if ( k >= joinMHIndex.size() ) continue;
+			WYK_HashMap<QGram, List<Record>> curidx = joinMHIndex.get( k );
+			List<QGram> qgrams = new ArrayList<QGram>();
+			for ( QGram qgram : availableQGrams.get( k ) ) {
+				if ( !curidx.containsKey( qgram ) ) continue;
+				qgrams.add( qgram );
+			}
+			candidatePQGrams.add( qgrams );
+		}
+		return candidatePQGrams;
+//		return rec.getQGrams( qgramSize, maxPosition+1 );
+	}
 
 	public ArrayList<IntegerPair> join(StatContainer stat, Query query, Validator checker, boolean writeResult) {
 		long startTime = System.nanoTime();
 		long totalCountTime = 0;
 		long totalCountValue = 0;
-		int maxPosition = 0;
-		for (int idx : indexPosition) {
-			if (maxPosition < idx) {
-				maxPosition = idx;
-			}
-		}
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 
@@ -364,7 +375,7 @@ public class JoinMHIndex {
 
 			long countStartTime = System.nanoTime();
 
-			List<List<QGram>> availableQGrams = recS.getQGrams(qgramSize, maxPosition + 1);
+			List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
 
 			for (List<QGram> list : availableQGrams) {
 				totalCountValue += list.size();
@@ -418,7 +429,7 @@ public class JoinMHIndex {
 
 							ithCandidates.add(otherRecord);
 						} else {
-							lengthFiltered++;
+							++checker.lengthFiltered;
 						}
 					}
 					cand_sum_afterprune[i] += candidatesCount.size();
@@ -529,7 +540,7 @@ public class JoinMHIndex {
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(-1);
 
-		List<List<QGram>> availableQGrams = recS.getQGrams(qgramSize, maxPosition + 1);
+		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
 		for (List<QGram> list : availableQGrams) {
 			this.countValue += list.size();
 		}
@@ -580,6 +591,7 @@ public class JoinMHIndex {
 
 						ithCandidates.add(otherRecord);
 					}
+					else ++checker.lengthFiltered;
 				}
 			}
 
@@ -602,6 +614,7 @@ public class JoinMHIndex {
 			if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 				candidates.add(record);
 			}
+			else ++checker.pqgramFiltered;
 		}
 
 		equivComparisons += candidates.size();

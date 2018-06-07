@@ -269,7 +269,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		for ( Record recOther : candidateAfterCount ) {
 			if ( useLF ) {
 				if ( rec_maxlen < recOther.size() ) {
-					++checker.filtered;
+					++checker.lengthFiltered;
 					continue;
 				}
 			}

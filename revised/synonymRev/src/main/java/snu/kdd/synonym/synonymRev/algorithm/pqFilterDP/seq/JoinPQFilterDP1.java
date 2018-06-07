@@ -35,8 +35,8 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 	}
 	
 	@Override
-	protected Int2ObjectOpenHashMap<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
-		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<WYK_HashSet<QGram>>();
+	protected Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> getCandidatePQGrams(Record rec) {
+		Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>>();
 		int[][] transLen = rec.getTransLengthsAll();
 //		boolean debug = false;
 //		if ( rec.getID() == 19964 ) debug = true;
@@ -74,7 +74,7 @@ public class JoinPQFilterDP1 extends JoinPQFilterDPNaive {
 					for ( int len=minLen; len<=maxLen; ++len ) {
 						int pos = len + j_start;
 //						if (debug) System.out.println( "pos: "+pos +", qgramSet: "+qgramSet );
-						if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new WYK_HashSet<QGram>() );
+						if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new ObjectOpenHashSet<QGram>() );
 						for ( QGram qgram : qgramSet ) candidatePQGrams.get( pos ).add( qgram );
 					}
 				}

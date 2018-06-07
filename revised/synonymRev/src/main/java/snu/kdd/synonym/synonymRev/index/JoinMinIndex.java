@@ -43,7 +43,7 @@ public class JoinMinIndex {
 	public double epsilon;
 	public double epsilonPrime;
 
-	protected int qSize;
+	protected int qgramSize;
 
 	public long searchedTotalSigCount;
 	public long indexedTotalSigCount;
@@ -54,6 +54,7 @@ public class JoinMinIndex {
 	double getQGramTime;
 	public long comparisonCount;
 	public long lengthFiltered;
+	protected long nCandQGrams;
 
 	public double joinTime;
 	public double indexTime;
@@ -66,7 +67,7 @@ public class JoinMinIndex {
 		// NOW, it makes index for all sequences
 		
 		this.idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
-		this.qSize = qSize;
+		this.qgramSize = qSize;
 
 		boolean hybridIndex = threshold != 0;
 
@@ -441,7 +442,17 @@ public class JoinMinIndex {
 		}
 
 		if( writeResult ) {
-			this.addStat( stat );
+			if( DEBUG.JoinMinIndexON ) {
+				for( int i = 0; i < countPerPosition.size(); i++ ) {
+					stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
+				}
+
+				for( int i = 0; i < idx.size(); i++ ) {
+					if( idx.get( i ).size() != 0 ) {
+						stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
+					}
+				}
+			}
 			stat.add( "Counter_Index_1_HashCollision", WYK_HashSet.collision );
 			stat.add( "Counter_Index_1_HashResize", WYK_HashSet.resize );
 			Util.printGCStats( stat, "Stat_Index" );
@@ -455,20 +466,6 @@ public class JoinMinIndex {
 	public void setIndex( int position ) {
 		while( idx.size() <= position ) {
 			idx.add( new WYK_HashMap<QGram, List<Record>>() );
-		}
-	}
-
-	public void addStat( StatContainer stat ) {
-		if( DEBUG.JoinMinIndexON ) {
-			for( int i = 0; i < countPerPosition.size(); i++ ) {
-				stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
-			}
-
-			for( int i = 0; i < idx.size(); i++ ) {
-				if( idx.get( i ).size() != 0 ) {
-					stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), idx.get( i ).size() );
-				}
-			}
 		}
 	}
 
@@ -589,7 +586,7 @@ public class JoinMinIndex {
 			qgramStartTime = System.nanoTime();
 		}
 
-		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
+		List<List<QGram>> availableQGrams = recS.getQGrams( qgramSize );
 
 		// DEBUG
 		// boolean debug = false;
@@ -706,7 +703,19 @@ public class JoinMinIndex {
 	}
 	
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		return rec.getQGrams( qSize );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
+		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
+		for ( int k=0; k<availableQGrams.size(); ++k ) {
+			if ( k >= idx.size() ) continue;
+			WYK_HashMap<QGram, List<Record>> curidx = idx.get( k );
+			List<QGram> qgrams = new ArrayList<QGram>();
+			for ( QGram qgram : availableQGrams.get( k ) ) {
+				if ( !curidx.containsKey( qgram ) ) continue;
+				qgrams.add( qgram );
+			}
+			candidatePQGrams.add( qgrams );
+		}
+		return candidatePQGrams;
 	}
 
 	public void joinRecordMaxK( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
@@ -728,6 +737,7 @@ public class JoinMinIndex {
 		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
 
 		for( int i = 0; i < searchmax; ++i ) {
+			nCandQGrams += availableQGrams.get( i ).size();
 			Map<QGram, List<Record>> curridx = idx.get( i );
 			if( curridx == null ) {
 				continue;
@@ -759,7 +769,7 @@ public class JoinMinIndex {
 							comparisonCount++;
 						}
 						else {
-							lengthFiltered++;
+							++checker.lengthFiltered;
 						}
 					}
 					else {
@@ -768,7 +778,7 @@ public class JoinMinIndex {
 							comparisonCount++;
 						}
 						else {
-							lengthFiltered++;
+							++checker.lengthFiltered;
 						}
 					}
 				}
@@ -777,6 +787,7 @@ public class JoinMinIndex {
 		}
 
 		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, debugArray );
+		checker.pqgramFiltered += allCandidateSet.pqgramFiltered;
 //		if ( debug) System.out.println( "candSet: "+candSet );
 
 		equivComparisons += candSet.size();
@@ -833,7 +844,7 @@ public class JoinMinIndex {
 			hist = new Histogram( "Validation" );
 		}
 
-		List<List<QGram>> availableQGrams = recS.getQGrams( qSize );
+		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
 
 		if( DEBUG.JoinMinON ) {
 			getQGramTime += System.nanoTime() - qgramStartTime;
@@ -849,6 +860,7 @@ public class JoinMinIndex {
 		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
 
 		for( int i = 0; i < searchmax; ++i ) {
+			nCandQGrams += availableQGrams.get( i ).size();
 			Map<QGram, List<Record>> curridx = idx.get( i );
 			if( curridx == null ) {
 				continue;
@@ -880,7 +892,7 @@ public class JoinMinIndex {
 							comparisonCount++;
 						}
 						else {
-							lengthFiltered++;
+							++checker.lengthFiltered;
 						}
 					}
 					else {
@@ -889,7 +901,7 @@ public class JoinMinIndex {
 							comparisonCount++;
 						}
 						else {
-							lengthFiltered++;
+							++checker.lengthFiltered;
 						}
 					}
 				}
@@ -898,6 +910,7 @@ public class JoinMinIndex {
 		}
 
 		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, null );
+		checker.pqgramFiltered += allCandidateSet.pqgramFiltered;
 
 		equivComparisons += candSet.size();
 		if( DEBUG.JoinMinON ) {
@@ -980,8 +993,9 @@ public class JoinMinIndex {
 		return epsilon * predictCount;
 	}
 
-	public static class JoinMinCandidateSet {
+	public class JoinMinCandidateSet {
 		int nIndex;
+		int pqgramFiltered = 0;
 
 		WYK_HashMap<Record, Integer> appearingMap = null;
 
@@ -1025,9 +1039,14 @@ public class JoinMinIndex {
 				if( indexedCountMap.getInt( r ) == entry.getValue() ) {
 					list.add( r );
 				}
+				else ++pqgramFiltered;
 			}
 
 			return list;
 		}
+	}
+	
+	public void addStat( StatContainer stat ) {
+		stat.add( "nCandQGrams", nCandQGrams );
 	}
 }

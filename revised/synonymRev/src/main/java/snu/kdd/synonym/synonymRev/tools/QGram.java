@@ -12,12 +12,19 @@ public class QGram {
 	private static final int SHIFT_VAL = 199807;
 	// private static final int SHIFT_VAL = 314161;
 
-	public int hash = -1;
+	public final int hash;
 
-	public int[] qgram;
+	public final int[] qgram;
 
 	public QGram( int[] qgram ) {
 		this.qgram = qgram;
+
+		int hc = qgram.length;
+		for( int i = 0; i < qgram.length; i++ ) {
+			hc = hc * SHIFT_VAL + qgram[ i ];
+		}
+
+		hash = Math.abs( hc );
 	}
 
 	@Override
@@ -60,16 +67,6 @@ public class QGram {
 
 	@Override
 	public int hashCode() {
-		if( hash >= 0 )
-			return hash;
-
-		int hc = qgram.length;
-		for( int i = 0; i < qgram.length; i++ ) {
-			hc = hc * SHIFT_VAL + qgram[ i ];
-		}
-
-		hash = Math.abs( hc );
-
 		return hash;
 	}
 

@@ -33,16 +33,16 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 	}
 
 	public Validator checker;
-	private int qSize = 0;
-	private int indexK = 0;
-	private int joinThreshold = 1;
-	private boolean joinMHRequired = true;
+	protected int qSize = 0;
+	protected int indexK = 0;
+	protected int joinThreshold = 1;
+	protected boolean joinMHRequired = true;
 
 	NaiveIndex naiveIndex;
 	JoinMHIndex joinMHIndex;
 
-	private long maxSearchedEstNumRecords = 0;
-	private long maxIndexedEstNumRecords = 0;
+	protected long maxSearchedEstNumRecords = 0;
+	protected long maxIndexedEstNumRecords = 0;
 
 	@Override
 	public void preprocess() {
@@ -96,9 +96,10 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 		writeResult( rslt );
 		stepTime.stopAndAdd( stat );
+		checker.addStat( stat );
 	}
 
-	private void buildJoinMHIndex(int threshold) {
+	protected void buildJoinMHIndex(int threshold) {
 		// Build an index
 		int[] index = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
@@ -108,7 +109,7 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 		joinMHIndex = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, threshold );
 	}
 
-	private void buildNaiveIndex() {
+	protected void buildNaiveIndex() {
 		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, true, query );
 	}
 
@@ -118,7 +119,7 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 	 *
 	 * @return
 	 */
-	private ArrayList<IntegerPair> join() {
+	protected ArrayList<IntegerPair> join() {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMHRequired ) {
@@ -161,6 +162,7 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 
 			joinMinResultSize = rslt.size();
 			stat.add( "Join_Min_Result", joinMinResultSize );
+			stat.add( "nCandQGrams", joinMHIndex.countValue );
 			// stat.add( "Stat_Equiv_Comparison", joinMHIndex.equivComparisons );
 		}
 
@@ -218,9 +220,9 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
 			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
 
-			stat.add( "Stat_Naive search count", naiveSearch );
 			stepTime.stopAndAdd( stat );
 		}
+		stat.add( "Stat_Naive_search_count", naiveSearch );
 
 		return rslt;
 	}
