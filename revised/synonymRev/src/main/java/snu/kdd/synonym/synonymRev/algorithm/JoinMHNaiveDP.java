@@ -1,19 +1,12 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHDPIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHNaiveDP extends JoinMHNaive {
 

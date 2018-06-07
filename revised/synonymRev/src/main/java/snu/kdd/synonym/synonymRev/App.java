@@ -24,7 +24,9 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThresDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaive;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaiveDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaiveThres;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaiveThresDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinPosition;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinRange;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
@@ -213,6 +215,14 @@ public class App {
 		
 		case JoinMinDP:
 			alg = new JoinMinDP( query, stat );
+			break;
+		
+		case JoinMinNaiveDP:
+			alg = new JoinMinNaiveDP( query, stat );
+			break;
+		
+		case JoinMinNaiveThresDP:
+			alg = new JoinMinNaiveThresDP( query, stat );
 			break;
 		
 		case JoinPkduckSet:

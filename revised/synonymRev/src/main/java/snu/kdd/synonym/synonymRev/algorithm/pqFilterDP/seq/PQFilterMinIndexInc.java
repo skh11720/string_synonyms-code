@@ -24,9 +24,9 @@ public class PQFilterMinIndexInc extends PQFilterMinIndex {
 	
 	@Override
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
 		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
-		PosQGramFilterDPInc filter = new PosQGramFilterDPInc(rec, qSize);
+		PosQGramFilterDPInc filter = new PosQGramFilterDPInc(rec, qgramSize);
 //		boolean debug = false;
 //		if ( rec.getID() == 15756 ) debug = true;
 
@@ -52,9 +52,11 @@ public class PQFilterMinIndexInc extends PQFilterMinIndex {
 			for ( IntegerPair ipair : qgramPrefixList ) {
 				int token = ipair.i1;
 				int depth = ipair.i2;
+				long ts = System.nanoTime();
 				boolean isInTPQ = ((IncrementalDP)filter).existence( token, depth, k );
+				checkTPQTime += System.nanoTime() - ts;
 				++checkTPQ;
-				if (isInTPQ && depth == qSize) {
+				if (isInTPQ && depth == qgramSize) {
 					qgrams1.add( new QGram( ((IncrementalDP)filter).getQGram() ) );
 				}
 			}
