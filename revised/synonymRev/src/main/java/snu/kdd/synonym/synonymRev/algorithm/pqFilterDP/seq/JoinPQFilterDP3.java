@@ -8,6 +8,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -18,7 +19,6 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
 public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 	
@@ -41,7 +41,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
-		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
+		Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
 		// Build mapQGramPrefixList from candidatePQGrams.
 		WYK_HashMap<Integer, List<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, List<IntegerPair>>(indexK);
 		for ( int pos : idx.getPosSet() ) {
@@ -106,7 +106,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 							}
 							else throw new RuntimeException("oneSideJoin is supported only.");
 							if (!StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
-								++checker.filtered;
+								++checker.lengthFiltered;
 								continue;
 							}
 						}
@@ -120,9 +120,10 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 			}
 		}
 		
-		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
+		Set<Record> candidatesAfterDP = new ObjectOpenHashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
 			if ( idx.getIndexedCount( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
+			else ++checker.pqgramFiltered;
 		}
 		long afterFilteringTime = System.currentTimeMillis();
 

@@ -26,12 +26,12 @@ public class JoinMHNaive extends AlgorithmTemplate {
 	}
 
 	public Validator checker;
-	SampleEstimate estimate;
-	private int qSize = 0;
-	private int indexK = 0;
-	private double sampleRatio = 0;
-	private int joinThreshold = 1;
-	private boolean joinMHRequired = true;
+	protected SampleEstimate estimate;
+	protected int qSize = 0;
+	protected int indexK = 0;
+	protected double sampleRatio = 0;
+	protected int joinThreshold = 1;
+	protected boolean joinMHRequired = true;
 
 	NaiveIndex naiveIndex;
 	JoinMHIndex joinMHIdx;
@@ -86,9 +86,10 @@ public class JoinMHNaive extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 		writeResult( rslt );
 		stepTime.stopAndAdd( stat );
+		checker.addStat( stat );
 	}
 
-	private void buildJoinMHIndex() {
+	protected void buildJoinMHIndex() {
 		// Build an index
 		int[] index = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
@@ -141,6 +142,7 @@ public class JoinMHNaive extends AlgorithmTemplate {
 
 			joinMHResultSize = rslt.size();
 			stat.add( "Join_MH_Result", joinMHResultSize );
+			stat.add( "nCandQgrams", joinMHIdx.countValue );
 			stat.add( "Stat_Equiv_Comparison", joinMHIdx.equivComparisons );
 		}
 		joinTime.stopQuiet();
@@ -177,9 +179,8 @@ public class JoinMHNaive extends AlgorithmTemplate {
 			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinNanoTime / naiveIndex.totalExp ) );
 			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
 			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
-
-			stat.add( "Stat_Naive search count", naiveSearch );
 		}
+		stat.add( "Stat_Naive_search_count", naiveSearch );
 		buildTime.stopAndAdd( stat );
 		return rslt;
 	}

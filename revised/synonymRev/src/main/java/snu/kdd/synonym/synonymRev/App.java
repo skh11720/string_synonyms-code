@@ -18,7 +18,9 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll;
 import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll_NEW;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaive;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThres;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThresDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaive;
@@ -199,6 +201,14 @@ public class App {
 		
 		case JoinMHDP:
 			alg = new JoinMHDPWrapper( query, stat );
+			break;
+		
+		case JoinMHNaiveDP:
+			alg = new JoinMHNaiveDP( query, stat );
+			break;
+		
+		case JoinMHNaiveThresDP:
+			alg = new JoinMHNaiveThresDP( query, stat );
 			break;
 		
 		case JoinMinDP:

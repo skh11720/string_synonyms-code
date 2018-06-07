@@ -232,7 +232,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 					if ( useLF ) {
 //						if (debug) System.out.println( "length filtered?: "+(rec_maxlen < recOther.size()) );
 						if ( rec_maxlen < recOther.size() ) {
-							++checker.filtered;
+							++checker.lengthFiltered;
 							continue;
 						}
 						candidateAfterLF.add( recOther );

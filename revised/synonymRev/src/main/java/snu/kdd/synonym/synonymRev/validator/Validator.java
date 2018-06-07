@@ -14,7 +14,8 @@ public abstract class Validator {
 	public long nitertokens;
 	public long earlyevaled;
 	public long earlystopped;
-	public long filtered;
+	public long lengthFiltered;
+	public long pqgramFiltered;
 
 	public abstract int isEqual( Record x, Record y );
 
@@ -43,7 +44,8 @@ public abstract class Validator {
 		stat.add( "Val_Iter_tokens", nitertokens );
 		stat.add( "Val_Early_evaled", earlyevaled );
 		stat.add( "Val_Early_stopped", earlystopped );
-		stat.add( "Val_Length_filtered", filtered );
+		stat.add( "Val_Length_filtered", lengthFiltered );
+		stat.add( "Val_PQGram_filtered", pqgramFiltered );
 	}
 
 	public void printStats() {
@@ -56,7 +58,8 @@ public abstract class Validator {
 			Util.printLog( "Total iter tokens: " + nitertokens );
 			Util.printLog( "Early evaled: " + earlyevaled );
 			Util.printLog( "Early stopped: " + earlystopped );
-			Util.printLog( "Length filtered: " + filtered );
+			Util.printLog( "Length filtered: " + lengthFiltered );
+			Util.printLog( "PQGram filtered: " + pqgramFiltered );
 		}
 	}
 

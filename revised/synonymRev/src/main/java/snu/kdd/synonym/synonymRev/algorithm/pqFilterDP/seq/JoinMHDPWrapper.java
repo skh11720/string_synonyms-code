@@ -33,8 +33,9 @@ public class JoinMHDPWrapper extends AlgorithmTemplate{
 		/*
 		 * 1.00: initial version
 		 * 1.01: reduce cand pqgram size
+		 * 1.02: some optimizations
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override
