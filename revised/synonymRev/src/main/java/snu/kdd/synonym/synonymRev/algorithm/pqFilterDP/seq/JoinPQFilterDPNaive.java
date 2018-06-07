@@ -62,7 +62,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 				rec.preprocessSuffixApplicableRules();
 			}
 		}
-		globalOrder.initializeForSequence( query, false );
+		if ( indexOpt.equals( "FF" ) ) globalOrder.initializeForSequence( query, false );
 	}
 
 	// TODO: refactor; move run(), runAfter...(), ... to the parent.
