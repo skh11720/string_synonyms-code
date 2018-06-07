@@ -321,7 +321,20 @@ public class JoinMHIndex {
 	}
 	
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		return rec.getQGrams( qgramSize, maxPosition+1 );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize, maxPosition+1 );
+		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
+		for ( int k=0; k<availableQGrams.size(); ++k ) {
+			if ( k >= joinMHIndex.size() ) continue;
+			WYK_HashMap<QGram, List<Record>> curidx = joinMHIndex.get( k );
+			List<QGram> qgrams = new ArrayList<QGram>();
+			for ( QGram qgram : availableQGrams.get( k ) ) {
+				if ( !curidx.containsKey( qgram ) ) continue;
+				qgrams.add( qgram );
+			}
+			candidatePQGrams.add( qgrams );
+		}
+		return candidatePQGrams;
+//		return rec.getQGrams( qgramSize, maxPosition+1 );
 	}
 
 	public ArrayList<IntegerPair> join(StatContainer stat, Query query, Validator checker, boolean writeResult) {
@@ -416,7 +429,7 @@ public class JoinMHIndex {
 
 							ithCandidates.add(otherRecord);
 						} else {
-							lengthFiltered++;
+							++checker.lengthFiltered;
 						}
 					}
 					cand_sum_afterprune[i] += candidatesCount.size();
@@ -578,6 +591,7 @@ public class JoinMHIndex {
 
 						ithCandidates.add(otherRecord);
 					}
+					else ++checker.lengthFiltered;
 				}
 			}
 
@@ -600,6 +614,7 @@ public class JoinMHIndex {
 			if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 				candidates.add(record);
 			}
+			else ++checker.pqgramFiltered;
 		}
 
 		equivComparisons += candidates.size();

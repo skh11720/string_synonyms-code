@@ -13,8 +13,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 public class JoinMHDPIndex extends JoinMHIndex {
 	
 	public long checkTPQ = 0;
-	public long nCand = 0;
-	public long candTime = 0;
+	public long checkTPQTime = 0;
 
 	public JoinMHDPIndex( int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
 			int[] indexPosition, boolean addStat, boolean useIndexCount, int threshold ) {
@@ -24,8 +23,7 @@ public class JoinMHDPIndex extends JoinMHIndex {
 	
 	@Override
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		long ts = System.currentTimeMillis();
-		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize, maxPosition+1 );
 		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
 		PosQGramFilterDP filter = new PosQGramFilterDP(rec, qgramSize);
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
@@ -34,14 +32,20 @@ public class JoinMHDPIndex extends JoinMHIndex {
 			List<QGram> qgrams = new ArrayList<QGram>();
 			for ( QGram qgram : availableQGrams.get( k ) ) {
 				if ( !curidx.containsKey( qgram ) ) continue;
-				if ( filter.existence( qgram, k ) ) qgrams.add( qgram );
+				long ts = System.nanoTime();
+				boolean isInTPQ = filter.existence( qgram, k );
+				checkTPQTime += System.nanoTime() - ts;
+				if ( isInTPQ ) qgrams.add( qgram );
 				++checkTPQ;
 			}
 			candidatePQGrams.add( qgrams );
 		}
 		
-		candTime += System.currentTimeMillis() - ts;
-		for ( List<QGram> qgrams : candidatePQGrams ) nCand += qgrams.size();
 		return candidatePQGrams;
+	}
+	
+	public void addStat( StatContainer stat ) {
+		stat.add( "checkTPQ", checkTPQ );
+		stat.add( "checkTPQTime", checkTPQTime/1e6 );
 	}
 }

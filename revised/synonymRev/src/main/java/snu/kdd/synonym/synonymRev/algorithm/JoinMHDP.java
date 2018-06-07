@@ -36,8 +36,8 @@ public class JoinMHDP extends JoinMH {
 		// TODO Auto-generated method stub
 		super.run();
 		stat.add( "checkTPQ", ((JoinMHDPIndex)idx).checkTPQ );
-		stat.add( "nCand", ((JoinMHDPIndex)idx).nCand );
-		stat.add( "candTime", ((JoinMHDPIndex)idx).candTime );
+//		stat.add( "nCand", ((JoinMHDPIndex)idx).nCand );
+		stat.add( "checkTPQTime", ((JoinMHDPIndex)idx).checkTPQTime );
 	}
 	
 	@Override
