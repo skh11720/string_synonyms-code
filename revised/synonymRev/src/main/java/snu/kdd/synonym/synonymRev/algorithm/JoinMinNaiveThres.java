@@ -98,7 +98,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 		writeResult( rslt );
 		stepTime.stopAndAdd( stat );
 
-		joinMinIdx.addStat( stat );
+		if ( joinMinRequired ) joinMinIdx.addStat( stat );
 		checker.addStat( stat );
 	}
 
