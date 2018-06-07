@@ -21,9 +21,9 @@ public class PQFilterMinIndex extends JoinMinIndex {
 	
 	@Override
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
 		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
-		PosQGramFilterDP filter = new PosQGramFilterDP(rec, qSize);
+		PosQGramFilterDP filter = new PosQGramFilterDP(rec, qgramSize);
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
 			if ( k >= idx.size() ) continue;
 			List<QGram> qgrams = new ArrayList<QGram>();
