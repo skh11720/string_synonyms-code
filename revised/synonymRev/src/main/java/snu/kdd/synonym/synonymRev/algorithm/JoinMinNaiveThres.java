@@ -33,16 +33,16 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	}
 
 	public Validator checker;
-	private int qSize = 0;
-	private int indexK = 0;
-	private int joinThreshold = 1;
-	private boolean joinMinRequired = true;
+	protected int qSize = 0;
+	protected int indexK = 0;
+	protected int joinThreshold = 1;
+	protected boolean joinMinRequired = true;
 
 	NaiveIndex naiveIndex;
 	JoinMinIndex joinMinIdx;
 
-	private long maxSearchedEstNumRecords = 0;
-	private long maxIndexedEstNumRecords = 0;
+	protected long maxSearchedEstNumRecords = 0;
+	protected long maxIndexedEstNumRecords = 0;
 
 	@Override
 	public void preprocess() {
@@ -97,14 +97,17 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 		writeResult( rslt );
 		stepTime.stopAndAdd( stat );
+
+		joinMinIdx.addStat( stat );
+		checker.addStat( stat );
 	}
 
-	private void buildJoinMinIndex() {
+	protected void buildJoinMinIndex() {
 		// Build an index
 		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
 	}
 
-	private void buildNaiveIndex() {
+	protected void buildNaiveIndex() {
 		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, true, query );
 	}
 
@@ -114,7 +117,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	 *
 	 * @return
 	 */
-	private ArrayList<IntegerPair> join() {
+	protected ArrayList<IntegerPair> join() {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMinRequired ) {

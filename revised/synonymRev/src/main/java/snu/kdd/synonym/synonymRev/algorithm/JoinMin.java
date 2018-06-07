@@ -156,6 +156,7 @@ public class JoinMin extends AlgorithmTemplate {
 
 		preprocessTime.stopAndAdd( stat );
 
+		idx.addStat( stat );
 		checker.addStat( stat );
 	}
 
