@@ -23,6 +23,12 @@ public class JoinMHNaiveDP extends JoinMHNaive {
 	}
 	
 	@Override
+	public void run( Query query, String[] args ) throws IOException, ParseException {
+		super.run( query, args );
+		((JoinMHDPIndex)joinMHIdx).addStat( stat );
+	}
+	
+	@Override
 	protected void buildJoinMHIndex() {
 		int[] indexPosition = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {

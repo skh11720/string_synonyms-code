@@ -142,6 +142,7 @@ public class JoinMHNaive extends AlgorithmTemplate {
 
 			joinMHResultSize = rslt.size();
 			stat.add( "Join_MH_Result", joinMHResultSize );
+			stat.add( "nCandQgrams", joinMHIdx.countValue );
 			stat.add( "Stat_Equiv_Comparison", joinMHIdx.equivComparisons );
 		}
 		joinTime.stopQuiet();
