@@ -18,7 +18,7 @@ public class JoinMHNaiveDP extends JoinMHNaive {
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		super.run( query, args );
-		((JoinMHDPIndex)joinMHIdx).addStat( stat );
+		if ( joinMHRequired ) ((JoinMHDPIndex)joinMHIdx).addStat( stat );
 	}
 	
 	@Override
