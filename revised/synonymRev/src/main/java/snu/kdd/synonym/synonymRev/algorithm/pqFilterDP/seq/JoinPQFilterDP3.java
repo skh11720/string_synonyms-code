@@ -19,7 +19,6 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
 public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 	
@@ -121,9 +120,10 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 			}
 		}
 		
-		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
+		Set<Record> candidatesAfterDP = new ObjectOpenHashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
 			if ( idx.getIndexedCount( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
+			else ++checker.pqgramFiltered;
 		}
 		long afterFilteringTime = System.currentTimeMillis();
 

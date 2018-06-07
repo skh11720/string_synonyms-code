@@ -227,9 +227,10 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 			}
 		}
 		
-		Set<Record> candidatesAfterDP = new WYK_HashSet<Record>();
+		Set<Record> candidatesAfterDP = new ObjectOpenHashSet<Record>();
 		for (Record recT : candidatesCount.keySet()) {
 			if ( idx.getIndexedCount( recT ) <= candidatesCount.getInt( recT ) ) candidatesAfterDP.add( recT );
+			else ++checker.pqgramFiltered;
 		}
 		long afterFilteringTime = System.currentTimeMillis();
 

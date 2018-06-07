@@ -3,17 +3,13 @@ package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
 public class JoinMHDP3 extends JoinPQFilterDP3 {
 	
