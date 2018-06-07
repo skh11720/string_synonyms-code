@@ -87,7 +87,6 @@ public class JoinMHIndex {
 			indexedCountList = new Object2IntOpenHashMap<Record>();
 		}
 
-		int maxPosition = 0;
 		for (int idx : indexPosition) {
 			if (maxPosition < idx) {
 				maxPosition = idx;
@@ -329,11 +328,6 @@ public class JoinMHIndex {
 		long startTime = System.nanoTime();
 		long totalCountTime = 0;
 		long totalCountValue = 0;
-		for (int idx : indexPosition) {
-			if (maxPosition < idx) {
-				maxPosition = idx;
-			}
-		}
 
 		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
 

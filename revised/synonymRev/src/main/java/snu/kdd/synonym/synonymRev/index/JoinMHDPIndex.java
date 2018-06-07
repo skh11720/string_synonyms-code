@@ -22,6 +22,7 @@ public class JoinMHDPIndex extends JoinMHIndex {
 		// TODO Auto-generated constructor stub
 	}
 	
+	@Override
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
 		long ts = System.currentTimeMillis();
 		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
