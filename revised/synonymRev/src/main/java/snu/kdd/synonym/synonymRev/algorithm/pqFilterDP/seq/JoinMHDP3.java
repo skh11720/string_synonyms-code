@@ -22,14 +22,14 @@ public class JoinMHDP3 extends JoinPQFilterDP3 {
 	}
 
 	@Override
-	protected Int2ObjectOpenHashMap<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
-		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<WYK_HashSet<QGram>>();
+	protected Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> getCandidatePQGrams(Record rec) {
+		Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>>();
 		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
 		for ( int pos=0; pos<availableQGrams.size(); ++pos ) {
 			if ( !idx.getPosSet().contains( pos ) ) continue;
 			Map<QGram, List<Record>> curidx = idx.get( pos );
-			if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new WYK_HashSet<QGram>() );
-			WYK_HashSet<QGram> qgramSet = candidatePQGrams.get( pos );
+			if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new ObjectOpenHashSet<QGram>() );
+			ObjectOpenHashSet<QGram> qgramSet = candidatePQGrams.get( pos );
 			for ( QGram qgram : availableQGrams.get( pos ) ) {
 				if ( curidx.containsKey( qgram ) ) qgramSet.add(qgram);
 			}

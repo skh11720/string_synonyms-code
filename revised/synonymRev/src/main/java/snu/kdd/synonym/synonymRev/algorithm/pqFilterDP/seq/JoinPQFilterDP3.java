@@ -8,6 +8,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -41,7 +42,7 @@ public class JoinPQFilterDP3 extends JoinPQFilterDP1 {
 
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
-		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
+		Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
 		// Build mapQGramPrefixList from candidatePQGrams.
 		WYK_HashMap<Integer, List<IntegerPair>> mapQGramPrefixList = new WYK_HashMap<Integer, List<IntegerPair>>(indexK);
 		for ( int pos : idx.getPosSet() ) {

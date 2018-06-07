@@ -177,7 +177,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate pos-qgrams of recS.
-		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
+		Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> candidatePQGrams = getCandidatePQGrams( recS );
 		long afterCandidateTime = System.currentTimeMillis();
 
 		// prepare filtering
@@ -245,11 +245,11 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		validateTime += afterValidateTime - afterFilteringTime;
 	}
 	
-	protected Int2ObjectOpenHashMap<WYK_HashSet<QGram>> getCandidatePQGrams(Record rec) {
+	protected Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> getCandidatePQGrams(Record rec) {
 		// Since the algorithm is "Naive", the input record is not used.
-		Int2ObjectOpenHashMap<WYK_HashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<WYK_HashSet<QGram>>();
+		Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>> candidatePQGrams = new Int2ObjectOpenHashMap<ObjectOpenHashSet<QGram>>();
 		for ( int pos : idx.getPosSet() ) {
-			candidatePQGrams.put( pos, new WYK_HashSet<QGram>() );
+			candidatePQGrams.put( pos, new ObjectOpenHashSet<QGram>() );
 			for (QGram qgram : idx.get( pos ).keySet()) {
 				candidatePQGrams.get( pos ).add( qgram );
 			}
