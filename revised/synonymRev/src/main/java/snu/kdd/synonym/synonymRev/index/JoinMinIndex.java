@@ -787,7 +787,7 @@ public class JoinMinIndex {
 		}
 
 		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, debugArray );
-		checker.pqgramFiltered = allCandidateSet.pqgramFiltered;
+		checker.pqgramFiltered += allCandidateSet.pqgramFiltered;
 //		if ( debug) System.out.println( "candSet: "+candSet );
 
 		equivComparisons += candSet.size();
@@ -910,7 +910,7 @@ public class JoinMinIndex {
 		}
 
 		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, null );
-		checker.pqgramFiltered = allCandidateSet.pqgramFiltered;
+		checker.pqgramFiltered += allCandidateSet.pqgramFiltered;
 
 		equivComparisons += candSet.size();
 		if( DEBUG.JoinMinON ) {
@@ -993,9 +993,9 @@ public class JoinMinIndex {
 		return epsilon * predictCount;
 	}
 
-	public static class JoinMinCandidateSet {
+	public class JoinMinCandidateSet {
 		int nIndex;
-		static int pqgramFiltered = 0;
+		int pqgramFiltered = 0;
 
 		WYK_HashMap<Record, Integer> appearingMap = null;
 
