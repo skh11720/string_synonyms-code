@@ -94,7 +94,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 		writeResult( rslt );
 		stepTime.stopAndAdd( stat );
-		joinMinIdx.addStat( stat );
+		if ( joinMinRequired ) joinMinIdx.addStat( stat );
 		checker.addStat( stat );
 	}
 
