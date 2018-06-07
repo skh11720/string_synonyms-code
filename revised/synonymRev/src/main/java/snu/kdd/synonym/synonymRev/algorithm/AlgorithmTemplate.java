@@ -46,6 +46,7 @@ public abstract class AlgorithmTemplate {
 		JoinPQFilterDP,
 		JoinMHDP,
 		JoinMHNaiveDP,
+		JoinMHNaiveThresDP,
 		JoinMinDP,
 		JoinPkduckSet,
 		JoinPQFilterDPSet,
