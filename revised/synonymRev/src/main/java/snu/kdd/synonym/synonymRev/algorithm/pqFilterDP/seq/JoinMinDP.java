@@ -44,7 +44,7 @@ public class JoinMinDP extends JoinMin {
 		preprocessTime.stopAndAdd( stat );
 		
 		stat.add( "checkTPQ", ((PQFilterMinIndex)idx).checkTPQ );
-		stat.add( "nCand", ((PQFilterMinIndex)idx).nCand );
+		stat.add( "nCandQGrams", ((PQFilterMinIndex)idx).nCand );
 
 		checker.addStat( stat );
 	}

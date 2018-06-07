@@ -162,7 +162,7 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 
 			joinMinResultSize = rslt.size();
 			stat.add( "Join_Min_Result", joinMinResultSize );
-			stat.add( "nCandQgrams", joinMHIndex.countValue );
+			stat.add( "nCandQGrams", joinMHIndex.countValue );
 			// stat.add( "Stat_Equiv_Comparison", joinMHIndex.equivComparisons );
 		}
 

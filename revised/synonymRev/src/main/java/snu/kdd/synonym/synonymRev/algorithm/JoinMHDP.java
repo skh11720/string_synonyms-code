@@ -15,6 +15,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
+@Deprecated
 public class JoinMHDP extends JoinMH {
 
 	public JoinMHDP( Query query, StatContainer stat ) throws IOException {
@@ -36,7 +37,7 @@ public class JoinMHDP extends JoinMH {
 		// TODO Auto-generated method stub
 		super.run();
 		stat.add( "checkTPQ", ((JoinMHDPIndex)idx).checkTPQ );
-//		stat.add( "nCand", ((JoinMHDPIndex)idx).nCand );
+		stat.add( "nCandQGrams", ((JoinMHDPIndex)idx).countValue );
 		stat.add( "checkTPQTime", ((JoinMHDPIndex)idx).checkTPQTime );
 	}
 	
