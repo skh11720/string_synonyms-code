@@ -28,11 +28,10 @@ public class JoinMHDP1 extends JoinPQFilterDP1 {
 		for ( int pos=0; pos<availableQGrams.size(); ++pos ) {
 			if ( !idx.getPosSet().contains( pos ) ) continue;
 			Map<QGram, List<Record>> curidx = idx.get( pos );
-			if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new WYK_HashSet<QGram>( availableQGrams.get( pos ) ) );
+			if ( !candidatePQGrams.containsKey( pos ) ) candidatePQGrams.put( pos, new WYK_HashSet<QGram>() );
 			WYK_HashSet<QGram> qgramSet = candidatePQGrams.get( pos );
 			for ( QGram qgram : availableQGrams.get( pos ) ) {
-				if ( !curidx.containsKey( qgram ) ) continue;
-				qgramSet.add(qgram);
+				if ( curidx.containsKey( qgram ) ) qgramSet.add(qgram);
 			}
 		}
 		return candidatePQGrams;
