@@ -4,12 +4,11 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
-import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -249,18 +248,14 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 			nScanList++;
 			for ( Record recOther : idx.get( token ) ) {
 				count.put( recOther, count.getInt( recOther )+1 );
-//				if ( useLF ) {
-//					if ( rec_maxlen < recOther.size() ) {
-//						++checker.filtered;
-//						continue;
-//					}
-//					candidateAfterLF.add( recOther );
-//				}
 			}
 		}
-		Set<Record> candidateAfterCount = new ObjectOpenHashSet<Record>();
-		for ( Record recOther : count.keySet() ) {
-			if ( count.getInt( recOther ) >= idxCount.getInt( recOther ) ) candidateAfterCount.add( recOther );
+		List<Record> candidateAfterCount = new ObjectArrayList<Record>();
+		for ( Entry<Record, Integer> entry : count.entrySet() ) {
+			Record recOther = entry.getKey();
+			int recCount = entry.getValue();
+//		for ( Record recOther : count.keySet() ) {
+			if ( recCount >= idxCount.getInt( recOther ) ) candidateAfterCount.add( recOther );
 		}
 		long afterCountTime = System.currentTimeMillis();
 		
