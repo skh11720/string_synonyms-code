@@ -231,7 +231,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				for (Record recOther : indexedList) {
 					if ( useLF ) {
 //						if (debug) System.out.println( "length filtered?: "+(rec_maxlen < recOther.size()) );
-						if ( rec_maxlen < recOther.size() ) {
+						if ( rec_maxlen < recOther.getDistinctTokenCount() ) {
 							++checker.lengthFiltered;
 							continue;
 						}
@@ -271,7 +271,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		 * 1.04: optimization, bug fix in RC when using FF
 		 * 1.05: checkpoint
 		 * 1.06: reduce memory usage
+		 * 1.07: fix length filter
 		 */
-		return "1.06";
+		return "1.07";
 	}
 }

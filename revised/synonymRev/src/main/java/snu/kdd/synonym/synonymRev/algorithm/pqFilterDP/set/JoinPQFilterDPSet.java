@@ -4,12 +4,11 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
-import it.unimi.dsi.fastutil.PriorityQueue;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -248,19 +247,15 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 			if ( !idx.containsKey( token ) ) continue;
 			nScanList++;
 			for ( Record recOther : idx.get( token ) ) {
-				count.put( recOther, count.getInt( recOther )+1 );
-//				if ( useLF ) {
-//					if ( rec_maxlen < recOther.size() ) {
-//						++checker.filtered;
-//						continue;
-//					}
-//					candidateAfterLF.add( recOther );
-//				}
+				count.addTo( recOther, 1 );
 			}
 		}
-		Set<Record> candidateAfterCount = new ObjectOpenHashSet<Record>();
-		for ( Record recOther : count.keySet() ) {
-			if ( count.getInt( recOther ) >= idxCount.getInt( recOther ) ) candidateAfterCount.add( recOther );
+		List<Record> candidateAfterCount = new ObjectArrayList<Record>();
+		for ( Entry<Record, Integer> entry : count.entrySet() ) {
+			Record recOther = entry.getKey();
+			int recCount = entry.getValue();
+//		for ( Record recOther : count.keySet() ) {
+			if ( recCount >= idxCount.getInt( recOther ) ) candidateAfterCount.add( recOther );
 		}
 		long afterCountTime = System.currentTimeMillis();
 		
@@ -268,7 +263,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		int rec_maxlen = rec.getMaxTransLength();
 		for ( Record recOther : candidateAfterCount ) {
 			if ( useLF ) {
-				if ( rec_maxlen < recOther.size() ) {
+				if ( rec_maxlen < recOther.getDistinctTokenCount() ) {
 					++checker.lengthFiltered;
 					continue;
 				}
@@ -295,7 +290,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		 * 1.01: transform s or t and compare to the other
 		 * 1.02: index by considering token frequencies
 		 * 1.03: checkpoint
+		 * 1.04: fix length filter + some modifications
 		 */
-		return "1.03";
+		return "1.04";
 	}
 }
