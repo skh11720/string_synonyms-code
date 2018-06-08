@@ -271,7 +271,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		 * 1.04: optimization, bug fix in RC when using FF
 		 * 1.05: checkpoint
 		 * 1.06: reduce memory usage
+		 * 1.07: fix length filter
 		 */
-		return "1.06";
+		return "1.07";
 	}
 }

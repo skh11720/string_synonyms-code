@@ -290,7 +290,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		 * 1.01: transform s or t and compare to the other
 		 * 1.02: index by considering token frequencies
 		 * 1.03: checkpoint
+		 * 1.04: fix length filter + some modifications
 		 */
-		return "1.03";
+		return "1.04";
 	}
 }
