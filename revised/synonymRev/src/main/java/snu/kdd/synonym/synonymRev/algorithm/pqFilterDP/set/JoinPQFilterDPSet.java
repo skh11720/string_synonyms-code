@@ -247,7 +247,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 			if ( !idx.containsKey( token ) ) continue;
 			nScanList++;
 			for ( Record recOther : idx.get( token ) ) {
-				count.put( recOther, count.getInt( recOther )+1 );
+				count.addTo( recOther, 1 );
 			}
 		}
 		List<Record> candidateAfterCount = new ObjectArrayList<Record>();
