@@ -263,7 +263,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		int rec_maxlen = rec.getMaxTransLength();
 		for ( Record recOther : candidateAfterCount ) {
 			if ( useLF ) {
-				if ( rec_maxlen < recOther.size() ) {
+				if ( rec_maxlen < recOther.getDistinctTokenCount() ) {
 					++checker.lengthFiltered;
 					continue;
 				}

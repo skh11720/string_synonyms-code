@@ -231,7 +231,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 				for (Record recOther : indexedList) {
 					if ( useLF ) {
 //						if (debug) System.out.println( "length filtered?: "+(rec_maxlen < recOther.size()) );
-						if ( rec_maxlen < recOther.size() ) {
+						if ( rec_maxlen < recOther.getDistinctTokenCount() ) {
 							++checker.lengthFiltered;
 							continue;
 						}

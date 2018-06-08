@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import sigmod13.RecordInterface;
@@ -25,7 +26,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	public static int expandAllCount = 0;
 
 	private int[] tokens;
-	private int id;
+	private final int id;
+	private final int num_dist_tokens;
 
 	public Rule[][] applicableRules = null;
 	protected int[][] transformLengths = null;
@@ -51,11 +53,14 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		for( int i = 0; i < pstr.length; ++i ) {
 			tokens[ i ] = tokenIndex.getID( pstr[ i ] );
 		}
+		
+		num_dist_tokens = new IntOpenHashSet( tokens ).size();
 	}
 
 	public Record( int[] tokens ) {
 		this.id = -1;
 		this.tokens = tokens;
+		num_dist_tokens = new IntOpenHashSet( tokens ).size();
 	}
 
 	@Override
@@ -81,6 +86,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	public int getTokenCount() {
 		return tokens.length;
+	}
+
+	public int getDistinctTokenCount() {
+		return num_dist_tokens;
 	}
 
 	/**
