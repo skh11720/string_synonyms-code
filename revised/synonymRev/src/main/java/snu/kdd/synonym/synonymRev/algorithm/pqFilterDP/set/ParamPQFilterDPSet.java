@@ -21,6 +21,7 @@ public class ParamPQFilterDPSet extends Param {
 		Options options = new Options();
 		options.addOption( "K", true, "Number of indexing for a record" );
 		options.addOption( "verify", true, "Verification" );
+		options.addOption( "rc", true, "Rule compression" );
 
 		argOptions = options;
 	}
@@ -48,10 +49,15 @@ public class ParamPQFilterDPSet extends Param {
 				throw new RuntimeException("unexpected value for option -verify: "+param.verifier);
 		}
 		else throw new RuntimeException("verify is not specified.");
+		
+		if ( cmd.hasOption( "rc" ) ) {
+			param.ruleComp = Boolean.getBoolean( cmd.getOptionValue( "rc" ) );
+		}
 		return param;
 	}
 	
 	public String verifier;
 	public int beamWidth;
 	public int K;
+	public boolean ruleComp;
 }
