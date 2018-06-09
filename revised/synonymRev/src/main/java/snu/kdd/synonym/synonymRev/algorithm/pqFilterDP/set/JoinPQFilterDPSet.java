@@ -47,9 +47,9 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
 	protected WYK_HashMap<Integer, WYK_HashSet<QGram>> mapToken2qgram = null;
 	
-	private final Boolean useLF = true;
+	protected final Boolean useLF = true;
 
-	private AbstractGlobalOrder globalOrder = new FrequencyFirstOrder( 1 );
+	protected AbstractGlobalOrder globalOrder = new FrequencyFirstOrder( 1 );
 
 
 	// staticitics used for building indexes
@@ -79,17 +79,8 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
-		ParamPQFilterDPSet params = ParamPQFilterDPSet.parseArgs( args, stat, query );
-		indexK = params.K;
+		getParams( query, args );
 		
-		if( query.oneSideJoin ) {
-			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
-			else if ( params.verifier.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, params.beamWidth );
-			else if ( params.verifier.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
-			else throw new RuntimeException("Unexpected value for verifier: "+params.verifier);
-		}
-		else throw new RuntimeException("BothSide is not supported.");
-
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 //		if( DEBUG.NaiveON ) {
@@ -111,6 +102,19 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 
 		stepTime.stopAndAdd( stat );
 		checker.addStat( stat );
+	}
+	
+	protected ParamPQFilterDPSet getParams( Query query, String[] args ) throws IOException, ParseException {
+		ParamPQFilterDPSet params = ParamPQFilterDPSet.parseArgs( args, stat, query );
+		indexK = params.K;
+		if( query.oneSideJoin ) {
+			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
+			else if ( params.verifier.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, params.beamWidth );
+			else if ( params.verifier.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
+			else throw new RuntimeException("Unexpected value for verifier: "+params.verifier);
+		}
+		else throw new RuntimeException("BothSide is not supported.");
+		return params;
 	}
 
 	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
@@ -241,20 +245,11 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		long afterCandidateTime = System.currentTimeMillis();
 		
 		// Count the number of matches.
-		Object2IntOpenHashMap<Record> count = new Object2IntOpenHashMap<Record>();
-		count.defaultReturnValue(0);
-		for ( int token : candidateTokens ) {
-			if ( !idx.containsKey( token ) ) continue;
-			nScanList++;
-			for ( Record recOther : idx.get( token ) ) {
-				count.addTo( recOther, 1 );
-			}
-		}
+		Object2IntOpenHashMap<Record> count = getCount( rec, idx, candidateTokens );
 		List<Record> candidateAfterCount = new ObjectArrayList<Record>();
 		for ( Entry<Record, Integer> entry : count.entrySet() ) {
 			Record recOther = entry.getKey();
 			int recCount = entry.getValue();
-//		for ( Record recOther : count.keySet() ) {
 			if ( recCount >= idxCount.getInt( recOther ) ) candidateAfterCount.add( recOther );
 		}
 		long afterCountTime = System.currentTimeMillis();
@@ -276,6 +271,19 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		candTokenTime += afterCandidateTime - startTime;
 		CountingTime += afterCountTime - afterCandidateTime;
 		validateTime += afterValidateTime - afterCountTime;
+	}
+	
+	protected Object2IntOpenHashMap<Record> getCount( Record record, WYK_HashMap<Integer, List<Record>> idx, IntOpenHashSet candidateTokens ) {
+		Object2IntOpenHashMap<Record> count = new Object2IntOpenHashMap<Record>();
+		count.defaultReturnValue(0);
+		for ( int token : candidateTokens ) {
+			if ( !idx.containsKey( token ) ) continue;
+			for ( Record recOther : idx.get( token ) ) {
+				count.addTo( recOther, 1 );
+			}
+			++nScanList;
+		}
+		return count;
 	}
 
 	@Override
