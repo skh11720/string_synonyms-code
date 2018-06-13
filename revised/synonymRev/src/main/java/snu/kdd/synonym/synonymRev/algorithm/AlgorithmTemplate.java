@@ -57,6 +57,7 @@ public abstract class AlgorithmTemplate {
 	}
 
 	// contains statistics of the algorithm
+	public boolean writeResult = true;
 	protected StatContainer stat;
 	protected Query query;
 	protected ACAutomataR automata;

@@ -73,40 +73,34 @@ public class JoinMH extends AlgorithmTemplate {
 
 		stepTime.stopAndAdd( stat );
 
-		runAfterPreprocess( true );
+		runAfterPreprocess();
 	}
 
-	public void runAfterPreprocess( boolean writeResult ) {
+	public void runAfterPreprocess() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
 
-		if( writeResult ) {
-			runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
+		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
 		buildIndex( writeResult );
 
-		if( writeResult ) {
-			stat.addMemory( "Mem_3_BuildIndex" );
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-		}
+		stat.addMemory( "Mem_3_BuildIndex" );
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
 		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker, writeResult );
 
-		if( writeResult ) {
-			stat.addMemory( "Mem_4_Joined" );
-			stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
+		stepTime.stopAndAdd( stat );
 
-			runTime.stopAndAdd( stat );
+		runTime.stopAndAdd( stat );
 
-			stepTime.resetAndStart( "Result_4_Write_Time" );
+		stepTime.resetAndStart( "Result_4_Write_Time" );
 
-			writeResult( rslt );
+		writeResult( rslt );
 
-			stepTime.stopAndAdd( stat );
-		}
+		stepTime.stopAndAdd( stat );
 	}
 
 	protected void buildIndex( boolean writeResult ) {
