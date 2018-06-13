@@ -18,6 +18,11 @@ public class Rule implements Comparable<Rule> {
 	private static int count = 0;
 
 	protected static final Rule[] EMPTY_RULE = new Rule[ 0 ];
+	
+	public static void initStatic() {
+		selfRuleMap = new Int2ObjectOpenHashMap<Rule>();
+		count = 0;
+	}
 
 	public static Rule getSelfRule( int item ) {
 		Rule r = selfRuleMap.get( item );
