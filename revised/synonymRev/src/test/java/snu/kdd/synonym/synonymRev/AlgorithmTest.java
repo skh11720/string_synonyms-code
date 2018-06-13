@@ -3,8 +3,6 @@ package snu.kdd.synonym.synonymRev;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -62,9 +60,6 @@ public class AlgorithmTest {
 		Record.initStatic();
 		Rule.initStatic();
 		Query query = AlgorithmTest.getQuery();
-		System.out.println( "runAlgorithms, before run" );
-		System.out.println( "searchedSet" );
-		for ( int i=0; i<10; ++i ) System.out.println( query.searchedSet.getRecord( i ) );
 		StatContainer stat = new StatContainer();
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
@@ -72,6 +67,15 @@ public class AlgorithmTest {
 		alg.writeResult = false;
 		App.run( alg, query, cmd );
 		assertEquals( answer, alg.rsltSize );
+	}
+
+	@Ignore
+	public void testJoinNaive() throws IOException, ParseException {
+		args[1] = "JoinNaive";
+		String[] param_list = {
+				"\"-1\"",
+		};
+		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 
 	@Ignore
@@ -206,13 +210,74 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinPkduck() throws ParseException, IOException {
 		args[1] = "JoinPkduck";
 		String[] param_list = {
 				"\"-ord FF -verify naive -rc false\"",
-				"\"-ord FF -verify naive -rc true\""
+				"\"-ord FF -verify naive -rc true\"",
+				"\"-ord FF -verify greedy -rc false\"",
+				"\"-ord FF -verify greedy -rc true\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		int[] answer_list = {1014, 1014, 1013, 1013};
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			int answer = answer_list[i];
+			runAlgorithm( param, answer );
+		}
+	}
+
+	@Ignore
+	public void testJoinSetNaive() throws IOException, ParseException {
+		args[1] = "JoinSetNaive";
+		String[] param_list = {
+				"\"-1\"",
+		};
+		for ( String param : param_list ) runAlgorithm( param, 1028 );
+	}
+
+	@Ignore
+	public void testJoinPQFilterDPSet() throws ParseException, IOException {
+		args[1] = "JoinPQFilterDPSet";
+		String[] param_list = {
+				"\"-K 1 -verify TD\"",
+				"\"-K 1 -verify GR1\"",
+				"\"-K 1 -verify GR3\"",
+				"\"-K 1 -verify MIT_GR\"",
+				"\"-K 2 -verify TD\"",
+				"\"-K 2 -verify GR1\"",
+				"\"-K 2 -verify GR3\"",
+				"\"-K 2 -verify MIT_GR\""
+		};
+		for ( String param : param_list ) runAlgorithm( param, 1028 );
+	}
+	
+//	@Ignore
+//	public void testJoinPQFilterDPSet2() throws ParseException, IOException {
+//		args[1] = "JoinPQFilterDPSet2";
+//		String[] param_list = {
+////				"\"-K 1 -verify TD -rc false\""
+//				"\"-K 2 -verify TD -rc true\""
+////				"\"-K 2 -verify GR1 -rc false\"",
+////				"\"-K 2 -verify GR1 -rc true\"",
+//		};
+//		for ( String param : param_list ) runAlgorithm( param, 1028 );
+//	}
+	
+	@Ignore
+	public void testJoinPkduckSet() throws ParseException, IOException {
+		args[1] = "JoinPkduckSet";
+		String[] param_list = {
+				"\"-ord FF -verify naive -rc false\"",
+				"\"-ord FF -verify naive -rc true\"",
+				"\"-ord FF -verify greedy -rc false\"",
+				"\"-ord FF -verify greedy -rc true\""
+		};
+		int[] answer_list = {1028, 1028, 1028, 1028};
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			int answer = answer_list[i];
+			runAlgorithm( param, answer );
+		}
 	}
 }
