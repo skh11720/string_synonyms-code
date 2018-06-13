@@ -61,6 +61,7 @@ public abstract class AlgorithmTemplate {
 	protected StatContainer stat;
 	protected Query query;
 	protected ACAutomataR automata;
+	public int rsltSize;
 
 	public AlgorithmTemplate( Query query, StatContainer stat ) throws IOException {
 		this.stat = stat;
@@ -172,6 +173,8 @@ public abstract class AlgorithmTemplate {
 
 	public void writeResult( Collection<IntegerPair> rslt ) {
 		stat.addPrimary( "Final Result Size", rslt.size() );
+		rsltSize = rslt.size();
+		if ( !writeResult ) return;
 
 		try {
 			if( DEBUG.AlgorithmON ) {
