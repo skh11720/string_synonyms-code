@@ -32,8 +32,8 @@ public class AlgorithmTest {
 			rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			dataOnePath = "run/data_store/aol/splitted/aol_10000_data.txt";
-			dataTwoPath = "run/data_store/aol/splitted/aol_10000_data.txt";
+			dataOnePath = "run/data_store/aol/splitted/aol_1000_data.txt";
+			dataTwoPath = "run/data_store/aol/splitted/aol_1000_data.txt";
 			rulePath = "run/data_store/wordnet/rules.noun";
 		}
 		else dataOnePath = dataTwoPath = rulePath = null;
