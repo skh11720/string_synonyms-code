@@ -22,42 +22,28 @@ public class Query {
 	
 	public TokenIndex tokenIndex;
 
-	public boolean oneSideJoin;
-	public boolean selfJoin;
+	public final boolean oneSideJoin;
+	public final boolean selfJoin;
 
-	public Query( String ruleFile, String indexedFile, String searchedFile, boolean oneSideJoin, String outputFile )
-			throws IOException {
+	public Query( String ruleFile, String indexedFile, String searchedFile, boolean oneSideJoin, String outputFile ) throws IOException {
 		this.ruleFile = ruleFile;
 		this.indexedFile = indexedFile;
 		this.searchedFile = searchedFile;
 		this.outputFile = outputFile;
 
-		if( indexedFile.equals( searchedFile ) ) {
-			selfJoin = true;
-		}
-		else {
-			selfJoin = false;
-		}
-
+		if ( searchedFile == null ) searchedFile = indexedFile;
+		if( indexedFile.equals( searchedFile ) ) selfJoin = true;
+		else selfJoin = false;
+		
 		this.oneSideJoin = oneSideJoin;
 
 		tokenIndex = new TokenIndex();
 		ruleSet = new Ruleset( ruleFile, tokenIndex );
 
-		if( selfJoin ) {
-			indexedSet = new Dataset( indexedFile, tokenIndex );
-			searchedSet = indexedSet;
-		}
-		else {
-			indexedSet = new Dataset( indexedFile, tokenIndex );
-			if( searchedFile != null ) {
-				searchedSet = new Dataset( searchedFile, tokenIndex );
-			}
-			else {
-				this.selfJoin = true;
-				searchedSet = indexedSet;
-			}
-		}
+		indexedSet = new Dataset( indexedFile, tokenIndex );
+		if( selfJoin ) searchedSet = indexedSet;
+		else searchedSet = new Dataset( searchedFile, tokenIndex );
+
 		// Added for HybridJoin
 		targetIndexedSet = indexedSet;
 		
@@ -70,8 +56,7 @@ public class Query {
 		}
 	}
 
-	public Query( Ruleset ruleSet, Dataset indexedSet, Dataset searchedSet, TokenIndex tokenIndex, boolean oneSideJoin,
-			boolean selfJoin ) {
+	public Query( Ruleset ruleSet, Dataset indexedSet, Dataset searchedSet, TokenIndex tokenIndex, boolean oneSideJoin, boolean selfJoin ) {
 		this.ruleSet = ruleSet;
 		this.indexedSet = indexedSet;
 		this.searchedSet = searchedSet;
