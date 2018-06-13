@@ -9,7 +9,6 @@ import org.apache.commons.cli.ParseException;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
@@ -22,7 +21,7 @@ public class AlgorithmTest {
 	private static StatContainer stat = new StatContainer();
 	private static Query query;
 	private static String[] args = {"-algorithm", "", "-oneSideJoin", "True", "-additional", ""};
-	private static final int answer = 10072;
+//	private static final int answer = 10072;
 	
 	@BeforeClass
 	public static void initialize() throws ParseException, IOException {
@@ -35,7 +34,16 @@ public class AlgorithmTest {
 		query = App.getQuery( cmd );
 	}
 	
-	private static void runAlgorithm( String param ) throws ParseException, IOException {
+//	private static void runAlgorithm( String param ) throws ParseException, IOException {
+//		args[5] = param;
+//		CommandLine cmd = App.parseInput( args );
+//		AlgorithmTemplate alg = App.getAlgorithm( query, stat, cmd );
+//		alg.writeResult = false;
+//		App.run( alg, query, cmd );
+//		assertEquals( 10072, alg.rsltSize );
+//	}
+
+	private static void runAlgorithm( String param, int answer ) throws ParseException, IOException {
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
 		AlgorithmTemplate alg = App.getAlgorithm( query, stat, cmd );
@@ -44,7 +52,7 @@ public class AlgorithmTest {
 		assertEquals( answer, alg.rsltSize );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMH() throws IOException, ParseException {
 		args[1] = "JoinMH";
 		String[] param_list = {
@@ -52,10 +60,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2\"",
 				"\"-K 2 -qSize 1\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHNaive() throws IOException, ParseException {
 		args[1] = "JoinMHNaive";
 		String[] param_list = {
@@ -63,10 +71,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -sample 0.01\"",
 				"\"-K 2 -qSize 1 -sample 0.01\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHNaiveThres() throws IOException, ParseException {
 		args[1] = "JoinMHNaiveThres";
 		String[] param_list = {
@@ -74,10 +82,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinMin() throws ParseException, IOException {
 		args[1] = "JoinMin";
 		String[] param_list = {
@@ -85,10 +93,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2\"",
 				"\"-K 2 -qSize 1\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinMinNaive() throws ParseException, IOException {
 		args[1] = "JoinMinNaive";
 		String[] param_list = {
@@ -96,10 +104,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -sample 0.01\"",
 				"\"-K 2 -qSize 1 -sample 0.01\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinMinNaiveThres() throws ParseException, IOException {
 		args[1] = "JoinMinNaiveThres";
 		String[] param_list = {
@@ -107,10 +115,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHDP() throws IOException, ParseException {
 		args[1] = "JoinMHDP";
 		String[] param_list = {
@@ -118,10 +126,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -mode dp1 -index FF\"",
 				"\"-K 2 -qSize 1 -mode dp1 -index FF\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHNaiveDP() throws IOException, ParseException {
 		args[1] = "JoinMHNaiveDP";
 		String[] param_list = {
@@ -129,10 +137,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -sample 0.01\"",
 				"\"-K 2 -qSize 1 -sample 0.01\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHNaiveThresDP() throws IOException, ParseException {
 		args[1] = "JoinMHNaiveThresDP";
 		String[] param_list = {
@@ -140,10 +148,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinMinDP() throws ParseException, IOException {
 		args[1] = "JoinMinDP";
 		String[] param_list = {
@@ -151,10 +159,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -mode dp1\"",
 				"\"-K 2 -qSize 1 -mode dp1\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinMinNaiveDP() throws ParseException, IOException {
 		args[1] = "JoinMinNaiveDP";
 		String[] param_list = {
@@ -162,10 +170,10 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -sample 0.01\"",
 				"\"-K 2 -qSize 1 -sample 0.01\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinMinNaiveThresDP() throws ParseException, IOException {
 		args[1] = "JoinMinNaiveThresDP";
 		String[] param_list = {
@@ -173,6 +181,16 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
 		};
-		for ( String param : param_list ) runAlgorithm( param );
+		for ( String param : param_list ) runAlgorithm( param, 10072 );
 	}
+	
+//	@Test
+//	public void testJoinPkduck() throws ParseException, IOException {
+//		args[1] = "JoinPkduck";
+//		String[] param_list = {
+//				"\"-ord FF -verify naive -rc false\"",
+//				"\"-ord FF -verify naive -rc true\""
+//		};
+//		for ( String param : param_list ) runAlgorithm( param, 10072 );
+//	}
 }
