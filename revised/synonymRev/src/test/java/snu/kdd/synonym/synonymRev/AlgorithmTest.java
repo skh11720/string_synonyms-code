@@ -10,10 +10,8 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.internal.runners.TestMethod;
 import org.junit.runners.MethodSorters;
 
-import junit.framework.TestSuite;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -24,7 +22,7 @@ public class AlgorithmTest {
 	private static StatContainer stat = new StatContainer();
 	private static Query query;
 	private static String[] args = {"-algorithm", "", "-oneSideJoin", "True", "-additional", ""};
-	private static final int answer = 10144;
+	private static final int answer = 10072;
 	
 	@BeforeClass
 	public static void initialize() throws ParseException, IOException {
@@ -46,7 +44,7 @@ public class AlgorithmTest {
 		assertEquals( answer, alg.rsltSize );
 	}
 
-	@Ignore
+	@Test
 	public void testJoinMH() throws IOException, ParseException {
 		args[1] = "JoinMH";
 		String[] param_list = {
@@ -57,7 +55,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 
-	@Ignore
+	@Test
 	public void testJoinMHNaive() throws IOException, ParseException {
 		args[1] = "JoinMHNaive";
 		String[] param_list = {
@@ -68,7 +66,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 
-	@Ignore
+	@Test
 	public void testJoinMHNaiveThres() throws IOException, ParseException {
 		args[1] = "JoinMHNaiveThres";
 		String[] param_list = {
@@ -79,7 +77,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 	
-	@Ignore
+	@Test
 	public void testJoinMin() throws ParseException, IOException {
 		args[1] = "JoinMin";
 		String[] param_list = {
@@ -90,7 +88,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 	
-	@Ignore
+	@Test
 	public void testJoinMinNaive() throws ParseException, IOException {
 		args[1] = "JoinMinNaive";
 		String[] param_list = {
@@ -101,7 +99,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 	
-	@Ignore
+	@Test
 	public void testJoinMinNaiveThres() throws ParseException, IOException {
 		args[1] = "JoinMinNaiveThres";
 		String[] param_list = {
@@ -123,7 +121,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 
-	@Ignore
+	@Test
 	public void testJoinMHNaiveDP() throws IOException, ParseException {
 		args[1] = "JoinMHNaiveDP";
 		String[] param_list = {
@@ -134,7 +132,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 
-	@Ignore
+	@Test
 	public void testJoinMHNaiveThresDP() throws IOException, ParseException {
 		args[1] = "JoinMHNaiveThresDP";
 		String[] param_list = {
@@ -145,7 +143,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 	
-	@Ignore
+	@Test
 	public void testJoinMinDP() throws ParseException, IOException {
 		args[1] = "JoinMinDP";
 		String[] param_list = {
@@ -156,7 +154,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 	
-	@Ignore
+	@Test
 	public void testJoinMinNaiveDP() throws ParseException, IOException {
 		args[1] = "JoinMinNaiveDP";
 		String[] param_list = {
@@ -167,7 +165,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param );
 	}
 	
-	@Ignore
+	@Test
 	public void testJoinMinNaiveThresDP() throws ParseException, IOException {
 		args[1] = "JoinMinNaiveThresDP";
 		String[] param_list = {

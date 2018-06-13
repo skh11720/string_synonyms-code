@@ -14,6 +14,8 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -37,6 +39,7 @@ public class JoinMinIndex {
 	protected Object2IntOpenHashMap<Record> indexedCountMap;
 	protected Object2IntOpenHashMap<Record> estimatedCountMap;
 	protected WYK_HashSet<Integer> bypassSet = null;
+	protected Query query;
 
 	public double gamma;
 	public double delta;
@@ -68,6 +71,7 @@ public class JoinMinIndex {
 		
 		this.idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 		this.qgramSize = qSize;
+		this.query = query;
 
 		boolean hybridIndex = threshold != 0;
 
@@ -481,7 +485,7 @@ public class JoinMinIndex {
 		list.add( rec );
 	}
 
-	public List<IntegerPair> joinMaxK( int indexK, boolean writeResult, StatContainer stat, Validator checker, Query query ) {
+	public Set<IntegerPair> joinMaxK( int indexK, boolean writeResult, StatContainer stat, Validator checker, Query query ) {
 		BufferedWriter bw = null;
 
 		if( DEBUG.PrintJoinMinJoinON ) {
@@ -493,7 +497,7 @@ public class JoinMinIndex {
 			}
 		}
 
-		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
 			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
@@ -576,7 +580,7 @@ public class JoinMinIndex {
 	}
 
 	@Deprecated
-	public void joinRecord( Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker,
+	public void joinRecord( Record recS, Set<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker,
 			boolean oneSideJoin ) {
 		long qgramStartTime = 0;
 		long joinStartTime = 0;
@@ -682,7 +686,8 @@ public class JoinMinIndex {
 
 				comparisonTime += duration;
 				if( compare >= 0 ) {
-					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+//					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+					AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
 					appliedRulesSum += compare;
 				}
 			}
@@ -718,7 +723,7 @@ public class JoinMinIndex {
 		return candidatePQGrams;
 	}
 
-	public void joinRecordMaxK( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
+	public void joinRecordMaxK( int nIndex, Record recS, Set<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
 			Validator checker, boolean oneSideJoin ) {
 		long joinStartTime = System.nanoTime();
 
@@ -802,7 +807,8 @@ public class JoinMinIndex {
 
 			comparisonTime += duration;
 			if( compare >= 0 ) {
-				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+//				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
 				appliedRulesSum += compare;
 
 				if( DEBUG.PrintJoinMinJoinON ) {
@@ -830,7 +836,7 @@ public class JoinMinIndex {
 		joinTime += System.nanoTime() - joinStartTime;
 	}
 
-	public void joinRecordMaxKThres( int nIndex, Record recS, List<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
+	public void joinRecordMaxKThres( int nIndex, Record recS, Set<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
 			Validator checker, int threshold, boolean oneSideJoin ) {
 		long qgramStartTime = 0;
 		long joinStartTime = 0;
@@ -924,7 +930,8 @@ public class JoinMinIndex {
 
 			comparisonTime += duration;
 			if( compare >= 0 ) {
-				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+//				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
 				appliedRulesSum += compare;
 			}
 		}

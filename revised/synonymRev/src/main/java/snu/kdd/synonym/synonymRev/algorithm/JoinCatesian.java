@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -59,7 +61,7 @@ public class JoinCatesian extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 
-		final List<IntegerPair> list = runAfterPreprocess();
+		final Set<IntegerPair> list = runAfterPreprocess();
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
@@ -69,8 +71,8 @@ public class JoinCatesian extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	public List<IntegerPair> runAfterPreprocess() {
-		List<IntegerPair> rslt = new ArrayList<>();
+	public Set<IntegerPair> runAfterPreprocess() {
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<>();
 		long lengthFiltered = 0;
 		for( Record indexedR : query.indexedSet.get() ) {
 			for( Record searchedS : query.searchedSet.get() ) {
@@ -92,7 +94,8 @@ public class JoinCatesian extends AlgorithmTemplate {
 				}
 
 				if( checker.isEqual( searchedS, indexedR ) >= 0 ) {
-					rslt.add( new IntegerPair( searchedS.getID(), indexedR.getID() ) );
+//					rslt.add( new IntegerPair( searchedS.getID(), indexedR.getID() ) );
+					addSeqResult( searchedS, indexedR, rslt, query.selfJoin );
 				}
 			}
 		}

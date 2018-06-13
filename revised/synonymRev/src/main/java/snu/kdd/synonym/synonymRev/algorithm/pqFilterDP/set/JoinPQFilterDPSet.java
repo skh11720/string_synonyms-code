@@ -264,7 +264,7 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 				}
 			}
 			int comp = checker.isEqual( rec, recOther );
-			if ( comp >= 0 ) addSetResult( rec, recOther, rslt, idx == idxT );
+			if ( comp >= 0 ) addSetResult( rec, recOther, rslt, idx == idxT, query.selfJoin );
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		

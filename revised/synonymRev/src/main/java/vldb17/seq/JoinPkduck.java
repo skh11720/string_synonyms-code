@@ -242,7 +242,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 						long startValidateTime = System.nanoTime();
 						int comp = checker.isEqual( recS, recT );
 						validateTime += System.nanoTime() - startValidateTime;
-						if (comp >= 0) addSeqResult( recS, recT, rslt );
+						if (comp >= 0) addSeqResult( recS, recT, rslt, query.selfJoin );
 					}
 				}
 			}

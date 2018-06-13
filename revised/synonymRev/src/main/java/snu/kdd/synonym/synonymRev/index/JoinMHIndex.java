@@ -13,7 +13,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -31,6 +31,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 public class JoinMHIndex {
 	protected ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
 	protected Object2IntOpenHashMap<Record> indexedCountList;
+	protected Query query;
 
 	int indexK;
 	int qgramSize;
@@ -76,6 +77,7 @@ public class JoinMHIndex {
 		this.indexK = indexK;
 		this.qgramSize = qgramSize;
 		this.indexPosition = indexPosition;
+		this.query = query;
 
 		if (indexPosition.length != indexK) {
 			throw new RuntimeException("The length of indexPosition should match indexK");
@@ -247,7 +249,7 @@ public class JoinMHIndex {
 	}
 	
 	public void joinOneRecordForSplit(Record recS, List<List<QGram>> availableQGrams, Query query, Validator checker,
-			ArrayList<IntegerPair> rslt) {
+			Set<IntegerPair> rslt) {
 		long startTime = System.currentTimeMillis();
 		// this function is for the splitted data sets only -> qgrams are previously
 		// computed and
@@ -315,7 +317,8 @@ public class JoinMHIndex {
 		for (Record recR : prevCandidate) {
 			int compare = checker.isEqual(recS, recR);
 			if (compare >= 0) {
-				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
+//				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
+				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
 			}
 		}
 	}
@@ -337,12 +340,12 @@ public class JoinMHIndex {
 //		return rec.getQGrams( qgramSize, maxPosition+1 );
 	}
 
-	public ArrayList<IntegerPair> join(StatContainer stat, Query query, Validator checker, boolean writeResult) {
+	public Set<IntegerPair> join(StatContainer stat, Query query, Validator checker, boolean writeResult) {
 		long startTime = System.nanoTime();
 		long totalCountTime = 0;
 		long totalCountValue = 0;
 
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		long count = 0;
 		@SuppressWarnings("unused")
@@ -469,7 +472,8 @@ public class JoinMHIndex {
 			for (Record recR : candidates) {
 				int compare = checker.isEqual(recS, recR);
 				if (compare >= 0) {
-					rslt.add(new IntegerPair(recS.getID(), recR.getID()));
+//					rslt.add(new IntegerPair(recS.getID(), recR.getID()));
+					AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
 				}
 			}
 			equivTime.stopQuiet();
@@ -531,7 +535,7 @@ public class JoinMHIndex {
 		return rslt;
 	}
 
-	public void joinOneRecordThres(int nIndex, Record recS, List<IntegerPair> rslt, Validator checker, int threshold,
+	public void joinOneRecordThres(int nIndex, Record recS, Set<IntegerPair> rslt, Validator checker, int threshold,
 			boolean oneSideJoin, int maxPosition) {
 		Set<Record> candidates = new WYK_HashSet<Record>(100);
 
@@ -622,7 +626,8 @@ public class JoinMHIndex {
 		for (Record recR : candidates) {
 			int compare = checker.isEqual(recS, recR);
 			if (compare >= 0) {
-				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
+//				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
+				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
 			}
 		}
 	}

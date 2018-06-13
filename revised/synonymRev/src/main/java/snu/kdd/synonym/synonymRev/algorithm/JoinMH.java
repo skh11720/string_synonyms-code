@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
@@ -89,7 +90,7 @@ public class JoinMH extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker, writeResult );
+		Set<IntegerPair> rslt = idx.join( stat, query, checker, writeResult );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

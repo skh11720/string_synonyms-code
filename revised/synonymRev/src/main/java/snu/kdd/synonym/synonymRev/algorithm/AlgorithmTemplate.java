@@ -245,17 +245,26 @@ public abstract class AlgorithmTemplate {
 		}
 	}
 	
-	protected void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt ) {
-		if ( query.selfJoin ) {
+	public static void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean isSelfJoin ) {
+		if ( isSelfJoin ) {
 			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
 			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();
 			rslt.add( new IntegerPair( id_smaller, id_larger) );
 		}
 		else rslt.add( new IntegerPair(rec1.getID(), rec2.getID()) );
 	}
+
+	public static void addSeqResult( Record rec1, int rec2id, Set<IntegerPair> rslt, boolean isSelfJoin ) {
+		if ( isSelfJoin ) {
+			int id_smaller = rec1.getID() < rec2id? rec1.getID() : rec2id;
+			int id_larger = rec1.getID() >= rec2id? rec1.getID() : rec2id;
+			rslt.add( new IntegerPair( id_smaller, id_larger) );
+		}
+		else rslt.add( new IntegerPair(rec1.getID(), rec2id) );
+	}
 	
-	protected void addSetResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean leftFromS ) {
-		if ( query.selfJoin ) {
+	public static void addSetResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean leftFromS, boolean isSelfJoin ) {
+		if ( isSelfJoin ) {
 			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
 			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();
 			rslt.add( new IntegerPair( id_smaller, id_larger) );

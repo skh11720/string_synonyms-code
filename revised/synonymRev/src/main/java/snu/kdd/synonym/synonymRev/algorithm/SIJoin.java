@@ -1,11 +1,12 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import sigmod13.SI_Tree;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -71,12 +72,12 @@ public class SIJoin extends AlgorithmTemplate {
 		}
 		// br.readLine();
 
-		List<IntegerPair> rslt = join( treeR, treeS, 1 );
+		Set<IntegerPair> rslt = join( treeR, treeS, 1 );
 
 		writeResult( rslt );
 	}
 
-	public List<IntegerPair> join( SI_Tree<Record> treeR, SI_Tree<Record> treeS, double threshold ) {
+	public Set<IntegerPair> join( SI_Tree<Record> treeR, SI_Tree<Record> treeS, double threshold ) {
 		long startTime = System.currentTimeMillis();
 
 		List<Pair<Record>> candidates = treeR.join( treeS, threshold );
@@ -95,10 +96,11 @@ public class SIJoin extends AlgorithmTemplate {
 			System.out.println( "Similar pairs : " + candidates.size() );
 		}
 
-		List<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		for( Pair<Record> ip : candidates ) {
-			rslt.add( new IntegerPair( ip.rec1.getID(), ip.rec2.getID() ) );
+//			rslt.add( new IntegerPair( ip.rec1.getID(), ip.rec2.getID() ) );
+			addSeqResult( ip.rec1, ip.rec2, rslt, query.selfJoin );
 		}
 		return rslt;
 	}

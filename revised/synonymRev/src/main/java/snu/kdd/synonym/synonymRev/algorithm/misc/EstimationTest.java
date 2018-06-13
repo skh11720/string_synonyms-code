@@ -3,11 +3,12 @@ package snu.kdd.synonym.synonymRev.algorithm.misc;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -213,7 +214,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 		// Estimate constants
 
-		Collection<IntegerPair> rslt = joinMinNaive();
+		Set<IntegerPair> rslt = joinMinNaive();
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 
@@ -260,7 +261,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		estimate.estimateJoinMinNaiveWithSample( stat, checker, indexK, qSize );
 	}
 
-	private ArrayList<IntegerPair> joinMHNaive() {
+	private Set<IntegerPair> joinMHNaive() {
 
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findJoinMHConstants( sampleRatio );
@@ -283,7 +284,7 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		buildTime.stopQuiet();
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		if( joinMHRequired ) {
 			if( query.oneSideJoin ) {
@@ -345,7 +346,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private ArrayList<IntegerPair> joinMinNaive() {
+	private Set<IntegerPair> joinMinNaive() {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findJoinMinConstants( sampleRatio );
 
@@ -380,7 +381,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		}
 		buildTime.stopQuiet();
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 		long joinstart = System.nanoTime();
 		if( joinMinRequired ) {
 			if( query.oneSideJoin ) {
@@ -461,7 +462,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private ArrayList<IntegerPair> actualJoinMHNaiveThreshold( int joinThreshold ) {
+	private Set<IntegerPair> actualJoinMHNaiveThreshold( int joinThreshold ) {
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		BufferedWriter bwEstimation = null;
@@ -492,7 +493,7 @@ public class EstimationTest extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
 		}
 
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 		long joinstart = System.nanoTime();
 		if( joinMHRequired ) {
 			if( query.oneSideJoin ) {
@@ -601,7 +602,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private ArrayList<IntegerPair> actualJoinMinNaiveThreshold( int joinThreshold ) {
+	private Set<IntegerPair> actualJoinMinNaiveThreshold( int joinThreshold ) {
 		System.out.println( "Threshold: " + joinThreshold );
 		BufferedWriter bwEstimation = null;
 		if( DEBUG.PrintEstimationON ) {
@@ -629,7 +630,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		long joinMinBuildTime = System.nanoTime();
 		System.out.println( "Threshold " + joinThreshold + " joinMin Index " + ( joinMinBuildTime - startTime ) );
 
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		if( joinMinRequired ) {
 			if( query.oneSideJoin ) {

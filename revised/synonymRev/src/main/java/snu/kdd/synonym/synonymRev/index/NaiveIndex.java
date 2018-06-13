@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -22,6 +24,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 
 public class NaiveIndex {
 	public WYK_HashMap<Record, ArrayList<Integer>> idx;
+	protected final boolean isSelfJoin;
 
 	public double alpha;
 	public double beta;
@@ -37,11 +40,12 @@ public class NaiveIndex {
 
 	public int skippedCount = 0;
 
-	NaiveIndex( int initialSize ) {
+	NaiveIndex( Query query, int initialSize ) {
 		if( initialSize < 10 ) {
 			initialSize = 10;
 		}
 		idx = new WYK_HashMap<Record, ArrayList<Integer>>( initialSize );
+		isSelfJoin = query.selfJoin;
 	}
 
 	public static NaiveIndex buildIndex( double avgTransformed, StatContainer stat, long threshold, boolean addStat,
@@ -67,7 +71,7 @@ public class NaiveIndex {
 			}
 		}
 
-		NaiveIndex naiveIndex = new NaiveIndex( initialsize );
+		NaiveIndex naiveIndex = new NaiveIndex( query, initialsize );
 
 		naiveIndex.totalExpLength = 0;
 
@@ -255,8 +259,8 @@ public class NaiveIndex {
 		stat.add( prefix + "_RemoveFound_Count", WYK_HashMap.removeFoundCount );
 	}
 
-	public List<IntegerPair> join( StatContainer stat, long threshold, boolean addStat, Query query ) {
-		final List<IntegerPair> rslt = new ArrayList<>();
+	public Set<IntegerPair> join( StatContainer stat, long threshold, boolean addStat, Query query ) {
+		final Set<IntegerPair> rslt = new ObjectOpenHashSet<>();
 		final long starttime = System.nanoTime();
 
 		Dataset searchedSet = query.searchedSet;
@@ -277,7 +281,8 @@ public class NaiveIndex {
 							+ ") is skipped joining due to too many transformed strings " + recS.getEstNumTransformed() );
 
 					if( query.selfJoin ) {
-						rslt.add( new IntegerPair( recS.getID(), recS.getID() ) );
+//						rslt.add( new IntegerPair( recS.getID(), recS.getID() ) );
+						AlgorithmTemplate.addSeqResult( recS, recS, rslt, true );
 					}
 					skippedCount++;
 
@@ -329,7 +334,7 @@ public class NaiveIndex {
 		return rslt;
 	}
 
-	public void joinOneRecord( Record recS, List<IntegerPair> rslt ) {
+	public void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
 		long expandStartTime = System.nanoTime();
 		final List<Record> expanded = recS.expandAll();
 		expandTime += System.nanoTime() - expandStartTime;
@@ -354,7 +359,8 @@ public class NaiveIndex {
 		searchTime += System.nanoTime() - searchStartTime;
 
 		for( final Integer idx : candidates ) {
-			rslt.add( new IntegerPair( recS.getID(), idx ) );
+//			rslt.add( new IntegerPair( recS.getID(), idx ) );
+			AlgorithmTemplate.addSeqResult( recS, idx, rslt, isSelfJoin );
 		}
 	}
 

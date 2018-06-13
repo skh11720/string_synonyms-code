@@ -3,9 +3,11 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
@@ -113,7 +115,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 	 *
 	 * @return
 	 */
-	protected ArrayList<IntegerPair> join() {
+	protected Set<IntegerPair> join() {
 
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findConstants( sampleRatio );
@@ -148,7 +150,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 		}
 		buildTime.stopQuiet();
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 		long joinstart = System.nanoTime();
 		if( joinMinRequired ) {
 			if( query.oneSideJoin ) {
