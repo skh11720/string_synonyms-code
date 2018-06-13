@@ -90,29 +90,24 @@ public class JoinMin extends AlgorithmTemplate {
 		Util.printLog( "Maximum rhs length: " + maxrhslength );
 	}
 
-	public void runWithoutPreprocess( boolean writeResult ) throws IOException {
+	public void runWithoutPreprocess() throws IOException {
 		// Retrieve statistics
 		StopWatch stepTime = null;
-		if( writeResult ) {
-			statistics();
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
+		statistics();
+		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
 		buildIndex( writeResult );
 
-		if( writeResult ) {
-			stat.addMemory( "Mem_3_BuildIndex" );
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-		}
+		stat.addMemory( "Mem_3_BuildIndex" );
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
 		Collection<IntegerPair> rslt = null;
 
 		rslt = idx.joinMaxK( indexK, writeResult, stat, checker, query );
-		if( writeResult ) {
-			stepTime.stopAndAdd( stat );
-			stat.addMemory( "Mem_4_Joined" );
-		}
+
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
 
 		if( DEBUG.JoinMinON ) {
 			if( writeResult ) {
@@ -127,11 +122,9 @@ public class JoinMin extends AlgorithmTemplate {
 			}
 		}
 
-		if( writeResult ) {
-			stepTime.resetAndStart( "Result_4_Write_Time" );
-			this.writeResult( rslt );
-			stepTime.stopAndAdd( stat );
-		}
+		stepTime.resetAndStart( "Result_4_Write_Time" );
+		this.writeResult( rslt );
+		stepTime.stopAndAdd( stat );
 	}
 
 	@Override
@@ -152,7 +145,7 @@ public class JoinMin extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		preprocessTime.resetAndStart( "Result_3_Run_Time" );
 
-		runWithoutPreprocess( true );
+		runWithoutPreprocess();
 
 		preprocessTime.stopAndAdd( stat );
 

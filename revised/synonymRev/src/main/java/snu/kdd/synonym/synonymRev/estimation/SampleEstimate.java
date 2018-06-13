@@ -163,6 +163,7 @@ public class SampleEstimate {
 		JoinMin joinmininst;
 		try {
 			joinmininst = new JoinMin( sampleQuery, stat );
+			joinmininst.writeResult = false;
 			joinmininst.checker = checker;
 			joinmininst.qSize = qSize;
 			joinmininst.indexK = indexK;
@@ -171,7 +172,7 @@ public class SampleEstimate {
 				Util.printLog( "Joinmininst run" );
 			}
 
-			joinmininst.runWithoutPreprocess( false );
+			joinmininst.runWithoutPreprocess();
 
 			if( DEBUG.SampleStatON ) {
 				Util.printLog( "Joinmininst run done" );
@@ -209,6 +210,7 @@ public class SampleEstimate {
 		JoinMH joinmhinst;
 		try {
 			joinmhinst = new JoinMH( sampleQuery, stat );
+			joinmhinst.writeResult = false;
 			joinmhinst.checker = checker;
 			joinmhinst.qgramSize = qSize;
 			joinmhinst.indexK = indexK;
@@ -217,7 +219,7 @@ public class SampleEstimate {
 				Util.printLog( "Joinmininst run" );
 			}
 
-			joinmhinst.runAfterPreprocess( false );
+			joinmhinst.runAfterPreprocess();
 
 			if( DEBUG.SampleStatON ) {
 				Util.printLog( "Joinmh run done" );

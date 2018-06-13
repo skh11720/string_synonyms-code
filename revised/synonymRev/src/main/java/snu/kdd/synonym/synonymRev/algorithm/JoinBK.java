@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
@@ -95,7 +96,7 @@ public class JoinBK extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker, true );
+		Set<IntegerPair> rslt = idx.join( stat, query, checker, true );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

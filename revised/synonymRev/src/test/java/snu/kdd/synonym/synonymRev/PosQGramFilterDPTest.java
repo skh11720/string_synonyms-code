@@ -9,6 +9,7 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -19,6 +20,7 @@ import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 
+@Ignore
 public class PosQGramFilterDPTest {
 	
 	private static Query query;

@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
@@ -97,7 +98,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		ArrayList<IntegerPair> rslt = join();
+		Set<IntegerPair> rslt = join();
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
@@ -222,8 +223,8 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		stat.add( estimateIndex );
 	}
 
-	private ArrayList<IntegerPair> join() {
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+	private Set<IntegerPair> join() {
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
 			// long startTime = System.currentTimeMillis();

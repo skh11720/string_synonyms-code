@@ -39,7 +39,7 @@ public class JoinMinDP extends JoinMin {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		preprocessTime.resetAndStart( "Result_3_Run_Time" );
 
-		runWithoutPreprocess( true );
+		runWithoutPreprocess();
 
 		preprocessTime.stopAndAdd( stat );
 		
