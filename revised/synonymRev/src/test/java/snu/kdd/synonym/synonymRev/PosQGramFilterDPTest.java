@@ -30,37 +30,7 @@ public class PosQGramFilterDPTest {
 	
 	@BeforeClass
 	public static void initialize() throws IOException {
-		String osName = System.getProperty( "os.name" );
-		if ( osName.startsWith( "Windows" ) ) {
-			final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-			final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-			final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
-			final String outputPath = "output";
-			final Boolean oneSideJoin = true;
-			query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
-		}
-		else if ( osName.startsWith( "Linux" ) ) {
-			final String dataOnePath = "run/data_store/aol/splitted/aol_10000_data.txt";
-			final String dataTwoPath = "run/data_store/aol/splitted/aol_10000_data.txt";
-			final String rulePath = "run/data_store/wordnet/rules.noun";
-			final String outputPath = "output";
-			final Boolean oneSideJoin = true;
-			query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
-		}
-		
-		// read
-//		ObjectInputStream ois = new ObjectInputStream( new FileInputStream( "tmp/test_query.obj" ) );
-//		SerializableQuery serialQuery = (SerializableQuery) ois.readObject();
-//		ois.close();
-//		serialQuery.query = query;
-
-		// write
-//		SerializableQuery serialQuery = new SerializableQuery();
-//		query = serialQuery.query;
-//		ObjectOutputStream oos = new ObjectOutputStream( new FileOutputStream( "tmp/test_query.obj" ) );
-//		oos.writeObject( serialQuery );
-//		oos.close();
-
+		query = TestUtils.getTestQuery();
 		q = 1;
 		record = query.searchedSet.getRecord( 0 );
 		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
