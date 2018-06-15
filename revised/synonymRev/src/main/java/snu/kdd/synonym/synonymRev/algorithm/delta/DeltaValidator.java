@@ -39,23 +39,19 @@ public class DeltaValidator extends Validator{
 			for ( int i=1; i<=x.size(); ++i ) {
 				for ( int j=1; j<=y.size(); ++j ) {
 					if (debug) System.out.println( "i: "+i +", j: " + j );
-					if ( d > 0 && M[i][j-1][d-1] ) M[i][j][d] = true;
+					if ( d > 0 && (M[i][j-1][d-1] || M[i][j][d-1]) ) M[i][j][d] = true;
 					else {
 						for ( Rule rule : x.getSuffixApplicableRules( i-1 ) ) {
 							int[] rhs = rule.getRight();
 //							int n_errors = isSuffixWithErrors( rhs, y_arr, j );
 							if (debug) System.out.println( rule );
-							IntegerPair ip = lcsDist( rhs, y_arr, j );
-							if (debug) System.out.println( "(n_errors, l_rhs_cover): "+ip );
-							int n_errors = ip.i1;
-							int l_rhs_cover = ip.i2;
-
-//							if ( i-rule.leftSize() < 0 ) throw new RuntimeException("i: "+i+", lhs.length: "+rule.leftSize());
-//							if ( j-rule.rightSize()+n_errors < 0 ) throw new RuntimeException("j: "+", rhs.length: "+rule.rightSize());
-//							if ( n_errors <= d && d-n_errors < 0 ) throw new RuntimeException("d: "+d+", n_errors: "+n_errors);
-							if ( n_errors <= d && M[i-rule.leftSize()][j-l_rhs_cover][d-n_errors] ) {
-								M[i][j][d] = true;
-								break;
+							int[] D = lcsDist( rhs, y_arr, j );
+							for ( int p=0; p<D.length; ++p 	) {
+								if ( D[p] > d ) continue;
+								if ( M[i-rule.leftSize()][p][d-D[p]] ) {
+									M[i][j][d] = true;
+									break;
+								}
 							}
 						}
 					}
@@ -77,6 +73,7 @@ public class DeltaValidator extends Validator{
 		else return -1;
 	}
 	
+	@Deprecated
 	private int isSuffixWithErrors( int[] pat, int[] seq, int end ) {
 		/*
 		 * Check if pat is a suffix of seq[1:end], allowing at most n_max_errors in pat.
@@ -92,38 +89,39 @@ public class DeltaValidator extends Validator{
 		return n_errors;
 	}
 	
-	private IntegerPair lcsDist( int[] pat, int[] seq, int end ) {
+	private int[] lcsDist( int[] pat, int[] seq, int end ) {
 		/*
-		 * Check if pat is a suffix of seq[1:end], allowing at most n_max_errors in both strings.
-		 * seq is right exclusive.
-		 * Return the pair of 
-		 * 	 (i) the number of minimum errors used to match, and
-		 *   (ii) the length of covered region by pat. 
+		 * Return an integer array D of length end+1, 
+		 * whose element D[j] is the minimum number of errors required to match pat to seq[j,end] (right exclusive).
+		 * end-j represents the length of the suffix of seq[1:end] covered by pat.
 		 */
-		int[] D = new int[pat.length+1];
-		int[] D_prev = new int[pat.length+1];
-		int min_error = pat.length;
-		int min_pos = 0;
-		for ( int i=pat.length; i>=0; --i ) D_prev[i] = pat.length-i;
+		int[] D = new int[end+1];
+		int[] D_prev = new int[end+1];
+		for ( int j=end; j>=0; --j ) D_prev[j] = end-j;
 
 		if (debug) System.out.println( Arrays.toString( D_prev ) );
-		for ( int j=end-1; j>=0; --j ) {
+		for ( int i=pat.length-1; i>=0; --i ) {
 			Arrays.fill( D, Integer.MAX_VALUE );
-			D[pat.length] = D_prev[pat.length]+1;
-			for ( int i=pat.length-1; i>=0; --i ) {
-				D[i] = Math.min( D[i], D[i+1]+1 );
-				D[i] = Math.min( D[i], D_prev[i]+1 );
-				if ( pat[i] == seq[j] ) D[i] = Math.min( D[i], D_prev[i+1] );
-				else D[i] = Math.min( D[i], D_prev[i+1]+2 );
-			}
-			if ( D[0] <= min_error ) {
-				min_error = D[0];
-				min_pos = end - j;
+			D[end] = D_prev[end]+1;
+			for ( int j=end-1; j>=0; --j ) {
+				D[j] = Math.min( D[j], D[j+1]+1 );
+				D[j] = Math.min( D[j], D_prev[j]+1 );
+				if ( pat[i] == seq[j] ) D[j] = Math.min( D[j], D_prev[j+1] );
+				else D[j] = Math.min( D[j], D_prev[j+1]+2 );
 			}
 			if (debug) System.out.println( Arrays.toString( D ) );
-			for ( int i=pat.length; i>=0; --i ) D_prev[i] = D[i];
+			for ( int j=end; j>=0; --j ) D_prev[j] = D[j];
 		}
-		return new IntegerPair( min_error, min_pos );
+//
+//		int min_error = pat.length;
+//		int min_pos = 0;
+//		for ( int j=end; j>=0; --j ) {
+//			if ( D[j] <= min_error ) {
+//				min_error = D[j];
+//				min_pos = end - j;
+//			}
+//		}
+		return D;
 		
 		/*
 		 * Note: there can be multiple positions with min_error.
