@@ -1,10 +1,18 @@
 package snu.kdd.synonym.synonymRev;
 
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Random;
+
+import org.junit.Test;
+
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class TestUtils {
 
@@ -38,5 +46,42 @@ public class TestUtils {
 			record.preprocessEstimatedRecords();
 		}
 		return query;
+	}
+	
+	@Test
+	public void testLCS() {
+		Random random = new Random(0);
+		final int nTest = 1000;
+		final int lz_max = 10;
+		final int l_max = 10;
+		final int nV = 10;
+		
+		for ( int itr=0; itr<nTest; ++itr ) {
+			int error = -1;
+			int lz = random.nextInt( lz_max+1 );
+			int lx = lz + random.nextInt( l_max+1 );
+			int ly = lz + random.nextInt( l_max+1 );
+			int[] z = new int[lz];
+			int[] x = new int[lx];
+			int[] y = new int[ly];
+			for ( int i=0; i<lz; ++i ) z[i] = random.nextInt( nV );
+			IntOpenHashSet idxSet = new IntOpenHashSet();
+			idxSet.clear();
+			while ( idxSet.size() < lz ) idxSet.add( random.nextInt( lx ) );
+			for ( int i=0, k=0; i<lx; ++i ) {
+				if ( idxSet.contains( i ) ) x[i] = z[k++];
+				else x[i] = error--;
+			}
+			idxSet.clear();
+			while ( idxSet.size() < lz ) idxSet.add( random.nextInt( ly ) );
+			for ( int j=0, k=0; j<ly; ++j ) {
+				if ( idxSet.contains( j ) ) y[j] = z[k++];
+				else y[j] = error--;
+			}
+			System.out.println( "x: "+Arrays.toString(x) );
+			System.out.println( "y: "+Arrays.toString(y) );
+			System.out.println( "z: "+Arrays.toString(z) );
+			assertEquals( lz, Util.lcs( x, y ) );
+		}
 	}
 }

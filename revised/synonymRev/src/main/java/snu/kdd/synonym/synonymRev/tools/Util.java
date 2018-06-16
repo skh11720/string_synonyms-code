@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.tools;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -223,5 +224,24 @@ public class Util {
 			return out;
 		}
 	}
+	
+	public static int lcs( int[] x, int[] y ) {
+		int[] L = new int[x.length+1];
+		int[] L_prev = new int[x.length+1];
+		Arrays.fill( L, 0 );
+		for ( int j=0; j<y.length; ++j ) {
+			// swap tables
+			int[] tmp = L_prev;
+			L_prev = L;
+			L = tmp;
 
+			for ( int i=1; i<=x.length; ++i ) {
+				L[i] = L[i-1];
+				L[i] = Math.max( L[i], L_prev[i] );
+				if ( x[i-1] == y[j] ) L[i] = Math.max( L[i], L_prev[i-1]+1 );
+				else L[i] = Math.max( L[i], L_prev[i-1] );
+			}
+		}
+		return L[x.length];
+	}
 }
