@@ -226,6 +226,31 @@ public class AlgorithmTest {
 			runAlgorithm( param, answer );
 		}
 	}
+	
+	@Test
+	public void testJoinNaiveDelta() throws ParseException, IOException {
+		args[1] = "JoinNaiveDelta";
+		String[] param_list = {
+				"\"-delta 0\"",
+				"\"-delta 1\"",
+				"\"-delta 2\""
+		};
+		int[] answer_list = {1014, 1190, 2447};
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	/********************************
+	 *  SET BASED JOIN ALGORITHMS
+	 ********************************/
 
 	@Ignore
 	public void testJoinSetNaive() throws IOException, ParseException {

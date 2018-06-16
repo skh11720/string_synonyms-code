@@ -247,6 +247,14 @@ public class NaiveIndex {
 
 		list.add( recordId );
 	}
+	
+	public Set<Record> keySet() {
+		return idx.keySet();
+	}
+	
+	public List<Integer> getValue( Record rec ) {
+		return idx.get( rec );
+	}
 
 	public void addStat( StatContainer stat, String prefix ) {
 		stat.add( prefix + "_Get_Count", WYK_HashMap.getCount );
