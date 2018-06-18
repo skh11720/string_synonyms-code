@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -48,7 +49,7 @@ public class TestUtils {
 		return query;
 	}
 	
-	@Test
+	@Ignore
 	public void testLCS() {
 		Random random = new Random(0);
 		final int nTest = 1000;
@@ -82,6 +83,21 @@ public class TestUtils {
 			System.out.println( "y: "+Arrays.toString(y) );
 			System.out.println( "z: "+Arrays.toString(z) );
 			assertEquals( lz, Util.lcs( x, y ) );
+		}
+	}
+	
+	// 700 ms
+	@Ignore
+	public void testGetCombinations() {
+		final int nTest = 1000;
+		final int n_max = 10;
+
+		for ( int itr=0; itr<nTest; ++itr ) {
+			for ( int n=0; n<=n_max; ++n ) {
+				for ( int k=0; k<=n; ++k ) {
+					Util.getCombinations( n, k ).size();
+				}
+			}
 		}
 	}
 }
