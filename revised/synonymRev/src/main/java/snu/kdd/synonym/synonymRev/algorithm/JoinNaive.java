@@ -18,7 +18,7 @@ public class JoinNaive extends AlgorithmTemplate {
 	public long threshold = Long.MAX_VALUE;
 
 	// staticitics used for building indexes
-	double avgTransformed;
+	public double avgTransformed;
 
 	public JoinNaive( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );

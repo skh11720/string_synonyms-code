@@ -37,7 +37,7 @@ public class DeltaValidatorTest {
 	@Test
 	public void testIsEqualsFixed() throws IOException {
 		for ( int seed=0; seed<1; ++seed ) {
-			System.out.println( "seed: "+seed );
+//			System.out.println( "seed: "+seed );
 			random = new Random(seed);
 			query = TestUtils.getTestQuery();
 		
@@ -58,7 +58,7 @@ public class DeltaValidatorTest {
 				Record y = query.searchedSet.getRecord( j );
 //				SampleDataTest.inspect_record( x, query, 1 );
 				long n_est_expand = x.getEstNumTransformed();
-				System.out.println( i+", "+j );
+//				System.out.println( i+", "+j );
 //				System.out.println( "n_est_expand: "+n_est_expand );
 
 				int errorMax = 3;
@@ -69,14 +69,14 @@ public class DeltaValidatorTest {
 						}
 						else y = insertError( y );
 					}
-					System.out.println( "x: "+Arrays.toString( x.getTokensArray() ) );
-					System.out.println( "y: "+Arrays.toString( y.getTokensArray() ) );
+//					System.out.println( "x: "+Arrays.toString( x.getTokensArray() ) );
+//					System.out.println( "y: "+Arrays.toString( y.getTokensArray() ) );
 					for ( int delta=0; delta<=deltaMax; ++delta ) {
 						NaiveOneSideDelta naiveValidator = new NaiveOneSideDelta( delta );
 						DeltaValidator deltaValidator = new DeltaValidator( delta );
 						int naiveOutput = naiveValidator.isEqual( x, y );
 						int deltaOutput = deltaValidator.isEqual( x, y );
-						System.out.println( delta+"-naive, delta: "+naiveOutput+", "+deltaOutput );
+//						System.out.println( delta+"-naive, delta: "+naiveOutput+", "+deltaOutput );
 						assertEquals( naiveOutput, deltaOutput );
 //						if ( delta >= nError ) assertEquals( 1, deltaOutput );
 //						else assertEquals( -1, deltaOutput );
