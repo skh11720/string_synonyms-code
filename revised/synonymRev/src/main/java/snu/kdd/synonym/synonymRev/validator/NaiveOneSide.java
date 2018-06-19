@@ -12,13 +12,13 @@ public class NaiveOneSide extends Validator {
 		++checked;
 //		if( x.equals( y ) ) {
 		if (Arrays.equals( x.getTokensArray(), y.getTokensArray() )) {
-			return 1;
+			return 0;
 		}
 
 		List<Record> expandedX = x.expandAll();
 
 		for( Record xPrime : expandedX ) {
-//			if( xPrime.equals( y ) ) {
+//			if( xPrime.equals( y ) ) {{
 			if (Arrays.equals( xPrime.getTokensArray(), y.getTokensArray() )) {
 				return 1;
 			}

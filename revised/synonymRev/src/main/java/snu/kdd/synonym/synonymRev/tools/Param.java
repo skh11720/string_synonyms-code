@@ -26,6 +26,7 @@ public class Param {
 		options.addOption( "t", true, "Threshold" );
 		options.addOption( "noLength", false, "No Length Filtering" );
 		options.addOption( "naiveVal", false, "Naive Validator" );
+		options.addOption( "delta", true, "deltaMax" );
 
 		argOptions = options;
 	}
@@ -74,6 +75,10 @@ public class Param {
 				param.validator = new TopDown();
 			}
 		}
+		
+		if (cmd.hasOption( "delta" )) {
+			param.delta = Integer.parseInt( cmd.getOptionValue( "delta" ) );
+		}
 
 		return param;
 	}
@@ -84,4 +89,5 @@ public class Param {
 	public Validator validator;
 	public int threshold = 10;
 	public boolean noLength = false;
+	public int delta;
 }

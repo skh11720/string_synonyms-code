@@ -33,6 +33,8 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDelta;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
@@ -52,7 +54,7 @@ import vldb17.set.JoinPkduckSet;
 
 public class App {
 	private static Options argOptions;
-
+	
 	public static CommandLine parseInput( String args[] ) throws ParseException {
 		if( argOptions == null ) {
 			Options options = new Options();
@@ -74,37 +76,28 @@ public class App {
 		CommandLine cmd = parser.parse( argOptions, args, false );
 		return cmd;
 	}
-
-	public static void main( String args[] ) throws IOException, ParseException {
-
-		CommandLine cmd = null;
-		try {
-			cmd = parseInput( args );
-		}
-		catch( ParseException e ) {
-			e.printStackTrace();
-			throw e;
-		}
-
-		Util.printArgsError( cmd );
-
-		String rulePath = cmd.getOptionValue( "rulePath" );
-		String dataOnePath = cmd.getOptionValue( "dataOnePath" );
-		String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
-		String outputPath = cmd.getOptionValue( "outputPath" );
+	
+	public static DataInfo getDataInfo( CommandLine cmd ) {
+		final String rulePath = cmd.getOptionValue( "rulePath" );
+		final String dataOnePath = cmd.getOptionValue( "dataOnePath" );
+		final String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
+		return new DataInfo( dataOnePath, dataTwoPath, rulePath );
+	}
+	
+	public static Query getQuery( CommandLine cmd ) throws IOException {
+		final String rulePath = cmd.getOptionValue( "rulePath" );
+		final String dataOnePath = cmd.getOptionValue( "dataOnePath" );
+		final String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
+		final String outputPath = cmd.getOptionValue( "outputPath" );
 		Boolean oneSideJoin = Boolean.parseBoolean( cmd.getOptionValue( "oneSideJoin" ) );
-
-		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
-		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
-
-		Query query = new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
-
+		return new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
+	}
+	
+	public static AlgorithmTemplate getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException {
 		AlgorithmTemplate alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
-		StatContainer stat = new StatContainer();
 
 		boolean split = cmd.hasOption( "split" );
-		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
 
 		switch( algorithmName ) {
 		case JoinNaive:
@@ -225,6 +218,14 @@ public class App {
 		case JoinMinNaiveThresDP:
 			alg = new JoinMinNaiveThresDP( query, stat );
 			break;
+
+		case JoinNaiveDelta:
+			alg = new JoinNaiveDelta( query, stat );
+			break;
+		
+		case JoinMHDelta:
+			alg = new JoinMHDelta( query, stat );
+			break;
 		
 		case JoinPkduckSet:
 			alg = new JoinPkduckSet( query, stat );
@@ -252,11 +253,12 @@ public class App {
 		stat.add( cmd );
 		stat.add( "cmd_alg", alg.getName() );
 		stat.add( "cmd_alg_v", alg.getVersion() );
-
-		initializeTime.stopAndAdd( stat );
-
+		
+		return alg;
+	}
+	
+	public static void run( AlgorithmTemplate alg, Query query, CommandLine cmd ) throws IOException, ParseException {
 		String additionalOptions = cmd.getOptionValue( "additional", "" );
-
 		if( additionalOptions != null ) {
 			String additionalArgs[] = additionalOptions.split( " " );
 			alg.run( query, additionalArgs );
@@ -264,6 +266,22 @@ public class App {
 		else {
 			alg.run( query, null );
 		}
+	}
+	
+	public static void main( String args[] ) throws IOException, ParseException {
+
+		CommandLine cmd = parseInput( args );
+		Util.printArgsError( cmd );
+
+		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
+		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
+		
+		Query query = getQuery( cmd );
+		StatContainer stat = new StatContainer();
+		AlgorithmTemplate alg = getAlgorithm( query, stat, cmd );
+
+		initializeTime.stopAndAdd( stat );
+		run( alg, query, cmd );
 
 		totalTime.stop();
 		Util.printGCStats( stat, "Stat" );
@@ -274,10 +292,11 @@ public class App {
 
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
-		DataInfo dataInfo = new DataInfo( dataOnePath, dataTwoPath, rulePath );
+//		DataInfo dataInfo = new DataInfo( dataOnePath, dataTwoPath, rulePath );
 
+		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
 		if( upload ) {
-			alg.writeJSON( dataInfo, cmd );
+			alg.writeJSON( getDataInfo( cmd ), cmd );
 		}
 
 		Util.printLog( alg.getName() + " finished" );

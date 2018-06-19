@@ -181,7 +181,7 @@ public class JoinSetNaive extends AlgorithmTemplate {
 				if ( query.selfJoin ) {
 					int id_smaller = rec.getID() < i ? rec.getID() : i;
 					int id_larger = rec.getID() >= i ? rec.getID() : i;
-					rslt.add( new IntegerPair( id_smaller, id_larger) );
+					rslt.add( new IntegerPair( id_smaller, id_larger) ); // it is better modify this to use addSetResult method...
 				}
 				else {
 					if ( idx == idxT ) rslt.add( new IntegerPair( rec.getID(), i ) );

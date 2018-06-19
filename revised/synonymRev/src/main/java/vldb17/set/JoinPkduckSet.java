@@ -247,7 +247,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		for (Record recOther : candidateAfterLF ) {
 			int comp = checker.isEqual( rec, recOther );
 //			if (debug) System.out.println( "compare "+rec.getID()+" and "+recOther.getID()+": "+comp );
-			if (comp >= 0) addSetResult( rec, recOther, rslt, idx == idxT );
+			if (comp >= 0) addSetResult( rec, recOther, rslt, idx == idxT, query.selfJoin );
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		

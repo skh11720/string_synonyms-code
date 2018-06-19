@@ -2,7 +2,9 @@ package snu.kdd.synonym.synonymRev.tools;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +12,8 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Util {
@@ -180,5 +184,90 @@ public class Util {
 			qgramPrev = qgram;
 		}
 		return qgramPrefixList;
+	}
+
+	public static List<IntArrayList> getCombinations( int n, int k ) {
+		/*
+		 * Return all combinations of n choose k.
+		 */
+		List<IntArrayList> combList = new ObjectArrayList<IntArrayList>();
+
+		ObjectArrayFIFOQueue<IntArrayList> stack_x_errors = new ObjectArrayFIFOQueue<IntArrayList>();
+		stack_x_errors.enqueue( new IntArrayList() );
+		
+		while ( !stack_x_errors.isEmpty() ) {
+			IntArrayList comb = stack_x_errors.dequeue();
+			if ( comb.size() == k ) combList.add( comb );
+			else {
+				int max = comb.size() > 0 ? Collections.max( comb ) : -1;
+				for ( int i=max+1; i<n; ++i ) {
+					if ( !comb.contains( i )) {
+						IntArrayList comb2 = new IntArrayList( comb );
+						comb2.add( i );
+						stack_x_errors.enqueue( comb2 );
+					}
+				}
+			}
+		}
+		return combList;
+	}
+
+	public static List<IntArrayList> getCombinationsAll( int n, int k ) {
+		/*
+		 * Return all combinations of n choose k' for all k'<=k.
+		 */
+		List<IntArrayList> combList = new ObjectArrayList<IntArrayList>();
+
+		ObjectArrayFIFOQueue<IntArrayList> stack_x_errors = new ObjectArrayFIFOQueue<IntArrayList>();
+		stack_x_errors.enqueue( new IntArrayList() );
+		
+		while ( !stack_x_errors.isEmpty() ) {
+			IntArrayList comb = stack_x_errors.dequeue();
+			combList.add( comb );
+			if ( comb.size() < k ) {
+				int max = comb.size() > 0 ? Collections.max( comb ) : -1;
+				for ( int i=max+1; i<n; ++i ) {
+					if ( !comb.contains( i )) {
+						IntArrayList comb2 = new IntArrayList( comb );
+						comb2.add( i );
+						stack_x_errors.enqueue( comb2 );
+					}
+				}
+			}
+		}
+		return combList;
+	}
+
+	public static int[] getSubsequence( int[] arr, IntArrayList idxList ) {
+		/*
+		 * Return the subsequence of arr with indexes in idxList.
+		 */
+		if ( idxList.size() == 0 ) return null;
+		else {
+			int[] out = new int[idxList.size()];
+			int i = 0;
+			for ( int idx : idxList ) out[i++] = arr[idx];
+			return out;
+		}
+	}
+	
+	public static int lcs( int[] x, int[] y ) {
+		int[] L = new int[x.length+1];
+		int[] L_prev = new int[x.length+1];
+		Arrays.fill( L, 0 );
+		for ( int j=0; j<y.length; ++j ) {
+			// swap tables
+			int[] tmp = L_prev;
+			L_prev = L;
+			L = tmp;
+
+			for ( int i=1; i<=x.length; ++i ) {
+				L[i] = L[i-1];
+				L[i] = Math.max( L[i], L_prev[i] );
+				if ( x[i-1] == y[j] ) L[i] = Math.max( L[i], L_prev[i-1]+1 );
+				else L[i] = Math.max( L[i], L_prev[i-1] );
+			}
+		}
+		return L[x.length];
 	}
 }

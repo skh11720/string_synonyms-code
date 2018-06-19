@@ -41,6 +41,11 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	protected Rule[][] suffixApplicableRules = null;
 
 	public int getQGramCount = 0;
+	
+	public static void initStatic() {
+		expandAllCount = 0;
+		tokenIndex = null;
+	}
 
 	public Record( int id, String str, TokenIndex tokenIndex ) {
 		if( Record.tokenIndex == null ) {

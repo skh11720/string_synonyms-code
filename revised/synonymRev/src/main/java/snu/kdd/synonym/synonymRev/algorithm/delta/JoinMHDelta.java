@@ -1,4 +1,4 @@
-package snu.kdd.synonym.synonymRev.algorithm;
+package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
@@ -15,17 +16,18 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMH extends AlgorithmTemplate {
+public class JoinMHDelta extends AlgorithmTemplate {
 	// RecordIDComparator idComparator;
 
-	public JoinMH( Query query, StatContainer stat ) throws IOException {
+	public JoinMHDelta( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 
-	public int indexK = 3;
-	public int qgramSize = 2;
+	public int indexK;
+	public int qgramSize;
+	private int deltaMax;
 
-	public Validator checker;
+	public DeltaValidator checker;
 
 	/**
 	 * Key: twogram<br/>
@@ -33,7 +35,7 @@ public class JoinMH extends AlgorithmTemplate {
 	 * Value IntervalTree Value: record
 	 */
 
-	JoinMHIndex idx;
+	JoinMHDeltaIndex idx;
 
 	@Override
 	protected void preprocess() {
@@ -56,13 +58,15 @@ public class JoinMH extends AlgorithmTemplate {
 
 		indexK = params.indexK;
 		qgramSize = params.qgramSize;
+		deltaMax = params.delta;
 
 		// Setup parameters
-		checker = params.validator;
+		checker = new DeltaValidator( deltaMax );
 
 		run();
 
 		checker.addStat( stat );
+		idx.writeToFile();
 	}
 
 	public void run() {
@@ -109,17 +113,17 @@ public class JoinMH extends AlgorithmTemplate {
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		idx = new JoinMHDeltaIndex( indexK, qgramSize, deltaMax, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 	}
 
 	@Override
 	public String getVersion() {
-		return "2.5";
+		return "1.0";
 	}
 
 	@Override
 	public String getName() {
-		return "JoinMH";
+		return "JoinMHDelta";
 	}
 
 	public double getEta() {

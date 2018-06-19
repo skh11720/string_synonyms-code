@@ -3,9 +3,11 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
@@ -108,7 +110,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	}
 
 	protected void buildNaiveIndex() {
-		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, true, query );
+		naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold / 2 );
 	}
 
 	/**
@@ -117,7 +119,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	 *
 	 * @return
 	 */
-	protected ArrayList<IntegerPair> join() {
+	protected Set<IntegerPair> join() {
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMinRequired ) {
@@ -141,7 +143,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 
 		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
 
-		ArrayList<IntegerPair> rslt = new ArrayList<IntegerPair>();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 		long joinstart = System.nanoTime();
 		if( joinMinRequired ) {
 			if( query.oneSideJoin ) {

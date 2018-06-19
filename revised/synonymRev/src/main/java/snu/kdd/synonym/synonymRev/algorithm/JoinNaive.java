@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -49,7 +50,7 @@ public class JoinNaive extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 
-		final List<IntegerPair> list = runAfterPreprocess( true );
+		final Set<IntegerPair> list = runAfterPreprocess( true );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
@@ -59,7 +60,7 @@ public class JoinNaive extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	public List<IntegerPair> runAfterPreprocess( boolean addStat ) {
+	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
 		// Index building
 		StopWatch stepTime = null;
 		if( addStat ) {
@@ -71,7 +72,7 @@ public class JoinNaive extends AlgorithmTemplate {
 			}
 		}
 
-		idx = NaiveIndex.buildIndex( avgTransformed, stat, threshold, addStat, query );
+		idx = new NaiveIndex( query.indexedSet, query, stat, addStat, threshold, avgTransformed );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -86,7 +87,7 @@ public class JoinNaive extends AlgorithmTemplate {
 		}
 
 		// Join
-		final List<IntegerPair> rslt = idx.join( stat, threshold, addStat, query );
+		final Set<IntegerPair> rslt = idx.join( query, stat, addStat );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -100,11 +101,11 @@ public class JoinNaive extends AlgorithmTemplate {
 			}
 		}
 
-		if( DEBUG.NaiveON ) {
-			if( addStat ) {
-				idx.addStat( stat, "Counter_Join" );
-			}
-		}
+//		if( DEBUG.NaiveON ) {
+//			if( addStat ) {
+//				idx.addStat( stat, "Counter_Join" );
+//			}
+//		}
 		stat.add( "idx_skipped_counter", idx.skippedCount );
 
 		return rslt;
