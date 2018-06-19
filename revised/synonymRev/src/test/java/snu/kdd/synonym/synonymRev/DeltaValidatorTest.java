@@ -104,7 +104,7 @@ public class DeltaValidatorTest {
 		return rec;
 	}
 	
-	@Ignore
+	@Test
 	public void testIsSuffixWithErrors() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		DeltaValidator target = new DeltaValidator( 3 );
 		Method method = DeltaValidator.class.getDeclaredMethod( "isSuffixWithErrors", int[].class, int[].class, int.class );
@@ -154,7 +154,7 @@ public class DeltaValidatorTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testLcsDist() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Method method = DeltaValidator.class.getDeclaredMethod( "lcsDist", int[].class, int[].class, int.class );
 		DeltaValidator target = new DeltaValidator( 3 );
