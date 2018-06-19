@@ -1,4 +1,4 @@
-package snu.kdd.synonym.synonymRev.algorithm;
+package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,9 +8,9 @@ import java.util.Set;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -21,22 +21,29 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMHNaive extends AlgorithmTemplate {
-
-	public JoinMHNaive( Query query, StatContainer stat ) throws IOException {
+/**
+ * Given threshold, if a record has more than 'threshold' 1-expandable strings,
+ * use an index to store them.
+ * Otherwise, generate all 1-expandable strings and then use them to check
+ * if two strings are equivalent.
+ * Utilize only one index by sorting records according to their expanded size.
+ * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
+ * index in order to find the best execution time.
+ */
+public class JoinMHNaiveThresDelta extends AlgorithmTemplate {
+	public JoinMHNaiveThresDelta( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 
-	protected Validator checker;
-	protected SampleEstimate estimate;
+	public DeltaValidator checker;
 	protected int qSize = 0;
 	protected int indexK = 0;
-	protected double sampleRatio = 0;
 	protected int joinThreshold = 1;
 	protected boolean joinMHRequired = true;
+	protected int deltaMax;
 
-	protected NaiveIndex naiveIndex;
-	protected JoinMHIndex joinMHIdx;
+	NaiveDeltaIndex naiveIndex;
+	JoinMHDeltaIndex joinMHIndex;
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;
@@ -68,10 +75,11 @@ public class JoinMHNaive extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
 		// Setup parameters
-		checker = params.validator;
 		qSize = params.qgramSize;
 		indexK = params.indexK;
-		sampleRatio = params.sampleRatio;
+		joinThreshold = params.threshold;
+		deltaMax = params.delta;
+		checker = new DeltaValidator( deltaMax );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
@@ -79,7 +87,12 @@ public class JoinMHNaive extends AlgorithmTemplate {
 		// Retrieve statistics
 
 		stepTime.resetAndStart( "Result_3_Run_Time" );
-		// Estimate constants
+
+		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
+			joinMHRequired = false;
+		}
+
+		Util.printLog( "Selected Threshold: " + joinThreshold );
 
 		Collection<IntegerPair> rslt = join();
 		stepTime.stopAndAdd( stat );
@@ -91,63 +104,90 @@ public class JoinMHNaive extends AlgorithmTemplate {
 		checker.addStat( stat );
 	}
 
-	protected void buildJoinMHIndex() {
+	protected void buildJoinMHIndex(int threshold) {
 		// Build an index
 		int[] index = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
 			index[ i ] = i;
 		}
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
+
+		joinMHIndex = new JoinMHDeltaIndex( indexK, qSize, deltaMax, query.indexedSet.get(), query, stat, index, true, true, threshold );
 	}
 
 	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold / 2 );
+		naiveIndex = new NaiveDeltaIndex( query.indexedSet, query, stat, true, deltaMax, joinThreshold, joinThreshold / 2 );
 	}
 
+	/**
+	 * Although this implementation is not efficient, we did like this to measure
+	 * the execution time of each part more accurate.
+	 *
+	 * @return
+	 */
 	protected Set<IntegerPair> join() {
-
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		findConstants( sampleRatio );
-
-		joinThreshold = estimate.findThetaJoinMHNaive( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords,
-				query.oneSideJoin );
-
-		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
-			joinMHRequired = false;
-		}
-
-		Util.printLog( "Selected Threshold: " + joinThreshold );
-
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinMHRequired ) {
-			buildJoinMHIndex();
+			buildJoinMHIndex( joinThreshold );
 		}
-		int joinMHResultSize = 0;
-
+		int joinMinResultSize = 0;
+		if( DEBUG.JoinMHNaiveON ) {
+			if( joinMHRequired ) {
+				// stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMHIndex.gamma ) );
+				// stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMHIndex.searchedTotalSigCount );
+				// stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMHIndex.countTime ) );
+				//
+				// stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMHIndex.delta ) );
+				// stat.add( "Const_Delta_IndexedSigCount_Actual", joinMHIndex.indexedTotalSigCount );
+				// stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMHIndex.indexTime ) );
+			}
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
+		}
 		buildTime.stopQuiet();
-		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
+		StopWatch joinTime = StopWatch.getWatchStarted( "Result_3_2_Join_Time" );
+
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		long joinstart = System.nanoTime();
 		if( joinMHRequired ) {
 			if( query.oneSideJoin ) {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIndex.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+					joinMHIndex.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 				}
 			}
 
-			joinMHResultSize = rslt.size();
-			stat.add( "Join_MH_Result", joinMHResultSize );
-			stat.add( "nCandQGrams", joinMHIdx.countValue );
-			stat.add( "Stat_Equiv_Comparison", joinMHIdx.equivComparisons );
+			joinMinResultSize = rslt.size();
+			stat.add( "Join_Min_Result", joinMinResultSize );
+			stat.add( "nCandQGrams", joinMHIndex.countValue );
+			// stat.add( "Stat_Equiv_Comparison", joinMHIndex.equivComparisons );
 		}
+
 		joinTime.stopQuiet();
+
+		double joinmhJointime = System.nanoTime() - joinstart;
+
+		if( DEBUG.JoinMHNaiveON ) {
+			Util.printLog( "After JoinMin Result: " + rslt.size() );
+			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinmhJointime ) );
+			if( joinMHRequired ) {
+				// stat.add( "Const_Epsilon_Predict_Actual", joinMHIndex.predictCount );
+				// stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.predictCount ) );
+				//
+				// stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.comparisonCount ) );
+				// stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMHIndex.comparisonCount );
+			}
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
+		}
 
 		buildTime.start();
 		buildNaiveIndex();
@@ -157,6 +197,9 @@ public class JoinMHNaive extends AlgorithmTemplate {
 			stat.add( "Const_Alpha_Actual", String.format( "%.2f", naiveIndex.alpha ) );
 			stat.add( "Const_Alpha_IndexTime_Actual", String.format( "%.2f", naiveIndex.indexTime ) );
 			stat.add( "Const_Alpha_ExpLength_Actual", String.format( "%.2f", naiveIndex.totalExpLength ) );
+
+			stepTime.stopAndAdd( stat );
+			stepTime.resetAndStart( "Result_7_3_SearchEquiv Naive Time" );
 		}
 
 		joinTime.start();
@@ -172,34 +215,30 @@ public class JoinMHNaive extends AlgorithmTemplate {
 				naiveSearch++;
 			}
 		}
+		joinTime.stopAndAdd( stat );
 		double joinNanoTime = System.nanoTime() - starttime;
 
-		stat.add( "Join_Naive_Result", rslt.size() - joinMHResultSize );
-		joinTime.stopAndAdd( stat );
+		stat.add( "Join_Naive_Result", rslt.size() - joinMinResultSize );
 
 		if( DEBUG.JoinMHNaiveON ) {
 			stat.add( "Const_Beta_Actual", String.format( "%.2f", joinNanoTime / naiveIndex.totalExp ) );
 			stat.add( "Const_Beta_JoinTime_Actual", String.format( "%.2f", joinTime ) );
 			stat.add( "Const_Beta_TotalExp_Actual", String.format( "%.2f", naiveIndex.totalExp ) );
+
+			stepTime.stopAndAdd( stat );
 		}
 		stat.add( "Stat_Naive_search_count", naiveSearch );
-		buildTime.stopAndAdd( stat );
+
 		return rslt;
-	}
-
-	protected void findConstants( double sampleratio ) {
-		// Sample
-		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
-		estimate.estimateJoinMHNaiveWithSample( stat, checker, indexK, qSize );
-	}
-
-	@Override
-	public String getName() {
-		return "JoinMHNaive";
 	}
 
 	@Override
 	public String getVersion() {
-		return "2.5";
+		return "1.0";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinMHNaiveThresDelta";
 	}
 }

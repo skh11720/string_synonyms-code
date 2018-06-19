@@ -601,102 +601,91 @@ public class JoinMHDeltaIndex {
 		return rslt;
 	}
 
-//	public void joinOneRecordThres(int nIndex, Record recS, Set<IntegerPair> rslt, Validator checker, int threshold,
-//			boolean oneSideJoin, int maxPosition) {
-//		Set<Record> candidates = new WYK_HashSet<Record>(100);
-//
-//		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
-//
-//		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
-//		candidatesCount.defaultReturnValue(-1);
-//
-//		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
-//		for (List<QGram> list : availableQGrams) {
-//			this.countValue += list.size();
-//		}
-//
-//		// long recordStartTime = System.nanoTime();
-//		int[] range = recS.getTransLengths();
-//		for (int i = 0; i < indexK; ++i) {
-//			int actualIndex = indexPosition[i];
-//			if (range[0] <= actualIndex) {
-//				continue;
-//			}
-//
-//			ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
-//
-//			Map<QGram, List<Record>> map = index.get(i);
-//
-//			for (QGram qgram : availableQGrams.get(actualIndex)) {
-//				// if( debug ) {
-//				// System.out.println( "Q " + qgram + " " + actualIndex );
-//				// }
-//
-//				// elements++;
-//				List<Record> list = map.get(qgram);
-//				if (list == null) {
-//					continue;
-//				}
-//
-//				for (Record otherRecord : list) {
-//					// if( debug ) {
-//					// System.out.println( "record: " + otherRecord );
-//					// }
-//					if (!isUpperRecord && otherRecord.getEstNumTransformed() <= threshold) {
-//						continue;
-//					}
-//
-//					int[] otherRange = null;
-//
-//					if (oneSideJoin) {
-//						otherRange = new int[2];
-//						otherRange[0] = otherRecord.getTokenCount();
-//						otherRange[1] = otherRecord.getTokenCount();
-//					} else {
-//						otherRange = otherRecord.getTransLengths();
-//					}
-//
-//					if (StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
-//						// length filtering
-//
-//						ithCandidates.add(otherRecord);
-//					}
-//					else ++checker.lengthFiltered;
-//				}
-//			}
-//
-//			for (Record otherRecord : ithCandidates) {
-//				int candCount = candidatesCount.getInt(otherRecord);
-//				if (candCount == -1) {
-//					candidatesCount.put(otherRecord, 1);
-//				} else {
-//					candidatesCount.put(otherRecord, candCount + 1);
-//				}
-//			}
-//		}
-//
-//		ObjectIterator<Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
-//		while (iter.hasNext()) {
-//			Entry<Record> entry = iter.next();
-//			Record record = entry.getKey();
-//			int recordCount = entry.getIntValue();
-//
-//			if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
-//				candidates.add(record);
-//			}
-//			else ++checker.pqgramFiltered;
-//		}
-//
-//		equivComparisons += candidates.size();
-//
-//		for (Record recR : candidates) {
-//			int compare = checker.isEqual(recS, recR);
-//			if (compare >= 0) {
-////				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
-//				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
-//			}
-//		}
-//	}
+	public void joinOneRecordThres( Record recS, Set<IntegerPair> rslt, Validator checker, int threshold, boolean oneSideJoin ) {
+		Set<Record> candidates = new WYK_HashSet<Record>(100);
+		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
+
+		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
+		candidatesCount.defaultReturnValue(0);
+
+		List<List<Set<QGram>>> candidateQGrams = getCandidatePQGrams( recS );
+		for (List<Set<QGram>> qgrams_pos : candidateQGrams) {
+			for ( Set<QGram> qgrams_delta : qgrams_pos ) {
+				this.countValue += qgrams_delta.size();
+			}
+		}
+
+		// long recordStartTime = System.nanoTime();
+		int[] range = recS.getTransLengths();
+		for (int i = 0; i < indexK; ++i) {
+			int actualIndex = indexPosition[i];
+			if (range[0] <= actualIndex) {
+				continue;
+			}
+
+			// Given a position
+			List<Set<QGram>> cand_qgrams_pos = candidateQGrams.get( actualIndex );
+			ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
+
+			List<WYK_HashMap<QGram, List<Record>>> map = index.get(i);
+
+			for ( int delta_s=0; delta_s<=deltaMax; ++delta_s ) {
+				if ( cand_qgrams_pos.size() <= delta_s ) break;
+				for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
+					for ( int delta_t=0; delta_t<=deltaMax-delta_s; ++delta_t ) {
+						List<Record> recordList = map.get( delta_t ).get( qgram );
+						if (recordList == null) {
+							continue;
+						}
+
+						for (Record otherRecord : recordList) {
+							if (!isUpperRecord && otherRecord.getEstNumTransformed() <= threshold) {
+								continue;
+							}
+
+							int[] otherRange = null;
+
+							if (oneSideJoin) {
+								otherRange = new int[2];
+								otherRange[0] = otherRecord.getTokenCount();
+								otherRange[1] = otherRecord.getTokenCount();
+							} else {
+								otherRange = otherRecord.getTransLengths();
+							}
+
+							if (StaticFunctions.overlap(otherRange[0]-deltaMax, otherRange[1], range[0]-deltaMax, range[1])) {
+								ithCandidates.add(otherRecord);
+							}
+							else ++checker.lengthFiltered;
+						} // end for otherRecord in recordList
+					} // end for delta_t
+				} // end for qgram in cand_qgrams_pos
+			} // end for delta_s
+
+			for (Record otherRecord : ithCandidates) candidatesCount.addTo( otherRecord, 1 );
+		} // end for i from 0 to indexK
+
+		ObjectIterator<Object2IntMap.Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
+		while (iter.hasNext()) {
+			Object2IntMap.Entry<Record> entry = iter.next();
+			Record record = entry.getKey();
+			int recordCount = entry.getIntValue();
+
+			if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+				candidates.add(record);
+			}
+			else ++checker.pqgramFiltered;
+		}
+
+		equivComparisons += candidates.size();
+		for (Record recR : candidates) {
+			int compare = checker.isEqual(recS, recR);
+			if (compare >= 0) {
+//				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
+				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
+			}
+		}
+	} // end joinOneRecordThres
 
 	public double getEta() {
 		return this.eta;

@@ -1,42 +1,40 @@
-package snu.kdd.synonym.synonymRev.algorithm;
+package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
-import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMHNaive extends AlgorithmTemplate {
+public class JoinMHNaiveDelta extends AlgorithmTemplate {
 
-	public JoinMHNaive( Query query, StatContainer stat ) throws IOException {
+	public JoinMHNaiveDelta( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 
-	protected Validator checker;
 	protected SampleEstimate estimate;
 	protected int qSize = 0;
 	protected int indexK = 0;
 	protected double sampleRatio = 0;
 	protected int joinThreshold = 1;
 	protected boolean joinMHRequired = true;
+	protected int deltaMax;
 
-	protected NaiveIndex naiveIndex;
-	protected JoinMHIndex joinMHIdx;
+	private NaiveDeltaIndex naiveIndex;
+	private JoinMHDeltaIndex joinMHIdx;
+	private DeltaValidator checker;
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;
@@ -68,10 +66,11 @@ public class JoinMHNaive extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
 		// Setup parameters
-		checker = params.validator;
 		qSize = params.qgramSize;
 		indexK = params.indexK;
 		sampleRatio = params.sampleRatio;
+		deltaMax = params.delta;
+		checker = new DeltaValidator( deltaMax );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
@@ -97,11 +96,11 @@ public class JoinMHNaive extends AlgorithmTemplate {
 		for( int i = 0; i < indexK; i++ ) {
 			index[ i ] = i;
 		}
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
+		joinMHIdx = new JoinMHDeltaIndex( indexK, qSize, deltaMax, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
 	}
 
 	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold / 2 );
+		naiveIndex = new NaiveDeltaIndex( query.indexedSet, query, stat, true, deltaMax, joinThreshold, joinThreshold / 2 );
 	}
 
 	protected Set<IntegerPair> join() {
@@ -132,13 +131,13 @@ public class JoinMHNaive extends AlgorithmTemplate {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+					joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 				}
 			}
 
@@ -195,11 +194,11 @@ public class JoinMHNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinMHNaive";
+		return "JoinMHNaiveDelta";
 	}
 
 	@Override
 	public String getVersion() {
-		return "2.5";
+		return "1.0";
 	}
 }
