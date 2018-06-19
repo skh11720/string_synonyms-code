@@ -9,10 +9,14 @@ import java.util.Random;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMap.Entry;
+import snu.kdd.synonym.synonymRev.algorithm.delta.QGramDeltaGenerator;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class TestUtils {
@@ -21,8 +25,8 @@ public class TestUtils {
 		String osName = System.getProperty( "os.name" );
 		Query query = null;
 		if ( osName.startsWith( "Windows" ) ) {
-			final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-			final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+			final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_1000_data.txt";
+			final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_1000_data.txt";
 			final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
 			final String outputPath = "output";
 			final Boolean oneSideJoin = true;
@@ -89,6 +93,11 @@ public class TestUtils {
 	// 700 ms
 	@Ignore
 	public void testGetCombinations() {
+		// check the output
+		for ( IntArrayList comb : Util.getCombinations( 7, 3 ) )
+			System.out.println( comb );
+		
+		// measure the execution time
 		final int nTest = 1000;
 		final int n_max = 10;
 
@@ -99,5 +108,50 @@ public class TestUtils {
 				}
 			}
 		}
+	}
+
+	@Ignore
+	public void testGetCombinationsAll() {
+		// check the output
+		for ( IntArrayList comb : Util.getCombinationsAll( 7, 3 ) )
+			System.out.println( comb );
+	}
+	
+	@Test
+	public void testQGramDeltaGenerator() {
+		QGramDeltaGenerator qdgen = new QGramDeltaGenerator( 3, 0 );
+		QGram qgram0 = new QGram( new int[] {10, 20, 30, 40, 50} );
+		
+		// check delta=0
+		for ( java.util.Map.Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram0 ) ) {
+			QGram qgramDelta = entry.getKey();
+			int delta = entry.getValue();
+			assertEquals( Arrays.toString( new int[] {10, 20, 30} ), Arrays.toString( qgramDelta.qgram ) );
+			assertEquals( 0, delta );
+		}
+
+		// check delta>0
+		qdgen = new QGramDeltaGenerator( 3, 2 );
+		int[][] answer_qgram = new int[][] {
+			{10, 20, 30},
+			{10, 20, 40},
+			{10, 20, 50},
+			{10, 30, 40},
+			{10, 30, 50},
+			{10, 40, 50},
+			{20, 30, 40},
+			{20, 30, 50},
+			{20, 40, 50},
+			{30, 40, 50},
+		};
+		int[] answer_delta = {0, 1, 2, 1, 2, 2, 1, 2, 2, 2};
+		int k = 0;
+		for ( java.util.Map.Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram0 ) ) {
+			QGram qgramDelta = entry.getKey();
+			int delta = entry.getValue();
+			assertEquals( Arrays.toString(answer_qgram[k]), Arrays.toString(qgramDelta.qgram) );
+			assertEquals( answer_delta[k], delta );
+			++k;
+		}	
 	}
 }

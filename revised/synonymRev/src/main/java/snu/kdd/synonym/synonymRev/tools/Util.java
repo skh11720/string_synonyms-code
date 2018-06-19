@@ -212,6 +212,32 @@ public class Util {
 		return combList;
 	}
 
+	public static List<IntArrayList> getCombinationsAll( int n, int k ) {
+		/*
+		 * Return all combinations of n choose k' for all k'<=k.
+		 */
+		List<IntArrayList> combList = new ObjectArrayList<IntArrayList>();
+
+		ObjectArrayFIFOQueue<IntArrayList> stack_x_errors = new ObjectArrayFIFOQueue<IntArrayList>();
+		stack_x_errors.enqueue( new IntArrayList() );
+		
+		while ( !stack_x_errors.isEmpty() ) {
+			IntArrayList comb = stack_x_errors.dequeue();
+			combList.add( comb );
+			if ( comb.size() < k ) {
+				int max = comb.size() > 0 ? Collections.max( comb ) : -1;
+				for ( int i=max+1; i<n; ++i ) {
+					if ( !comb.contains( i )) {
+						IntArrayList comb2 = new IntArrayList( comb );
+						comb2.add( i );
+						stack_x_errors.enqueue( comb2 );
+					}
+				}
+			}
+		}
+		return combList;
+	}
+
 	public static int[] getSubsequence( int[] arr, IntArrayList idxList ) {
 		/*
 		 * Return the subsequence of arr with indexes in idxList.
