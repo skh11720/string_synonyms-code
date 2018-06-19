@@ -227,15 +227,50 @@ public class AlgorithmTest {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinNaiveDelta() throws ParseException, IOException {
 		args[1] = "JoinNaiveDelta";
 		String[] param_list = {
 				"\"-delta 0\"",
 				"\"-delta 1\"",
-				"\"-delta 2\""
+//				"\"-delta 2\""
 		};
 		int[] answer_list = {1014, 1190, 2447};
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
+	
+	@Test
+	public void testJoinMHDelta() throws ParseException, IOException {
+		args[1] = "JoinMHDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -delta 0\"",
+				"\"-K 1 -qSize 1 -delta 1\"",
+				"\"-K 1 -qSize 1 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -delta 1\"",
+				"\"-K 1 -qSize 3 -delta 1\"",
+				"\"-K 1 -qSize 4 -delta 1\"",
+				"\"-K 1 -qSize 5 -delta 1\"",
+
+				"\"-K 2 -qSize 2 -delta 1\"",
+				"\"-K 3 -qSize 2 -delta 1\"",
+				"\"-K 4 -qSize 2 -delta 1\"",
+				"\"-K 5 -qSize 2 -delta 1\"",
+
+				"\"-K 1 -qSize 2 -delta 2\"",
+				"\"-K 1 -qSize 3 -delta 2\"",
+				"\"-K 1 -qSize 4 -delta 2\"",
+				"\"-K 1 -qSize 5 -delta 2\"",
+
+				"\"-K 2 -qSize 2 -delta 2\"",
+				"\"-K 3 -qSize 2 -delta 2\"",
+				"\"-K 4 -qSize 2 -delta 2\"",
+				"\"-K 5 -qSize 2 -delta 2\"",
+		};
+		int[] answer_list = {1014, 1190, 2447, 1190, 1190, 1190, 1190, 1190, 1190, 1190, 1190, 2447, 2447, 2447, 2447, 2447, 2447, 2447, 2447};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
 			runAlgorithm( param, answer_list[i] );
