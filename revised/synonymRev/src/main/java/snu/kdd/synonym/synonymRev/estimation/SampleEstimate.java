@@ -135,6 +135,7 @@ public class SampleEstimate {
 		try {
 			naiveinst = new JoinNaive( sampleQuery, stat );
 			naiveinst.threshold = 100;
+			naiveinst.avgTransformed = 100/2;
 			naiveinst.runAfterPreprocess( false );
 			alpha = naiveinst.getAlpha();
 			beta = naiveinst.getBeta();

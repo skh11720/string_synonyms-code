@@ -51,9 +51,8 @@ public class NaiveIndex {
 		final long starttime = System.nanoTime();
 		int initialSize = (int) ( indexedSet.size() * avgTransformed / 2 );
 
-		if( initialSize > 10000 ) {
-			initialSize = 10000;
-		}
+		if ( initialSize > 10000 ) initialSize = 10000;
+		if ( initialSize < 10 ) initialSize = 10;
 
 		if( DEBUG.NaiveON ) {
 			stat.add( "Auto_Hash_Initial_Size ", initialSize );
