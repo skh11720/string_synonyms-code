@@ -68,8 +68,16 @@ public class AlgorithmTest {
 		App.run( alg, query, cmd );
 		assertEquals( answer, alg.rsltSize );
 	}
+	
+	
+	
+	
+	
+	/**********************************
+	 *  SEQUENCE BASED JOIN ALGORITHMS
+	 **********************************/
 
-	@Ignore
+	@Test
 	public void testJoinNaive() throws IOException, ParseException {
 		args[1] = "JoinNaive";
 		String[] param_list = {
@@ -143,6 +151,30 @@ public class AlgorithmTest {
 		};
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
+	
+	@Ignore
+	public void testJoinPkduck() throws ParseException, IOException {
+		args[1] = "JoinPkduck";
+		String[] param_list = {
+				"\"-ord FF -verify naive -rc false\"",
+				"\"-ord FF -verify naive -rc true\"",
+				"\"-ord FF -verify greedy -rc false\"",
+				"\"-ord FF -verify greedy -rc true\""
+		};
+		int[] answer_list = {1014, 1014, 1013, 1013};
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			int answer = answer_list[i];
+			runAlgorithm( param, answer );
+		}
+	}
+	
+	
+	
+	
+	/*************************************************
+	 *  SEQUENCE BASED JOIN ALGORITHMS, DP EXTENSIONS
+	 *************************************************/
 
 	@Ignore
 	public void testJoinMHDP() throws IOException, ParseException {
@@ -210,22 +242,74 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 	
-	@Ignore
-	public void testJoinPkduck() throws ParseException, IOException {
-		args[1] = "JoinPkduck";
+	
+	
+	
+	
+	
+	/****************************************************
+	 *  SEQUENCE BASED JOIN ALGORITHMS, DELTA EXTENSIONS
+	 ****************************************************/
+	
+	@Test
+	public void testJoinNaiveDelta() throws ParseException, IOException {
+		args[1] = "JoinNaiveDelta";
 		String[] param_list = {
-				"\"-ord FF -verify naive -rc false\"",
-				"\"-ord FF -verify naive -rc true\"",
-				"\"-ord FF -verify greedy -rc false\"",
-				"\"-ord FF -verify greedy -rc true\""
+				"\"-delta 0\"",
+				"\"-delta 1\"",
+				"\"-delta 2\""
 		};
-		int[] answer_list = {1014, 1014, 1013, 1013};
+		int[] answer_list = {1014, 1190, 2447};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			int answer = answer_list[i];
-			runAlgorithm( param, answer );
+			runAlgorithm( param, answer_list[i] );
 		}
 	}
+	
+	@Ignore
+	public void testJoinMHDelta() throws ParseException, IOException {
+		args[1] = "JoinMHDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -delta 0\"",
+				"\"-K 1 -qSize 1 -delta 1\"",
+				"\"-K 1 -qSize 1 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -delta 1\"",
+				"\"-K 1 -qSize 3 -delta 1\"",
+				"\"-K 1 -qSize 4 -delta 1\"",
+				"\"-K 1 -qSize 5 -delta 1\"",
+
+				"\"-K 2 -qSize 2 -delta 1\"",
+				"\"-K 3 -qSize 2 -delta 1\"",
+				"\"-K 4 -qSize 2 -delta 1\"",
+				"\"-K 5 -qSize 2 -delta 1\"",
+
+				"\"-K 1 -qSize 2 -delta 2\"",
+				"\"-K 1 -qSize 3 -delta 2\"",
+				"\"-K 1 -qSize 4 -delta 2\"",
+				"\"-K 1 -qSize 5 -delta 2\"",
+
+				"\"-K 2 -qSize 2 -delta 2\"",
+				"\"-K 3 -qSize 2 -delta 2\"",
+				"\"-K 4 -qSize 2 -delta 2\"",
+				"\"-K 5 -qSize 2 -delta 2\"",
+		};
+		int[] answer_list = {1014, 1190, 2447, 1190, 1190, 1190, 1190, 1190, 1190, 1190, 1190, 2447, 2447, 2447, 2447, 2447, 2447, 2447, 2447};
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	/********************************
+	 *  SET BASED JOIN ALGORITHMS
+	 ********************************/
 
 	@Ignore
 	public void testJoinSetNaive() throws IOException, ParseException {
@@ -251,18 +335,6 @@ public class AlgorithmTest {
 		};
 		for ( String param : param_list ) runAlgorithm( param, 1028 );
 	}
-	
-//	@Ignore
-//	public void testJoinPQFilterDPSet2() throws ParseException, IOException {
-//		args[1] = "JoinPQFilterDPSet2";
-//		String[] param_list = {
-////				"\"-K 1 -verify TD -rc false\""
-//				"\"-K 2 -verify TD -rc true\""
-////				"\"-K 2 -verify GR1 -rc false\"",
-////				"\"-K 2 -verify GR1 -rc true\"",
-//		};
-//		for ( String param : param_list ) runAlgorithm( param, 1028 );
-//	}
 	
 	@Ignore
 	public void testJoinPkduckSet() throws ParseException, IOException {

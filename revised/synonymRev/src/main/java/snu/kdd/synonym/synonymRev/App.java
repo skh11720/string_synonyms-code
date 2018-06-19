@@ -33,6 +33,8 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDelta;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
@@ -215,6 +217,14 @@ public class App {
 		
 		case JoinMinNaiveThresDP:
 			alg = new JoinMinNaiveThresDP( query, stat );
+			break;
+
+		case JoinNaiveDelta:
+			alg = new JoinNaiveDelta( query, stat );
+			break;
+		
+		case JoinMHDelta:
+			alg = new JoinMHDelta( query, stat );
 			break;
 		
 		case JoinPkduckSet:

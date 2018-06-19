@@ -140,7 +140,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 	}
 
 	private void buildNaiveIndex() {
-		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, true, query );
+		naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold / 2 );
 	}
 
 	private Set<IntegerPair> join() {
