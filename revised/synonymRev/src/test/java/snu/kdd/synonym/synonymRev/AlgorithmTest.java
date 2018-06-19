@@ -77,7 +77,7 @@ public class AlgorithmTest {
 	 *  SEQUENCE BASED JOIN ALGORITHMS
 	 **********************************/
 
-	@Ignore
+	@Test
 	public void testJoinNaive() throws IOException, ParseException {
 		args[1] = "JoinNaive";
 		String[] param_list = {
