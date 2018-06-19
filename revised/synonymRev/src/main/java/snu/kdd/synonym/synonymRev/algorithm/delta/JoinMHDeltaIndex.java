@@ -20,6 +20,7 @@ import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
@@ -31,7 +32,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMHDeltaIndex {
+public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	private ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>> index;
 	// key: pos -> delta -> qgram -> recordList
 	private Object2IntOpenHashMap<Record> indexedCountList;
@@ -603,6 +604,7 @@ public class JoinMHDeltaIndex {
 
 	public void joinOneRecordThres( Record recS, Set<IntegerPair> rslt, Validator checker, int threshold, boolean oneSideJoin ) {
 		Set<Record> candidates = new WYK_HashSet<Record>(100);
+
 		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
 
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
@@ -709,6 +711,16 @@ public class JoinMHDeltaIndex {
 
 	public int getIndexedCount( Record rec ) {
 		return indexedCountList.getInt( rec );
+	}
+
+	@Override
+	public long getCountValue() {
+		return countValue;
+	}
+
+	@Override
+	public long getEquivComparisons() {
+		return equivComparisons;
 	}
 
 	public int nInvList() {

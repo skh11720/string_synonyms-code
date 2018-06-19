@@ -28,7 +28,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMHIndex {
+public class JoinMHIndex implements JoinMHIndexInterface {
 	protected ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
 	protected Object2IntOpenHashMap<Record> indexedCountList;
 	protected Query query;
@@ -535,8 +535,7 @@ public class JoinMHIndex {
 		return rslt;
 	}
 
-	public void joinOneRecordThres(int nIndex, Record recS, Set<IntegerPair> rslt, Validator checker, int threshold,
-			boolean oneSideJoin, int maxPosition) {
+	public void joinOneRecordThres( Record recS, Set<IntegerPair> rslt, Validator checker, int threshold, boolean oneSideJoin ) {
 		Set<Record> candidates = new WYK_HashSet<Record>(100);
 
 		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
@@ -656,6 +655,16 @@ public class JoinMHIndex {
 		return indexedCountList.getInt( rec );
 	}
 
+	@Override
+	public long getCountValue() {
+		return countValue;
+	}
+
+	@Override
+	public long getEquivComparisons() {
+		return equivComparisons;
+	}
+	
 	public int nInvList() {
 		int n = 0;
 		for (int i=0; i<joinMHIndex.size(); i++) {

@@ -86,7 +86,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 
-	@Ignore
+	@Test
 	public void testJoinMH() throws IOException, ParseException {
 		args[1] = "JoinMH";
 		String[] param_list = {
@@ -97,7 +97,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 
-	@Ignore
+	@Test
 	public void testJoinMHNaive() throws IOException, ParseException {
 		args[1] = "JoinMHNaive";
 		String[] param_list = {
@@ -108,7 +108,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 
-	@Ignore
+	@Test
 	public void testJoinMHNaiveThres() throws IOException, ParseException {
 		args[1] = "JoinMHNaiveThres";
 		String[] param_list = {
@@ -266,7 +266,7 @@ public class AlgorithmTest {
 		}
 	}
 	
-	@Ignore
+	@Test
 	public void testJoinMHDelta() throws ParseException, IOException {
 		args[1] = "JoinMHDelta";
 		String[] param_list = {

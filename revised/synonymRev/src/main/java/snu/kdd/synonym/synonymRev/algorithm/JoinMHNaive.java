@@ -12,6 +12,7 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -36,10 +37,19 @@ public class JoinMHNaive extends AlgorithmTemplate {
 	protected boolean joinMHRequired = true;
 
 	protected NaiveIndex naiveIndex;
-	protected JoinMHIndex joinMHIdx;
+	protected JoinMHIndexInterface joinMHIdx;
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;
+	
+	
+	
+	protected void setup( Param params ) {
+		checker = params.validator;
+		qSize = params.qgramSize;
+		indexK = params.indexK;
+		sampleRatio = params.sampleRatio;
+	}
 
 	@Override
 	public void preprocess() {
@@ -67,11 +77,7 @@ public class JoinMHNaive extends AlgorithmTemplate {
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
-		// Setup parameters
-		checker = params.validator;
-		qSize = params.qgramSize;
-		indexK = params.indexK;
-		sampleRatio = params.sampleRatio;
+		setup( params );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
@@ -132,20 +138,20 @@ public class JoinMHNaive extends AlgorithmTemplate {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+					joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 				}
 			}
 
 			joinMHResultSize = rslt.size();
 			stat.add( "Join_MH_Result", joinMHResultSize );
-			stat.add( "nCandQGrams", joinMHIdx.countValue );
-			stat.add( "Stat_Equiv_Comparison", joinMHIdx.equivComparisons );
+			stat.add( "nCandQGrams", joinMHIdx.getCountValue() );
+			stat.add( "Stat_Equiv_Comparison", joinMHIdx.getEquivComparisons() );
 		}
 		joinTime.stopQuiet();
 

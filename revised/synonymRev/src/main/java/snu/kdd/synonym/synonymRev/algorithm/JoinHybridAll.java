@@ -181,12 +181,10 @@ public class JoinHybridAll extends AlgorithmTemplate {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
 						if( joinMinSelected ) {
-							joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold,
-									query.oneSideJoin );
+							joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 						}
 						else {
-							joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin,
-									indexK - 1 );
+							joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 						}
 					}
 				}
@@ -197,7 +195,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 					}
 					else {
-						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 					}
 				}
 			}
