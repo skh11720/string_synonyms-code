@@ -25,12 +25,15 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 public class NaiveIndex {
 	public WYK_HashMap<Record, ArrayList<Integer>> idx;
 	protected final boolean isSelfJoin;
+	protected final String filenamePrefix = "NaiveIndex";
 
 	public double alpha;
 	public double beta;
 
 	public double indexTime = 0;
 	public double joinTime = 0;
+	public long idxsize = 0;
+	public long indexingTime = 0;
 
 	public double totalExp = 0;
 	public double totalExpLength = 0;
@@ -39,52 +42,43 @@ public class NaiveIndex {
 	public double searchTime = 0;
 
 	public int skippedCount = 0;
+	protected final long threshold;
 
-	NaiveIndex( Query query, int initialSize ) {
-		if( initialSize < 10 ) {
-			initialSize = 10;
-		}
-		idx = new WYK_HashMap<Record, ArrayList<Integer>>( initialSize );
+	public NaiveIndex( Dataset indexedSet, Query query, StatContainer stat, boolean addStat, long threshold, double avgTransformed ) {
 		isSelfJoin = query.selfJoin;
-	}
 
-	public static NaiveIndex buildIndex( double avgTransformed, StatContainer stat, long threshold, boolean addStat,
-			Query query ) {
+		this.threshold = threshold;
 		final long starttime = System.nanoTime();
-		int initialsize = (int) ( query.indexedSet.size() * avgTransformed / 2 );
+		int initialSize = (int) ( indexedSet.size() * avgTransformed / 2 );
 
-		if( initialsize > 10000 ) {
-			initialsize = 10000;
+		if( initialSize > 10000 ) {
+			initialSize = 10000;
 		}
 
 		if( DEBUG.NaiveON ) {
-			stat.add( "Auto_Hash_Initial_Size ", initialsize );
+			stat.add( "Auto_Hash_Initial_Size ", initialSize );
 		}
 
 		BufferedWriter bw = null;
 		if( DEBUG.PrintNaiveIndexON ) {
 			try {
-				bw = new BufferedWriter( new FileWriter( "Naive_index_" + addStat + ".txt" ) );
+				bw = new BufferedWriter( new FileWriter( "./tmp/"+filenamePrefix+".txt" ) );
 			}
 			catch( IOException e ) {
 				e.printStackTrace();
 			}
 		}
 
-		NaiveIndex naiveIndex = new NaiveIndex( query, initialsize );
+		idx = new WYK_HashMap<Record, ArrayList<Integer>>( initialSize );
 
-		naiveIndex.totalExpLength = 0;
+		totalExpLength = 0;
+		totalExp = 0;
+		idxsize = 0;
+		indexingTime = 0;
+		expandTime = 0;
 
-		double totalExp = 0;
-		@SuppressWarnings( "unused" )
-		long idxsize = 0;
-		@SuppressWarnings( "unused" )
-		long indexingTime = 0;
-
-		long expandTime = 0;
-
-		for( int i = 0; i < query.indexedSet.size(); ++i ) {
-			final Record recR = query.indexedSet.getRecord( i );
+		for( int i = 0; i < indexedSet.size(); ++i ) {
+			final Record recR = indexedSet.getRecord( i );
 
 			if( !query.oneSideJoin ) {
 				final long est = recR.getEstNumTransformed();
@@ -120,7 +114,7 @@ public class NaiveIndex {
 					}
 				}
 				expanded = recR.expandAll();
-				naiveIndex.totalExpLength += expanded.size() * recR.getTokenCount();
+				totalExpLength += expanded.size() * recR.getTokenCount();
 
 				if( DEBUG.NaiveON ) {
 					totalExp += expanded.size();
@@ -131,7 +125,7 @@ public class NaiveIndex {
 
 			if( !query.oneSideJoin ) {
 				for( final Record exp : expanded ) {
-					naiveIndex.addExpaneded( exp, i );
+					addExpaneded( exp, i );
 
 					if( DEBUG.PrintNaiveIndexON ) {
 						try {
@@ -142,7 +136,7 @@ public class NaiveIndex {
 						}
 					}
 
-					idxsize++;
+					++idxsize;
 				}
 			}
 			else {
@@ -155,9 +149,9 @@ public class NaiveIndex {
 						e.printStackTrace();
 					}
 				}
-				naiveIndex.totalExpLength += recR.getTokenCount();
+				totalExpLength += recR.getTokenCount();
 
-				naiveIndex.addExpaneded( recR, i );
+				addExpaneded( recR, i );
 			}
 
 			indexingTime += System.nanoTime() - indexingStartTime;
@@ -172,13 +166,16 @@ public class NaiveIndex {
 			}
 		}
 
-		if( naiveIndex.totalExpLength == 0 ) {
-			naiveIndex.totalExpLength = 1;
+		if( totalExpLength == 0 ) {
+			totalExpLength = 1;
 		}
 
-		naiveIndex.indexTime = System.nanoTime() - starttime;
-		naiveIndex.alpha = naiveIndex.indexTime / naiveIndex.totalExpLength;
+		indexTime = System.nanoTime() - starttime;
+		alpha = indexTime / totalExpLength;
+	}
 
+	@Deprecated
+	public void addStat( StatContainer stat, boolean addStat ) {
 		if( addStat ) {
 			if( DEBUG.NaiveON ) {
 				// stat.add( "Stat_Size_Indexed_Records", count );
@@ -192,11 +189,11 @@ public class NaiveIndex {
 				stat.add( "Est_Index_2_idxSize", idxsize );
 				stat.add( "Est_Index_2_indexingTime", indexingTime );
 
-				naiveIndex.addStat( stat, "Counter_Index" );
-				stat.add( "Est_Index_2_totalTime", Double.toString( naiveIndex.indexTime ) );
+//				naiveIndex.addStat( stat, "Counter_Index" );
+				stat.add( "Est_Index_2_totalTime", Double.toString( indexTime ) );
 
-				stat.add( "Est_Index_3_expandTimesLength", Double.toString( naiveIndex.totalExpLength ) );
-				stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / naiveIndex.totalExpLength ) );
+				stat.add( "Est_Index_3_expandTimesLength", Double.toString( totalExpLength ) );
+				stat.add( "Est_Index_3_expandTimePerETL", Double.toString( expandTime / totalExpLength ) );
 				// stat.add( "Est_Index_3_timePerETL", Double.toString( duration / expandTimesLength ) );
 
 				Runtime runtime = Runtime.getRuntime();
@@ -206,27 +203,25 @@ public class NaiveIndex {
 		}
 		else {
 			if( DEBUG.SampleStatON ) {
-				System.out.println( "[Alpha] " + naiveIndex.alpha );
-				System.out.println( "[Alpha] IndexTime " + naiveIndex.indexTime );
-				System.out.println( "[Alpha] totalExpLength " + naiveIndex.totalExpLength );
+				System.out.println( "[Alpha] " + alpha );
+				System.out.println( "[Alpha] IndexTime " + indexTime );
+				System.out.println( "[Alpha] totalExpLength " + totalExpLength );
 			}
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
-					bwEstimation.write( "[Alpha] " + naiveIndex.alpha );
-					bwEstimation.write( " IndexTime " + naiveIndex.indexTime );
-					bwEstimation.write( " totalExpLength " + naiveIndex.totalExpLength + "\n" );
+					bwEstimation.write( "[Alpha] " + alpha );
+					bwEstimation.write( " IndexTime " + indexTime );
+					bwEstimation.write( " totalExpLength " + totalExpLength + "\n" );
 				}
 				catch( Exception e ) {
 					e.printStackTrace();
 				}
 			}
 		}
-
-		return naiveIndex;
 	}
 
-	public void addExpaneded( Record expanded, int recordId ) {
+	protected void addExpaneded( Record expanded, int recordId ) {
 		ArrayList<Integer> list = idx.get( expanded );
 
 		if( list == null ) {
@@ -248,26 +243,18 @@ public class NaiveIndex {
 		list.add( recordId );
 	}
 	
-	public Set<Record> keySet() {
-		return idx.keySet();
-	}
-	
-	public List<Integer> getValue( Record rec ) {
-		return idx.get( rec );
-	}
+//	public void addStat( StatContainer stat, String prefix ) {
+//		stat.add( prefix + "_Get_Count", WYK_HashMap.getCount );
+//		stat.add( prefix + "_GetIter_Count", WYK_HashMap.getIterCount );
+//		stat.add( prefix + "_Put_Count", WYK_HashMap.putCount );
+//		stat.add( prefix + "_Resize_Count", WYK_HashMap.resizeCount );
+//		stat.add( prefix + "_Remove_Count", WYK_HashMap.removeCount );
+//		stat.add( prefix + "_RemoveIter_Count", WYK_HashMap.removeIterCount );
+//		stat.add( prefix + "_PutRemoved_Count", WYK_HashMap.putRemovedCount );
+//		stat.add( prefix + "_RemoveFound_Count", WYK_HashMap.removeFoundCount );
+//	}
 
-	public void addStat( StatContainer stat, String prefix ) {
-		stat.add( prefix + "_Get_Count", WYK_HashMap.getCount );
-		stat.add( prefix + "_GetIter_Count", WYK_HashMap.getIterCount );
-		stat.add( prefix + "_Put_Count", WYK_HashMap.putCount );
-		stat.add( prefix + "_Resize_Count", WYK_HashMap.resizeCount );
-		stat.add( prefix + "_Remove_Count", WYK_HashMap.removeCount );
-		stat.add( prefix + "_RemoveIter_Count", WYK_HashMap.removeIterCount );
-		stat.add( prefix + "_PutRemoved_Count", WYK_HashMap.putRemovedCount );
-		stat.add( prefix + "_RemoveFound_Count", WYK_HashMap.removeFoundCount );
-	}
-
-	public Set<IntegerPair> join( StatContainer stat, long threshold, boolean addStat, Query query ) {
+	public Set<IntegerPair> join( Query query, StatContainer stat, boolean addStat ) {
 		final Set<IntegerPair> rslt = new ObjectOpenHashSet<>();
 		final long starttime = System.nanoTime();
 
@@ -304,41 +291,8 @@ public class NaiveIndex {
 		joinTime = System.nanoTime() - starttime;
 		beta = joinTime / totalExp;
 
-		if( DEBUG.NaiveON ) {
-			if( addStat ) {
-				stat.add( "Est_Join_1_expandTime", expandTime );
-				stat.add( "Est_Join_2_searchTime", searchTime );
-				stat.add( "Est_Join_3_totalTime", Double.toString( joinTime ) );
-
-				Runtime runtime = Runtime.getRuntime();
-				stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
-				stat.add( "Stat_Counter_ExpandAll", Record.expandAllCount );
-			}
-		}
-
-		if( addStat ) {
-			stat.add( "Join_Naive_Result", rslt.size() );
-		}
-		else {
-			if( DEBUG.SampleStatON ) {
-				System.out.println( "[Beta] " + beta );
-				System.out.println( "[Beta] JoinTime " + joinTime );
-				System.out.println( "[Beta] TotalExp " + totalExp );
-			}
-
-			if( DEBUG.PrintEstimationON ) {
-				BufferedWriter bwEstimation = EstimationTest.getWriter();
-				try {
-					bwEstimation.write( "[Beta] " + beta );
-					bwEstimation.write( " JoinTime " + joinTime );
-					bwEstimation.write( " TotalExp " + totalExp + "\n" );
-				}
-				catch( Exception e ) {
-					e.printStackTrace();
-				}
-			}
-		}
-
+		stat.add( "Join_Naive_Result", rslt.size() );
+		if (addStat) addStatAfterJoin(stat);
 		return rslt;
 	}
 
@@ -371,5 +325,35 @@ public class NaiveIndex {
 			AlgorithmTemplate.addSeqResult( recS, idx, rslt, isSelfJoin );
 		}
 	}
+	
+	public void addStatAfterJoin( StatContainer stat ) {
+		if( DEBUG.NaiveON ) {
+			stat.add( "Est_Join_1_expandTime", expandTime );
+			stat.add( "Est_Join_2_searchTime", searchTime );
+			stat.add( "Est_Join_3_totalTime", Double.toString( joinTime ) );
 
+			Runtime runtime = Runtime.getRuntime();
+			stat.add( "Mem_4_Joined", ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
+			stat.add( "Stat_Counter_ExpandAll", Record.expandAllCount );
+		}
+		else {
+			if( DEBUG.SampleStatON ) {
+				System.out.println( "[Beta] " + beta );
+				System.out.println( "[Beta] JoinTime " + joinTime );
+				System.out.println( "[Beta] TotalExp " + totalExp );
+			}
+
+			if( DEBUG.PrintEstimationON ) {
+				BufferedWriter bwEstimation = EstimationTest.getWriter();
+				try {
+					bwEstimation.write( "[Beta] " + beta );
+					bwEstimation.write( " JoinTime " + joinTime );
+					bwEstimation.write( " TotalExp " + totalExp + "\n" );
+				}
+				catch( Exception e ) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

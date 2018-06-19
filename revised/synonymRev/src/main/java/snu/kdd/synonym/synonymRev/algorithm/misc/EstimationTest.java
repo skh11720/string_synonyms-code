@@ -246,7 +246,7 @@ public class EstimationTest extends AlgorithmTemplate {
 	}
 
 	private void buildNaiveIndex( boolean writeResult, int joinThreshold ) {
-		naiveIndex = NaiveIndex.buildIndex( joinThreshold / 2, stat, joinThreshold, writeResult, query );
+		naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold / 2 );
 	}
 
 	private void findJoinMHConstants( double sampleratio ) {

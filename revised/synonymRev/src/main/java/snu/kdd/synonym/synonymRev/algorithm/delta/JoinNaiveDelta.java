@@ -88,7 +88,7 @@ public class JoinNaiveDelta extends AlgorithmTemplate{
 			avgTransformed += rec.getEstNumTransformed();
 		}
 		avgTransformed /= query.indexedSet.size();
-		index = NaiveIndex.buildIndex( avgTransformed, stat, -1, addStat, query );
+		index = new NaiveIndex( query.indexedSet, query, stat, addStat, -1, avgTransformed );
 		token2rec = new Int2ObjectOpenHashMap<List<Record>>();
 		for ( Record rec : index.keySet() ) {
 			for ( int token : rec.getTokens() ) {
