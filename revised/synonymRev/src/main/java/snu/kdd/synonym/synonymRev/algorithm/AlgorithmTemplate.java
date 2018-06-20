@@ -55,6 +55,8 @@ public abstract class AlgorithmTemplate {
 		JoinMHNaiveDelta,
 		JoinMHNaiveThresDelta,
 		JoinMinDelta,
+		JoinMinNaiveDelta,
+		JoinMinNaiveThresDelta,
 		JoinPkduckSet,
 		JoinPQFilterDPSet,
 		JoinPQFilterDPSet2,

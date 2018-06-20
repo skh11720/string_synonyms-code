@@ -37,6 +37,8 @@ import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHNaiveThresDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinDelta;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinNaiveDelta;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinNaiveThresDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
@@ -240,6 +242,14 @@ public class App {
 		
 		case JoinMinDelta:
 			alg = new JoinMinDelta( query, stat );
+			break;
+		
+		case JoinMinNaiveDelta:
+			alg = new JoinMinNaiveDelta( query, stat );
+			break;
+		
+		case JoinMinNaiveThresDelta:
+			alg = new JoinMinNaiveThresDelta( query, stat );
 			break;
 		
 		case JoinPkduckSet:

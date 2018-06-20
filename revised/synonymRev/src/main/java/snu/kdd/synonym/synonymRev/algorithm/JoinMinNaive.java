@@ -44,8 +44,8 @@ public class JoinMinNaive extends AlgorithmTemplate {
 	protected int joinThreshold = 1;
 	protected boolean joinMinRequired = true;
 
-	NaiveIndex naiveIndex;
-	JoinMinIndexInterface joinMinIdx;
+	protected NaiveIndex naiveIndex;
+	protected JoinMinIndexInterface joinMinIdx;
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;

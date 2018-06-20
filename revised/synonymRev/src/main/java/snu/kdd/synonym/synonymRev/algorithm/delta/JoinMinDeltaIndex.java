@@ -185,7 +185,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 					for ( Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram ) ) {
 						QGram qgramDelta = entry.getKey();
 						int delta = entry.getValue();
-						curridx_invokes_delta.get( delta ).addTo( qgramDelta, 1 ); // TODO: maybe too many duplications?
+						curridx_invokes_delta.get( delta ).addTo( qgramDelta, 1 );
 
 						if( DEBUG.JoinMinIndexON ) {
 							this.countPerPosition.add( i, 1 );
@@ -354,6 +354,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 					/*
 					 * Since only oneSideJoin is supported currently, 
 					 * the number of qgrams for each position i is 1.
+					 * the qgram comes from a record in the indexedSet.
 					 */
 					for ( Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram ) ) {
 						QGram qgramDelta = entry.getKey();
@@ -367,7 +368,6 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 //							count += curridx_lowInvokes_delta.get( delta ).getInt( qgramDelta );
 						}
 					}
-
 				}
 
 				if( DEBUG.PrintJoinMinIndexON ) {
