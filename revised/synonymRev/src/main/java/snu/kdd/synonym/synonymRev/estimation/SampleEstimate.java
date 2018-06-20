@@ -192,7 +192,7 @@ public class SampleEstimate {
 				stat.add( "Const_Delta", String.format( "%.2f", delta ) );
 				stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
 
-				stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.epsilonPrime ) );
+				stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.getEpsilonPrime() ) );
 			}
 		}
 		catch( IOException e ) {

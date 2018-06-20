@@ -9,6 +9,7 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMinIndexInterface;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
@@ -29,10 +30,16 @@ public class JoinMin extends AlgorithmTemplate {
 	 * Key: (2gram, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
-	public JoinMinIndex idx;
+	public JoinMinIndexInterface idx;
 
 	public JoinMin( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
+	}
+	
+	protected void setup( Param params ) {
+		checker = params.validator;
+		qSize = params.qgramSize;
+		indexK = params.indexK;
 	}
 
 	@Override
@@ -130,11 +137,7 @@ public class JoinMin extends AlgorithmTemplate {
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
-
-		// Setup parameters
-		checker = params.validator;
-		qSize = params.qgramSize;
-		indexK = params.indexK;
+		setup( params );
 
 		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
@@ -154,15 +157,15 @@ public class JoinMin extends AlgorithmTemplate {
 	}
 
 	public double getGamma() {
-		return idx.gamma;
+		return idx.getGamma();
 	}
 
 	public double getDelta() {
-		return idx.delta;
+		return idx.getDelta();
 	}
 
 	public double getEpsilon() {
-		return idx.epsilon;
+		return idx.getEpsilon();
 	}
 
 	@Override

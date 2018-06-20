@@ -33,7 +33,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMinIndex {
+public class JoinMinIndex implements JoinMinIndexInterface {
 	protected ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
 	protected ArrayList<Integer> countPerPosition = null;
 	protected Object2IntOpenHashMap<Record> indexedCountMap;
@@ -1056,4 +1056,18 @@ public class JoinMinIndex {
 	public void addStat( StatContainer stat ) {
 		stat.add( "nCandQGrams", nCandQGrams );
 	}
+	
+	public double getGamma() { return gamma; }
+	public double getDelta() { return delta; }
+	public double getEpsilon() { return epsilon; }
+	public double getEpsilonPrime() { return epsilonPrime; }
+	public long getSearchedTotalSigCount(){ return searchedTotalSigCount; }
+	public long getIndexedTotalSigCount() { return indexedTotalSigCount; }
+	public long getEquivComparisons() { return equivComparisons; }
+	public long getComparisonTime() { return comparisonTime; }
+	public long getAppliedRulesSum() { return appliedRulesSum; }
+	public long getComparisonCount() { return comparisonCount; }
+	public double getIndexTime() { return indexTime; }
+	public double getCountTime() { return countTime; }
+	public long getPredictCount() { return predictCount; }
 }

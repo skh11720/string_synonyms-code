@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
@@ -11,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMinIndexInterface;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -41,10 +41,17 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	protected boolean joinMinRequired = true;
 
 	NaiveIndex naiveIndex;
-	JoinMinIndex joinMinIdx;
+	JoinMinIndexInterface joinMinIdx;
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;
+	
+	protected void setup( Param params ) {
+		checker = params.validator;
+		qSize = params.qgramSize;
+		indexK = params.indexK;
+		joinThreshold = params.threshold;
+	}
 
 	@Override
 	public void preprocess() {
@@ -72,11 +79,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
-		// Setup parameters
-		checker = params.validator;
-		qSize = params.qgramSize;
-		indexK = params.indexK;
-		joinThreshold = params.threshold;
+		setup( params );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
@@ -128,13 +131,13 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 		int joinMinResultSize = 0;
 		if( DEBUG.JoinMinNaiveON ) {
 			if( joinMinRequired ) {
-				stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
-				stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
-				stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
+				stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.getGamma() ) );
+				stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.getSearchedTotalSigCount() );
+				stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.getCountTime() ) );
 
-				stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
-				stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
-				stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
+				stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.getDelta() ) );
+				stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.getIndexedTotalSigCount() );
+				stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.getIndexTime() ) );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
@@ -162,7 +165,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 
 			joinMinResultSize = rslt.size();
 			stat.add( "Join_Min_Result", joinMinResultSize );
-			stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
+			stat.add( "Stat_Equiv_Comparison", joinMinIdx.getEquivComparisons() );
 		}
 		joinTime.stopQuiet();
 
@@ -172,11 +175,11 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
 			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
 			if( joinMinRequired ) {
-				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
-				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
+				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.getPredictCount() );
+				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.getPredictCount() ) );
 
-				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
-				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.getComparisonCount() ) );
+				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.getComparisonCount() );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );

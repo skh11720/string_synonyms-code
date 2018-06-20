@@ -69,6 +69,14 @@ public class AlgorithmTest {
 		assertEquals( answer, alg.rsltSize );
 	}
 	
+	@Test
+	public void testNow() throws ParseException, IOException {
+		testJoinMin();
+		testJoinMinNaive();
+		testJoinMinNaiveThres();
+		testJoinMinDelta();
+	}
+	
 	
 	
 	
@@ -86,7 +94,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMH() throws IOException, ParseException {
 		args[1] = "JoinMH";
 		String[] param_list = {
@@ -97,7 +105,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHNaive() throws IOException, ParseException {
 		args[1] = "JoinMHNaive";
 		String[] param_list = {
@@ -108,7 +116,7 @@ public class AlgorithmTest {
 		for ( String param : param_list ) runAlgorithm( param, 1014 );
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHNaiveThres() throws IOException, ParseException {
 		args[1] = "JoinMHNaiveThres";
 		String[] param_list = {
@@ -266,7 +274,7 @@ public class AlgorithmTest {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinMHDelta() throws ParseException, IOException {
 		args[1] = "JoinMHDelta";
 		String[] param_list = {
@@ -301,7 +309,7 @@ public class AlgorithmTest {
 		}
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHNaiveDelta() throws ParseException, IOException {
 		args[1] = "JoinMHNaiveDelta";
 		String[] param_list = {
@@ -324,7 +332,7 @@ public class AlgorithmTest {
 		}
 	}
 
-	@Test
+	@Ignore
 	public void testJoinMHNaiveThresDelta() throws ParseException, IOException {
 		args[1] = "JoinMHNaiveThresDelta";
 		String[] param_list = {
@@ -347,7 +355,7 @@ public class AlgorithmTest {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testJoinMinDelta() throws ParseException, IOException {
 		args[1] = "JoinMinDelta";
 		String[] param_list = {
