@@ -8,6 +8,7 @@ import org.apache.commons.cli.ParseException;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -15,7 +16,7 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
 public class JoinNaiveDelta extends AlgorithmTemplate{
 	
-	private NaiveDeltaIndex index;
+	private NaiveIndex index;
 	private int deltaMax;
 
 	public JoinNaiveDelta( Query query, StatContainer stat ) throws IOException {
@@ -68,7 +69,8 @@ public class JoinNaiveDelta extends AlgorithmTemplate{
 			avgTransformed += rec.getEstNumTransformed();
 		}
 		avgTransformed /= query.indexedSet.size();
-		index = new NaiveDeltaIndex( query.indexedSet, query, stat, addStat, deltaMax, -1, avgTransformed );
+		if ( deltaMax == 0 ) index = new NaiveIndex( query.indexedSet, query, stat, addStat, -1, avgTransformed );
+		else index = new NaiveDeltaIndex( query.indexedSet, query, stat, addStat, deltaMax, -1, avgTransformed );
 	}
 
 	@Override
