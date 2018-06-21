@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectMap.Entry;
 import snu.kdd.synonym.synonymRev.algorithm.delta.QGramDeltaGenerator;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
