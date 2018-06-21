@@ -69,6 +69,26 @@ public class AlgorithmTest {
 		assertEquals( answer, alg.rsltSize );
 	}
 	
+	@Test
+	public void testNow() throws ParseException, IOException {
+		
+		testJoinNaiveDelta();
+
+		testJoinMH();
+		testJoinMHNaive();
+		testJoinMHNaiveThres();
+		testJoinMHDelta();
+		testJoinMHNaiveDelta();
+		testJoinMHNaiveThresDelta();
+
+		testJoinMin();
+		testJoinMinNaive();
+		testJoinMinNaiveThres();
+		testJoinMinDelta();
+		testJoinMinNaiveDelta();
+		testJoinMinNaiveThresDelta();
+	}
+	
 	
 	
 	
@@ -77,7 +97,7 @@ public class AlgorithmTest {
 	 *  SEQUENCE BASED JOIN ALGORITHMS
 	 **********************************/
 
-	@Test
+	@Ignore
 	public void testJoinNaive() throws IOException, ParseException {
 		args[1] = "JoinNaive";
 		String[] param_list = {
@@ -251,7 +271,7 @@ public class AlgorithmTest {
 	 *  SEQUENCE BASED JOIN ALGORITHMS, DELTA EXTENSIONS
 	 ****************************************************/
 	
-	@Test
+	@Ignore
 	public void testJoinNaiveDelta() throws ParseException, IOException {
 		args[1] = "JoinNaiveDelta";
 		String[] param_list = {
@@ -300,7 +320,121 @@ public class AlgorithmTest {
 			runAlgorithm( param, answer_list[i] );
 		}
 	}
+
+	@Ignore
+	public void testJoinMHNaiveDelta() throws ParseException, IOException {
+		args[1] = "JoinMHNaiveDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 0\"",
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 1\"",
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 0\"",
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 1\"",
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 0\"",
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 1\"",
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 2\"",
+		};
+		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
+
+	@Ignore
+	public void testJoinMHNaiveThresDelta() throws ParseException, IOException {
+		args[1] = "JoinMHNaiveThresDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -t 300 -delta 0\"",
+				"\"-K 1 -qSize 1 -t 300 -delta 1\"",
+				"\"-K 1 -qSize 1 -t 300 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -t 300 -delta 0\"",
+				"\"-K 1 -qSize 2 -t 300 -delta 1\"",
+				"\"-K 1 -qSize 2 -t 300 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -t 300 -delta 0\"",
+				"\"-K 2 -qSize 1 -t 300 -delta 1\"",
+				"\"-K 2 -qSize 1 -t 300 -delta 2\"",
+		};
+		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
 	
+	@Ignore
+	public void testJoinMinDelta() throws ParseException, IOException {
+		args[1] = "JoinMinDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -delta 0\"",
+				"\"-K 1 -qSize 1 -delta 1\"",
+				"\"-K 1 -qSize 1 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -delta 0\"",
+				"\"-K 1 -qSize 2 -delta 1\"",
+				"\"-K 1 -qSize 2 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -delta 0\"",
+				"\"-K 2 -qSize 1 -delta 1\"",
+				"\"-K 2 -qSize 1 -delta 2\"",
+		};
+		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
+	
+	@Ignore
+	public void testJoinMinNaiveDelta() throws ParseException, IOException {
+		args[1] = "JoinMinNaiveDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 0\"",
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 1\"",
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 0\"",
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 1\"",
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 0\"",
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 1\"",
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 2\"",
+		};
+		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
+
+	@Ignore
+	public void testJoinMinNaiveThresDelta() throws ParseException, IOException {
+		args[1] = "JoinMinNaiveThresDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -t 300 -delta 0\"",
+				"\"-K 1 -qSize 1 -t 300 -delta 1\"",
+				"\"-K 1 -qSize 1 -t 300 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -t 300 -delta 0\"",
+				"\"-K 1 -qSize 2 -t 300 -delta 1\"",
+				"\"-K 1 -qSize 2 -t 300 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -t 300 -delta 0\"",
+				"\"-K 2 -qSize 1 -t 300 -delta 1\"",
+				"\"-K 2 -qSize 1 -t 300 -delta 2\"",
+		};
+		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
 	
 	
 	

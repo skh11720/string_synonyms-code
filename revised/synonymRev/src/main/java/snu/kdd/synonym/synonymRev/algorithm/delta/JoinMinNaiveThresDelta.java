@@ -1,0 +1,69 @@
+package snu.kdd.synonym.synonymRev.algorithm.delta;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
+
+import org.apache.commons.cli.ParseException;
+
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaiveThres;
+import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMinIndexInterface;
+import snu.kdd.synonym.synonymRev.index.NaiveIndex;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
+import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.Param;
+import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StopWatch;
+import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.validator.Validator;
+
+/**
+ * Given threshold, if a record has more than 'threshold' 1-expandable strings,
+ * use an index to store them.
+ * Otherwise, generate all 1-expandable strings and then use them to check
+ * if two strings are equivalent.
+ * Utilize only one index by sorting records according to their expanded size.
+ * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
+ * index in order to find the best execution time.
+ */
+public class JoinMinNaiveThresDelta extends JoinMinNaiveThres {
+	public JoinMinNaiveThresDelta( Query query, StatContainer stat ) throws IOException {
+		super( query, stat );
+	}
+
+	protected int deltaMax;
+	
+	
+	
+	@Override
+	protected void setup( Param params ) {
+		super.setup( params );
+		deltaMax = params.delta;
+		checker = new DeltaValidator( deltaMax );
+	}
+
+	@Override
+	protected void buildJoinMinIndex() {
+		// Build an index
+		joinMinIdx = new JoinMinDeltaIndex( indexK, qSize, deltaMax, stat, query, joinThreshold, true );
+	}
+
+	@Override
+	protected void buildNaiveIndex() {
+		naiveIndex = new NaiveDeltaIndex( query.indexedSet, query, stat, true, deltaMax, joinThreshold, joinThreshold / 2 );
+	}
+
+	@Override
+	public String getName() {
+		return "JoinMinNaiveThresDelta";
+	}
+
+	@Override
+	public String getVersion() {
+		return "1.0";
+	}
+}

@@ -9,6 +9,7 @@ import org.apache.commons.cli.ParseException;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -22,8 +23,8 @@ public class JoinMH extends AlgorithmTemplate {
 		super( query, stat );
 	}
 
-	public int indexK = 3;
-	public int qgramSize = 2;
+	public int indexK;
+	public int qgramSize;
 
 	public Validator checker;
 
@@ -33,7 +34,15 @@ public class JoinMH extends AlgorithmTemplate {
 	 * Value IntervalTree Value: record
 	 */
 
-	JoinMHIndex idx;
+	protected JoinMHIndexInterface idx;
+	
+	
+	
+	protected void setup( Param params ) {
+		indexK = params.indexK;
+		qgramSize = params.qgramSize;
+		checker = params.validator;
+	}
 
 	@Override
 	protected void preprocess() {
@@ -53,12 +62,7 @@ public class JoinMH extends AlgorithmTemplate {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		// System.out.println( Arrays.toString( args ) );
 		Param params = Param.parseArgs( args, stat, query );
-
-		indexK = params.indexK;
-		qgramSize = params.qgramSize;
-
-		// Setup parameters
-		checker = params.validator;
+		setup( params );
 
 		run();
 

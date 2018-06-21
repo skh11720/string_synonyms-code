@@ -250,8 +250,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 									query.oneSideJoin );
 						}
 						else {
-							joinMHIdxLowHigh.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin,
-									indexK - 1 );
+							joinMHIdxLowHigh.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 						}
 					}
 				}
@@ -262,14 +261,14 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 						joinMinIdxHighHigh.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 					}
 					else {
-						joinMHIdxHighHigh.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIdxHighHigh.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 					}
 					if( s.getEstNumTransformed() > joinThreshold ) {
 						if( joinMinSelectedForLowHigh ) {
 							joinMinIdxLowHigh.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 						}
 						else {
-							joinMHIdxLowHigh.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+							joinMHIdxLowHigh.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 						}
 					}
 				}

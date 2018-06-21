@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -30,6 +31,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
  * index in order to find the best execution time.
  */
 public class JoinMHNaiveThres extends AlgorithmTemplate {
+
 	public JoinMHNaiveThres( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
@@ -40,11 +42,20 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 	protected int joinThreshold = 1;
 	protected boolean joinMHRequired = true;
 
-	NaiveIndex naiveIndex;
-	JoinMHIndex joinMHIndex;
+	protected NaiveIndex naiveIndex;
+	protected JoinMHIndexInterface joinMHIndex;
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;
+	
+
+
+	protected void setup( Param params ) {
+		checker = params.validator;
+		qSize = params.qgramSize;
+		indexK = params.indexK;
+		joinThreshold = params.threshold;
+	}
 
 	@Override
 	public void preprocess() {
@@ -72,11 +83,7 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
-		// Setup parameters
-		checker = params.validator;
-		qSize = params.qgramSize;
-		indexK = params.indexK;
-		joinThreshold = params.threshold;
+		setup( params );
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
@@ -152,19 +159,19 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMHIndex.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIndex.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMHIndex.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+					joinMHIndex.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 				}
 			}
 
 			joinMinResultSize = rslt.size();
 			stat.add( "Join_Min_Result", joinMinResultSize );
-			stat.add( "nCandQGrams", joinMHIndex.countValue );
+			stat.add( "nCandQGrams", joinMHIndex.getCountValue() );
 			// stat.add( "Stat_Equiv_Comparison", joinMHIndex.equivComparisons );
 		}
 

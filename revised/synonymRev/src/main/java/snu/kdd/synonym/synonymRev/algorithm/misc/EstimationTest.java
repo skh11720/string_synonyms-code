@@ -291,13 +291,13 @@ public class EstimationTest extends AlgorithmTemplate {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+					joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 				}
 			}
 
@@ -500,13 +500,13 @@ public class EstimationTest extends AlgorithmTemplate {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
 					if( s.getEstNumTransformed() > joinThreshold ) {
-						joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+						joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 					}
 				}
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
-					joinMHIdx.joinOneRecordThres( indexK, s, rslt, checker, joinThreshold, query.oneSideJoin, indexK - 1 );
+					joinMHIdx.joinOneRecordThres( s, rslt, checker, joinThreshold, query.oneSideJoin );
 				}
 			}
 			// stat.add( "Join_Min_Result", joinMinResultSize );
