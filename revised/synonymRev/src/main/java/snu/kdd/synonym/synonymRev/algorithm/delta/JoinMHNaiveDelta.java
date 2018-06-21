@@ -5,6 +5,7 @@ import java.io.IOException;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaive;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
+import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
@@ -37,7 +38,8 @@ public class JoinMHNaiveDelta extends JoinMHNaive {
 
 	@Override
 	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveDeltaIndex( query.indexedSet, query, stat, true, deltaMax, joinThreshold, joinThreshold / 2 );
+		if ( deltaMax == 0 ) naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold/2 );
+		else naiveIndex = new NaiveDeltaIndex( query.indexedSet, query, stat, true, deltaMax, joinThreshold, joinThreshold / 2 );
 	}
 
 	@Override
