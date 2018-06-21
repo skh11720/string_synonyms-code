@@ -51,6 +51,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	long joinTime = 0;
 	long countTime = 0;
 	public long countValue = 0;
+	long candQGramCount = 0;
 
 	double eta;
 	double theta;
@@ -413,7 +414,6 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	public Set<IntegerPair> join(StatContainer stat, Query query, Validator checker, boolean writeResult) {
 		long startTime = System.nanoTime();
 		long totalCountTime = 0;
-		long totalCountValue = 0;
 
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
@@ -452,7 +452,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 
 			for ( List<Set<QGram>> qgrams_pos : candidateQGrams ) {
 				for ( Set<QGram> qgrams_delta : qgrams_pos ) {
-					totalCountValue += qgrams_delta.size();
+					candQGramCount += qgrams_delta.size();
 				}
 			}
 			totalCountTime += System.nanoTime() - countStartTime;
@@ -558,8 +558,14 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 
 		} // for sid in in searchedSet
 
+		this.joinTime = System.nanoTime() - startTime - totalCountTime;
+		this.theta = ((double) this.joinTime / this.predictCount);
+		this.countTime = totalCountTime;
+
 		if (writeResult) {
+			stat.add( "Stat_CandQGramCount", candQGramCount );
 			stat.add("Stat_Equiv_Comparison", equivComparisons);
+			stat.add( equivTime );
 		}
 
 		if (DEBUG.JoinMHIndexON) {
@@ -593,11 +599,6 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 				stat.add("Stat_Candidate_Times_Per_Index", candTimeStr);
 			}
 		}
-		this.joinTime = System.nanoTime() - startTime - totalCountTime;
-		this.theta = ((double) this.joinTime / this.predictCount);
-		this.countTime = totalCountTime;
-		this.countValue = totalCountValue;
-		this.iota = (double) totalCountTime / totalCountValue;
 
 		return rslt;
 	}
@@ -726,7 +727,10 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	public int nInvList() {
 		int n = 0;
 		for (int i=0; i<index.size(); i++) {
-			n += index.get( i ).size();
+			ArrayList<WYK_HashMap<QGram, List<Record>>> index_pos = index.get( i );
+			for ( WYK_HashMap<QGram, List<Record>> index_pos_delta : index_pos ) {
+				n += index_pos_delta.size();
+			}
 		}
 		return n;
 	}

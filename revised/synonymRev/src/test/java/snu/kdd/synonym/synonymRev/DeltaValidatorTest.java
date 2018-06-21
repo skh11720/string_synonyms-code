@@ -14,7 +14,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidator;
-import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -46,7 +45,8 @@ public class DeltaValidatorTest {
 					{3537, 3539}, {3539, 3537}, {3600, 3601}, {3601, 3600}, 
 					{3644, 3645}, {3645, 3644}, {3734, 4383}, {3740, 4384}, 
 					{3822, 4391}, {3834, 4393}, {3845, 4009}, {3847, 4394}, 
-					{3868, 4396}, {3921, 3922}, {3922, 3921}, {3936, 4484}
+					{3868, 4396}, {3921, 3922}, {3922, 3921}, {3936, 4484},
+					{386, 436}, {321, 922}, {322, 391}, {396, 484},
 			};
 
 			int deltaMax = 4;
@@ -104,7 +104,7 @@ public class DeltaValidatorTest {
 		return rec;
 	}
 	
-	@Test
+	@Ignore
 	public void testIsSuffixWithErrors() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		DeltaValidator target = new DeltaValidator( 3 );
 		Method method = DeltaValidator.class.getDeclaredMethod( "isSuffixWithErrors", int[].class, int[].class, int.class );
@@ -154,7 +154,7 @@ public class DeltaValidatorTest {
 		}
 	}
 	
-	@Test
+	@Ignore
 	public void testLcsDist() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		Method method = DeltaValidator.class.getDeclaredMethod( "lcsDist", int[].class, int[].class, int.class );
 		DeltaValidator target = new DeltaValidator( 3 );
@@ -210,6 +210,29 @@ public class DeltaValidatorTest {
 //			System.out.println( "seq: "+Arrays.toString( seq) );
 			int[] D = (int[])(method.invoke( target, pat, seq, seq.length ));
 			assertTrue( Arrays.equals( D, answer_list[itr] ) );
+		}
+	}
+	
+	@Ignore
+	public void testIsEquals() {
+		int deltaMaxMax = 2;
+		for ( int deltaMax=0; deltaMax<=deltaMaxMax; ++deltaMax ) {
+			DeltaValidator deltaValidator = new DeltaValidator( deltaMax );
+			int nTest = 5;
+			long t = 0;
+			for ( int idx_test=0; idx_test<nTest; ++idx_test ) {
+				long ts = System.currentTimeMillis();
+				int n = 300;
+				for ( int i=0; i<n; ++i ) {
+					Record x = query.searchedSet.getRecord( i );
+					for ( int j=0; j<n; ++j ) {
+						Record y = query.searchedSet.getRecord( j );
+						deltaValidator.isEqual( x, y );
+					}
+				}
+				t += System.currentTimeMillis() - ts;
+			}
+			System.out.println( "deltaMax="+deltaMax+", time: "+t/nTest+" ms" );
 		}
 	}
 }
