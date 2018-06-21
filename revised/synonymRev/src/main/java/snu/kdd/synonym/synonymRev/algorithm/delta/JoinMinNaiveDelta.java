@@ -56,7 +56,8 @@ public class JoinMinNaiveDelta extends JoinMinNaive {
 
 	@Override
 	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveDeltaIndex( query.indexedSet, query, stat, true, deltaMax, joinThreshold, joinThreshold / 2 );
+		if ( deltaMax == 0 ) naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold/2 );
+		else naiveIndex = new NaiveDeltaIndex( query.indexedSet, query, stat, true, deltaMax, joinThreshold, joinThreshold / 2 );
 	}
 
 	@Override
