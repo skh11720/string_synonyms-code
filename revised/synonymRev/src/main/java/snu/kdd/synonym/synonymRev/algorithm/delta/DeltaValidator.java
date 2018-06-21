@@ -93,7 +93,8 @@ public class DeltaValidator extends Validator{
 			else {
 				if (debug) System.out.println( rule );
 				lcsDist( rhs, y_arr, j );
-				for ( int p=0; p<=j; ++p ) {
+				int j0 = Math.max( 0, j-rule.rightSize()-d );
+				for ( int p=j0; p<=j; ++p ) {
 					if ( D[p] > d ) continue;
 					if ( M[d-D[p]][i-rule.leftSize()][p] ) return true;
 				}
@@ -126,13 +127,14 @@ public class DeltaValidator extends Validator{
 		 */
 //		int[] D = new int[end+1];
 //		int[] D_prev = new int[end+1];
-		for ( int j=end; j>=0; --j ) D_prev[j] = end-j;
+		int j0 = Math.max( 0, end-pat.length-deltaMax );
+		for ( int j=end; j>=j0; --j ) D_prev[j] = end-j;
 
 		if (debug) System.out.println( Arrays.toString( D_prev ) );
 		for ( int i=pat.length-1; i>=0; --i ) {
 			Arrays.fill( D, Integer.MAX_VALUE );
 			D[end] = D_prev[end]+1;
-			for ( int j=end-1; j>=0; --j ) {
+			for ( int j=end-1; j>=j0; --j ) {
 				D[j] = Math.min( D[j], D[j+1]+1 );
 				D[j] = Math.min( D[j], D_prev[j]+1 );
 				if ( pat[i] == seq[j] ) D[j] = Math.min( D[j], D_prev[j+1] );
