@@ -18,6 +18,9 @@ public abstract class AbstractPosQGramFilterDP {
 	// bTransLen[i][l] indicates that s[1,i] can be transformed to a string of length l.
 	protected int[] failure;
 	protected Int2ObjectOpenHashMap<ObjectArrayList<Rule>> validRules = new Int2ObjectOpenHashMap<ObjectArrayList<Rule>>();
+	/*
+	 * Given a qgram, validRules is a map from a position to the list of rules whose RHS contains at least one token in the qgram.
+	 */
 	
 	public AbstractPosQGramFilterDP(final Record record, final int q) {
 		this.record = record;
