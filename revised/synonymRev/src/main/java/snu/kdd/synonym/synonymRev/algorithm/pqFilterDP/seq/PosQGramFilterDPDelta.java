@@ -35,6 +35,11 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		
 		// trivial case
 		if (record.getMaxTransLength() <= k ) return false;
+//		int j_max = q;
+//		while ( qgram.qgram[j_max-1] == INF ) --j_max;
+//		// k + j_max = len of the transformed string
+//		if ( record.getMinTransLength() < k+j_max ) return false;
+		
 		
 		/*
 		 * initialize:
@@ -43,6 +48,15 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		 */
 		init_bGen();
 		setValidRules(qgram);
+//		System.out.println( "valid rules of size "+validRules.size()+":" );
+//		for ( int pos : validRules.keySet() ) {
+//			System.out.println( "pos: "+pos+", "+validRules.get( pos ) );
+//			if ( validRules.get( pos ) == null ) continue;
+//			for ( Rule rule : validRules.get( pos ) ) {
+//				System.out.println( "\t"+pos+", "+rule );
+//				
+//			}
+//		}
 		
 		// bottom-up recursion
 		for (int d=0; d<=deltaMax; ++d ) {
@@ -53,14 +67,15 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 						bGen[0][d][i][j] |= bGen[0][d-1][i][j];
 						bGen[1][d][i][j] |= bGen[1][d-1][i][j];
 					}
-					if (i == record.size() && qgram.qgram[j-1] == Integer.MAX_VALUE) {
-						bGen[1][d][i][j] = bGen[0][d][i][j] || bGen[0][d][i][j-1];
-						continue;
+//					if (i == record.size() && qgram.qgram[j-1] == Integer.MAX_VALUE) {
+					if (qgram.qgram[j-1] == Integer.MAX_VALUE) {
+//						bGen[0][d][i][j] |= bGen[0][d][i][j-1];
+						bGen[1][d][i][j] |= bGen[0][d][i][j-1];
+						if ( j > 1 && qgram.qgram[j-2] == Integer.MAX_VALUE ) bGen[1][d][i][j] |= bGen[1][d][i][j-1];
 					}
 
-					// TODO: if true, skip recursion
-					bGen[0][d][i][j] |= recursion0( qgram, k, i, j, d, bGen );
-					bGen[1][d][i][j] |= recursion1( qgram, k, i, j, d, bGen );
+					if ( !bGen[0][d][i][j] ) bGen[0][d][i][j] |= recursion0( qgram, k, i, j, d, bGen );
+					if ( !bGen[1][d][i][j] ) bGen[1][d][i][j] |= recursion1( qgram, k, i, j, d, bGen );
 				}
 			}
 		}
@@ -93,8 +108,7 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 			if ( rule.rightSize() <= d && bGen[0][d-rule.rightSize()][i_back][j] ) return true;
 
 			// Case 0-3: Matching a suffix of the qgram
-			// TODO: start from 1, not 0
-			for (int j_start=0; j_start<j; j_start++) {
+			for (int j_start=1; j_start<j; j_start++) {
 				int d0 = alignWithSeq( qgram.qgram, j_start, j, rule.getRight() );
 				if ( (d0 <= d) && bGen[0][d-d0][i_back][j_start] ) return true;
 			}
@@ -111,47 +125,70 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		/*
 		 * Compute bGen[1][d][i][j] and return the result.
 		 */
+//		System.out.println( "recursion1: "+d+", "+i+", "+j );
 	
 		for (final Rule rule : record.getSuffixApplicableRules( i-1 )) {
 			int i_back = i - rule.leftSize();
 			assert i_back >= 0;
 			
-			// Case 1-1: Trivial cases
-			if (bGen[0][d][i][j] || ( d > 0 && bGen[1][d-1][i][j] ) ) return true;
-			
 			// Case 1-2: Skip useless rule
-			if (bGen[1][d][i_back][j]) return true;
+			if (qgram.qgram[j-1] != INF && bGen[1][d][i_back][j]) {
+//				System.out.println( "recursion1, case 1-2: "+d+", "+i+", "+j );
+				return true;
+			}
 			
 			// Case 1-3: Rightmost errors
-			if ( rule.rightSize() <= d && bGen[1][d-rule.rightSize()][i-rule.leftSize()][j] ) return true;
+			if ( rule.rightSize() <= d && bGen[1][d-rule.rightSize()][i-rule.leftSize()][j] ) {
+//				System.out.println( "recursion1, case 1-3: "+d+", "+i+", "+j );
+				return true;
+			}
 		}	
 
-		if ( !validRules.containsKey( i-1 ) ) return false;
+		if ( !validRules.containsKey( i-1 ) ) {
+//			System.out.println( "recursion1, no valid rules: "+d+", "+i+", "+j );
+			return false;
+		}
 		for (final Rule rule : validRules.get( i-1 )) {
 			int i_back = i - rule.leftSize();
 			// Case 1-4: Matching a suffix of the qgram
-			// TODO: start from 1, not 0
-			for (int j_start=0; j_start<j; j_start++) {
+			for (int j_start=1; j_start<j; j_start++) {
 				int d1 = alignWithPrefix( qgram.qgram, j_start, j, rule.getRight(), 0 );
-				// TODO: is it necessary to enumerate all d2?
+				// is it necessary to enumerate all d2? YES.
 				for ( int d2=0; d2<=d-d1; ++d2 ) {
-					if ( bGen[0][d-d1-d2][i_back][j_start] ) return true;
+					if ( bGen[0][d-d1-d2][i_back][j_start] ) {
+//						System.out.println( "recursion1, case 1-4: "+d+", "+i+", "+j );
+						return true;
+					}
 				}
 			}
 			
 			// Case 1-5: Matching the whole qgram
 			for ( int m=0; m<rule.rightSize(); ++m ) {
 				int d1 = alignWithPrefix( qgram.qgram, 0, j, rule.getRight(), m );
+				if ( d1 > d ) continue;
+				if ( d == 0 ) {
+					if ( getBTransLen(i_back, k-m) ) return true;
+				}
 				/*
 				 *  Given d budgets, d1 is used to align the qgram with the rhs of the current rule.
 				 *  Thus, the remaining budgets d-d1 can be used to "set" the starting position of the qgram to "k".
 				 *  Note that m is the number of tokens on the left side of the qgram.
 				 *  If m + (transformed length of s[1,i-back]) - (additional errors, 0 from d-d1) is k, this case holds and return true. (k is zero-based.)
+				 *  In other words, k - m + (d-d1) = (transformed length of s[1,i-back]) 
 				 */
-				if ( d1 > d ) continue;
-				int lb = m + (i_back > 0? record.getTransLengthsAll()[i_back-1][0]: 0) - (d-d1);
-				int ub = m + (i_back > 0? record.getTransLengthsAll()[i_back-1][1]: 0);
-				if ( lb <= k && k <= ub ) return true;
+				else {
+					for ( int d2=0; d2<=d-d1; ++d2 ) {
+						if ( k-m+d2 >= bTransLen[0].length ) break;
+						if ( getBTransLen(i_back, k-m+d2) ) return true;
+					}
+//					int lb = m + (i_back > 0? record.getTransLengthsAll()[i_back-1][0]: 0) - (d-d1);
+//					int ub = m + (i_back > 0? record.getTransLengthsAll()[i_back-1][1]: 0);
+//					if ( lb <= k && k <= ub ) {
+////						System.out.println( "recursion1, case 1-5: "+d+", "+i+", "+j );
+////						System.out.println( "d1: "+d1+", lb: "+lb+", ub: "+ub );
+//						return true;
+//					}
+				}
 			}
 	//		if (debug) System.out.println( "case 3: "+bGen[1][i][j]+"\t"+start);
 	//		if (debug) System.out.println( Arrays.toString( qgram.qgram )+"\t"+Arrays.toString( rule.getRight() ));
@@ -240,6 +277,7 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		int i = pat_start;
 		int j = seq_start;
 		for ( ; i<end; ++j ) {
+			if ( pat[i] == INF && j >= seq.length) break;
 			if ( j >= seq.length || d > deltaMax ) return INF;
 			if ( pat[i] != seq[j] ) ++d;
 			else ++i;

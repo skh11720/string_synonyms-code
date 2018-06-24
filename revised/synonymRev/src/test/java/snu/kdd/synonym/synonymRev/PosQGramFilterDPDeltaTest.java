@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -36,64 +37,69 @@ public class PosQGramFilterDPDeltaTest {
 	@BeforeClass
 	public static void initialize() throws IOException {
 		query = TestUtils.getTestQuery();
-		q = 2;
+		q = 3;
 	}
 	
 	@Test
 	public void testExistence() {
-		int deltaMax = 2;
-		int n = 2;
-		QGramDeltaGenerator qdgen = new QGramDeltaGenerator( q, deltaMax );
+		int n = 100;
+		for ( q=1; q<=3; ++q ) {
+			for ( int deltaMax=0; deltaMax<3; ++deltaMax ) {
+				QGramDeltaGenerator qdgen = new QGramDeltaGenerator( q, deltaMax );
 
-		ObjectOpenHashSet<PosQGram> candSet_pqgrams = new ObjectOpenHashSet<>();
-		Map<Record, Set<PosQGram>> answerMap = new Object2ObjectOpenHashMap<>();
-		// Get a set of candidate pos qgrams and the answers.
-		for ( int i=0; i<n; ++i ) {
-			Record x = query.searchedSet.getRecord( i );
-			Set<PosQGram> answerSet = new ObjectOpenHashSet<>();
-			for ( Record x_exp : x.expandAll() ) {
-				List<List<QGram>> cand_pqgrams = x_exp.getSelfQGrams( q+deltaMax, x_exp.size() );
-				for ( int k=0; k<cand_pqgrams.size(); ++k ) {
-					for ( QGram qgram : cand_pqgrams.get( k ) ) {
-						for ( Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram ) ) {
-							PosQGram pqgram = new PosQGram( entry.getKey(), k );
-							answerSet.add( pqgram );
-							candSet_pqgrams.add( pqgram );
+				ObjectOpenHashSet<PosQGram> candSet_pqgrams = new ObjectOpenHashSet<>();
+				Map<Record, Set<PosQGram>> answerMap = new Object2ObjectOpenHashMap<>();
+				// Get a set of candidate pos qgrams and the answers.
+				for ( int i=0; i<n; ++i ) {
+					Record x = query.searchedSet.getRecord( i );
+					Set<PosQGram> answerSet = new ObjectOpenHashSet<>();
+					for ( Record x_exp : x.expandAll() ) {
+						List<List<QGram>> cand_pqgrams = x_exp.getSelfQGrams( q+deltaMax, x_exp.size() );
+						for ( int k=0; k<cand_pqgrams.size(); ++k ) {
+							for ( QGram qgram : cand_pqgrams.get( k ) ) {
+								for ( Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram ) ) {
+									PosQGram pqgram = new PosQGram( entry.getKey(), k );
+									answerSet.add( pqgram );
+									candSet_pqgrams.add( pqgram );
+								}
+							}
 						}
 					}
+					answerMap.put( x, answerSet );
 				}
-			}
-			answerMap.put( x, answerSet );
-		}
 
-//		for ( Entry<Record, Set<PosQGram>> entry : answer.entrySet() ) {
-//			SampleDataTest.inspect_record( entry.getKey(), query, q );
-//			System.out.println( "pos_qgram_delta:" );
-//			for ( PosQGram pqgram : entry.getValue() ) {
-//				System.out.println( pqgram );
-//			}
-//		}
-		
-		for ( int i=0; i<n; ++i ) {
-			Record x = query.searchedSet.getRecord( i );
-			PosQGramFilterDPDelta filter = new PosQGramFilterDPDelta( x, q, deltaMax );
-			for ( PosQGram pqgram : candSet_pqgrams ) {
-//				record id: 0
-//				pqgram: [15758 1744 , 1]
-				if ( x.getID() != 0 || !pqgram.equals( new PosQGram(new int[] {15758, 1744}, 1) ) ) continue;
-	 			boolean answer = answerMap.get( x ).contains( pqgram );
-				boolean filter_out = filter.existence( pqgram.qgram, pqgram.pos );
-				System.out.println( "record id: "+x.getID() );
-				System.out.println( "pqgram: "+pqgram );
-				System.out.println( "answer: "+answer );
-				System.out.println( "filter: "+filter_out );
+		//		for ( Entry<Record, Set<PosQGram>> entry : answer.entrySet() ) {
+		//			SampleDataTest.inspect_record( entry.getKey(), query, q );
+		//			System.out.println( "pos_qgram_delta:" );
+		//			for ( PosQGram pqgram : entry.getValue() ) {
+		//				System.out.println( pqgram );
+		//			}
+		//		}
 				
-				filter.printBTransLen();
-				filter.printBGen();
-				assertEquals( answer, filter_out );
-			}
-		}
-	}
+				for ( int i=0; i<n; ++i ) {
+					Record x = query.searchedSet.getRecord( i );
+					PosQGramFilterDPDelta filter = new PosQGramFilterDPDelta( x, q, deltaMax );
+					for ( PosQGram pqgram : candSet_pqgrams ) {
+//						record id: 35
+//						record: [55524, 10184, 1193, 1388, 32162]
+//						pqgram: [52410 , 3]
+//						if ( x.getID() != 35 || !pqgram.equals( new PosQGram(new int[] {52410}, 3) ) ) continue;
+//						SampleDataTest.inspect_record( x, query, q );
+						 boolean answer = answerMap.get( x ).contains( pqgram );
+						boolean filter_out = filter.existence( pqgram.qgram, pqgram.pos );
+//						System.out.println( "record id: "+x.getID() );
+//						System.out.println( "record: "+Arrays.toString( x.getTokensArray() ) );
+//						System.out.println( "pqgram: "+pqgram );
+//						System.out.println( "answer: "+answer );
+//						System.out.println( "filter: "+filter_out );
+//						filter.printBTransLen();
+//						filter.printBGen();
+						assertEquals( answer, filter_out );
+					}
+				}
+			} // end for deltaMax
+		} // end for q
+	} // end testExistence
 	
 	@Test
 	public void testAlignWithSeq() throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {  // ( int[] pat, int start, int end, int[] seq, int delta ) {
