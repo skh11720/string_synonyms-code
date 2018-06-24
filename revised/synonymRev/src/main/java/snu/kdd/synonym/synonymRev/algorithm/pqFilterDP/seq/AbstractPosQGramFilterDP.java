@@ -108,6 +108,7 @@ public abstract class AbstractPosQGramFilterDP {
 		 * compute the matrix bTransLen using dynamic programming.
 		 * the time complexity is |s|^2 * |R(s)|.
 		 */
+		// TODO: do not compute this and use Record.transformLengths.
 		// initialize
 		bTransLen = new Boolean[record.size()][];
 		for (int i=0; i<record.size(); i++) {

@@ -85,13 +85,12 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		 * Compute bGen[0][d][i][j] and return the result.
 		 */
 		
-		if ( !validRules.containsKey( i-1 ) ) return false;
-		for (final Rule rule : validRules.get( i-1 ) ) {
+		for (final Rule rule : record.getSuffixApplicableRules( i-1 ) ) {
 			int i_back = i - rule.leftSize();
 			assert i_back >= 0;
 			
 			// Case 0-2: Rightmost errors
-			if ( rule.rightSize() <= d && bGen[0][d-rule.rightSize()][i-i_back][j] ) return true;
+			if ( rule.rightSize() <= d && bGen[0][d-rule.rightSize()][i_back][j] ) return true;
 
 			// Case 0-3: Matching a suffix of the qgram
 			// TODO: start from 1, not 0
@@ -143,9 +142,16 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 			// Case 1-5: Matching the whole qgram
 			for ( int m=0; m<rule.rightSize(); ++m ) {
 				int d1 = alignWithPrefix( qgram.qgram, 0, j, rule.getRight(), m );
-				for ( int d2=0; d2<=d-d1 && d2<=m; ++d2 ) {
-				if ( getBTransLen(i_back, k-m+d2) ) return true;
-				}
+				/*
+				 *  Given d budgets, d1 is used to align the qgram with the rhs of the current rule.
+				 *  Thus, the remaining budgets d-d1 can be used to "set" the starting position of the qgram to "k".
+				 *  Note that m is the number of tokens on the left side of the qgram.
+				 *  If m + (transformed length of s[1,i-back]) - (additional errors, 0 from d-d1) is k, this case holds and return true. (k is zero-based.)
+				 */
+				if ( d1 > d ) continue;
+				int lb = m + (i_back > 0? record.getTransLengthsAll()[i_back-1][0]: 0) - (d-d1);
+				int ub = m + (i_back > 0? record.getTransLengthsAll()[i_back-1][1]: 0);
+				if ( lb <= k && k <= ub ) return true;
 			}
 	//		if (debug) System.out.println( "case 3: "+bGen[1][i][j]+"\t"+start);
 	//		if (debug) System.out.println( Arrays.toString( qgram.qgram )+"\t"+Arrays.toString( rule.getRight() ));
@@ -168,6 +174,7 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 			else --i;
 			if ( d > deltaMax ) return INF;
 		}
+		if ( i >= start ) return INF;
 		d += i + j + 2 - start;
 		return d > deltaMax ? INF : d;
 	}
@@ -215,6 +222,8 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		
 //		int m = j+1;
 		for ( int d0=0; d0<=d; ++d0 ) { // consume the remaining d.
+			if ( k-j-1+d0 >= bTransLen[0].length ) continue;
+			if ( k-j-1+d0 < 0 ) continue;
 			if ( bTransLen[i_back][k-j-1+d0] ) return true;
 		}
 		return false;
