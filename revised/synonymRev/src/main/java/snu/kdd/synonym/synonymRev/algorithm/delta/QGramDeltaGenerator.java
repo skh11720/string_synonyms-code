@@ -38,6 +38,7 @@ public class QGramDeltaGenerator {
 			int delta = entry.getValue();
 			int[] tokens = new int[qgramSize];
 			for ( int i=0; i<qgramSize; ++i ) tokens[i] = qgramTokens[comb.getInt(i)];
+//			if ( tokens[0] == Integer.MAX_VALUE ) continue; // this line incurs incorrect result.. why?
 			QGram qgramDelta = new QGram( tokens );
 			qgramDeltaList.add( new AbstractMap.SimpleEntry<QGram, Integer>( qgramDelta, delta ));
 		}

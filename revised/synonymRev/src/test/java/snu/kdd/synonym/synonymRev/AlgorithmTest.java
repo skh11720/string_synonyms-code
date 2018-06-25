@@ -65,6 +65,7 @@ public class AlgorithmTest {
 		CommandLine cmd = App.parseInput( args );
 		AlgorithmTemplate alg = App.getAlgorithm( query, stat, cmd );
 		alg.writeResult = false;
+		System.out.println( alg.getName()+", "+param );
 		App.run( alg, query, cmd );
 		assertEquals( answer, alg.rsltSize );
 	}

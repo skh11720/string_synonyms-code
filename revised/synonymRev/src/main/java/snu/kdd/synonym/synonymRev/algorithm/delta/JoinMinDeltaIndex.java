@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -34,7 +33,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMinDeltaIndex implements JoinMinIndexInterface {
-	protected ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>> indexMap;
+	protected ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>> index;
 	// key: pos -> delta -> qgram -> recordList
 	protected ArrayList<Integer> countPerPosition = null;
 	protected Object2IntOpenHashMap<Record> indexedCountMap;
@@ -50,29 +49,30 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 	protected int qgramSize;
 
-	public long searchedTotalSigCount;
-	public long indexedTotalSigCount;
-	public long equivComparisons;
-	public long comparisonTime;
-	public long appliedRulesSum;
+	long searchedTotalSigCount; // number of qgramDelta from TPQ supersets of S
+	long indexedTotalSigCount;
+	long appliedRulesSum;
 
-	double getQGramTime;
-	public long comparisonCount;
-	public long lengthFiltered;
-	protected long nCandQGrams;
+	long comparisonCount; // number of varifications...?
 
-	public double joinTime;
-	public double indexTime;
-	public double countTime;
+	double indexCountTime= 0; // time for counting records in S who have a pos qgram when building the index.
+	double indexTime = 0; // time for inserting records in T into the index.
+	double joinTime = 0;
+	long candQGramCountTime= 0; // time for counting candidate qgrams in join
+	long filterTime = 0; // time for filtering
+	long equivTime = 0; // time for validation
 
-	public long predictCount;
+	protected long candQGramCount = 0;
+	public long emptyListCount = 0;
+	public long predictCount = 0;
+	public long equivComparisons = 0;
 	protected final int deltaMax;
 
 	public JoinMinDeltaIndex( int nIndex, int qSize, int deltaMax, StatContainer stat, Query query, int threshold, boolean writeResult ) {
 		// TODO: Need to be fixed to make index just for given sequences
 		// NOW, it makes index for all sequences
 		
-		this.indexMap = new ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>>();
+		this.index = new ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>>();
 		this.qgramSize = qSize;
 		this.query = query;
 		this.deltaMax =deltaMax;
@@ -98,7 +98,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			}
 		}
 
-		long getQGramTime = 0;
+		long indexGetQGramTime = 0;
 		long countIndexingTime = 0;
 
 		BufferedWriter bw = null;
@@ -122,17 +122,17 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 		for( Record rec : query.searchedSet.get() ) {
 
-			if( DEBUG.JoinMinON ) {
-				recordStartTime = System.nanoTime();
-			}
+//			if( DEBUG.JoinMinON ) {
+			recordStartTime = System.nanoTime();
+//			}
 
 			// NOTE; cannot use this.getCandidatePQGrams() since index is not completely built yet.
 			List<List<QGram>> availableQGrams = rec.getQGrams( qSize+deltaMax );
 
-			if( DEBUG.JoinMinON ) {
-				recordMidTime = System.nanoTime();
-				getQGramTime += recordMidTime - recordStartTime;
-			}
+//			if( DEBUG.JoinMinON ) {
+			recordMidTime = System.nanoTime();
+			indexGetQGramTime += recordMidTime - recordStartTime;
+//			}
 
 			int searchmax = availableQGrams.size();
 
@@ -179,7 +179,6 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 //					}
 
 				List<QGram> qgramList = availableQGrams.get( i );
-				qgramCount += qgramList.size();
 				for( QGram qgram : qgramList ) {
 //					curridx_invokes.addTo( qgram, 1 );
 					for ( Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram ) ) {
@@ -190,15 +189,16 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 						if( DEBUG.JoinMinIndexON ) {
 							this.countPerPosition.add( i, 1 );
 						}
+						++qgramCount;
 					}
 				}
 //				}
 			} // end for i from 0 to searchmax
 			this.searchedTotalSigCount += qgramCount;
 
-			if( DEBUG.JoinMinON ) {
-				countIndexingTime += System.nanoTime() - recordMidTime;
-			}
+//			if( DEBUG.JoinMinON ) {
+			countIndexingTime += System.nanoTime() - recordMidTime;
+//			}
 
 			if( DEBUG.JoinMinIndexON ) {
 				try {
@@ -212,6 +212,10 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			}
 		} // end for rec in query.serachedSet
 
+		stat.add( "Stat_IndexGetQGramTime", (long)(indexGetQGramTime/1e6) ); // time for enumerating pos qgrams of size (q+deltaMax)
+		stat.add( "Stat_CountIndexingTime", (long)(countIndexingTime/1e6) ); // time for occurrences of every pos qgramDelta
+
+
 		int distinctPQgram = 0;
 		for( int i = 0; i < invokes.size(); i++ ) {
 			ArrayList<Object2IntOpenHashMap<QGram>> invokes_delta = invokes.get( i );
@@ -220,7 +224,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 				distinctPQgram += count.size();
 			}
 		}
-		stat.add( "Stat_Distinct_PQ", distinctPQgram );
+		stat.add( "Stat_Distinct_PQ", distinctPQgram ); // number of pos qgramDelta after counting with S.
 
 		if( DEBUG.JoinMinIndexON ) {
 			try {
@@ -246,17 +250,17 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		}
 		// we have the number of occurrence of a positional q-grams
 
-		this.countTime = System.nanoTime() - starttime;
+		this.indexCountTime = System.nanoTime() - starttime;
 
 		if( DEBUG.JoinMinON ) {
-			Util.printLog( "Step 1 Time : " + this.countTime );
+			Util.printLog( "Step 1 Time : " + this.indexCountTime );
 			Util.printLog( "Gamma (buildTime / signature): " + this.gamma );
 
 			if( writeResult ) {
-				stat.add( "Est_Index_0_GetQGramTime", getQGramTime );
+				stat.add( "Est_Index_0_GetQGramTime", indexGetQGramTime );
 				stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
 
-				stat.add( "Est_Index_1_Index_Count_Time", this.countTime );
+				stat.add( "Est_Index_1_Index_Count_Time", this.indexCountTime );
 				stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( this.gamma ) );
 			}
 		}
@@ -270,14 +274,14 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		else {
 			if( DEBUG.SampleStatON ) {
 				System.out.println( "[Gamma] " + gamma );
-				System.out.println( "[Gamma] CountTime " + countTime );
+				System.out.println( "[Gamma] CountTime " + indexCountTime );
 				System.out.println( "[Gamma] SearchedSigCount " + searchedTotalSigCount );
 			}
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
 					bwEstimation.write( "[Gamma] " + gamma );
-					bwEstimation.write( " CountTime " + countTime );
+					bwEstimation.write( " CountTime " + indexCountTime );
 					bwEstimation.write( " SearchedSigCount " + searchedTotalSigCount + "\n" );
 				}
 				catch( Exception e ) {
@@ -298,7 +302,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		}
 
 		this.predictCount = 0;
-		long indexedElements = 0;
+		long indexedRecordCount = 0;
 
 		// find best K positions for each string in T
 		indexedCountMap = new Object2IntOpenHashMap<>();
@@ -306,7 +310,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		for( Record rec : query.targetIndexedSet.get() ) {
 			int[] range = rec.getTransLengths();
 
-			int searchmax = Math.min( range[ 0 ], invokes.size() );
+			int searchmax = Math.min( Math.max( range[0]-deltaMax, 1), invokes.size() );
 
 			List<List<QGram>> availableQGrams = null;
 
@@ -317,7 +321,8 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 				// System.out.println( availableQGrams.toString() );
 			}
 			else {
-				availableQGrams = rec.getQGrams( qSize+deltaMax, searchmax );
+				throw new RuntimeException("UNIMPLEMENTED");
+//				availableQGrams = rec.getQGrams( qSize+deltaMax, searchmax );
 			}
 
 			for( List<QGram> set : availableQGrams ) {
@@ -382,7 +387,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 				mpq.add( i, invoke );
 			} // end for i from 0 to searchmax
 
-			this.predictCount += mpq.minInvokes;
+			this.predictCount += mpq.minInvokes; // predictCount is the sum of minimum invokes ...
 
 			int indexedCount = 0;
 			while( !mpq.isEmpty() ) { // NOTE: the size of mpq is at most nIndex.
@@ -418,16 +423,20 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 						this.put( minIdx, delta_t, qgramDelta, rec );
 					}
 				}
-				if( DEBUG.JoinMinON ) {
-					indexedElements += availableQGrams.get( minIdx ).size();
-				}
 			} // end while mpq.isEmpty
 
 			indexedCountMap.put( rec, indexedCount );
+			++indexedRecordCount;
 		} // end for rec in query.targetIndexedSet
 
 		this.indexTime = System.nanoTime() - starttime;
 		this.delta = this.indexTime / this.indexedTotalSigCount;
+		
+		stat.add("Stat_IndexCountTime", (long)(indexCountTime/1e6) );
+		stat.add("Stat_IndexTime", (long)(indexTime/1e6) );
+		stat.add("Stat_IndexedRecordCount", indexedRecordCount );
+		stat.add("Stat_InvList_Count", nInvList());
+		stat.add("Stat_InvSize", indexSize());
 
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
@@ -447,13 +456,13 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		}
 
 		if( DEBUG.JoinMinON ) {
-			Util.printLog( "Idx size : " + indexedElements );
+			Util.printLog( "Idx size : " + indexedRecordCount );
 			Util.printLog( "Predict : " + this.predictCount );
 			Util.printLog( "Step 2 Time : " + this.indexTime );
 			Util.printLog( "Delta (index build / signature ): " + this.delta );
 
 			if( writeResult ) {
-				stat.add( "Stat_JoinMin_Index_Size", indexedElements );
+				stat.add( "Stat_JoinMin_Index_Size", indexedRecordCount );
 				stat.add( "Stat_Predicted_Comparison", this.predictCount );
 
 				stat.add( "Est_Index_2_Build_Index_Time", this.indexTime );
@@ -476,9 +485,9 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 					stat.add( String.format( "Stat_JoinMin_COUNT%02d", i ), countPerPosition.get( i ) );
 				}
 
-				for( int i = 0; i < indexMap.size(); i++ ) {
-					if( indexMap.get( i ).size() != 0 ) {
-						stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), indexMap.get( i ).size() );
+				for( int i = 0; i < index.size(); i++ ) {
+					if( index.get( i ).size() != 0 ) {
+						stat.add( String.format( "Stat_JoinMin_IDX%02d", i ), index.get( i ).size() );
 					}
 				}
 			}
@@ -495,13 +504,13 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	} // end constructor
 
 	public void setIndex( int position ) {
-		while( indexMap.size() <= position ) {
-			indexMap.add( new ArrayList<WYK_HashMap<QGram, List<Record>>>() );
+		while( index.size() <= position ) {
+			index.add( new ArrayList<WYK_HashMap<QGram, List<Record>>>() );
 		}
 	}
 
 	public void put( int position, int delta, QGram qgram, Record rec ) {
-		ArrayList<WYK_HashMap<QGram, List<Record>>> index_pos = indexMap.get( position );
+		ArrayList<WYK_HashMap<QGram, List<Record>>> index_pos = index.get( position );
 		while ( index_pos.size() <= delta ) index_pos.add( new WYK_HashMap<QGram, List<Record>>() );
 		WYK_HashMap<QGram, List<Record>> map = index_pos.get( delta );
 
@@ -526,11 +535,13 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			}
 		}
 
+		long joinStartTime = System.nanoTime();
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
 			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
 		}
+		joinTime = System.nanoTime() - joinStartTime;
 
 		if( DEBUG.PrintJoinMinJoinON ) {
 			try {
@@ -550,8 +561,8 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			Util.printLog( "Warning: predictCount is zero" );
 			predictCount = 1;
 		}
-		epsilon = ( joinTime - getQGramTime ) / predictCount;
-		this.gamma = ( this.countTime + getQGramTime ) / this.searchedTotalSigCount;
+		epsilon = ( joinTime - candQGramCountTime ) / predictCount;
+		this.gamma = ( this.indexCountTime + candQGramCountTime ) / this.searchedTotalSigCount;
 
 		// DEBUG
 		epsilonPrime = joinTime / comparisonCount;
@@ -563,16 +574,20 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 			if( writeResult ) {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
-				stat.add( "Est_Join_0_GetQGramTime", getQGramTime );
+				stat.add( "Est_Join_0_GetQGramTime", candQGramCountTime );
 
-				stat.add( "Result_3_2_1_Equiv_Checking_Time", comparisonTime / 1000000 );
+				stat.add( "Result_3_2_1_Equiv_Checking_Time", equivTime / 1000000 );
 			}
 		}
 
 		if( writeResult ) {
-			stat.add( "Stat_Equiv_Comparison", equivComparisons );
-			stat.add( "Stat_Length_Filtered", lengthFiltered );
 			stat.add( "Join_Min_Result", rslt.size() );
+			stat.add("Stat_CandQGramCount", candQGramCount );
+			stat.add("Stat_CandQGramCountTime", (long)(candQGramCountTime/1e6));
+			stat.add("Stat_FilterTime", (long)(filterTime/1e6));
+			stat.add("Stat_EmtpyListCount", emptyListCount);
+			stat.add("Stat_EquivComparison", equivComparisons);
+			stat.add("Stat_EquivTime", (long)(equivTime/1e6) );
 		}
 		else {
 			if( DEBUG.SampleStatON ) {
@@ -623,8 +638,8 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		}
 		List< List<Set<QGram>>> candidatePQGrams = new ArrayList<List<Set<QGram>>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
-			if ( k >= indexMap.size() ) continue;
-			List<WYK_HashMap<QGram, List<Record>>> curidx = indexMap.get( k );
+			if ( k >= index.size() ) continue;
+			List<WYK_HashMap<QGram, List<Record>>> curidx = index.get( k );
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new ObjectOpenHashSet<QGram>() );
 			for ( QGram qgram : availableQGrams.get( k ) ) {
@@ -652,145 +667,30 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	}
 
 	public void joinRecordMaxK( int nIndex, Record recS, Set<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
-			Validator checker, boolean oneSideJoin ) {
-		long joinStartTime = System.nanoTime();
-
-		long qgramCount = 0;
-//		boolean debug = false;
-//		if ( recS.getID() == 15756 ) debug = true;
-
-		List<List<Set<QGram>>> candidateQGrams = getCandidatePQGrams( recS );
-		// pos -> delta
-		
-		getQGramTime += System.nanoTime() - joinStartTime;
-
-		int[] range = recS.getTransLengths();
-		int searchmax = Integer.min( candidateQGrams.size(), indexMap.size() );
-		ArrayList<String> debugArray = new ArrayList<String>();
-
-		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
-
-		for( int i = 0; i < searchmax; ++i ) {
-			List<Set<QGram>> cand_qgrams_pos = candidateQGrams.get( i );
-			for ( Set<QGram> qgrams_delta : cand_qgrams_pos ) nCandQGrams += qgrams_delta.size();
-			List<WYK_HashMap<QGram, List<Record>>> curridx_pos = indexMap.get( i );
-			if( curridx_pos == null ) continue;
-
-			// Given a position i
-			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
-			
-			for ( int delta_s=0; delta_s<=deltaMax; ++delta_s ) {
-				if ( cand_qgrams_pos.size() <= delta_s ) break;
-				for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
-					for ( int delta_t=0; delta_t<=deltaMax-delta_s; ++delta_t ) {
-						if( DEBUG.PrintJoinMinJoinON ) {
-							debugArray.add( "q :" + qgram + " " + i + " " + delta_s + " " + delta_t + "\n" );
-							qgramCount++;
-						}
-
-						List<Record> tree = curridx_pos.get( delta_t ).get( qgram );
-		//				if ( debug ) System.out.println( "i: "+i+", qgram: "+qgram+", tree: "+tree );
-						if( tree == null ) continue;
-
-						for( Record e : tree ) {
-							// length filtering
-							if( oneSideJoin ) {
-								if( StaticFunctions.overlap( e.getTokenCount()-deltaMax, e.getTokenCount(), range[ 0 ]-deltaMax, range[ 1 ] ) ) {
-									if( DEBUG.PrintJoinMinJoinON ) {
-										debugArray.add( "Cand: " + e + " by " + qgram + " at " + i + "\n" );
-									}
-									candidates.add( e );
-									comparisonCount++;
-								}
-								else {
-									++checker.lengthFiltered;
-								}
-							}
-							else {
-								throw new RuntimeException("UNIMPLEMENTED");
-//								if( StaticFunctions.overlap( e.getMinTransLength(), e.getMaxTransLength(), range[ 0 ], range[ 1 ] ) ) {
-//									candidates.add( e );
-//									comparisonCount++;
-//								}
-//								else {
-//									++checker.lengthFiltered;
-//								}
-							}
-						} // end for Record e in tree
-					} // end for delta_t
-				} // end for qgram
-			} // end for delta_s
-			allCandidateSet.add( candidates );
-		} // end for i from 0 to searchmax
-
-		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, debugArray );
-		checker.pqgramFiltered += allCandidateSet.pqgramFiltered;
-//		if ( debug) System.out.println( "candSet: "+candSet );
-
-		equivComparisons += candSet.size();
-		for( Record recR : candSet ) {
-			if( DEBUG.PrintJoinMinJoinON ) {
-				debugArray.add( "Test " + recR + "\n" );
-			}
-
-			long st = System.nanoTime();
-			int compare = checker.isEqual( recS, recR );
-			long duration = System.nanoTime() - st;
-
-			comparisonTime += duration;
-			if( compare >= 0 ) {
-//				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
-				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
-				appliedRulesSum += compare;
-
-				if( DEBUG.PrintJoinMinJoinON ) {
-					debugArray.add( "Val " + recS + " : " + recR + "\n" );
-				}
-			}
-		}
-
-		if( DEBUG.PrintJoinMinJoinON ) {
-			long joinTime = System.nanoTime() - joinStartTime;
-
-			try {
-				Collections.sort( debugArray );
-				for( String temp : debugArray ) {
-					bw.write( temp );
-				}
-				bw.write( "" + qgramCount );
-				bw.write( " " + joinTime );
-				bw.write( "\n" );
-			}
-			catch( IOException e ) {
-				e.printStackTrace();
-			}
-		}
-		joinTime += System.nanoTime() - joinStartTime;
+		Validator checker, boolean oneSideJoin ) {
+		joinRecordMaxKThres( nIndex, recS, rslt, writeResult, bw, checker, -1, oneSideJoin );
 	}
 
 	public void joinRecordMaxKThres( int nIndex, Record recS, Set<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
-			Validator checker, int threshold, boolean oneSideJoin ) {
-		long qgramStartTime = 0;
-		long joinStartTime = 0;
-		long qgramCount = 0;
+		Validator checker, int threshold, boolean oneSideJoin ) {
+		long joinStartTime = System.nanoTime();
+//			boolean debug = false;
+//			if ( recS.getID() == 15756 ) debug = true;
 
 		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
 
 		Histogram hist = null;
 		if( DEBUG.JoinMinON ) {
-			qgramStartTime = System.nanoTime();
 			hist = new Histogram( "Validation" );
 		}
 
+		// pos -> delta
 		List<List<Set<QGram>>> candidateQGrams = getCandidatePQGrams( recS );
-
-		if( DEBUG.JoinMinON ) {
-			getQGramTime += System.nanoTime() - qgramStartTime;
-		}
+		long afterCandQGramTime = System.nanoTime();
 
 		int[] range = recS.getTransLengths();
-		int searchmax = Integer.min( candidateQGrams.size(), indexMap.size() );
-
+		int searchmax = Integer.min( candidateQGrams.size(), index.size() );
+//			ArrayList<String> debugArray = new ArrayList<String>();
 		if( DEBUG.PrintJoinMinJoinON ) {
 			joinStartTime = System.nanoTime();
 		}
@@ -799,25 +699,29 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 		for( int i = 0; i < searchmax; ++i ) {
 			List<Set<QGram>> cand_qgrams_pos = candidateQGrams.get( i );
-			for ( Set<QGram> qgrams_delta : cand_qgrams_pos ) nCandQGrams += qgrams_delta.size();
-			List<WYK_HashMap<QGram, List<Record>>> curridx_pos = indexMap.get( i );
+			List<WYK_HashMap<QGram, List<Record>>> curridx_pos = index.get( i );
 			if( curridx_pos == null ) continue;
 
 			// Given a position i
 			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
-
+			
 			for ( int delta_s=0; delta_s<=deltaMax; ++delta_s ) {
 				if ( cand_qgrams_pos.size() <= delta_s ) break;
-				for( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
+				candQGramCount += cand_qgrams_pos.get( delta_s ).size();
+				for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
 					for ( int delta_t=0; delta_t<=deltaMax-delta_s; ++delta_t ) {
-						if( DEBUG.PrintJoinMinJoinON ) {
-							qgramCount++;
+//						if( DEBUG.PrintJoinMinJoinON ) {
+//								debugArray.add( "q :" + qgram + " " + i + " " + delta_s + " " + delta_t + "\n" );
+//						}
+
+						List<Record> recordList = curridx_pos.get( delta_t ).get( qgram );
+		//				if ( debug ) System.out.println( "i: "+i+", qgram: "+qgram+", tree: "+tree );
+						if( recordList == null ) {
+	                    	++emptyListCount;
+							continue;
 						}
 
-						List<Record> tree = curridx_pos.get( delta_t ).get( qgram );
-						if( tree == null ) continue;
-
-						for( Record e : tree ) {
+						for( Record e : recordList ) {
 							// length filtering
 							if( !isUpperRecord && e.getEstNumTransformed() <= threshold ) {
 								// this record will not compared by joinmin index.
@@ -826,84 +730,97 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 							}
 							if( oneSideJoin ) {
 								if( StaticFunctions.overlap( e.getTokenCount()-deltaMax, e.getTokenCount(), range[ 0 ]-deltaMax, range[ 1 ] ) ) {
-
+//										if( DEBUG.PrintJoinMinJoinON ) {
+//											debugArray.add( "Cand: " + e + " by " + qgram + " at " + i + "\n" );
+//										}
 									candidates.add( e );
 									comparisonCount++;
 								}
-								else {
-									++checker.lengthFiltered;
-								}
+								else ++checker.lengthFiltered;
 							}
 							else {
 								throw new RuntimeException("UNIMPLEMENTED");
-//								if( StaticFunctions.overlap( e.getMinTransLength(), e.getMaxTransLength(), range[ 0 ], range[ 1 ] ) ) {
-//									candidates.add( e );
-//									comparisonCount++;
-//								}
-//								else {
-//									++checker.lengthFiltered;
-//								}
+//									if( StaticFunctions.overlap( e.getMinTransLength(), e.getMaxTransLength(), range[ 0 ], range[ 1 ] ) ) {
+//										candidates.add( e );
+//										comparisonCount++;
+//									}
+//									else {
+//										++checker.lengthFiltered;
+//									}
 							}
-						} // end for Record e in tree
+						} // end for Record e in otherRecordList
 					} // end for delta_t
 				} // end for qgram
 			} // end for delta_s
 			allCandidateSet.add( candidates );
 		} // end for i from 0 to searchmax
 
+//			ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, debugArray );
 		ArrayList<Record> candSet = allCandidateSet.getCandSet( indexedCountMap, null );
 		checker.pqgramFiltered += allCandidateSet.pqgramFiltered;
+		long afterFilterTime = System.nanoTime();
+//			if ( debug) System.out.println( "candSet: "+candSet );
 
 		equivComparisons += candSet.size();
 		if( DEBUG.JoinMinON ) {
 			hist.add( candSet.size() );
 		}
 		for( Record recR : candSet ) {
-
-			long st = System.nanoTime();
+//				if( DEBUG.PrintJoinMinJoinON ) {
+//					debugArray.add( "Test " + recR + "\n" );
+//				}
 			int compare = checker.isEqual( recS, recR );
-			long duration = System.nanoTime() - st;
-
-			comparisonTime += duration;
 			if( compare >= 0 ) {
-//				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
+//					rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
 				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
 				appliedRulesSum += compare;
+
+//					if( DEBUG.PrintJoinMinJoinON ) {
+//						debugArray.add( "Val " + recS + " : " + recR + "\n" );
+//					}
 			}
 		}
+		long afterEquivTime = System.nanoTime();
 
 		if( DEBUG.PrintJoinMinJoinON ) {
 			long joinTime = System.nanoTime() - joinStartTime;
 
-			try {
-				bw.write( "" + qgramCount );
-				bw.write( " " + joinTime );
-				bw.write( "\n" );
-			}
-			catch( IOException e ) {
-				e.printStackTrace();
-			}
+//				try {
+//					Collections.sort( debugArray );
+//					for( String temp : debugArray ) {
+//						bw.write( temp );
+//					}
+//					bw.write( " " + joinTime );
+//					bw.write( "\n" );
+//				}
+//				catch( IOException e ) {
+//					e.printStackTrace();
+//				}
 		}
+
+		candQGramCountTime += afterCandQGramTime - joinStartTime;
+		filterTime += afterFilterTime - afterCandQGramTime;
+		equivTime += afterEquivTime - afterFilterTime;
 		if( DEBUG.JoinMinON ) {
 			hist.print();
 			hist.printLogHistogram();
 		}
-	}
+	} // end joinRecordMaxK
 
 	public void clear() {
-		for( int i = 0; i < indexMap.size(); i++ ) {
-			indexMap.get( i ).clear();
+		for( int i = 0; i < index.size(); i++ ) {
+			index.get( i ).clear();
 		}
-		indexMap.clear();
+		index.clear();
 	}
 
 	public void DebugWriteToFile( String filename ) {
 		try {
 			BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
 
-			for( int i = 0; i < indexMap.size(); i++ ) {
+			for( int i = 0; i < index.size(); i++ ) {
 //				bw.write( i + "-th index\n" );
-				ArrayList<WYK_HashMap<QGram, List<Record>>> map_pos = indexMap.get( i );
+				ArrayList<WYK_HashMap<QGram, List<Record>>> map_pos = index.get( i );
 				
 				for ( int d=0; d<map_pos.size(); ++d ) {
 //					bw.write( "delta: "+d+"\n" );
@@ -990,7 +907,31 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	}
 	
 	public void addStat( StatContainer stat ) {
-		stat.add( "nCandQGrams", nCandQGrams );
+		stat.add( "nCandQGrams", candQGramCount );
+	}
+
+	public int nInvList() {
+		int n = 0;
+		for (int i=0; i<index.size(); i++) {
+			ArrayList<WYK_HashMap<QGram, List<Record>>> index_pos = index.get( i );
+			for ( WYK_HashMap<QGram, List<Record>> index_pos_delta : index_pos ) {
+				n += index_pos_delta.size();
+			}
+		}
+		return n;
+	}
+
+	public int indexSize() {
+		int n = 0;
+		for (int i=0; i<index.size(); i++) {
+			ArrayList<WYK_HashMap<QGram, List<Record>>> index_pos = index.get( i );
+			for ( WYK_HashMap<QGram, List<Record>> index_pos_delta : index_pos ) {
+				for ( Entry<QGram, List<Record>> entry : index_pos_delta.entrySet() ) {
+					n += entry.getValue().size();
+				}
+			}
+		}
+		return n;
 	}
 
 	public double getGamma() { return gamma; }
@@ -1000,10 +941,10 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	public long getSearchedTotalSigCount(){ return searchedTotalSigCount; }
 	public long getIndexedTotalSigCount() { return indexedTotalSigCount; }
 	public long getEquivComparisons() { return equivComparisons; }
-	public long getComparisonTime() { return comparisonTime; }
+	public long getComparisonTime() { return equivTime; }
 	public long getAppliedRulesSum() { return appliedRulesSum; }
 	public long getComparisonCount() { return comparisonCount; }
 	public double getIndexTime() { return indexTime; }
-	public double getCountTime() { return countTime; }
+	public double getCountTime() { return indexCountTime; }
 	public long getPredictCount() { return predictCount; }
 }

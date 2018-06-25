@@ -1,11 +1,15 @@
 package snu.kdd.synonym.synonymRev;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -14,13 +18,18 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.AbstractPosQGramFilterDP;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.PosQGramFilterDP;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.tools.PosQGram;
+import snu.kdd.synonym.synonymRev.tools.QGram;
 
-@Ignore
 public class PosQGramFilterDPTest {
 	
 	private static Query query;
@@ -33,10 +42,6 @@ public class PosQGramFilterDPTest {
 		query = TestUtils.getTestQuery();
 		q = 1;
 		record = query.searchedSet.getRecord( 0 );
-		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
-		record.preprocessRules( automata );
-		record.preprocessSuffixApplicableRules();
-		record.preprocessTransformLength();
 	}
 	
 	@Before
@@ -44,9 +49,52 @@ public class PosQGramFilterDPTest {
 		target = new PosQGramFilterDP( record, q );
 	}
 	
+	@Ignore
+	public void testExistenceFixed() {
+		Record x = query.searchedSet.getRecord( 5 );
+		int k = 4;
+		int q = 2;
+		SampleDataTest.inspect_record( x, query, q );
+		QGram qgram = new QGram( new int[]{55489, 55490} );
+		PosQGramFilterDP filter = new PosQGramFilterDP( x, q );
+		System.out.println( filter.existence( qgram, k ) );
+	}
+	
 	@Test
 	public void testExistence() {
-//		fail( "Not yet implemented" );
+		ObjectArrayList<Set<QGram>> candidatePQGrams = new ObjectArrayList<Set<QGram>>();
+		int nRecord = 100;
+		int q = 3;
+		Map<Record, Set<PosQGram>> answer = new Object2ObjectOpenHashMap<>();
+		
+		// Get a set of candidate pos qgrams and the answers.
+		for ( int i=0; i<nRecord; ++i ) {
+			Record x = query.searchedSet.getRecord( i );
+			answer.put( x, new ObjectOpenHashSet<PosQGram>() );
+			for ( Record x_exp : x.expandAll() ) {
+				List<List<QGram>> availablePQGrams = x_exp.getSelfQGrams( q, x_exp.size() );
+				for ( int k=0; k<availablePQGrams.size(); ++k ) {
+					if ( candidatePQGrams.size() <= k ) candidatePQGrams.add( new ObjectOpenHashSet<QGram>() );
+					Set<QGram> qgrams = candidatePQGrams.get( k );
+					for ( QGram qgram : availablePQGrams.get( k ) ) {
+						qgrams.add( qgram );
+						answer.get( x ).add( new PosQGram(qgram, k) );
+					}
+				}
+			}
+		}
+		
+		// test the existence.
+		for ( int i=0; i<nRecord; ++i ) {
+			Record x = query.searchedSet.getRecord( i );
+			PosQGramFilterDP filter = new PosQGramFilterDP( x, q );
+			for ( int k=0; k<candidatePQGrams.size(); ++k ) {
+				for ( QGram qgram : candidatePQGrams.get( k ) ) {
+//					System.out.println( x.getID()+", "+qgram+", "+k+" : "+filter.existence( qgram, k )+", "+answer.get( x ).contains( new PosQGram(qgram, k) ) );
+					assertEquals( answer.get( x ).contains( new PosQGram(qgram, k) ), filter.existence( qgram, k ) );
+				}
+			}
+		}
 	}
 
 	@Test
