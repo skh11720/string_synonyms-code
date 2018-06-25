@@ -72,12 +72,12 @@ public class AlgorithmTest {
 	
 	@Test
 	public void testNow() throws ParseException, IOException {
-//		testJoinMH();
-//		testJoinMHNaive();
-//		testJoinMHNaiveThres();
-//		testJoinMHDelta();
-//		testJoinMHNaiveDelta();
-//		testJoinMHNaiveThresDelta();
+		testJoinMH();
+		testJoinMHNaive();
+		testJoinMHNaiveThres();
+		testJoinMHDelta();
+		testJoinMHNaiveDelta();
+		testJoinMHNaiveThresDelta();
 
 		testJoinMin();
 		testJoinMinNaive();
