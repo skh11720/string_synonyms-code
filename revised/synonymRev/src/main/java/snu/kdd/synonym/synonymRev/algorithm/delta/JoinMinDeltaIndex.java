@@ -310,7 +310,10 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		for( Record rec : query.targetIndexedSet.get() ) {
 			int[] range = rec.getTransLengths();
 
-			int searchmax = Math.min( Math.max( range[0]-deltaMax, 1), invokes.size() );
+//			int searchmax = Math.min( Math.max( range[0]-deltaMax, 1), invokes.size() );
+			int searchmax;
+			if ( query.oneSideJoin ) searchmax = Math.min( Math.max( rec.size()-deltaMax, 1), invokes.size() );
+			else throw new RuntimeException("UNIMPLEMENTED");
 
 			List<List<QGram>> availableQGrams = null;
 
