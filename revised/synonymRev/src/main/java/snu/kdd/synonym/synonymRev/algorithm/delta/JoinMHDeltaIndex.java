@@ -549,8 +549,11 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	        Object2IntMap.Entry<Record> entry = iter.next();
 	        Record record = entry.getKey();
 	        int recordCount = entry.getIntValue();
+	        // recordCount: number of lists containing the target record given recS
+	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 
-	        if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+            if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+//	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 	            candidates.add(record);
 	        }
 	        else ++checker.pqgramFiltered;
