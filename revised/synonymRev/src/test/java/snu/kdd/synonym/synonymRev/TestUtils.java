@@ -24,9 +24,9 @@ public class TestUtils {
 		String osName = System.getProperty( "os.name" );
 		Query query = null;
 		if ( osName.startsWith( "Windows" ) ) {
-			final String dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-			final String dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-			final String rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
+			final String dataOnePath = "C:\\users\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+			final String dataTwoPath = "C:\\users\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
+			final String rulePath = "C:\\users\\ghsong\\data\\wordnet\\rules.noun";
 			final String outputPath = "output";
 			final Boolean oneSideJoin = true;
 			query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);

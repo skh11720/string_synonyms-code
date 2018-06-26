@@ -27,9 +27,9 @@ public class AlgorithmTest {
 		String osName = System.getProperty( "os.name" );
 		final String dataOnePath, dataTwoPath, rulePath;
 		if ( osName.startsWith( "Windows" ) ) {
-			dataOnePath = "D:\\ghsong\\data\\aol\\splitted\\aol_1000_data.txt";
-			dataTwoPath = "D:\\ghsong\\data\\aol\\splitted\\aol_1000_data.txt";
-			rulePath = "D:\\ghsong\\data\\wordnet\\rules.noun";
+			dataOnePath = "C:\\users\\ghsong\\data\\aol\\splitted\\aol_1000_data.txt";
+			dataTwoPath = "C:\\users\\ghsong\\data\\aol\\splitted\\aol_1000_data.txt";
+			rulePath = "C:\\users\\ghsong\\data\\wordnet\\rules.noun";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
 			dataOnePath = "run/data_store/aol/splitted/aol_1000_data.txt";
