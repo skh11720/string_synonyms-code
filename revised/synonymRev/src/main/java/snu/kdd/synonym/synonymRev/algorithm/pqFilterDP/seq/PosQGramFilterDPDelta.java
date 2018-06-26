@@ -33,12 +33,19 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		debug = false;
 //		if ( record.getID() == 1458 && Arrays.equals( qgram.qgram, new int[] {27840, 21051, 4788} )) debug = true;
 		
-		// trivial case
+		// trivial cases
+		// handle qgrams with INF only
+		if ( qgram.qgram[0] == INF ) {
+//			System.out.println( (record.getMinTransLength()-deltaMax) + ", " +k );
+			if ( record.getMinTransLength()-deltaMax > k ) return false;
+			else return true;
+//			else {
+//				for ( int l=1; l<bTransLen.length; ++l ) 
+//					if ( getBTransLen( record.size()-1, l ) ) return true;
+//			}
+		}
 		if (record.getMaxTransLength() <= k ) return false;
-//		int j_max = q;
-//		while ( qgram.qgram[j_max-1] == INF ) --j_max;
-//		// k + j_max = len of the transformed string
-//		if ( record.getMinTransLength() < k+j_max ) return false;
+		
 		
 		
 		/*
@@ -297,6 +304,10 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 	}
 	
 	public void printBGen() {
+		if ( bGen[0][0][0][0] == null ) {
+			System.out.println( "null" );
+			return;
+		}
 		for (int o=0; o<2; ++o ) {
 			System.out.println( "bGen["+o+"]" );
 			for ( int i=0; i<=record.size(); ++i ) {
