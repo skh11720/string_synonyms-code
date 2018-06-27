@@ -50,7 +50,7 @@ public class QGramDeltaGenerator {
 //				tokens[i] = qgramTokens[comb.getInt(i)];
 			}
 //			for ( int i=0; i<qgramSize; ++i ) tokens[i] = qgramTokens[comb.getInt(i)];
-//			if ( tokens[0] == Integer.MAX_VALUE ) continue; // this line incurs incorrect result.. why?
+//			if ( tokens[0] == Integer.MAX_VALUE ) continue; // this line incurs incorrect result.
 			if ( j == tokens.length ) {
 				QGram qgramDelta = new QGram( tokens );
 				qgramDeltaList.add( new AbstractMap.SimpleEntry<QGram, Integer>( qgramDelta, delta ));

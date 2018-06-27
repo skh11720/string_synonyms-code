@@ -73,21 +73,21 @@ public class AlgorithmTest {
 	@Test
 	public void testNow() throws ParseException, IOException {
 		
-		testJoinNaiveDelta();
+//		testJoinNaiveDelta();
 
 		testJoinMH();
-		testJoinMHNaive();
-		testJoinMHNaiveThres();
+//		testJoinMHNaive();
+//		testJoinMHNaiveThres();
 		testJoinMHDelta();
-		testJoinMHNaiveDelta();
-		testJoinMHNaiveThresDelta();
+//		testJoinMHNaiveDelta();
+//		testJoinMHNaiveThresDelta();
 
 		testJoinMin();
-		testJoinMinNaive();
-		testJoinMinNaiveThres();
+//		testJoinMinNaive();
+//		testJoinMinNaiveThres();
 		testJoinMinDelta();
-		testJoinMinNaiveDelta();
-		testJoinMinNaiveThresDelta();
+//		testJoinMinNaiveDelta();
+//		testJoinMinNaiveThresDelta();
 	}
 	
 	
