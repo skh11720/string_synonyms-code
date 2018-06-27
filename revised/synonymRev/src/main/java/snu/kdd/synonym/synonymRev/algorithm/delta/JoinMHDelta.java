@@ -24,7 +24,7 @@ public class JoinMHDelta extends JoinMH {
 		super( query, stat );
 	}
 
-	private int deltaMax;
+	protected int deltaMax;
 
 	/**
 	 * Key: twogram<br/>

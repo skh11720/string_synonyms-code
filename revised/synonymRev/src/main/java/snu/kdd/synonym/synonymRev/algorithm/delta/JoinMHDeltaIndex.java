@@ -31,17 +31,17 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHDeltaIndex implements JoinMHIndexInterface {
-	private ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>> index;
+	protected ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>> index;
 	// key: pos -> delta -> qgram -> recordList
-	private Object2IntOpenHashMap<Record> indexedCountList;
-	private Query query;
-	private final QGramDeltaGenerator qdgen;
+	protected Object2IntOpenHashMap<Record> indexedCountList;
+	protected Query query;
+	protected final QGramDeltaGenerator qdgen;
 
-	private final int indexK;
-	private final int qgramSize;
-	private final int[] indexPosition;
-	private final int deltaMax;
-	private int maxPosition = 0;
+	protected final int indexK;
+	protected final int qgramSize;
+	protected final int[] indexPosition;
+	protected final int deltaMax;
+	protected int maxPosition = 0;
 
 	long qgramCount = 0; // number of qgrams from records in the indexedSet (with duplicates)
 	public long candQGramCount = 0; // number of cand qgrams from records in the searchedSet
@@ -434,14 +434,10 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 		this.theta = ((double) this.joinTime / this.predictCount);
 
 		if (writeResult) {
-			stat.add("Stat_CandQGramCount", candQGramCount );
-			stat.add("Stat_CandQGramCountTime", (long)(candQGramCountTime/1e6));
-			stat.add("Stat_FilterTime", (long)(filterTime/1e6));
-			stat.add("Stat_EmtpyListCount", emptyListCount);
-			stat.add("Stat_EquivComparison", equivComparisons);
-			stat.add("Stat_EquivTime", (long)(equivTime/1e6) );
+			addStat(stat);
 		}
 
+		return rslt;
 //		if (DEBUG.JoinMHIndexON) {
 //			if (writeResult) {
 //				for (int i = 0; i < indexK; ++i) {
@@ -473,7 +469,6 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 //				stat.add("Stat_Candidate_Times_Per_Index", candTimeStr);
 //			}
 //		}
-		return rslt;
 	}
 
 	public void joinOneRecordThres( Record recS, Set<IntegerPair> rslt, Validator checker, int threshold, boolean oneSideJoin ) {
@@ -510,13 +505,13 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	            if ( cand_qgrams_pos.size() <= delta_s ) break;
 	            this.candQGramCount += cand_qgrams_pos.get( delta_s ).size();
 	            for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
+	            	if ( !isInTPQ( qgram, i, delta_s ) ) continue;
 	                for ( int delta_t=0; delta_t<=deltaMax-delta_s; ++delta_t ) {
 	                    List<Record> recordList = map.get( delta_t ).get( qgram );
 	                    if ( recordList == null ) {
 	                    	++emptyListCount;
 	                        continue;
 	                    }
-	                    
 
 	                    // Perform length filtering.
 	                    for ( Record otherRecord : recordList ) {
@@ -553,7 +548,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 
             if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
-//	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+//	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)
 	            candidates.add(record);
 	        }
 	        else ++checker.pqgramFiltered;
@@ -574,6 +569,20 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	    this.filterTime += afterFilterTime - afterCandQGramTime;
 	    this.equivTime += afterEquivTime - afterFilterTime;
 	} // end joinOneRecordThres
+	
+	protected void addStat( StatContainer stat ) {
+		stat.add("Stat_CandQGramCount", candQGramCount );
+		stat.add("Stat_CandQGramCountTime", (long)(candQGramCountTime/1e6));
+		stat.add("Stat_FilterTime", (long)(filterTime/1e6));
+		stat.add("Stat_EmtpyListCount", emptyListCount);
+		stat.add("Stat_EquivComparison", equivComparisons);
+		stat.add("Stat_EquivTime", (long)(equivTime/1e6) );
+	}
+	
+	// will be overidden by subclasses
+	protected boolean isInTPQ( QGram qgram, int k, int delta ) {
+		return true;
+	}
 
 	public double getEta() {
 		return this.eta;
