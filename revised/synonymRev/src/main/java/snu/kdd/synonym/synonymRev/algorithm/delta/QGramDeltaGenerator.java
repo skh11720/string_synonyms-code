@@ -37,10 +37,24 @@ public class QGramDeltaGenerator {
 			IntArrayList comb = entry.getKey();
 			int delta = entry.getValue();
 			int[] tokens = new int[qgramSize];
-			for ( int i=0; i<qgramSize; ++i ) tokens[i] = qgramTokens[comb.getInt(i)];
-//			if ( tokens[0] == Integer.MAX_VALUE ) continue; // this line incurs incorrect result.. why?
-			QGram qgramDelta = new QGram( tokens );
-			qgramDeltaList.add( new AbstractMap.SimpleEntry<QGram, Integer>( qgramDelta, delta ));
+			// selecting PAD as an error is invalid; ignore such cases.
+			int j = 0;
+			int pick = comb.getInt( j );
+			for ( int i=0; i<qgramSize+deltaMax; ++i ) {
+				if ( i == pick ) {
+					tokens[j++] = qgramTokens[i];
+					if ( j >= tokens.length ) break;
+					pick = comb.getInt( j );
+				}
+				else if ( qgramTokens[i] == Integer.MAX_VALUE ) break;
+//				tokens[i] = qgramTokens[comb.getInt(i)];
+			}
+//			for ( int i=0; i<qgramSize; ++i ) tokens[i] = qgramTokens[comb.getInt(i)];
+//			if ( tokens[0] == Integer.MAX_VALUE ) continue; // this line incurs incorrect result.
+			if ( j == tokens.length ) {
+				QGram qgramDelta = new QGram( tokens );
+				qgramDeltaList.add( new AbstractMap.SimpleEntry<QGram, Integer>( qgramDelta, delta ));
+			}
 		}
 		return qgramDeltaList;
 	}

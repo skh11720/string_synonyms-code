@@ -292,7 +292,10 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 		for( Record rec : query.targetIndexedSet.get() ) {
 			int[] range = rec.getTransLengths();
 
-			int searchmax = Math.min( range[ 0 ], invokes.size() );
+			int searchmax;
+			if ( query.oneSideJoin ) searchmax = Math.min( rec.size(), invokes.size() );
+			else throw new RuntimeException("UNIMPLEMENTED");
+//			searchmax = Math.min( range[ 0 ], invokes.size() );
 
 			List<List<QGram>> availableQGrams = null;
 

@@ -40,32 +40,32 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	protected Object2IntOpenHashMap<Record> estimatedCountMap;
 	protected WYK_HashSet<Integer> bypassSet = null;
 	protected Query query;
-	private final QGramDeltaGenerator qdgen;
+	protected final QGramDeltaGenerator qdgen;
 
-	public double gamma;
-	public double delta;
-	public double epsilon;
-	public double epsilonPrime;
+	protected double gamma;
+	protected double delta;
+	protected double epsilon;
+	protected double epsilonPrime;
 
 	protected int qgramSize;
 
-	long searchedTotalSigCount; // number of qgramDelta from TPQ supersets of S
-	long indexedTotalSigCount;
-	long appliedRulesSum;
+	protected long searchedTotalSigCount; // number of qgramDelta from TPQ supersets of S
+	protected long indexedTotalSigCount;
+	protected long appliedRulesSum;
 
-	long comparisonCount; // number of varifications...?
+	protected long comparisonCount; // number of varifications...?
 
-	double indexCountTime= 0; // time for counting records in S who have a pos qgram when building the index.
-	double indexTime = 0; // time for inserting records in T into the index.
-	double joinTime = 0;
-	long candQGramCountTime= 0; // time for counting candidate qgrams in join
-	long filterTime = 0; // time for filtering
-	long equivTime = 0; // time for validation
+	protected double indexCountTime= 0; // time for counting records in S who have a pos qgram when building the index.
+	protected double indexTime = 0; // time for inserting records in T into the index.
+	protected double joinTime = 0;
+	protected long candQGramCountTime= 0; // time for counting candidate qgrams in join
+	protected long filterTime = 0; // time for filtering
+	protected long equivTime = 0; // time for validation
 
 	protected long candQGramCount = 0;
-	public long emptyListCount = 0;
-	public long predictCount = 0;
-	public long equivComparisons = 0;
+	protected long emptyListCount = 0;
+	protected long predictCount = 0;
+	protected long equivComparisons = 0;
 	protected final int deltaMax;
 
 	public JoinMinDeltaIndex( int nIndex, int qSize, int deltaMax, StatContainer stat, Query query, int threshold, boolean writeResult ) {
@@ -310,7 +310,10 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		for( Record rec : query.targetIndexedSet.get() ) {
 			int[] range = rec.getTransLengths();
 
-			int searchmax = Math.min( Math.max( range[0]-deltaMax, 1), invokes.size() );
+//			int searchmax = Math.min( Math.max( range[0]-deltaMax, 1), invokes.size() );
+			int searchmax;
+			if ( query.oneSideJoin ) searchmax = Math.min( Math.max( rec.size()-deltaMax, 1), invokes.size() );
+			else throw new RuntimeException("UNIMPLEMENTED");
 
 			List<List<QGram>> availableQGrams = null;
 
@@ -582,12 +585,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 		if( writeResult ) {
 			stat.add( "Join_Min_Result", rslt.size() );
-			stat.add("Stat_CandQGramCount", candQGramCount );
-			stat.add("Stat_CandQGramCountTime", (long)(candQGramCountTime/1e6));
-			stat.add("Stat_FilterTime", (long)(filterTime/1e6));
-			stat.add("Stat_EmtpyListCount", emptyListCount);
-			stat.add("Stat_EquivComparison", equivComparisons);
-			stat.add("Stat_EquivTime", (long)(equivTime/1e6) );
+			addStat( stat );
 		}
 		else {
 			if( DEBUG.SampleStatON ) {
@@ -709,6 +707,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 				if ( cand_qgrams_pos.size() <= delta_s ) break;
 				candQGramCount += cand_qgrams_pos.get( delta_s ).size();
 				for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
+					if ( !isInTPQ( qgram, i, delta_s ) ) continue;
 					for ( int delta_t=0; delta_t<=deltaMax-delta_s; ++delta_t ) {
 //						if( DEBUG.PrintJoinMinJoinON ) {
 //								debugArray.add( "q :" + qgram + " " + i + " " + delta_s + " " + delta_t + "\n" );
@@ -907,7 +906,17 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	}
 	
 	public void addStat( StatContainer stat ) {
-		stat.add( "nCandQGrams", candQGramCount );
+		stat.add("Stat_CandQGramCount", candQGramCount );
+		stat.add("Stat_CandQGramCountTime", (long)(candQGramCountTime/1e6));
+		stat.add("Stat_FilterTime", (long)(filterTime/1e6));
+		stat.add("Stat_EmtpyListCount", emptyListCount);
+		stat.add("Stat_EquivComparison", equivComparisons);
+		stat.add("Stat_EquivTime", (long)(equivTime/1e6) );
+	}
+	
+	// will be overridden by subclasses
+	protected boolean isInTPQ( QGram qgram, int k, int delta ) {
+		return true;
 	}
 
 	public int nInvList() {

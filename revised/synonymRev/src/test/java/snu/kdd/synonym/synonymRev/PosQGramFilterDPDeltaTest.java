@@ -53,19 +53,29 @@ public class PosQGramFilterDPDeltaTest {
 				for ( int i=0; i<n; ++i ) {
 					Record x = query.searchedSet.getRecord( i );
 					Set<PosQGram> answerSet = new ObjectOpenHashSet<>();
+					boolean debug = false;
+//					if ( x.getID() == 5 ) debug = true;
 					for ( Record x_exp : x.expandAll() ) {
+						if (debug) System.out.println( "x_exp: "+Arrays.toString( x_exp.getTokensArray() ) );
 						List<List<QGram>> cand_pqgrams = x_exp.getSelfQGrams( q+deltaMax, x_exp.size() );
 						for ( int k=0; k<cand_pqgrams.size(); ++k ) {
 							for ( QGram qgram : cand_pqgrams.get( k ) ) {
+								if (debug) System.out.println( "\toriginal pqgram: "+qgram+", "+k);
 								for ( Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram ) ) {
 									PosQGram pqgram = new PosQGram( entry.getKey(), k );
 									answerSet.add( pqgram );
 									candSet_pqgrams.add( pqgram );
+									if (debug) System.out.println( "\t\tpqgram-delta: "+pqgram );
 								}
 							}
 						}
 					}
 					answerMap.put( x, answerSet );
+					if (debug) {
+						SampleDataTest.inspect_record( x, query, q );
+						System.out.println( "answerSet: " );
+						for ( PosQGram pqgram : answerSet ) System.out.println( pqgram );
+					}
 				}
 
 		//		for ( Entry<Record, Set<PosQGram>> entry : answer.entrySet() ) {
@@ -80,15 +90,21 @@ public class PosQGramFilterDPDeltaTest {
 					Record x = query.searchedSet.getRecord( i );
 					PosQGramFilterDPDelta filter = new PosQGramFilterDPDelta( x, q, deltaMax );
 					for ( PosQGram pqgram : candSet_pqgrams ) {
-//						record id: 35
-//						record: [55524, 10184, 1193, 1388, 32162]
-//						pqgram: [52410 , 3]
-//						if ( x.getID() != 35 || !pqgram.equals( new PosQGram(new int[] {52410}, 3) ) ) continue;
+//						q: 1, deltaMax: 2
+//						record: 19, [55504, 4272, 2486]
+//						transLen: [2, 5]
+//						pqgram: [2147483647 , 0]
+
+//						if ( x.getID() != 19 || !pqgram.equals( new PosQGram(new int[] {2147483647}, 0) ) ) continue;
 //						SampleDataTest.inspect_record( x, query, q );
-						 boolean answer = answerMap.get( x ).contains( pqgram );
+						boolean answer = answerMap.get( x ).contains( pqgram );
+						if ( pqgram.qgram.qgram[0] == Integer.MAX_VALUE ) {
+							for ( int k=pqgram.pos; k>0; --k ) answer |= answerMap.get( x ).contains( new PosQGram( pqgram.qgram, k ) );
+						}
 						boolean filter_out = filter.existence( pqgram.qgram, pqgram.pos );
-//						System.out.println( "record id: "+x.getID() );
-//						System.out.println( "record: "+Arrays.toString( x.getTokensArray() ) );
+//						System.out.println( "q: "+q+", deltaMax: "+deltaMax );
+//						System.out.println( "record: "+x.getID()+", "+Arrays.toString( x.getTokensArray() ) );
+//						System.out.println( "transLen: "+Arrays.toString( x.getTransLengths() ) );
 //						System.out.println( "pqgram: "+pqgram );
 //						System.out.println( "answer: "+answer );
 //						System.out.println( "filter: "+filter_out );
