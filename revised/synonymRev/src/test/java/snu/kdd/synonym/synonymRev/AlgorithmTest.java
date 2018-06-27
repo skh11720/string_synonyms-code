@@ -89,6 +89,7 @@ public class AlgorithmTest {
 		testJoinMinDelta();
 //		testJoinMinNaiveDelta();
 //		testJoinMinNaiveThresDelta();
+		testJoinMinDeltaDP();
 	}
 	
 	
@@ -449,6 +450,28 @@ public class AlgorithmTest {
 		}
 	}
 	
+	@Ignore
+	public void testJoinMinDeltaDP() throws ParseException, IOException {
+		args[1] = "JoinMinDeltaDP";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -delta 0\"",
+				"\"-K 1 -qSize 1 -delta 1\"",
+				"\"-K 1 -qSize 1 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -delta 0\"",
+				"\"-K 1 -qSize 2 -delta 1\"",
+				"\"-K 1 -qSize 2 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -delta 0\"",
+				"\"-K 2 -qSize 1 -delta 1\"",
+				"\"-K 2 -qSize 1 -delta 2\"",
+		};
+		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] );
+		}
+	}
 	
 	
 	
