@@ -33,19 +33,20 @@ public class SampleEstimate {
 	// beta: Navie join time per transformed strings of table S
 	public double beta;
 
-	// gamma: JoinMin counting twogram time per twograms of table S
+	// gamma : JoinMH indexing time per pogram of table T
 	public double gamma;
-	// delta: JoinMin indexing time per twograms of table T
-	public double delta;
-	// epsilon: JoinMin join time per candidate of table S
-	public double epsilon;
-
-	// eta : JoinMH indexing time per twograms of table T
+	// zeta: JoinMH time for counting TPQ supersets per pqgram of table S
+	public double zeta;
+	// eta : JoinMH join time per record of table T
 	public double eta;
-	// theta : JoinMH indexing time per candidate of table S
-	public double theta;
-	// iota: JoinMH counting twogram time per twograms of table S
-	public double iota;
+
+	// gammaaa: JoinMin counting twogram time per twograms of table S
+	public double gammaaa;
+	// delta: JoinMin indexing time per twograms of table T
+	public double deltaaa;
+	// epsilon: JoinMin join time per candidate of table S
+	public double epsilonnn;
+
 
 	public double sampleRatio;
 
@@ -179,18 +180,18 @@ public class SampleEstimate {
 				Util.printLog( "Joinmininst run done" );
 			}
 
-			gamma = joinmininst.getGamma();
-			delta = joinmininst.getDelta();
-			epsilon = joinmininst.getEpsilon();
+			gammaaa = joinmininst.getGamma();
+			deltaaa = joinmininst.getDelta();
+			epsilonnn = joinmininst.getEpsilon();
 
 			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Gamma : " + gamma );
-				Util.printLog( "Delta : " + delta );
-				Util.printLog( "Epsilon : " + epsilon );
+				Util.printLog( "Gamma : " + gammaaa );
+				Util.printLog( "Delta : " + deltaaa );
+				Util.printLog( "Epsilon : " + epsilonnn );
 
-				stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
-				stat.add( "Const_Delta", String.format( "%.2f", delta ) );
-				stat.add( "Const_Epsilon", String.format( "%.2f", epsilon ) );
+				stat.add( "Const_Gamma", String.format( "%.2f", gammaaa ) );
+				stat.add( "Const_Delta", String.format( "%.2f", deltaaa ) );
+				stat.add( "Const_Epsilon", String.format( "%.2f", epsilonnn ) );
 
 				stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.getEpsilonPrime() ) );
 			}
@@ -207,7 +208,7 @@ public class SampleEstimate {
 			stat.add( "Stat_Sample Indexed size_MH", sampleIndexedList.size() );
 		}
 
-		// Infer gamma, delta and epsilon
+		// Infer gamma, zeta and eta
 		JoinMH joinmhinst;
 		try {
 			joinmhinst = new JoinMH( sampleQuery, stat );
@@ -226,16 +227,18 @@ public class SampleEstimate {
 				Util.printLog( "Joinmh run done" );
 			}
 
+			gamma = joinmhinst.getGamma();
+			zeta = joinmhinst.getZeta();
 			eta = joinmhinst.getEta();
-			theta = joinmhinst.getTheta();
-			iota = joinmhinst.getIota();
 
 			if( DEBUG.SampleStatON ) {
+				Util.printLog( "Gamma : " + gamma );
+				Util.printLog( "Zeta : " + zeta );
 				Util.printLog( "Eta : " + eta );
-				Util.printLog( "Theta : " + theta );
 
+				stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
+				stat.add( "Const_Zeta", String.format( "%.2f", zeta ) );
 				stat.add( "Const_Eta", String.format( "%.2f", eta ) );
-				stat.add( "Const_Theta", String.format( "%.2f", theta ) );
 			}
 		}
 		catch( IOException e ) {
@@ -321,20 +324,20 @@ public class SampleEstimate {
 		if( DEBUG.SampleStatON ) {
 			Util.printLog( "SearchedSigCount " + searchedTotalSigCount + ", IndexedSigCount " + indexedTotalSigCount
 					+ " PredictCount " + estimatedInvokes );
-			Util.printLog( "JoinMin Count Time " + ( searchedTotalSigCount * gamma ) );
-			Util.printLog( "JoinMin Index Time " + ( indexedTotalSigCount * delta ) );
-			Util.printLog( "JoinMin Join Time " + ( estimatedInvokes * epsilon ) );
+			Util.printLog( "JoinMin Count Time " + ( searchedTotalSigCount * gammaaa ) );
+			Util.printLog( "JoinMin Index Time " + ( indexedTotalSigCount * deltaaa ) );
+			Util.printLog( "JoinMin Join Time " + ( estimatedInvokes * epsilonnn ) );
 		}
 
 		if( DEBUG.PrintEstimationON ) {
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
-					bwEstimation.write( "[Gamma] " + gamma + " CountTime " + ( gamma * searchedTotalSigCount )
+					bwEstimation.write( "[Gamma] " + gammaaa + " CountTime " + ( gammaaa * searchedTotalSigCount )
 							+ " SearchedSigCount " + searchedTotalSigCount + "\n" );
-					bwEstimation.write( "[Delta] " + delta + " IndexTime " + ( delta * indexedTotalSigCount )
+					bwEstimation.write( "[Delta] " + deltaaa + " IndexTime " + ( deltaaa * indexedTotalSigCount )
 							+ " IndexedSigCount " + indexedTotalSigCount + "\n" );
-					bwEstimation.write( "[Epsilon] " + epsilon + " JoinTime " + ( epsilon * estimatedInvokes ) + " PredictCount "
+					bwEstimation.write( "[Epsilon] " + epsilonnn + " JoinTime " + ( epsilonnn * estimatedInvokes ) + " PredictCount "
 							+ estimatedInvokes + "\n" );
 				}
 				catch( IOException e ) {
@@ -343,33 +346,33 @@ public class SampleEstimate {
 			}
 		}
 
-		return gamma * searchedTotalSigCount + delta * indexedTotalSigCount + epsilon * estimatedInvokes;
+		return gammaaa * searchedTotalSigCount + deltaaa * indexedTotalSigCount + epsilonnn * estimatedInvokes;
 	}
 
 	public double getEstimateJoinMH( double searchedTotalSigCount, double indexedTotalSigCount, double estimatedInvokes ) {
 		if( DEBUG.SampleStatON ) {
 			Util.printLog( "IndexedSigCount " + indexedTotalSigCount + " PredictCount " + estimatedInvokes );
-			Util.printLog( "JoinMH Index Time " + ( indexedTotalSigCount * eta ) );
-			Util.printLog( "JoinMH Join Time " + ( estimatedInvokes * theta ) );
-			Util.printLog( "JoinMH count time " + ( searchedTotalSigCount * iota ) );
+			Util.printLog( "JoinMH Index Time " + ( indexedTotalSigCount * gamma ) );
+			Util.printLog( "JoinMH count time " + ( searchedTotalSigCount * zeta ) );
+			Util.printLog( "JoinMH Join Time " + ( estimatedInvokes * eta ) );
 		}
 
 		if( DEBUG.PrintEstimationON ) {
 			BufferedWriter bwEstimation = EstimationTest.getWriter();
 			try {
-				bwEstimation.write( "[Eta] " + eta + " IndexTime " + ( eta * indexedTotalSigCount ) + " IndexedSigCount "
+				bwEstimation.write( "[Gamma] " + gamma + " IndexTime " + ( gamma * indexedTotalSigCount ) + " IndexedSigCount "
 						+ indexedTotalSigCount + "\n" );
-				bwEstimation.write( "[Theta] " + theta + " JoinTime " + ( theta * estimatedInvokes ) + " PredictCount "
-						+ estimatedInvokes + "\n" );
-				bwEstimation.write( "[Iota] " + iota + " QgramTime " + ( iota * searchedTotalSigCount )
+				bwEstimation.write( "[Zeta] " + zeta + " QgramTime " + ( zeta * searchedTotalSigCount )
 						+ " searchedTotalSigCount " + searchedTotalSigCount + "\n" );
+				bwEstimation.write( "[Eta] " + eta + " JoinTime " + ( eta * estimatedInvokes ) + " PredictCount "
+						+ estimatedInvokes + "\n" );
 			}
 			catch( IOException e ) {
 				e.printStackTrace();
 			}
 		}
 
-		return iota * searchedTotalSigCount + eta * indexedTotalSigCount + theta * estimatedInvokes;
+		return gamma * indexedTotalSigCount + zeta * searchedTotalSigCount + eta * estimatedInvokes;
 	}
 
 	public int findThetaJoinMinNaive( int qSize, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords,
@@ -966,6 +969,8 @@ public class SampleEstimate {
 		int tableSearchedSize = sampleSearchedList.size();
 
 		List<Map<QGram, BinaryCountEntry>> invokes = new ArrayList<Map<QGram, BinaryCountEntry>>();
+		// invokes.get(pos).get(qgram) is the number of records whose TPQ superset contains the pos qgram.
+
 		List<List<BinaryCountEntry>> indexedJoinMinPositions = new ArrayList<List<BinaryCountEntry>>();
 		List<List<BinaryCountEntry>> indexedJoinMHPositions = new ArrayList<List<BinaryCountEntry>>();
 
@@ -1062,7 +1067,7 @@ public class SampleEstimate {
 				if( minJoinMinComparison == 0 ) {
 					break;
 				}
-			}
+			} // end for position
 
 			Map<QGram, BinaryCountEntry> minJoinMinInvokes = invokes.get( minJoinMinIndex );
 			Map<QGram, BinaryCountEntry> minJoinMHInvokes = invokes.get( minJoinMHIndex );
@@ -1086,7 +1091,9 @@ public class SampleEstimate {
 
 			indexedJoinMinPositions.add( joinMinList );
 			indexedJoinMHPositions.add( joinMHList );
-		}
+		} // end for records in sampleIndexedSet
+		
+		// indexedJoinMHPositions:
 
 		// Prefix sums
 		double currExpSize = 0;
@@ -1211,13 +1218,21 @@ public class SampleEstimate {
 
 			double joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
 					totalJoinMinInvokes - removedJoinMinComparison );
+			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
+			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 
 			double joinmhEstimation = this.getEstimateJoinMH( searchedTotalSigCount, joinMHIndexedSigCount,
 					totalJoinMHInvokes - removedJoinMHComparison );
+			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
+			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
+			// totalJoinMHInvokes: the sum of the minimum number of records to be verified with t for every t in sampleIndexedSet
+			// removedJoinMHComparison: 
 
 			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
 
 			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
+			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
+			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
 
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bw = EstimationTest.getWriter();

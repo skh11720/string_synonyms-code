@@ -76,19 +76,19 @@ public class AlgorithmTest {
 //		testJoinNaiveDelta();
 
 		testJoinMH();
-//		testJoinMHNaive();
-//		testJoinMHNaiveThres();
+		testJoinMHNaive();
+		testJoinMHNaiveThres();
 		testJoinMHDelta();
-//		testJoinMHNaiveDelta();
-//		testJoinMHNaiveThresDelta();
+		testJoinMHNaiveDelta();
+		testJoinMHNaiveThresDelta();
 		testJoinMHDeltaDP();
 
 		testJoinMin();
-//		testJoinMinNaive();
-//		testJoinMinNaiveThres();
+		testJoinMinNaive();
+		testJoinMinNaiveThres();
 		testJoinMinDelta();
-//		testJoinMinNaiveDelta();
-//		testJoinMinNaiveThresDelta();
+		testJoinMinNaiveDelta();
+		testJoinMinNaiveThresDelta();
 		testJoinMinDeltaDP();
 	}
 	

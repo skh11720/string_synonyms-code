@@ -55,8 +55,8 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	long equivTime = 0; // time for validation
 
 	double eta;
-	double theta;
-	double iota;
+	double zeta;
+	double gamma;
 
 	public long equivComparisons = 0;
 
@@ -220,12 +220,12 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 
 		this.indexTime = System.nanoTime() - ts;
 
-		this.eta = ((double) this.indexTime) / this.qgramCount;
+		this.gamma = ((double) this.indexTime) / this.qgramCount;
 
 		if (DEBUG.PrintEstimationON) {
 			BufferedWriter bwEstimation = EstimationTest.getWriter();
 			try {
-				bwEstimation.write("[Eta] " + eta);
+				bwEstimation.write("[Gamma] " + gamma);
 				bwEstimation.write(" IndexTime " + indexTime);
 				bwEstimation.write(" IndexedSigCount " + qgramCount + "\n");
 			} catch (IOException e) {
@@ -431,11 +431,16 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 		} // for sid in in searchedSet
 
 		this.joinTime = System.currentTimeMillis() - startTime;
-		this.theta = ((double) this.joinTime / this.predictCount);
+		this.zeta = (double)this.candQGramCountTime / this.candQGramCount;
+		this.eta = ((double) (this.joinTime - this.candQGramCountTime) / this.predictCount);
 
 		if (writeResult) {
 			addStat(stat);
 		}
+
+		stat.add( "Const_Gamma", gamma );
+		stat.add( "Const_Zeta", zeta );
+		stat.add( "Const_Eta", eta );
 
 		return rslt;
 //		if (DEBUG.JoinMHIndexON) {
@@ -584,16 +589,16 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 		return true;
 	}
 
+	public double getGamma() {
+		return this.gamma;
+	}
+
 	public double getEta() {
 		return this.eta;
 	}
 
-	public double getTheta() {
-		return this.theta;
-	}
-
-	public double getIota() {
-		return this.iota;
+	public double getZeta() {
+		return this.zeta;
 	}
 	
 	public int size() {
