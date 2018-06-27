@@ -34,9 +34,11 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDelta;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDeltaDP;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHNaiveThresDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinDelta;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinDeltaDP;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinNaiveThresDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta;
@@ -240,6 +242,10 @@ public class App {
 			alg = new JoinMHNaiveThresDelta( query, stat );
 			break;
 		
+		case JoinMHDeltaDP:
+			alg = new JoinMHDeltaDP( query, stat );
+			break;
+		
 		case JoinMinDelta:
 			alg = new JoinMinDelta( query, stat );
 			break;
@@ -250,6 +256,10 @@ public class App {
 		
 		case JoinMinNaiveThresDelta:
 			alg = new JoinMinNaiveThresDelta( query, stat );
+			break;
+		
+		case JoinMinDeltaDP:
+			alg = new JoinMinDeltaDP( query, stat );
 			break;
 		
 		case JoinPkduckSet:
