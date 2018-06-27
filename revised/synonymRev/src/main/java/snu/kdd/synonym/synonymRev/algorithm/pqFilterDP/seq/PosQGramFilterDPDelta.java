@@ -11,9 +11,10 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 	
 	public static final int INF = Integer.MAX_VALUE;
-	protected Boolean[][][][] bGen;
-	Boolean debug = false;
-	final int deltaMax;
+	private Boolean[][][][] bGen;
+	private Boolean debug = false;
+	//final int deltaMax;
+	private int deltaMax;
 	
 	public PosQGramFilterDPDelta(final Record record, final int q, final int deltaMax ) {
 		super( record, q );
@@ -22,7 +23,7 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		this.deltaMax = deltaMax;
 	}
 	
-	public final Boolean existence(final QGram qgram, final int k) {
+	public final Boolean existence(final QGram qgram, final int k, final int deltaMax) {
 		/*
 		 * Return true if the pos q-gram [qgram, k] is in TPQ of this.record; otherwise return false.
 		 * Use dynamic programming to compute the matrix bGen
@@ -31,6 +32,7 @@ public class PosQGramFilterDPDelta extends AbstractPosQGramFilterDP {
 		 */
 		
 		debug = false;
+		this.deltaMax = deltaMax;
 //		if ( record.getID() == 1458 && Arrays.equals( qgram.qgram, new int[] {27840, 21051, 4788} )) debug = true;
 		
 		// trivial cases

@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -101,7 +102,7 @@ public class PosQGramFilterDPDeltaTest {
 						if ( pqgram.qgram.qgram[0] == Integer.MAX_VALUE ) {
 							for ( int k=pqgram.pos; k>0; --k ) answer |= answerMap.get( x ).contains( new PosQGram( pqgram.qgram, k ) );
 						}
-						boolean filter_out = filter.existence( pqgram.qgram, pqgram.pos );
+						boolean filter_out = filter.existence( pqgram.qgram, pqgram.pos, deltaMax );
 //						System.out.println( "q: "+q+", deltaMax: "+deltaMax );
 //						System.out.println( "record: "+x.getID()+", "+Arrays.toString( x.getTokensArray() ) );
 //						System.out.println( "transLen: "+Arrays.toString( x.getTransLengths() ) );
