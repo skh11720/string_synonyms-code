@@ -40,12 +40,12 @@ public class SampleEstimate {
 	// eta : JoinMH join time per record of table T
 	public double eta;
 
-	// gammaaa: JoinMin counting twogram time per twograms of table S
-	public double gammaaa;
-	// delta: JoinMin indexing time per twograms of table T
-	public double deltaaa;
-	// epsilon: JoinMin join time per candidate of table S
-	public double epsilonnn;
+	// lambda: JoinMin indexing time per twograms of table T
+	public double lambda;
+	// mu: JoinMin counting twogram time per twograms of table S
+	public double mu;
+	// rho: JoinMin join time per candidate of table S
+	public double rho;
 
 
 	public double sampleRatio;
@@ -161,7 +161,7 @@ public class SampleEstimate {
 			stat.add( "Stat_Sample Indexed size_Min", sampleIndexedList.size() );
 		}
 
-		// Infer gamma, delta and epsilon
+		// Infer lambda, mu and rho
 		JoinMin joinmininst;
 		try {
 			joinmininst = new JoinMin( sampleQuery, stat );
@@ -180,20 +180,20 @@ public class SampleEstimate {
 				Util.printLog( "Joinmininst run done" );
 			}
 
-			gammaaa = joinmininst.getGamma();
-			deltaaa = joinmininst.getDelta();
-			epsilonnn = joinmininst.getEpsilon();
+			lambda = joinmininst.getLambda();
+			mu = joinmininst.getMu();
+			rho = joinmininst.getRho();
 
 			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Gamma : " + gammaaa );
-				Util.printLog( "Delta : " + deltaaa );
-				Util.printLog( "Epsilon : " + epsilonnn );
+				Util.printLog( "Lambda : " + lambda );
+				Util.printLog( "Mu : " + mu );
+				Util.printLog( "Rho : " + rho );
 
-				stat.add( "Const_Gamma", String.format( "%.2f", gammaaa ) );
-				stat.add( "Const_Delta", String.format( "%.2f", deltaaa ) );
-				stat.add( "Const_Epsilon", String.format( "%.2f", epsilonnn ) );
+				stat.add( "Const_Lambda", String.format( "%.2f", lambda ) );
+				stat.add( "Const_Mu", String.format( "%.2f", mu ) );
+				stat.add( "Const_Rho", String.format( "%.2f", rho ) );
 
-				stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.getEpsilonPrime() ) );
+				stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.getRhoPrime() ) );
 			}
 		}
 		catch( IOException e ) {
@@ -324,20 +324,20 @@ public class SampleEstimate {
 		if( DEBUG.SampleStatON ) {
 			Util.printLog( "SearchedSigCount " + searchedTotalSigCount + ", IndexedSigCount " + indexedTotalSigCount
 					+ " PredictCount " + estimatedInvokes );
-			Util.printLog( "JoinMin Count Time " + ( searchedTotalSigCount * gammaaa ) );
-			Util.printLog( "JoinMin Index Time " + ( indexedTotalSigCount * deltaaa ) );
-			Util.printLog( "JoinMin Join Time " + ( estimatedInvokes * epsilonnn ) );
+			Util.printLog( "JoinMin Count Time " + ( searchedTotalSigCount * mu ) );
+			Util.printLog( "JoinMin Index Time " + ( indexedTotalSigCount * lambda ) );
+			Util.printLog( "JoinMin Join Time " + ( estimatedInvokes * rho ) );
 		}
 
 		if( DEBUG.PrintEstimationON ) {
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
-					bwEstimation.write( "[Gamma] " + gammaaa + " CountTime " + ( gammaaa * searchedTotalSigCount )
+					bwEstimation.write( "[Gamma] " + mu + " CountTime " + ( mu * searchedTotalSigCount )
 							+ " SearchedSigCount " + searchedTotalSigCount + "\n" );
-					bwEstimation.write( "[Delta] " + deltaaa + " IndexTime " + ( deltaaa * indexedTotalSigCount )
+					bwEstimation.write( "[Delta] " + lambda + " IndexTime " + ( lambda * indexedTotalSigCount )
 							+ " IndexedSigCount " + indexedTotalSigCount + "\n" );
-					bwEstimation.write( "[Epsilon] " + epsilonnn + " JoinTime " + ( epsilonnn * estimatedInvokes ) + " PredictCount "
+					bwEstimation.write( "[Epsilon] " + rho + " JoinTime " + ( rho * estimatedInvokes ) + " PredictCount "
 							+ estimatedInvokes + "\n" );
 				}
 				catch( IOException e ) {
@@ -346,7 +346,7 @@ public class SampleEstimate {
 			}
 		}
 
-		return gammaaa * searchedTotalSigCount + deltaaa * indexedTotalSigCount + epsilonnn * estimatedInvokes;
+		return mu * searchedTotalSigCount + lambda * indexedTotalSigCount + rho * estimatedInvokes;
 	}
 
 	public double getEstimateJoinMH( double searchedTotalSigCount, double indexedTotalSigCount, double estimatedInvokes ) {

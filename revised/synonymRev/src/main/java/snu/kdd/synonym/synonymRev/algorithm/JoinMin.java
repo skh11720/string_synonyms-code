@@ -156,16 +156,16 @@ public class JoinMin extends AlgorithmTemplate {
 		checker.addStat( stat );
 	}
 
-	public double getGamma() {
-		return idx.getGamma();
+	public double getLambda() {
+		return idx.getLambda();
 	}
 
-	public double getDelta() {
-		return idx.getDelta();
+	public double getMu() {
+		return idx.getMu();
 	}
 
-	public double getEpsilon() {
-		return idx.getEpsilon();
+	public double getRho() {
+		return idx.getRho();
 	}
 
 	@Override

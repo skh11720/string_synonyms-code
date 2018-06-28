@@ -159,13 +159,13 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		if( DEBUG.JoinMinNaiveON ) {
 			if( joinQGramRequired ) {
 				if( joinMinSelected ) {
-					stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
-					stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
-					stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
+					stat.add( "Const_Lambda_Actual", String.format( "%.2f", joinMinIdx.lambda) );
+					stat.add( "Const_Lambda_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
+					stat.add( "Const_Lambda_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
 
-					stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
-					stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
-					stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
+					stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMinIdx.mu) );
+					stat.add( "Const_Mu_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
+					stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
 				}
 			}
 			stepTime.stopAndAdd( stat );
@@ -214,13 +214,13 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 		if( DEBUG.JoinMinNaiveON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
-			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
+			stat.add( "Const_Rho_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
 			if( joinQGramRequired ) {
-				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
-				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
+				stat.add( "Const_Rho_Predict_Actual", joinMinIdx.predictCount );
+				stat.add( "Const_Rho_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
 
-				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
-				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+				stat.add( "Const_RhoPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
+				stat.add( "Const_RhoPrime_Comparison_Actual", joinMinIdx.comparisonCount );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );

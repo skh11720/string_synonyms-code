@@ -368,13 +368,13 @@ public class EstimationTest extends AlgorithmTemplate {
 		int joinMinResultSize = 0;
 		if( DEBUG.JoinMinNaiveON ) {
 			if( joinMinRequired ) {
-				stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdx.gamma ) );
-				stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
-				stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
+				stat.add( "Const_Lambda_Actual", String.format( "%.2f", joinMinIdx.lambda ) );
+				stat.add( "Const_Lambda_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
+				stat.add( "Const_Lambda_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
 
-				stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdx.delta ) );
-				stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
-				stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
+				stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMinIdx.mu) );
+				stat.add( "Const_Mu_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
+				stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
@@ -407,13 +407,13 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		if( DEBUG.JoinMinNaiveON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
-			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
+			stat.add( "Const_Rho_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
 			if( joinMinRequired ) {
-				stat.add( "Const_Epsilon_Predict_Actual", joinMinIdx.predictCount );
-				stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
+				stat.add( "Const_Rho_Predict_Actual", joinMinIdx.predictCount );
+				stat.add( "Const_Rho_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
 
-				stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
-				stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+				stat.add( "Const_RhoPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
+				stat.add( "Const_RhoPrime_Comparison_Actual", joinMinIdx.comparisonCount );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
@@ -481,13 +481,13 @@ public class EstimationTest extends AlgorithmTemplate {
 		// }
 		if( DEBUG.JoinMHNaiveON ) {
 			if( joinMHRequired ) {
-				// stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMHIndex.gamma ) );
-				// stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMHIndex.searchedTotalSigCount );
-				// stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMHIndex.countTime ) );
+				// stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMHIndex.gamma ) );
+				// stat.add( "Const_Mu_SearchedSigCount_Actual", joinMHIndex.searchedTotalSigCount );
+				// stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMHIndex.countTime ) );
 				//
-				// stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMHIndex.delta ) );
-				// stat.add( "Const_Delta_IndexedSigCount_Actual", joinMHIndex.indexedTotalSigCount );
-				// stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMHIndex.indexTime ) );
+				// stat.add( "Const_Lambda_Actual", String.format( "%.2f", joinMHIndex.delta ) );
+				// stat.add( "Const_Lambda_IndexedSigCount_Actual", joinMHIndex.indexedTotalSigCount );
+				// stat.add( "Const_Lambda_IndexTime_Actual", String.format( "%.2f", joinMHIndex.indexTime ) );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
@@ -533,13 +533,13 @@ public class EstimationTest extends AlgorithmTemplate {
 
 		if( DEBUG.JoinMHNaiveON ) {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
-			stat.add( "Const_Epsilon_JoinTime_Actual", String.format( "%.2f", joinmhJointime ) );
+			stat.add( "Const_Rho_JoinTime_Actual", String.format( "%.2f", joinmhJointime ) );
 			if( joinMHRequired ) {
-				// stat.add( "Const_Epsilon_Predict_Actual", joinMHIndex.predictCount );
-				// stat.add( "Const_Epsilon_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.predictCount ) );
+				// stat.add( "Const_Rho_Predict_Actual", joinMHIndex.predictCount );
+				// stat.add( "Const_Rho_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.predictCount ) );
 				//
-				// stat.add( "Const_EpsilonPrime_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.comparisonCount ) );
-				// stat.add( "Const_EpsilonPrime_Comparison_Actual", joinMHIndex.comparisonCount );
+				// stat.add( "Const_RhoPrime_Actual", String.format( "%.2f", joinminJointime / joinMHIndex.comparisonCount ) );
+				// stat.add( "Const_RhoPrime_Comparison_Actual", joinMHIndex.comparisonCount );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
@@ -657,7 +657,7 @@ public class EstimationTest extends AlgorithmTemplate {
 			if( DEBUG.PrintEstimationON ) {
 				try {
 					bwEstimation
-							.write( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
+							.write( "[Rho] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
 					bwEstimation.write( " JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
 					bwEstimation.write( " PredictedCount " + joinMinIdx.predictCount );
 					bwEstimation.write( " ActualCount " + joinMinIdx.comparisonCount + "\n" );
@@ -666,10 +666,10 @@ public class EstimationTest extends AlgorithmTemplate {
 					e.printStackTrace();
 				}
 			}
-			System.out.println( "[Epsilon] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
-			System.out.println( "[Epsilon] JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
-			System.out.println( "[Epsilon] PredictedCount " + joinMinIdx.predictCount );
-			System.out.println( "[Epsilon] ActualCount " + joinMinIdx.comparisonCount );
+			System.out.println( "[Rho] " + ( joinMinJoinTime - joinMinBuildTime ) / (double) joinMinIdx.predictCount );
+			System.out.println( "[Rho] JoinTime " + ( joinMinJoinTime - joinMinBuildTime ) );
+			System.out.println( "[Rho] PredictedCount " + joinMinIdx.predictCount );
+			System.out.println( "[Rho] ActualCount " + joinMinIdx.comparisonCount );
 
 			System.out.println( "Threshold " + joinThreshold + " joinMin Join " + ( joinMinJoinTime - joinMinBuildTime ) );
 		}

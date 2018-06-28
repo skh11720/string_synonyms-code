@@ -220,13 +220,13 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 		if( DEBUG.JoinMinNaiveON ) {
 			if( joinWithQGramFilteringRequired ) {
 				if( joinMinSelectedForLowHigh ) {
-					stat.add( "Const_Gamma_Actual", String.format( "%.2f", joinMinIdxLowHigh.gamma ) );
-					stat.add( "Const_Gamma_SearchedSigCount_Actual", joinMinIdxLowHigh.searchedTotalSigCount );
-					stat.add( "Const_Gamma_CountTime_Actual", String.format( "%.2f", joinMinIdxLowHigh.countTime ) );
+					stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMinIdxLowHigh.mu) );
+					stat.add( "Const_Mu_SearchedSigCount_Actual", joinMinIdxLowHigh.searchedTotalSigCount );
+					stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdxLowHigh.countTime ) );
 
-					stat.add( "Const_Delta_Actual", String.format( "%.2f", joinMinIdxLowHigh.delta ) );
-					stat.add( "Const_Delta_IndexedSigCount_Actual", joinMinIdxLowHigh.indexedTotalSigCount );
-					stat.add( "Const_Delta_IndexTime_Actual", String.format( "%.2f", joinMinIdxLowHigh.indexTime ) );
+					stat.add( "Const_Lambda_Actual", String.format( "%.2f", joinMinIdxLowHigh.lambda) );
+					stat.add( "Const_Lambda_IndexedSigCount_Actual", joinMinIdxLowHigh.indexedTotalSigCount );
+					stat.add( "Const_Lambda_IndexTime_Actual", String.format( "%.2f", joinMinIdxLowHigh.indexTime ) );
 				}
 			}
 			stepTime.stopAndAdd( stat );

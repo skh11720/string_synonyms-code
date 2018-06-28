@@ -13,10 +13,10 @@ public interface JoinMinIndexInterface {
 	public Set<IntegerPair> joinMaxK( int indexK, boolean writeResult, StatContainer stat, Validator checker, Query query );
 	public void joinRecordMaxKThres( int nIndex, Record recS, Set<IntegerPair> rslt, boolean writeResult, BufferedWriter bw, Validator checker, int threshold, boolean oneSideJoin );
 	public void addStat( StatContainer stat );
-	public double getGamma();
-	public double getDelta();
-	public double getEpsilon();
-	public double getEpsilonPrime();
+	public double getLambda();
+	public double getMu();
+	public double getRho();
+	public double getRhoPrime();
 	public long getSearchedTotalSigCount();
 	public long getIndexedTotalSigCount();
 	public long getEquivComparisons();
