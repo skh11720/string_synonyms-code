@@ -11,7 +11,9 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMinIndexInterface;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -37,20 +39,20 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	public Validator checker;
 	SampleEstimate estimate;
-	private int qSize = 0;
-	private int indexK = 0;
-	private double sampleRatio = 0;
-	private int joinThreshold = 1;
-	private boolean joinQGramRequired = true;
-	private boolean joinMinSelected = false;
+	protected int qSize = 0;
+	protected int indexK = 0;
+	protected double sampleRatio = 0;
+	protected int joinThreshold = 1;
+	protected boolean joinQGramRequired = true;
+	protected boolean joinMinSelected = false;
 
-	NaiveIndex naiveIndex;
+	protected NaiveIndex naiveIndex;
 
-	JoinMinIndex joinMinIdx = null;
-	JoinMHIndex joinMHIdx = null;
+	protected JoinMinIndexInterface joinMinIdx = null;
+	protected JoinMHIndexInterface joinMHIdx = null;
 
-	private long maxSearchedEstNumRecords = 0;
-	private long maxIndexedEstNumRecords = 0;
+	protected long maxSearchedEstNumRecords = 0;
+	protected long maxIndexedEstNumRecords = 0;
 
 	@Override
 	public void preprocess() {
@@ -104,12 +106,12 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	private void buildJoinMinIndex() {
+	protected void buildJoinMinIndex() {
 		// Build an index
 		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
 	}
 
-	private void buildJoinMHIndex() {
+	protected void buildJoinMHIndex() {
 		// Build an index
 		int[] index = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
@@ -118,7 +120,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
 	}
 
-	private void buildNaiveIndex() {
+	protected void buildNaiveIndex() {
 		naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold / 2 );
 	}
 
@@ -128,7 +130,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 	 *
 	 * @return
 	 */
-	private Set<IntegerPair> join() {
+	protected Set<IntegerPair> join() {
 
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		findConstants( sampleRatio );
@@ -159,13 +161,13 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		if( DEBUG.JoinMinNaiveON ) {
 			if( joinQGramRequired ) {
 				if( joinMinSelected ) {
-					stat.add( "Const_Lambda_Actual", String.format( "%.2f", joinMinIdx.lambda) );
-					stat.add( "Const_Lambda_IndexedSigCount_Actual", joinMinIdx.indexedTotalSigCount );
-					stat.add( "Const_Lambda_IndexTime_Actual", String.format( "%.2f", joinMinIdx.indexTime ) );
+					stat.add( "Const_Lambda_Actual", String.format( "%.2f", joinMinIdx.getLambda() ) );
+					stat.add( "Const_Lambda_IndexedSigCount_Actual", joinMinIdx.getIndexedTotalSigCount() );
+					stat.add( "Const_Lambda_IndexTime_Actual", String.format( "%.2f", joinMinIdx.getIndexTime() ) );
 
-					stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMinIdx.mu) );
-					stat.add( "Const_Mu_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
-					stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
+					stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMinIdx.getMu()) );
+					stat.add( "Const_Mu_SearchedSigCount_Actual", joinMinIdx.getSearchedTotalSigCount() );
+					stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdx.getCountTime() ) );
 				}
 			}
 			stepTime.stopAndAdd( stat );
@@ -203,10 +205,10 @@ public class JoinHybridAll extends AlgorithmTemplate {
 			joinMinResultSize = rslt.size();
 			stat.add( "Join_Min_Result", joinMinResultSize );
 			if( joinMinSelected ) {
-				stat.add( "Stat_Equiv_Comparison", joinMinIdx.equivComparisons );
+				stat.add( "Stat_Equiv_Comparison", joinMinIdx.getEquivComparisons() );
 			}
 			else {
-				stat.add( "Stat_Equiv_Comparison", joinMHIdx.equivComparisons );
+				stat.add( "Stat_Equiv_Comparison", joinMHIdx.getEquivComparisons() );
 			}
 		}
 		double joinminJointime = System.nanoTime() - joinstart;
@@ -216,11 +218,11 @@ public class JoinHybridAll extends AlgorithmTemplate {
 			Util.printLog( "After JoinMin Result: " + rslt.size() );
 			stat.add( "Const_Rho_JoinTime_Actual", String.format( "%.2f", joinminJointime ) );
 			if( joinQGramRequired ) {
-				stat.add( "Const_Rho_Predict_Actual", joinMinIdx.predictCount );
-				stat.add( "Const_Rho_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.predictCount ) );
+				stat.add( "Const_Rho_Predict_Actual", joinMinIdx.getPredictCount() );
+				stat.add( "Const_Rho_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.getPredictCount() ) );
 
-				stat.add( "Const_RhoPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.comparisonCount ) );
-				stat.add( "Const_RhoPrime_Comparison_Actual", joinMinIdx.comparisonCount );
+				stat.add( "Const_RhoPrime_Actual", String.format( "%.2f", joinminJointime / joinMinIdx.getComparisonCount() ) );
+				stat.add( "Const_RhoPrime_Comparison_Actual", joinMinIdx.getComparisonCount() );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_2_Naive Index Building Time" );
@@ -269,7 +271,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private void findConstants( double sampleratio ) {
+	protected void findConstants( double sampleratio ) {
 		// Sample
 		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
 		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
