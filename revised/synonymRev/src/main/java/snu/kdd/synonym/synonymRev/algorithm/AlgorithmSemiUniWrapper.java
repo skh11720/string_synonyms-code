@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 	
@@ -26,17 +27,23 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 		// searchedSet -> indexedSet
 		alg.run( query, args );
 		rslt.addAll( alg.rslt );
+		StatContainer stat1 = alg.stat;
 		
 		// intermission
 		Query queryInv = new Query( query.ruleSet, query.searchedSet, query.indexedSet, query.tokenIndex, query.oneSideJoin, query.selfJoin ); // S and T are switched
+		queryInv.outputFile = query.outputFile;
 		alg.rslt = null;
+		alg.stat = new StatContainer();
+		alg.query = queryInv;
 		
 		// indexedSet -> searchedSet
 		alg.run( queryInv, args );
 		rslt.addAll( alg.rslt );
+		StatContainer stat2 = alg.stat;
 
 		// finalize
-		// TODO: merge stat
+		stat1.merge( stat2, rslt );
+		alg.stat = stat1;
 	}
 
 	@Override
@@ -63,5 +70,4 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 	public Collection<IntegerPair> getResult() {
 		return rslt;
 	}
-
 }
