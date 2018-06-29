@@ -9,6 +9,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
@@ -101,7 +102,7 @@ public class App {
 		return new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
 	}
 	
-	public static AlgorithmTemplate getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException {
+	public static AlgorithmInterface getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException {
 		AlgorithmTemplate alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
@@ -297,7 +298,7 @@ public class App {
 		return alg;
 	}
 	
-	public static void run( AlgorithmTemplate alg, Query query, CommandLine cmd ) throws IOException, ParseException {
+	public static void run( AlgorithmInterface alg, Query query, CommandLine cmd ) throws IOException, ParseException {
 		String additionalOptions = cmd.getOptionValue( "additional", "" );
 		if( additionalOptions != null ) {
 			String additionalArgs[] = additionalOptions.split( " " );
@@ -318,7 +319,7 @@ public class App {
 		
 		Query query = getQuery( cmd );
 		StatContainer stat = new StatContainer();
-		AlgorithmTemplate alg = getAlgorithm( query, stat, cmd );
+		AlgorithmInterface alg = getAlgorithm( query, stat, cmd );
 
 		initializeTime.stopAndAdd( stat );
 		run( alg, query, cmd );

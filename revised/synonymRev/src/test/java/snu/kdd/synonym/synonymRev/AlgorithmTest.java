@@ -63,7 +63,7 @@ public class AlgorithmTest {
 		StatContainer stat = new StatContainer();
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
-		AlgorithmTemplate alg = App.getAlgorithm( query, stat, cmd );
+		AlgorithmTemplate alg = (AlgorithmTemplate)App.getAlgorithm( query, stat, cmd );
 		alg.writeResult = false;
 		System.out.println( alg.getName()+", "+param );
 		App.run( alg, query, cmd );

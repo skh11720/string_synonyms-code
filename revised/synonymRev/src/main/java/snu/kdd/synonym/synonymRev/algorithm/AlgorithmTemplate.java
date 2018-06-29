@@ -22,7 +22,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
-public abstract class AlgorithmTemplate {
+public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	public enum AlgorithmName {
 		JoinCatesian,
 		JoinNaive,
