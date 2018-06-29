@@ -42,10 +42,10 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	protected Query query;
 	protected final QGramDeltaGenerator qdgen;
 
-	protected double gamma;
-	protected double delta;
-	protected double epsilon;
-	protected double epsilonPrime;
+	protected double lambda;
+	protected double mu;
+	protected double rho;
+	protected double rhoPrime;
 
 	protected int qgramSize;
 
@@ -252,43 +252,43 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 		this.indexCountTime = System.nanoTime() - starttime;
 
-		if( DEBUG.JoinMinON ) {
-			Util.printLog( "Step 1 Time : " + this.indexCountTime );
-			Util.printLog( "Gamma (buildTime / signature): " + this.gamma );
-
-			if( writeResult ) {
-				stat.add( "Est_Index_0_GetQGramTime", indexGetQGramTime );
-				stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
-
-				stat.add( "Est_Index_1_Index_Count_Time", this.indexCountTime );
-				stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( this.gamma ) );
-			}
-		}
+//		if( DEBUG.JoinMinON ) {
+//			Util.printLog( "Step 1 Time : " + this.indexCountTime );
+//			Util.printLog( "Gamma (buildTime / signature): " + this.mu );
+//
+//			if( writeResult ) {
+//				stat.add( "Est_Index_0_GetQGramTime", indexGetQGramTime );
+//				stat.add( "Est_Index_0_CountIndexingTime", countIndexingTime );
+//
+//				stat.add( "Est_Index_1_Index_Count_Time", this.indexCountTime );
+//				stat.add( "Est_Index_1_Time_Per_Sig", Double.toString( this.mu ) );
+//			}
+//		}
 
 		starttime = System.nanoTime();
 
-		if( writeResult ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
-		}
-		else {
-			if( DEBUG.SampleStatON ) {
-				System.out.println( "[Gamma] " + gamma );
-				System.out.println( "[Gamma] CountTime " + indexCountTime );
-				System.out.println( "[Gamma] SearchedSigCount " + searchedTotalSigCount );
-			}
-			if( DEBUG.PrintEstimationON ) {
-				BufferedWriter bwEstimation = EstimationTest.getWriter();
-				try {
-					bwEstimation.write( "[Gamma] " + gamma );
-					bwEstimation.write( " CountTime " + indexCountTime );
-					bwEstimation.write( " SearchedSigCount " + searchedTotalSigCount + "\n" );
-				}
-				catch( Exception e ) {
-					e.printStackTrace();
-				}
-			}
-		}
+//		if( writeResult ) {
+//			stepTime.stopAndAdd( stat );
+//			stepTime.resetAndStart( "Result_3_1_2_Indexing_Time" );
+//		}
+//		else {
+//			if( DEBUG.SampleStatON ) {
+//				System.out.println( "[Mu] " + mu );
+//				System.out.println( "[Mu] CountTime " + indexCountTime );
+//				System.out.println( "[Mu] SearchedSigCount " + searchedTotalSigCount );
+//			}
+//			if( DEBUG.PrintEstimationON ) {
+//				BufferedWriter bwEstimation = EstimationTest.getWriter();
+//				try {
+//					bwEstimation.write( "[Mu] " + mu );
+//					bwEstimation.write( " CountTime " + indexCountTime );
+//					bwEstimation.write( " SearchedSigCount " + searchedTotalSigCount + "\n" );
+//				}
+//				catch( Exception e ) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 
 		BufferedWriter bw_index = null;
 
@@ -433,7 +433,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		} // end for rec in query.targetIndexedSet
 
 		this.indexTime = System.nanoTime() - starttime;
-		this.delta = this.indexTime / this.indexedTotalSigCount;
+		this.lambda = this.indexTime / this.indexedTotalSigCount;
 		
 		stat.add("Stat_IndexCountTime", (long)(indexCountTime/1e6) );
 		stat.add("Stat_IndexTime", (long)(indexTime/1e6) );
@@ -448,7 +448,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
-					bwEstimation.write( "[Delta] " + delta );
+					bwEstimation.write( "[Lambda] " + lambda );
 					bwEstimation.write( " IndexTime " + indexTime );
 					bwEstimation.write( " IndexedSigCount " + indexedTotalSigCount + "\n" );
 				}
@@ -462,14 +462,14 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			Util.printLog( "Idx size : " + indexedRecordCount );
 			Util.printLog( "Predict : " + this.predictCount );
 			Util.printLog( "Step 2 Time : " + this.indexTime );
-			Util.printLog( "Delta (index build / signature ): " + this.delta );
+			Util.printLog( "Delta (index build / signature ): " + this.lambda );
 
 			if( writeResult ) {
 				stat.add( "Stat_JoinMin_Index_Size", indexedRecordCount );
 				stat.add( "Stat_Predicted_Comparison", this.predictCount );
 
 				stat.add( "Est_Index_2_Build_Index_Time", this.indexTime );
-				stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( this.delta ) );
+				stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( this.lambda ) );
 			}
 		}
 
@@ -564,16 +564,16 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			Util.printLog( "Warning: predictCount is zero" );
 			predictCount = 1;
 		}
-		epsilon = ( joinTime - candQGramCountTime ) / predictCount;
-		this.gamma = ( this.indexCountTime + candQGramCountTime ) / this.searchedTotalSigCount;
+		this.mu = ( this.indexCountTime + candQGramCountTime ) / this.searchedTotalSigCount;
+		this.rho = ( joinTime - candQGramCountTime ) / predictCount;
 
 		// DEBUG
-		epsilonPrime = joinTime / comparisonCount;
+		rhoPrime = joinTime / comparisonCount;
 
 		if( DEBUG.JoinMinON ) {
 			Util.printLog( "Est weight : " + comparisonCount );
 			Util.printLog( "Join time : " + joinTime );
-			Util.printLog( "Epsilon : " + epsilon );
+			Util.printLog( "Epsilon : " + rho );
 
 			if( writeResult ) {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
@@ -589,16 +589,16 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		}
 		else {
 			if( DEBUG.SampleStatON ) {
-				System.out.println( "[Epsilon] " + epsilon );
-				System.out.println( "[Epsilon] JoinTime " + joinTime );
-				System.out.println( "[Epsilon] PredictCount " + predictCount );
-				System.out.println( "[Epsilon] ActualCount " + equivComparisons );
+				System.out.println( "[Rho] " + rho );
+				System.out.println( "[Rho] JoinTime " + joinTime );
+				System.out.println( "[Rho] PredictCount " + predictCount );
+				System.out.println( "[Rho] ActualCount " + equivComparisons );
 			}
 
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
-					bwEstimation.write( "[Epsilon] " + epsilon );
+					bwEstimation.write( "[Rho] " + rho );
 					bwEstimation.write( " JoinTime " + joinTime );
 					bwEstimation.write( " PredictCount " + predictCount );
 					bwEstimation.write( " ActualCount " + equivComparisons + "\n" );
@@ -943,10 +943,10 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		return n;
 	}
 
-	public double getGamma() { return gamma; }
-	public double getDelta() { return delta; }
-	public double getEpsilon() { return epsilon; }
-	public double getEpsilonPrime() { return epsilonPrime; }
+	public double getLambda() { return lambda; }
+	public double getMu() { return mu; }
+	public double getRho() { return rho; }
+	public double getRhoPrime() { return rhoPrime; }
 	public long getSearchedTotalSigCount(){ return searchedTotalSigCount; }
 	public long getIndexedTotalSigCount() { return indexedTotalSigCount; }
 	public long getEquivComparisons() { return equivComparisons; }

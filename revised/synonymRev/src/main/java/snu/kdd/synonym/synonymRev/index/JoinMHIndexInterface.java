@@ -14,7 +14,7 @@ public interface JoinMHIndexInterface {
 	public void writeToFile();
 	public long getCountValue();
 	public long getEquivComparisons();
+	public double getGamma();
+	public double getZeta();
 	public double getEta();
-	public double getTheta();
-	public double getIota();
 }

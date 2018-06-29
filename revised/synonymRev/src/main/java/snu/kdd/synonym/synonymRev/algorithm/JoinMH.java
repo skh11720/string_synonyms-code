@@ -126,16 +126,15 @@ public class JoinMH extends AlgorithmTemplate {
 		return "JoinMH";
 	}
 
+	public double getGamma() {
+		return idx.getGamma();
+	}
+
+	public double getZeta() {
+		return idx.getZeta();
+	}
+
 	public double getEta() {
 		return idx.getEta();
 	}
-
-	public double getTheta() {
-		return idx.getTheta();
-	}
-
-	public double getIota() {
-		return idx.getIota();
-	}
-
 }
