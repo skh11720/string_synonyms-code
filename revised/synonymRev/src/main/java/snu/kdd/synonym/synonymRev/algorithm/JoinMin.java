@@ -168,6 +168,9 @@ public class JoinMin extends AlgorithmTemplate {
 		return idx.getRho();
 	}
 
+	public long getSearchedTotalSigCount() { return idx.getSearchedTotalSigCount(); }
+	public long getIndexedTotalSigCount() { return idx.getIndexedTotalSigCount(); }
+
 	@Override
 	public String getVersion() {
 		return "2.5";

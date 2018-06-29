@@ -275,6 +275,15 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		// Sample
 		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
 		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
+		
+		stat.add( "Const_Alpha", estimate.alpha );
+		stat.add( "Const_Beta", estimate.beta );
+		stat.add( "Const_Gamma", estimate.gamma );
+		stat.add( "Const_Zeta", estimate.zeta );
+		stat.add( "Const_Eta", estimate.eta );
+		stat.add( "Const_Lambda", estimate.lambda );
+		stat.add( "Const_Mu", estimate.mu );
+		stat.add( "Const_Rho", estimate.rho );
 	}
 
 	@Override

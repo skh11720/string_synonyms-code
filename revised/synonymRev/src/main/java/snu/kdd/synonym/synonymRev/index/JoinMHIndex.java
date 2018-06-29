@@ -65,9 +65,6 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	 * @param threshold
 	 */
 	
-	// empty constructor
-	public JoinMHIndex() {}
-
 	public JoinMHIndex(int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
 			int[] indexPosition, boolean addStat, boolean useIndexCount, int threshold) {
 		// TODO: Need to be fixed to make index just for given sequences
@@ -541,9 +538,9 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 		// this.joinTime: time for counting and verifications
 		// this.predictCount: the sum of minimum invokes (number of records in searchedSet to be verified) of records in indexedSet
 
-		stat.add( "Const_Gamma", gamma );
-		stat.add( "Const_Zeta", zeta );
-		stat.add( "Const_Eta", eta );
+//		stat.add( "Const_Gamma", gamma );
+//		stat.add( "Const_Zeta", zeta );
+//		stat.add( "Const_Eta", eta );
 
 		return rslt;
 	}

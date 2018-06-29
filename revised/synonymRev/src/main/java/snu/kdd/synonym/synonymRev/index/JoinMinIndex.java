@@ -579,9 +579,9 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 			}
 		}
 		
-		stat.add( "Const_Lambda", lambda );
-		stat.add( "Const_Mu", mu );
-		stat.add( "Const_Rho", rho );
+//		stat.add( "Const_Lambda", lambda );
+//		stat.add( "Const_Mu", mu );
+//		stat.add( "Const_Rho", rho );
 
 		return rslt;
 	}

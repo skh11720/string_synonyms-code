@@ -134,7 +134,8 @@ public class SampleEstimate {
 		// Infer alpha and beta
 		JoinNaive naiveinst;
 		try {
-			naiveinst = new JoinNaive( sampleQuery, stat );
+			StatContainer tmpStat = new StatContainer();
+			naiveinst = new JoinNaive( sampleQuery, tmpStat );
 			naiveinst.threshold = 100;
 			naiveinst.avgTransformed = 100/2;
 			naiveinst.runAfterPreprocess( false );
@@ -164,7 +165,8 @@ public class SampleEstimate {
 		// Infer lambda, mu and rho
 		JoinMin joinmininst;
 		try {
-			joinmininst = new JoinMin( sampleQuery, stat );
+			StatContainer tmpStat = new StatContainer();
+			joinmininst = new JoinMin( sampleQuery, tmpStat );
 			joinmininst.writeResult = false;
 			joinmininst.checker = checker;
 			joinmininst.qSize = qSize;
@@ -183,6 +185,10 @@ public class SampleEstimate {
 			lambda = joinmininst.getLambda();
 			mu = joinmininst.getMu();
 			rho = joinmininst.getRho();
+			long searchedTotalSigCount = joinmininst.getSearchedTotalSigCount();
+			long indexedTotalSigCount = joinmininst.getIndexedTotalSigCount();
+			Util.printLog( "searchedTotalSigCount: "+searchedTotalSigCount );
+			Util.printLog( "indexedTotalSigCount: "+indexedTotalSigCount );
 
 			if( DEBUG.SampleStatON ) {
 				Util.printLog( "Lambda : " + lambda );
@@ -211,7 +217,8 @@ public class SampleEstimate {
 		// Infer gamma, zeta and eta
 		JoinMH joinmhinst;
 		try {
-			joinmhinst = new JoinMH( sampleQuery, stat );
+			StatContainer tmpStat = new StatContainer();
+			joinmhinst = new JoinMH( sampleQuery, tmpStat );
 			joinmhinst.writeResult = false;
 			joinmhinst.checker = checker;
 			joinmhinst.qgramSize = qSize;
@@ -346,7 +353,7 @@ public class SampleEstimate {
 			}
 		}
 
-		return mu * searchedTotalSigCount + lambda * indexedTotalSigCount + rho * estimatedInvokes;
+		return lambda * indexedTotalSigCount + mu * searchedTotalSigCount + rho * estimatedInvokes;
 	}
 
 	public double getEstimateJoinMH( double searchedTotalSigCount, double indexedTotalSigCount, double estimatedInvokes ) {
@@ -1092,6 +1099,12 @@ public class SampleEstimate {
 			indexedJoinMinPositions.add( joinMinList );
 			indexedJoinMHPositions.add( joinMHList );
 		} // end for records in sampleIndexedSet
+		Util.printLog( "searchedTotalSigCount: "+searchedTotalSigCount );
+		Util.printLog( "indexedTotalSigCount: "+indexedTotalSigCount );
+		Util.printLog( "joinMHIndexedSigCount: "+joinMHIndexedSigCount );
+		Util.printLog( "totalJoinMinInvokes: "+totalJoinMinInvokes );
+		Util.printLog( "totalJoinMHInvokes: "+totalJoinMHInvokes );
+		Util.printLog( "currExpLengthSize: "+currExpLengthSize );
 		
 		// indexedJoinMHPositions:
 
@@ -1141,7 +1154,6 @@ public class SampleEstimate {
 					List<QGram> positionalQGram = availableQGrams.get( i );
 					for( QGram qgram : positionalQGram ) {
 						BinaryCountEntry count = currPositionalCount.get( qgram );
-
 						count.fromLargeToSmall();
 					}
 				}
@@ -1245,9 +1257,9 @@ public class SampleEstimate {
 				}
 			}
 
-			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
+			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT(JoinMin): %.2f TT: %.2f", currentThreshold, nextThreshold,
 					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
-			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT: %.2f TT: %.2f", currentThreshold, nextThreshold,
+			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT(JoinMH): %.2f TT: %.2f", currentThreshold, nextThreshold,
 					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation ) );
 			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
 
@@ -1277,7 +1289,7 @@ public class SampleEstimate {
 			}
 
 			currentThreshold = nextThreshold;
-		}
+		} // end while searching best threshold
 
 		// if( sampleIndexedList.size() > 100 ) {
 		// double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
