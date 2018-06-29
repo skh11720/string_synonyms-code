@@ -85,7 +85,7 @@ public class JoinMH_Split extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		ArrayList<IntegerPair> rslt = idx.join( stat, query, checker );
+		rslt = idx.join( stat, query, checker );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

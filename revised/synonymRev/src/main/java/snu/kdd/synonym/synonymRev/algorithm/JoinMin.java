@@ -109,8 +109,6 @@ public class JoinMin extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		Collection<IntegerPair> rslt = null;
-
 		rslt = idx.joinMaxK( indexK, writeResult, stat, checker, query );
 
 		stepTime.stopAndAdd( stat );

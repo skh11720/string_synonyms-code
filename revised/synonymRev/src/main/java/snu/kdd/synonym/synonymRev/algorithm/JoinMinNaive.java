@@ -93,7 +93,7 @@ public class JoinMinNaive extends AlgorithmTemplate {
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 		// Estimate constants
 
-		Collection<IntegerPair> rslt = join();
+		rslt = join();
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 

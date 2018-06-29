@@ -103,7 +103,7 @@ public class App {
 	}
 	
 	public static AlgorithmInterface getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException {
-		AlgorithmTemplate alg = null;
+		AlgorithmInterface alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
 		boolean split = cmd.hasOption( "split" );
