@@ -254,6 +254,11 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public Collection<IntegerPair> getResult() {
+		return rslt;
+	}
 	
 	public static void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean isSelfJoin ) {
 		if ( isSelfJoin ) {

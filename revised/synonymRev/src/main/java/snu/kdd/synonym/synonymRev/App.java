@@ -10,6 +10,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmSemiUniWrapper;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
@@ -289,6 +290,9 @@ public class App {
 			System.exit( 0 );
 			break;
 		}
+		
+		// if query is not a self join, conduct semi-unidirectional join.
+		if ( !query.selfJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
 
 		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
 		stat.add( cmd );

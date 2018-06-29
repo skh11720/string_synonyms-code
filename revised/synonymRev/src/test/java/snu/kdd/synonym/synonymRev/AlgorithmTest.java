@@ -67,7 +67,7 @@ public class AlgorithmTest {
 		alg.writeResult = false;
 		System.out.println( alg.getName()+", "+param );
 		App.run( alg, query, cmd );
-		assertEquals( answer, alg.rslt.size() );
+		assertEquals( answer, alg.getResult().size() );
 	}
 	
 	@Test
