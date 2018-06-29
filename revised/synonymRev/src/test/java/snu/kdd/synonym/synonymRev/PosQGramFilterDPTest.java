@@ -39,7 +39,7 @@ public class PosQGramFilterDPTest {
 	
 	@BeforeClass
 	public static void initialize() throws IOException {
-		query = TestUtils.getTestQuery();
+		query = TestUtils.getTestQuery(10000);
 		q = 1;
 		record = query.searchedSet.getRecord( 0 );
 	}

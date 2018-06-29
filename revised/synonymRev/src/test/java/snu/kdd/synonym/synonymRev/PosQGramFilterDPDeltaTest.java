@@ -37,7 +37,7 @@ public class PosQGramFilterDPDeltaTest {
 	
 	@BeforeClass
 	public static void initialize() throws IOException {
-		query = TestUtils.getTestQuery();
+		query = TestUtils.getTestQuery(10000);
 		q = 3;
 	}
 	

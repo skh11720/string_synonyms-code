@@ -20,27 +20,49 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class TestUtils {
 
-	public static Query getTestQuery() throws IOException {
+	public static Query getTestQuery( int size ) throws IOException {
+		return getTestQuery("AOL", size);
+	}
+	
+	public static Query getTestQuery( String name, int size ) throws IOException {
 		String osName = System.getProperty( "os.name" );
-		Query query = null;
+		String prefix = null;
 		if ( osName.startsWith( "Windows" ) ) {
-			final String dataOnePath = "C:\\users\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-			final String dataTwoPath = "C:\\users\\ghsong\\data\\aol\\splitted\\aol_10000_data.txt";
-			final String rulePath = "C:\\users\\ghsong\\data\\wordnet\\rules.noun";
-			final String outputPath = "output";
-			final Boolean oneSideJoin = true;
-			query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
+			prefix = "C:/users/ghsong/data/";
+//			String dataOnePath = "C:/users/ghsong/data/aol/splitted/aol_"+size+"_data.txt";
+//			String dataTwoPath = "C:/users/ghsong/data/aol/splitted/aol_"+size+"_data.txt";
+//			String rulePath = "C:/users/ghsong/data/wordnet/rules.noun";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			final String dataOnePath = "run/data_store/aol/splitted/aol_10000_data.txt";
-			final String dataTwoPath = "run/data_store/aol/splitted/aol_10000_data.txt";
-			final String rulePath = "run/data_store/wordnet/rules.noun";
-			final String outputPath = "output";
-			final Boolean oneSideJoin = true;
-			query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
+			prefix = "run/data_store/";
+//			String dataOnePath = "run/data_store/aol/splitted/aol_"+size+"_data.txt";
+//			String dataTwoPath = "run/data_store/aol/splitted/aol_"+size+"_data.txt";
+//			String rulePath = "run/data_store/wordnet/rules.noun";
+//			String outputPath = "output";
 		}
+		
+		String dataOnePath, dataTwoPath, rulePath;
+		if ( name.equals( "AOL" )) {
+			dataOnePath = prefix + String.format( "aol/splitted/aol_%d_data.txt", size );
+			dataTwoPath = prefix + String.format( "aol/splitted/aol_%d_data.txt", size );
+			rulePath = prefix + "wordnet/rules.noun";
+		}
+		else if ( name.equals( "SPROT" ) ) {
+			dataOnePath = prefix + String.format( "sprot/splitted/SPROT_two_%d.txt", size );
+			dataTwoPath = prefix + String.format( "sprot/splitted/SPROT_two_%d.txt", size );
+			rulePath = prefix + "sprot/rule.txt";
+		}
+		else if ( name.equals( "USPS" ) ) {
+			dataOnePath = prefix + String.format( "JiahengLu/splitted/USPS_%d.txt", size );
+			dataTwoPath = prefix + String.format( "JiahengLu/splitted/USPS_%d.txt", size );
+			rulePath = prefix + "JiahengLu/USPS_rule.txt";
+		}
+		else throw new RuntimeException();
 
-//		record = query.searchedSet.getRecord( 0 );
+		String outputPath = "output";
+		boolean oneSideJoin = true;
+		Query query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
+
 		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
 		for ( Record record : query.searchedSet.recordList ) {
 			record.preprocessRules( automata );

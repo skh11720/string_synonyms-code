@@ -29,7 +29,7 @@ public class DeltaValidatorTest {
 	
 	@BeforeClass
 	public static void initialize() throws IOException {
-		query = TestUtils.getTestQuery();
+		query = TestUtils.getTestQuery(10000);
 		automata = new ACAutomataR( query.ruleSet.get());
 	}
 	
@@ -38,7 +38,7 @@ public class DeltaValidatorTest {
 		for ( int seed=0; seed<1; ++seed ) {
 //			System.out.println( "seed: "+seed );
 			random = new Random(seed);
-			query = TestUtils.getTestQuery();
+			query = TestUtils.getTestQuery(10000);
 		
 			int[][] ridPairArray = { 
 					{1209, 1210}, {1901, 1902}, {3740, 4384}, {3490, 3418}, 
