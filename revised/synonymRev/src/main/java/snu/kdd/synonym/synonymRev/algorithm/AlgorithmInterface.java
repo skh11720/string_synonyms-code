@@ -17,4 +17,5 @@ public interface AlgorithmInterface {
 	public void printStat();
 	public void writeJSON( DataInfo dataInfo, CommandLine cmd );
 	public Collection<IntegerPair> getResult();
+	public void setWriteResult( boolean flag );
 }

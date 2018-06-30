@@ -70,4 +70,9 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 	public Collection<IntegerPair> getResult() {
 		return rslt;
 	}
+
+	@Override
+	public void setWriteResult( boolean flag ) {
+		alg.writeResult = flag;
+	}
 }

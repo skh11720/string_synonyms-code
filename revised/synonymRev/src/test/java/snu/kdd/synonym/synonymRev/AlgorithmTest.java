@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -11,6 +12,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -22,8 +24,9 @@ public class AlgorithmTest {
 	
 //	private static Query query;
 	private static String[] args = {"-algorithm", "", "-oneSideJoin", "True", "-additional", ""};
+	private static final boolean isSelfJoin = true;
 	
-	public static Query getQuery() throws ParseException, IOException {
+	public static Query getSelfJoinQuery() throws ParseException, IOException {
 		String osName = System.getProperty( "os.name" );
 		final String dataOnePath, dataTwoPath, rulePath;
 		if ( osName.startsWith( "Windows" ) ) {
@@ -47,6 +50,30 @@ public class AlgorithmTest {
 		return query;
 	}
 	
+	public static Query get2WayJoinQuery() throws IOException, ParseException {
+		String osName = System.getProperty( "os.name" );
+		final String dataOnePath, dataTwoPath, rulePath;
+		if ( osName.startsWith( "Windows" ) ) {
+			dataOnePath = "C:\\users\\ghsong\\data\\data\\1000000_5_1000_1.0_0.0_1.txt";
+			dataTwoPath = "C:\\users\\ghsong\\data\\data\\1000000_5_1000_1.0_0.0_2.txt";
+			rulePath = "C:\\users\\ghsong\\data\\rule\\30000_2_2_10000_0.0_0.txt";
+		}
+		else if ( osName.startsWith( "Linux" ) ) {
+			dataOnePath = "run/data_store/data/1000000_5_1000_1.0_0.0_1.txt";
+			dataTwoPath = "run/data_store/data/1000000_5_1000_1.0_0.0_2.txt";
+			rulePath = "run/data_store/rule/30000_2_2_10000_0.0_0.txt";
+		}
+		else dataOnePath = dataTwoPath = rulePath = null;
+		String[] args = ("-dataOnePath " + dataOnePath + " " + 
+				"-dataTwoPath " + dataTwoPath + " " +
+				"-rulePath " + rulePath + " " +
+				"-outputPath output -algorithm * -oneSideJoin True -additional *").split( " ", 14 );
+		
+		CommandLine cmd = App.parseInput( args );
+		Query query = App.getQuery( cmd );
+		return query;
+	}
+	
 //	private static void runAlgorithm( String param ) throws ParseException, IOException {
 //		args[5] = param;
 //		CommandLine cmd = App.parseInput( args );
@@ -56,15 +83,17 @@ public class AlgorithmTest {
 //		assertEquals( 1014, alg.rsltSize );
 //	}
 
-	private static void runAlgorithm( String param, int answer ) throws ParseException, IOException {
+	private static void runAlgorithm( String param, int answer, boolean isSelfJoin ) throws ParseException, IOException {
 		Record.initStatic();
 		Rule.initStatic();
-		Query query = AlgorithmTest.getQuery();
+		Query query = null;
+		if ( isSelfJoin ) query = AlgorithmTest.getSelfJoinQuery();
+		else query = AlgorithmTest.get2WayJoinQuery();
 		StatContainer stat = new StatContainer();
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
-		AlgorithmTemplate alg = (AlgorithmTemplate)App.getAlgorithm( query, stat, cmd );
-		alg.writeResult = false;
+		AlgorithmInterface alg = (AlgorithmInterface)App.getAlgorithm( query, stat, cmd );
+		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
 		App.run( alg, query, cmd );
 		assertEquals( answer, alg.getResult().size() );
@@ -106,7 +135,7 @@ public class AlgorithmTest {
 		String[] param_list = {
 				"\"-1\"",
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 
 	@Ignore
@@ -117,7 +146,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2\"",
 				"\"-K 2 -qSize 1\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 
 	@Ignore
@@ -128,7 +157,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -sample 0.01\"",
 				"\"-K 2 -qSize 1 -sample 0.01\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 
 	@Ignore
@@ -139,7 +168,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 	
 	@Ignore
@@ -150,7 +179,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2\"",
 				"\"-K 2 -qSize 1\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 	
 	@Ignore
@@ -161,7 +190,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -sample 0.01\"",
 				"\"-K 2 -qSize 1 -sample 0.01\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 	
 	@Ignore
@@ -172,7 +201,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 	
 	@Ignore
@@ -184,11 +213,13 @@ public class AlgorithmTest {
 				"\"-ord FF -verify greedy -rc false\"",
 				"\"-ord FF -verify greedy -rc true\""
 		};
-		int[] answer_list = {1014, 1014, 1013, 1013};
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1014, 1013, 1013};
+		else answer_list = new int[] {};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
 			int answer = answer_list[i];
-			runAlgorithm( param, answer );
+			runAlgorithm( param, answer , isSelfJoin );
 		}
 	}
 	
@@ -207,7 +238,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -mode dp1 -index FF\"",
 				"\"-K 2 -qSize 1 -mode dp1 -index FF\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 
 	@Ignore
@@ -218,7 +249,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -sample 0.01\"",
 				"\"-K 2 -qSize 1 -sample 0.01\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 
 	@Ignore
@@ -229,7 +260,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 	
 	@Ignore
@@ -240,7 +271,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -mode dp1\"",
 				"\"-K 2 -qSize 1 -mode dp1\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 	
 	@Ignore
@@ -251,7 +282,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -sample 0.01\"",
 				"\"-K 2 -qSize 1 -sample 0.01\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 	
 	@Ignore
@@ -262,7 +293,7 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1014 );
+		for ( String param : param_list ) runAlgorithm( param, 1014 , isSelfJoin );
 	}
 	
 	
@@ -282,10 +313,12 @@ public class AlgorithmTest {
 				"\"-delta 1\"",
 				"\"-delta 2\""
 		};
-		int[] answer_list = {1014, 1190, 2447};
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447};
+		else answer_list = new int[]{ 7, 296, 6360, };
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 	
@@ -305,10 +338,12 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -delta 1\"",
 				"\"-K 2 -qSize 1 -delta 2\"",
 		};
-		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		else answer_list = new int[] { 7, 296, 6360, 7, 296, 6360, 7, 296, 6360,};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 
@@ -328,10 +363,12 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -sample 0.01 -delta 1\"",
 				"\"-K 2 -qSize 1 -sample 0.01 -delta 2\"",
 		};
-		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		else answer_list = new int[] { 7, 296, 6360, 7, 296, 6360, 7, 296, 6360,};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 
@@ -351,10 +388,12 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -t 300 -delta 1\"",
 				"\"-K 2 -qSize 1 -t 300 -delta 2\"",
 		};
-		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		else answer_list = new int[] { 7, 296, 6360, 7, 296, 6360, 7, 296, 6360,};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 
@@ -374,10 +413,12 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -delta 1\"",
 				"\"-K 2 -qSize 1 -delta 2\"",
 		};
-		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		else answer_list = new int[] { 7, 296, 6360, 7, 296, 6360, 7, 296, 6360,};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 	
@@ -397,10 +438,12 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -delta 1\"",
 				"\"-K 2 -qSize 1 -delta 2\"",
 		};
-		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		else answer_list = new int[] { 7, 296, 6360, 7, 296, 6360, 7, 296, 6360,};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 	
@@ -420,10 +463,12 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -sample 0.01 -delta 1\"",
 				"\"-K 2 -qSize 1 -sample 0.01 -delta 2\"",
 		};
-		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		else answer_list = new int[] { 7, 296, 6360, 7, 296, 6360, 7, 296, 6360,};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 
@@ -443,10 +488,12 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -t 300 -delta 1\"",
 				"\"-K 2 -qSize 1 -t 300 -delta 2\"",
 		};
-		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		else answer_list = new int[] { 7, 296, 6360, 7, 296, 6360, 7, 296, 6360,};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 	
@@ -466,10 +513,12 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -delta 1\"",
 				"\"-K 2 -qSize 1 -delta 2\"",
 		};
-		int[] answer_list = {1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1014, 1190, 2447, 1014, 1190, 2447, 1014, 1190, 2447 };
+		else answer_list = new int[] { 7, 296, 6360, 7, 296, 6360, 7, 296, 6360,};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
-			runAlgorithm( param, answer_list[i] );
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
 	}
 	
@@ -487,7 +536,7 @@ public class AlgorithmTest {
 		String[] param_list = {
 				"\"-1\"",
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1028 );
+		for ( String param : param_list ) runAlgorithm( param, 1028 , isSelfJoin );
 	}
 
 	@Ignore
@@ -503,7 +552,7 @@ public class AlgorithmTest {
 				"\"-K 2 -verify GR3\"",
 				"\"-K 2 -verify MIT_GR\""
 		};
-		for ( String param : param_list ) runAlgorithm( param, 1028 );
+		for ( String param : param_list ) runAlgorithm( param, 1028 , isSelfJoin );
 	}
 	
 	@Ignore
@@ -515,11 +564,13 @@ public class AlgorithmTest {
 				"\"-ord FF -verify greedy -rc false\"",
 				"\"-ord FF -verify greedy -rc true\""
 		};
-		int[] answer_list = {1028, 1028, 1028, 1028};
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{1028, 1028, 1028, 1028};
+		else answer_list = new int[] {};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
 			int answer = answer_list[i];
-			runAlgorithm( param, answer );
+			runAlgorithm( param, answer , isSelfJoin );
 		}
 	}
 }

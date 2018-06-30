@@ -410,7 +410,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	}
 
 	public Set<IntegerPair> join(StatContainer stat, Query query, Validator checker, boolean writeResult) {
-		long startTime = System.currentTimeMillis();
+		long startTime = System.nanoTime();
 
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
@@ -430,7 +430,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 			joinOneRecordThres( recS, rslt, checker, -1, query.oneSideJoin );
 		} // for sid in in searchedSet
 
-		this.joinTime = System.currentTimeMillis() - startTime;
+		this.joinTime = System.nanoTime() - startTime;
 		this.zeta = (double)this.candQGramCountTime / this.candQGramCount;
 		this.eta = ((double) (this.joinTime - this.candQGramCountTime) / this.predictCount);
 

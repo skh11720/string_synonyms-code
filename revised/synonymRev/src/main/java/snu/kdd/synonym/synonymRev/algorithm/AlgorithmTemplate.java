@@ -291,4 +291,9 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			else rslt.add( new IntegerPair( rec2.getID(), rec1.getID()) );
 		}
 	}
+	
+	@Override
+	public void setWriteResult( boolean flag ) {
+		this.writeResult = flag;
+	}
 }
