@@ -100,7 +100,7 @@ public class JoinMinNaiveThres extends AlgorithmTemplate {
 		stat.addMemory( "Mem_4_Joined" );
 
 		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult( rslt );
+		writeResult();
 		stepTime.stopAndAdd( stat );
 
 		if ( joinMinRequired ) joinMinIdx.addStat( stat );

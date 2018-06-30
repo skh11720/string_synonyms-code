@@ -119,7 +119,7 @@ public class EquivTest extends AlgorithmTemplate {
 
 		Util.printLog( val.getName() + " " + count + " " + watch.getTotalTime() );
 
-		writeResult( rslt );
+		writeResult();
 	}
 
 }

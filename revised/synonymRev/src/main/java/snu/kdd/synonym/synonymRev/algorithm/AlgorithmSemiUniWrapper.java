@@ -19,6 +19,7 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 	
 	public AlgorithmSemiUniWrapper( AlgorithmTemplate alg ) {
 		this.alg = alg;
+		alg.setWriteResult( false );
 		rslt = new ObjectOpenHashSet<>();
 	}
 
@@ -26,7 +27,9 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		// searchedSet -> indexedSet
 		alg.run( query, args );
-		rslt.addAll( alg.rslt );
+//		System.out.println( "query1.searchedSet.size: "+query.searchedSet.size() );
+//		System.out.println( "query1.indexedSet.size: "+query.indexedSet.size() );
+		rslt.addAll( alg.rslt ); // alg.rslt: (s, t) pairs
 		StatContainer stat1 = alg.stat;
 		
 		// intermission
@@ -38,12 +41,19 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 		
 		// indexedSet -> searchedSet
 		alg.run( queryInv, args );
-		rslt.addAll( alg.rslt );
+//		System.out.println( "query2.searchedSet.size: "+queryInv.searchedSet.size() );
+//		System.out.println( "query2.indexedSet.size: "+queryInv.indexedSet.size() );
+		for ( IntegerPair ip : alg.rslt ) // alg.rslt: (t, s) pairs
+			rslt.add( new IntegerPair( ip.i2, ip.i1 ) );
 		StatContainer stat2 = alg.stat;
 
 		// finalize
 		stat1.merge( stat2, rslt );
 		alg.stat = stat1;
+		alg.rslt = rslt;
+		alg.query = query;
+		setWriteResult( true );
+		writeResult();
 	}
 
 	@Override
@@ -74,5 +84,10 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 	@Override
 	public void setWriteResult( boolean flag ) {
 		alg.writeResult = flag;
+	}
+
+	@Override
+	public void writeResult() {
+		alg.writeResult();
 	}
 }

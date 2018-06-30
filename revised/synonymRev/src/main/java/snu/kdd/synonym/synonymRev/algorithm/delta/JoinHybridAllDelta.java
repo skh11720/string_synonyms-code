@@ -51,7 +51,7 @@ public class JoinHybridAllDelta extends JoinHybridAll {
 		stat.addMemory( "Mem_4_Joined" );
 
 		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult( rslt );
+		writeResult();
 		stepTime.stopAndAdd( stat );
 	}
 

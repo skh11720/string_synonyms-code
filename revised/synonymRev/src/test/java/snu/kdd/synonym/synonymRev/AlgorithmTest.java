@@ -54,13 +54,13 @@ public class AlgorithmTest {
 		String osName = System.getProperty( "os.name" );
 		final String dataOnePath, dataTwoPath, rulePath;
 		if ( osName.startsWith( "Windows" ) ) {
-			dataOnePath = "C:\\users\\ghsong\\data\\data\\1000000_5_1000_1.0_0.0_1.txt";
-			dataTwoPath = "C:\\users\\ghsong\\data\\data\\1000000_5_1000_1.0_0.0_2.txt";
+			dataOnePath = "C:\\users\\ghsong\\data\\data\\1000000_5_10000_1.0_0.0_1.txt";
+			dataTwoPath = "C:\\users\\ghsong\\data\\data\\1000000_5_10000_1.0_0.0_2.txt";
 			rulePath = "C:\\users\\ghsong\\data\\rule\\30000_2_2_10000_0.0_0.txt";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			dataOnePath = "run/data_store/data/1000000_5_1000_1.0_0.0_1.txt";
-			dataTwoPath = "run/data_store/data/1000000_5_1000_1.0_0.0_2.txt";
+			dataOnePath = "run/data_store/data/1000000_5_10000_1.0_0.0_1.txt";
+			dataTwoPath = "run/data_store/data/1000000_5_10000_1.0_0.0_2.txt";
 			rulePath = "run/data_store/rule/30000_2_2_10000_0.0_0.txt";
 		}
 		else dataOnePath = dataTwoPath = rulePath = null;

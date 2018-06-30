@@ -187,7 +187,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		stat.addMemory( "Mem_4_Joined" );
 
 		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult( rslt );
+		writeResult();
 		stepTime.stopAndAdd( stat );
 
 		for( int idx : this.range ) {
@@ -219,7 +219,7 @@ public class EstimationTest extends AlgorithmTemplate {
 		stat.addMemory( "Mem_4_Joined" );
 
 		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult( rslt );
+		writeResult();
 		stepTime.stopAndAdd( stat );
 
 		for( int idx : this.range ) {
