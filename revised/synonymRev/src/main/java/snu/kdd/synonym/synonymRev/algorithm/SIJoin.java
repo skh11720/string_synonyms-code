@@ -72,9 +72,9 @@ public class SIJoin extends AlgorithmTemplate {
 		}
 		// br.readLine();
 
-		Set<IntegerPair> rslt = join( treeR, treeS, 1 );
+		rslt = join( treeR, treeS, 1 );
 
-		writeResult( rslt );
+		writeResult();
 	}
 
 	public Set<IntegerPair> join( SI_Tree<Record> treeR, SI_Tree<Record> treeS, double threshold ) {

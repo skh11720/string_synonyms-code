@@ -94,7 +94,7 @@ public class JoinMH extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		Set<IntegerPair> rslt = idx.join( stat, query, checker, writeResult );
+		rslt = idx.join( stat, query, checker, writeResult );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
@@ -103,7 +103,7 @@ public class JoinMH extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 
-		writeResult( rslt );
+		writeResult();
 
 		stepTime.stopAndAdd( stat );
 	}
@@ -126,16 +126,15 @@ public class JoinMH extends AlgorithmTemplate {
 		return "JoinMH";
 	}
 
+	public double getGamma() {
+		return idx.getGamma();
+	}
+
+	public double getZeta() {
+		return idx.getZeta();
+	}
+
 	public double getEta() {
 		return idx.getEta();
 	}
-
-	public double getTheta() {
-		return idx.getTheta();
-	}
-
-	public double getIota() {
-		return idx.getIota();
-	}
-
 }

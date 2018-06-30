@@ -109,8 +109,6 @@ public class JoinMin extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		Collection<IntegerPair> rslt = null;
-
 		rslt = idx.joinMaxK( indexK, writeResult, stat, checker, query );
 
 		stepTime.stopAndAdd( stat );
@@ -130,7 +128,7 @@ public class JoinMin extends AlgorithmTemplate {
 		}
 
 		stepTime.resetAndStart( "Result_4_Write_Time" );
-		this.writeResult( rslt );
+		this.writeResult();
 		stepTime.stopAndAdd( stat );
 	}
 
@@ -156,17 +154,20 @@ public class JoinMin extends AlgorithmTemplate {
 		checker.addStat( stat );
 	}
 
-	public double getGamma() {
-		return idx.getGamma();
+	public double getLambda() {
+		return idx.getLambda();
 	}
 
-	public double getDelta() {
-		return idx.getDelta();
+	public double getMu() {
+		return idx.getMu();
 	}
 
-	public double getEpsilon() {
-		return idx.getEpsilon();
+	public double getRho() {
+		return idx.getRho();
 	}
+
+	public long getSearchedTotalSigCount() { return idx.getSearchedTotalSigCount(); }
+	public long getIndexedTotalSigCount() { return idx.getIndexedTotalSigCount(); }
 
 	@Override
 	public String getVersion() {

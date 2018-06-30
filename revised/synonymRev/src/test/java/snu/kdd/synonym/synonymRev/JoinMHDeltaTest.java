@@ -24,7 +24,7 @@ public class JoinMHDeltaTest {
 	private static JoinMHDeltaIndex index;
 	@BeforeClass
 	public static void initialize() throws IOException {
-		query = TestUtils.getTestQuery();
+		query = TestUtils.getTestQuery(10000);
 		int indexK = 1;
 		int qgramSize = 2;
 		int deltaMax = 1;

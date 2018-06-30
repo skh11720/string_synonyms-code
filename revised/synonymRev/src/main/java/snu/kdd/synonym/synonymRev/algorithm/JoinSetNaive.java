@@ -70,12 +70,12 @@ public class JoinSetNaive extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 
-		final Set<IntegerPair> rslt = runAfterPreprocess( true );
+		rslt = runAfterPreprocess( true );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 
-		this.writeResult( rslt );
+		this.writeResult();
 
 		stepTime.stopAndAdd( stat );
 //		checker.addStat( stat );

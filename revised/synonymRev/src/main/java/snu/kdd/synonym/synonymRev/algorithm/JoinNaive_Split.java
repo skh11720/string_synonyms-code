@@ -49,12 +49,12 @@ public class JoinNaive_Split extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		stepTime.resetAndStart( "Result_3_Run_Time" );
 
-		final List<IntegerPair> list = runAfterPreprocess( true );
+		rslt = runAfterPreprocess( true );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 
-		this.writeResult( list );
+		this.writeResult();
 
 		stepTime.stopAndAdd( stat );
 	}

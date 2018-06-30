@@ -9,6 +9,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmSemiUniWrapper;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
@@ -33,6 +35,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinHybridAllDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDeltaDP;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHNaiveDelta;
@@ -100,8 +103,8 @@ public class App {
 		return new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
 	}
 	
-	public static AlgorithmTemplate getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException {
-		AlgorithmTemplate alg = null;
+	public static AlgorithmInterface getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException {
+		AlgorithmInterface alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
 		boolean split = cmd.hasOption( "split" );
@@ -262,6 +265,10 @@ public class App {
 			alg = new JoinMinDeltaDP( query, stat );
 			break;
 		
+		case JoinHybridAllDelta:
+			alg = new JoinHybridAllDelta( query, stat );
+			break;
+		
 		case JoinPkduckSet:
 			alg = new JoinPkduckSet( query, stat );
 			break;
@@ -283,6 +290,9 @@ public class App {
 			System.exit( 0 );
 			break;
 		}
+		
+		// if query is not a self join, conduct semi-unidirectional join.
+		if ( !query.selfJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
 
 		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
 		stat.add( cmd );
@@ -292,7 +302,7 @@ public class App {
 		return alg;
 	}
 	
-	public static void run( AlgorithmTemplate alg, Query query, CommandLine cmd ) throws IOException, ParseException {
+	public static void run( AlgorithmInterface alg, Query query, CommandLine cmd ) throws IOException, ParseException {
 		String additionalOptions = cmd.getOptionValue( "additional", "" );
 		if( additionalOptions != null ) {
 			String additionalArgs[] = additionalOptions.split( " " );
@@ -313,7 +323,7 @@ public class App {
 		
 		Query query = getQuery( cmd );
 		StatContainer stat = new StatContainer();
-		AlgorithmTemplate alg = getAlgorithm( query, stat, cmd );
+		AlgorithmInterface alg = getAlgorithm( query, stat, cmd );
 
 		initializeTime.stopAndAdd( stat );
 		run( alg, query, cmd );

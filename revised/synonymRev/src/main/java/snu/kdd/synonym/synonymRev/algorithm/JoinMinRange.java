@@ -106,8 +106,6 @@ public class JoinMinRange extends AlgorithmTemplate {
 			stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		}
 
-		Collection<IntegerPair> rslt = null;
-
 		rslt = idx.joinMaxK( indexK, writeResult, stat, checker, query );
 		if( writeResult ) {
 			stepTime.stopAndAdd( stat );
@@ -130,7 +128,7 @@ public class JoinMinRange extends AlgorithmTemplate {
 
 		if( writeResult ) {
 			stepTime.resetAndStart( "Result_4_Write_Time" );
-			this.writeResult( rslt );
+			this.writeResult();
 			stepTime.stopAndAdd( stat );
 		}
 	}

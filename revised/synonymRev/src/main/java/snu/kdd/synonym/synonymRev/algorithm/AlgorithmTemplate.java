@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -22,7 +23,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
-public abstract class AlgorithmTemplate {
+public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	public enum AlgorithmName {
 		JoinCatesian,
 		JoinNaive,
@@ -59,6 +60,7 @@ public abstract class AlgorithmTemplate {
 		JoinMinNaiveDelta,
 		JoinMinNaiveThresDelta,
 		JoinMinDeltaDP,
+		JoinHybridAllDelta,
 		JoinPkduckSet,
 		JoinPQFilterDPSet,
 		JoinPQFilterDPSet2,
@@ -70,7 +72,7 @@ public abstract class AlgorithmTemplate {
 	protected StatContainer stat;
 	protected Query query;
 	protected ACAutomataR automata;
-	public int rsltSize;
+	public Collection<IntegerPair> rslt = null;
 
 	public AlgorithmTemplate( Query query, StatContainer stat ) throws IOException {
 		this.stat = stat;
@@ -180,10 +182,9 @@ public abstract class AlgorithmTemplate {
 		}
 	}
 
-	public void writeResult( Collection<IntegerPair> rslt ) {
-		stat.addPrimary( "Final Result Size", rslt.size() );
-		rsltSize = rslt.size();
+	public void writeResult() {
 		if ( !writeResult ) return;
+		stat.addPrimary( "Final Result Size", rslt.size() );
 
 		try {
 			if( DEBUG.AlgorithmON ) {
@@ -253,6 +254,11 @@ public abstract class AlgorithmTemplate {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public Collection<IntegerPair> getResult() {
+		return rslt;
+	}
 	
 	public static void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean isSelfJoin ) {
 		if ( isSelfJoin ) {
@@ -284,5 +290,10 @@ public abstract class AlgorithmTemplate {
 			// idx == idxS
 			else rslt.add( new IntegerPair( rec2.getID(), rec1.getID()) );
 		}
+	}
+	
+	@Override
+	public void setWriteResult( boolean flag ) {
+		this.writeResult = flag;
 	}
 }

@@ -45,9 +45,9 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	long countTime = 0;
 	public long countValue = 0;
 
+	double gamma;
+	double zeta;
 	double eta;
-	double theta;
-	double iota;
 
 	public long equivComparisons;
 
@@ -65,9 +65,6 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	 * @param threshold
 	 */
 	
-	// empty constructor
-	public JoinMHIndex() {}
-
 	public JoinMHIndex(int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
 			int[] indexPosition, boolean addStat, boolean useIndexCount, int threshold) {
 		// TODO: Need to be fixed to make index just for given sequences
@@ -232,12 +229,14 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 
 		this.indexTime = System.nanoTime() - starttime;
 
-		this.eta = ((double) this.indexTime) / this.qgramCount;
+		this.gamma = ((double) this.indexTime) / this.qgramCount;
+		// this.indexTime: time for indexing records in T
+		// this.qgramCount: number of pqgrams from records in T
 
 		if (DEBUG.PrintEstimationON) {
 			BufferedWriter bwEstimation = EstimationTest.getWriter();
 			try {
-				bwEstimation.write("[Eta] " + eta);
+				bwEstimation.write("[gamma] " + gamma);
 				bwEstimation.write(" IndexTime " + indexTime);
 				bwEstimation.write(" IndexedSigCount " + qgramCount + "\n");
 			} catch (IOException e) {
@@ -448,7 +447,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 				}
 
 				candidateTimes[i].stopQuiet();
-			}
+			} // end for i from 0 to indexK
 			count += candidates.size();
 
 			ObjectIterator<Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
@@ -461,11 +460,12 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 				 *  04.27.18, ghsong: in the below condition A || B, why do we check B?
 				 *  Since indexedCountList has no info for recS in S, condition B is useless.
 				 *  Thus,it seems that checking A only is enough.
+				 *  06.27.18. ghsong: condition B is necessary!!
 				 */
 				if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 					candidates.add(record);
 				}
-			}
+			} // end while iter
 
 			equivTime.start();
 			equivComparisons += candidates.size();
@@ -489,7 +489,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 			// System.out.println( recS.getID() + " processed " + executionTime );
 			// }
 
-		}
+		} // end for query.searchedSet
 
 		if (writeResult) {
 			stat.add("Stat_Equiv_Comparison", count);
@@ -527,10 +527,20 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 			}
 		}
 		this.joinTime = System.nanoTime() - startTime - totalCountTime;
-		this.theta = ((double) this.joinTime / this.predictCount);
 		this.countTime = totalCountTime;
 		this.countValue = totalCountValue;
-		this.iota = (double) totalCountTime / totalCountValue;
+
+		this.zeta = (double) totalCountTime / totalCountValue;
+		// totalCountTime: time for generating TPQ supersets
+		// totalCountValue: the size of TPQ supersets
+		
+		this.eta = ((double) this.joinTime / this.predictCount);
+		// this.joinTime: time for counting and verifications
+		// this.predictCount: the sum of minimum invokes (number of records in searchedSet to be verified) of records in indexedSet
+
+//		stat.add( "Const_Gamma", gamma );
+//		stat.add( "Const_Zeta", zeta );
+//		stat.add( "Const_Eta", eta );
 
 		return rslt;
 	}
@@ -631,18 +641,18 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 		}
 	}
 
+	public double getGamma() {
+		return this.gamma;
+	}
+
+	public double getZeta() {
+		return this.zeta;
+	}
+	
 	public double getEta() {
 		return this.eta;
 	}
 
-	public double getTheta() {
-		return this.theta;
-	}
-
-	public double getIota() {
-		return this.iota;
-	}
-	
 	public int size() {
 		return joinMHIndex.size();
 	}
