@@ -182,9 +182,9 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		}
 	}
 
-	public void writeResult( Collection<IntegerPair> rslt ) {
-		stat.addPrimary( "Final Result Size", rslt.size() );
+	public void writeResult() {
 		if ( !writeResult ) return;
+		stat.addPrimary( "Final Result Size", rslt.size() );
 
 		try {
 			if( DEBUG.AlgorithmON ) {

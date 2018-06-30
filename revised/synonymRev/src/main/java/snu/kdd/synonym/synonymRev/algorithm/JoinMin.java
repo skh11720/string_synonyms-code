@@ -128,7 +128,7 @@ public class JoinMin extends AlgorithmTemplate {
 		}
 
 		stepTime.resetAndStart( "Result_4_Write_Time" );
-		this.writeResult( rslt );
+		this.writeResult();
 		stepTime.stopAndAdd( stat );
 	}
 

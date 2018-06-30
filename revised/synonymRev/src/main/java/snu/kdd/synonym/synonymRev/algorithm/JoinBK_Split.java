@@ -107,7 +107,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 
-		writeResult( rslt );
+		writeResult();
 
 		stepTime.stopAndAdd( stat );
 	}

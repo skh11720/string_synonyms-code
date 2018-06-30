@@ -102,7 +102,7 @@ public class JoinPQFilterDPNaive extends JoinPQFilterDP {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_4_Write_Time" );
 
-		this.writeResult( rslt );
+		this.writeResult();
 
 		stepTime.stopAndAdd( stat );
 		checker.addStat( stat );

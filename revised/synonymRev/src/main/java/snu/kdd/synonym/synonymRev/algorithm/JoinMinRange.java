@@ -128,7 +128,7 @@ public class JoinMinRange extends AlgorithmTemplate {
 
 		if( writeResult ) {
 			stepTime.resetAndStart( "Result_4_Write_Time" );
-			this.writeResult( rslt );
+			this.writeResult();
 			stepTime.stopAndAdd( stat );
 		}
 	}

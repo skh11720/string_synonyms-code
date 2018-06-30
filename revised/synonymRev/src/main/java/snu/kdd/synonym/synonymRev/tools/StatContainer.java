@@ -405,7 +405,7 @@ public class StatContainer {
 		for ( int i=0; i< this.primaryNameList.size(); ++i ) {
 			String name = this.primaryNameList.get( i );
 			String value = this.primaryValueList.get( i );
-			if ( name.equals( "Final Result Size" ) ) this.primaryValueList.set( i, String.valueOf( rslt.size() ) );
+//			if ( name.equals( "Final Result Size" ) ) this.primaryValueList.set( i, String.valueOf( rslt.size() ) );
 //			System.out.println( "\t"+name+" : "+value );
 		}
 		
