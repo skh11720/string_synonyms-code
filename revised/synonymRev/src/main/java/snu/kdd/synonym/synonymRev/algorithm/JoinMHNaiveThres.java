@@ -98,7 +98,7 @@ public class JoinMHNaiveThres extends AlgorithmTemplate {
 
 		Util.printLog( "Selected Threshold: " + joinThreshold );
 
-		Collection<IntegerPair> rslt = join();
+		rslt = join();
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 

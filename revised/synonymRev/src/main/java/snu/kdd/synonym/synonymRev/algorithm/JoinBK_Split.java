@@ -98,7 +98,7 @@ public class JoinBK_Split extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		Set<IntegerPair> rslt = join();
+		rslt = join();
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

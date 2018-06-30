@@ -94,7 +94,7 @@ public class JoinMH extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		Set<IntegerPair> rslt = idx.join( stat, query, checker, writeResult );
+		rslt = idx.join( stat, query, checker, writeResult );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

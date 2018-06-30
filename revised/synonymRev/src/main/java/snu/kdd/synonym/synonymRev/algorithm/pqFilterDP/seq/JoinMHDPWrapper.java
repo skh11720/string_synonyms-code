@@ -46,6 +46,5 @@ public class JoinMHDPWrapper extends AlgorithmTemplate{
 		else throw new RuntimeException("Unexpected exception");
 		alg.params = params;
 		alg.run( query, args );
-		this.rsltSize = alg.rsltSize;
 	}
 }
