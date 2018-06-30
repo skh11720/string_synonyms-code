@@ -19,7 +19,7 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 	
 	public AlgorithmSemiUniWrapper( AlgorithmTemplate alg ) {
 		this.alg = alg;
-		alg.setWriteResult( false );
+		alg.setWriteResult( true );
 		rslt = new ObjectOpenHashSet<>();
 	}
 
