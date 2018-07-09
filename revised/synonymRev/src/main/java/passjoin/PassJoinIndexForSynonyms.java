@@ -56,7 +56,7 @@ public class PassJoinIndexForSynonyms {
 	}
 	
 	public Set<IntegerPair> run() {
-		long ts = System.nanoTime();
+//		long ts = System.nanoTime();
 		sort();
 //		long afterSort = System.nanoTime();
 //		System.out.println( "sort: "+(long)((afterSort - ts)/1e6) );
@@ -69,11 +69,11 @@ public class PassJoinIndexForSynonyms {
 		buildIndex();
 //		long afterBuildIndex= System.nanoTime();
 //		System.out.println( "build index: "+(long)((afterBuildIndex - afterPrepare)/1e6) );
-		long tBeforeJoin = System.nanoTime();
-		System.out.println( "before join: "+(long)((tBeforeJoin - ts)/1e6) );
+//		long tBeforeJoin = System.nanoTime();
+//		System.out.println( "before join: "+(long)((tBeforeJoin - ts)/1e6) );
 		Set<IntegerPair> rslt = join();
-		long tAfterJoin = System.nanoTime();
-		System.out.println( "join: "+(long)((tAfterJoin - tBeforeJoin)/1e6) );
+//		long tAfterJoin = System.nanoTime();
+//		System.out.println( "join: "+(long)((tAfterJoin - tBeforeJoin)/1e6) );
 		return rslt;
 	}
 	
