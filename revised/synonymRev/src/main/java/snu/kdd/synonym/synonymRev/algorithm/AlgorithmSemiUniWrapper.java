@@ -30,6 +30,8 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 //		System.out.println( "query1.searchedSet.size: "+query.searchedSet.size() );
 //		System.out.println( "query1.indexedSet.size: "+query.indexedSet.size() );
 		rslt.addAll( alg.rslt ); // alg.rslt: (s, t) pairs
+//		System.out.println( "rslt1: "+alg.rslt.size() );
+//		System.out.println( alg.rslt );
 		StatContainer stat1 = alg.stat;
 		
 		// intermission
@@ -45,6 +47,10 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 //		System.out.println( "query2.indexedSet.size: "+queryInv.indexedSet.size() );
 		for ( IntegerPair ip : alg.rslt ) // alg.rslt: (t, s) pairs
 			rslt.add( new IntegerPair( ip.i2, ip.i1 ) );
+//		System.out.println( "rslt2: "+alg.rslt.size() );
+//		System.out.println( alg.rslt );
+//		System.out.println( "rslt: "+rslt.size() );
+//		System.out.println( rslt );
 		StatContainer stat2 = alg.stat;
 
 		// finalize
