@@ -252,6 +252,10 @@ public class Util {
 	}
 	
 	public static int lcs( int[] x, int[] y ) {
+		/*
+		 * Compute the length of the LCS.
+		 * Note that the return value is NOT the LCS distance value.
+		 */
 		int[] L = new int[x.length+1];
 		int[] L_prev = new int[x.length+1];
 		Arrays.fill( L, 0 );
@@ -262,12 +266,46 @@ public class Util {
 			L = tmp;
 
 			for ( int i=1; i<=x.length; ++i ) {
-				L[i] = L[i-1];
-				L[i] = Math.max( L[i], L_prev[i] );
+				L[i] = Math.max( L[i-1], L_prev[i] );
 				if ( x[i-1] == y[j] ) L[i] = Math.max( L[i], L_prev[i-1]+1 );
 				else L[i] = Math.max( L[i], L_prev[i-1] );
 			}
 		}
 		return L[x.length];
+	}
+
+	public static int lcs( int[] x, int[] y, int threshold, int xpos, int ypos, int xlen, int ylen ) {
+		if (xlen == -1) xlen = x.length - xpos;
+		if (ylen == -1) ylen = y.length - ypos;
+		if ( xlen > ylen + threshold || ylen > xlen + threshold ) return threshold+1;
+		if ( xlen == 0 ) return ylen;
+
+		int[][] matrix = new int[xlen + 1][2 * threshold + 1];
+		for (int k = 0; k <= threshold; k++) matrix[0][threshold + k] = k;
+
+		int right = (threshold + (ylen - xlen)) / 2;
+		int left = (threshold - (ylen - xlen)) / 2;
+		for (int i = 1; i <= xlen; i++)
+		{
+			boolean valid = false;
+			if (i <= left)
+			{
+				matrix[i][threshold - i] = i;
+				valid = true;
+			}
+			for (int j = (i - left >= 1 ? i - left : 1); j <= (i + right <= ylen ? i + right : ylen); j++)
+			{
+				if (x[xpos + i - 1] == y[ypos + j - 1]) matrix[i][j - i + threshold] = matrix[i - 1][j - i + threshold];
+				else
+					matrix[i][j - i + threshold] = Math.min(
+//							matrix[i - 1][j - i + threshold], // for edit operation
+							j - 1 >= i - left ? matrix[i][j - i + threshold - 1] : threshold,
+							j + 1 <= i + right ? matrix[i - 1][j - i + threshold + 1] : threshold)
+					+ 1;
+				if (Math.abs(xlen - ylen - i + j) + matrix[i][j - i + threshold] <= threshold) valid = true;
+			}
+			if (!valid) return threshold + 1;
+		}
+		return matrix[xlen][ylen - xlen + threshold];
 	}
 }

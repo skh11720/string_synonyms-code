@@ -74,7 +74,7 @@ public class TestUtils {
 		return query;
 	}
 	
-	@Ignore
+	@Test
 	public void testLCS() {
 		Random random = new Random(0);
 		final int nTest = 1000;
@@ -104,9 +104,9 @@ public class TestUtils {
 				if ( idxSet.contains( j ) ) y[j] = z[k++];
 				else y[j] = error--;
 			}
-			System.out.println( "x: "+Arrays.toString(x) );
-			System.out.println( "y: "+Arrays.toString(y) );
-			System.out.println( "z: "+Arrays.toString(z) );
+//			System.out.println( "x: "+Arrays.toString(x) );
+//			System.out.println( "y: "+Arrays.toString(y) );
+//			System.out.println( "z: "+Arrays.toString(z) );
 			assertEquals( lz, Util.lcs( x, y ) );
 		}
 	}

@@ -52,6 +52,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinMinNaiveDP,
 		JoinMinNaiveThresDP,
 		JoinNaiveDelta,
+		JoinNaiveDelta2,
 		JoinMHDelta,
 		JoinMHNaiveDelta,
 		JoinMHNaiveThresDelta,
