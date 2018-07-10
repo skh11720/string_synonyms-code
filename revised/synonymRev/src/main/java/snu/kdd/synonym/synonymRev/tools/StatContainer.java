@@ -429,7 +429,8 @@ public class StatContainer {
 				String value2 = mapStat2.get( name );
 				try { value = String.valueOf( Long.parseLong( value ) + Long.parseLong( value2 ) ); }
 				catch ( NumberFormatException e ) {
-					value = String.valueOf( Double.parseDouble( value ) + Double.parseDouble( value2 ) );
+					try { value = String.valueOf( Double.parseDouble( value ) + Double.parseDouble( value2 ) ); }
+					catch ( NumberFormatException e2 ) {}
 				}
 			}
 			this.valueList.set( i, value );

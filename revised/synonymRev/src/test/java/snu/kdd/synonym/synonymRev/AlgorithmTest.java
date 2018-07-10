@@ -136,6 +136,7 @@ public class AlgorithmTest {
 //			testJoinMin();
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
+			testJoinHybridAll();
 //			testJoinPkduck();
 			
 //			testJoinMHDP();
@@ -145,9 +146,9 @@ public class AlgorithmTest {
 //			testJoinMinNaiveDP();
 //			testJoinMinNaiveThresDP();
 			
-			testJoinSetNaive();
-			testJoinPQFilterDPSet();
-			testJoinPkduckSet();
+//			testJoinSetNaive();
+//			testJoinPQFilterDPSet();
+//			testJoinPkduckSet();
 		}
 
 //		testJoinMH();
@@ -263,6 +264,20 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 1 -t 300\"",
 				"\"-K 1 -qSize 2 -t 300\"",
 				"\"-K 2 -qSize 1 -t 300\""
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
+		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+	
+	public void testJoinHybridAll() throws ParseException, IOException {
+		args[1] = "JoinHybridAll";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -sample 0.01\"",
+				"\"-K 1 -qSize 2 -sample 0.01\"",
+				"\"-K 2 -qSize 1 -sample 0.01\"",
+				"\"-K 2 -qSize 2 -sample 0.01\"",
 		};
 		int answer;
 		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
