@@ -62,8 +62,9 @@ public class JoinMinDP extends JoinMin {
 		 * 1.00: initial version
 		 * 1.01: reduce cand pqgram size
 		 * 1.02: checkpoint
+		 * 1.03: ignore records with too many transformations
 		 */
-		return "1.02";
+		return "1.03";
 	}
 
 	@Override

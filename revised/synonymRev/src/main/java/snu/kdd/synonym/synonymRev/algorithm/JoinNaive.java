@@ -126,7 +126,11 @@ public class JoinNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.0";
+		/*
+		 * 2.00: the latest version by yjpark
+		 * 2.01: ignore records with too many transformations
+		 */
+		return "2.01";
 	}
 
 }

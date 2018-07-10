@@ -38,8 +38,9 @@ public class JoinPQFilterDP extends AlgorithmTemplate{
 		 *  - disable inefficient modes: naive and dp2
 		 * 1.03: support frequency-based indexing
 		 * 1.04: reduce candidate pos qgrams
+		 * 1.05: ignore records with too many transformations
 		 */
-		return "1.04";
+		return "1.05";
 	}
 
 	@Override

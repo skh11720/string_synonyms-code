@@ -272,7 +272,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		 * 1.05: checkpoint
 		 * 1.06: reduce memory usage
 		 * 1.07: fix length filter
+		 * 1.08: ignore records with too many transformations
 		 */
-		return "1.07";
+		return "1.08";
 	}
 }

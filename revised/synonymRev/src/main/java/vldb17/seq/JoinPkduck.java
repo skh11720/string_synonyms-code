@@ -265,7 +265,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 		 * 1.04: optimized rule compression
 		 * 1.05: FF based indexing, improved DP, RC
 		 * 1.06: reduce memory usage
+		 * 1.07: ignore records with too many transformations
 		 */
-		return "1.06";
+		return "1.07";
 	}
 }

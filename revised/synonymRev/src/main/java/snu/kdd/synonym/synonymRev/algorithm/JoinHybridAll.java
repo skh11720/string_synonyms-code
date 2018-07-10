@@ -288,7 +288,11 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.6";
+		/*
+		 * 2.6: the latest version by yjpark
+		 * 2.61: ignore records with too many transformations
+		 */
+		return "2.61";
 	}
 
 	@Override

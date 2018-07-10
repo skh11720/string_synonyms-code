@@ -93,6 +93,10 @@ public class JoinNaiveDelta2 extends AlgorithmTemplate{
 
 	@Override
 	public String getVersion() {
-		return "1.00";
+		/*
+		 * 1.00: initial version
+		 * 1.01: ignore records with too many transformations
+		 */
+		return "1.01";
 	}
 }

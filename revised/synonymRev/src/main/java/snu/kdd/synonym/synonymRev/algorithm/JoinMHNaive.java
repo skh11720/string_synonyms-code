@@ -206,6 +206,10 @@ public class JoinMHNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		return "2.5";
+		/*
+		 * 2.5: the latest version by yjpark
+		 * 2.51: ignore records with too many transformations
+		 */
+		return "2.51";
 	}
 }
