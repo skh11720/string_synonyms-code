@@ -26,7 +26,7 @@ public class PassJoinIndexTest {
 	public void test() {
 		int deltaMax = 1;
 		PassJoinIndexForSynonyms index = new PassJoinIndexForSynonyms( query, deltaMax );
-		Set<IntegerPair> rslt = index.run();
+		Set<IntegerPair> rslt = index.join();
 		System.out.println( rslt.size() );
 	}
 
