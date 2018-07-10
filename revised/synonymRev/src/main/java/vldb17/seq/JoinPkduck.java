@@ -165,6 +165,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 			}
 
 			final Record recS = query.searchedSet.getRecord( sid );
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinOneRecord( recS, rslt );
 		}
 		

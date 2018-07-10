@@ -62,7 +62,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 
 	private Validator checker = null;
 
-	private SI_Tree( double theta, ITF_Filter filter, Validator checker ) {
+	public SI_Tree( double theta, ITF_Filter filter, Validator checker ) {
 		this.checker = checker;
 
 		root = new IntegerMap<FenceEntry>();

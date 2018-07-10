@@ -503,6 +503,7 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
 		}
 

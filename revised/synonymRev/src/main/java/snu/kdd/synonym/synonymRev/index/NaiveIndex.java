@@ -269,20 +269,22 @@ public class NaiveIndex {
 				}
 			}
 
-			if( DEBUG.JoinNaiveSkipTooMany ) {
-				if( DEBUG.EstTooManyThreshold < recS.getEstNumTransformed() || recS.getEstNumTransformed() <= 0 ) {
-					Util.printLog( "Rec " + recS.getID() + "(" + recS
-							+ ") is skipped joining due to too many transformed strings " + recS.getEstNumTransformed() );
-
-					if( query.selfJoin ) {
-//						rslt.add( new IntegerPair( recS.getID(), recS.getID() ) );
-						AlgorithmTemplate.addSeqResult( recS, recS, rslt, true );
-					}
-					skippedCount++;
-
-					continue;
-				}
-			}
+//			if( DEBUG.JoinNaiveSkipTooMany ) {
+//				if( DEBUG.EstTooManyThreshold < recS.getEstNumTransformed() || recS.getEstNumTransformed() <= 0 ) {
+//					Util.printLog( "Rec " + recS.getID() + "(" + recS
+//							+ ") is skipped joining due to too many transformed strings " + recS.getEstNumTransformed() );
+//
+//					if( query.selfJoin ) {
+////						rslt.add( new IntegerPair( recS.getID(), recS.getID() ) );
+//						AlgorithmTemplate.addSeqResult( recS, recS, rslt, true );
+//					}
+//					skippedCount++;
+//
+//					continue;
+//				}
+//			}
+			
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 
 			joinOneRecord( recS, rslt );
 		}

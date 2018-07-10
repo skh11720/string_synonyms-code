@@ -60,8 +60,19 @@ public class SIJoin extends AlgorithmTemplate {
 
 		preprocess();
 
-		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, query.searchedSet.recordList, checker );
-		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, query.indexedSet.recordList, checker );
+//		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, query.searchedSet.recordList, checker );
+//		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, query.indexedSet.recordList, checker );
+		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, checker );
+		for ( Record recS : query.searchedSet.recordList ) {
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			treeR.add( recS );
+		}
+
+		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, checker );
+		for ( Record recT : query.indexedSet.recordList ) {
+			if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			treeS.add( recT );
+		}
 
 		if( DEBUG.SIJoinON ) {
 			System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );

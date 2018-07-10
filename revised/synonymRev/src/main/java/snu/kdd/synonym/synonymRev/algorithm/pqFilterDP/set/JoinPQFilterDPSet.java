@@ -163,12 +163,14 @@ public class JoinPQFilterDPSet extends AlgorithmTemplate {
 		
 		// S -> S' ~ T
 		for ( Record recS : query.searchedSet.recordList ) {
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinOneRecord( recS, rslt, idxT, idxCountT );
 		}
 
 		if ( !query.selfJoin ) {
 			// T -> T' ~ S
 			for ( Record recT : query.indexedSet.recordList ) {
+				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 				joinOneRecord( recT, rslt, idxS, idxCountS );
 			}
 		}

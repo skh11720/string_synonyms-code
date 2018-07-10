@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -41,12 +42,14 @@ public class JoinPQFilterDPSet2 extends JoinPQFilterDPSet {
 		
 		// S -> S' ~ T
 		for ( Record recS : query.searchedSet.recordList ) {
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinOneRecord( recS, rslt, idxT, idxCountT );
 		}
 
 		if ( !query.selfJoin ) {
 			// T -> T' ~ S
 			for ( Record recT : query.indexedSet.recordList ) {
+				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 				joinOneRecord( recT, rslt, idxS, idxCountS );
 			}
 		}

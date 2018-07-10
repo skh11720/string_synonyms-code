@@ -427,6 +427,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 
 		for (int sid = 0; sid < query.searchedSet.size(); sid++) {
 		    Record recS = query.searchedSet.getRecord(sid);
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinOneRecordThres( recS, rslt, checker, -1, query.oneSideJoin );
 		} // for sid in in searchedSet
 
