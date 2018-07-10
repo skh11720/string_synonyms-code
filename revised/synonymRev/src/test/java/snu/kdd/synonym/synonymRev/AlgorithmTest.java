@@ -120,12 +120,12 @@ public class AlgorithmTest {
 		boolean[] flags = {true, false};
 		for ( boolean flag : flags ) {
 			isSelfJoin = flag;
-			testJoinNaiveDelta();
+//			testJoinNaiveDelta();
 			testJoinNaiveDelta2();
-			testJoinMHDelta();
-			testJoinMHDeltaDP();
-			testJoinMinDelta();
-			testJoinMinDeltaDP();
+//			testJoinMHDelta();
+//			testJoinMHDeltaDP();
+//			testJoinMinDelta();
+//			testJoinMinDeltaDP();
 		}
 
 //		testJoinMH();
