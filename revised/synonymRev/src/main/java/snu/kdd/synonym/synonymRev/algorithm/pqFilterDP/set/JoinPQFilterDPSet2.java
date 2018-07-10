@@ -94,7 +94,8 @@ public class JoinPQFilterDPSet2 extends JoinPQFilterDPSet {
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: ignore records with too many transformations
 		 */
-		return "1.00";
+		return "1.01";
 	}
 }

@@ -136,7 +136,7 @@ public class AlgorithmTest {
 //			testJoinMin();
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
-			testJoinHybridAll();
+//			testJoinHybridAll();
 //			testJoinPkduck();
 			
 //			testJoinMHDP();

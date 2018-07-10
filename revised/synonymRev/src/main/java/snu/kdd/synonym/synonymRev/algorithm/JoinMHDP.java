@@ -48,6 +48,10 @@ public class JoinMHDP extends JoinMH {
 	
 	@Override
 	public String getVersion() {
+		/*
+		 * 1.00: initial version
+		 * 1.01: ignore records with too many transformations
+		 */
 		return "1.00";
 	}
 }
