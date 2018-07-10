@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import passjoin.PassJoinIndexForSynonyms;
 import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidator;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDeltaIndex;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinDeltaIndex;
@@ -22,6 +24,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
@@ -31,6 +34,7 @@ public class TestForJoinHybrid {
 	public static Query query;
 	public static final int N = 1000; // number of records in searchedSet
 	public static final int M = 10; // repeat join one record
+//	public static final int threshold = (int)DEBUG.EstTooManyThreshold;
 	public static final int threshold = (int) 1e4;
 	
 	public static void main( String[] args ) throws IOException, NoSuchMethodException, SecurityException {
@@ -53,6 +57,7 @@ public class TestForJoinHybrid {
 		// build indexes
 		NaiveIndexWrapper naiveIndex = new NaiveIndexWrapper( query.indexedSet, query, stat, false, -1, avgTransformed );
 		NaiveDeltaIndexWrapper naiveDeltaIndex = new NaiveDeltaIndexWrapper( query.indexedSet, query, stat, true, deltaMax, -1, avgTransformed );
+		PassJoinIndexWrapper passJoinIndex = new PassJoinIndexWrapper( query, deltaMax );
 
 		JoinMHIndexWrapper joinMHIndex = new JoinMHIndexWrapper( indexK, qgramSize, query.indexedSet.recordList, query, stat, indexPosition, true, true, -1 );
 		joinMHIndex.set( val0 );
@@ -95,7 +100,8 @@ public class TestForJoinHybrid {
 		// prepare join test
 		
 		// join, delta = 0
-		IndexInterface[] indexList = {naiveIndex, joinMHIndex, joinMinIndex, naiveDeltaIndex, joinMHDeltaIndex, joinMinDeltaIndex};
+		IndexInterface[] indexList = {naiveIndex, joinMHIndex, joinMinIndex, passJoinIndex, joinMHDeltaIndex, joinMinDeltaIndex};
+//		IndexInterface[] indexList = {passJoinIndex, joinMHDeltaIndex, joinMinDeltaIndex};
 		double[][] timeMat = new double[indexList.length][];
 		for ( int i=0; i<indexList.length; ++i ) {
 			IndexInterface index = indexList[i];
@@ -103,22 +109,47 @@ public class TestForJoinHybrid {
 		}
 		
 		// write the results
-		BufferedWriter bw = new BufferedWriter( new FileWriter( "tmp/hybridTest.txt" ) );
+		BufferedWriter bw1 = new BufferedWriter( new FileWriter( "tmp/hybridTest.txt" ) );
+		BufferedWriter bw2 = new BufferedWriter( new FileWriter( "tmp/hybridTest_avg.txt" ) );
+		int nExp_group = recSList.get( 0 ).expandAll().size();
+		int nCount = 0;
+		double[] avg_time = new double[indexList.length];
+		Arrays.fill( avg_time, 0 );
 		for ( int j=0; j<recSList.size(); ++j ) {
 			Record recS = recSList.get( j );
 			int nExp = recS.expandAll().size();
-			bw.write( ""+nExp );
+			bw1.write( ""+nExp );
 			for ( int i=0; i<indexList.length; ++i ) {
-				bw.write( "\t"+timeMat[i][j] );
+				bw1.write( "\t"+timeMat[i][j] );
 			}
-			bw.write( "\n" );
+			
+			if ( nExp_group != nExp ) {
+				bw2.write( ""+nExp_group );
+				for ( int i=0; i<indexList.length; ++i ) bw2.write( "\t"+avg_time[i]/nCount );
+				bw2.write( "\n" );
+				Arrays.fill( avg_time, 0 );
+				nExp_group = nExp;
+				nCount = 0;
+			}
+			for ( int i=0; i<indexList.length; ++i ) avg_time[i] += timeMat[i][j];
+			++nCount;
+			if ( j == recSList.size()-1 ) {
+				bw2.write( ""+nExp_group );
+				for ( int i=0; i<indexList.length; ++i ) bw2.write( "\t"+avg_time[i]/nCount );
+				bw2.write( "\n" );
+			}
+			bw1.write( "\n" );
 		}
-		bw.flush();
-		bw.close();
-	}
+		bw1.flush(); bw1.close();
+		bw2.flush(); bw2.close();
+	} // end main
 	
 	public static double[] join( IndexInterface index, List<Record> recSList ) {
+		/*
+		 * Output the average time for joining a record.
+		 */
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<>();
+		int nRslt = rslt.size();
 		double[] timeList = new double[recSList.size()];
 		for ( int i=0; i<recSList.size(); ++i ) {
 			Record recS = recSList.get( i );
@@ -128,6 +159,30 @@ public class TestForJoinHybrid {
 				t = System.nanoTime();
 				for ( int j=0; j<M; ++j ) index.joinOneRecord( recS, rslt );
 				t = (System.nanoTime() - t)/M;
+			}
+			catch ( OutOfMemoryError e ) { continue; }
+//			System.out.println( "(nExp, len, nOutput, t) = "+nExp+"\t"+recS.size()+"\t"+(rslt.size()-nRslt)+"\t"+String.format( "%.3f", t/1e3 ) );
+			timeList[i] = t/1e3;
+			nRslt = rslt.size();
+		}
+		System.out.println( index.getName()+": "+rslt.size() );
+		return timeList;
+	}
+
+	public static double[] join2( IndexInterface index, List<Record> recSList ) {
+		/*
+		 * Output the average time for joining a record of unit length.
+		 */
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<>();
+		double[] timeList = new double[recSList.size()];
+		for ( int i=0; i<recSList.size(); ++i ) {
+			Record recS = recSList.get( i );
+			int nExp = recS.expandAll().size();
+			long t = -1;
+			try { 
+				t = System.nanoTime();
+				for ( int j=0; j<M; ++j ) index.joinOneRecord( recS, rslt );
+				t = (System.nanoTime() - t)/M/recS.size();
 			}
 			catch ( OutOfMemoryError e ) { continue; }
 //			System.out.println( "(nExp, t) = "+nExp+String.format( ", %.3f", t/1e3 ) );
@@ -198,6 +253,21 @@ class NaiveDeltaIndexWrapper extends NaiveDeltaIndex implements IndexInterface {
 	
 	@Override
 	public String getName() { return "NaiveDeltaIndex"; }
+}
+
+class PassJoinIndexWrapper extends PassJoinIndexForSynonyms implements IndexInterface {
+	
+	public PassJoinIndexWrapper( Query query, int deltaMax ) {
+		super( query, deltaMax );
+	}
+	
+	@Override
+	public void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
+		super.joinOneRecord( recS, rslt );
+	}
+	
+	@Override
+	public String getName() { return "PassJoinIndex"; }
 }
 
 class JoinMHDeltaIndexWrapper extends JoinMHDeltaIndex implements IndexInterface {
