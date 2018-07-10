@@ -12,6 +12,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 /*
  * A wrapper class of the JoinPQFilterDP family.
  */
+@Deprecated
 public class JoinMHDPWrapper extends AlgorithmTemplate{
 	
 	private JoinPQFilterDP alg;

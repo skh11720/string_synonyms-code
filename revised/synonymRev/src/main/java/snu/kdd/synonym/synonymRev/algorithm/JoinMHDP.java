@@ -15,7 +15,6 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-@Deprecated
 public class JoinMHDP extends JoinMH {
 
 	public JoinMHDP( Query query, StatContainer stat ) throws IOException {

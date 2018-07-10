@@ -19,6 +19,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinCatesian;
 import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll;
 import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll_NEW;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMHDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThres;
@@ -49,7 +50,6 @@ import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta2;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
-import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinMHDPWrapper;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinMinDP;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinPQFilterDP;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinPQFilterDPSet;
@@ -207,7 +207,7 @@ public class App {
 			break;
 		
 		case JoinMHDP:
-			alg = new JoinMHDPWrapper( query, stat );
+			alg = new JoinMHDP( query, stat );
 			break;
 		
 		case JoinMHNaiveDP:
