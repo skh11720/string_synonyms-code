@@ -181,6 +181,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 			if( query.oneSideJoin ) {
 				for( Record s : query.searchedSet.get() ) {
 					// System.out.println( "test " + s + " " + s.getEstNumRecords() );
+					if ( s.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 					if( s.getEstNumTransformed() > joinThreshold ) {
 						if( joinMinSelected ) {
 							joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
@@ -193,6 +194,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 			}
 			else {
 				for( Record s : query.searchedSet.get() ) {
+					if ( s.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 					if( joinMinSelected ) {
 						joinMinIdx.joinRecordMaxKThres( indexK, s, rslt, true, null, checker, joinThreshold, query.oneSideJoin );
 					}

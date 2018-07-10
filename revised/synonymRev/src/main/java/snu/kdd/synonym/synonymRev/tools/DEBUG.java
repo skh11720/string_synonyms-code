@@ -33,7 +33,7 @@ public class DEBUG {
 
 	public static final boolean EstTooManyWarningON = false;
 	public static final boolean JoinNaiveSkipTooMany = true;
-	public static final int EstTooManyThreshold = 20_000_000;
+	public static final int EstTooManyThreshold = 1_000_000;
 	
 	// AbstractGlobalOrder
 	public static final boolean bGlobalOrderWriteToFile = false;

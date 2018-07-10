@@ -82,7 +82,7 @@ public class JoinNaiveDelta2 extends AlgorithmTemplate{
 	}
 
 	private Set<IntegerPair> join() {
-		Set<IntegerPair> rslt = index.run();
+		Set<IntegerPair> rslt = index.join();
 		return rslt;
 	}
 	

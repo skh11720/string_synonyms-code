@@ -366,6 +366,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 			// boolean debug = false;
 
 			Record recS = query.searchedSet.getRecord(sid);
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			Set<Record> candidates = new WYK_HashSet<Record>(100);
 
 			// if( recS.getID() == 94118 ) {
