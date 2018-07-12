@@ -14,6 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidator;
+import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidator2;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -74,10 +75,13 @@ public class DeltaValidatorTest {
 					for ( int delta=0; delta<=deltaMax; ++delta ) {
 						NaiveOneSideDelta naiveValidator = new NaiveOneSideDelta( delta );
 						DeltaValidator deltaValidator = new DeltaValidator( delta );
+						DeltaValidator2 deltaValidator2 = new DeltaValidator2( delta );
 						int naiveOutput = naiveValidator.isEqual( x, y );
 						int deltaOutput = deltaValidator.isEqual( x, y );
-//						System.out.println( delta+"-naive, delta: "+naiveOutput+", "+deltaOutput );
+						int deltaOutput2 = deltaValidator2.isEqual( x, y );
+//						System.out.println( delta+"-naive, delta: "+naiveOutput+", "+deltaOutput+", "+deltaOutput2 );
 						assertEquals( naiveOutput, deltaOutput );
+						assertEquals( deltaOutput, deltaOutput2 );
 //						if ( delta >= nError ) assertEquals( 1, deltaOutput );
 //						else assertEquals( -1, deltaOutput );
 					} // end for ridPairArray

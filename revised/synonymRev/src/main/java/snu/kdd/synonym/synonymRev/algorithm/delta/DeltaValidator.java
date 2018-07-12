@@ -9,9 +9,10 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class DeltaValidator extends Validator{
 	
-	private static final boolean debug = false;
+	private static final int INF = Integer.MAX_VALUE/10;
+	private boolean debug = false;
 	private final int deltaMax;
-	private boolean[][][] M;
+	private int[][] M;
 	private int[] D;
 	private int[] D_prev;
 	private Record x;
@@ -20,7 +21,8 @@ public class DeltaValidator extends Validator{
 	
 	public DeltaValidator( int deltaMax ) {
 		this.deltaMax = deltaMax;
-		M = new boolean[deltaMax+1][][];
+		M = new int[lx+1][ly+1];
+		initM();
 	}
 
 	@Override
@@ -29,15 +31,21 @@ public class DeltaValidator extends Validator{
 		++checked;
 		if( areSameString( x, y )) return 0; 
 		
-		if ( x.size() > lx || y.size() > ly ) {
+//		if ( x.getID() == 6660 && y.getID() == 6661 ) debug = true;
+		else debug = false;
+		if (debug) System.out.println( "x: "+Arrays.toString( x.getTokensArray() ) );
+		if (debug) System.out.println( "y: "+Arrays.toString( y.getTokensArray() ) );
+		
+//		if ( x.size() > lx || y.size() > ly ) {
 			if ( y.size() > ly ) {
 				ly = y.size();
 				D = new int[ly+1];
 				D_prev = new int[ly+1];
 			}
 			lx = x.size();
-			M = new boolean[deltaMax+1][lx+1][ly+1];
-		}
+			M = new int[lx+1][ly+1];
+			initM();
+//		}
 
 		this.x = x;
 		y_arr = y.getTokensArray();
@@ -47,60 +55,56 @@ public class DeltaValidator extends Validator{
 		
 		int[][] L = x.getTransLengthsAll();
 		
-		for ( int d=0; d<=deltaMax; ++d ) {
-			// base cases
-			M[d][0][0] = true;
-			for ( int i=1; i<=x.size(); ++i ) M[d][i][0] = (L[i-1][0] <= d);
-			for ( int j=1; j<=y.size(); ++j ) M[d][0][j] = (j <= d);
+		// base cases
+		M[0][0] = 0;
+		for ( int i=1; i<=x.size(); ++i ) M[i][0] = L[i-1][0];
+		for ( int j=1; j<=y.size(); ++j ) M[0][j] = j;
 
-			for ( int i=1; i<=x.size(); ++i ) {
-				for ( int j=1; j<=y.size(); ++j ) {
-					if (debug) System.out.println( "i: "+i +", j: " + j );
-					M[d][i][j] = computeM( d, i, j );
-				}
+		for ( int i=1; i<=x.size(); ++i ) {
+			for ( int j=1; j<=y.size(); ++j ) {
+				if (debug) System.out.println( "i: "+i +", j: " + j );
+				computeM( i, j );
 			}
 		}
-		if (debug) {
-			for ( int d=0; d<=deltaMax; ++d ) {
-				System.out.println( "delta: "+d );
-				for ( int i=0; i<=x.size(); ++i ) {
-					for ( int j=0; j<=y.size(); ++j ) {
-						System.out.print( M[d][i][j]+", " );
-					}
-					System.out.println( "" );
-				}
-			}
-		}
-		if ( M[deltaMax][x.size()][y.size()] ) return 1;
+		
+		if (debug) for ( int i=0; i<=x.size(); ++i ) System.out.println( Arrays.toString(M[i]) );
+		if ( M[x.size()][y.size()] <= deltaMax ) return 1;
 		else return -1;
 	}
 	
-	private boolean computeM( int d, int i, int j ) {
-		if ( d > 0 && (M[d-1][i][j-1] || M[d-1][i][j]) ) return true;
+	private void computeM( int i, int j ) {
+		M[i][j] = Math.min( M[i][j], M[i][j-1]+1 );
 		for ( Rule rule : x.getSuffixApplicableRules( i-1 ) ) {
 			int[] rhs = rule.getRight();
-			if ( d == 0 ) {
-				if ( rhs.length > j ) continue;
-				boolean suffixOf = true;
-				for ( int k=1; k<=rhs.length; ++k ) {
-					if ( rhs[rhs.length-k] != y_arr[j-k] ) {
-						suffixOf = false;
-						break;
-					}
-				}
-				if ( suffixOf && M[d][i-rule.leftSize()][j-rule.rightSize()] ) return true;
-			}
-			else {
+			if ( rhs.length > j ) continue;
+//			boolean suffixOf = true;
+//			for ( int k=1; k<=rhs.length; ++k ) {
+//				if ( rhs[rhs.length-k] != y_arr[j-k] ) {
+//					suffixOf = false;
+//					break;
+//				}
+//			}
+//			if ( suffixOf ) M[i][j] = Math.min( M[i][j], & M[d][i-rule.leftSize()][j-rule.rightSize()] ) return true;
+			
+//			else {
 				if (debug) System.out.println( rule );
 				lcsDist( rhs, y_arr, j );
-				int j0 = Math.max( 0, j-rule.rightSize()-d );
-				for ( int p=j0; p<=j; ++p ) {
-					if ( D[p] > d ) continue;
-					if ( M[d-D[p]][i-rule.leftSize()][p] ) return true;
+				if (debug) System.out.println( Arrays.toString( D ) );
+//				int j0 = Math.max( 0, j-rule.rightSize()-d );
+				if (debug) System.out.println( Arrays.toString( D ) );
+				for ( int p=0; p<=j; ++p ) {
+					M[i][j] = Math.min( M[i][j], M[i-rule.leftSize()][p] + D[p] );
+					if ( M[i][j] > INF ) M[i][j] = INF;
+//					if ( D[p] > d ) continue;
+//					if ( M[d-D[p]][i-rule.leftSize()][p] ) return true;
 				}
-			}
+//			}
 		}
-		return false;
+//		return false;
+	}
+	
+	private void initM() {
+		for ( int i=0; i<M.length; ++i ) Arrays.fill( M[i], INF );
 	}
 	
 	@Deprecated
@@ -132,7 +136,7 @@ public class DeltaValidator extends Validator{
 
 		if (debug) System.out.println( Arrays.toString( D_prev ) );
 		for ( int i=pat.length-1; i>=0; --i ) {
-			Arrays.fill( D, Integer.MAX_VALUE );
+			Arrays.fill( D, INF );
 			D[end] = D_prev[end]+1;
 			for ( int j=end-1; j>=j0; --j ) {
 				D[j] = Math.min( D[j], D[j+1]+1 );
