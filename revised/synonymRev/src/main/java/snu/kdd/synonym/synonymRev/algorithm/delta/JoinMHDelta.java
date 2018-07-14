@@ -36,7 +36,7 @@ public class JoinMHDelta extends JoinMH {
 	protected void setup( Param params ) {
 		super.setup( params );
 		deltaMax = params.delta;
-		checker = new DeltaValidator( deltaMax );
+		checker = new DeltaValidator2( deltaMax );
 	}
 
 	@Override
