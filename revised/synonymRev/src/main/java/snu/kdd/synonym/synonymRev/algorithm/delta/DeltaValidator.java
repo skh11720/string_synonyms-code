@@ -87,17 +87,19 @@ public class DeltaValidator extends Validator{
 //			if ( suffixOf ) M[i][j] = Math.min( M[i][j], & M[d][i-rule.leftSize()][j-rule.rightSize()] ) return true;
 			
 //			else {
-				if (debug) System.out.println( rule );
-				lcsDist( rhs, y_arr, j );
-				if (debug) System.out.println( Arrays.toString( D ) );
+			if (debug) System.out.println( rule );
+			int j_min = Math.min( 1, j-rhs.length-deltaMax+1 );
+			int j_max = Math.max( 1, j-rhs.length+deltaMax+1 );
+			lcsDist( rhs, y_arr, j );
+			if (debug) System.out.println( Arrays.toString( D ) );
 //				int j0 = Math.max( 0, j-rule.rightSize()-d );
-				if (debug) System.out.println( Arrays.toString( D ) );
-				for ( int p=0; p<=j; ++p ) {
-					M[i][j] = Math.min( M[i][j], M[i-rule.leftSize()][p] + D[p] );
-					if ( M[i][j] > INF ) M[i][j] = INF;
+			if (debug) System.out.println( Arrays.toString( D ) );
+			for ( int p=j_min; p<=j_max; ++p ) {
+				M[i][j] = Math.min( M[i][j], M[i-rule.leftSize()][p] + D[p] );
+				if ( M[i][j] > INF ) M[i][j] = INF;
 //					if ( D[p] > d ) continue;
 //					if ( M[d-D[p]][i-rule.leftSize()][p] ) return true;
-				}
+			}
 //			}
 		}
 //		return false;
