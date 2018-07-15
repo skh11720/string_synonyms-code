@@ -1,0 +1,169 @@
+package snu.kdd.synonym.synonymRev.algorithm.delta;
+
+import java.util.Arrays;
+
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
+import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.validator.Validator;
+
+public class DeltaValidator2TopDown extends Validator{
+	
+	private static final int INF = Integer.MAX_VALUE/10;
+	private boolean debug = false;
+	private final int deltaMax;
+	private int[][] M;
+	private int[][] L;
+	private Record x;
+	private int[] y_arr;
+	private int lx = 0, ly = 0;
+	
+	public DeltaValidator2TopDown( int deltaMax ) {
+		this.deltaMax = deltaMax;
+		M = new int[lx+1][ly+1];
+		initM();
+	}
+
+	@Override
+	public int isEqual( Record x, Record y ) {
+		// Check whether x -> y
+		++checked;
+		if( areSameString( x, y )) return 0; 
+		
+		L = x.getTransLengthsAll();
+		if ( L[x.size()-1][0] + y.size() <= deltaMax ) return 1; // trivial case
+//		if ( x.getID() == 4751 && y.getID() == 4796 ) debug = true;
+		else debug = false;
+		if (debug) System.out.println( "x: "+Arrays.toString( x.getTokensArray() ) );
+		if (debug) System.out.println( "y: "+Arrays.toString( y.getTokensArray() ) );
+		
+//		if ( x.size() > lx || y.size() > ly ) {
+			if ( y.size() > ly ) {
+				ly = y.size();
+//				D = new int[ly+1];
+//				D_prev = new int[ly+1];
+			}
+			lx = x.size();
+			M = new int[lx+1][ly+1];
+			initM();
+//		}
+
+		this.x = x;
+		y_arr = y.getTokensArray();
+//		M = new boolean[deltaMax+1][x.size()+1][y.size()+1];
+		// M[i][j][d] is true if s[1:i] can be transformed to t[1:j] with at most d errors.
+		// M is initially filled with false.
+		
+		// base cases
+//		M[0][0] = 0;
+//		for ( int i=1; i<=x.size(); ++i ) M[i][0] = L[i-1][0];
+//		for ( int j=1; j<=y.size(); ++j ) M[0][j] = j;
+//
+//		for ( int i=1; i<=x.size(); ++i ) {
+//			for ( int j=1; j<=y.size(); ++j ) {
+//				if (debug) System.out.println( "i: "+i +", j: " + j );
+//				computeM( i, j );
+//			}
+//		}
+//		
+//		if (debug) for ( int i=0; i<=x.size(); ++i ) System.out.println( Arrays.toString(M[i]) );
+//		if ( M[x.size()][y.size()] <= deltaMax ) return 1;
+		if ( computeM( x.size(), y.size() ) <= deltaMax ) return 1;
+		else return -1;
+	}
+	
+	private int computeM( int i, int j ) {
+		if ( i == 0 ) return j;
+		if ( j == 0 ) return L[i-1][0];
+		if ( M[i][j] != INF ) return M[i][j];
+		for ( Rule rule : x.getSuffixApplicableRules( i-1 ) ) {
+			int[] rhs = rule.getRight();
+			if ( rhs.length-deltaMax > j ) continue;
+//			boolean suffixOf = true;
+//			for ( int k=1; k<=rhs.length; ++k ) {
+//				if ( rhs[rhs.length-k] != y_arr[j-k] ) {
+//					suffixOf = false;
+//					break;
+//				}
+//			}
+//			if ( suffixOf ) M[i][j] = Math.min( M[i][j], & M[d][i-rule.leftSize()][j-rule.rightSize()] ) return true;
+			
+//			else {
+			if (debug) System.out.println( rule );
+			int[] D = lcsDist( rhs, y_arr, j );
+			if (debug) System.out.println( Arrays.toString( Arrays.copyOfRange( D, 0, j+1 ) ) );
+			int j_min = Math.max( 0, j-rule.rightSize()-deltaMax );
+			int j_max = Math.min( j, j-rule.rightSize()+deltaMax );
+			for ( int p=j_min; p<=j_max; ++p ) {
+//				for ( int p=0; p<=j; ++p )
+				if ( D[p] > deltaMax ) continue;
+				M[i][j] = Math.min( M[i][j], computeM( i-rule.leftSize(), p ) + D[p] );
+				if ( M[i][j] > INF ) M[i][j] = INF;
+//					if ( M[d-D[p]][i-rule.leftSize()][p] ) return true;
+//			}
+			}
+		}
+		return M[i][j];
+//		return false;
+	}
+	
+	private void initM() {
+		for ( int i=0; i<M.length; ++i ) Arrays.fill( M[i], INF );
+	}
+	
+	@Deprecated
+	private int isSuffixWithErrors( int[] pat, int[] seq, int end ) {
+		/*
+		 * Check if pat is a suffix of seq[1:end], allowing at most n_max_errors in pat.
+		 * seq is right exclusive.
+		 * Return the number of errors used to match.
+		 */
+		int n_errors = 0;
+		for ( int i=pat.length-1, j=end-1; i>=0; --i ) {
+			if ( j < 0 ) ++n_errors;
+			else if ( pat[i] == seq[j] ) --j;
+			else ++n_errors;
+		}
+		return n_errors;
+	}
+	
+	private int[] lcsDist( int[] pat, int[] seq, int end ) {
+		/*
+		 * Return an integer array D of length end+1, 
+		 * whose element D[j] is the minimum number of errors required to match pat to seq[j,end] (right exclusive).
+		 * end-j represents the length of the suffix of seq[1:end] covered by pat.
+		 */
+		int[] D = new int[end+1];
+		int[] D_prev = new int[end+1];
+		int j0 = Math.max( 0, end-pat.length-deltaMax );
+		for ( int j=end; j>=j0; --j ) D_prev[j] = end-j;
+
+		if (debug) System.out.println( j0+", "+end );
+		if (debug) System.out.println( Arrays.toString( D_prev ) );
+		for ( int i=pat.length-1; i>=0; --i ) {
+			Arrays.fill( D, INF );
+			D[end] = D_prev[end]+1;
+			for ( int j=end-1; j>=j0; --j ) {
+				D[j] = Math.min( D[j], D[j+1]+1 );
+				D[j] = Math.min( D[j], D_prev[j]+1 );
+				if (debug) System.out.println( "i: "+i+", j: "+j+", pat[i]: "+pat[i]+", seq[j]: "+seq[j] );
+				if ( pat[i] == seq[j] ) D[j] = Math.min( D[j], D_prev[j+1] );
+				else D[j] = Math.min( D[j], D_prev[j+1]+2 );
+			}
+			if (debug) System.out.println( Arrays.toString( D ) );
+			for ( int j=end; j>=0; --j ) D_prev[j] = D[j];
+		}
+		return D;
+	}
+		
+		/*
+		 * Note: there can be multiple positions with min_error.
+		 * Currently, the leftmost position is selected among them.
+		 */
+
+	@Override
+	public String getName() {
+		return "DeltaValidator";
+	}
+}

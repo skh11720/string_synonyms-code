@@ -14,13 +14,18 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidator;
+import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidator2;
+import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidator2TopDown;
+import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidatorTopDown;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSideDelta;
 
 public class DeltaValidatorTest {
 	
+	private static int size;
 	private static Query query;
 	private static ACAutomataR automata;
 	private static Random random = new Random();
@@ -29,16 +34,17 @@ public class DeltaValidatorTest {
 	
 	@BeforeClass
 	public static void initialize() throws IOException {
-		query = TestUtils.getTestQuery(10000);
+		size = 10000;
+		query = TestUtils.getTestQuery(size);
 		automata = new ACAutomataR( query.ruleSet.get());
 	}
 	
 	@Test
-	public void testIsEqualsFixed() throws IOException {
+	public void testCompareDeltaValidators() throws IOException {
 		for ( int seed=0; seed<1; ++seed ) {
 //			System.out.println( "seed: "+seed );
 			random = new Random(seed);
-			query = TestUtils.getTestQuery(10000);
+			query = TestUtils.getTestQuery(size);
 		
 			int[][] ridPairArray = { 
 					{1209, 1210}, {1901, 1902}, {3740, 4384}, {3490, 3418}, 
@@ -49,35 +55,62 @@ public class DeltaValidatorTest {
 					{386, 436}, {321, 922}, {322, 391}, {396, 484},
 			};
 
-			int deltaMax = 4;
+			int deltaMax = 3;
 			
-			for ( int k=0; k<ridPairArray.length; ++k ) {
-				int i = ridPairArray[k][0];
-				int j = ridPairArray[k][1];
+//			for ( int k=0; k<ridPairArray.length; ++k ) {
+			for ( int k=0; k<20000; ++k ) {
+//				System.out.println( k );
+//				int i = ridPairArray[k][0];
+//				int j = ridPairArray[k][1];
+				int i = random.nextInt(query.searchedSet.size());
+				int j = random.nextInt(query.searchedSet.size());
 				Record x = query.searchedSet.getRecord( i );
 				Record y = query.searchedSet.getRecord( j );
 //				SampleDataTest.inspect_record( x, query, 1 );
 				long n_est_expand = x.getEstNumTransformed();
-//				System.out.println( i+", "+j );
 //				System.out.println( "n_est_expand: "+n_est_expand );
+				if ( n_est_expand > 100 ) continue;
+//				System.out.println( i+", "+j );
 
-				int errorMax = 3;
+				int errorMax = 0;
 				for ( int nError=0; nError<=errorMax; ++nError ) {
-					if ( nError > 0 ) {
-						if ( random.nextInt(2) == 0 ) {
-							x = insertError( x );
-						}
-						else y = insertError( y );
-					}
+//					if ( nError > 0 ) {
+//						if ( random.nextInt(2) == 0 ) {
+//							x = insertError( x );
+//						}
+//						else y = insertError( y );
+//					}
 //					System.out.println( "x: "+Arrays.toString( x.getTokensArray() ) );
 //					System.out.println( "y: "+Arrays.toString( y.getTokensArray() ) );
 					for ( int delta=0; delta<=deltaMax; ++delta ) {
 						NaiveOneSideDelta naiveValidator = new NaiveOneSideDelta( delta );
 						DeltaValidator deltaValidator = new DeltaValidator( delta );
+						DeltaValidator2 deltaValidator2 = new DeltaValidator2( delta );
+						DeltaValidatorTopDown deltaValidator3 = new DeltaValidatorTopDown( delta );
+						DeltaValidator2TopDown deltaValidator4 = new DeltaValidator2TopDown( delta );
+//						System.out.println( "naiveValidator" );
 						int naiveOutput = naiveValidator.isEqual( x, y );
+//						System.out.println( "deltaValidator" );
 						int deltaOutput = deltaValidator.isEqual( x, y );
-//						System.out.println( delta+"-naive, delta: "+naiveOutput+", "+deltaOutput );
+//						System.out.println( "deltaValidator2" );
+						int deltaOutput2 = deltaValidator2.isEqual( x, y );
+						int deltaOutput3 = deltaValidator3.isEqual( x, y );
+						int deltaOutput4 = deltaValidator4.isEqual( x, y );
+//						System.out.println( "assert" );
+//						if ( naiveOutput != deltaOutput3 ) {
+//							System.out.println( "i: "+i+", j: "+j );
+//							System.out.println( "x: "+Arrays.toString( x.getTokensArray() ) );
+//							System.out.println( "y: "+Arrays.toString( y.getTokensArray() ) );
+//							System.out.println( delta+"-naive, delta: "+naiveOutput+", "+deltaOutput+", "+deltaOutput2+", "+deltaOutput3 );
+//							for ( int dd=0; dd<=delta; ++dd ) {
+//								System.out.println( "d: "+dd );
+//								for (int ii=0; ii<=x.size(); ++ii ) System.out.println( Arrays.toString( deltaValidator3.M[0][ii] ) );
+//							}
+//						}
 						assertEquals( naiveOutput, deltaOutput );
+						assertEquals( naiveOutput, deltaOutput2 );
+						assertEquals( naiveOutput, deltaOutput3 );
+						assertEquals( naiveOutput, deltaOutput4 );
 //						if ( delta >= nError ) assertEquals( 1, deltaOutput );
 //						else assertEquals( -1, deltaOutput );
 					} // end for ridPairArray

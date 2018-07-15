@@ -45,7 +45,7 @@ public class JoinMinNaiveDelta extends JoinMinNaive {
 	protected void setup( Param params ) {
 		super.setup( params );
 		deltaMax = params.delta;
-		checker = new DeltaValidator( deltaMax );
+		checker = new DeltaValidatorTopDown( deltaMax );
 	}
 
 	@Override
@@ -70,7 +70,9 @@ public class JoinMinNaiveDelta extends JoinMinNaive {
 		/*
 		 * 1.00: initial version
 		 * 1.01: ignore records with too many transformations
+		 * 1.02: use DeltaValidatorTopDown
+		 * 1.03: DeltaValidator consider trivial cases
 		 */
-		return "1.01";
+		return "1.03";
 	}
 }
