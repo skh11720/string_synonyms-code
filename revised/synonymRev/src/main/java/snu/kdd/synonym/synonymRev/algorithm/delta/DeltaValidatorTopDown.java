@@ -29,7 +29,10 @@ public class DeltaValidatorTopDown extends Validator{
 	public int isEqual( Record x, Record y ) {
 		// Check whether x -> y
 		++checked;
-		if( areSameString( x, y )) return 0; 
+		if( areSameString( x, y )) return 0;
+
+		L = x.getTransLengthsAll();
+		if ( L[x.size()-1][0] + y.size() <= deltaMax ) return 1; // trivial case
 		
 		if ( x.size() > lx || y.size() > ly ) {
 			if ( y.size() > ly ) {
@@ -48,7 +51,6 @@ public class DeltaValidatorTopDown extends Validator{
 		// M[i][j][d] is true if s[1:i] can be transformed to t[1:j] with at most d errors.
 		// M is initially filled with false.
 		
-		L = x.getTransLengthsAll();
 		
 //		for ( int d=0; d<=deltaMax; ++d ) {
 //			// base cases
