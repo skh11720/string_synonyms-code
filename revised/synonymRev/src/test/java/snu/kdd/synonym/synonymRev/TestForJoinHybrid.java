@@ -15,6 +15,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import passjoin.PassJoinIndexForSynonyms;
 import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidator;
+import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidatorTopDown;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDeltaIndex;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinDeltaIndex;
 import snu.kdd.synonym.synonymRev.algorithm.delta.NaiveDeltaIndex;
@@ -51,7 +52,7 @@ public class TestForJoinHybrid {
 		int[] indexPosition = {0};
 		int qgramSize = 2;
 		TopDownOneSide val0 = new TopDownOneSide();
-		DeltaValidator val1 = new DeltaValidator( deltaMax );
+		DeltaValidatorTopDown val1 = new DeltaValidatorTopDown( deltaMax );
 		
 
 		// build indexes
