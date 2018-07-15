@@ -121,8 +121,9 @@ public class DeltaValidatorTopDown extends Validator{
 				if (debug) System.out.println( rule );
 				int[] D = lcsDist( rhs, y_arr, j );
 //				System.out.println( Arrays.toString( D ) );
-				int j0 = Math.max( 0, j-rule.rightSize()-d );
-				for ( int p=j0; p<=j; ++p ) {
+				int j_min = Math.max( 0, j-rule.rightSize()-deltaMax );
+				int j_max = Math.min( j, j-rule.rightSize()+deltaMax );
+				for ( int p=j_min; p<=j_max; ++p ) {
 					if ( D[p] > d ) continue;
 					if ( computeM( d-D[p], i-rule.leftSize(), p ) == 1 ) {
 						M[d][i][j] = 1;
