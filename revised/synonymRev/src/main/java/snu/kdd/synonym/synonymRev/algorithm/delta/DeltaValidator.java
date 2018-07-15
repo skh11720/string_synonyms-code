@@ -29,6 +29,9 @@ public class DeltaValidator extends Validator{
 		++checked;
 		if( areSameString( x, y )) return 0; 
 		
+		int[][] L = x.getTransLengthsAll();
+		if ( L[x.size()-1][0] + y.size() <= deltaMax ) return 1; // trivial case
+		
 		if ( x.size() > lx || y.size() > ly ) {
 			if ( y.size() > ly ) {
 				ly = y.size();
@@ -44,8 +47,6 @@ public class DeltaValidator extends Validator{
 //		M = new boolean[deltaMax+1][x.size()+1][y.size()+1];
 		// M[i][j][d] is true if s[1:i] can be transformed to t[1:j] with at most d errors.
 		// M is initially filled with false.
-		
-		int[][] L = x.getTransLengthsAll();
 		
 		for ( int d=0; d<=deltaMax; ++d ) {
 			// base cases

@@ -53,7 +53,8 @@ public class JoinMinDelta extends JoinMin {
 		 * 1.00: initial version
 		 * 1.01: ignore records with too many transformations
 		 * 1.02: use DeltaValidatorTopDown
+		 * 1.03: DeltaValidator consider trivial cases
 		 */
-		return "1.02";
+		return "1.03";
 	}
 }
