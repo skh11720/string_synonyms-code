@@ -259,7 +259,7 @@ class NaiveDeltaIndexWrapper extends NaiveDeltaIndex implements IndexInterface {
 class PassJoinIndexWrapper extends PassJoinIndexForSynonyms implements IndexInterface {
 	
 	public PassJoinIndexWrapper( Query query, int deltaMax ) {
-		super( query, deltaMax );
+		super( query, deltaMax, new StatContainer() );
 	}
 	
 	@Override

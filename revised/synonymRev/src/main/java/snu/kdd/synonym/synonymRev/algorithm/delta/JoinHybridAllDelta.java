@@ -12,15 +12,6 @@ import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-/**
- * Given threshold, if a record has more than 'threshold' 1-expandable strings,
- * use an index to store them.
- * Otherwise, generate all 1-expandable strings and then use them to check
- * if two strings are equivalent.
- * Utilize only one index by sorting records according to their expanded size.
- * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
- * index in order to find the best execution time.
- */
 public class JoinHybridAllDelta extends JoinHybridAll {
 	public JoinHybridAllDelta( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );

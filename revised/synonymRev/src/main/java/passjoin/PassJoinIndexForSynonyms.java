@@ -1,5 +1,6 @@
 package passjoin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,9 +46,27 @@ public class PassJoinIndexForSynonyms {
 	private final boolean isSelfJoin;
 	public long candNum = 0;
 	public long realNum = 0;
+	private Comparator<Record> comp;
+	private StatContainer stat;
 	
+	// values required to estimate coefficients
+	private long indexTime = 0;
+	private long joinTime = 0;
+	private long verifyTime = 0;
+	private long sumLenS = 0;
+	private long sumLenT = 0;
+	private double veriifyCost = 0;
+	/*
+	 * veriifyCost is computed as the sum of len(searched record) * (#verified indexed records/#indexed records).
+	 * then, coeff3 is computed as (verify time/#indexed records)/veriifyCost.
+	 */
+	// substring enumeration time = joinTime - verifyTime
 	
-	public PassJoinIndexForSynonyms( Query query, int deltaMax) {
+	public double coeff1; // indexing time / sum of len(indexed records)
+	public double coeff2; // substring enumeration time / sum of len(searched record)
+	public double coeff3; // verification time / sum of (len(searched record) * #verified indexed records))
+	
+	public PassJoinIndexForSynonyms( Query query, int deltaMax, StatContainer stat ) {
 		indexedList = new ObjectArrayList<>(query.indexedSet.recordList);
 		searchedList = new ObjectArrayList<>(query.searchedSet.recordList);
 //		indexedList = query.indexedSet.recordList;
@@ -57,6 +76,7 @@ public class PassJoinIndexForSynonyms {
 		PN = D+1;
 		this.query = query;
 		this.isSelfJoin = query.selfJoin;
+		this.stat = stat;
 
 		/*
 		 * Since the running time is small, the print messages are omitted.
@@ -77,10 +97,9 @@ public class PassJoinIndexForSynonyms {
 //		if (debug) System.out.println( "build index: "+(long)((afterBuildIndex - afterPrepare)/1e6)+", "+StatContainer.memoryUsage() );
 		long tBeforeJoin = System.nanoTime();
 //		if (debug) System.out.println( "before join: "+(long)((tBeforeJoin - ts)/1e6)+", "+StatContainer.memoryUsage() );
-	}
-	
-	private void sort() {
-		Comparator<Record> comp = new Comparator<Record>() {
+		indexTime = afterBuildIndex - afterPrepare;
+
+		comp = new Comparator<Record>() {
 			@Override
 			public int compare( Record rec1, Record rec2 ) {
 				if ( rec1.size() < rec2.size() ) return -1;
@@ -96,7 +115,9 @@ public class PassJoinIndexForSynonyms {
 				}
 			}
 		};
-
+	}
+	
+	private void sort() {
 		Collections.sort( indexedList, comp );
 	}
 	
@@ -175,6 +196,7 @@ public class PassJoinIndexForSynonyms {
 	private void buildIndex() {
 		for (int id = 0; id < indexedList.size(); id++) {
 			int clen = indexedList.get( id ).size();
+			sumLenT += clen;
 			for (int partId = 0; partId < PN; partId++) {
 				int pLen = partLen[partId][clen];
 				int stPos = partPos[partId][clen];
@@ -187,15 +209,32 @@ public class PassJoinIndexForSynonyms {
 	
 	public Set<IntegerPair> join() {
 		boolean debug = false;
+		long ts = System.nanoTime();
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 		for (int id = 0; id < searchedList.size(); id++) {
 			Record recS = searchedList.get( id );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinOneRecord( recS, rslt );
 		} // end for id
+		joinTime = System.nanoTime() - ts;
 
 		if (debug) System.out.println( "candNum: "+candNum );
 		if (debug) System.out.println( "realNum: "+realNum );
+		stat.add( "Stat_EquivComparison", candNum );
+
+		// compute coefficients
+		coeff1 = indexTime/sumLenT;
+		coeff2 = (joinTime - verifyTime)/sumLenS;
+		coeff3 = verifyTime/indexedList.size()/veriifyCost;
+		stat.add( "Stat_Index_indexTime", indexTime );
+		stat.add( "Stat_Index_substringTime", joinTime - verifyTime);
+		stat.add( "Stat_Index_verifyTime", verifyTime );
+		stat.add( "Stat_Index_sumLenT", sumLenT );
+		stat.add( "Stat_Index_sumLenS", sumLenS );
+		stat.add( "Stat_Index_veriifyCost", veriifyCost*indexedList.size() );
+		stat.add( "Stat_Index_Coeff1", coeff1 );
+		stat.add( "Stat_Index_Coeff2", coeff2 );
+		stat.add( "Stat_Index_Coeff3", coeff3 );
 		return rslt;
 	}
 	
@@ -216,11 +255,15 @@ public class PassJoinIndexForSynonyms {
 //			}
 		
 //		if ( DEBUG.EstTooManyThreshold < recS.getEstNumTransformed() ) return;
+		ArrayList<Record> expand_list = recS.expandAll();
+//		Collections.sort( expand_list, comp ); sorting does not improve the performance.
 
-		for ( Record exp : recS.expandAll() ) {
+		for ( Record exp : expand_list ) {
 			IntOpenHashSet checked_ids = new IntOpenHashSet();
 			int[] y = exp.getTokensArray();
 			int clen = exp.size();
+			int exp_checked = 0;
+			sumLenS += clen;
 			if (debug) System.out.println( "y_exp: "+exp.getID()+", "+Arrays.toString( y ) );
 			for (int partId = 0; partId < PN; partId++) {
 				if (debug) System.out.println( "partIndex["+partId+"]["+clen+"].size: "+partIndex[partId][clen].size() );
@@ -234,10 +277,12 @@ public class PassJoinIndexForSynonyms {
 //						if (debug) System.out.println( "substring: "+Arrays.toString( Arrays.copyOfRange( y, stPos, stPos+pLen ) ) );
 //						if (debug) System.out.println( "exists invLists: "+invLists[partId][len].containsKey( hash_value ) );
 					if ( !invLists[partId][len].containsKey( hash_value ) ) continue;
+					long ts_verify = System.nanoTime();
 					for (int cand : invLists[partId][len].get( hash_value ) ) {
 //							if (debug) System.out.println( "cand, checked: "+indexedList.get( cand ).getID()+", "+checked_ids.contains( cand ) );
 						if ( !checked_ids.contains( cand ) ) {
 							++candNum;
+							++exp_checked;
 //								if ( searchedList.get( id ).getID() == 440 && indexedList.get( cand ).getID() == 518 ) debug = true;
 //								if ( searchedList.get( id ).getID() == 681 && indexedList.get( cand ).getID() == 478 ) debug = true;
 							int[] x = indexedList.get( cand ).getTokensArray();
@@ -261,8 +306,10 @@ public class PassJoinIndexForSynonyms {
 							}
 						}
 					}
+					verifyTime += System.nanoTime() - ts_verify;
 				} // end for lp
 			} // end for partId
+			veriifyCost += 1.0 * clen * exp_checked/indexedList.size();
 		} // end for Record exp
 
 		// output the results
