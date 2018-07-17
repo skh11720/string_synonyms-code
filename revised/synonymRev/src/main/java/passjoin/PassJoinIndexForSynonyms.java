@@ -50,12 +50,12 @@ public class PassJoinIndexForSynonyms {
 	private StatContainer stat;
 	
 	// values required to estimate coefficients
-	private long indexTime = 0;
-	private long joinTime = 0;
-	private long verifyTime = 0;
-	private long sumLenS = 0;
-	private long sumLenT = 0;
-	private double veriifyCost = 0;
+	public long indexTime = 0;
+	public long joinTime = 0;
+	public long verifyTime = 0;
+	public long sumLenS = 0;
+	public long sumLenT = 0;
+	public double verifyCost = 0;
 	/*
 	 * veriifyCost is computed as the sum of len(searched record) * (#verified indexed records/#indexed records).
 	 * then, coeff3 is computed as (verify time/#indexed records)/veriifyCost.
@@ -225,20 +225,20 @@ public class PassJoinIndexForSynonyms {
 		// compute coefficients
 		coeff1 = indexTime/sumLenT;
 		coeff2 = (joinTime - verifyTime)/sumLenS;
-		coeff3 = verifyTime/indexedList.size()/veriifyCost;
+		coeff3 = verifyTime/indexedList.size()/verifyCost;
 		stat.add( "Stat_Index_indexTime", indexTime );
 		stat.add( "Stat_Index_substringTime", joinTime - verifyTime);
 		stat.add( "Stat_Index_verifyTime", verifyTime );
 		stat.add( "Stat_Index_sumLenT", sumLenT );
 		stat.add( "Stat_Index_sumLenS", sumLenS );
-		stat.add( "Stat_Index_veriifyCost", veriifyCost*indexedList.size() );
+		stat.add( "Stat_Index_veriifyCost", verifyCost*indexedList.size() );
 		stat.add( "Stat_Index_Coeff1", coeff1 );
 		stat.add( "Stat_Index_Coeff2", coeff2 );
 		stat.add( "Stat_Index_Coeff3", coeff3 );
 		return rslt;
 	}
 	
-	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
+	public void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
 		boolean debug = false;
 //			if ( searchedList.get( id ).getID() < 10 ) debug = true;
 //			if ( searchedList.get( id ).getID() == 677 ) debug = true;
@@ -309,7 +309,7 @@ public class PassJoinIndexForSynonyms {
 					verifyTime += System.nanoTime() - ts_verify;
 				} // end for lp
 			} // end for partId
-			veriifyCost += 1.0 * clen * exp_checked/indexedList.size();
+			verifyCost += 1.0 * clen * exp_checked/indexedList.size();
 		} // end for Record exp
 
 		// output the results

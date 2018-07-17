@@ -42,15 +42,16 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	protected Query query;
 	protected final QGramDeltaGenerator qdgen;
 
-	protected double lambda;
-	protected double mu;
-	protected double rho;
+	public double coeff1;
+	public double coeff2;
+	public double coeff3;
 	protected double rhoPrime;
 
 	protected int qgramSize;
 
-	protected long searchedTotalSigCount; // number of qgramDelta from TPQ supersets of S
-	protected long indexedTotalSigCount;
+	public long indexedTotalSigCount = 0;
+	public long searchedTotalSigCount = 0; // number of qgramDelta from TPQ supersets of S
+	public long predictCount = 0;
 	protected long appliedRulesSum;
 
 	protected long comparisonCount; // number of varifications...?
@@ -64,7 +65,6 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 	protected long candQGramCount = 0;
 	protected long emptyListCount = 0;
-	protected long predictCount = 0;
 	protected long equivComparisons = 0;
 	protected final int deltaMax;
 
@@ -194,7 +194,6 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 				}
 //				}
 			} // end for i from 0 to searchmax
-			this.searchedTotalSigCount += qgramCount;
 
 //			if( DEBUG.JoinMinON ) {
 			countIndexingTime += System.nanoTime() - recordMidTime;
@@ -390,7 +389,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 				mpq.add( i, invoke );
 			} // end for i from 0 to searchmax
 
-			this.predictCount += mpq.minInvokes; // predictCount is the sum of minimum invokes ...
+//			this.predictCount += mpq.minInvokes; // predictCount is the sum of minimum invokes ...
 
 			int indexedCount = 0;
 			while( !mpq.isEmpty() ) { // NOTE: the size of mpq is at most nIndex.
@@ -433,7 +432,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		} // end for rec in query.targetIndexedSet
 
 		this.indexTime = System.nanoTime() - starttime;
-		this.lambda = this.indexTime / this.indexedTotalSigCount;
+		this.coeff1 = this.indexTime / this.indexedTotalSigCount;
 		
 		stat.add("Stat_IndexCountTime", (long)(indexCountTime/1e6) );
 		stat.add("Stat_IndexTime", (long)(indexTime/1e6) );
@@ -448,7 +447,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
-					bwEstimation.write( "[Lambda] " + lambda );
+					bwEstimation.write( "[Lambda] " + coeff1 );
 					bwEstimation.write( " IndexTime " + indexTime );
 					bwEstimation.write( " IndexedSigCount " + indexedTotalSigCount + "\n" );
 				}
@@ -462,14 +461,14 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			Util.printLog( "Idx size : " + indexedRecordCount );
 			Util.printLog( "Predict : " + this.predictCount );
 			Util.printLog( "Step 2 Time : " + this.indexTime );
-			Util.printLog( "Delta (index build / signature ): " + this.lambda );
+			Util.printLog( "Delta (index build / signature ): " + this.coeff1 );
 
 			if( writeResult ) {
 				stat.add( "Stat_JoinMin_Index_Size", indexedRecordCount );
 				stat.add( "Stat_Predicted_Comparison", this.predictCount );
 
 				stat.add( "Est_Index_2_Build_Index_Time", this.indexTime );
-				stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( this.lambda ) );
+				stat.add( "Est_Index_2_Time_Per_Sig", Double.toString( this.coeff1 ) );
 			}
 		}
 
@@ -565,8 +564,8 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			Util.printLog( "Warning: predictCount is zero" );
 			predictCount = 1;
 		}
-		this.mu = ( this.indexCountTime + candQGramCountTime ) / this.searchedTotalSigCount;
-		this.rho = ( joinTime - candQGramCountTime ) / predictCount;
+		this.coeff2 = ( this.indexCountTime + candQGramCountTime ) / this.searchedTotalSigCount;
+		this.coeff3 = ( joinTime - candQGramCountTime ) / predictCount;
 
 		// DEBUG
 		rhoPrime = joinTime / comparisonCount;
@@ -574,7 +573,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		if( DEBUG.JoinMinON ) {
 			Util.printLog( "Est weight : " + comparisonCount );
 			Util.printLog( "Join time : " + joinTime );
-			Util.printLog( "Epsilon : " + rho );
+			Util.printLog( "Epsilon : " + coeff3 );
 
 			if( writeResult ) {
 				// stat.add( "Last Token Filtered", lastTokenFiltered );
@@ -590,7 +589,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		}
 		else {
 			if( DEBUG.SampleStatON ) {
-				System.out.println( "[Rho] " + rho );
+				System.out.println( "[Rho] " + coeff3 );
 				System.out.println( "[Rho] JoinTime " + joinTime );
 				System.out.println( "[Rho] PredictCount " + predictCount );
 				System.out.println( "[Rho] ActualCount " + equivComparisons );
@@ -599,7 +598,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bwEstimation = EstimationTest.getWriter();
 				try {
-					bwEstimation.write( "[Rho] " + rho );
+					bwEstimation.write( "[Rho] " + coeff3 );
 					bwEstimation.write( " JoinTime " + joinTime );
 					bwEstimation.write( " PredictCount " + predictCount );
 					bwEstimation.write( " ActualCount " + equivComparisons + "\n" );
@@ -707,6 +706,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			for ( int delta_s=0; delta_s<=deltaMax; ++delta_s ) {
 				if ( cand_qgrams_pos.size() <= delta_s ) break;
 				candQGramCount += cand_qgrams_pos.get( delta_s ).size();
+				this.searchedTotalSigCount += cand_qgrams_pos.get( delta_s ).size();
 				for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
 					if ( !isInTPQ( qgram, i, delta_s ) ) continue;
 					for ( int delta_t=0; delta_t<=deltaMax-delta_s; ++delta_t ) {
@@ -762,6 +762,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 //			if ( debug) System.out.println( "candSet: "+candSet );
 
 		equivComparisons += candSet.size();
+		predictCount += candSet.size();
 		if( DEBUG.JoinMinON ) {
 			hist.add( candSet.size() );
 		}
@@ -944,9 +945,9 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		return n;
 	}
 
-	public double getLambda() { return lambda; }
-	public double getMu() { return mu; }
-	public double getRho() { return rho; }
+	public double getLambda() { return coeff1; }
+	public double getMu() { return coeff2; }
+	public double getRho() { return coeff3; }
 	public double getRhoPrime() { return rhoPrime; }
 	public long getSearchedTotalSigCount(){ return searchedTotalSigCount; }
 	public long getIndexedTotalSigCount() { return indexedTotalSigCount; }
