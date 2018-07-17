@@ -564,8 +564,8 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			Util.printLog( "Warning: predictCount is zero" );
 			predictCount = 1;
 		}
-		this.coeff2 = ( this.indexCountTime + candQGramCountTime ) / this.searchedTotalSigCount;
-		this.coeff3 = ( joinTime - candQGramCountTime ) / predictCount;
+		this.coeff2 = ( this.indexCountTime + candQGramCountTime + filterTime ) / this.searchedTotalSigCount;
+		this.coeff3 = ( joinTime - candQGramCountTime - filterTime ) / predictCount;
 
 		// DEBUG
 		rhoPrime = joinTime / comparisonCount;
@@ -689,9 +689,9 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		int[] range = recS.getTransLengths();
 		int searchmax = Integer.min( candidateQGrams.size(), index.size() );
 //			ArrayList<String> debugArray = new ArrayList<String>();
-		if( DEBUG.PrintJoinMinJoinON ) {
-			joinStartTime = System.nanoTime();
-		}
+//		if( DEBUG.PrintJoinMinJoinON ) {
+//			joinStartTime = System.nanoTime();
+//		}
 
 		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
 
