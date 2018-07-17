@@ -4,25 +4,25 @@ public class BinaryCountEntry {
 	public int smallListSize;
 	public int largeListSize;
 
-	BinaryCountEntry() {
+	public BinaryCountEntry() {
 		smallListSize = 0;
 		largeListSize = 0;
 	}
 
-	BinaryCountEntry( int small, int large ) {
+	public BinaryCountEntry( int small, int large ) {
 		smallListSize = small;
 		largeListSize = large;
 	}
 
-	void increaseLarge() {
+	public void increaseLarge() {
 		largeListSize++;
 	}
 
-	void increaseSmall() {
+	public void increaseSmall() {
 		smallListSize++;
 	}
 
-	void fromLargeToSmall() {
+	public void fromLargeToSmall() {
 		largeListSize--;
 		smallListSize++;
 	}

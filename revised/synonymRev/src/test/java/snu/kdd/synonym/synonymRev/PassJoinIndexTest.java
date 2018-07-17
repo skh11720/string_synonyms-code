@@ -12,6 +12,7 @@ import passjoin.PassJoinIndex;
 import passjoin.PassJoinIndexForSynonyms;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class PassJoinIndexTest {
 	
@@ -25,7 +26,7 @@ public class PassJoinIndexTest {
 	@Test
 	public void test() {
 		int deltaMax = 1;
-		PassJoinIndexForSynonyms index = new PassJoinIndexForSynonyms( query, deltaMax );
+		PassJoinIndexForSynonyms index = new PassJoinIndexForSynonyms( query, deltaMax, new StatContainer() );
 		Set<IntegerPair> rslt = index.join();
 		System.out.println( rslt.size() );
 	}

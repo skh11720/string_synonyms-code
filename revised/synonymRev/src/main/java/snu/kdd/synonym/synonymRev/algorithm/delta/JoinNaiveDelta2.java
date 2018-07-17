@@ -78,7 +78,7 @@ public class JoinNaiveDelta2 extends AlgorithmTemplate{
 	}
 	
 	private void buildIndex( boolean addStat ) {
-		index = new PassJoinIndexForSynonyms( query, deltaMax );
+		index = new PassJoinIndexForSynonyms( query, deltaMax, stat );
 	}
 
 	private Set<IntegerPair> join() {
