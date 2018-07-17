@@ -43,9 +43,9 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	protected final int deltaMax;
 	protected int maxPosition = 0;
 
-	long qgramCount = 0; // number of qgrams from records in the indexedSet (with duplicates)
+	public long qgramCount = 0; // number of qgrams from records in the indexedSet (with duplicates)
 	public long candQGramCount = 0; // number of cand qgrams from records in the searchedSet
-	long emptyListCount = 0; // count of empty inverted lists during join
+	public long emptyListCount = 0; // count of empty inverted lists during join
 	public int predictCount = 0; 
 
 	long indexTime = 0; // time for building the index
@@ -54,9 +54,9 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	long filterTime = 0; // time for filtering
 	long equivTime = 0; // time for validation
 
-	double eta;
-	double zeta;
-	double gamma;
+	double coeff1;
+	double coeff3;
+	double coeff2;
 
 	public long equivComparisons = 0;
 
@@ -204,7 +204,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 				} // end for qgram in qgramList
 			} // end for i of indexPosition
 
-			this.predictCount += minInvokes;
+//			this.predictCount += minInvokes;
 //			long afterIndexing = System.nanoTime();
 
 //			qGramTime += afterQGram - indexRecordTime0;
@@ -220,12 +220,12 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 
 		this.indexTime = System.nanoTime() - ts;
 
-		this.gamma = ((double) this.indexTime) / this.qgramCount;
+		this.coeff1 = ((double) this.indexTime) / this.qgramCount;
 
 		if (DEBUG.PrintEstimationON) {
 			BufferedWriter bwEstimation = EstimationTest.getWriter();
 			try {
-				bwEstimation.write("[Gamma] " + gamma);
+				bwEstimation.write("[Gamma] " + coeff1);
 				bwEstimation.write(" IndexTime " + indexTime);
 				bwEstimation.write(" IndexedSigCount " + qgramCount + "\n");
 			} catch (IOException e) {
@@ -432,16 +432,16 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 		} // for sid in in searchedSet
 
 		this.joinTime = System.nanoTime() - startTime;
-		this.zeta = (double)this.candQGramCountTime / this.candQGramCount;
-		this.eta = ((double) (this.joinTime - this.candQGramCountTime) / this.predictCount);
+		this.coeff2 = (double)this.candQGramCountTime / this.candQGramCount;
+		this.coeff3 = ((double) (this.joinTime - this.candQGramCountTime) / this.predictCount);
 
 		if (writeResult) {
 			addStat(stat);
 		}
 
-		stat.add( "Const_Gamma", gamma );
-		stat.add( "Const_Zeta", zeta );
-		stat.add( "Const_Eta", eta );
+		stat.add( "Const_Gamma", coeff1 );
+		stat.add( "Const_Zeta", coeff2 );
+		stat.add( "Const_Eta", coeff3 );
 
 		return rslt;
 //		if (DEBUG.JoinMHIndexON) {
@@ -562,6 +562,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	    long afterFilterTime = System.nanoTime();
 
 	    equivComparisons += candidates.size();
+	    predictCount += candidates.size();
 	    for (Record recR : candidates) {
 	        int compare = checker.isEqual(recS, recR);
 	        if (compare >= 0) {
@@ -591,15 +592,15 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	}
 
 	public double getGamma() {
-		return this.gamma;
+		return this.coeff1;
 	}
 
 	public double getEta() {
-		return this.eta;
+		return this.coeff3;
 	}
 
 	public double getZeta() {
-		return this.zeta;
+		return this.coeff2;
 	}
 	
 	public int size() {

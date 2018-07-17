@@ -128,6 +128,7 @@ public class AlgorithmTest {
 //			testJoinMHDeltaDP();
 //			testJoinMinDelta();
 //			testJoinMinDeltaDP();
+			testJoinHybridAllDelta();
 
 //			testJoinNaive();
 //			testJoinMH();
@@ -629,6 +630,31 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -delta 0\"",
 				"\"-K 2 -qSize 1 -delta 1\"",
 				"\"-K 2 -qSize 1 -delta 2\"",
+		};
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = getRepeatedArray( ANS_SEQ_SELF_DELTA, 3 );
+		else answer_list = getRepeatedArray( ANS_SEQ_NONSELF_DELTA, 3 );
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
+		}
+	}
+	
+	@Ignore
+	public void testJoinHybridAllDelta() throws ParseException, IOException {
+		args[1] = "JoinHybridAllDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 0\"",
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 1\"",
+				"\"-K 1 -qSize 1 -sample 0.01 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 0\"",
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 1\"",
+				"\"-K 1 -qSize 2 -sample 0.01 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 0\"",
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 1\"",
+				"\"-K 2 -qSize 1 -sample 0.01 -delta 2\"",
 		};
 		int[] answer_list;
 		if ( isSelfJoin ) answer_list = getRepeatedArray( ANS_SEQ_SELF_DELTA, 3 );
