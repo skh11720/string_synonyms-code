@@ -177,9 +177,9 @@ public class SampleEstimateDelta {
 		naive_term1 = naiveinst.sumLenT;
 
 		// compute coefficients
-		coeff_naive_1 = naiveinst.indexTime/naiveinst.sumLenT;
-		coeff_naive_2 = (joinTime - naiveinst.verifyTime)/naiveinst.sumLenS;
-		coeff_naive_3 = naiveinst.verifyTime/sampleIndexedList.size()/naiveinst.verifyCost;
+		coeff_naive_1 = naiveinst.indexTime/(naiveinst.sumLenT+1);
+		coeff_naive_2 = (joinTime - naiveinst.verifyTime)/(naiveinst.sumLenS+1);
+		coeff_naive_3 = naiveinst.verifyTime/sampleIndexedList.size()/(naiveinst.verifyCost+1);
 		
 //		stat.add( "Stat_Coeff_Naive_1", coeff_naive_1 );
 //		stat.add( "Stat_Coeff_Naive_2", coeff_naive_2 );
@@ -215,11 +215,12 @@ public class SampleEstimateDelta {
 			}
 		}
 		long joinTime = System.nanoTime() - ts;
+		if ( joinmininst.predictCount == 0 ) joinmininst.predictCount = 1; // prevent from dividing by zero
 
 		min_term1 = joinmininst.indexedTotalSigCount;
-		coeff_min_1 = joinmininst.indexTime / joinmininst.indexedTotalSigCount;
-		coeff_min_2 = ( joinmininst.indexCountTime + joinmininst.candQGramCountTime + joinmininst.filterTime ) / joinmininst.searchedTotalSigCount;
-		coeff_min_3 = joinmininst.equivTime / joinmininst.predictCount;
+		coeff_min_1 = joinmininst.indexTime / (joinmininst.indexedTotalSigCount+1);
+		coeff_min_2 = ( joinmininst.indexCountTime + joinmininst.candQGramCountTime + joinmininst.filterTime ) / (joinmininst.searchedTotalSigCount+1);
+		coeff_min_3 = joinmininst.equivTime / (joinmininst.predictCount+1);
 
 		System.out.println( "estimateJoinMinDelta" );
 		System.out.println( "coeff_min_1: "+coeff_min_1 );
@@ -266,9 +267,9 @@ public class SampleEstimateDelta {
 		long joinTime = System.nanoTime() - ts;
 
 		mh_term1 = joinmhinst.qgramCount;
-		coeff_mh_1 = joinmhinst.indexTime / joinmhinst.qgramCount;
-		coeff_mh_2 = joinmhinst.candQGramCountTime / joinmhinst.candQGramCount;
-		coeff_mh_3 = (double) (joinTime - joinmhinst.candQGramCountTime) / joinmhinst.predictCount;
+		coeff_mh_1 = joinmhinst.indexTime / (joinmhinst.qgramCount+1);
+		coeff_mh_2 = joinmhinst.candQGramCountTime / (joinmhinst.candQGramCount+1);
+		coeff_mh_3 = (double) (joinTime - joinmhinst.candQGramCountTime) / (joinmhinst.predictCount+1);
 
 		System.out.println( "estimateJoinMHDelta" );
 		System.out.println( "coeff_mh_1: "+coeff_mh_1 );
@@ -383,8 +384,8 @@ public class SampleEstimateDelta {
 			// totalJoinMHInvokes: the sum of the minimum number of records to be verified with t for every t in sampleIndexedSet
 			// removedJoinMHComparison: 
 
-			double joinminEstimation = this.getEstimateJoinMinDelta( min_term1, min_term2[tableIndexedSize-1] - (sidx==0?0:min_term2[sidx-1]), 
-					min_term3[tableIndexedSize-1] - (sidx==0?0:min_term3[sidx-1]) );
+			double joinminEstimation = this.getEstimateJoinMinDelta( min_term1, min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]), 
+					min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]) );
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 
