@@ -28,7 +28,6 @@ public class DeltaValidator extends Validator{
 		// Check whether x -> y
 		++checked;
 		if( areSameString( x, y )) return 0; 
-		if ( x.getMinTransLength() + y.size() <= deltaMax ) return 1;
 		
 		int[][] L = x.getTransLengthsAll();
 		if ( L[x.size()-1][0] + y.size() <= deltaMax ) return 1; // trivial case
