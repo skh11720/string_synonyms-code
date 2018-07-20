@@ -59,6 +59,8 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	double coeff2;
 
 	public long equivComparisons = 0;
+	
+	private final QGram qgram_pad;
 
 	/**
 	 * JoinMHIndex: builds a MH Index
@@ -87,6 +89,9 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 		this.query = query;
 		this.deltaMax = deltaMax;
 		this.qdgen = new QGramDeltaGenerator( qgramSize, deltaMax );
+		int[] tokens = new int[qgramSize + deltaMax];
+		Arrays.fill( tokens, Integer.MAX_VALUE );
+		qgram_pad = new QGram( tokens );
 
 		if (indexPosition.length != indexK) {
 			throw new RuntimeException("The length of indexPosition should match indexK");
@@ -377,13 +382,20 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 				for ( QGram qgram : qgramList ) System.out.println( qgram );
 			}
 		}
+		
 		List< List<Set<QGram>>> candidatePQGrams = new ArrayList<List<Set<QGram>>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
 			if ( k >= index.size() ) continue;
+			boolean qgram_pad_appended = false;
 			List<WYK_HashMap<QGram, List<Record>>> curidx = index.get( k );
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new ObjectOpenHashSet<QGram>() );
+//			for ( int j=0; j<nQGram; ++j ) {
 			for ( QGram qgram : availableQGrams.get( k ) ) {
+				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
+					availableQGrams.get( k+1 ).add( qgram_pad );
+					qgram_pad_appended = true;
+				}
 //			List<QGram> qgrams = new ArrayList<QGram>();
 				if (debug) System.out.println( "qgram: "+qgram );
 				if (debug) System.out.println( "qgramDelta: "+qdgen.getQGramDelta( qgram ) );
