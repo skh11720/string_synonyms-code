@@ -137,19 +137,13 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 			int indexedCount = 0;
 //			int[] range = rec.getTransLengths();
 
-			if (useIndexCount) {
-				for (int i = 0; i < indexPosition.length; i++) {
-					int actual = indexPosition[i];
-					if (rec.size() > actual) ++indexedCount;
-				}
-				indexedCountList.put(rec, indexedCount);
-			}
-
 			for (int i = 0; i < indexPosition.length; i++) {
 				int actualIndex = indexPosition[i];
 				if (availableQGrams.size() <= actualIndex) {
 					continue;
 				}
+				++indexedCount;
+
 //	private ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>> index;
 				ArrayList<WYK_HashMap<QGram, List<Record>>> map_pos = index.get( actualIndex );
 //				for ( int d=0; d<=deltaMax; ++d ) map_pos.add( new WYK_HashMap<>() );
@@ -200,9 +194,12 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 						}
 						recordList.add( rec );
 						++qgramCount;
+//						if (rec.getID() == 5158) System.out.println( qgramDelta+", "+i+", "+delta );
 					}
 				} // end for qgram in qgramList
 			} // end for i of indexPosition
+			indexedCountList.put(rec, indexedCount);
+//			if (rec.getID() == 5158 ) System.out.println( indexedCount );
 
 //			this.predictCount += minInvokes;
 //			long afterIndexing = System.nanoTime();
@@ -497,9 +494,10 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	    int[] range = recS.getTransLengths();
 	    for (int i = 0; i < indexK; ++i) {
 	        int actualIndex = indexPosition[i];
-	        if (range[0] <= actualIndex) {
-	            continue;
-	        }
+	        if ( candidateQGrams.size() <= actualIndex ) continue;
+//	        if (range[0] <= actualIndex) {
+//	            continue;
+//	        }
 
 	        // Given a position
 	        List<Set<QGram>> cand_qgrams_pos = candidateQGrams.get( actualIndex );
@@ -534,6 +532,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	                        } else otherRange = otherRecord.getTransLengths();
 
 	                        if (StaticFunctions.overlap(otherRange[0]-deltaMax, otherRange[1], range[0]-deltaMax, range[1])) {
+//	                        	if ( otherRecord.getID() == 5158 ) System.out.println( qgram+", "+i+", "+delta_s+", "+delta_t );
 	                            ithCandidates.add(otherRecord);
 	                        }
 	                        else ++checker.lengthFiltered;
@@ -552,6 +551,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	        int recordCount = entry.getIntValue();
 	        // recordCount: number of lists containing the target record given recS
 	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
+//	        if ( recS.getID() == 5158 ) System.out.println( record.getID()+", "+recordCount );
 
             if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 //	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)

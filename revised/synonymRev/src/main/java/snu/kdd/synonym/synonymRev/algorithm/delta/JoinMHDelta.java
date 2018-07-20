@@ -69,8 +69,9 @@ public class JoinMHDelta extends JoinMH {
 		 * 1.01: ignore records with too many transformations
 		 * 1.02: use DeltaValidatorTopDown
 		 * 1.03: DeltaValidator consider trivial cases
+		 * 1.04: a bug fix
 		 */
-		return "1.03";
+		return "1.04";
 	}
 
 	@Override
