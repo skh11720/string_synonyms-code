@@ -135,12 +135,12 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 //			long afterQGram = System.nanoTime();
 
 			int indexedCount = 0;
-			int[] range = rec.getTransLengths();
+//			int[] range = rec.getTransLengths();
 
 			if (useIndexCount) {
 				for (int i = 0; i < indexPosition.length; i++) {
 					int actual = indexPosition[i];
-					if (range[0] > actual) ++indexedCount;
+					if (rec.size() > actual) ++indexedCount;
 				}
 				indexedCountList.put(rec, indexedCount);
 			}
