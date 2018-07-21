@@ -392,10 +392,10 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new ObjectOpenHashSet<QGram>() );
 //			for ( int j=0; j<nQGram; ++j ) {
 			for ( QGram qgram : availableQGrams.get( k ) ) {
-				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
-					availableQGrams.get( k+1 ).add( qgram_pad );
-					qgram_pad_appended = true;
-				}
+//				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
+//					availableQGrams.get( k+1 ).add( qgram_pad );
+//					qgram_pad_appended = true;
+//				}
 //			List<QGram> qgrams = new ArrayList<QGram>();
 				if (debug) System.out.println( "qgram: "+qgram );
 				if (debug) System.out.println( "qgramDelta: "+qdgen.getQGramDelta( qgram ) );
@@ -565,7 +565,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 //	        if ( recS.getID() == 5158 ) System.out.println( record.getID()+", "+recordCount );
 
-            if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+            if (indexedCountList.getInt(record) - deltaMax <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 //	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)
 	            candidates.add(record);
 	        }
