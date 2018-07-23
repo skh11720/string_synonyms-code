@@ -119,13 +119,13 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 			long afterQGram = System.currentTimeMillis();
 
 			int indexedCount = 0;
-//			int[] range = rec.getTransLengths();
+			int[] range = rec.getTransLengths();
 
 			if (useIndexCount) {
 				for (int i = 0; i < indexPosition.length; i++) {
 					int actual = indexPosition[i];
 
-					if (rec.size() > actual) {
+					if (range[0] > actual) {
 						indexedCount++;
 					}
 				}

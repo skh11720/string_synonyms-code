@@ -306,7 +306,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		indexedCountMap = new Object2IntOpenHashMap<>();
 		estimatedCountMap = new Object2IntOpenHashMap<>();
 		for( Record rec : query.targetIndexedSet.get() ) {
-//			int[] range = rec.getTransLengths();
+			int[] range = rec.getTransLengths();
 
 //			int searchmax = Math.min( Math.max( range[0]-deltaMax, 1), invokes.size() );
 			int searchmax;
