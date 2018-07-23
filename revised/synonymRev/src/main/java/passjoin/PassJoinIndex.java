@@ -15,11 +15,11 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
 public class PassJoinIndex {
 	
@@ -135,7 +135,7 @@ public class PassJoinIndex {
 	
 	private Set<IntegerPair> join() {
 		boolean debug = false;
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		Set<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 		long candNum = 0;
 		long realNum = 0;
 		for (int id = 0; id < N; id++) {

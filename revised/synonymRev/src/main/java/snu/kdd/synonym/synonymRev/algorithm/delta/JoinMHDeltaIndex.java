@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -389,13 +388,13 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 			boolean qgram_pad_appended = false;
 			List<WYK_HashMap<QGram, List<Record>>> curidx = index.get( k );
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
-			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new ObjectOpenHashSet<QGram>() );
+			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new WYK_HashSet<QGram>() );
 //			for ( int j=0; j<nQGram; ++j ) {
 			for ( QGram qgram : availableQGrams.get( k ) ) {
-				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
-					availableQGrams.get( k+1 ).add( qgram_pad );
-					qgram_pad_appended = true;
-				}
+//				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
+//					availableQGrams.get( k+1 ).add( qgram_pad );
+//					qgram_pad_appended = true;
+//				}
 //			List<QGram> qgrams = new ArrayList<QGram>();
 				if (debug) System.out.println( "qgram: "+qgram );
 				if (debug) System.out.println( "qgramDelta: "+qdgen.getQGramDelta( qgram ) );
@@ -421,7 +420,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	public Set<IntegerPair> join(StatContainer stat, Query query, Validator checker, boolean writeResult) {
 		long startTime = System.nanoTime();
 
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		Set<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 
 //		long cand_sum[] = new long[indexK];
 //		long cand_sum_afterprune[] = new long[indexK];
@@ -513,7 +512,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 
 	        // Given a position
 	        List<Set<QGram>> cand_qgrams_pos = candidateQGrams.get( actualIndex );
-	        ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
+	        Set<Record> ithCandidates = new WYK_HashSet<Record>();
 
 	        List<WYK_HashMap<QGram, List<Record>>> map = index.get(i);
 
@@ -565,7 +564,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 //	        if ( recS.getID() == 5158 ) System.out.println( record.getID()+", "+recordCount );
 
-            if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+            if (indexedCountList.getInt(record) - deltaMax <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 //	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)
 	            candidates.add(record);
 	        }

@@ -331,7 +331,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		if( !validHashValue ) {
 			long tmp = 0;
 			for( int token : tokens ) {
-				tmp = ( tmp << 32 ) + token;
+				tmp = 0x1f1f1f1f ^ tmp + token;
 				tmp = tmp % Util.bigprime;
 			}
 			hashValue = (int) ( tmp % Integer.MAX_VALUE );
