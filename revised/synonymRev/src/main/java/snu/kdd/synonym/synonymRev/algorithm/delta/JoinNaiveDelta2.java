@@ -9,7 +9,6 @@ import java.util.Set;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import passjoin.PassJoinIndexForSynonyms;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Dataset;
