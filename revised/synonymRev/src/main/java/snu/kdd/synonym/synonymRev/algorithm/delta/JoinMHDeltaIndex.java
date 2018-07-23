@@ -564,7 +564,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 //	        if ( recS.getID() == 5158 ) System.out.println( record.getID()+", "+recordCount );
 
-            if (indexedCountList.getInt(record) - deltaMax <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+            if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 //	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)
 	            candidates.add(record);
 	        }
