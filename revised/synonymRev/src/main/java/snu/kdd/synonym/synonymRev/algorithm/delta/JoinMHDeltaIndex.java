@@ -391,10 +391,10 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new WYK_HashSet<QGram>() );
 //			for ( int j=0; j<nQGram; ++j ) {
 			for ( QGram qgram : availableQGrams.get( k ) ) {
-//				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
-//					availableQGrams.get( k+1 ).add( qgram_pad );
-//					qgram_pad_appended = true;
-//				}
+				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
+					availableQGrams.get( k+1 ).add( qgram_pad );
+					qgram_pad_appended = true;
+				}
 //			List<QGram> qgrams = new ArrayList<QGram>();
 				if (debug) System.out.println( "qgram: "+qgram );
 				if (debug) System.out.println( "qgramDelta: "+qdgen.getQGramDelta( qgram ) );
