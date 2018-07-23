@@ -13,7 +13,6 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -22,6 +21,7 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 
 public class PassJoinIndexForSynonyms {
 	/*
@@ -210,7 +210,7 @@ public class PassJoinIndexForSynonyms {
 	public Set<IntegerPair> join() {
 		boolean debug = false;
 		long ts = System.nanoTime();
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		Set<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 		for (int id = 0; id < searchedList.size(); id++) {
 			Record recS = searchedList.get( id );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;

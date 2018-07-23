@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import passjoin.PassJoinIndexForSynonyms;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -23,6 +22,7 @@ import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 /**
@@ -172,8 +172,8 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		buildTime.stopAndAdd( stat );
 
 		// join
-		Set<IntegerPair> rsltNaive = new ObjectOpenHashSet<IntegerPair>();
-		Set<IntegerPair> rsltPQGram = new ObjectOpenHashSet<IntegerPair>();
+		Set<IntegerPair> rsltNaive = new WYK_HashSet<IntegerPair>();
+		Set<IntegerPair> rsltPQGram = new WYK_HashSet<IntegerPair>();
 		int naiveSearch = 0;
 		long joinNaiveTime = 0;
 		long joinPQGramTime = 0;
@@ -209,7 +209,7 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		// evaluate the accuracy of estimation ???
 		
 		// return the final result
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<>();
+		Set<IntegerPair> rslt = new WYK_HashSet<>();
 		rslt.addAll( rsltNaive );
 		rslt.addAll( rsltPQGram );
 		return rslt;

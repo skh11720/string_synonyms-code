@@ -12,7 +12,6 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -538,7 +537,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		}
 
 		long joinStartTime = System.nanoTime();
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		Set<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 
 		for( Record recS : query.searchedSet.get() ) {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
@@ -639,7 +638,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			if ( k >= index.size() ) continue;
 			List<WYK_HashMap<QGram, List<Record>>> curidx = index.get( k );
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
-			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new ObjectOpenHashSet<QGram>() );
+			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new WYK_HashSet<QGram>() );
 			for ( QGram qgram : availableQGrams.get( k ) ) {
 //			List<QGram> qgrams = new ArrayList<QGram>();
 				if (debug) System.out.println( "qgram: "+qgram );
