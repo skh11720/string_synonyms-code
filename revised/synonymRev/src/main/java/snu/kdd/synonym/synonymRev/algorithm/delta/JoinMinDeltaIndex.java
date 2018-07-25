@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -72,6 +75,8 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
+	
+	public Int2IntOpenHashMap posCounter = new Int2IntOpenHashMap();
 
 	public JoinMinDeltaIndex( int nIndex, int qSize, int deltaMax, StatContainer stat, Query query, int threshold, boolean writeResult ) {
 		// TODO: Need to be fixed to make index just for given sequences
@@ -85,6 +90,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		int[] tokens = new int[qgramSize + deltaMax];
 		Arrays.fill( tokens, Integer.MAX_VALUE );
 		qgram_pad = new QGram( tokens );
+		posCounter.defaultReturnValue( 0 );
 
 		boolean hybridIndex = threshold != 0;
 
@@ -405,6 +411,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 				MinPosition minPos = mpq.poll();
 				int minIdx = minPos.positionIndex;
+				posCounter.addTo( minIdx, 1 );
 
 				if( DEBUG.PrintJoinMinIndexON ) {
 					try {
@@ -511,6 +518,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 				in.clear();
 			}
 		}
+		stat.add( "posDistribution", posCounter.toString() );
 	} // end constructor
 
 	public void setIndex( int position ) {
