@@ -96,4 +96,9 @@ public class AlgorithmSemiUniWrapper implements AlgorithmInterface {
 	public void writeResult() {
 		alg.writeResult();
 	}
+	
+	@Override
+	public StatContainer getStat() {
+		return alg.stat;
+	}
 }

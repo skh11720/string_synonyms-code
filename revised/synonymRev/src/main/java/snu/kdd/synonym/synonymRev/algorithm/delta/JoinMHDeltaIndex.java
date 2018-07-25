@@ -58,6 +58,8 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	double coeff2;
 
 	public long equivComparisons = 0;
+	public static boolean useLF = true;
+	public static boolean usePQF = true;
 	
 	private final QGram qgram_pad;
 
@@ -542,7 +544,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	                            otherRange[1] = otherRecord.getTokenCount();
 	                        } else otherRange = otherRecord.getTransLengths();
 
-	                        if (StaticFunctions.overlap(otherRange[0]-deltaMax, otherRange[1], range[0]-deltaMax, range[1])) {
+	                        if ( !useLF || StaticFunctions.overlap(otherRange[0]-deltaMax, otherRange[1], range[0]-deltaMax, range[1])) {
 //	                        	if ( otherRecord.getID() == 5158 ) System.out.println( qgram+", "+i+", "+delta_s+", "+delta_t );
 	                            ithCandidates.add(otherRecord);
 	                        }
@@ -564,7 +566,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 //	        if ( recS.getID() == 5158 ) System.out.println( record.getID()+", "+recordCount );
 
-            if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+            if ( !usePQF || ( indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount ) ) {
 //	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)
 	            candidates.add(record);
 	        }

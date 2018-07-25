@@ -4,11 +4,15 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -67,6 +71,13 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 	protected long equivComparisons = 0;
 	protected final int deltaMax;
 
+	private final QGram qgram_pad;
+
+	public static boolean useLF = true;
+	public static boolean usePQF = true;
+	
+	public Int2IntOpenHashMap posCounter = new Int2IntOpenHashMap();
+
 	public JoinMinDeltaIndex( int nIndex, int qSize, int deltaMax, StatContainer stat, Query query, int threshold, boolean writeResult ) {
 		// TODO: Need to be fixed to make index just for given sequences
 		// NOW, it makes index for all sequences
@@ -76,6 +87,10 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		this.query = query;
 		this.deltaMax =deltaMax;
 		qdgen = new QGramDeltaGenerator( qSize, deltaMax );
+		int[] tokens = new int[qgramSize + deltaMax];
+		Arrays.fill( tokens, Integer.MAX_VALUE );
+		qgram_pad = new QGram( tokens );
+		posCounter.defaultReturnValue( 0 );
 
 		boolean hybridIndex = threshold != 0;
 
@@ -396,6 +411,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 				MinPosition minPos = mpq.poll();
 				int minIdx = minPos.positionIndex;
+				posCounter.addTo( minIdx, 1 );
 
 				if( DEBUG.PrintJoinMinIndexON ) {
 					try {
@@ -502,6 +518,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 				in.clear();
 			}
 		}
+		stat.add( "posDistribution", posCounter.toString() );
 	} // end constructor
 
 	public void setIndex( int position ) {
@@ -636,10 +653,15 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		List< List<Set<QGram>>> candidatePQGrams = new ArrayList<List<Set<QGram>>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
 			if ( k >= index.size() ) continue;
+			boolean qgram_pad_appended = false;
 			List<WYK_HashMap<QGram, List<Record>>> curidx = index.get( k );
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new WYK_HashSet<QGram>() );
 			for ( QGram qgram : availableQGrams.get( k ) ) {
+				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
+					availableQGrams.get( k+1 ).add( qgram_pad );
+					qgram_pad_appended = true;
+				}
 //			List<QGram> qgrams = new ArrayList<QGram>();
 				if (debug) System.out.println( "qgram: "+qgram );
 				if (debug) System.out.println( "qgramDelta: "+qdgen.getQGramDelta( qgram ) );
@@ -728,7 +750,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 								continue;
 							}
 							if( oneSideJoin ) {
-								if( StaticFunctions.overlap( e.getTokenCount()-deltaMax, e.getTokenCount(), range[ 0 ]-deltaMax, range[ 1 ] ) ) {
+								if( !useLF || StaticFunctions.overlap( e.getTokenCount()-deltaMax, e.getTokenCount(), range[ 0 ]-deltaMax, range[ 1 ] ) ) {
 //										if( DEBUG.PrintJoinMinJoinON ) {
 //											debugArray.add( "Cand: " + e + " by " + qgram + " at " + i + "\n" );
 //										}
@@ -896,7 +918,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 					debugArray.add( r + " " + indexedCountMap.getInt( r ) + " " + entry.getValue() + "\n" );
 				}
 
-				if( indexedCountMap.getInt( r ) == entry.getValue() ) {
+				if( !usePQF || indexedCountMap.getInt( r ) == entry.getValue() ) {
 					list.add( r );
 				}
 				else ++pqgramFiltered;
