@@ -297,4 +297,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	public void setWriteResult( boolean flag ) {
 		this.writeResult = flag;
 	}
+	
+	@Override
+	public StatContainer getStat() { return stat; }
 }
