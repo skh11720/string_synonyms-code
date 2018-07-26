@@ -59,7 +59,7 @@ public class JoinMHDelta extends JoinMH {
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHDeltaIndexStrong( indexK, qgramSize, deltaMax, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		idx = new JoinMHDeltaIndex( indexK, qgramSize, deltaMax, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 	}
 
 	@Override
@@ -70,9 +70,8 @@ public class JoinMHDelta extends JoinMH {
 		 * 1.02: use DeltaValidatorTopDown
 		 * 1.03: DeltaValidator consider trivial cases
 		 * 1.04: a bug fix
-		 * 1.05: strong filter
 		 */
-		return "1.05";
+		return "1.04";
 	}
 
 	@Override

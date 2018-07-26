@@ -25,7 +25,7 @@ public class JoinMinDelta extends JoinMin {
 
 	@Override
 	protected void buildIndex( boolean writeResult ) throws IOException {
-		idx = new JoinMinDeltaIndexStrong( indexK, qSize, deltaMax, stat, query, 0, writeResult );
+		idx = new JoinMinDeltaIndex( indexK, qSize, deltaMax, stat, query, 0, writeResult );
 	}
 
 	@Override
@@ -40,8 +40,7 @@ public class JoinMinDelta extends JoinMin {
 		 * 1.01: ignore records with too many transformations
 		 * 1.02: use DeltaValidatorTopDown
 		 * 1.03: DeltaValidator consider trivial cases
-		 * 1.04: strong filter
 		 */
-		return "1.04";
+		return "1.03";
 	}
 }
