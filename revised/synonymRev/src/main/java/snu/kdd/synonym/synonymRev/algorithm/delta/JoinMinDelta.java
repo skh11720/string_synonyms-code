@@ -39,7 +39,7 @@ public class JoinMinDelta extends JoinMin {
 
 	@Override
 	protected void buildIndex( boolean writeResult ) throws IOException {
-		idx = new JoinMinDeltaIndex( indexK, qSize, deltaMax, stat, query, 0, writeResult );
+		idx = new JoinMinDeltaIndexStrong( indexK, qSize, deltaMax, stat, query, 0, writeResult );
 	}
 
 	@Override
