@@ -1,10 +1,17 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
+/*
+ * strong filter, for each delta, for each position ...
+ */
+
+import static org.junit.Assert.assertTrue;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,7 +36,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMHDeltaIndex implements JoinMHIndexInterface {
+public class JoinMHDeltaIndex3 implements JoinMHIndexInterface {
 	protected ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>> index;
 	// key: pos -> delta -> qgram -> recordList
 	protected Object2IntOpenHashMap<Record> indexedCountList;
@@ -58,10 +65,8 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	double coeff2;
 
 	public long equivComparisons = 0;
-	public static boolean useLF = true;
-	public static boolean usePQF = true;
 	
-	protected final QGram qgram_pad;
+	private final QGram qgram_pad;
 
 	/**
 	 * JoinMHIndex: builds a MH Index
@@ -78,7 +83,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	 * @param threshold
 	 */
 	
-	public JoinMHDeltaIndex(int indexK, int qgramSize, int deltaMax, Iterable<Record> indexedSet, Query query, StatContainer stat,
+	public JoinMHDeltaIndex3(int indexK, int qgramSize, int deltaMax, Iterable<Record> indexedSet, Query query, StatContainer stat,
 			int[] indexPosition, boolean addStat, boolean useIndexCount, int threshold) {
 		// TODO: Need to be fixed to make index just for given sequences
 		// NOW, it makes index for all sequences
@@ -370,7 +375,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 //		}
 //	}
 	
-	protected List<List<Set<QGram>>> getCandidatePQGrams( Record rec ) {
+	private List<List<Set<QGram>>> getCandidatePQGrams( Record rec ) {
 		/*
 		 * Return the lists of qgrams, where each list is indexed by pos and delta.
 		 * key: pos -> delta 
@@ -393,7 +398,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new WYK_HashSet<QGram>() );
 //			for ( int j=0; j<nQGram; ++j ) {
 			for ( QGram qgram : availableQGrams.get( k ) ) {
-				if ( !qgram_pad_appended && qgramSize > 1 && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
+				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
 					availableQGrams.get( k+1 ).add( qgram_pad );
 					qgram_pad_appended = true;
 				}
@@ -493,86 +498,99 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 
 	    boolean isUpperRecord = threshold <= 0 ? true : recS.getEstNumTransformed() > threshold;
 
-	    Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
-	    candidatesCount.defaultReturnValue(0);
-
 	    List<List<Set<QGram>>> candidateQGrams = getCandidatePQGrams( recS );
-//	    for ( List<Set<QGram>> qgrams_pos : candidateQGrams ) {
-//	        for ( Set<QGram> qgrams_delta : qgrams_pos ) {
-//	            this.candQGramCount += qgrams_delta.size();
-//	        }
-//	    }
+	    for ( List<Set<QGram>> qgrams_pos : candidateQGrams ) {
+	    	for ( int delta_s=1; delta_s<qgrams_pos.size(); ++delta_s ) 
+	    		qgrams_pos.get( delta_s ).addAll( qgrams_pos.get( delta_s-1 ) );
+			this.candQGramCount += qgrams_pos.get( qgrams_pos.size()-1 ).size(); 
+	    }
 	    long afterCandQGramTime = System.nanoTime();
 
+
+	    WYK_HashMap<Record, Integer> candidatesCount = new WYK_HashMap<>(100);
+//	    Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
+//	    candidatesCount.defaultReturnValue(0);
+		Set<Record> ithCandidates = new WYK_HashSet<Record>(100);
 	    int[] range = recS.getTransLengths();
-	    for (int i = 0; i < indexK; ++i) {
-	        int actualIndex = indexPosition[i];
-	        if ( candidateQGrams.size() <= actualIndex ) continue;
-//	        if (range[0] <= actualIndex) {
-//	            continue;
-//	        }
 
-	        // Given a position
-	        List<Set<QGram>> cand_qgrams_pos = candidateQGrams.get( actualIndex );
-	        Set<Record> ithCandidates = new WYK_HashSet<Record>();
 
-	        List<WYK_HashMap<QGram, List<Record>>> map = index.get(i);
+		for ( int delta_s=0; delta_s<=deltaMax; ++delta_s ) {
+			long t_loop_start = System.nanoTime();
+			candidatesCount.clear();
 
-	        for ( int delta_s=0; delta_s<=deltaMax; ++delta_s ) {
-	            if ( cand_qgrams_pos.size() <= delta_s ) break;
-	            this.candQGramCount += cand_qgrams_pos.get( delta_s ).size();
-	            for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
-	            	if ( !isInTPQ( qgram, i, delta_s ) ) continue;
-	                for ( int delta_t=0; delta_t<=deltaMax-delta_s; ++delta_t ) {
-	                    List<Record> recordList = map.get( delta_t ).get( qgram );
-	                    if ( recordList == null ) {
-	                    	++emptyListCount;
-	                        continue;
-	                    }
+			for (int i = 0; i < indexK; ++i) {
+				int actualIndex = indexPosition[i];
+				if ( candidateQGrams.size() <= actualIndex ) continue;
+	//	        if (range[0] <= actualIndex) {
+	//	            continue;
+	//	        }
 
-	                    // Perform length filtering.
-	                    for ( Record otherRecord : recordList ) {
-	                        if (!isUpperRecord && otherRecord.getEstNumTransformed() <= threshold) {
-	                            continue;
-	                        }
+				// Given a position
+				ithCandidates.clear();
+				List<Set<QGram>> cand_qgrams_pos = candidateQGrams.get( actualIndex );
+				List<WYK_HashMap<QGram, List<Record>>> map = index.get(i);
+				
+				if ( cand_qgrams_pos.size() <= delta_s ) break;
+//					this.candQGramCount += cand_qgrams_pos.get( delta_s ).size();
 
-	                        int[] otherRange = null;
+				for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
+					if ( !isInTPQ( qgram, i, delta_s ) ) continue;
+					for ( int delta_t=0; delta_t<=deltaMax-delta_s; ++delta_t ) {
+						List<Record> recordList = map.get( delta_t ).get( qgram );
+						if ( recordList == null ) {
+							++emptyListCount;
+							continue;
+						}
 
-	                        if (query.oneSideJoin) {
-	                            otherRange = new int[2];
-	                            otherRange[0] = otherRecord.getTokenCount();
-	                            otherRange[1] = otherRecord.getTokenCount();
-	                        } else otherRange = otherRecord.getTransLengths();
+						// Perform length filtering.
+						for ( Record otherRecord : recordList ) {
+							if ( candidates.contains( otherRecord ) ) continue;
+							if (!isUpperRecord && otherRecord.getEstNumTransformed() <= threshold) {
+								continue;
+							}
 
-	                        if ( !useLF || StaticFunctions.overlap(otherRange[0]-deltaMax, otherRange[1], range[0]-deltaMax, range[1])) {
+							int[] otherRange = null;
+
+							if (query.oneSideJoin) {
+								otherRange = new int[2];
+								otherRange[0] = otherRecord.getTokenCount();
+								otherRange[1] = otherRecord.getTokenCount();
+							} else otherRange = otherRecord.getTransLengths();
+
+							if (StaticFunctions.overlap(otherRange[0]-deltaMax, otherRange[1], range[0]-deltaMax, range[1])) {
 //	                        	if ( otherRecord.getID() == 5158 ) System.out.println( qgram+", "+i+", "+delta_s+", "+delta_t );
-	                            ithCandidates.add(otherRecord);
-	                        }
-	                        else ++checker.lengthFiltered;
-	                    } // end for otherRecord in recordList
-	                } // end for delta_t
-	            } // end for qgram in cand_qgrams_pos
-	        } // end for delta_s
+								ithCandidates.add(otherRecord);
+							}
+							else ++checker.lengthFiltered;
+						} // end for otherRecord in recordList
+					} // end for delta_t
+				} // end for qgram in cand_qgrams_pos
+				for (Record otherRecord : ithCandidates) {
+					if ( candidatesCount.containsKey( otherRecord ) ) candidatesCount.put( otherRecord, candidatesCount.get( otherRecord )+1 );
+					else candidatesCount.put( otherRecord, 1 );
+//					candidatesCount.addTo( otherRecord, 1 );
+				}
+			} // end for i from 0 to indexK
 
-	        for (Record otherRecord : ithCandidates) candidatesCount.addTo( otherRecord, 1 );
-	    } // end for i from 0 to indexK
+			Iterator<Entry<Record, Integer>> iter = candidatesCount.entrySet().iterator();
+			while (iter.hasNext()) {
+				Entry<Record, Integer> entry = iter.next();
+				Record record = entry.getKey();
+				if ( candidates.contains( record ) ) continue;
+				int recordCount = entry.getValue();
+				// recordCount: number of lists containing the target record given recS
+				// indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
+	//	        if ( recS.getID() == 5158 ) System.out.println( record.getID()+", "+recordCount );
 
-	    ObjectIterator<Object2IntMap.Entry<Record>> iter = candidatesCount.object2IntEntrySet().iterator();
-	    while (iter.hasNext()) {
-	        Object2IntMap.Entry<Record> entry = iter.next();
-	        Record record = entry.getKey();
-	        int recordCount = entry.getIntValue();
-	        // recordCount: number of lists containing the target record given recS
-	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
-//	        if ( recS.getID() == 5158 ) System.out.println( record.getID()+", "+recordCount );
-
-            if ( !usePQF || ( indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount ) ) {
-//	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)
-	            candidates.add(record);
-	        }
-	        else ++checker.pqgramFiltered;
-	    }
-	    long afterFilterTime = System.nanoTime();
+				if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+	//	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)
+					candidates.add(record);
+				}
+				else ++checker.pqgramFiltered;
+			}
+			this.filterTime += System.nanoTime() - t_loop_start;
+		} // end for delta_s
+		long afterFilterTime = System.nanoTime();
 
 	    equivComparisons += candidates.size();
 	    predictCount += candidates.size();
@@ -586,7 +604,6 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	    long afterEquivTime = System.nanoTime();
 
 	    this.candQGramCountTime += afterCandQGramTime - ts;
-	    this.filterTime += afterFilterTime - afterCandQGramTime;
 	    this.equivTime += afterEquivTime - afterFilterTime;
 	} // end joinOneRecordThres
 	
@@ -683,3 +700,4 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 		catch (IOException e ) { e.printStackTrace(); }
 	}
 }
+
