@@ -35,13 +35,13 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMinDeltaIndexStrong extends JoinMinDeltaIndex {
+public class JoinMinStrongDeltaIndex extends JoinMinDeltaIndex {
 	
 	
 	private List<JoinMinCandidateSet> allCandidateSet;
 	List<WYK_HashSet<Record>> candidates;
 
-	public JoinMinDeltaIndexStrong( int nIndex, int qSize, int deltaMax, StatContainer stat, Query query, int threshold,
+	public JoinMinStrongDeltaIndex( int nIndex, int qSize, int deltaMax, StatContainer stat, Query query, int threshold,
 			boolean writeResult ) {
 		super( nIndex, qSize, deltaMax, stat, query, threshold, writeResult );
 		// TODO Auto-generated constructor stub

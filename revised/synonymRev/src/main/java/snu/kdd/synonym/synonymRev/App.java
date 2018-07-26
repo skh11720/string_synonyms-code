@@ -41,10 +41,12 @@ import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHDeltaDP;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHNaiveThresDelta;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMHStrongDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinDeltaDP;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinNaiveThresDelta;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinStrongDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta2;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
@@ -242,6 +244,10 @@ public class App {
 			alg = new JoinMHDelta( query, stat );
 			break;
 		
+		case JoinMHStrongDelta:
+			alg = new JoinMHStrongDelta( query, stat );
+			break;
+		
 		case JoinMHNaiveDelta:
 			alg = new JoinMHNaiveDelta( query, stat );
 			break;
@@ -256,6 +262,10 @@ public class App {
 		
 		case JoinMinDelta:
 			alg = new JoinMinDelta( query, stat );
+			break;
+		
+		case JoinMinStrongDelta:
+			alg = new JoinMinStrongDelta( query, stat );
 			break;
 		
 		case JoinMinNaiveDelta:
