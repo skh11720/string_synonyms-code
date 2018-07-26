@@ -36,11 +36,19 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMinDeltaIndexStrong extends JoinMinDeltaIndex {
+	
+	
+	private List<JoinMinCandidateSet> allCandidateSet;
+	List<WYK_HashSet<Record>> candidates;
 
 	public JoinMinDeltaIndexStrong( int nIndex, int qSize, int deltaMax, StatContainer stat, Query query, int threshold,
 			boolean writeResult ) {
 		super( nIndex, qSize, deltaMax, stat, query, threshold, writeResult );
 		// TODO Auto-generated constructor stub
+
+		allCandidateSet = new ArrayList<JoinMinCandidateSet>();
+		candidates = new ArrayList<WYK_HashSet<Record>>();
+		for ( int delta=0; delta<=deltaMax; ++delta ) candidates.add( new WYK_HashSet<Record>() );
 	}
 
 	@Override
@@ -68,7 +76,7 @@ public class JoinMinDeltaIndexStrong extends JoinMinDeltaIndex {
 //			joinStartTime = System.nanoTime();
 //		}
 
-		List<JoinMinCandidateSet> allCandidateSet = new ArrayList<JoinMinCandidateSet>();
+		allCandidateSet.clear();
 		for ( int delta=0; delta<=deltaMax; ++delta ) allCandidateSet.add( new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) ) );
 
 		for( int i = 0; i < searchmax; ++i ) {
@@ -77,8 +85,7 @@ public class JoinMinDeltaIndexStrong extends JoinMinDeltaIndex {
 			if( curridx_pos == null ) continue;
 
 			// Given a position i
-			List<WYK_HashSet<Record>> candidates = new ArrayList<WYK_HashSet<Record>>();
-			for ( int delta=0; delta<=deltaMax; ++delta ) candidates.add( new WYK_HashSet<Record>() );
+			for ( int delta=0; delta<=deltaMax; ++delta ) candidates.get( delta ).clear();
 			
 			for ( int delta_s=0; delta_s<=deltaMax; ++delta_s ) {
 				if ( cand_qgrams_pos.size() <= delta_s ) break;
