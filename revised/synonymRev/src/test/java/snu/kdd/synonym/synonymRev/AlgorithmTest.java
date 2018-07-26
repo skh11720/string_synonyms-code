@@ -124,11 +124,13 @@ public class AlgorithmTest {
 //			isSelfJoin = flag;
 //			testJoinNaiveDelta();
 //			testJoinNaiveDelta2();
-//			testJoinMHDelta();
+			testJoinMHDelta();
+			testJoinMHStrongDelta();
 //			testJoinMHDeltaDP();
-//			testJoinMinDelta();
+			testJoinMinDelta();
+			testJoinMinStrongDelta();
 //			testJoinMinDeltaDP();
-			testJoinHybridAllDelta();
+//			testJoinHybridAllDelta();
 
 //			testJoinNaive();
 //			testJoinMH();
@@ -466,6 +468,31 @@ public class AlgorithmTest {
 	}
 
 	@Ignore
+	public void testJoinMHStrongDelta() throws ParseException, IOException {
+		args[1] = "JoinMHStrongDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -delta 0\"",
+				"\"-K 1 -qSize 1 -delta 1\"",
+				"\"-K 1 -qSize 1 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -delta 0\"",
+				"\"-K 1 -qSize 2 -delta 1\"",
+				"\"-K 1 -qSize 2 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -delta 0\"",
+				"\"-K 2 -qSize 1 -delta 1\"",
+				"\"-K 2 -qSize 1 -delta 2\"",
+		};
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = getRepeatedArray( ANS_SEQ_SELF_DELTA, 3 );
+		else answer_list = getRepeatedArray( ANS_SEQ_NONSELF_DELTA, 3 );
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
+		}
+	}
+
+	@Ignore
 	public void testJoinMHNaiveDelta() throws ParseException, IOException {
 		args[1] = "JoinMHNaiveDelta";
 		String[] param_list = {
@@ -543,6 +570,31 @@ public class AlgorithmTest {
 	@Ignore
 	public void testJoinMinDelta() throws ParseException, IOException {
 		args[1] = "JoinMinDelta";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -delta 0\"",
+				"\"-K 1 -qSize 1 -delta 1\"",
+				"\"-K 1 -qSize 1 -delta 2\"",
+
+				"\"-K 1 -qSize 2 -delta 0\"",
+				"\"-K 1 -qSize 2 -delta 1\"",
+				"\"-K 1 -qSize 2 -delta 2\"",
+
+				"\"-K 2 -qSize 1 -delta 0\"",
+				"\"-K 2 -qSize 1 -delta 1\"",
+				"\"-K 2 -qSize 1 -delta 2\"",
+		};
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = getRepeatedArray( ANS_SEQ_SELF_DELTA, 3 );
+		else answer_list = getRepeatedArray( ANS_SEQ_NONSELF_DELTA, 3 );
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i] , isSelfJoin );
+		}
+	}
+	
+	@Ignore
+	public void testJoinMinStrongDelta() throws ParseException, IOException {
+		args[1] = "JoinMinStrongDelta";
 		String[] param_list = {
 				"\"-K 1 -qSize 1 -delta 0\"",
 				"\"-K 1 -qSize 1 -delta 1\"",

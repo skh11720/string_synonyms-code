@@ -18,9 +18,9 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMHDeltaIndexStrong extends JoinMHDeltaIndex {
+public class JoinMHStrongDeltaIndex extends JoinMHDeltaIndex {
 
-	public JoinMHDeltaIndexStrong( int indexK, int qgramSize, int deltaMax, Iterable<Record> indexedSet, Query query,
+	public JoinMHStrongDeltaIndex( int indexK, int qgramSize, int deltaMax, Iterable<Record> indexedSet, Query query,
 			StatContainer stat, int[] indexPosition, boolean addStat, boolean useIndexCount, int threshold ) {
 		super( indexK, qgramSize, deltaMax, indexedSet, query, stat, indexPosition, addStat, useIndexCount, threshold );
 		// TODO Auto-generated constructor stub
