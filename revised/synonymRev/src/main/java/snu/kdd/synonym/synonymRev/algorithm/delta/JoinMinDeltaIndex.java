@@ -637,7 +637,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 		return rslt;
 	}
 
-	private List<List<Set<QGram>>> getCandidatePQGrams( Record rec ) {
+	protected List<List<Set<QGram>>> getCandidatePQGrams( Record rec ) {
 		/*
 		 * Return the lists of qgrams, where each list is indexed by pos and delta.
 		 * key: pos -> delta 
@@ -658,7 +658,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new WYK_HashSet<QGram>() );
 			for ( QGram qgram : availableQGrams.get( k ) ) {
-				if ( !qgram_pad_appended && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
+				if ( !qgram_pad_appended && qgramSize > 1 && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
 					availableQGrams.get( k+1 ).add( qgram_pad );
 					qgram_pad_appended = true;
 				}
