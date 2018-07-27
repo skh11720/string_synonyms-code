@@ -27,6 +27,7 @@ public class Param {
 		options.addOption( "noLength", false, "No Length Filtering" );
 		options.addOption( "naiveVal", false, "Naive Validator" );
 		options.addOption( "delta", true, "deltaMax" );
+		options.addOption( "nEst", true, "nEst" );
 
 		argOptions = options;
 	}
@@ -80,6 +81,11 @@ public class Param {
 			param.delta = Integer.parseInt( cmd.getOptionValue( "delta" ) );
 		}
 
+		if (cmd.hasOption( "nEst" )) {
+			param.nEst = Integer.parseInt( cmd.getOptionValue( "nEst" ) );
+		}
+		else param.nEst = 1;
+
 		return param;
 	}
 
@@ -90,4 +96,5 @@ public class Param {
 	public int threshold = 10;
 	public boolean noLength = false;
 	public int delta;
+	public int nEst;
 }

@@ -54,6 +54,7 @@ public class SampleEstimateDelta {
 	public double coeff_min_3;
 
 	public double sampleRatio;
+	public double bestEstTime = Double.MAX_VALUE;
 
 	Dataset originalSearched;
 	Dataset originalIndexed;
@@ -313,7 +314,7 @@ public class SampleEstimateDelta {
 	public int findThetaJoinHybridAllDelta( int qSize, int indexK, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords, boolean oneSideJoin ) {
 		// Find the best threshold
 		int bestThreshold = 0;
-		double bestEstTime = Double.MAX_VALUE;
+//		double bestEstTime = Double.MAX_VALUE;
 
 		// Indicates the minimum indices which have more that 'theta' expanded
 		// records
@@ -406,11 +407,11 @@ public class SampleEstimateDelta {
 				}
 			}
 
-			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMH): %.10e TT: %.10e", currentThreshold, nextThreshold,
-					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation ) );
-			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
-					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
-			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
+			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMH): %.10e TT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
+					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
+//			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
+//					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
+//			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
 
 			double tempBestTime = naiveEstimation;
 
