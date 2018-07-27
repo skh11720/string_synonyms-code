@@ -1,6 +1,7 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
@@ -45,6 +46,7 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 	protected int indexK = 0;
 	protected int deltaMax = -1;
 	protected double sampleRatio = 0;
+	protected int nEst = 1;
 	protected int joinThreshold = 1;
 	protected boolean joinQGramRequired = true;
 	protected boolean joinMinSelected = false;
@@ -92,6 +94,7 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		deltaMax = params.delta;
 		checker = new DeltaValidatorTopDown( deltaMax );
 		sampleRatio = params.sampleRatio;
+		nEst = params.nEst;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
@@ -135,19 +138,46 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 	 * @return
 	 */
 	protected Set<IntegerPair> join() {
-		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		findConstants( sampleRatio );
-		joinThreshold = estimate.findThetaJoinHybridAllDelta( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords, query.oneSideJoin );
+		StopWatch estimateTime = StopWatch.getWatchStarted( "Result_2_1_Estimation_Time" );
+		int[] list_thres = new int[nEst];
+		double[] list_bestTime = new double[nEst];
+		boolean[] list_minSelected= new boolean[nEst];
+		for ( int i=0; i<nEst; ++i ) {
+			findConstants( sampleRatio );
+			list_thres[i] = estimate.findThetaJoinHybridAllDelta( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords, query.oneSideJoin );
+			list_minSelected[i] = estimate.getJoinMinSelected();
+			list_bestTime[i] = estimate.bestEstTime;
+		}
+		double mean = 0, var = 0;
+		for ( int i=0; i<nEst; ++i ) mean += list_thres[i];
+		mean /= nEst;
+		for ( int i=0; i<nEst; ++i ) var += (list_thres[i] - mean)*(list_thres[i] - mean);
+		var /= nEst;
+		double bestTime = Double.MAX_VALUE;
+		for ( int i=0; i<nEst; ++i ) {
+			if ( list_bestTime[i] < bestTime ) {
+				bestTime = list_bestTime[i];
+				joinThreshold = list_thres[i];
+				joinMinSelected = list_minSelected[i];
+			}
+		}
+
 		Util.printLog( "Selected Threshold: " + joinThreshold );
+		stat.add( "Estimate_Threshold", joinThreshold );
+		stat.add( "Estimate_Repeat", nEst );
+		stat.add( "Estimate_Best_Time", bestTime );
+		stat.add( "Estimate_Mean_Threshold", mean );
+		stat.add( "Estimate_Var_Threshold", var );
+		stat.add( "Estimate_JoinMinSelected", joinMinSelected? "true":"false" );
+		estimateTime.stopAndAdd( stat );
 		
-		joinMinSelected = estimate.getJoinMinSelected();
+		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 //		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
 		if ( maxSearchedEstNumRecords <= joinThreshold ) {
 			joinQGramRequired = false; // in this case both joinmh and joinmin are not used.
 		}
 
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
-
+//		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinQGramRequired ) {
 			if( joinMinSelected ) buildJoinMinIndex();
 			else buildJoinMHIndex();
@@ -235,8 +265,9 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: repeat estimation
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override
