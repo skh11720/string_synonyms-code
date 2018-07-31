@@ -107,6 +107,7 @@ public class SampleEstimateDelta {
 		}
 
 		for( Record r : query.searchedSet.get() ) {
+			if ( r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			if( rn.nextDouble() < this.sampleRatio ) {
 				sampleSearchedList.add( r );
 			}
@@ -119,6 +120,7 @@ public class SampleEstimateDelta {
 		}
 		else {
 			for( Record s : query.indexedSet.get() ) {
+				if ( s.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 				if( rn.nextDouble() < this.sampleRatio ) {
 					sampleIndexedList.add( s );
 				}
@@ -445,5 +447,34 @@ public class SampleEstimateDelta {
 
 	public boolean getJoinMinSelected() {
 		return joinMinSelected;
+	}
+	
+	private void stratifiedSample( Random rn ) {
+		Comparator<Record> comp = new Comparator<Record>() {
+			
+			@Override
+			public int compare( Record o1, Record o2 ) {
+				long nx1 = o1.getEstNumTransformed();
+				long nx2 = o2.getEstNumTransformed();
+				return Long.compare( nx1, nx2 );
+			}
+		};
+		
+		List<Record> searchedList = new ArrayList<Record>( query.searchedSet.recordList );
+		Collections.sort( searchedList, comp );
+		int n_stratum = 20;
+		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
+			System.out.println( stratum_idx+"\t"+searchedList.size()/n_stratum*stratum_idx+"\t"+searchedList.get( searchedList.size()/n_stratum*stratum_idx ).getEstNumTransformed() );
+		}
+		
+		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
+			int start = searchedList.size()/n_stratum*stratum_idx;
+			int end = searchedList.size()/n_stratum*(stratum_idx+1);
+			for ( int i=start; i<end; ++i ) {
+				if (rn.nextDouble() < this.sampleRatio) {
+					sampleSearchedList.add( searchedList.get( i ) );
+				}
+			}
+		}
 	}
 }
