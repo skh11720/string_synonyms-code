@@ -271,8 +271,8 @@ public class SampleEstimateDelta {
 
 		mh_term1 = joinmhinst.qgramCount;
 		coeff_mh_1 = joinmhinst.indexTime / (joinmhinst.qgramCount+1);
-		coeff_mh_2 = joinmhinst.candQGramCountTime / (joinmhinst.candQGramCount+1);
-		coeff_mh_3 = (double) (joinTime - joinmhinst.candQGramCountTime) / (joinmhinst.predictCount+1);
+		coeff_mh_2 = (joinmhinst.candQGramCountTime + joinmhinst.filterTime) / (joinmhinst.candQGramCount+1);
+		coeff_mh_3 = (double) (joinTime - joinmhinst.candQGramCountTime - joinmhinst.filterTime) / (joinmhinst.predictCount+1);
 
 		System.out.println( "estimateJoinMHDelta" );
 		System.out.println( "coeff_mh_1: "+coeff_mh_1 );
