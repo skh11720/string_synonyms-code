@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import passjoin.PassJoinIndexForSynonyms;
@@ -74,16 +76,18 @@ public class SampleEstimateDelta {
 	final Query query;
 	final Query sampleQuery;
 	private final int deltaMax;
+	private final boolean stratified;
 	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
 
-	public SampleEstimateDelta( final Query query, int deltaMax, double sampleratio, boolean isSelfJoin ) {
+	public SampleEstimateDelta( final Query query, int deltaMax, double sampleratio, boolean isSelfJoin, boolean stratified ) {
 		long seed = System.currentTimeMillis();
 		Util.printLog( "Random seed: " + seed );
 		Random rn = new Random( seed );
 
 		this.query = query;
 		this.deltaMax = deltaMax;
+		this.stratified = stratified;
 
 		int smallTableSize = Integer.min( query.searchedSet.size(), query.indexedSet.size() );
 		this.sampleRatio = sampleratio;
@@ -105,27 +109,14 @@ public class SampleEstimateDelta {
 
 			this.sampleRatio = 10.0 / smallTableSize;
 		}
-
-		for( Record r : query.searchedSet.get() ) {
-			if ( r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-			if( rn.nextDouble() < this.sampleRatio ) {
-				sampleSearchedList.add( r );
-			}
-		}
-
+		
+		sampleSearchedList = sampleRecords( query.searchedSet.recordList, rn );
 		if( isSelfJoin ) {
 			for( Record r : sampleSearchedList ) {
 				sampleIndexedList.add( r );
 			}
 		}
-		else {
-			for( Record s : query.indexedSet.get() ) {
-				if ( s.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-				if( rn.nextDouble() < this.sampleRatio ) {
-					sampleIndexedList.add( s );
-				}
-			}
-		}
+		else sampleIndexedList = sampleRecords( query.indexedSet.recordList, rn );
 
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
@@ -155,7 +146,7 @@ public class SampleEstimateDelta {
 		min_term3 = new long[sampleSearchedList.size()];
 	}
 
-	public void estimateJoinNaiveDelta( StatContainer stat ) {
+	public Object2DoubleMap<String> estimateJoinNaiveDelta( StatContainer stat ) {
 
 		// Infer alpha and beta
 		PassJoinIndexForSynonyms naiveinst;
@@ -194,11 +185,24 @@ public class SampleEstimateDelta {
 		System.out.println( "coeff_naive_3: "+coeff_naive_3 );
 //		System.out.println( Arrays.toString( naive_term2 ) );
 //		System.out.println( Arrays.toString( naive_term3 ) );
-		System.out.println( "est time: "+getEstimateNaiveDelta( naive_term1, naive_term2[sampleSearchedList.size()-1], naive_term3[sampleSearchedList.size()-1] ) );
+
+		double estTime = getEstimateNaiveDelta( naive_term1, naive_term2[sampleSearchedList.size()-1], naive_term3[sampleSearchedList.size()-1] );
+		System.out.println( "est time: "+ estTime );
 		System.out.println( "join time: "+String.format( "%.10e", (double)joinTime ) );
+		
+		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
+		output.put( "Naive_Coeff_1", coeff_naive_1 );
+		output.put( "Naive_Coeff_2", coeff_naive_2 );
+		output.put( "Naive_Coeff_3", coeff_naive_3*sampleIndexedList.size() );
+		output.put( "Naive_Term_1", naive_term1 );
+		output.put( "Naive_Term_2", naive_term2[sampleSearchedList.size()-1] );
+		output.put( "Naive_Term_3", naive_term3[sampleSearchedList.size()-1] );
+		output.put( "Naive_Est_Time", estTime );
+		output.put( "Naive_Join_Time", (double)joinTime );
+		return output;
 	}
 
-	public void estimateJoinMinDelta( StatContainer stat, Validator checker, int indexK, int qSize ) {
+	public Object2DoubleMap<String> estimateJoinMinDelta( StatContainer stat, Validator checker, int indexK, int qSize ) {
 		// Infer lambda, mu and rho
 		StatContainer tmpStat = new StatContainer();
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
@@ -231,7 +235,8 @@ public class SampleEstimateDelta {
 		System.out.println( "coeff_min_3: "+coeff_min_3 );
 //		System.out.println( Arrays.toString( min_term2 ) );
 //		System.out.println( Arrays.toString( min_term3 ) );
-		System.out.println( "est time: "+getEstimateJoinMinDelta( min_term1, min_term2[sampleSearchedList.size()-1], min_term3[sampleSearchedList.size()-1]) );
+		double estTime = getEstimateJoinMinDelta( min_term1, min_term2[sampleSearchedList.size()-1], min_term3[sampleSearchedList.size()-1]);
+		System.out.println( "est time: "+ estTime );
 		System.out.println( "join time: "+String.format( "%.10e", (double)joinTime ) );
 
 //		System.out.println( "est verify time: "+String.format( "%.10e", coeff_min_3*min_term3[sampleSearchedList.size()-1] ) );
@@ -244,9 +249,20 @@ public class SampleEstimateDelta {
 //		
 //		System.out.println( "est index time: "+String.format( "%.10e", coeff_min_1*min_term1 ) );
 //		System.out.println( "index time: "+String.format( "%.10e", (double)(joinmininst.indexTime) ) );
+
+		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
+		output.put( "Min_Coeff_1", coeff_min_1 );
+		output.put( "Min_Coeff_2", coeff_min_2 );
+		output.put( "Min_Coeff_3", coeff_min_3 );
+		output.put( "Min_Term_1", min_term1 );
+		output.put( "Min_Term_2", min_term2[sampleSearchedList.size()-1] );
+		output.put( "Min_Term_3", min_term3[sampleSearchedList.size()-1] );
+		output.put( "Min_Est_Time", (double)estTime );
+		output.put( "Min_Join_Time", (double)joinTime );
+		return output;
 	}
 
-	public void estimateJoinMHDelta( StatContainer stat, Validator checker, int indexK, int qSize ) {
+	public Object2DoubleMap<String> estimateJoinMHDelta( StatContainer stat, Validator checker, int indexK, int qSize ) {
 
 		int[] indexPosition = new int[indexK];
 		for (int i=0; i<indexK; ++i ) indexPosition[i] = i;
@@ -280,8 +296,20 @@ public class SampleEstimateDelta {
 		System.out.println( "coeff_mh_3: "+coeff_mh_3 );
 //		System.out.println( Arrays.toString( mh_term2 ) );
 //		System.out.println( Arrays.toString( mh_term3 ) );
-		System.out.println( "est time: "+getEstimateJoinMHDelta( mh_term1, mh_term2[sampleSearchedList.size()-1], mh_term3[sampleSearchedList.size()-1] ) );
+		double estTime = getEstimateJoinMHDelta( mh_term1, mh_term2[sampleSearchedList.size()-1], mh_term3[sampleSearchedList.size()-1] );
+		System.out.println( "est time: "+ estTime );
 		System.out.println( "join time: "+String.format( "%.10e", (double)joinTime ) );
+
+		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
+		output.put( "MH_Coeff_1", coeff_mh_1 );
+		output.put( "MH_Coeff_2", coeff_mh_2 );
+		output.put( "MH_Coeff_3", coeff_mh_3 );
+		output.put( "MH_Term_1", mh_term1 );
+		output.put( "MH_Term_2", mh_term2[sampleSearchedList.size()-1] );
+		output.put( "MH_Term_3", mh_term3[sampleSearchedList.size()-1] );
+		output.put( "MH_Est_Time", (double)estTime );
+		output.put( "MH_Join_Time", (double)joinTime );
+		return output;
 	}
 
 	public void estimateJoinHybridWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
@@ -448,8 +476,24 @@ public class SampleEstimateDelta {
 	public boolean getJoinMinSelected() {
 		return joinMinSelected;
 	}
+
+	private ObjectArrayList<Record> sampleRecords( List<Record> recordList, Random rn ) {
+		if (!stratified) return sampleRecordsNaive( recordList, rn );
+		else return sampleRecordsStratified( recordList, rn );
+	}
+
+	private ObjectArrayList<Record> sampleRecordsNaive( List<Record> recordList, Random rn ) {
+		ObjectArrayList<Record> sampledList = new ObjectArrayList<>();
+		for( Record r : recordList ) {
+			if ( r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if( rn.nextDouble() < this.sampleRatio ) {
+				sampledList.add( r );
+			}
+		}
+		return sampledList;
+	}
 	
-	private void stratifiedSample( Random rn ) {
+	private ObjectArrayList<Record> sampleRecordsStratified( List<Record> recordList, Random rn ) {
 		Comparator<Record> comp = new Comparator<Record>() {
 			
 			@Override
@@ -460,7 +504,8 @@ public class SampleEstimateDelta {
 			}
 		};
 		
-		List<Record> searchedList = new ArrayList<Record>( query.searchedSet.recordList );
+		ObjectArrayList<Record> sampledList = new ObjectArrayList<Record>();
+		List<Record> searchedList = new ArrayList<Record>( recordList );
 		Collections.sort( searchedList, comp );
 		int n_stratum = 20;
 		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
@@ -472,9 +517,10 @@ public class SampleEstimateDelta {
 			int end = searchedList.size()/n_stratum*(stratum_idx+1);
 			for ( int i=start; i<end; ++i ) {
 				if (rn.nextDouble() < this.sampleRatio) {
-					sampleSearchedList.add( searchedList.get( i ) );
+					sampledList.add( searchedList.get( i ) );
 				}
 			}
 		}
+		return sampledList;
 	}
 }
