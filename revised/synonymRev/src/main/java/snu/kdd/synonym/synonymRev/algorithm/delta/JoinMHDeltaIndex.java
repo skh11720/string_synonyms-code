@@ -62,6 +62,8 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	public static boolean usePQF = true;
 	
 	protected final QGram qgram_pad;
+	protected final QGram qgramDelta_pad;
+//	protected BufferedWriter bw;
 
 	/**
 	 * JoinMHIndex: builds a MH Index
@@ -90,9 +92,14 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 		this.query = query;
 		this.deltaMax = deltaMax;
 		this.qdgen = new QGramDeltaGenerator( qgramSize, deltaMax );
-		int[] tokens = new int[qgramSize + deltaMax];
+		int[] tokens = new int[qgramSize];
 		Arrays.fill( tokens, Integer.MAX_VALUE );
 		qgram_pad = new QGram( tokens );
+		tokens = new int[qgramSize + deltaMax];
+		Arrays.fill( tokens, Integer.MAX_VALUE );
+		qgramDelta_pad = new QGram( tokens );
+//		try { bw = new BufferedWriter( new FileWriter( "output/JoinMHDeltaIndex_verify.txt" ) ); }
+//		catch ( IOException e ) { e.printStackTrace(); }
 
 		if (indexPosition.length != indexK) {
 			throw new RuntimeException("The length of indexPosition should match indexK");
@@ -386,7 +393,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 		
 		List< List<Set<QGram>>> candidatePQGrams = new ArrayList<List<Set<QGram>>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
-			if ( k >= index.size() ) continue;
+			if ( k >= index.size() ) break;
 			boolean qgram_pad_appended = false;
 			List<WYK_HashMap<QGram, List<Record>>> curidx = index.get( k );
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
@@ -394,7 +401,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 //			for ( int j=0; j<nQGram; ++j ) {
 			for ( QGram qgram : availableQGrams.get( k ) ) {
 				if ( !qgram_pad_appended && qgramSize > 1 && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
-					availableQGrams.get( k+1 ).add( qgram_pad );
+					availableQGrams.get( k+1 ).add( qgramDelta_pad );
 					qgram_pad_appended = true;
 				}
 //			List<QGram> qgrams = new ArrayList<QGram>();
@@ -566,8 +573,7 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	        // indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 //	        if ( recS.getID() == 5158 ) System.out.println( record.getID()+", "+recordCount );
 
-            if ( !usePQF || ( indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount ) ) {
-//	        if ( Math.min( Math.max( record.size()-deltaMax, 1 ), indexedCountList.getInt(record) ) <= recordCount || indexedCountList.getInt(recS) <= recordCount)
+            if ( !usePQF || ( indexedCountList.getInt(record) <= recordCount || candidateQGrams.size() <= recordCount ) ) {
 	            candidates.add(record);
 	        }
 	        else ++checker.pqgramFiltered;
@@ -577,6 +583,8 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	    equivComparisons += candidates.size();
 	    predictCount += candidates.size();
 	    for (Record recR : candidates) {
+//	    	try { bw.write( recS.getID()+"\t"+recR.getID()+"\n" ); bw.flush(); }
+//	    	catch ( IOException e ) { e.printStackTrace(); }
 	        int compare = checker.isEqual(recS, recR);
 	        if (compare >= 0) {
 //					rslt.add(new IntegerPair(recS.getID(), recR.getID()));
