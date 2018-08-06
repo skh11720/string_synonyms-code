@@ -139,12 +139,13 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 	 */
 	protected Set<IntegerPair> join() {
 		StopWatch estimateTime = StopWatch.getWatchStarted( "Result_2_1_Estimation_Time" );
+		StatContainer statEst = new StatContainer();
 		int[] list_thres = new int[nEst];
 		double[] list_bestTime = new double[nEst];
 		boolean[] list_minSelected= new boolean[nEst];
 		for ( int i=0; i<nEst; ++i ) {
-			findConstants( sampleRatio );
-			list_thres[i] = estimate.findThetaJoinHybridAllDelta( qSize, indexK, stat, maxIndexedEstNumRecords, maxSearchedEstNumRecords, query.oneSideJoin );
+			findConstants( sampleRatio, statEst );
+			list_thres[i] = estimate.findThetaJoinHybridAllDelta( qSize, indexK, statEst, maxIndexedEstNumRecords, maxSearchedEstNumRecords, query.oneSideJoin );
 			list_minSelected[i] = estimate.getJoinMinSelected();
 			list_bestTime[i] = estimate.bestEstTime;
 		}
@@ -163,6 +164,7 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		}
 
 		Util.printLog( "Selected Threshold: " + joinThreshold );
+		Util.printLog( "JoinMinSelected: " + (joinMinSelected? "true":"false") );
 		stat.add( "Estimate_Threshold", joinThreshold );
 		stat.add( "Estimate_Repeat", nEst );
 		stat.add( "Estimate_Best_Time", bestTime );
@@ -245,9 +247,9 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	protected void findConstants( double sampleratio ) {
+	protected void findConstants( double sampleratio, StatContainer stat ) {
 		// Sample
-		estimate = new SampleEstimateDelta( query, deltaMax, sampleratio, query.selfJoin );
+		estimate = new SampleEstimateDelta( query, deltaMax, sampleratio, query.selfJoin, false );
 		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
 		
 		stat.add( "Coeff_Naive_1", estimate.coeff_naive_1);
@@ -266,8 +268,9 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		/*
 		 * 1.00: initial version
 		 * 1.01: repeat estimation
+		 * 1.02: stratified, start threshold search from 0 
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override
