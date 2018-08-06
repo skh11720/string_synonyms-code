@@ -69,8 +69,6 @@ public class SampleEstimateDelta {
 	public long mh_term1;
 	public long[] mh_term2;
 	public long[] mh_term3;
-	public long[] mh_numTrans;
-	public long[] mh_numRules;
 	public long min_term1;
 	public long[] min_term2;
 	public long[] min_term3;
@@ -148,8 +146,6 @@ public class SampleEstimateDelta {
 		naive_verifyCount = new long[sampleSearchedList.size()];
 		mh_term2 = new long[sampleSearchedList.size()];
 		mh_term3 = new long[sampleSearchedList.size()];
-		mh_numTrans= new long[sampleSearchedList.size()];
-		mh_numRules = new long[sampleSearchedList.size()];
 		min_term2 = new long[sampleSearchedList.size()];
 		min_term3 = new long[sampleSearchedList.size()];
 	}
@@ -174,7 +170,8 @@ public class SampleEstimateDelta {
 			else {
 				naiveinst.joinOneRecord( recS, rslt );
 				naive_term2[i] = naiveinst.sumLenS;
-				naive_term3[i] = naiveinst.verifyCost;
+//				naive_term3[i] = naiveinst.verifyCost;
+				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
 				naive_expCount[i] = naiveinst.expCount;
 				naive_verifyCount[i] = naiveinst.verifyCount;
 			}
@@ -188,7 +185,8 @@ public class SampleEstimateDelta {
 		// compute coefficients
 		coeff_naive_1 = naiveinst.indexTime/(naiveinst.sumLenT+1);
 		coeff_naive_2 = (joinTime - verifyTime)/(naiveinst.sumLenS+1);
-		coeff_naive_3 = verifyTime/(naiveinst.verifyCost+1);
+//		coeff_naive_3 = verifyTime/(naiveinst.verifyCost+1);
+		coeff_naive_3 = 1.0*verifyTime/naive_term3[sampleSearchedList.size()-1];
 		
 //		stat.add( "Stat_Coeff_Naive_1", coeff_naive_1 );
 //		stat.add( "Stat_Coeff_Naive_2", coeff_naive_2 );
@@ -300,15 +298,11 @@ public class SampleEstimateDelta {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
 				mh_term2[i] = (i == 0 ? 0 : mh_term2[i-1]);
 				mh_term3[i] = (i == 0 ? 0 : mh_term3[i-1]);
-				mh_numTrans[i] = (i == 0 ? 0 : mh_numTrans[i-1]);
-				mh_numRules[i] = (i == 0 ? 0 : mh_numRules[i-1]);
 			}
 			else {
 				joinmhinst.joinOneRecordThres( recS, rslt, checker, -1, sampleQuery.oneSideJoin );
 				mh_term2[i] =  joinmhinst.candQGramCount;
 				mh_term3[i] =  joinmhinst.predictCount;
-				mh_numTrans[i] = joinmhinst.nTrans;
-				mh_numRules[i] = joinmhinst.nApplicableRules;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 			}
 		} // for sid in in searchedSet
 		long joinTime = System.nanoTime() - ts;
@@ -325,8 +319,6 @@ public class SampleEstimateDelta {
 		System.out.println( "MH_Term_1: "+ mh_term1 );
 		System.out.println( "MH_Term_2: "+ mh_term2[sampleSearchedList.size()-1] );
 		System.out.println( "MH_Term_3: "+ mh_term3[sampleSearchedList.size()-1] );
-		System.out.println( "MH_Num_Trans: "+ mh_numTrans[sampleSearchedList.size()-1] );
-		System.out.println( "MH_Num_Rules: "+ mh_numRules[sampleSearchedList.size()-1] );
 //		System.out.println( Arrays.toString( mh_term2 ) );
 //		System.out.println( Arrays.toString( mh_term3 ) );
 		double estTime = getEstimateJoinMHDelta( mh_term1, mh_term2[sampleSearchedList.size()-1], mh_term3[sampleSearchedList.size()-1] );
@@ -362,15 +354,15 @@ public class SampleEstimateDelta {
 		}
 	}
 
-	public double getEstimateNaiveDelta( long term1, long term2, double term3 ) {
+	public double getEstimateNaiveDelta( double term1, double term2, double term3 ) {
 		return coeff_naive_1 * term1 + coeff_naive_2 * term2 + coeff_naive_3 * term3;
 	}
 
-	public double getEstimateJoinMinDelta( long term1, long term2, long term3 ) {
+	public double getEstimateJoinMinDelta( double term1, double term2, double term3 ) {
 		return coeff_min_1 * term1 + coeff_min_2 * term2 + coeff_min_3 * term3;
 	}
 
-	public double getEstimateJoinMHDelta( long term1, long term2, long term3 ) {
+	public double getEstimateJoinMHDelta( double term1, double term2, double term3 ) {
 		return coeff_mh_1 * term1 + coeff_mh_2 * term2 + coeff_mh_3 * term3;
 	}
 
@@ -442,21 +434,21 @@ public class SampleEstimateDelta {
 				}
 			}
 
-			double joinmhEstimation = this.getEstimateJoinMHDelta( mh_term1, mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]), 
-					mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]) );
+			double joinmhEstimation = this.getEstimateJoinMHDelta( mh_term1, (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1])), 
+					(mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1])));
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 			// totalJoinMHInvokes: the sum of the minimum number of records to be verified with t for every t in sampleIndexedSet
 			// removedJoinMHComparison: 
 
-			double joinminEstimation = this.getEstimateJoinMinDelta( min_term1, min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]), 
-					min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]) );
+			double joinminEstimation = this.getEstimateJoinMinDelta( min_term1, (min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1])), 
+					(min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1])));
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 
 			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
 
-			double naiveEstimation = this.getEstimateNaiveDelta( naive_term1, (sidx==0?0:naive_term2[sidx-1]), (sidx==0?0:naive_term3[sidx-1]) );
+			double naiveEstimation = this.getEstimateNaiveDelta( naive_term1, (sidx==0?0:naive_term2[sidx-1]), (sidx==0?0:naive_term3[sidx-1]));
 			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
 			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
 
@@ -481,8 +473,6 @@ public class SampleEstimateDelta {
 			System.out.print( mh_term1+"\t");
 			System.out.print( (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]))+"\t");
 			System.out.print((mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]))+"\t");
-			System.out.print((mh_numTrans[tableSearchedSize-1] - (sidx==0?0:mh_numTrans[sidx-1]))+"\t");
-			System.out.print((mh_numRules[tableSearchedSize-1] - (sidx==0?0:mh_numRules[sidx-1]))+"\t");
 			System.out.print(min_term1+"\t");
 			System.out.print((min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]))+"\t");
 			System.out.print((min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]))+"\t");

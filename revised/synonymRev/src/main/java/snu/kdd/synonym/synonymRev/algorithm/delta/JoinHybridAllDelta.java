@@ -164,6 +164,7 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		}
 
 		Util.printLog( "Selected Threshold: " + joinThreshold );
+		Util.printLog( "JoinMinSelected: " + (joinMinSelected? "true":"false") );
 		stat.add( "Estimate_Threshold", joinThreshold );
 		stat.add( "Estimate_Repeat", nEst );
 		stat.add( "Estimate_Best_Time", bestTime );
