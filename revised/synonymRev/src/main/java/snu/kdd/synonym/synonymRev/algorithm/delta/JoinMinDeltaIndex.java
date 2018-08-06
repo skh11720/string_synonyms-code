@@ -341,9 +341,6 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 //				availableQGrams = rec.getQGrams( qSize+deltaMax, searchmax );
 			}
 
-			for( List<QGram> set : availableQGrams ) {
-				this.indexedTotalSigCount += set.size();
-			}
 
 			MinPositionQueue mpq = new MinPositionQueue( nIndex );
 
@@ -388,6 +385,7 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 							throw new RuntimeException("UNIMPLEMENTED");
 //							count += curridx_lowInvokes_delta.get( delta ).getInt( qgramDelta );
 						}
+						++this.indexedTotalSigCount;
 					}
 				}
 
