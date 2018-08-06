@@ -268,8 +268,9 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		/*
 		 * 1.00: initial version
 		 * 1.01: repeat estimation
+		 * 1.02: stratified, start threshold search from 0 
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override
