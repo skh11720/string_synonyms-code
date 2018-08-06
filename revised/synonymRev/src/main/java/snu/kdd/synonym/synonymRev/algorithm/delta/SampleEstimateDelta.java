@@ -383,7 +383,8 @@ public class SampleEstimateDelta {
 		// records
 		int indexedIdx = 0;
 		int sidx = 0;
-		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
+//		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
+		long currentThreshold = 0;
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 		int tableIndexedSize = sampleIndexedList.size();
 		int tableSearchedSize = sampleSearchedList.size();
