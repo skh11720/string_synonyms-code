@@ -51,10 +51,13 @@ public class PassJoinIndexForSynonyms {
 	
 	// values required to estimate coefficients
 	public long indexTime = 0;
+	public long expandTime = 0;
 	public long joinTime = 0;
 	public long verifyTime = 0;
 	public long sumLenS = 0;
 	public long sumLenT = 0;
+	public long expCount = 0;
+	public long verifyCount = 0;
 	public double verifyCost = 0;
 	/*
 	 * veriifyCost is computed as the sum of len(searched record) * (#verified indexed records/#indexed records).
@@ -225,13 +228,13 @@ public class PassJoinIndexForSynonyms {
 		// compute coefficients
 		coeff1 = indexTime/sumLenT;
 		coeff2 = (joinTime - verifyTime)/sumLenS;
-		coeff3 = verifyTime/indexedList.size()/verifyCost;
+		coeff3 = verifyTime/verifyCost;
 		stat.add( "Stat_Index_indexTime", indexTime );
 		stat.add( "Stat_Index_substringTime", joinTime - verifyTime);
 		stat.add( "Stat_Index_verifyTime", verifyTime );
 		stat.add( "Stat_Index_sumLenT", sumLenT );
 		stat.add( "Stat_Index_sumLenS", sumLenS );
-		stat.add( "Stat_Index_veriifyCost", verifyCost*indexedList.size() );
+		stat.add( "Stat_Index_veriifyCost", verifyCost );
 		stat.add( "Stat_Index_Coeff1", coeff1 );
 		stat.add( "Stat_Index_Coeff2", coeff2 );
 		stat.add( "Stat_Index_Coeff3", coeff3 );
@@ -255,7 +258,10 @@ public class PassJoinIndexForSynonyms {
 //			}
 		
 //		if ( DEBUG.EstTooManyThreshold < recS.getEstNumTransformed() ) return;
+		long ts = System.nanoTime();
 		ArrayList<Record> expand_list = recS.expandAll();
+		expCount += expand_list.size();
+		expandTime += System.nanoTime() - ts;
 //		Collections.sort( expand_list, comp ); sorting does not improve the performance.
 
 		for ( Record exp : expand_list ) {
@@ -309,7 +315,8 @@ public class PassJoinIndexForSynonyms {
 					verifyTime += System.nanoTime() - ts_verify;
 				} // end for lp
 			} // end for partId
-			verifyCost += 1.0 * clen * exp_checked/indexedList.size();
+			verifyCost += 1.0 * clen * exp_checked;
+			verifyCount += exp_checked;
 		} // end for Record exp
 
 		// output the results

@@ -42,6 +42,8 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	protected final int deltaMax;
 	protected int maxPosition = 0;
 
+	public long nTrans = 0;
+	public long nApplicableRules = 0;
 	public long qgramCount = 0; // number of qgrams from records in the indexedSet (with duplicates)
 	public long candQGramCount = 0; // number of cand qgrams from records in the searchedSet
 	public long emptyListCount = 0; // count of empty inverted lists during join
@@ -509,6 +511,9 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 //	            this.candQGramCount += qgrams_delta.size();
 //	        }
 //	    }
+	    nTrans += recS.getEstNumTransformed();
+	    nApplicableRules += recS.getNumApplicableRules();
+	    
 	    long afterCandQGramTime = System.nanoTime();
 
 	    int[] range = recS.getTransLengths();

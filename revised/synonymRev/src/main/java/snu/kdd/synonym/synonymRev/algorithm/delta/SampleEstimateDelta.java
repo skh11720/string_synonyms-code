@@ -64,9 +64,13 @@ public class SampleEstimateDelta {
 	public long naive_term1;
 	public long[] naive_term2;
 	public double[] naive_term3;
+	public long[] naive_expCount;
+	public long[] naive_verifyCount;
 	public long mh_term1;
 	public long[] mh_term2;
 	public long[] mh_term3;
+	public long[] mh_numTrans;
+	public long[] mh_numRules;
 	public long min_term1;
 	public long[] min_term2;
 	public long[] min_term3;
@@ -140,8 +144,12 @@ public class SampleEstimateDelta {
 
 		naive_term2 = new long[sampleSearchedList.size()];
 		naive_term3 = new double[sampleSearchedList.size()];
+		naive_expCount = new long[sampleSearchedList.size()];
+		naive_verifyCount = new long[sampleSearchedList.size()];
 		mh_term2 = new long[sampleSearchedList.size()];
 		mh_term3 = new long[sampleSearchedList.size()];
+		mh_numTrans= new long[sampleSearchedList.size()];
+		mh_numRules = new long[sampleSearchedList.size()];
 		min_term2 = new long[sampleSearchedList.size()];
 		min_term3 = new long[sampleSearchedList.size()];
 	}
@@ -160,20 +168,27 @@ public class SampleEstimateDelta {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
 				naive_term2[i] = (i == 0 ? 0 : naive_term2[i-1]);
 				naive_term3[i] = (i == 0 ? 0 : naive_term3[i-1]);
+				naive_expCount[i] = (i == 0 ? 0 : naive_expCount[i-1]);
+				naive_verifyCount[i] = (i == 0 ? 0 : naive_verifyCount[i-1]);
 			}
 			else {
 				naiveinst.joinOneRecord( recS, rslt );
 				naive_term2[i] = naiveinst.sumLenS;
 				naive_term3[i] = naiveinst.verifyCost;
+				naive_expCount[i] = naiveinst.expCount;
+				naive_verifyCount[i] = naiveinst.verifyCount;
 			}
 		} // end for id
 		long joinTime = System.nanoTime() - ts;
+		long expandTime = naiveinst.expandTime;
+		long indexTime = naiveinst.indexTime;
+		long verifyTime = naiveinst.verifyTime;
 		naive_term1 = naiveinst.sumLenT;
 
 		// compute coefficients
 		coeff_naive_1 = naiveinst.indexTime/(naiveinst.sumLenT+1);
-		coeff_naive_2 = (joinTime - naiveinst.verifyTime)/(naiveinst.sumLenS+1);
-		coeff_naive_3 = naiveinst.verifyTime/sampleIndexedList.size()/(naiveinst.verifyCost+1);
+		coeff_naive_2 = (joinTime - verifyTime)/(naiveinst.sumLenS+1);
+		coeff_naive_3 = verifyTime/(naiveinst.verifyCost+1);
 		
 //		stat.add( "Stat_Coeff_Naive_1", coeff_naive_1 );
 //		stat.add( "Stat_Coeff_Naive_2", coeff_naive_2 );
@@ -183,17 +198,23 @@ public class SampleEstimateDelta {
 		System.out.println( "coeff_naive1: "+coeff_naive_1 );
 		System.out.println( "coeff_naive_2: "+coeff_naive_2 );
 		System.out.println( "coeff_naive_3: "+coeff_naive_3 );
+		System.out.println( "Naive_Term_1: "+naive_term1 );
+		System.out.println( "Naive_Term_2: "+naive_term2[sampleSearchedList.size()-1] );
+		System.out.println( "Naive_Term_3: "+naive_term3[sampleSearchedList.size()-1] );
 //		System.out.println( Arrays.toString( naive_term2 ) );
 //		System.out.println( Arrays.toString( naive_term3 ) );
 
 		double estTime = getEstimateNaiveDelta( naive_term1, naive_term2[sampleSearchedList.size()-1], naive_term3[sampleSearchedList.size()-1] );
-		System.out.println( "est time: "+ estTime );
-		System.out.println( "join time: "+String.format( "%.10e", (double)joinTime ) );
+		System.out.println( "Est_Time: "+ estTime );
+		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
+		System.out.println( "indexTime: "+indexTime );
+		System.out.println( "expandTime: "+expandTime );
+		System.out.println( "verifyTime: "+verifyTime );
 		
 		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
 		output.put( "Naive_Coeff_1", coeff_naive_1 );
 		output.put( "Naive_Coeff_2", coeff_naive_2 );
-		output.put( "Naive_Coeff_3", coeff_naive_3*sampleIndexedList.size() );
+		output.put( "Naive_Coeff_3", coeff_naive_3 );
 		output.put( "Naive_Term_1", naive_term1 );
 		output.put( "Naive_Term_2", naive_term2[sampleSearchedList.size()-1] );
 		output.put( "Naive_Term_3", naive_term3[sampleSearchedList.size()-1] );
@@ -233,11 +254,14 @@ public class SampleEstimateDelta {
 		System.out.println( "coeff_min_1: "+coeff_min_1 );
 		System.out.println( "coeff_min_2: "+coeff_min_2 );
 		System.out.println( "coeff_min_3: "+coeff_min_3 );
+		System.out.println( "Min_Term_1: "+ min_term1 );
+		System.out.println( "Min_Term_2: "+ min_term2[sampleSearchedList.size()-1] );
+		System.out.println( "Min_Term_3: "+ min_term3[sampleSearchedList.size()-1] );
 //		System.out.println( Arrays.toString( min_term2 ) );
 //		System.out.println( Arrays.toString( min_term3 ) );
 		double estTime = getEstimateJoinMinDelta( min_term1, min_term2[sampleSearchedList.size()-1], min_term3[sampleSearchedList.size()-1]);
-		System.out.println( "est time: "+ estTime );
-		System.out.println( "join time: "+String.format( "%.10e", (double)joinTime ) );
+		System.out.println( "Est_Time: "+ estTime );
+		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
 
 //		System.out.println( "est verify time: "+String.format( "%.10e", coeff_min_3*min_term3[sampleSearchedList.size()-1] ) );
 //		System.out.println( "verify time: "+String.format( "%.10e", (double)(joinTime-joinmininst.candQGramCountTime) ) );
@@ -276,11 +300,15 @@ public class SampleEstimateDelta {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
 				mh_term2[i] = (i == 0 ? 0 : mh_term2[i-1]);
 				mh_term3[i] = (i == 0 ? 0 : mh_term3[i-1]);
+				mh_numTrans[i] = (i == 0 ? 0 : mh_numTrans[i-1]);
+				mh_numRules[i] = (i == 0 ? 0 : mh_numRules[i-1]);
 			}
 			else {
 				joinmhinst.joinOneRecordThres( recS, rslt, checker, -1, sampleQuery.oneSideJoin );
 				mh_term2[i] =  joinmhinst.candQGramCount;
 				mh_term3[i] =  joinmhinst.predictCount;
+				mh_numTrans[i] = joinmhinst.nTrans;
+				mh_numRules[i] = joinmhinst.nApplicableRules;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 			}
 		} // for sid in in searchedSet
 		long joinTime = System.nanoTime() - ts;
@@ -294,11 +322,16 @@ public class SampleEstimateDelta {
 		System.out.println( "coeff_mh_1: "+coeff_mh_1 );
 		System.out.println( "coeff_mh_2: "+coeff_mh_2 );
 		System.out.println( "coeff_mh_3: "+coeff_mh_3 );
+		System.out.println( "MH_Term_1: "+ mh_term1 );
+		System.out.println( "MH_Term_2: "+ mh_term2[sampleSearchedList.size()-1] );
+		System.out.println( "MH_Term_3: "+ mh_term3[sampleSearchedList.size()-1] );
+		System.out.println( "MH_Num_Trans: "+ mh_numTrans[sampleSearchedList.size()-1] );
+		System.out.println( "MH_Num_Rules: "+ mh_numRules[sampleSearchedList.size()-1] );
 //		System.out.println( Arrays.toString( mh_term2 ) );
 //		System.out.println( Arrays.toString( mh_term3 ) );
 		double estTime = getEstimateJoinMHDelta( mh_term1, mh_term2[sampleSearchedList.size()-1], mh_term3[sampleSearchedList.size()-1] );
-		System.out.println( "est time: "+ estTime );
-		System.out.println( "join time: "+String.format( "%.10e", (double)joinTime ) );
+		System.out.println( "Est_Time: "+ estTime );
+		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
 
 		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
 		output.put( "MH_Coeff_1", coeff_mh_1 );
@@ -330,7 +363,7 @@ public class SampleEstimateDelta {
 	}
 
 	public double getEstimateNaiveDelta( long term1, long term2, double term3 ) {
-		return coeff_naive_1 * term1 + coeff_naive_2 * term2 + coeff_naive_3 * term3 * sampleIndexedList.size();
+		return coeff_naive_1 * term1 + coeff_naive_2 * term2 + coeff_naive_3 * term3;
 	}
 
 	public double getEstimateJoinMinDelta( long term1, long term2, long term3 ) {
@@ -436,9 +469,32 @@ public class SampleEstimateDelta {
 					e.printStackTrace();
 				}
 			}
-
-			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMH): %.10e TT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
-					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
+			
+			System.out.print( (sidx)+"\t" );
+			System.out.print(((sidx==0?0:naive_expCount[sidx-1]))+"\t");
+			System.out.print( sampleIndexedList.size()+"\t");
+			System.out.print(naive_term1+"\t");
+			System.out.print(((sidx==0?0:naive_term2[sidx-1]))+"\t");
+			System.out.print(((sidx==0?0:naive_term3[sidx-1]))+"\t");
+			System.out.print(((sidx==0?0:naive_verifyCount[sidx-1]))+"\t");
+			System.out.print( mh_term1+"\t");
+			System.out.print( (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]))+"\t");
+			System.out.print((mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]))+"\t");
+			System.out.print((mh_numTrans[tableSearchedSize-1] - (sidx==0?0:mh_numTrans[sidx-1]))+"\t");
+			System.out.print((mh_numRules[tableSearchedSize-1] - (sidx==0?0:mh_numRules[sidx-1]))+"\t");
+			System.out.print(min_term1+"\t");
+			System.out.print((min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]))+"\t");
+			System.out.print((min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]))+"\t");
+			System.out.print("|\t");
+			System.out.print(currentThreshold+"\t");
+			System.out.print(naiveEstimation+"\t");
+			System.out.print(joinmhEstimation+"\t");
+			System.out.print((naiveEstimation+joinmhEstimation)+"\t");
+			System.out.print(joinminEstimation+"\t");
+			System.out.print((naiveEstimation+joinminEstimation)+"\t");
+			System.out.println(  );
+//			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMH): %.10e TT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
+//					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
 //			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
 //					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
 //			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
