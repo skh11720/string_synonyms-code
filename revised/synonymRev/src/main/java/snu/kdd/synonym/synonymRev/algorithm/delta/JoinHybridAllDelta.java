@@ -270,7 +270,7 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 		 * 1.00: initial version
 		 * 1.01: repeat estimation
 		 * 1.02: stratified, start threshold search from 0 
-		 * 1.03: modify naive estimation, FKP and BKP completely ignore non-upper records
+		 * 1.03: modify naive estimation, FKP and BKP completely ignore non-upper records. can use naive only.
 		 */
 		return "1.03";
 	}
