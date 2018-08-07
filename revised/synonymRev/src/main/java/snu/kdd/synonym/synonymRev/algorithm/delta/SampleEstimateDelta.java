@@ -123,17 +123,9 @@ public class SampleEstimateDelta {
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
 
-		Comparator<Record> cmp = new Comparator<Record>() {
-			@Override
-			public int compare( Record o1, Record o2 ) {
-				long est1 = o1.getEstNumTransformed();
-				long est2 = o2.getEstNumTransformed();
-				return Long.compare( est1, est2 );
-			}
-		};
-
-		Collections.sort( sampleSearchedList, cmp );
-		Collections.sort( sampleIndexedList, cmp );
+		Comparator<Record> comp = new RecordComparator();
+		Collections.sort( sampleSearchedList, comp );
+		Collections.sort( sampleIndexedList, comp );
 
 		Dataset sampleIndexed = new Dataset( sampleIndexedList );
 		Dataset sampleSearched = new Dataset( sampleSearchedList );
@@ -170,8 +162,8 @@ public class SampleEstimateDelta {
 			else {
 				naiveinst.joinOneRecord( recS, rslt );
 				naive_term2[i] = naiveinst.sumLenS;
-//				naive_term3[i] = naiveinst.verifyCost;
-				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
+				naive_term3[i] = naiveinst.verifyCost;
+//				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
 				naive_expCount[i] = naiveinst.expCount;
 				naive_verifyCount[i] = naiveinst.verifyCount;
 			}
@@ -310,7 +302,8 @@ public class SampleEstimateDelta {
 		mh_term1 = joinmhinst.qgramCount;
 		coeff_mh_1 = joinmhinst.indexTime / (joinmhinst.qgramCount+1);
 		coeff_mh_2 = (joinmhinst.candQGramCountTime + joinmhinst.filterTime) / (joinmhinst.candQGramCount+1);
-		coeff_mh_3 = (double) (joinTime - joinmhinst.candQGramCountTime - joinmhinst.filterTime) / (joinmhinst.predictCount+1);
+//		coeff_mh_3 = (double) (joinTime - joinmhinst.candQGramCountTime - joinmhinst.filterTime) / (joinmhinst.predictCount+1);
+		coeff_mh_3 = (double) (joinmhinst.equivTime) / (joinmhinst.predictCount+1);
 
 		System.out.println( "estimateJoinMHDelta" );
 		System.out.println( "coeff_mh_1: "+coeff_mh_1 );
@@ -541,15 +534,7 @@ public class SampleEstimateDelta {
 	}
 	
 	private ObjectArrayList<Record> sampleRecordsStratified( List<Record> recordList, Random rn ) {
-		Comparator<Record> comp = new Comparator<Record>() {
-			
-			@Override
-			public int compare( Record o1, Record o2 ) {
-				long nx1 = o1.getEstNumTransformed();
-				long nx2 = o2.getEstNumTransformed();
-				return Long.compare( nx1, nx2 );
-			}
-		};
+		Comparator<Record> comp = new RecordComparator();
 		
 		ObjectArrayList<Record> sampledList = new ObjectArrayList<Record>();
 		List<Record> searchedList = new ArrayList<Record>( recordList );
@@ -570,4 +555,14 @@ public class SampleEstimateDelta {
 		}
 		return sampledList;
 	}
+
+
+	class RecordComparator implements Comparator<Record> {
+		@Override
+		public int compare( Record o1, Record o2 ) {
+			long est1 = o1.getEstNumTransformed();
+			long est2 = o2.getEstNumTransformed();
+			return Long.compare( est1, est2 );
+		}
+	};
 }

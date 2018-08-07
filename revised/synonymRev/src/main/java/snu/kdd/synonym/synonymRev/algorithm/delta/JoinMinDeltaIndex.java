@@ -690,11 +690,13 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 	public void joinRecordMaxKThres( int nIndex, Record recS, Set<IntegerPair> rslt, boolean writeResult, BufferedWriter bw,
 		Validator checker, int threshold, boolean oneSideJoin ) {
+
+		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
+		if (!isUpperRecord) return;
+
 		long joinStartTime = System.nanoTime();
 //			boolean debug = false;
 //			if ( recS.getID() == 15756 ) debug = true;
-
-		boolean isUpperRecord = recS.getEstNumTransformed() > threshold;
 
 		Histogram hist = null;
 		if( DEBUG.JoinMinON ) {
@@ -742,11 +744,11 @@ public class JoinMinDeltaIndex implements JoinMinIndexInterface {
 
 						for( Record e : recordList ) {
 							// length filtering
-							if( !isUpperRecord && e.getEstNumTransformed() <= threshold ) {
-								// this record will not compared by joinmin index.
-								// this will be compared by joinnaive index
-								continue;
-							}
+//							if( !isUpperRecord && e.getEstNumTransformed() <= threshold ) {
+//								// this record will not compared by joinmin index.
+//								// this will be compared by joinnaive index
+//								continue;
+//							}
 							if( oneSideJoin ) {
 								if( !useLF || StaticFunctions.overlap( e.getTokenCount()-deltaMax, e.getTokenCount(), range[ 0 ]-deltaMax, range[ 1 ] ) ) {
 //										if( DEBUG.PrintJoinMinJoinON ) {

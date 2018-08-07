@@ -495,11 +495,11 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 	}
 
 	public void joinOneRecordThres( Record recS, Set<IntegerPair> rslt, Validator checker, int threshold, boolean oneSideJoin ) {
+	    boolean isUpperRecord = threshold <= 0 ? true : recS.getEstNumTransformed() > threshold;
+	    if (!isUpperRecord) return;
+
 		long ts = System.nanoTime();
 	    Set<Record> candidates = new WYK_HashSet<Record>(100);
-
-	    boolean isUpperRecord = threshold <= 0 ? true : recS.getEstNumTransformed() > threshold;
-
 	    Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 	    candidatesCount.defaultReturnValue(0);
 
@@ -539,9 +539,9 @@ public class JoinMHDeltaIndex implements JoinMHIndexInterface {
 
 	                    // Perform length filtering.
 	                    for ( Record otherRecord : recordList ) {
-	                        if (!isUpperRecord && otherRecord.getEstNumTransformed() <= threshold) {
-	                            continue;
-	                        }
+//	                        if (!isUpperRecord && otherRecord.getEstNumTransformed() <= threshold) {
+//	                            continue;
+//	                        }
 
 	                        int[] otherRange = null;
 
