@@ -230,9 +230,9 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 
 		stat.add( "Join_Naive_Result", rsltNaive.size() );
 		stat.add( "Join_Min_Result", rsltPQGram.size() );
-		stat.add( "Result_3_2_Join_Time", joinTime );
-		stat.add( "Result_3_2_1_Join_Naive_Time", joinNaiveTime );
-		stat.add( "Result_3_2_2_Join_PQGram_Time", joinPQGramTime );
+		stat.add( "Result_3_2_Join_Time", joinTime/1e6 );
+		stat.add( "Result_3_2_1_Join_Naive_Time", joinNaiveTime/1e6 );
+		stat.add( "Result_3_2_2_Join_PQGram_Time", joinPQGramTime/1e6 );
 		stat.add( "Stat_Naive_Search", naiveSearch );
 		if (joinQGramRequired ) {
 			if( joinMinSelected ) stat.add( "Stat_Equiv_Comparison", joinMinIdx.getEquivComparisons() );
