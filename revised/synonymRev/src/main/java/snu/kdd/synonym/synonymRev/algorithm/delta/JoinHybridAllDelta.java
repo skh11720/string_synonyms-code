@@ -161,6 +161,7 @@ public class JoinHybridAllDelta extends AlgorithmTemplate {
 				joinThreshold = list_thres[i];
 				joinMinSelected = list_minSelected[i];
 			}
+			System.out.println( list_thres[i]+"\t"+list_bestTime[i]+"\t"+list_minSelected[i] );
 		}
 
 		Util.printLog( "Selected Threshold: " + joinThreshold );
