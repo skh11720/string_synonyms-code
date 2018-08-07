@@ -37,10 +37,12 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 public class SampleEstimateDelta {
 
 	// coefficients of naive index
+	public double estTime_naive;
 	public double coeff_naive_1;
 	public double coeff_naive_2;
 	public double coeff_naive_3;
 
+	public double estTime_mh;
 	// gamma : JoinMH indexing time per pogram of table T
 	public double coeff_mh_1;
 	// zeta: JoinMH time for counting TPQ supersets per pqgram of table S
@@ -48,6 +50,7 @@ public class SampleEstimateDelta {
 	// eta : JoinMH join time per record of table T
 	public double coeff_mh_3;
 
+	public double estTime_min;
 	// lambda: JoinMin indexing time per twograms of table T
 	public double coeff_min_1;
 	// mu: JoinMin counting twogram time per twograms of table S
@@ -178,7 +181,7 @@ public class SampleEstimateDelta {
 		coeff_naive_1 = naiveinst.indexTime/(naiveinst.sumLenT+1);
 		coeff_naive_2 = (joinTime - verifyTime)/(naiveinst.sumLenS+1);
 //		coeff_naive_3 = verifyTime/(naiveinst.verifyCost+1);
-		coeff_naive_3 = 1.0*verifyTime/naive_term3[sampleSearchedList.size()-1];
+		coeff_naive_3 = 1.0*verifyTime/(naive_term3[sampleSearchedList.size()-1]+1);
 		
 //		stat.add( "Stat_Coeff_Naive_1", coeff_naive_1 );
 //		stat.add( "Stat_Coeff_Naive_2", coeff_naive_2 );
@@ -194,8 +197,8 @@ public class SampleEstimateDelta {
 //		System.out.println( Arrays.toString( naive_term2 ) );
 //		System.out.println( Arrays.toString( naive_term3 ) );
 
-		double estTime = getEstimateNaiveDelta( naive_term1, naive_term2[sampleSearchedList.size()-1], naive_term3[sampleSearchedList.size()-1] );
-		System.out.println( "Est_Time: "+ estTime );
+		estTime_naive = getEstimateNaiveDelta( naive_term1, naive_term2[sampleSearchedList.size()-1], naive_term3[sampleSearchedList.size()-1] );
+		System.out.println( "Est_Time: "+ estTime_naive );
 		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
 		System.out.println( "indexTime: "+indexTime );
 		System.out.println( "expandTime: "+expandTime );
@@ -208,7 +211,7 @@ public class SampleEstimateDelta {
 		output.put( "Naive_Term_1", naive_term1 );
 		output.put( "Naive_Term_2", naive_term2[sampleSearchedList.size()-1] );
 		output.put( "Naive_Term_3", naive_term3[sampleSearchedList.size()-1] );
-		output.put( "Naive_Est_Time", estTime );
+		output.put( "Naive_Est_Time", estTime_naive );
 		output.put( "Naive_Join_Time", (double)joinTime );
 		return output;
 	}
@@ -249,8 +252,8 @@ public class SampleEstimateDelta {
 		System.out.println( "Min_Term_3: "+ min_term3[sampleSearchedList.size()-1] );
 //		System.out.println( Arrays.toString( min_term2 ) );
 //		System.out.println( Arrays.toString( min_term3 ) );
-		double estTime = getEstimateJoinMinDelta( min_term1, min_term2[sampleSearchedList.size()-1], min_term3[sampleSearchedList.size()-1]);
-		System.out.println( "Est_Time: "+ estTime );
+		estTime_min = getEstimateJoinMinDelta( min_term1, min_term2[sampleSearchedList.size()-1], min_term3[sampleSearchedList.size()-1]);
+		System.out.println( "Est_Time: "+ estTime_min );
 		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
 
 //		System.out.println( "est verify time: "+String.format( "%.10e", coeff_min_3*min_term3[sampleSearchedList.size()-1] ) );
@@ -271,7 +274,7 @@ public class SampleEstimateDelta {
 		output.put( "Min_Term_1", min_term1 );
 		output.put( "Min_Term_2", min_term2[sampleSearchedList.size()-1] );
 		output.put( "Min_Term_3", min_term3[sampleSearchedList.size()-1] );
-		output.put( "Min_Est_Time", (double)estTime );
+		output.put( "Min_Est_Time", (double)estTime_min );
 		output.put( "Min_Join_Time", (double)joinTime );
 		return output;
 	}
@@ -314,8 +317,8 @@ public class SampleEstimateDelta {
 		System.out.println( "MH_Term_3: "+ mh_term3[sampleSearchedList.size()-1] );
 //		System.out.println( Arrays.toString( mh_term2 ) );
 //		System.out.println( Arrays.toString( mh_term3 ) );
-		double estTime = getEstimateJoinMHDelta( mh_term1, mh_term2[sampleSearchedList.size()-1], mh_term3[sampleSearchedList.size()-1] );
-		System.out.println( "Est_Time: "+ estTime );
+		estTime_mh = getEstimateJoinMHDelta( mh_term1, mh_term2[sampleSearchedList.size()-1], mh_term3[sampleSearchedList.size()-1] );
+		System.out.println( "Est_Time: "+ estTime_mh );
 		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
 
 		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
@@ -325,7 +328,7 @@ public class SampleEstimateDelta {
 		output.put( "MH_Term_1", mh_term1 );
 		output.put( "MH_Term_2", mh_term2[sampleSearchedList.size()-1] );
 		output.put( "MH_Term_3", mh_term3[sampleSearchedList.size()-1] );
-		output.put( "MH_Est_Time", (double)estTime );
+		output.put( "MH_Est_Time", (double)estTime_mh );
 		output.put( "MH_Join_Time", (double)joinTime );
 		return output;
 	}
@@ -506,6 +509,11 @@ public class SampleEstimateDelta {
 
 			currentThreshold = nextThreshold;
 		} // end while searching best threshold
+		
+		if ( estTime_naive < bestEstTime ) {
+			bestThreshold = Integer.MAX_VALUE;
+			bestEstTime = estTime_naive;
+		}
 
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_Best_Estimated_Time", bestEstTime );
