@@ -261,7 +261,8 @@ public class PassJoinIndexForSynonyms {
 		long ts = System.nanoTime();
 		ArrayList<Record> expand_list = recS.expandAll();
 		expCount += expand_list.size();
-		expandTime += System.nanoTime() - ts;
+		long t_afterExpand = System.nanoTime();
+		expandTime += t_afterExpand - ts;
 //		Collections.sort( expand_list, comp ); sorting does not improve the performance.
 
 		for ( Record exp : expand_list ) {
@@ -312,7 +313,7 @@ public class PassJoinIndexForSynonyms {
 							}
 						}
 					}
-					verifyTime += System.nanoTime() - ts_verify;
+//					verifyTime += System.nanoTime() - ts_verify;
 				} // end for lp
 			} // end for partId
 			verifyCost += 1.0 * clen * exp_checked;
@@ -325,6 +326,8 @@ public class PassJoinIndexForSynonyms {
 			AlgorithmTemplate.addSeqResult( recS, recT, rslt, isSelfJoin );
 //				if (debug) System.out.println( rslt.size()+ " output: "+rec1.getID()+", "+rec2.getID() );
 		}
+		
+		verifyTime += System.nanoTime() - t_afterExpand;
 	}
 
 	private long DJB_hash( int[] str, int start, int len) {
