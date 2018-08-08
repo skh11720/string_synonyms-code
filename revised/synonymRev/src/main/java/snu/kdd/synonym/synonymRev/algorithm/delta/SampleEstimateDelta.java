@@ -165,7 +165,8 @@ public class SampleEstimateDelta {
 			else {
 				naiveinst.joinOneRecord( recS, rslt );
 				naive_term2[i] = naiveinst.sumLenS;
-				naive_term3[i] = naiveinst.verifyCost;
+				naive_term3[i] = naiveinst.verifyCount;
+//				naive_term3[i] = naiveinst.verifyCost;
 //				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
 				naive_expCount[i] = naiveinst.expCount;
 				naive_verifyCount[i] = naiveinst.verifyCount;
@@ -369,12 +370,12 @@ public class SampleEstimateDelta {
 
 		// Indicates the minimum indices which have more that 'theta' expanded
 		// records
-		int indexedIdx = 0;
+//		int indexedIdx = 0;
 		int sidx = 0;
 //		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
 		long currentThreshold = 0;
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
-		int tableIndexedSize = sampleIndexedList.size();
+//		int tableIndexedSize = sampleIndexedList.size();
 		int tableSearchedSize = sampleSearchedList.size();
 
 		boolean stop = false;
@@ -382,10 +383,11 @@ public class SampleEstimateDelta {
 			stop = true;
 		}
 
-		while( currentThreshold <= maxThreshold ) {
+		while( sidx < tableSearchedSize ) {
 			if( currentThreshold > 100000 ) {
-				Util.printLog( "Current Threshold is more than 100000" );
-				break;
+//				Util.printLog( "Current Threshold is more than 100000" );
+				currentThreshold = Integer.MAX_VALUE;
+				stop = true;
 			}
 
 			long nextThresholdIndexed = -1;
@@ -404,10 +406,10 @@ public class SampleEstimateDelta {
 			long nextThreshold;
 
 			if( nextThresholdIndexed == -1 && nextThresholdSearched == -1 ) {
-				if( stop ) {
-					break;
-				}
-				nextThreshold = maxThreshold + 1;
+//				if( stop ) {
+//					break;
+//				}
+				nextThreshold = Integer.MAX_VALUE;
 			}
 			else if( nextThresholdIndexed == -1 ) {
 				nextThreshold = nextThresholdSearched;
@@ -430,21 +432,21 @@ public class SampleEstimateDelta {
 				}
 			}
 
-			double joinmhEstimation = this.getEstimateJoinMHDelta( mh_term1, (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1])), 
-					(mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1])));
+			double joinmhEstimation = this.getEstimateJoinMHDelta( mh_term1/sampleRatio, (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]))/sampleRatio, 
+					(mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]))/sampleRatio/sampleRatio);
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 			// totalJoinMHInvokes: the sum of the minimum number of records to be verified with t for every t in sampleIndexedSet
 			// removedJoinMHComparison: 
 
-			double joinminEstimation = this.getEstimateJoinMinDelta( min_term1, (min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1])), 
-					(min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1])));
+			double joinminEstimation = this.getEstimateJoinMinDelta( min_term1/sampleRatio, (min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]))/sampleRatio, 
+					(min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]))/sampleRatio/sampleRatio);
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 
 			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
 
-			double naiveEstimation = this.getEstimateNaiveDelta( naive_term1, (sidx==0?0:naive_term2[sidx-1]), (sidx==0?0:naive_term3[sidx-1]));
+			double naiveEstimation = this.getEstimateNaiveDelta( naive_term1/sampleRatio, (sidx==0?0:naive_term2[sidx-1])/sampleRatio, (sidx==0?0:naive_term3[sidx-1])/sampleRatio/sampleRatio);
 			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
 			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
 
@@ -508,12 +510,14 @@ public class SampleEstimateDelta {
 			}
 
 			currentThreshold = nextThreshold;
+			
+			if (stop) break;
 		} // end while searching best threshold
 		
-		if ( estTime_naive < bestEstTime ) {
-			bestThreshold = Integer.MAX_VALUE;
-			bestEstTime = estTime_naive;
-		}
+//		if ( getEstimateNaiveDelta( naive_term1/sampleRatio, naive_term2[sampleSearchedList.size()-1]/sampleRatio, naive_term3[sampleSearchedList.size()-1]/sampleRatio/sampleRatio ) < bestEstTime ) {
+//			bestThreshold = Integer.MAX_VALUE;
+//			bestEstTime = estTime_naive;
+//		}
 
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_Best_Estimated_Time", bestEstTime );
