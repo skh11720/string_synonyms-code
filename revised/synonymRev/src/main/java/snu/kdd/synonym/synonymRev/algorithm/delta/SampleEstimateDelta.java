@@ -168,8 +168,8 @@ public class SampleEstimateDelta {
 				naive_term3[i] = naiveinst.verifyCount;
 //				naive_term3[i] = naiveinst.verifyCost;
 //				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
-				naive_expCount[i] = naiveinst.expCount;
-				naive_verifyCount[i] = naiveinst.verifyCount;
+//				naive_expCount[i] = naiveinst.expCount;
+//				naive_verifyCount[i] = naiveinst.verifyCount;
 			}
 		} // end for id
 		long joinTime = System.nanoTime() - ts;

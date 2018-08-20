@@ -1,13 +1,20 @@
 package snu.kdd.synonym.synonymRev.estimation;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
@@ -59,11 +66,20 @@ public class SampleEstimate {
 	final Query sampleQuery;
 	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
+	
+	BufferedWriter bw_log = null;
 
 	public SampleEstimate( final Query query, double sampleratio, boolean isSelfJoin ) {
 		long seed = System.currentTimeMillis();
 		Util.printLog( "Random seed: " + seed );
 		Random rn = new Random( seed );
+		try { 
+			String[] tokenList = query.searchedFile.split( "\\"+(File.separator) );
+			String dataAndSize = tokenList[tokenList.length-1].split( "\\.", 2)[0];
+			String nameTmp = String.format( "SampleEst_%s_%.2f", dataAndSize, sampleratio );
+			bw_log = new BufferedWriter( new FileWriter( "tmp/"+nameTmp+".txt" ) );
+		}
+		catch ( IOException e ) { e.printStackTrace(); }
 
 		this.query = query;
 
@@ -127,6 +143,12 @@ public class SampleEstimate {
 		sampleQuery = new Query( query.ruleSet, sampleIndexed, sampleSearched, query.tokenIndex, query.oneSideJoin,
 				query.selfJoin );
 
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		bw_log.flush();
+		bw_log.close();
 	}
 
 	public void estimateNaive( StatContainer stat ) {
@@ -969,8 +991,8 @@ public class SampleEstimate {
 		// records
 		int indexedIdx = 0;
 		int searchedIdx = 0;
-		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(),
-				sampleIndexedList.get( 0 ).getEstNumTransformed() );
+//		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
+		long currentThreshold = 0;
 
 		int tableIndexedSize = sampleIndexedList.size();
 		int tableSearchedSize = sampleSearchedList.size();
@@ -1125,8 +1147,10 @@ public class SampleEstimate {
 
 		while( currentThreshold <= maxThreshold ) {
 			if( currentThreshold > 100000 ) {
-				Util.printLog( "Current Threshold is more than 100000" );
-				break;
+//				Util.printLog( "Current Threshold is more than 100000" );
+//				break;
+				currentThreshold = Long.MAX_VALUE;
+				stop = true;
 			}
 
 			long nextThresholdIndexed = -1;
@@ -1202,10 +1226,11 @@ public class SampleEstimate {
 			long nextThreshold;
 
 			if( nextThresholdIndexed == -1 && nextThresholdSearched == -1 ) {
-				if( stop ) {
-					break;
-				}
-				nextThreshold = maxThreshold + 1;
+//				if( stop ) {
+//					break;
+//				}
+//				nextThreshold = maxThreshold + 1;
+				nextThreshold = Long.MAX_VALUE;
 			}
 			else if( nextThresholdIndexed == -1 ) {
 				nextThreshold = nextThresholdSearched;
@@ -1262,6 +1287,39 @@ public class SampleEstimate {
 			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT(JoinMH): %.2f TT: %.2f", currentThreshold, nextThreshold,
 					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation ) );
 			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
+			
+			try {
+				bw_log.write( String.format( "%d\t", currentThreshold ) );
+
+				// naive
+				bw_log.write( String.format( "%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
+						(long)currExpLengthSize, (long)currExpSize, alpha*currExpLengthSize/1e6, beta*currExpSize/1e6, naiveEstimation/1e6,
+						alpha*currExpLengthSize/sampleRatio/1e6, beta*currExpSize/sampleRatio/1e6,
+						getEstimateNaive( currExpLengthSize/sampleRatio, currExpSize/sampleRatio )/1e6 
+						) );
+
+				// FKP
+				bw_log.write( String.format( "%d\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
+						(long)joinMHIndexedSigCount, (long)searchedTotalSigCount, (long)(totalJoinMHInvokes-removedJoinMHComparison), 
+						gamma*joinMHIndexedSigCount/1e6, zeta*searchedTotalSigCount/1e6, eta*(totalJoinMHInvokes-removedJoinMHComparison)/1e6, joinmhEstimation/1e6,
+						gamma*joinMHIndexedSigCount/sampleRatio/1e6, zeta*searchedTotalSigCount/sampleRatio/1e6, 
+						eta*(totalJoinMHInvokes-removedJoinMHComparison)/sampleRatio/sampleRatio/1e6, 
+						getEstimateJoinMH( searchedTotalSigCount/sampleRatio, joinMHIndexedSigCount/sampleRatio, (totalJoinMHInvokes-removedJoinMHComparison)/sampleRatio/sampleRatio)/1e6
+						) );
+
+				// BKP
+				bw_log.write( String.format( "%d\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
+						(long)indexedTotalSigCount, (long)searchedTotalSigCount, (long)(totalJoinMinInvokes-removedJoinMinComparison), 
+						gamma*indexedTotalSigCount/1e6, zeta*searchedTotalSigCount/1e6, eta*(totalJoinMinInvokes-removedJoinMinComparison)/1e6, joinminEstimation/1e6,
+						gamma*indexedTotalSigCount/sampleRatio/1e6, zeta*searchedTotalSigCount/sampleRatio/1e6, 
+						eta*(totalJoinMinInvokes-removedJoinMinComparison)/sampleRatio/sampleRatio/1e6, 
+						getEstimateJoinMin( searchedTotalSigCount/sampleRatio, indexedTotalSigCount/sampleRatio, (totalJoinMinInvokes-removedJoinMinComparison)/sampleRatio/sampleRatio)/1e6
+						) );
+
+				bw_log.write( "\n" );
+				bw_log.flush();
+			}
+			catch ( IOException e ) { e.printStackTrace(); }
 
 			double tempBestTime = naiveEstimation;
 
@@ -1289,6 +1347,8 @@ public class SampleEstimate {
 			}
 
 			currentThreshold = nextThreshold;
+			
+			if (stop) break;
 		} // end while searching best threshold
 
 		// if( sampleIndexedList.size() > 100 ) {
