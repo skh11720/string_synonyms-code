@@ -969,8 +969,8 @@ public class SampleEstimate {
 		// records
 		int indexedIdx = 0;
 		int searchedIdx = 0;
-		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(),
-				sampleIndexedList.get( 0 ).getEstNumTransformed() );
+//		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
+		long currentThreshold = 0;
 
 		int tableIndexedSize = sampleIndexedList.size();
 		int tableSearchedSize = sampleSearchedList.size();
@@ -1125,8 +1125,10 @@ public class SampleEstimate {
 
 		while( currentThreshold <= maxThreshold ) {
 			if( currentThreshold > 100000 ) {
-				Util.printLog( "Current Threshold is more than 100000" );
-				break;
+//				Util.printLog( "Current Threshold is more than 100000" );
+//				break;
+				currentThreshold = Long.MAX_VALUE;
+				stop = true;
 			}
 
 			long nextThresholdIndexed = -1;
@@ -1202,10 +1204,11 @@ public class SampleEstimate {
 			long nextThreshold;
 
 			if( nextThresholdIndexed == -1 && nextThresholdSearched == -1 ) {
-				if( stop ) {
-					break;
-				}
-				nextThreshold = maxThreshold + 1;
+//				if( stop ) {
+//					break;
+//				}
+//				nextThreshold = maxThreshold + 1;
+				nextThreshold = Long.MAX_VALUE;
 			}
 			else if( nextThresholdIndexed == -1 ) {
 				nextThreshold = nextThresholdSearched;
@@ -1289,6 +1292,8 @@ public class SampleEstimate {
 			}
 
 			currentThreshold = nextThreshold;
+			
+			if (stop) break;
 		} // end while searching best threshold
 
 		// if( sampleIndexedList.size() > 100 ) {
