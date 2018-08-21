@@ -222,7 +222,7 @@ public class JoinHybridAll_NEW extends AlgorithmTemplate {
 				if( joinMinSelectedForLowHigh ) {
 					stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMinIdxLowHigh.mu) );
 					stat.add( "Const_Mu_SearchedSigCount_Actual", joinMinIdxLowHigh.searchedTotalSigCount );
-					stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdxLowHigh.countTime ) );
+					stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdxLowHigh.indexCountTime) );
 
 					stat.add( "Const_Lambda_Actual", String.format( "%.2f", joinMinIdxLowHigh.lambda) );
 					stat.add( "Const_Lambda_IndexedSigCount_Actual", joinMinIdxLowHigh.indexedTotalSigCount );

@@ -30,19 +30,22 @@ public class NaiveIndex {
 	public double alpha;
 	public double beta;
 
-	public double indexTime = 0;
-	public double joinTime = 0;
+	public long indexTime = 0;
+	public long joinTime = 0;
 	public long idxsize = 0;
 	public long indexingTime = 0;
 
 	public double totalExp = 0;
 	public double totalExpLength = 0;
 
-	public double expandTime = 0;
-	public double searchTime = 0;
+	public long expandTime = 0;
+	public long searchTime = 0;
 
 	public int skippedCount = 0;
 	protected final long threshold;
+	
+	public int sumTransLenS = 0;
+	public int sumLenT = 0;
 
 	public NaiveIndex( Dataset indexedSet, Query query, StatContainer stat, boolean addStat, long threshold, double avgTransformed ) {
 		isSelfJoin = query.selfJoin;
@@ -154,6 +157,7 @@ public class NaiveIndex {
 			}
 
 			indexingTime += System.nanoTime() - indexingStartTime;
+			sumLenT += recR.size();
 		}
 
 		if( DEBUG.PrintNaiveIndexON ) {
@@ -318,13 +322,15 @@ public class NaiveIndex {
 			for( Integer i : overlapidx ) {
 				candidates.add( i );
 			}
+			
+			sumTransLenS += exp.size();
 		}
-		searchTime += System.nanoTime() - searchStartTime;
-
 		for( final Integer idx : candidates ) {
 //			rslt.add( new IntegerPair( recS.getID(), idx ) );
 			AlgorithmTemplate.addSeqResult( recS, idx, rslt, isSelfJoin );
 		}
+
+		searchTime += System.nanoTime() - searchStartTime;
 	}
 	
 	public void addStatAfterJoin( StatContainer stat ) {
