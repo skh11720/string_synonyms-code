@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
@@ -28,7 +29,7 @@ public class TestUtils {
 		String osName = System.getProperty( "os.name" );
 		String prefix = null;
 		if ( osName.startsWith( "Windows" ) ) {
-			prefix = "C:/users/ghsong/data/";
+			prefix = "D:\\ghsong\\data\\synonyms\\";
 //			String dataOnePath = "C:/users/ghsong/data/aol/splitted/aol_"+size+"_data.txt";
 //			String dataTwoPath = "C:/users/ghsong/data/aol/splitted/aol_"+size+"_data.txt";
 //			String rulePath = "C:/users/ghsong/data/wordnet/rules.noun";
@@ -41,21 +42,23 @@ public class TestUtils {
 //			String outputPath = "output";
 		}
 		
+		String sep = "\\" + File.separator;
+		
 		String dataOnePath, dataTwoPath, rulePath;
 		if ( name.equals( "AOL" )) {
-			dataOnePath = prefix + String.format( "aol/splitted/aol_%d_data.txt", size );
-			dataTwoPath = prefix + String.format( "aol/splitted/aol_%d_data.txt", size );
-			rulePath = prefix + "wordnet/rules.noun";
+			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
+			dataTwoPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
+			rulePath = prefix + "wordnet"+sep+"rules.noun";
 		}
 		else if ( name.equals( "SPROT" ) ) {
-			dataOnePath = prefix + String.format( "sprot/splitted/SPROT_two_%d.txt", size );
-			dataTwoPath = prefix + String.format( "sprot/splitted/SPROT_two_%d.txt", size );
-			rulePath = prefix + "sprot/rule.txt";
+			dataOnePath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
+			dataTwoPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
+			rulePath = prefix + "sprot"+sep+"rule.txt";
 		}
 		else if ( name.equals( "USPS" ) ) {
-			dataOnePath = prefix + String.format( "JiahengLu/splitted/USPS_%d.txt", size );
-			dataTwoPath = prefix + String.format( "JiahengLu/splitted/USPS_%d.txt", size );
-			rulePath = prefix + "JiahengLu/USPS_rule.txt";
+			dataOnePath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+			dataTwoPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else throw new RuntimeException();
 
