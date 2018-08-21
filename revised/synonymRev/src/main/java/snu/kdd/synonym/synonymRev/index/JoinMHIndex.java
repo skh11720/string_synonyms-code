@@ -527,7 +527,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 				stat.add("Stat_Candidate_Times_Per_Index", candTimeStr);
 			}
 		}
-		this.joinTime = System.nanoTime() - startTime - totalCountTime;
+		this.joinTime = System.nanoTime() - startTime;
 		this.countTime = totalCountTime;
 		this.countValue = totalCountValue;
 
@@ -535,7 +535,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 		// totalCountTime: time for generating TPQ supersets
 		// totalCountValue: the size of TPQ supersets
 		
-		this.eta = ((double) this.joinTime / this.predictCount);
+		this.eta = ((double) (this.joinTime - totalCountTime) / this.predictCount);
 		// this.joinTime: time for counting and verifications
 		// this.predictCount: the sum of minimum invokes (number of records in searchedSet to be verified) of records in indexedSet
 
