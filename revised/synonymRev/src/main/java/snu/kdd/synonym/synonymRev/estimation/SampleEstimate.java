@@ -77,6 +77,7 @@ public class SampleEstimate {
 	final Query query;
 	final Query sampleQuery;
 	private final boolean stratified = false;
+	public final int sampleSearchedSize;
 	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
 	BufferedWriter bw_log = null;
@@ -126,6 +127,7 @@ public class SampleEstimate {
 
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
+		sampleSearchedSize = sampleSearchedList.size();
 
 		Comparator<Record> comp = new RecordComparator();
 		Collections.sort( sampleSearchedList, comp );
@@ -358,12 +360,12 @@ public class SampleEstimate {
 		estimateJoinMH( stat, checker, indexK, qSize );
 		estimateJoinMin( stat, checker, indexK, qSize );
 		
-		try {
-			bw_log.write( "estTimeNaive\t"+estTime_naive/1e6+"\n" );
-			bw_log.write( "estTimeJoinMH\t"+estTime_mh/1e6+"\n" );
-			bw_log.write( "estTimeJoinMin\t"+estTime_min/1e6+"\n" );
-		}
-		catch (IOException e ) { e.printStackTrace(); }
+//		try {
+//			bw_log.write( "estTimeNaive\t"+estTime_naive/1e6+"\n" );
+//			bw_log.write( "estTimeJoinMH\t"+estTime_mh/1e6+"\n" );
+//			bw_log.write( "estTimeJoinMin\t"+estTime_min/1e6+"\n" );
+//		}
+//		catch (IOException e ) { e.printStackTrace(); }
 
 
 		if( DEBUG.PrintEstimationON ) {
@@ -378,16 +380,24 @@ public class SampleEstimate {
 		}
 	}
 
+	/*
+	 * scale up terms by (1/sampleRatio)^p
+	 */
 	public double getEstimateNaive( double term1, double term2 ) {
-		return coeff_naive_1 * term1 + coeff_naive_2 * term2;
+		return coeff_naive_1 * term1 / sampleRatio 
+				+ coeff_naive_2 * term2 / sampleRatio;
 	}
 
 	public double getEstimateJoinMH( double term1, double term2, double term3 ) {
-		return coeff_mh_1 * term1 + coeff_mh_2 * term2 + coeff_mh_3 * term3;
+		return coeff_mh_1 * term1 / sampleRatio 
+				+ coeff_mh_2 * term2 / sampleRatio / sampleRatio 
+				+ coeff_mh_3 * term3 / sampleRatio / sampleRatio;
 	}
 
 	public double getEstimateJoinMin( double term1, double term2, double term3 ) {
-		return coeff_min_1 * term1 + coeff_min_2 * term2 + coeff_min_3 * term3;
+		return coeff_min_1 * term1 / sampleRatio 
+				+ coeff_min_2 * term2 / sampleRatio / sampleRatio 
+				+ coeff_min_3 * term3 / sampleRatio / sampleRatio;
 	}
 	
 	public int findThetaJoinMinNaive( int qSize, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords,
@@ -1042,21 +1052,21 @@ public class SampleEstimate {
 			long curr_min_term2 = (min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]));
 			long curr_min_term3 = (min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]));
 			
-			double joinmhEstimation = this.getEstimateJoinMH( mh_term1/sampleRatio, curr_mh_term2/sampleRatio, curr_mh_term3/sampleRatio/sampleRatio);
+			double naiveEstimation = this.getEstimateNaive( naive_term1, curr_naive_term2);
+			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
+			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
+
+			double joinmhEstimation = this.getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3);
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 			// totalJoinMHInvokes: the sum of the minimum number of records to be verified with t for every t in sampleIndexedSet
 			// removedJoinMHComparison: 
 
-			double joinminEstimation = this.getEstimateJoinMin( min_term1/sampleRatio, curr_min_term2/sampleRatio, curr_min_term3/sampleRatio/sampleRatio);
+			double joinminEstimation = this.getEstimateJoinMin( min_term1, curr_min_term2, curr_min_term3);
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 
 			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
-
-			double naiveEstimation = this.getEstimateNaive( naive_term1/sampleRatio, curr_naive_term2/sampleRatio );
-			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
-			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
 
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bw = EstimationTest.getWriter();
