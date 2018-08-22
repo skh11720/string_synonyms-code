@@ -23,8 +23,8 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 public class AlgorithmTest {
 	
 //	private static Query query;
-	private static String[] args = {"-algorithm", "", "-oneSideJoin", "True", "-additional", ""};
-	private static boolean isSelfJoin = false;
+	public static String[] args = {"-algorithm", "", "-oneSideJoin", "True", "-additional", ""};
+	public static boolean isSelfJoin = false;
 	
 	// answer values
 	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 1190, 2447};
@@ -36,9 +36,9 @@ public class AlgorithmTest {
 		String osName = System.getProperty( "os.name" );
 		final String dataOnePath, dataTwoPath, rulePath;
 		if ( osName.startsWith( "Windows" ) ) {
-			dataOnePath = "C:\\users\\ghsong\\data\\aol\\splitted\\aol_1000_data.txt";
-			dataTwoPath = "C:\\users\\ghsong\\data\\aol\\splitted\\aol_1000_data.txt";
-			rulePath = "C:\\users\\ghsong\\data\\wordnet\\rules.noun";
+			dataOnePath = "D:\\ghsong\\data\\synonyms\\aol\\splitted\\aol_1000_data.txt";
+			dataTwoPath = "D:\\ghsong\\data\\synonyms\\aol\\splitted\\aol_1000_data.txt";
+			rulePath = "D:\\ghsong\\data\\synonyms\\wordnet\\rules.noun";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
 			dataOnePath = "run/data_store/aol/splitted/aol_1000_data.txt";
@@ -60,9 +60,9 @@ public class AlgorithmTest {
 		String osName = System.getProperty( "os.name" );
 		final String dataOnePath, dataTwoPath, rulePath;
 		if ( osName.startsWith( "Windows" ) ) {
-			dataOnePath = "C:\\users\\ghsong\\data\\data\\1000000_5_10000_1.0_0.0_1.txt";
-			dataTwoPath = "C:\\users\\ghsong\\data\\data\\1000000_5_10000_1.0_0.0_2.txt";
-			rulePath = "C:\\users\\ghsong\\data\\rule\\30000_2_2_10000_0.0_0.txt";
+			dataOnePath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_10000_1.0_0.0_1.txt";
+			dataTwoPath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_10000_1.0_0.0_2.txt";
+			rulePath = "D:\\ghsong\\data\\synonyms\\rule\\30000_2_2_10000_0.0_0.txt";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
 			dataOnePath = "run/data_store/data/1000000_5_10000_1.0_0.0_1.txt";

@@ -374,7 +374,7 @@ public class EstimationTest extends AlgorithmTemplate {
 
 				stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMinIdx.mu) );
 				stat.add( "Const_Mu_SearchedSigCount_Actual", joinMinIdx.searchedTotalSigCount );
-				stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdx.countTime ) );
+				stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdx.indexCountTime) );
 			}
 			stepTime.stopAndAdd( stat );
 			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
@@ -524,7 +524,7 @@ public class EstimationTest extends AlgorithmTemplate {
 
 				bwEstimation.write( "[Iota] " + 0 );
 				bwEstimation.write( " QgramTime " + 0 );
-				bwEstimation.write( " searchedTotalSigCount " + joinMHIdx.countValue + "\n" );
+				bwEstimation.write( " searchedTotalSigCount " + joinMHIdx.candQGramCount+ "\n" );
 			}
 			catch( Exception e ) {
 				e.printStackTrace();

@@ -278,14 +278,27 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
 		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
 		
-		stat.add( "Const_Alpha", estimate.alpha );
-		stat.add( "Const_Beta", estimate.beta );
-		stat.add( "Const_Gamma", estimate.gamma );
-		stat.add( "Const_Zeta", estimate.zeta );
-		stat.add( "Const_Eta", estimate.eta );
-		stat.add( "Const_Lambda", estimate.lambda );
-		stat.add( "Const_Mu", estimate.mu );
-		stat.add( "Const_Rho", estimate.rho );
+		stat.add( "Estimate_Coeff1_Naive", estimate.coeff_naive_1);
+		stat.add( "Estimate_Coeff2_Naive", estimate.coeff_naive_2);
+		stat.add( "Estimate_Term1_Naive", estimate.naive_term1);
+		stat.add( "Estimate_Term2_Naive", estimate.naive_term2[estimate.sampleSearchedSize-1]);
+		stat.add( "Estimate_Time_Naive", estimate.estTime_naive );
+
+		stat.add( "Estimate_Coeff1_Mh", estimate.coeff_mh_1);
+		stat.add( "Esitmate_Coeff2_Mh", estimate.coeff_mh_2);
+		stat.add( "Estimate_Coeff3_Mh", estimate.coeff_mh_3);
+		stat.add( "Estimate_Term1_Mh", estimate.mh_term1);
+		stat.add( "Estimate_Term2_Mh", estimate.mh_term2[estimate.sampleSearchedSize-1]);
+		stat.add( "Estimate_Term3_Mh", estimate.mh_term3[estimate.sampleSearchedSize-1]);
+		stat.add( "Estimate_Time_Mh", estimate.estTime_mh );
+
+		stat.add( "Estimate_Coeff1_Min", estimate.coeff_min_1);
+		stat.add( "Estimate_Coeff2_Min", estimate.coeff_min_2);
+		stat.add( "Estimate_Coeff3_Min", estimate.coeff_min_3);
+		stat.add( "Estimate_Term1_Min", estimate.min_term1);
+		stat.add( "Estimate_Term2_Min", estimate.min_term2[estimate.sampleSearchedSize-1]);
+		stat.add( "Estimate_Term3_Min", estimate.min_term3[estimate.sampleSearchedSize-1]);
+		stat.add( "Estimate_Time_Min", estimate.estTime_min );
 	}
 
 	@Override
@@ -293,8 +306,9 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		/*
 		 * 2.6: the latest version by yjpark
 		 * 2.61: ignore records with too many transformations
+		 * 2.62: rollback 2.61, estimate by scaling up terms: 11/122/122
 		 */
-		return "2.61";
+		return "2.62";
 	}
 
 	@Override

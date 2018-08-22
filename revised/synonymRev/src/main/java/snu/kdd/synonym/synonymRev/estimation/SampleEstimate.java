@@ -4,27 +4,27 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
-
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
-import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
+import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
+import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -35,38 +35,51 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class SampleEstimate {
 
-	// alpha: Naive indexing time per transformed strings of table T
-	public double alpha;
-	// beta: Navie join time per transformed strings of table S
-	public double beta;
+	// coefficients of naive index
+	public double estTime_naive;
+	public double coeff_naive_1;
+	public double coeff_naive_2;
 
+	public double estTime_mh;
 	// gamma : JoinMH indexing time per pogram of table T
-	public double gamma;
+	public double coeff_mh_1;
 	// zeta: JoinMH time for counting TPQ supersets per pqgram of table S
-	public double zeta;
+	public double coeff_mh_2;
 	// eta : JoinMH join time per record of table T
-	public double eta;
+	public double coeff_mh_3;
 
+	public double estTime_min;
 	// lambda: JoinMin indexing time per twograms of table T
-	public double lambda;
+	public double coeff_min_1;
 	// mu: JoinMin counting twogram time per twograms of table S
-	public double mu;
+	public double coeff_min_2;
 	// rho: JoinMin join time per candidate of table S
-	public double rho;
-
+	public double coeff_min_3;
 
 	public double sampleRatio;
+	public double bestEstTime = Double.MAX_VALUE;
 
 	Dataset originalSearched;
 	Dataset originalIndexed;
+	
+	public long naive_term1;
+	public long[] naive_term2;
+	public long mh_term1;
+	public long[] mh_term2;
+	public long[] mh_term3;
+	public long min_term1;
+	public long[] min_term2;
+	public long[] min_term3;
 
 	boolean joinMinSelected = false;
+	double indexAvgTransform = 0;
 
 	final Query query;
 	final Query sampleQuery;
+	private final boolean stratified = false;
+	public final int sampleSearchedSize;
 	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
-	
 	BufferedWriter bw_log = null;
 
 	public SampleEstimate( final Query query, double sampleratio, boolean isSelfJoin ) {
@@ -103,46 +116,36 @@ public class SampleEstimate {
 
 			this.sampleRatio = 10.0 / smallTableSize;
 		}
-
-		for( Record r : query.searchedSet.get() ) {
-			if( rn.nextDouble() < this.sampleRatio ) {
-				sampleSearchedList.add( r );
-			}
-		}
-
+		
+		sampleSearchedList = sampleRecords( query.searchedSet.recordList, rn );
 		if( isSelfJoin ) {
 			for( Record r : sampleSearchedList ) {
 				sampleIndexedList.add( r );
 			}
 		}
-		else {
-			for( Record s : query.indexedSet.get() ) {
-				if( rn.nextDouble() < this.sampleRatio ) {
-					sampleIndexedList.add( s );
-				}
-			}
-		}
+		else sampleIndexedList = sampleRecords( query.indexedSet.recordList, rn );
 
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
+		sampleSearchedSize = sampleSearchedList.size();
 
-		Comparator<Record> cmp = new Comparator<Record>() {
-			@Override
-			public int compare( Record o1, Record o2 ) {
-				long est1 = o1.getEstNumTransformed();
-				long est2 = o2.getEstNumTransformed();
-				return Long.compare( est1, est2 );
-			}
-		};
-
-		Collections.sort( sampleSearchedList, cmp );
-		Collections.sort( sampleIndexedList, cmp );
+		Comparator<Record> comp = new RecordComparator();
+		Collections.sort( sampleSearchedList, comp );
+		Collections.sort( sampleIndexedList, comp );
 
 		Dataset sampleIndexed = new Dataset( sampleIndexedList );
 		Dataset sampleSearched = new Dataset( sampleSearchedList );
 		sampleQuery = new Query( query.ruleSet, sampleIndexed, sampleSearched, query.tokenIndex, query.oneSideJoin,
 				query.selfJoin );
+		
+		for ( Record rec : sampleIndexed.recordList ) indexAvgTransform += rec.getEstNumTransformed();
+		indexAvgTransform /= sampleIndexed.size();
 
+		naive_term2 = new long[sampleSearchedList.size()];
+		mh_term2 = new long[sampleSearchedList.size()];
+		mh_term3 = new long[sampleSearchedList.size()];
+		min_term2 = new long[sampleSearchedList.size()];
+		min_term3 = new long[sampleSearchedList.size()];
 	}
 	
 	@Override
@@ -151,133 +154,178 @@ public class SampleEstimate {
 		bw_log.close();
 	}
 
-	public void estimateNaive( StatContainer stat ) {
+	public Object2DoubleMap<String> estimateJoinNaive( StatContainer stat ) {
 
 		// Infer alpha and beta
-		JoinNaive naiveinst;
-		try {
-			StatContainer tmpStat = new StatContainer();
-			naiveinst = new JoinNaive( sampleQuery, tmpStat );
-			naiveinst.threshold = 100;
-			naiveinst.avgTransformed = 100/2;
-			naiveinst.runAfterPreprocess( false );
-			alpha = naiveinst.getAlpha();
-			beta = naiveinst.getBeta();
+		NaiveIndex naiveinst;
+		StatContainer tmpStat = new StatContainer();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Alpha : " + alpha );
-				Util.printLog( "Beta : " + beta );
-
-				stat.add( "Const_Alpha", String.format( "%.2f", alpha ) );
-				stat.add( "Const_Beta", String.format( "%.2f", beta ) );
+		long ts = System.nanoTime();
+		naiveinst = new NaiveIndex( sampleQuery.indexedSet, sampleQuery, tmpStat, false, -1, indexAvgTransform );
+		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
+			Record recS = sampleQuery.searchedSet.getRecord( i );
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
+				naive_term2[i] = (i == 0 ? 0 : naive_term2[i-1]);
 			}
-		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
+			else {
+				naiveinst.joinOneRecord( recS, rslt );
+				naive_term2[i] = naiveinst.sumTransLenS;
+//				naive_term3[i] = naiveinst.verifyCost;
+//				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
+			}
+		} // end for id
+		long joinTime = System.nanoTime() - ts;
+		long indexTime = naiveinst.indexTime;
+		long searchTime = naiveinst.searchTime;
+		naive_term1 = naiveinst.sumLenT;
+
+		// compute coefficients
+		coeff_naive_1 = indexTime/(naiveinst.sumLenT+1);
+		coeff_naive_2 = joinTime/(naiveinst.sumTransLenS+1);
+		
+		System.out.println( "estimateJoinNaive" );
+		System.out.println( "coeff_naive1: "+coeff_naive_1 );
+		System.out.println( "coeff_naive_2: "+coeff_naive_2 );
+		System.out.println( "Naive_Term_1: "+naive_term1 );
+		System.out.println( "Naive_Term_2: "+naive_term2[sampleSearchedList.size()-1] );
+
+		estTime_naive = getEstimateNaive( naive_term1, naive_term2[sampleSearchedList.size()-1] );
+		System.out.println( "Est_Time: "+ estTime_naive );
+		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
+		System.out.println( "indexTime: "+indexTime );
+		System.out.println( "searchTime: "+searchTime );
+		
+		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
+		output.put( "Naive_Coeff_1", coeff_naive_1 );
+		output.put( "Naive_Coeff_2", coeff_naive_2 );
+		output.put( "Naive_Term_1", naive_term1 );
+		output.put( "Naive_Term_2", naive_term2[sampleSearchedList.size()-1] );
+		output.put( "Naive_Est_Time", estTime_naive );
+		output.put( "Naive_Join_Time", (double)joinTime );
+		return output;
 	}
 
-	public void estimateJoinMin( StatContainer stat, Validator checker, int indexK, int qSize ) {
+	public Object2DoubleMap<String> estimateJoinMH( StatContainer stat, Validator checker, int indexK, int qSize ) {
 
-		if( DEBUG.SampleStatON ) {
-			stat.add( "Stat_Sample Searched size_Min", sampleSearchedList.size() );
-			stat.add( "Stat_Sample Indexed size_Min", sampleIndexedList.size() );
-		}
+		int[] indexPosition = new int[indexK];
+		for (int i=0; i<indexK; ++i ) indexPosition[i] = i;
+		StatContainer tmpStat = new StatContainer();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
+		long ts = System.nanoTime();
+		JoinMHIndex joinmhinst = new JoinMHIndex( indexK, qSize, sampleIndexedList, sampleQuery, tmpStat, indexPosition, true, true, -1 );
+		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
+			Record recS = sampleQuery.searchedSet.getRecord( i );
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
+				mh_term2[i] = (i == 0 ? 0 : mh_term2[i-1]);
+				mh_term3[i] = (i == 0 ? 0 : mh_term3[i-1]);
+			}
+			else {
+				joinmhinst.joinOneRecordThres( recS, rslt, checker, -1, sampleQuery.oneSideJoin );
+				mh_term2[i] =  joinmhinst.candQGramCount;
+				mh_term3[i] =  joinmhinst.equivComparisons;
+			}
+		} // for sid in in searchedSet
+		long joinTime = System.nanoTime() - ts;
+
+		mh_term1 = joinmhinst.qgramCount;
+		coeff_mh_1 = joinmhinst.indexTime / (joinmhinst.qgramCount+1);
+		coeff_mh_2 = (joinmhinst.candQGramCountTime + joinmhinst.filterTime) / (joinmhinst.candQGramCount+1);
+//		coeff_mh_3 = (double) (joinTime - joinmhinst.candQGramCountTime - joinmhinst.filterTime) / (joinmhinst.predictCount+1);
+		coeff_mh_3 = (double) (joinmhinst.verifyTime) / (joinmhinst.equivComparisons+1);
+
+		System.out.println( "estimateJoinMH" );
+		System.out.println( "coeff_mh_1: "+coeff_mh_1 );
+		System.out.println( "coeff_mh_2: "+coeff_mh_2 );
+		System.out.println( "coeff_mh_3: "+coeff_mh_3 );
+		System.out.println( "MH_Term_1: "+ mh_term1 );
+		System.out.println( "MH_Term_2: "+ mh_term2[sampleSearchedList.size()-1] );
+		System.out.println( "MH_Term_3: "+ mh_term3[sampleSearchedList.size()-1] );
+//		System.out.println( Arrays.toString( mh_term2 ) );
+//		System.out.println( Arrays.toString( mh_term3 ) );
+		estTime_mh = getEstimateJoinMH( mh_term1, mh_term2[sampleSearchedList.size()-1], mh_term3[sampleSearchedList.size()-1] );
+		System.out.println( "Est_Time: "+ estTime_mh );
+		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
+
+		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
+		output.put( "MH_Coeff_1", coeff_mh_1 );
+		output.put( "MH_Coeff_2", coeff_mh_2 );
+		output.put( "MH_Coeff_3", coeff_mh_3 );
+		output.put( "MH_Term_1", mh_term1 );
+		output.put( "MH_Term_2", mh_term2[sampleSearchedList.size()-1] );
+		output.put( "MH_Term_3", mh_term3[sampleSearchedList.size()-1] );
+		output.put( "MH_Est_Time", (double)estTime_mh );
+		output.put( "MH_Join_Time", (double)joinTime );
+		return output;
+	}
+
+	public Object2DoubleMap<String> estimateJoinMin( StatContainer stat, Validator checker, int indexK, int qSize ) {
 		// Infer lambda, mu and rho
-		JoinMin joinmininst;
-		try {
-			StatContainer tmpStat = new StatContainer();
-			joinmininst = new JoinMin( sampleQuery, tmpStat );
-			joinmininst.writeResult = false;
-			joinmininst.checker = checker;
-			joinmininst.qSize = qSize;
-			joinmininst.indexK = indexK;
+		StatContainer tmpStat = new StatContainer();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Joinmininst run" );
+		long ts = System.nanoTime();
+		JoinMinIndex joinmininst = new JoinMinIndex( indexK, qSize, tmpStat, sampleQuery, -1, false );
+		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
+			Record recS = sampleQuery.searchedSet.getRecord( i );
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
+				min_term2[i] = ( i== 0? 0 : min_term2[i-1]);
+				min_term3[i] = ( i== 0? 0 : min_term3[i-1]);
 			}
-
-			joinmininst.runWithoutPreprocess();
-
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Joinmininst run done" );
-			}
-
-			lambda = joinmininst.getLambda();
-			mu = joinmininst.getMu();
-			rho = joinmininst.getRho();
-			long searchedTotalSigCount = joinmininst.getSearchedTotalSigCount();
-			long indexedTotalSigCount = joinmininst.getIndexedTotalSigCount();
-			Util.printLog( "searchedTotalSigCount: "+searchedTotalSigCount );
-			Util.printLog( "indexedTotalSigCount: "+indexedTotalSigCount );
-
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Lambda : " + lambda );
-				Util.printLog( "Mu : " + mu );
-				Util.printLog( "Rho : " + rho );
-
-				stat.add( "Const_Lambda", String.format( "%.2f", lambda ) );
-				stat.add( "Const_Mu", String.format( "%.2f", mu ) );
-				stat.add( "Const_Rho", String.format( "%.2f", rho ) );
-
-				stat.add( "Const_EpsilonPrime", String.format( "%.2f", joinmininst.idx.getRhoPrime() ) );
+			else {
+				joinmininst.joinRecordMaxK( indexK, recS, rslt, false, null, checker, query.oneSideJoin );
+				min_term2[i] = joinmininst.searchedTotalSigCount;
+				min_term3[i] = joinmininst.equivComparisons;
 			}
 		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
+		long joinTime = System.nanoTime() - ts;
+		if ( joinmininst.predictCount == 0 ) joinmininst.predictCount = 1; // prevent from dividing by zero
+
+		min_term1 = joinmininst.indexedTotalSigCount;
+		coeff_min_1 = joinmininst.indexRecordTime / (joinmininst.indexedTotalSigCount+1);
+		coeff_min_2 = ( joinmininst.indexCountTime + joinmininst.candQGramTime + joinmininst.filterTime ) / (joinmininst.searchedTotalSigCount+1);
+		coeff_min_3 = joinmininst.verifyTime / (joinmininst.equivComparisons+1);
+
+		System.out.println( "estimateJoinMin" );
+		System.out.println( "coeff_min_1: "+coeff_min_1 );
+		System.out.println( "coeff_min_2: "+coeff_min_2 );
+		System.out.println( "coeff_min_3: "+coeff_min_3 );
+		System.out.println( "Min_Term_1: "+ min_term1 );
+		System.out.println( "Min_Term_2: "+ min_term2[sampleSearchedList.size()-1] );
+		System.out.println( "Min_Term_3: "+ min_term3[sampleSearchedList.size()-1] );
+//		System.out.println( Arrays.toString( min_term2 ) );
+//		System.out.println( Arrays.toString( min_term3 ) );
+		estTime_min = getEstimateJoinMin( min_term1, min_term2[sampleSearchedList.size()-1], min_term3[sampleSearchedList.size()-1]);
+		System.out.println( "Est_Time: "+ estTime_min );
+		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
+
+//		System.out.println( "est verify time: "+String.format( "%.10e", coeff_min_3*min_term3[sampleSearchedList.size()-1] ) );
+//		System.out.println( "verify time: "+String.format( "%.10e", (double)(joinTime-joinmininst.candQGramCountTime) ) );
+//
+//		System.out.println( "est tpq time: "+String.format( "%.10e", coeff_min_2*min_term2[sampleSearchedList.size()-1] ) );
+//		System.out.println( "tpq time: "+String.format( "%.10e", (double)(joinmininst.indexCountTime + joinmininst.candQGramCountTime) ) );
+//		System.out.println( "tpq, indexCounttime: "+String.format( "%.10e", (double)(joinmininst.candQGramCountTime) ) );
+//		System.out.println( "tpq, candQGramCounttime: "+String.format( "%.10e", (double)(joinmininst.candQGramCountTime) ) );
+//		
+//		System.out.println( "est index time: "+String.format( "%.10e", coeff_min_1*min_term1 ) );
+//		System.out.println( "index time: "+String.format( "%.10e", (double)(joinmininst.indexTime) ) );
+
+		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
+		output.put( "Min_Coeff_1", coeff_min_1 );
+		output.put( "Min_Coeff_2", coeff_min_2 );
+		output.put( "Min_Coeff_3", coeff_min_3 );
+		output.put( "Min_Term_1", min_term1 );
+		output.put( "Min_Term_2", min_term2[sampleSearchedList.size()-1] );
+		output.put( "Min_Term_3", min_term3[sampleSearchedList.size()-1] );
+		output.put( "Min_Est_Time", (double)estTime_min );
+		output.put( "Min_Join_Time", (double)joinTime );
+		return output;
 	}
 
-	public void estimateJoinMH( StatContainer stat, Validator checker, int indexK, int qSize ) {
-
-		if( DEBUG.SampleStatON ) {
-			stat.add( "Stat_Sample Searched size_MH", sampleSearchedList.size() );
-			stat.add( "Stat_Sample Indexed size_MH", sampleIndexedList.size() );
-		}
-
-		// Infer gamma, zeta and eta
-		JoinMH joinmhinst;
-		try {
-			StatContainer tmpStat = new StatContainer();
-			joinmhinst = new JoinMH( sampleQuery, tmpStat );
-			joinmhinst.writeResult = false;
-			joinmhinst.checker = checker;
-			joinmhinst.qgramSize = qSize;
-			joinmhinst.indexK = indexK;
-
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Joinmininst run" );
-			}
-
-			joinmhinst.runAfterPreprocess();
-
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Joinmh run done" );
-			}
-
-			gamma = joinmhinst.getGamma();
-			zeta = joinmhinst.getZeta();
-			eta = joinmhinst.getEta();
-
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( "Gamma : " + gamma );
-				Util.printLog( "Zeta : " + zeta );
-				Util.printLog( "Eta : " + eta );
-
-				stat.add( "Const_Gamma", String.format( "%.2f", gamma ) );
-				stat.add( "Const_Zeta", String.format( "%.2f", zeta ) );
-				stat.add( "Const_Eta", String.format( "%.2f", eta ) );
-			}
-		}
-		catch( IOException e ) {
-			e.printStackTrace();
-		}
-	}
-
-	public void estimateJoinMHNaiveWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
-		estimateJoinMH( stat, checker, indexK, qSize );
-		estimateNaive( stat );
+    public void estimateJoinMHNaiveWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
+        estimateJoinMH( stat, checker, indexK, qSize );
+        estimateJoinNaive( stat );
 
 		if( DEBUG.PrintEstimationON ) {
 			BufferedWriter bw = EstimationTest.getWriter();
@@ -289,11 +337,11 @@ public class SampleEstimate {
 				e.printStackTrace();
 			}
 		}
-	}
+    }
 
-	public void estimateJoinMinNaiveWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
-		estimateJoinMin( stat, checker, indexK, qSize );
-		estimateNaive( stat );
+    public void estimateJoinMinNaiveWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
+        estimateJoinMin( stat, checker, indexK, qSize );
+        estimateJoinNaive( stat );
 
 		if( DEBUG.PrintEstimationON ) {
 			BufferedWriter bw = EstimationTest.getWriter();
@@ -305,12 +353,20 @@ public class SampleEstimate {
 				e.printStackTrace();
 			}
 		}
-	}
+    }
 
 	public void estimateJoinHybridWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
-		estimateJoinMin( stat, checker, indexK, qSize );
+		estimateJoinNaive( stat );
 		estimateJoinMH( stat, checker, indexK, qSize );
-		estimateNaive( stat );
+		estimateJoinMin( stat, checker, indexK, qSize );
+		
+//		try {
+//			bw_log.write( "estTimeNaive\t"+estTime_naive/1e6+"\n" );
+//			bw_log.write( "estTimeJoinMH\t"+estTime_mh/1e6+"\n" );
+//			bw_log.write( "estTimeJoinMin\t"+estTime_min/1e6+"\n" );
+//		}
+//		catch (IOException e ) { e.printStackTrace(); }
+
 
 		if( DEBUG.PrintEstimationON ) {
 			BufferedWriter bw = EstimationTest.getWriter();
@@ -324,86 +380,26 @@ public class SampleEstimate {
 		}
 	}
 
-	public double getEstimateNaive( double totalExpLengthIndex, double totalExpJoin ) {
-		if( DEBUG.SampleStatON ) {
-			Util.printLog( "totalExpLength " + totalExpLengthIndex + ", TotalExp " + totalExpJoin );
-			Util.printLog( "Naive Index Time " + ( alpha * totalExpLengthIndex ) );
-			Util.printLog( "Naive Join Time " + ( beta * totalExpJoin ) );
-		}
-
-		if( DEBUG.PrintEstimationON ) {
-			if( DEBUG.PrintEstimationON ) {
-				BufferedWriter bwEstimation = EstimationTest.getWriter();
-				try {
-					bwEstimation.write( "[Alpha] " + alpha + " IndexTime " + ( alpha * totalExpLengthIndex ) + " totalExpLength "
-							+ totalExpLengthIndex + "\n" );
-					bwEstimation.write(
-							"[Beta] " + beta + " JoinTime " + ( beta * totalExpJoin ) + " TotalExp " + totalExpJoin + "\n" );
-				}
-				catch( IOException e ) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		return alpha * totalExpLengthIndex + beta * totalExpJoin;
+	/*
+	 * scale up terms by (1/sampleRatio)^p
+	 */
+	public double getEstimateNaive( double term1, double term2 ) {
+		return coeff_naive_1 * term1 / sampleRatio 
+				+ coeff_naive_2 * term2 / sampleRatio;
 	}
 
-	public double getEstimateJoinMin( double searchedTotalSigCount, double indexedTotalSigCount, double estimatedInvokes ) {
-		if( DEBUG.SampleStatON ) {
-			Util.printLog( "SearchedSigCount " + searchedTotalSigCount + ", IndexedSigCount " + indexedTotalSigCount
-					+ " PredictCount " + estimatedInvokes );
-			Util.printLog( "JoinMin Count Time " + ( searchedTotalSigCount * mu ) );
-			Util.printLog( "JoinMin Index Time " + ( indexedTotalSigCount * lambda ) );
-			Util.printLog( "JoinMin Join Time " + ( estimatedInvokes * rho ) );
-		}
-
-		if( DEBUG.PrintEstimationON ) {
-			if( DEBUG.PrintEstimationON ) {
-				BufferedWriter bwEstimation = EstimationTest.getWriter();
-				try {
-					bwEstimation.write( "[Gamma] " + mu + " CountTime " + ( mu * searchedTotalSigCount )
-							+ " SearchedSigCount " + searchedTotalSigCount + "\n" );
-					bwEstimation.write( "[Delta] " + lambda + " IndexTime " + ( lambda * indexedTotalSigCount )
-							+ " IndexedSigCount " + indexedTotalSigCount + "\n" );
-					bwEstimation.write( "[Epsilon] " + rho + " JoinTime " + ( rho * estimatedInvokes ) + " PredictCount "
-							+ estimatedInvokes + "\n" );
-				}
-				catch( IOException e ) {
-					e.printStackTrace();
-				}
-			}
-		}
-
-		return lambda * indexedTotalSigCount + mu * searchedTotalSigCount + rho * estimatedInvokes;
+	public double getEstimateJoinMH( double term1, double term2, double term3 ) {
+		return coeff_mh_1 * term1 / sampleRatio 
+				+ coeff_mh_2 * term2 / sampleRatio / sampleRatio 
+				+ coeff_mh_3 * term3 / sampleRatio / sampleRatio;
 	}
 
-	public double getEstimateJoinMH( double searchedTotalSigCount, double indexedTotalSigCount, double estimatedInvokes ) {
-		if( DEBUG.SampleStatON ) {
-			Util.printLog( "IndexedSigCount " + indexedTotalSigCount + " PredictCount " + estimatedInvokes );
-			Util.printLog( "JoinMH Index Time " + ( indexedTotalSigCount * gamma ) );
-			Util.printLog( "JoinMH count time " + ( searchedTotalSigCount * zeta ) );
-			Util.printLog( "JoinMH Join Time " + ( estimatedInvokes * eta ) );
-		}
-
-		if( DEBUG.PrintEstimationON ) {
-			BufferedWriter bwEstimation = EstimationTest.getWriter();
-			try {
-				bwEstimation.write( "[Gamma] " + gamma + " IndexTime " + ( gamma * indexedTotalSigCount ) + " IndexedSigCount "
-						+ indexedTotalSigCount + "\n" );
-				bwEstimation.write( "[Zeta] " + zeta + " QgramTime " + ( zeta * searchedTotalSigCount )
-						+ " searchedTotalSigCount " + searchedTotalSigCount + "\n" );
-				bwEstimation.write( "[Eta] " + eta + " JoinTime " + ( eta * estimatedInvokes ) + " PredictCount "
-						+ estimatedInvokes + "\n" );
-			}
-			catch( IOException e ) {
-				e.printStackTrace();
-			}
-		}
-
-		return gamma * indexedTotalSigCount + zeta * searchedTotalSigCount + eta * estimatedInvokes;
+	public double getEstimateJoinMin( double term1, double term2, double term3 ) {
+		return coeff_min_1 * term1 / sampleRatio 
+				+ coeff_min_2 * term2 / sampleRatio / sampleRatio 
+				+ coeff_min_3 * term3 / sampleRatio / sampleRatio;
 	}
-
+	
 	public int findThetaJoinMinNaive( int qSize, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords,
 			boolean oneSideJoin ) {
 		// Find the best threshold
@@ -634,8 +630,8 @@ public class SampleEstimate {
 				}
 			}
 
-			double joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
-					totalInvokes - removedComparison );
+			double joinminEstimation = this.getEstimateJoinMin( indexedTotalSigCount,
+					searchedTotalSigCount, totalInvokes - removedComparison );
 
 			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
 
@@ -981,256 +977,53 @@ public class SampleEstimate {
 		return bestThreshold;
 	}
 
-	public int findThetaJoinHybridAll( int qSize, int indexK, StatContainer stat, long maxIndexedEstNumRecords,
-			long maxSearchedEstNumRecords, boolean oneSideJoin ) {
+	public int findThetaJoinHybridAll( int qSize, int indexK, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords, boolean oneSideJoin ) {
 		// Find the best threshold
 		int bestThreshold = 0;
-		double bestEstTime = Double.MAX_VALUE;
+//		double bestEstTime = Double.MAX_VALUE;
 
 		// Indicates the minimum indices which have more that 'theta' expanded
 		// records
-		int indexedIdx = 0;
-		int searchedIdx = 0;
+//		int indexedIdx = 0;
+		int sidx = 0;
 //		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
 		long currentThreshold = 0;
-
-		int tableIndexedSize = sampleIndexedList.size();
-		int tableSearchedSize = sampleSearchedList.size();
-
-		List<Map<QGram, BinaryCountEntry>> invokes = new ArrayList<Map<QGram, BinaryCountEntry>>();
-		// invokes.get(pos).get(qgram) is the number of records whose TPQ superset contains the pos qgram.
-
-		List<List<BinaryCountEntry>> indexedJoinMinPositions = new ArrayList<List<BinaryCountEntry>>();
-		List<List<BinaryCountEntry>> indexedJoinMHPositions = new ArrayList<List<BinaryCountEntry>>();
-
-		// Number of bigrams generated by expanded TL records
-		double searchedTotalSigCount = 0;
-
-		for( int recId = 0; recId < tableSearchedSize; recId++ ) {
-			Record rec = sampleSearchedList.get( recId );
-
-			List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
-
-			int searchmax = availableQGrams.size();
-
-			for( int i = invokes.size(); i < searchmax; i++ ) {
-				invokes.add( new WYK_HashMap<QGram, BinaryCountEntry>() );
-			}
-
-			for( int i = 0; i < searchmax; ++i ) {
-				Map<QGram, BinaryCountEntry> curridxInvokes = invokes.get( i );
-
-				List<QGram> available = availableQGrams.get( i );
-				searchedTotalSigCount += available.size();
-
-				for( QGram qgram : available ) {
-					BinaryCountEntry count = curridxInvokes.get( qgram );
-
-					if( count == null ) {
-						count = new BinaryCountEntry();
-						curridxInvokes.put( qgram, count );
-					}
-
-					count.increaseLarge();
-				}
-			}
-		}
-
-		double indexedTotalSigCount = 0;
-		double joinMHIndexedSigCount = 0;
-		double totalJoinMinInvokes = 0;
-		double totalJoinMHInvokes = 0;
-		double currExpLengthSize = 0;
-
-		for( int recId = 0; recId < tableIndexedSize; recId++ ) {
-			// index 될 record 
-			Record rec = sampleIndexedList.get( recId );
-
-			if( oneSideJoin ) {
-				currExpLengthSize += rec.getTokenCount();
-			}
-
-			List<List<QGram>> availableQGrams = null;
-			if( oneSideJoin ) {
-				availableQGrams = rec.getSelfQGrams( qSize, invokes.size() );
-			}
-			else {
-				availableQGrams = rec.getQGrams( qSize, invokes.size() );
-			}
-
-			List<BinaryCountEntry> joinMinList = new ArrayList<BinaryCountEntry>();
-			List<BinaryCountEntry> joinMHList = new ArrayList<BinaryCountEntry>();
-
-			long minJoinMinComparison = Long.MAX_VALUE;
-			long minJoinMHComparison = Long.MAX_VALUE;
-			int minJoinMinIndex = -1;
-			int minJoinMHIndex = -1;
-
-			for( int position = 0; position < availableQGrams.size(); position++ ) {
-				List<QGram> qgrams = availableQGrams.get( position );
-
-				Map<QGram, BinaryCountEntry> curridxInvokes = invokes.get( position );
-
-				long comparison = 0;
-				if( position < indexK ) {
-					joinMHIndexedSigCount += qgrams.size();
-				}
-				indexedTotalSigCount += qgrams.size();
-
-				for( QGram qgram : qgrams ) {
-					BinaryCountEntry entry = curridxInvokes.get( qgram );
-					if( entry != null ) {
-						comparison += entry.largeListSize;
-					}
-				}
-
-				if( minJoinMinComparison > comparison ) {
-					if( position < indexK ) {
-						minJoinMHComparison = comparison;
-						minJoinMHIndex = position;
-					}
-					minJoinMinComparison = comparison;
-					minJoinMinIndex = position;
-				}
-
-				if( minJoinMinComparison == 0 ) {
-					break;
-				}
-			} // end for position
-
-			Map<QGram, BinaryCountEntry> minJoinMinInvokes = invokes.get( minJoinMinIndex );
-			Map<QGram, BinaryCountEntry> minJoinMHInvokes = invokes.get( minJoinMHIndex );
-
-			totalJoinMinInvokes += minJoinMinComparison;
-			totalJoinMHInvokes += minJoinMHComparison;
-
-			for( QGram qgram : availableQGrams.get( minJoinMinIndex ) ) {
-				BinaryCountEntry entry = minJoinMinInvokes.get( qgram );
-				if( entry != null ) {
-					joinMinList.add( entry );
-				}
-			}
-
-			for( QGram qgram : availableQGrams.get( minJoinMHIndex ) ) {
-				BinaryCountEntry entry = minJoinMHInvokes.get( qgram );
-				if( entry != null ) {
-					joinMHList.add( entry );
-				}
-			}
-
-			indexedJoinMinPositions.add( joinMinList );
-			indexedJoinMHPositions.add( joinMHList );
-		} // end for records in sampleIndexedSet
-		Util.printLog( "searchedTotalSigCount: "+searchedTotalSigCount );
-		Util.printLog( "indexedTotalSigCount: "+indexedTotalSigCount );
-		Util.printLog( "joinMHIndexedSigCount: "+joinMHIndexedSigCount );
-		Util.printLog( "totalJoinMinInvokes: "+totalJoinMinInvokes );
-		Util.printLog( "totalJoinMHInvokes: "+totalJoinMHInvokes );
-		Util.printLog( "currExpLengthSize: "+currExpLengthSize );
-		
-		// indexedJoinMHPositions:
-
-		// Prefix sums
-		double currExpSize = 0;
-
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
-		int prevAddedIndex = -1;
-
-		if( DEBUG.SampleStatON ) {
-			Util.printLog( "MaxThreshold " + maxThreshold );
-		}
+//		int tableIndexedSize = sampleIndexedList.size();
+		int tableSearchedSize = sampleSearchedList.size();
 
 		boolean stop = false;
 		if( maxThreshold == Long.MAX_VALUE ) {
 			stop = true;
 		}
 
-		while( currentThreshold <= maxThreshold ) {
+		while( sidx < tableSearchedSize ) {
 			if( currentThreshold > 100000 ) {
 //				Util.printLog( "Current Threshold is more than 100000" );
-//				break;
-				currentThreshold = Long.MAX_VALUE;
+				currentThreshold = Integer.MAX_VALUE;
 				stop = true;
 			}
 
 			long nextThresholdIndexed = -1;
 			long nextThresholdSearched = -1;
 
-			for( ; searchedIdx < tableSearchedSize; searchedIdx++ ) {
-				Record rec = sampleSearchedList.get( searchedIdx );
+			for( ; sidx < tableSearchedSize; sidx++ ) {
+				Record rec = sampleSearchedList.get( sidx );
 
 				long est = rec.getEstNumTransformed();
 				if( est > currentThreshold ) {
 					nextThresholdSearched = est;
 					break;
 				}
-
-				// for naive estimation
-				currExpSize += est;
-
-				// for joinmin estimation
-				List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
-				int searchmax = availableQGrams.size();
-
-				for( int i = 0; i < searchmax; ++i ) {
-					Map<QGram, BinaryCountEntry> currPositionalCount = invokes.get( i );
-
-					List<QGram> positionalQGram = availableQGrams.get( i );
-					for( QGram qgram : positionalQGram ) {
-						BinaryCountEntry count = currPositionalCount.get( qgram );
-						count.fromLargeToSmall();
-					}
-				}
 			}
 
-			if( DEBUG.SampleStatON ) {
-				Util.printLog( "searchedIdx " + searchedIdx );
-			}
-
-			double removedJoinMinComparison = 0;
-			double removedJoinMHComparison = 0;
-
-			for( indexedIdx = 0; indexedIdx < tableIndexedSize; indexedIdx++ ) {
-				Record rec = sampleIndexedList.get( indexedIdx );
-
-				long est = rec.getEstNumTransformed();
-				if( est > currentThreshold ) {
-					nextThresholdIndexed = est;
-					indexedIdx--;
-					break;
-				}
-
-				if( indexedIdx > prevAddedIndex ) {
-					// for naive estimation
-
-					if( !oneSideJoin ) {
-						currExpLengthSize += est * rec.getTokenCount();
-					}
-				}
-
-				List<BinaryCountEntry> list = indexedJoinMinPositions.get( indexedIdx );
-
-				for( BinaryCountEntry count : list ) {
-					// for joinmin estimation
-					removedJoinMinComparison += count.smallListSize;
-				}
-
-				list = indexedJoinMHPositions.get( indexedIdx );
-				for( BinaryCountEntry count : list ) {
-					// for joinmh estimation
-					removedJoinMHComparison += count.smallListSize;
-				}
-			}
-
-			prevAddedIndex = indexedIdx;
 			long nextThreshold;
 
 			if( nextThresholdIndexed == -1 && nextThresholdSearched == -1 ) {
 //				if( stop ) {
 //					break;
 //				}
-//				nextThreshold = maxThreshold + 1;
-				nextThreshold = Long.MAX_VALUE;
+				nextThreshold = Integer.MAX_VALUE;
 			}
 			else if( nextThresholdIndexed == -1 ) {
 				nextThreshold = nextThresholdSearched;
@@ -1253,23 +1046,27 @@ public class SampleEstimate {
 				}
 			}
 
-			double joinminEstimation = this.getEstimateJoinMin( searchedTotalSigCount, indexedTotalSigCount,
-					totalJoinMinInvokes - removedJoinMinComparison );
-			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
-			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
+			long curr_naive_term2 = (sidx==0?0:naive_term2[sidx-1]);
+			long curr_mh_term2 = (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]));
+			long curr_mh_term3 = (mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]));
+			long curr_min_term2 = (min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]));
+			long curr_min_term3 = (min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]));
+			
+			double naiveEstimation = this.getEstimateNaive( naive_term1, curr_naive_term2);
+			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
+			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
 
-			double joinmhEstimation = this.getEstimateJoinMH( searchedTotalSigCount, joinMHIndexedSigCount,
-					totalJoinMHInvokes - removedJoinMHComparison );
+			double joinmhEstimation = this.getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3);
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 			// totalJoinMHInvokes: the sum of the minimum number of records to be verified with t for every t in sampleIndexedSet
 			// removedJoinMHComparison: 
 
-			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
+			double joinminEstimation = this.getEstimateJoinMin( min_term1, curr_min_term2, curr_min_term3);
+			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
+			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 
-			double naiveEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
-			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
-			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
+			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
 
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bw = EstimationTest.getWriter();
@@ -1281,39 +1078,55 @@ public class SampleEstimate {
 					e.printStackTrace();
 				}
 			}
-
-			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT(JoinMin): %.2f TT: %.2f", currentThreshold, nextThreshold,
-					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
-			Util.printLog( String.format( "T: %d nT: %d NT: %.2f JT(JoinMH): %.2f TT: %.2f", currentThreshold, nextThreshold,
-					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation ) );
-			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
+			
+			System.out.print( (sidx)+"\t" );
+			System.out.print( sampleIndexedList.size()+"\t");
+			System.out.print(naive_term1+"\t");
+			System.out.print(curr_naive_term2+"\t");
+			System.out.print( mh_term1+"\t");
+			System.out.print( curr_mh_term2+"\t");
+			System.out.print( curr_mh_term3+"\t");
+			System.out.print(min_term1+"\t");
+			System.out.print(curr_min_term2+"\t");
+			System.out.print(curr_min_term3+"\t");
+			System.out.print("|\t");
+			System.out.print(currentThreshold+"\t");
+			System.out.print(naiveEstimation+"\t");
+			System.out.print(joinmhEstimation+"\t");
+			System.out.print((naiveEstimation+joinmhEstimation)+"\t");
+			System.out.print(joinminEstimation+"\t");
+			System.out.print((naiveEstimation+joinminEstimation)+"\t");
+			System.out.println(  );
 			
 			try {
 				bw_log.write( String.format( "%d\t", currentThreshold ) );
 
 				// naive
 				bw_log.write( String.format( "%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
-						(long)currExpLengthSize, (long)currExpSize, alpha*currExpLengthSize/1e6, beta*currExpSize/1e6, naiveEstimation/1e6,
-						alpha*currExpLengthSize/sampleRatio/1e6, beta*currExpSize/sampleRatio/1e6,
-						getEstimateNaive( currExpLengthSize/sampleRatio, currExpSize/sampleRatio )/1e6 
+						naive_term1, curr_naive_term2, coeff_naive_1*naive_term1/1e6, coeff_naive_2*curr_naive_term2/1e6, 
+						getEstimateNaive( naive_term1, curr_naive_term2 )/1e6,
+						coeff_naive_1*naive_term1/sampleRatio/1e6, coeff_naive_2*curr_naive_term2/sampleRatio/1e6,
+						getEstimateNaive( naive_term1/sampleRatio, curr_naive_term2/sampleRatio )/1e6 
 						) );
 
 				// FKP
 				bw_log.write( String.format( "%d\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
-						(long)joinMHIndexedSigCount, (long)searchedTotalSigCount, (long)(totalJoinMHInvokes-removedJoinMHComparison), 
-						gamma*joinMHIndexedSigCount/1e6, zeta*searchedTotalSigCount/1e6, eta*(totalJoinMHInvokes-removedJoinMHComparison)/1e6, joinmhEstimation/1e6,
-						gamma*joinMHIndexedSigCount/sampleRatio/1e6, zeta*searchedTotalSigCount/sampleRatio/1e6, 
-						eta*(totalJoinMHInvokes-removedJoinMHComparison)/sampleRatio/sampleRatio/1e6, 
-						getEstimateJoinMH( searchedTotalSigCount/sampleRatio, joinMHIndexedSigCount/sampleRatio, (totalJoinMHInvokes-removedJoinMHComparison)/sampleRatio/sampleRatio)/1e6
+						mh_term1, curr_mh_term2, curr_mh_term3,
+						coeff_mh_1*mh_term1/1e6, coeff_mh_2*curr_mh_term2/1e6, coeff_mh_3*curr_mh_term3/1e6,
+						getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3)/1e6,
+						coeff_mh_1*mh_term1/sampleRatio/1e6, coeff_mh_2*curr_mh_term2/sampleRatio/1e6, 
+						coeff_mh_3*curr_mh_term3/sampleRatio/sampleRatio/1e6, 
+						getEstimateJoinMH( mh_term1/sampleRatio, curr_mh_term2/sampleRatio, curr_mh_term3/sampleRatio/sampleRatio)/1e6
 						) );
 
 				// BKP
 				bw_log.write( String.format( "%d\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
-						(long)indexedTotalSigCount, (long)searchedTotalSigCount, (long)(totalJoinMinInvokes-removedJoinMinComparison), 
-						gamma*indexedTotalSigCount/1e6, zeta*searchedTotalSigCount/1e6, eta*(totalJoinMinInvokes-removedJoinMinComparison)/1e6, joinminEstimation/1e6,
-						gamma*indexedTotalSigCount/sampleRatio/1e6, zeta*searchedTotalSigCount/sampleRatio/1e6, 
-						eta*(totalJoinMinInvokes-removedJoinMinComparison)/sampleRatio/sampleRatio/1e6, 
-						getEstimateJoinMin( searchedTotalSigCount/sampleRatio, indexedTotalSigCount/sampleRatio, (totalJoinMinInvokes-removedJoinMinComparison)/sampleRatio/sampleRatio)/1e6
+						min_term1, curr_min_term2, curr_min_term3, 
+						coeff_min_1*min_term1/1e6, coeff_min_2*curr_min_term2/1e6, coeff_min_3*curr_min_term3/1e6,
+						getEstimateJoinMin( min_term1, curr_min_term2, curr_min_term3 )/1e6,
+						coeff_min_1*min_term1/sampleRatio/1e6, coeff_min_2*curr_min_term2/sampleRatio/1e6, 
+						coeff_min_3*curr_min_term3/sampleRatio/sampleRatio/1e6, 
+						getEstimateJoinMin( min_term1/sampleRatio, curr_min_term2/sampleRatio, curr_min_term3/sampleRatio/sampleRatio)/1e6
 						) );
 
 				bw_log.write( "\n" );
@@ -1321,14 +1134,16 @@ public class SampleEstimate {
 			}
 			catch ( IOException e ) { e.printStackTrace(); }
 
+//			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMH): %.10e TT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
+//					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
+//			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
+//					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
+//			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
+
 			double tempBestTime = naiveEstimation;
 
-			if( tempJoinMinSelected ) {
-				tempBestTime += joinminEstimation;
-			}
-			else {
-				tempBestTime += joinmhEstimation;
-			}
+			if( tempJoinMinSelected ) tempBestTime += joinminEstimation;
+			else tempBestTime += joinmhEstimation;
 
 			if( bestEstTime > tempBestTime ) {
 				bestEstTime = tempBestTime;
@@ -1350,17 +1165,11 @@ public class SampleEstimate {
 			
 			if (stop) break;
 		} // end while searching best threshold
-
-		// if( sampleIndexedList.size() > 100 ) {
-		// double naiveOnlyEstimation = this.getEstimateNaive( currExpLengthSize, currExpSize );
-		// if( bestEstTime > naiveOnlyEstimation ) {
-		// bestEstTime = naiveOnlyEstimation;
-		// bestThreshold = Integer.MAX_VALUE;
-		// }
-		// if( DEBUG.SampleStatON ) {
-		// Util.printLog( String.format( "T: %d TT: %.2f", Integer.MAX_VALUE, naiveOnlyEstimation ) );
-		// }
-		// }
+		
+//		if ( getEstimateNaive( naive_term1/sampleRatio, naive_term2[sampleSearchedList.size()-1]/sampleRatio, naive_term3[sampleSearchedList.size()-1]/sampleRatio/sampleRatio ) < bestEstTime ) {
+//			bestThreshold = Integer.MAX_VALUE;
+//			bestEstTime = estTime_naive;
+//		}
 
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_Best_Estimated_Time", bestEstTime );
@@ -1371,4 +1180,53 @@ public class SampleEstimate {
 	public boolean getJoinMinSelected() {
 		return joinMinSelected;
 	}
+
+	private ObjectArrayList<Record> sampleRecords( List<Record> recordList, Random rn ) {
+		if (!stratified) return sampleRecordsNaive( recordList, rn );
+		else return sampleRecordsStratified( recordList, rn );
+	}
+
+	private ObjectArrayList<Record> sampleRecordsNaive( List<Record> recordList, Random rn ) {
+		ObjectArrayList<Record> sampledList = new ObjectArrayList<>();
+		for( Record r : recordList ) {
+			if ( r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if( rn.nextDouble() < this.sampleRatio ) {
+				sampledList.add( r );
+			}
+		}
+		return sampledList;
+	}
+	
+	private ObjectArrayList<Record> sampleRecordsStratified( List<Record> recordList, Random rn ) {
+		Comparator<Record> comp = new RecordComparator();
+		
+		ObjectArrayList<Record> sampledList = new ObjectArrayList<Record>();
+		List<Record> searchedList = new ArrayList<Record>( recordList );
+		Collections.sort( searchedList, comp );
+		int n_stratum = 20;
+		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
+			System.out.println( stratum_idx+"\t"+searchedList.size()/n_stratum*stratum_idx+"\t"+searchedList.get( searchedList.size()/n_stratum*stratum_idx ).getEstNumTransformed() );
+		}
+		
+		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
+			int start = searchedList.size()/n_stratum*stratum_idx;
+			int end = searchedList.size()/n_stratum*(stratum_idx+1);
+			for ( int i=start; i<end; ++i ) {
+				if (rn.nextDouble() < this.sampleRatio) {
+					sampledList.add( searchedList.get( i ) );
+				}
+			}
+		}
+		return sampledList;
+	}
+
+
+	class RecordComparator implements Comparator<Record> {
+		@Override
+		public int compare( Record o1, Record o2 ) {
+			long est1 = o1.getEstNumTransformed();
+			long est2 = o2.getEstNumTransformed();
+			return Long.compare( est1, est2 );
+		}
+	};
 }
