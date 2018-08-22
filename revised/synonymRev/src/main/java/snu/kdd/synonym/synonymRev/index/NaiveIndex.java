@@ -314,6 +314,7 @@ public class NaiveIndex {
 		for( final Record exp : expanded ) {
 
 			final List<Integer> overlapidx = idx.get( exp );
+			sumTransLenS += exp.size();
 
 			if( overlapidx == null ) {
 				continue;
@@ -323,7 +324,6 @@ public class NaiveIndex {
 				candidates.add( i );
 			}
 			
-			sumTransLenS += exp.size();
 		}
 		for( final Integer idx : candidates ) {
 //			rslt.add( new IntegerPair( recS.getID(), idx ) );
