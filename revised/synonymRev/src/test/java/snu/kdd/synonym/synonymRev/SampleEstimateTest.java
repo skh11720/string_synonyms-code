@@ -1,13 +1,14 @@
-package snu.kdd.synonym.synonymRev.estimation;
+package snu.kdd.synonym.synonymRev;
 
 import java.io.IOException;
 
 import org.apache.commons.cli.ParseException;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import snu.kdd.synonym.synonymRev.TestUtils;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -18,6 +19,7 @@ public class SampleEstimateTest {
 	final int qSize = 2;
 	Validator checker = new TopDownOneSide();
 	
+	@Ignore
 	public void test() throws ParseException, IOException {
 		testVaryingSize(1);
 	}
