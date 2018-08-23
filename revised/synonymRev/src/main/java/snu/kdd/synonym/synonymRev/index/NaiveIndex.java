@@ -44,8 +44,8 @@ public class NaiveIndex {
 	public int skippedCount = 0;
 	protected final long threshold;
 	
-	public int sumTransLenS = 0;
-	public int sumLenT = 0;
+	public long sumTransLenS = 0;
+	public long sumLenT = 0;
 
 	public NaiveIndex( Dataset indexedSet, Query query, StatContainer stat, boolean addStat, long threshold, double avgTransformed ) {
 		isSelfJoin = query.selfJoin;
