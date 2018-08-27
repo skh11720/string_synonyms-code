@@ -390,14 +390,14 @@ public class SampleEstimate {
 
 	public double getEstimateJoinMH( double term1, double term2, double term3 ) {
 		return coeff_mh_1 * term1 / sampleRatio 
-				+ coeff_mh_2 * term2 / sampleRatio / sampleRatio 
-				+ coeff_mh_3 * term3 / sampleRatio / sampleRatio;
+				+ coeff_mh_2 * term2 / sampleRatio
+				+ coeff_mh_3 * term3 / sampleRatio;
 	}
 
 	public double getEstimateJoinMin( double term1, double term2, double term3 ) {
 		return coeff_min_1 * term1 / sampleRatio 
-				+ coeff_min_2 * term2 / sampleRatio / sampleRatio 
-				+ coeff_min_3 * term3 / sampleRatio / sampleRatio;
+				+ coeff_min_2 * term2 / sampleRatio
+				+ coeff_min_3 * term3 / sampleRatio;
 	}
 	
 	public int findThetaJoinMinNaive( int qSize, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords,
