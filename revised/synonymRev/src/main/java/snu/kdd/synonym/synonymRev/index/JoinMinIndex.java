@@ -52,7 +52,6 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 
 	public long comparisonCount = 0;
 	public long lengthFiltered = 0;
-	protected long nCandQGrams = 0;
 
 	public long indexCountTime = 0;
 	public long indexRecordTime = 0;
@@ -177,7 +176,7 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 					this.countPerPosition.set( i, newSize );
 				}
 			}
-			this.searchedTotalSigCount += qgramCount;
+//			this.searchedTotalSigCount += qgramCount;
 
 //			if( DEBUG.JoinMinON ) {
 //				countIndexingTime += System.nanoTime() - recordMidTime;
@@ -756,7 +755,7 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( nIndex, recS, estimatedCountMap.getInt( recS ) );
 
 		for( int i = 0; i < searchmax; ++i ) {
-			nCandQGrams += availableQGrams.get( i ).size();
+			this.searchedTotalSigCount += availableQGrams.get( i ).size();
 			Map<QGram, List<Record>> curridx = idx.get( i );
 			if( curridx == null ) {
 				continue;
@@ -955,7 +954,7 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 	}
 	
 	public void addStat( StatContainer stat ) {
-		stat.add( "nCandQGrams", nCandQGrams );
+//		stat.add( "nCandQGrams", nCandQGrams );
 	}
 	
 	public double getMu() { return mu; }
