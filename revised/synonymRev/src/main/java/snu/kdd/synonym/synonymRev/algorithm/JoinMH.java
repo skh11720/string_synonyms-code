@@ -120,9 +120,8 @@ public class JoinMH extends AlgorithmTemplate {
 	public String getVersion() {
 		/*
 		 * 2.5: the latest version by yjpark
-		 * 2.51: ignore records with too many transformations
 		 */
-		return "2.51";
+		return "2.5";
 	}
 
 	@Override
