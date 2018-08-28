@@ -75,14 +75,15 @@ public class SampleEstimate {
 	double indexAvgTransform = 0;
 
 	final Query query;
-	final Query sampleQuery;
+	Query sampleQuery;
 	private final boolean stratified = false;
-	public final int sampleSearchedSize;
+	public int sampleSearchedSize;
 	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
 	BufferedWriter bw_log = null;
 
 	public SampleEstimate( final Query query, double sampleratio, boolean isSelfJoin ) {
+		this.query = query;
 		long seed = System.currentTimeMillis();
 		Util.printLog( "Random seed: " + seed );
 		Random rn = new Random( seed );
@@ -93,8 +94,6 @@ public class SampleEstimate {
 			bw_log = new BufferedWriter( new FileWriter( "tmp/"+nameTmp+".txt" ) );
 		}
 		catch ( IOException e ) { e.printStackTrace(); }
-
-		this.query = query;
 
 		int smallTableSize = Integer.min( query.searchedSet.size(), query.indexedSet.size() );
 		this.sampleRatio = sampleratio;
@@ -127,6 +126,24 @@ public class SampleEstimate {
 
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
+		
+		initialize();
+	}
+	
+	public SampleEstimate( final Query query, ObjectArrayList<Record> sampledSearchedList, ObjectArrayList<Record> sampleIndexedList ) {
+		this.query = query;
+		this.sampleSearchedList = sampledSearchedList;
+		this.sampleIndexedList = sampleIndexedList;
+		initialize();
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		bw_log.flush();
+		bw_log.close();
+	}
+
+	public void initialize() {
 		sampleSearchedSize = sampleSearchedList.size();
 
 		Comparator<Record> comp = new RecordComparator();
@@ -148,12 +165,6 @@ public class SampleEstimate {
 		min_term3 = new long[sampleSearchedList.size()];
 	}
 	
-	@Override
-	protected void finalize() throws Throwable {
-		bw_log.flush();
-		bw_log.close();
-	}
-
 	public Object2DoubleMap<String> estimateJoinNaive( StatContainer stat ) {
 
 		// Infer alpha and beta
