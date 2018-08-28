@@ -306,9 +306,11 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		/*
 		 * 2.6: the latest version by yjpark
 		 * 2.61: ignore records with too many transformations
-		 * 2.62: rollback 2.61, estimate by scaling up terms: 11/122/122
+		 * ---- rollback 2.61
+		 * 2.62: estimate by scaling up terms: 11/122/122
+		 * 2.63: estimate by scaling up terms: 11/112/112
 		 */
-		return "2.62";
+		return "2.63";
 	}
 
 	@Override
