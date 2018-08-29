@@ -19,8 +19,8 @@ public class SelectivityEstimator {
 	}
 
 	public double predict(double[] x) {
-		double prediction = 0;
-		for ( int i=0; i<x.length; ++i ) prediction += param[i] * x[i];
+		double prediction = param[0];
+		for ( int i=0; i<x.length; ++i ) prediction += param[i+1] * x[i];
 		return prediction;
 	}
 
