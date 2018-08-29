@@ -78,33 +78,31 @@ public class SampleEstimate {
 	Query sampleQuery;
 	private final boolean stratified = false;
 	public int sampleSearchedSize;
+	public long sampleSearchedNumEstTrans;
 	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
 	BufferedWriter bw_log = null;
-
-	public SampleEstimate( final Query query, double sampleratio, boolean isSelfJoin ) {
+	
+	private SampleEstimate(final Query query, double sampleRatio ) {
 		this.query = query;
-		long seed = System.currentTimeMillis();
-		Util.printLog( "Random seed: " + seed );
-		Random rn = new Random( seed );
+		this.sampleRatio = sampleRatio;
+
 		try { 
 			String[] tokenList = query.searchedFile.split( "\\"+(File.separator) );
 			String dataAndSize = tokenList[tokenList.length-1].split( "\\.", 2)[0];
-			String nameTmp = String.format( "SampleEst_%s_%.2f", dataAndSize, sampleratio );
+			String nameTmp = String.format( "SampleEst_%s_%.2f", dataAndSize, sampleRatio );
 			bw_log = new BufferedWriter( new FileWriter( "tmp/"+nameTmp+".txt" ) );
 		}
 		catch ( IOException e ) { e.printStackTrace(); }
 
 		int smallTableSize = Integer.min( query.searchedSet.size(), query.indexedSet.size() );
-		this.sampleRatio = sampleratio;
-
-		if( sampleratio > 1 ) {
+		if( sampleRatio > 1 ) {
 			// fixed number of samples
-			if( sampleratio > smallTableSize ) {
+			if( sampleRatio > smallTableSize ) {
 				this.sampleRatio = 1;
 			}
 			else {
-				this.sampleRatio = sampleratio / smallTableSize;
+				this.sampleRatio = sampleRatio / smallTableSize;
 			}
 		}
 
@@ -115,6 +113,13 @@ public class SampleEstimate {
 
 			this.sampleRatio = 10.0 / smallTableSize;
 		}
+	}
+
+	public SampleEstimate( final Query query, double sampleRatio, boolean isSelfJoin ) {
+		this( query, sampleRatio );
+		long seed = System.currentTimeMillis();
+		Util.printLog( "Random seed: " + seed );
+		Random rn = new Random( seed );
 		
 		sampleSearchedList = sampleRecords( query.searchedSet.recordList, rn );
 		if( isSelfJoin ) {
@@ -130,8 +135,8 @@ public class SampleEstimate {
 		initialize();
 	}
 	
-	public SampleEstimate( final Query query, ObjectArrayList<Record> sampledSearchedList, ObjectArrayList<Record> sampleIndexedList ) {
-		this.query = query;
+	public SampleEstimate( final Query query, double sampleRatio, ObjectArrayList<Record> sampledSearchedList, ObjectArrayList<Record> sampleIndexedList ) {
+		this( query, sampleRatio );
 		this.sampleSearchedList = sampledSearchedList;
 		this.sampleIndexedList = sampleIndexedList;
 		initialize();
@@ -997,6 +1002,7 @@ public class SampleEstimate {
 		// records
 //		int indexedIdx = 0;
 		int sidx = 0;
+		sampleSearchedNumEstTrans = 0;
 //		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
 		long currentThreshold = 0;
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
@@ -1022,6 +1028,7 @@ public class SampleEstimate {
 				Record rec = sampleSearchedList.get( sidx );
 
 				long est = rec.getEstNumTransformed();
+				sampleSearchedNumEstTrans += est;
 				if( est > currentThreshold ) {
 					nextThresholdSearched = est;
 					break;
@@ -1091,7 +1098,7 @@ public class SampleEstimate {
 			}
 			
 			System.out.print( (sidx)+"\t" );
-			System.out.print( sampleIndexedList.size()+"\t");
+			System.out.print( sampleSearchedNumEstTrans+"\t" );
 			System.out.print(naive_term1+"\t");
 			System.out.print(curr_naive_term2+"\t");
 			System.out.print( mh_term1+"\t");
