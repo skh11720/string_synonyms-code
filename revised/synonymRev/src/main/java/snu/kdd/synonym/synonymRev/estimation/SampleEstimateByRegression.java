@@ -108,13 +108,13 @@ public class SampleEstimateByRegression extends SampleEstimate {
 	public double getEstimateJoinMH( double term1, double term2, double term3 ) {
 		return coeff_mh_1 * term1 / sampleRatio 
 				+ coeff_mh_2 * term2 / sampleRatio
-				+ coeff_mh_3 * est_mh_term3 / mh_term3[sampleSearchedSize-1] * term3;
+				+ coeff_mh_3 * ( mh_term3[sampleSearchedSize-1] == 0? 0: est_mh_term3 / mh_term3[sampleSearchedSize-1] * term3 );
 	}
 
 	@Override
 	public double getEstimateJoinMin( double term1, double term2, double term3 ) {
 		return coeff_min_1 * term1 / sampleRatio 
 				+ coeff_min_2 * term2 / sampleRatio
-				+ coeff_min_3 * est_min_term3 / min_term3[sampleSearchedSize-1] * term3;
+				+ coeff_min_3 * ( min_term3[sampleSearchedSize-1] == 0? 0: est_min_term3 / min_term3[sampleSearchedSize-1] * term3 );
 	}
 }
