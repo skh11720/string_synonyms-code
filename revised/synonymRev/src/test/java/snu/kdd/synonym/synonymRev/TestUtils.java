@@ -21,11 +21,11 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class TestUtils {
 
-	public static Query getTestQuery( int size ) throws IOException {
+	public static Query getTestQuery( long size ) throws IOException {
 		return getTestQuery("AOL", size);
 	}
 	
-	public static Query getTestQuery( String name, int size ) throws IOException {
+	public static Query getTestQuery( String name, long size ) throws IOException {
 		String osName = System.getProperty( "os.name" );
 		String prefix = null;
 		if ( osName.startsWith( "Windows" ) ) {

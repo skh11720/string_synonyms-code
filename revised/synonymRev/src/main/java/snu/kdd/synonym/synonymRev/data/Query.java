@@ -60,6 +60,8 @@ public class Query {
 		this.ruleSet = ruleSet;
 		this.indexedSet = indexedSet;
 		this.searchedSet = searchedSet;
+		this.indexedFile = indexedSet.name;
+		this.searchedFile = searchedSet.name;
 		
 		//Added for HybridJoin
 		this.lowHighSet = null;
