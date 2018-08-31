@@ -75,37 +75,34 @@ public class SampleEstimate {
 	double indexAvgTransform = 0;
 
 	final Query query;
-	final Query sampleQuery;
-	private final boolean stratified = false;
-	public final int sampleSearchedSize;
+	Query sampleQuery;
+	protected final boolean stratified = false;
+	public int sampleSearchedSize;
+	public long sampleSearchedNumEstTrans;
 	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
 	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
 	BufferedWriter bw_log = null;
+	
+	protected SampleEstimate(final Query query, double sampleRatio ) {
+		this.query = query;
+		this.sampleRatio = sampleRatio;
 
-	public SampleEstimate( final Query query, double sampleratio, boolean isSelfJoin ) {
-		long seed = System.currentTimeMillis();
-		Util.printLog( "Random seed: " + seed );
-		Random rn = new Random( seed );
 		try { 
 			String[] tokenList = query.searchedFile.split( "\\"+(File.separator) );
 			String dataAndSize = tokenList[tokenList.length-1].split( "\\.", 2)[0];
-			String nameTmp = String.format( "SampleEst_%s_%.2f", dataAndSize, sampleratio );
+			String nameTmp = String.format( "SampleEst_%s_%.2f", dataAndSize, sampleRatio );
 			bw_log = new BufferedWriter( new FileWriter( "tmp/"+nameTmp+".txt" ) );
 		}
 		catch ( IOException e ) { e.printStackTrace(); }
 
-		this.query = query;
-
 		int smallTableSize = Integer.min( query.searchedSet.size(), query.indexedSet.size() );
-		this.sampleRatio = sampleratio;
-
-		if( sampleratio > 1 ) {
+		if( sampleRatio > 1 ) {
 			// fixed number of samples
-			if( sampleratio > smallTableSize ) {
+			if( sampleRatio > smallTableSize ) {
 				this.sampleRatio = 1;
 			}
 			else {
-				this.sampleRatio = sampleratio / smallTableSize;
+				this.sampleRatio = sampleRatio / smallTableSize;
 			}
 		}
 
@@ -116,6 +113,13 @@ public class SampleEstimate {
 
 			this.sampleRatio = 10.0 / smallTableSize;
 		}
+	}
+
+	public SampleEstimate( final Query query, double sampleRatio, boolean isSelfJoin ) {
+		this( query, sampleRatio );
+		long seed = System.currentTimeMillis();
+		Util.printLog( "Random seed: " + seed );
+		Random rn = new Random( seed );
 		
 		sampleSearchedList = sampleRecords( query.searchedSet.recordList, rn );
 		if( isSelfJoin ) {
@@ -127,6 +131,24 @@ public class SampleEstimate {
 
 		Util.printLog( sampleSearchedList.size() + " Searched records are sampled" );
 		Util.printLog( sampleIndexedList.size() + " Indexed records are sampled" );
+		
+		initialize();
+	}
+	
+	public SampleEstimate( final Query query, double sampleRatio, ObjectArrayList<Record> sampledSearchedList, ObjectArrayList<Record> sampleIndexedList ) {
+		this( query, sampleRatio );
+		this.sampleSearchedList = sampledSearchedList;
+		this.sampleIndexedList = sampleIndexedList;
+		initialize();
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		bw_log.flush();
+		bw_log.close();
+	}
+
+	public void initialize() {
 		sampleSearchedSize = sampleSearchedList.size();
 
 		Comparator<Record> comp = new RecordComparator();
@@ -148,12 +170,6 @@ public class SampleEstimate {
 		min_term3 = new long[sampleSearchedList.size()];
 	}
 	
-	@Override
-	protected void finalize() throws Throwable {
-		bw_log.flush();
-		bw_log.close();
-	}
-
 	public Object2DoubleMap<String> estimateJoinNaive( StatContainer stat ) {
 
 		// Infer alpha and beta
@@ -205,16 +221,10 @@ public class SampleEstimate {
 		output.put( "Naive_Join_Time", (double)joinTime );
 		return output;
 	}
-
-	public Object2DoubleMap<String> estimateJoinMH( StatContainer stat, Validator checker, int indexK, int qSize ) {
-
-		int[] indexPosition = new int[indexK];
-		for (int i=0; i<indexK; ++i ) indexPosition[i] = i;
-		StatContainer tmpStat = new StatContainer();
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
-
+	
+	protected long sampleJoinMH( JoinMHIndex joinmhinst, Validator checker ) {
 		long ts = System.nanoTime();
-		JoinMHIndex joinmhinst = new JoinMHIndex( indexK, qSize, sampleIndexedList, sampleQuery, tmpStat, indexPosition, true, true, -1 );
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
@@ -228,6 +238,16 @@ public class SampleEstimate {
 			}
 		} // for sid in in searchedSet
 		long joinTime = System.nanoTime() - ts;
+		return joinTime;
+	}
+
+	public Object2DoubleMap<String> estimateJoinMH( StatContainer stat, Validator checker, int indexK, int qSize ) {
+		int[] indexPosition = new int[indexK];
+		for (int i=0; i<indexK; ++i ) indexPosition[i] = i;
+		StatContainer tmpStat = new StatContainer();
+
+		JoinMHIndex joinmhinst = new JoinMHIndex( indexK, qSize, sampleIndexedList, sampleQuery, tmpStat, indexPosition, true, true, -1 );
+		long joinTime = sampleJoinMH( joinmhinst, checker );
 
 		mh_term1 = joinmhinst.qgramCount;
 		coeff_mh_1 = joinmhinst.indexTime / (joinmhinst.qgramCount+1);
@@ -259,14 +279,11 @@ public class SampleEstimate {
 		output.put( "MH_Join_Time", (double)joinTime );
 		return output;
 	}
-
-	public Object2DoubleMap<String> estimateJoinMin( StatContainer stat, Validator checker, int indexK, int qSize ) {
-		// Infer lambda, mu and rho
-		StatContainer tmpStat = new StatContainer();
+	
+	protected long sampleJoinMin( JoinMinIndex joinmininst, Validator checker, int indexK ) {
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		long ts = System.nanoTime();
-		JoinMinIndex joinmininst = new JoinMinIndex( indexK, qSize, tmpStat, sampleQuery, -1, false );
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
@@ -280,8 +297,17 @@ public class SampleEstimate {
 			}
 		}
 		long joinTime = System.nanoTime() - ts;
-		if ( joinmininst.predictCount == 0 ) joinmininst.predictCount = 1; // prevent from dividing by zero
+		return joinTime;
+	}
 
+	public Object2DoubleMap<String> estimateJoinMin( StatContainer stat, Validator checker, int indexK, int qSize ) {
+		// Infer lambda, mu and rho
+		StatContainer tmpStat = new StatContainer();
+
+		JoinMinIndex joinmininst = new JoinMinIndex( indexK, qSize, tmpStat, sampleQuery, -1, false );
+		long joinTime = sampleJoinMin( joinmininst, checker, indexK );
+
+		if ( joinmininst.predictCount == 0 ) joinmininst.predictCount = 1; // prevent from dividing by zero
 		min_term1 = joinmininst.indexedTotalSigCount;
 		coeff_min_1 = joinmininst.indexRecordTime / (joinmininst.indexedTotalSigCount+1);
 		coeff_min_2 = ( joinmininst.indexCountTime + joinmininst.candQGramTime + joinmininst.filterTime ) / (joinmininst.searchedTotalSigCount+1);
@@ -986,6 +1012,7 @@ public class SampleEstimate {
 		// records
 //		int indexedIdx = 0;
 		int sidx = 0;
+		sampleSearchedNumEstTrans = 0;
 //		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
 		long currentThreshold = 0;
 		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
@@ -1011,6 +1038,7 @@ public class SampleEstimate {
 				Record rec = sampleSearchedList.get( sidx );
 
 				long est = rec.getEstNumTransformed();
+				sampleSearchedNumEstTrans += est;
 				if( est > currentThreshold ) {
 					nextThresholdSearched = est;
 					break;
@@ -1080,12 +1108,12 @@ public class SampleEstimate {
 			}
 			
 			System.out.print( (sidx)+"\t" );
-			System.out.print( sampleIndexedList.size()+"\t");
+			System.out.print( sampleSearchedNumEstTrans+"\t" );
 			System.out.print(naive_term1+"\t");
 			System.out.print(curr_naive_term2+"\t");
 			System.out.print( mh_term1+"\t");
-			System.out.print( curr_mh_term2+"\t");
-			System.out.print( curr_mh_term3+"\t");
+			System.out.print( curr_mh_term2+"\t" );
+			System.out.print( curr_mh_term3+"\t" );
 			System.out.print(min_term1+"\t");
 			System.out.print(curr_min_term2+"\t");
 			System.out.print(curr_min_term3+"\t");
@@ -1181,12 +1209,12 @@ public class SampleEstimate {
 		return joinMinSelected;
 	}
 
-	private ObjectArrayList<Record> sampleRecords( List<Record> recordList, Random rn ) {
+	protected ObjectArrayList<Record> sampleRecords( List<Record> recordList, Random rn ) {
 		if (!stratified) return sampleRecordsNaive( recordList, rn );
 		else return sampleRecordsStratified( recordList, rn );
 	}
 
-	private ObjectArrayList<Record> sampleRecordsNaive( List<Record> recordList, Random rn ) {
+	protected ObjectArrayList<Record> sampleRecordsNaive( List<Record> recordList, Random rn ) {
 		ObjectArrayList<Record> sampledList = new ObjectArrayList<>();
 		for( Record r : recordList ) {
 			if ( r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
@@ -1197,7 +1225,7 @@ public class SampleEstimate {
 		return sampledList;
 	}
 	
-	private ObjectArrayList<Record> sampleRecordsStratified( List<Record> recordList, Random rn ) {
+	protected ObjectArrayList<Record> sampleRecordsStratified( List<Record> recordList, Random rn ) {
 		Comparator<Record> comp = new RecordComparator();
 		
 		ObjectArrayList<Record> sampledList = new ObjectArrayList<Record>();

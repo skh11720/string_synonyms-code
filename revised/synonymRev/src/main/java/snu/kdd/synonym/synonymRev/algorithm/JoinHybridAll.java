@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
+import snu.kdd.synonym.synonymRev.estimation.SampleEstimateByRegression;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
@@ -275,7 +276,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	protected void findConstants( double sampleratio ) {
 		// Sample
-		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
+		estimate = new SampleEstimateByRegression( query, sampleratio, query.selfJoin );
 		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
 		
 		stat.add( "Estimate_Coeff1_Naive", estimate.coeff_naive_1);
@@ -309,8 +310,9 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		 * ---- rollback 2.61
 		 * 2.62: estimate by scaling up terms: 11/122/122
 		 * 2.63: estimate by scaling up terms: 11/112/112
+		 * 2.64: estimate using regression
 		 */
-		return "2.63";
+		return "2.64";
 	}
 
 	@Override
