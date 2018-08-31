@@ -276,7 +276,8 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	protected void findConstants( double sampleratio ) {
 		// Sample
-		estimate = new SampleEstimateByRegression( query, sampleratio, query.selfJoin );
+		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
+//		estimate = new SampleEstimateByRegression( query, sampleratio, query.selfJoin );
 		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
 		
 		stat.add( "Estimate_Coeff1_Naive", estimate.coeff_naive_1);
@@ -312,7 +313,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		 * 2.63: estimate by scaling up terms: 11/112/112
 		 * 2.64: estimate using regression
 		 */
-		return "2.64";
+		return "2.63";
 	}
 
 	@Override
