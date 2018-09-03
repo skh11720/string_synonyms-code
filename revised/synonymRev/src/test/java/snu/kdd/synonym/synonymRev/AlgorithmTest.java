@@ -140,7 +140,7 @@ public class AlgorithmTest {
 //			testJoinMin();
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
-			testJoinHybridAll();
+//			testJoinHybridAll();
 //			testJoinPkduck();
 			
 //			testJoinMHDP();
@@ -153,6 +153,7 @@ public class AlgorithmTest {
 //			testJoinSetNaive();
 //			testJoinPQFilterDPSet();
 //			testJoinPkduckSet();
+			testPassJoinExact();
 		}
 
 //		testJoinMH();
@@ -308,6 +309,18 @@ public class AlgorithmTest {
 			String param = param_list[i];
 			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
+	}
+
+	@Ignore
+	public void testPassJoinExact() throws ParseException, IOException {
+		args[1] = "PassJoinExact";
+		String[] param_list = {
+				"\"-1\""
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
+		else answer = ANS_SET_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 	
 	

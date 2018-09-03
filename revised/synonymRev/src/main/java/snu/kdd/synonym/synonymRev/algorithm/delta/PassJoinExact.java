@@ -19,30 +19,18 @@ import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class JoinNaiveDelta2 extends AlgorithmTemplate{
+public class PassJoinExact extends JoinNaiveDelta2 {
 	
-	protected PassJoinIndexForSynonyms index = null;
-	protected int deltaMax;
+	protected int deltaMax = 0;
 
-	public JoinNaiveDelta2( Query query, StatContainer stat ) throws IOException {
+	public PassJoinExact( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 	
 	@Override
-	protected void preprocess() {
-		super.preprocess();
-		for( Record rec : query.searchedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-	}
-
-	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
-		Param param = Param.parseArgs( args, stat, query );
-		this.deltaMax = param.delta;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		stat.add( "cmd_delta", deltaMax );
 
 		preprocess();
 
@@ -59,35 +47,10 @@ public class JoinNaiveDelta2 extends AlgorithmTemplate{
 
 		stepTime.stopAndAdd( stat );
 	}
-	
-	protected Set<IntegerPair> runAfterPreprocess() {
-		StopWatch stepTime = null;
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		buildIndex( writeResult );
 
-		stat.addMemory( "Mem_3_BuildIndex" );
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
-
-		Set<IntegerPair> rslt = join();
-
-		stat.addMemory( "Mem_4_Joined" );
-		stepTime.stopAndAdd( stat );
-		return rslt;
-	}
-	
-	protected void buildIndex( boolean addStat ) {
-		index = new PassJoinIndexForSynonyms( query, deltaMax, stat );
-	}
-
-	protected Set<IntegerPair> join() {
-		Set<IntegerPair> rslt = index.join();
-		return rslt;
-	}
-	
 	@Override
 	public String getName() {
-		return "JoinNaiveDelta2";
+		return "PassJoinExact";
 	}
 
 	@Override

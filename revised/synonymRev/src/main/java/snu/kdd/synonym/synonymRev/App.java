@@ -49,6 +49,7 @@ import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinNaiveThresDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinStrongDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta2;
+import snu.kdd.synonym.synonymRev.algorithm.delta.PassJoinExact;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
@@ -299,6 +300,10 @@ public class App {
 		case JoinSetNaive:
 			alg = new JoinSetNaive( query, stat );
 			break;
+		case PassJoinExact:
+			alg = new PassJoinExact( query, stat );
+			break;
+		
 		
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );

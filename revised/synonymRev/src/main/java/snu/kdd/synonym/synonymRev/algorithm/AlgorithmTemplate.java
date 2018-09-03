@@ -68,6 +68,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinPQFilterDPSet,
 		JoinPQFilterDPSet2,
 		JoinSetNaive,
+		PassJoinExact,
 	}
 
 	// contains statistics of the algorithm
