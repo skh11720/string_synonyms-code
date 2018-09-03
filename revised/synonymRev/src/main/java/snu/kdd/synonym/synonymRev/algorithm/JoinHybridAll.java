@@ -247,31 +247,31 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	protected void findConstants( double sampleratio, StatContainer stat ) {
 		// Sample
-//		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
-		estimate = new SampleEstimateByRegression( query, sampleratio, query.selfJoin );
+		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
+//		estimate = new SampleEstimateByRegression( query, sampleratio, query.selfJoin );
 		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
 		
-		stat.add( "Estimate_Coeff1_Naive", estimate.coeff_naive_1);
-		stat.add( "Estimate_Coeff2_Naive", estimate.coeff_naive_2);
-		stat.add( "Estimate_Term1_Naive", estimate.naive_term1);
-		stat.add( "Estimate_Term2_Naive", estimate.naive_term2[estimate.sampleSearchedSize-1]);
-		stat.add( "Estimate_Time_Naive", estimate.estTime_naive );
+		this.stat.add( "Estimate_Coeff1_Naive", estimate.coeff_naive_1);
+		this.stat.add( "Estimate_Coeff2_Naive", estimate.coeff_naive_2);
+		this.stat.add( "Estimate_Term1_Naive", estimate.naive_term1);
+		this.stat.add( "Estimate_Term2_Naive", estimate.naive_term2[estimate.sampleSearchedSize-1]);
+		this.stat.add( "Estimate_Time_Naive", estimate.estTime_naive );
 
-		stat.add( "Estimate_Coeff1_Mh", estimate.coeff_mh_1);
-		stat.add( "Esitmate_Coeff2_Mh", estimate.coeff_mh_2);
-		stat.add( "Estimate_Coeff3_Mh", estimate.coeff_mh_3);
-		stat.add( "Estimate_Term1_Mh", estimate.mh_term1);
-		stat.add( "Estimate_Term2_Mh", estimate.mh_term2[estimate.sampleSearchedSize-1]);
-		stat.add( "Estimate_Term3_Mh", estimate.mh_term3[estimate.sampleSearchedSize-1]);
-		stat.add( "Estimate_Time_Mh", estimate.estTime_mh );
+		this.stat.add( "Estimate_Coeff1_Mh", estimate.coeff_mh_1);
+		this.stat.add( "Esitmate_Coeff2_Mh", estimate.coeff_mh_2);
+		this.stat.add( "Estimate_Coeff3_Mh", estimate.coeff_mh_3);
+		this.stat.add( "Estimate_Term1_Mh", estimate.mh_term1);
+		this.stat.add( "Estimate_Term2_Mh", estimate.mh_term2[estimate.sampleSearchedSize-1]);
+		this.stat.add( "Estimate_Term3_Mh", estimate.mh_term3[estimate.sampleSearchedSize-1]);
+		this.stat.add( "Estimate_Time_Mh", estimate.estTime_mh );
 
-		stat.add( "Estimate_Coeff1_Min", estimate.coeff_min_1);
-		stat.add( "Estimate_Coeff2_Min", estimate.coeff_min_2);
-		stat.add( "Estimate_Coeff3_Min", estimate.coeff_min_3);
-		stat.add( "Estimate_Term1_Min", estimate.min_term1);
-		stat.add( "Estimate_Term2_Min", estimate.min_term2[estimate.sampleSearchedSize-1]);
-		stat.add( "Estimate_Term3_Min", estimate.min_term3[estimate.sampleSearchedSize-1]);
-		stat.add( "Estimate_Time_Min", estimate.estTime_min );
+		this.stat.add( "Estimate_Coeff1_Min", estimate.coeff_min_1);
+		this.stat.add( "Estimate_Coeff2_Min", estimate.coeff_min_2);
+		this.stat.add( "Estimate_Coeff3_Min", estimate.coeff_min_3);
+		this.stat.add( "Estimate_Term1_Min", estimate.min_term1);
+		this.stat.add( "Estimate_Term2_Min", estimate.min_term2[estimate.sampleSearchedSize-1]);
+		this.stat.add( "Estimate_Term3_Min", estimate.min_term3[estimate.sampleSearchedSize-1]);
+		this.stat.add( "Estimate_Time_Min", estimate.estTime_min );
 	}
 
 	@Override
@@ -285,7 +285,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		 * 2.64: estimate using regression
 		 * 2.65: nEst, conduct regression at most twice
 		 */
-		return "2.65";
+		return "2.63";
 	}
 
 	@Override
