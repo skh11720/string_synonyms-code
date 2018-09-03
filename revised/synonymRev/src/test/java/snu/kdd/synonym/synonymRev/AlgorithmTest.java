@@ -121,14 +121,15 @@ public class AlgorithmTest {
 		
 		boolean[] flags = {true, false};
 		for ( boolean flag : flags ) {
-//			isSelfJoin = flag;
+			isSelfJoin = flag;
+			
 //			testJoinNaiveDelta();
 //			testJoinNaiveDelta2();
-			testJoinMHDelta();
-			testJoinMHStrongDelta();
+//			testJoinMHDelta();
+//			testJoinMHStrongDelta();
 //			testJoinMHDeltaDP();
-			testJoinMinDelta();
-			testJoinMinStrongDelta();
+//			testJoinMinDelta();
+//			testJoinMinStrongDelta();
 //			testJoinMinDeltaDP();
 //			testJoinHybridAllDelta();
 
@@ -139,7 +140,7 @@ public class AlgorithmTest {
 //			testJoinMin();
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
-//			testJoinHybridAll();
+			testJoinHybridAll();
 //			testJoinPkduck();
 			
 //			testJoinMHDP();
