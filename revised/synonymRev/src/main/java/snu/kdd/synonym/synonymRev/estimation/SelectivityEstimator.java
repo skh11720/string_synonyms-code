@@ -6,12 +6,22 @@ import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
 public class SelectivityEstimator {
 	OLSMultipleLinearRegression regressor;
-	final double[] param;
+	double[] param;
 	
 	public SelectivityEstimator( double[][] x, double[] y ) {
+		try { if ( x[0].length != 2 ) throw new Exception("Invalid input format");
+		} catch ( Exception e ) { e.printStackTrace(); }
+
 		regressor = new OLSMultipleLinearRegression();
 		regressor.newSampleData( y, x );
 		param = regressor.estimateRegressionParameters();
+		if ( param[2] < 0 ) {
+			double[][] _x = new double[x.length][];
+			// conduct linear regression again, without the quadratic term
+			for ( int i=0; i<x.length; ++i ) _x[i] = Arrays.copyOfRange( x[i], 0, 1 );
+			regressor.newSampleData( y, _x );
+			param = regressor.estimateRegressionParameters();
+		}
 	}
 
 	public double[] getParameters() {
@@ -20,7 +30,7 @@ public class SelectivityEstimator {
 
 	public double predict(double[] x) {
 		double prediction = param[0];
-		for ( int i=0; i<x.length; ++i ) prediction += param[i+1] * x[i];
+		for ( int i=0; i<param.length-1; ++i ) prediction += param[i+1] * x[i];
 		return prediction;
 	}
 
