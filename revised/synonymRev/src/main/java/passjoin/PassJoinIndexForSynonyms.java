@@ -216,7 +216,7 @@ public class PassJoinIndexForSynonyms {
 		Set<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 		for (int id = 0; id < searchedList.size(); id++) {
 			Record recS = searchedList.get( id );
-			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+//			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinOneRecord( recS, rslt );
 		} // end for id
 		joinTime = System.nanoTime() - ts;
