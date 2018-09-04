@@ -51,6 +51,9 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	double gamma;
 	double zeta;
 	double eta;
+	
+	public static boolean useLF = true;
+	public static boolean usePQF = true;
 
 
 	/**
@@ -288,7 +291,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 
 					int[] otherRange = otherRecord.getTransLengths();
 
-					if (StaticFunctions.overlap(range[0], range[1], otherRange[0], otherRange[1])) {
+					if ( !useLF || StaticFunctions.overlap(range[0], range[1], otherRange[0], otherRange[1])) {
 						if (prevCandidate == null) {
 							ithCandidates.add(otherRecord);
 						} else if (prevCandidate.contains(otherRecord)) {
@@ -431,7 +434,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 						otherRange = otherRecord.getTransLengths();
 					}
 
-					if (StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
+					if ( !useLF || StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
 						// length filtering
 
 						ithCandidates.add(otherRecord);
@@ -459,7 +462,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 			Record record = entry.getKey();
 			int recordCount = entry.getIntValue();
 
-			if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+			if ( !usePQF || indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 				candidates.add(record);
 			}
 			else ++checker.pqgramFiltered;
