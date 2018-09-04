@@ -312,7 +312,7 @@ public class App {
 		}
 		
 		// if query is not a self join, conduct semi-unidirectional join.
-		if ( !query.selfJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
+		if ( !query.selfJoin && !query.oneSideJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
 
 		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
 		stat.add( cmd );
