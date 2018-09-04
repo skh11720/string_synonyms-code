@@ -60,6 +60,11 @@ public class TestUtils {
 			dataTwoPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
+		else if ( name.equals( "SYN_100K" ) ) {
+			dataOnePath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_1.txt", size );
+			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
+			rulePath = prefix + "rule"+sep+"30000_2_2_100000_0.0_0.txt";
+		}
 		else throw new RuntimeException();
 
 		String outputPath = "output";
