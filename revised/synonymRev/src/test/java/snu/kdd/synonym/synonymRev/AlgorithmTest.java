@@ -30,7 +30,7 @@ public class AlgorithmTest {
 	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 1190, 2447};
 	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{4, 149, 3281};
 	private static final int[] ANS_SET_SELF_DELTA = new int[] {1028};
-	private static final int[] ANS_SET_NONSELF_DELTA = new int[] {7};
+	private static final int[] ANS_SET_NONSELF_DELTA = new int[] {4};
 	
 	public static Query getSelfJoinQuery() throws ParseException, IOException {
 		String osName = System.getProperty( "os.name" );
@@ -137,7 +137,8 @@ public class AlgorithmTest {
 //			testJoinMH();
 //			testJoinMHNaive();
 //			testJoinMHNaiveThres();
-//			testJoinMin();
+			testJoinMin();
+			testJoinMinFast();
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
 //			testJoinHybridAll();
@@ -153,7 +154,7 @@ public class AlgorithmTest {
 //			testJoinSetNaive();
 //			testJoinPQFilterDPSet();
 //			testJoinPkduckSet();
-			testPassJoinExact();
+//			testPassJoinExact();
 		}
 
 //		testJoinMH();
@@ -241,6 +242,20 @@ public class AlgorithmTest {
 				"\"-K 1 -qSize 1\"",
 				"\"-K 1 -qSize 2\"",
 				"\"-K 2 -qSize 1\""
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
+		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+
+	@Ignore
+	public void testJoinMinFast() throws ParseException, IOException {
+		args[1] = "JoinMinFast";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -sample 0.01\"",
+				"\"-K 1 -qSize 2 -sample 0.05\"",
+				"\"-K 2 -qSize 1 -sample 0.1\""
 		};
 		int answer;
 		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];

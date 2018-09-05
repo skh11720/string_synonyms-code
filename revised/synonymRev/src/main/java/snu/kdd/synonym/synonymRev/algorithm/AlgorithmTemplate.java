@@ -30,6 +30,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinMH,
 		JoinBK,
 		JoinMin,
+		JoinMinFast,
 		JoinMinPosition,
 		JoinMinRange,
 		JoinMinNaive,

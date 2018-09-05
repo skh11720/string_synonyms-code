@@ -26,6 +26,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThres;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThresDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaiveDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaiveThres;
@@ -143,6 +144,10 @@ public class App {
 
 		case JoinMin:
 			alg = new JoinMin( query, stat );
+			break;
+
+		case JoinMinFast:
+			alg = new JoinMinFast( query, stat );
 			break;
 
 		case JoinMinPosition:
