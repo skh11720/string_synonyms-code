@@ -39,6 +39,8 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 
 	public long qgramCount = 0;
 	public long candQGramCount = 0;
+	public long candQGramCountSum = 0;
+	public double candQGramAvgCount = 0;
 	public int predictCount = 0;
 	public long equivComparisons = 0;
 
@@ -366,13 +368,22 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 //			candidateTimes[i] = StopWatch.getWatchStopped("Result_3_2_2_Cand_" + i + " Time");
 //		}
 
+		int skipped = 0;
 		for (int sid = 0; sid < query.searchedSet.size(); sid++) {
 			Record recS = query.searchedSet.getRecord(sid);
-//			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
+				++skipped;
+				continue;
+			}
 
 			joinOneRecordThres( recS, rslt, checker, -1, query.oneSideJoin );
 		}
 
+		this.candQGramAvgCount = 1.0 * this.candQGramCountSum / (query.searchedSet.size() - skipped);
+		stat.add( "Stat_CandQGram_Sum", this.candQGramCountSum );
+		stat.add( "Stat_CandQGram_Avg", this.candQGramAvgCount );
+		stat.add( "Stat_Equiv_Comparison", this.equivComparisons );
+		stat.add( "Stat_Skipped", skipped );
 //		this.zeta = (double) totalCountTime / totalCountValue;
 		// totalCountTime: time for generating TPQ supersets
 		// totalCountValue: the size of TPQ supersets
@@ -388,11 +399,13 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	    boolean isUpperRecord = threshold <= 0 ? true : recS.getEstNumTransformed() > threshold;
 	    if (!isUpperRecord) return;
 
+	    int candQGramCount = 0;
 	    long ts = System.nanoTime();
 		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
 		for (List<QGram> list : availableQGrams) {
-			this.candQGramCount += list.size();
+			candQGramCount += list.size();
 		}
+		this.candQGramCountSum += candQGramCount;
 		long afterCandQgramTime = System.nanoTime();
 
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
@@ -511,6 +524,14 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	@Override
 	public long getCountValue() {
 		return candQGramCount;
+	}
+	
+	public long getCandQGramCountSum() {
+		return candQGramCountSum;
+	}
+	
+	public double getCandQGramAvgCount() {
+		return candQGramAvgCount;
 	}
 
 	@Override
