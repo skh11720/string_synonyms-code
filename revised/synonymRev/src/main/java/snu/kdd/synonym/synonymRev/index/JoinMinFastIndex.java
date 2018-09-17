@@ -22,7 +22,7 @@ public class JoinMinFastIndex extends JoinMinIndex {
 		this( indexK, qSize, query, sampleRatio );
 		initialize( stat, threshold, writeResult );
 	}
-	
+
 	@Override
 	protected List<Record> prepareCountInvokes() {
 		Random rn = new Random( System.currentTimeMillis() );

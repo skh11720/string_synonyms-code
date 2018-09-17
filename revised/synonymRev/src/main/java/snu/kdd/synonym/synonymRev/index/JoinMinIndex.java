@@ -52,6 +52,8 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 	public long indexedTotalSigCount = 0;
 	public long equivComparisons = 0;
 	public long appliedRulesSum = 0;
+	public long candQGramCountSum = 0;
+	public double candQGramAvgCount = 0;
 
 	public long comparisonCount = 0;
 	public long lengthFiltered = 0;
@@ -413,10 +415,21 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
+		int skipped = 0;
 		for( Record recS : query.searchedSet.get() ) {
-//			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
+				++skipped;
+				continue;
+			}
 			joinRecordMaxK( indexK, recS, rslt, writeResult, bw, checker, query.oneSideJoin );
 		}
+
+		this.candQGramAvgCount = 1.0 * this.candQGramCountSum / (query.searchedSet.size() - skipped);
+		stat.add( "Stat_CandQGram_Sum", this.candQGramCountSum );
+		stat.add( "Stat_CandQGram_Avg", this.candQGramAvgCount );
+		stat.add( "Stat_Equiv_Comparison", this.equivComparisons );
+		stat.add( "Stat_Skipped", skipped );
+
 
 		if( DEBUG.PrintJoinMinJoinON ) {
 			try {
@@ -456,7 +469,7 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 		}
 
 		if( writeResult ) {
-			stat.add( "Stat_Equiv_Comparison", equivComparisons );
+//			stat.add( "Stat_Equiv_Comparison", equivComparisons );
 			stat.add( "Stat_Length_Filtered", lengthFiltered );
 			stat.add( "Join_Min_Result", rslt.size() );
 		}
@@ -526,11 +539,15 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 
 		long ts = System.nanoTime();
 
-		long qgramCount = 0;
+		long candQGramCount = 0;
 //		boolean debug = false;
 //		if ( recS.getID() == 15756 ) debug = true;
 
 		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
+		for ( List<QGram> candidateQGrams : availableQGrams ) {
+			candQGramCount += candidateQGrams.size();
+		}
+		this.candQGramCountSum += candQGramCount;
 		long afterCandQGramTime = System.nanoTime();
 
 		int[] range = recS.getTransLengths();
@@ -549,11 +566,11 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 			WYK_HashSet<Record> candidates = new WYK_HashSet<Record>();
 
 			for( QGram qgram : availableQGrams.get( i ) ) {
-				if( DEBUG.PrintJoinMinJoinON ) {
+//				if( DEBUG.PrintJoinMinJoinON ) {
 //					debugArray.add( "q :" + qgram + " " + i + "\n" );
 
-					qgramCount++;
-				}
+//					qgramCount++;
+//				}
 
 				List<Record> tree = curridx.get( qgram );
 //				if ( debug ) System.out.println( "i: "+i+", qgram: "+qgram+", tree: "+tree );
@@ -747,6 +764,8 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 	public double getRhoPrime() { return rhoPrime; }
 	public long getSearchedTotalSigCount(){ return searchedTotalSigCount; }
 	public long getIndexedTotalSigCount() { return indexedTotalSigCount; }
+	public long getCandQGramCountSum() { return candQGramCountSum; } 
+	public double getCandQGramAvgCount() { return candQGramAvgCount; }
 	public long getEquivComparisons() { return equivComparisons; }
 	public long getComparisonTime() { return verifyTime; }
 	public long getAppliedRulesSum() { return appliedRulesSum; }
