@@ -524,7 +524,7 @@ public class EstimationTest extends AlgorithmTemplate {
 
 				bwEstimation.write( "[Iota] " + 0 );
 				bwEstimation.write( " QgramTime " + 0 );
-				bwEstimation.write( " searchedTotalSigCount " + joinMHIdx.candQGramCount+ "\n" );
+				bwEstimation.write( " searchedTotalSigCount " + joinMHIdx.candQGramCountSum+ "\n" );
 			}
 			catch( Exception e ) {
 				e.printStackTrace();
