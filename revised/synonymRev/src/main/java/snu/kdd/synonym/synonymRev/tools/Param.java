@@ -16,7 +16,7 @@ import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class Param {
-	private static final Options argOptions;
+	protected static Options argOptions;
 
 	static {
 		Options options = new Options();

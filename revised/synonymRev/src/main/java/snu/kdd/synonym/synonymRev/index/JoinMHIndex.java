@@ -38,7 +38,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	protected int maxPosition = 0;
 
 	public long qgramCount = 0;
-	public long candQGramCount = 0;
+//	public long candQGramCount = 0;
 	public long candQGramCountSum = 0;
 	public double candQGramAvgCount = 0;
 	public int predictCount = 0;
@@ -523,7 +523,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 
 	@Override
 	public long getCountValue() {
-		return candQGramCount;
+		return candQGramCountSum;
 	}
 	
 	public long getCandQGramCountSum() {

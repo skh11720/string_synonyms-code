@@ -17,6 +17,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinCatesian;
 import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll;
+import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll2;
 import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll_NEW;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHDP;
@@ -184,6 +185,10 @@ public class App {
 
 		case JoinHybridAll:
 			alg = new JoinHybridAll( query, stat );
+			break;
+
+		case JoinHybridAll2:
+			alg = new JoinHybridAll2( query, stat );
 			break;
 
 		case JoinHybridAll_NEW:

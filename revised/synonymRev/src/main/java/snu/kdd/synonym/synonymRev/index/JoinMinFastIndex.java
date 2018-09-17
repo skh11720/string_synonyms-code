@@ -11,7 +11,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class JoinMinFastIndex extends JoinMinIndex {
 	
-	private final double sampleRatio;
+	private double sampleRatio;
 	
 	protected JoinMinFastIndex( int indexK, int qSize, Query query, double sampleRatio ) {
 		super( indexK, qSize, query );
@@ -35,4 +35,6 @@ public class JoinMinFastIndex extends JoinMinIndex {
 		}
 		return searchedList;
 	}
+	
+	public void setSampleRatio( double value ) { sampleRatio = value; }
 }
