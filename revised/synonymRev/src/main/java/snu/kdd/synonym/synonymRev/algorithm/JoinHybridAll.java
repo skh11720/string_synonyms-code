@@ -204,22 +204,28 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		// join
 		Set<IntegerPair> rsltNaive = new WYK_HashSet<IntegerPair>();
 		Set<IntegerPair> rsltPQGram = new WYK_HashSet<IntegerPair>();
+		int pqgramSearch = 0;
 		int naiveSearch = 0;
+		int skipped = 0;
 		long joinNaiveTime = 0;
 		long joinPQGramTime = 0;
 		long joinStart = System.nanoTime();
 		for( Record s : query.searchedSet.get() ) {
 			long joinStartOne = System.nanoTime();
 			// System.out.println( "test " + s + " " + s.getEstNumRecords() );
-			if ( s.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if ( s.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
+				++skipped;
+				continue;
+			}
 			if( joinQGramRequired && s.getEstNumTransformed() > joinThreshold ) {
 				if( joinMinSelected ) joinMinIdx.joinRecordMaxKThres( indexK, s, rsltPQGram, true, null, checker, joinThreshold, query.oneSideJoin );
 				else joinMHIdx.joinOneRecordThres( s, rsltPQGram, checker, joinThreshold, query.oneSideJoin );
+				++pqgramSearch;
 				joinPQGramTime += System.nanoTime() - joinStartOne;
 			}
 			else {
 				naiveIndex.joinOneRecord( s, rsltNaive );
-				naiveSearch++;
+				++naiveSearch;
 				joinNaiveTime += System.nanoTime() - joinStartOne;
 			}
 		}
@@ -231,9 +237,25 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		stat.add( "Result_3_2_1_Join_Naive_Time", joinNaiveTime/1e6 );
 		stat.add( "Result_3_2_2_Join_PQGram_Time", joinPQGramTime/1e6 );
 		stat.add( "Stat_Naive_Search", naiveSearch );
+		stat.add( "Stat_PQGram_Search", pqgramSearch );
+		stat.add( "Stat_Skipped", skipped );
 		if (joinQGramRequired ) {
-			if( joinMinSelected ) stat.add( "Stat_Equiv_Comparison", joinMinIdx.getEquivComparisons() );
-			else stat.add( "Stat_Equiv_Comparison", joinMHIdx.getEquivComparisons() );
+			long candQGramCountSum = 0;
+			double candQGramAvgCount = 0;
+			long equivComparison = 0;
+			if( joinMinSelected ) {
+				candQGramCountSum = ((JoinMinIndex)joinMinIdx).getCandQGramCountSum();
+				equivComparison = joinMinIdx.getEquivComparisons();
+			}
+			else {
+				candQGramCountSum = ((JoinMHIndex)joinMHIdx).getCandQGramCountSum();
+				equivComparison = joinMHIdx.getEquivComparisons();
+			}
+
+			candQGramAvgCount = pqgramSearch == 0 ? 0 : 1.0 * candQGramCountSum / pqgramSearch;
+			stat.add( "Stat_CandQGram_Sum", candQGramCountSum );
+			stat.add( "Stat_CandQGram_Avg", candQGramAvgCount );
+			stat.add( "Stat_Equiv_Comparison", equivComparison );
 		}
 		
 		// evaluate the accuracy of estimation ???
