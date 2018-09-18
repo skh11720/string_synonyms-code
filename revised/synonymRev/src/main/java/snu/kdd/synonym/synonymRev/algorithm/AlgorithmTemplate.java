@@ -39,6 +39,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinMHNaiveThres,
 		JoinHybridAll,
 		JoinHybridAll2,
+		JoinHybridAll3,
 		JoinHybridAll_NEW,
 		SIJoin,
 		EquivTest,
