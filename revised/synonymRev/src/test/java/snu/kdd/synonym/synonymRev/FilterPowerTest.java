@@ -12,14 +12,16 @@ import org.junit.Test;
 
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
+import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class FilterPowerTest {
 
-	static final int K = 2;
+	static final int K = 1;
 	static final int q = 2;
 
 	@Test
@@ -61,6 +63,22 @@ public class FilterPowerTest {
 						JSONParser jparser = new JSONParser();
 						JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmh.toJson()+"}" );
 						String result = dataset+"\t"+size+"\tJoinMin\t"+K+"\t"+q+"\t"+useLF+"\t"+usePQF;
+						for ( String key : attrList ) result += "\t"+jobj.get( key );
+						writer.println(result);
+					}
+
+					// JoinMin
+					{
+						JoinMinFastIndex.useLF = useLF;
+						JoinMinFastIndex.usePQF = usePQF;
+						Query query = TestUtils.getTestQuery( dataset, size );
+						StatContainer stat_joinmhfast = new StatContainer();
+						JoinMinFast joinmhfast = new JoinMinFast( query, stat_joinmhfast );
+						joinmhfast.run( query, ("-K "+K+" -qSize "+q+" -sample 0.01").split( " " ) );
+						System.out.println( stat_joinmhfast.toJson() );
+						JSONParser jparser = new JSONParser();
+						JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmhfast.toJson()+"}" );
+						String result = dataset+"\t"+size+"\tJoinMinFast\t"+K+"\t"+q+"\t"+useLF+"\t"+usePQF;
 						for ( String key : attrList ) result += "\t"+jobj.get( key );
 						writer.println(result);
 					}
