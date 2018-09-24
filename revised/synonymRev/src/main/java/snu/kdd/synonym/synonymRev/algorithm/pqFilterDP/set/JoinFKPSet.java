@@ -28,8 +28,6 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.set.PkduckSetDP;
-import vldb17.set.PkduckSetDPWithRC;
 import vldb17.set.SetGreedyValidator;
 
 public class JoinFKPSet extends AlgorithmTemplate {
