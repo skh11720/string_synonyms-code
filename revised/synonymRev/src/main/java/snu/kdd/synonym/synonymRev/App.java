@@ -58,8 +58,9 @@ import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinMinDP;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinPQFilterDP;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinBKPSet;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinFKPSet;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinPQFilterDPSet;
-import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinPQFilterDPSet2;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -308,8 +309,12 @@ public class App {
 			alg = new JoinPQFilterDPSet( query, stat );
 			break;
 
-		case JoinPQFilterDPSet2:
-			alg = new JoinPQFilterDPSet2( query, stat );
+		case JoinFKPSet:
+			alg = new JoinFKPSet( query, stat );
+			break;
+
+		case JoinBKPSet:
+			alg = new JoinBKPSet ( query, stat );
 			break;
 
 		case JoinSetNaive:
