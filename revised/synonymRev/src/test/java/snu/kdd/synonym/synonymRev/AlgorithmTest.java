@@ -137,8 +137,8 @@ public class AlgorithmTest {
 //			testJoinMH();
 //			testJoinMHNaive();
 //			testJoinMHNaiveThres();
-			testJoinMin();
-			testJoinMinFast();
+//			testJoinMin();
+//			testJoinMinFast();
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
 //			testJoinHybridAll();
@@ -793,6 +793,36 @@ public class AlgorithmTest {
 				"\"-ord FF -verify naive -rc true\"",
 				"\"-ord FF -verify greedy -rc false\"",
 				"\"-ord FF -verify greedy -rc true\""
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
+		else answer = ANS_SET_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+	
+	@Ignore
+	public void testJoinFKPSet() throws ParseException, IOException {
+		args[1] = "JoinFKPSet";
+		String[] param_list = {
+				"\"-K 1 -verify TD\"",
+				"\"-K 2 -verify TD\"",
+				"\"-K 1 -verify GR1\"",
+				"\"-K 2 -verify GR1\"",
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
+		else answer = ANS_SET_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+
+	@Ignore
+	public void testJoinBKPSet() throws ParseException, IOException {
+		args[1] = "JoinBKPSet";
+		String[] param_list = {
+				"\"-K 1 -verify TD\"",
+				"\"-K 2 -verify TD\"",
+				"\"-K 1 -verify GR1\"",
+				"\"-K 2 -verify GR1\"",
 		};
 		int answer;
 		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
