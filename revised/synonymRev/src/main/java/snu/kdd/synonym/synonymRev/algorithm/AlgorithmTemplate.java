@@ -69,7 +69,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinHybridAllDelta,
 		JoinPkduckSet,
 		JoinPQFilterDPSet,
-		JoinPQFilterDPSet2,
+		JoinFKPSet,
+		JoinBKPSet,
 		JoinSetNaive,
 		PassJoinExact,
 	}
