@@ -22,6 +22,7 @@ public class ParamPkduck extends Param {
 		options.addOption( "ord", true, "Global order of pos q-grams" );
 		options.addOption( "verify", true, "Verification method" );
 		options.addOption( "rc", true, "Use rule compression" );
+		options.addOption( "lf", true, "Use the length filter" );
 
 		argOptions = options;
 	}
@@ -54,6 +55,13 @@ public class ParamPkduck extends Param {
 				throw new RuntimeException("unexpected value for option -rc: "+param.useRuleComp);
 		}
 		else throw new RuntimeException("the vaule for option -rc is not specified.");
+		
+		if ( cmd.hasOption( "lf" ) ) {
+			param.useLF = Boolean.valueOf( cmd.getOptionValue( "lf" ) );
+			if ( param.useLF == null )
+				throw new RuntimeException("unexpected value for option -lf: "+param.useLF );
+		}
+		else throw new RuntimeException("the vaule for option -lf is not specified.");
 
 		return param;
 	}
@@ -61,4 +69,5 @@ public class ParamPkduck extends Param {
 	public String globalOrder = null;
 	public String verifier = null;
 	public Boolean useRuleComp = null;
+	public Boolean useLF = null;
 }
