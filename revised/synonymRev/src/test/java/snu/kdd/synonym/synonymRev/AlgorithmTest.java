@@ -30,7 +30,7 @@ public class AlgorithmTest {
 	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 1190, 2447};
 	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{4, 149, 3281};
 	private static final int[] ANS_SET_SELF_DELTA = new int[] {1028};
-	private static final int[] ANS_SET_NONSELF_DELTA = new int[] {4};
+	private static final int[] ANS_SET_NONSELF_DELTA = new int[] {7};
 	
 	public static Query getSelfJoinQuery() throws ParseException, IOException {
 		String osName = System.getProperty( "os.name" );
@@ -153,7 +153,7 @@ public class AlgorithmTest {
 			
 //			testJoinSetNaive();
 //			testJoinPQFilterDPSet();
-//			testJoinPkduckSet();
+			testJoinPkduckSet();
 //			testPassJoinExact();
 		}
 
@@ -789,10 +789,14 @@ public class AlgorithmTest {
 	public void testJoinPkduckSet() throws ParseException, IOException {
 		args[1] = "JoinPkduckSet";
 		String[] param_list = {
-				"\"-ord FF -verify naive -rc false\"",
-				"\"-ord FF -verify naive -rc true\"",
-				"\"-ord FF -verify greedy -rc false\"",
-				"\"-ord FF -verify greedy -rc true\""
+				"\"-ord FF -verify naive -rc false -lf true\"",
+				"\"-ord FF -verify naive -rc true -lf true\"",
+				"\"-ord FF -verify greedy -rc false -lf true\"",
+				"\"-ord FF -verify greedy -rc true -lf true\"",
+				"\"-ord FF -verify naive -rc false -lf false\"",
+				"\"-ord FF -verify naive -rc true -lf false\"",
+				"\"-ord FF -verify greedy -rc false -lf false\"",
+				"\"-ord FF -verify greedy -rc true -lf false\"",
 		};
 		int answer;
 		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
