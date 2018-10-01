@@ -142,7 +142,7 @@ public class AlgorithmTest {
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
 //			testJoinHybridAll();
-			testJoinPkduck();
+//			testJoinPkduck();
 			
 //			testJoinMHDP();
 //			testJoinMHNaiveDP();
@@ -154,7 +154,7 @@ public class AlgorithmTest {
 //			testJoinSetNaive();
 //			testJoinPQFilterDPSet();
 //			testJoinPkduckSet();
-//			testPassJoinExact();
+			testPassJoinExact();
 		}
 
 //		testJoinMH();
@@ -338,7 +338,7 @@ public class AlgorithmTest {
 		};
 		int answer;
 		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
-		else answer = ANS_SET_NONSELF_DELTA[0];
+		else answer = ANS_SEQ_NONSELF_DELTA[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 	
