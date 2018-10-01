@@ -126,12 +126,13 @@ public class ValidatorSpeedTest {
 			Validator[] arr_validator = {valid_seq_n, valid_seq_dp, valid_set_n, valid_set_dp, valid_set_gd, };
 			
 			for ( int i=0; i<arr_sidx.length; ++i ) {
-				Record recS = query.searchedSet.getRecord(i);
+				Record recS = query.searchedSet.getRecord(arr_sidx[i]);
+//				System.out.println( recS.getEstNumTransformed() );
 				for ( int iv=0; iv<arr_validator.length; ++iv ) {
 					Validator validator = arr_validator[iv];
 					long ts = System.nanoTime();
 					for ( int j=0; j<arr_tidx.length; ++j ) {
-						Record recT = query.indexedSet.getRecord(j);
+						Record recT = query.indexedSet.getRecord(arr_tidx[j]);
 						validator.isEqual( recS, recT );
 					}
 					double t = (System.nanoTime() - ts)/1e3; // time unit: us
