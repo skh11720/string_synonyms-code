@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -35,21 +36,26 @@ public class ValidatorSpeedTest {
 
 	static final int K = 1;
 	static final int q = 2;
-
-	@Test
-	public void test() throws IOException, ParseException, org.json.simple.parser.ParseException {
-		String[] datasetList = {"AOL", "SPROT", "USPS", "SYN_100K"};
+	String[] datasetList = {"AOL", "SPROT", "USPS", "SYN_100K"};
 //		String[] datasetList = {"SYN_100K"};
 //		String[] attrList = {"Val_Comparisons", "Val_Length_filtered", "Val_PQGram_filtered"};
-		int[] datasetSizeList = {1000000, 466158, 1000000, 1000000};
-		int nSample = 1000;
-		Random rand = new Random();
-		double[][] result = new double[datasetList.length][5];
+	int[] datasetSizeList = {1000000, 466158, 1000000, 1000000};
+	int nSample = 1000;
+	Random rand = new Random();
+	
+	@Test
+	public void runTests() throws IOException, ParseException, org.json.simple.parser.ParseException {
+		long ts = System.nanoTime();
+		testIncrementalProgress();
+		double t = (System.nanoTime() - ts) / 1e6;
+		System.out.println( "running time of test (ms): "+t );
+	}
 
+	public void test() throws IOException, ParseException, org.json.simple.parser.ParseException {
+		double[][] result = new double[datasetList.length][5];
 		PrintWriter writer = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/ValidatorSpeedTest.txt" ) ) );
 		writer.println("dataset\tsize\tnSample\tavg_time");
 		
-
 		for ( int idx_dataset=0; idx_dataset<datasetList.length; ++idx_dataset ) {
 			String dataset = datasetList[idx_dataset];
 			int size = datasetSizeList[idx_dataset];
@@ -92,6 +98,78 @@ public class ValidatorSpeedTest {
 			}
 		}
 		
+		outputResult( writer, result );
+		writer.flush(); writer.close();
+	}
+	
+	public void testIncrementalProgress() throws IOException {
+		double[][] result = new double[datasetList.length][5];
+		for (double[] result_row : result ) Arrays.fill( result_row, 0.0 );
+		PrintWriter writer = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/ValidatorSpeedTest.txt" ) ) );
+		writer.println("nSample: "+nSample+"\n");
+		
+		for ( int id=0; id<datasetList.length; ++id ) {
+//			if ( id == 0 ) continue;
+			String dataset = datasetList[id];
+			int size = datasetSizeList[id];
+			Query query = TestUtils.getTestQuery( dataset, size );
+			int[] arr_sidx = getSampleRecordsIdxArray( query.searchedSet.recordList, nSample, rand, true );
+			int[] arr_tidx = getSampleRecordsIdxArray( query.indexedSet.recordList, nSample, rand, false );
+
+			boolean isSelfJoin = true;
+			if ( dataset.equals( "SYN_100K" ) ) isSelfJoin = false;
+			NaiveOneSide valid_seq_n = new NaiveOneSide();
+			TopDownOneSide valid_seq_dp = new TopDownOneSide();
+			SetNaiveOneSide valid_set_n = new SetNaiveOneSide( isSelfJoin );
+			SetTopDownOneSide valid_set_dp = new SetTopDownOneSide( isSelfJoin );
+			SetGreedyOneSide valid_set_gd = new SetGreedyOneSide( isSelfJoin, 1 );
+			Validator[] arr_validator = {valid_seq_n, valid_seq_dp, valid_set_n, valid_set_dp, valid_set_gd, };
+			
+			for ( int i=0; i<arr_sidx.length; ++i ) {
+				Record recS = query.searchedSet.getRecord(i);
+				for ( int iv=0; iv<arr_validator.length; ++iv ) {
+					Validator validator = arr_validator[iv];
+					long ts = System.nanoTime();
+					for ( int j=0; j<arr_tidx.length; ++j ) {
+						Record recT = query.indexedSet.getRecord(j);
+						validator.isEqual( recS, recT );
+					}
+					double t = (System.nanoTime() - ts)/1e3; // time unit: us
+					result[id][iv] += t;
+				}
+				
+				if ((i+1) % 100 == 0 ) {
+					System.out.print( dataset+"\t"+(i+1) );
+					for ( int iv=0; iv<arr_validator.length; ++iv ) {
+						System.out.print( "\t"+String.format( "%10.3f", result[id][iv]/(i+1)/arr_tidx.length ) );
+					}
+					System.out.println();
+				}
+			}
+		}
+		
+		// divide by the number of vericiations
+//		for ( int id=0; id<datasetList.length; ++id) {
+//			for ( int iv=0; iv<result[0].length; ++iv ) result[id][iv] /= nSample*nSample;
+//		}
+		outputResult( writer, result );
+		writer.flush(); writer.close();
+	}
+
+	private int[] getSampleRecordsIdxArray( List<Record> recordList, int nSample, Random rand, boolean useThreshold ) {
+		IntOpenHashSet idxSet = new IntOpenHashSet();
+		while ( idxSet.size() < nSample ) {
+			int idx = rand.nextInt( recordList.size() );
+			if ( idxSet.contains( idx ) ) continue;
+			Record rec = recordList.get( idx );
+//			if ( useThreshold && rec.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if ( useThreshold && rec.getEstNumTransformed() > 10000 ) continue;
+			idxSet.add( idx );
+		}
+		return idxSet.toIntArray();
+	}
+	
+	private void outputResult( PrintWriter writer, double[][] result ) {
 		/*
 		 * print result to be added in the paper.
 		 * a row = validator
@@ -108,20 +186,5 @@ public class ValidatorSpeedTest {
 			}
 			writer.println();
 		}
-		
-		writer.flush(); writer.close();
-	}
-
-	private int[] getSampleRecordsIdxArray( List<Record> recordList, int nSample, Random rand, boolean useThreshold ) {
-		IntOpenHashSet idxSet = new IntOpenHashSet();
-		while ( idxSet.size() < nSample ) {
-			int idx = rand.nextInt( recordList.size() );
-			if ( idxSet.contains( idx ) ) continue;
-			Record rec = recordList.get( idx );
-//			if ( useThreshold && rec.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-			if ( useThreshold && rec.getEstNumTransformed() > 10000 ) continue;
-			idxSet.add( idx );
-		}
-		return idxSet.toIntArray();
 	}
 }
