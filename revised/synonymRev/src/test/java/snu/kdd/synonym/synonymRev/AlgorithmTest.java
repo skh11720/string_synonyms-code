@@ -142,7 +142,7 @@ public class AlgorithmTest {
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
 //			testJoinHybridAll();
-//			testJoinPkduck();
+			testJoinPkduck();
 			
 //			testJoinMHDP();
 //			testJoinMHNaiveDP();
@@ -153,7 +153,7 @@ public class AlgorithmTest {
 			
 //			testJoinSetNaive();
 //			testJoinPQFilterDPSet();
-			testJoinPkduckSet();
+//			testJoinPkduckSet();
 //			testPassJoinExact();
 		}
 
@@ -309,17 +309,21 @@ public class AlgorithmTest {
 	public void testJoinPkduck() throws ParseException, IOException {
 		args[1] = "JoinPkduck";
 		String[] param_list = {
-				"\"-ord FF -verify naive -rc false\"",
-				"\"-ord FF -verify naive -rc true\"",
-				"\"-ord FF -verify greedy -rc false\"",
-				"\"-ord FF -verify greedy -rc true\""
+				"\"-ord FF -verify naive -rc false -lf true\"",
+				"\"-ord FF -verify naive -rc true -lf true\"",
+				"\"-ord FF -verify greedy -rc false -lf true\"",
+				"\"-ord FF -verify greedy -rc true -lf true\"",
+				"\"-ord FF -verify naive -rc false -lf false\"",
+				"\"-ord FF -verify naive -rc true -lf false\"",
+				"\"-ord FF -verify greedy -rc false -lf false\"",
+				"\"-ord FF -verify greedy -rc true -lf false\"",
 		};
 		int answer;
 		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
 		else answer = ANS_SEQ_NONSELF_DELTA[0];
 		int[] answer_list;
-		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-1, answer-1};
-		else answer_list = new int[] {answer, answer, answer, answer};
+		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-1, answer-1, answer, answer, answer-1, answer-1 };
+		else answer_list = new int[] {answer, answer, answer, answer, answer, answer, answer, answer};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
 			runAlgorithm( param, answer_list[i] , isSelfJoin );
