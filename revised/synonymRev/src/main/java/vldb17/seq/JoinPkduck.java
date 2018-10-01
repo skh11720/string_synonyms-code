@@ -25,6 +25,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
+import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.GreedyValidator;
 import vldb17.ParamPkduck;
@@ -79,6 +80,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		useRuleComp = params.useRuleComp;
 		if (params.verifier.equals( "naive" )) checker = new NaiveOneSide();
 		else if (params.verifier.equals( "greedy" )) checker = new GreedyValidator( query.oneSideJoin );
+		else if (params.verifier.equals( "TD" )) checker = new TopDownOneSide();
 		else throw new RuntimeException(getName()+" does not support verification: "+params.verifier);
 		useLF = params.useLF;
 //		this.threshold = -1;
@@ -275,7 +277,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		 * 1.05: FF based indexing, improved DP, RC
 		 * 1.06: reduce memory usage
 		 * 1.07: ignore records with too many transformations
-		 * 1.08: apply length filter
+		 * 1.08: apply length filter, introduce TD validator
 		 */
 		return "1.08";
 	}
