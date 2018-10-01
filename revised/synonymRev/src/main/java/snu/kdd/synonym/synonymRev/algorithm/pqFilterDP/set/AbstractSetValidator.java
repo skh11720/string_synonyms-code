@@ -39,12 +39,12 @@ abstract public class AbstractSetValidator extends Validator {
 
 	@Override
 	public int isEqual( Record x, Record y ) {
-		// Check whether x -> y or y -> x
+		// Check whether x -> y
 		++checked;
 		int res;
 		if( areSameString( x, y ) ) res = 0;
 		else if ( isEqualOneSide( x, y ) > 0 ) res = 1;
-		else if ( !selfJoin && isEqualOneSide( y, x ) > 0 ) res = 1;
+//		else if ( !selfJoin && isEqualOneSide( y, x ) > 0 ) res = 1;
 		else res = -1;
 		return res;
 	}
