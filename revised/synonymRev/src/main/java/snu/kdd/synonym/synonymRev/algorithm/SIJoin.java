@@ -14,6 +14,7 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -29,18 +30,18 @@ public class SIJoin extends AlgorithmTemplate {
 	@Override
 	public void preprocess() {
 		super.preprocess();
-
-		for( Record r : query.indexedSet.get() ) {
-			r.preprocessAvailableTokens( Integer.MAX_VALUE );
-			r.preprocessSuffixApplicableRules();
+		for( Record recS : query.searchedSet.get() ) {
+			recS.preprocessAvailableTokens( Integer.MAX_VALUE );
+			recS.preprocessSuffixApplicableRules();
 		}
 
-		if( !query.selfJoin ) {
-			for( Record r : query.searchedSet.get() ) {
-				r.preprocessAvailableTokens( Integer.MAX_VALUE );
-				r.preprocessSuffixApplicableRules();
+		if( !query.oneSideJoin ) {
+			for( Record recT : query.indexedSet.get() ) {
+				recT.preprocessAvailableTokens( Integer.MAX_VALUE );
+				recT.preprocessSuffixApplicableRules();
 			}
 		}
+
 	}
 
 	public void run( Query query, String[] args ) throws IOException, ParseException {
@@ -58,40 +59,49 @@ public class SIJoin extends AlgorithmTemplate {
 			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		}
 
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
+		stepTime.stopAndAdd( stat );
 
 //		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, query.searchedSet.recordList, checker );
 //		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, query.indexedSet.recordList, checker );
-		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, checker );
+
+		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, checker );
 		for ( Record recS : query.searchedSet.recordList ) {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-			treeR.add( recS );
+			treeS.add( recS );
 		}
 
-		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, checker );
+		SI_Tree<Record> treeT = new SI_Tree<Record>( 1, null, checker );
 		for ( Record recT : query.indexedSet.recordList ) {
 			if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-			treeS.add( recT );
+			treeT.add( recT );
 		}
+		stepTime.stopAndAdd( stat );
 
 		if( DEBUG.SIJoinON ) {
-			System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );
-			System.out.println( "Sig size : " + treeR.sigsize );
+			System.out.println( "Node size : " + ( treeS.FEsize + treeS.LEsize ) );
+			System.out.println( "Sig size : " + treeS.sigsize );
 
 			System.out.print( "Building SI-Tree finished" );
 			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		}
 		// br.readLine();
 
-		rslt = join( treeR, treeS, 1 );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		rslt = join( treeS, treeT, 1 );
+		stepTime.stopAndAdd( stat );
+
+		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
 
 		writeResult();
 	}
 
-	public Set<IntegerPair> join( SI_Tree<Record> treeR, SI_Tree<Record> treeS, double threshold ) {
+	public Set<IntegerPair> join( SI_Tree<Record> treeS, SI_Tree<Record> treeT, double threshold ) {
 		long startTime = System.currentTimeMillis();
 
-		List<Pair<Record>> candidates = treeR.join( treeS, threshold );
+		List<Pair<Record>> candidates = treeS.join( treeT, threshold );
 		// long counter = treeR.join(treeS, threshold);
 
 		if( DEBUG.SIJoinON ) {
@@ -121,8 +131,9 @@ public class SIJoin extends AlgorithmTemplate {
 		/*
 		 * 1.00: initial version
 		 * 1.01: ignore records with too many transformations
+		 * 1.02: output stats
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override

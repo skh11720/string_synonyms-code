@@ -129,8 +129,9 @@ public class JoinNaive extends AlgorithmTemplate {
 		/*
 		 * 2.00: the latest version by yjpark
 		 * 2.01: checkpoint
+		 * 2.02: ignore strings with too many transformations
 		 */
-		return "2.01";
+		return "2.02";
 	}
 
 }
