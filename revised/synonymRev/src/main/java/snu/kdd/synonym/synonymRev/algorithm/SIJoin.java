@@ -35,7 +35,7 @@ public class SIJoin extends AlgorithmTemplate {
 			recS.preprocessSuffixApplicableRules();
 		}
 
-		if( !query.oneSideJoin ) {
+		if( !query.selfJoin ) {
 			for( Record recT : query.indexedSet.get() ) {
 				recT.preprocessAvailableTokens( Integer.MAX_VALUE );
 				recT.preprocessSuffixApplicableRules();
