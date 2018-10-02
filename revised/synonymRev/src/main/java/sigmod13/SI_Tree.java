@@ -56,6 +56,8 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 	private final Comparator<Pair<T>> pairComparator;
 	private final Comparator<T> TComparator;
 
+	public long verifyCount = 0;
+
 	/**
 	 * Construct a SI-Tree
 	 */
@@ -178,8 +180,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		long set_union_setsize_sum = 0;
 
 		// Number of comparisions
-		@SuppressWarnings( "unused" )
-		long count = 0;
+		verifyCount = 0;
 
 		// Line 2 : For all the combinations of fence entries
 		for( FenceEntry fe_this : root.values() ) {
@@ -273,14 +274,14 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 							sim = rec1.similarity( rec2, checker );
 							if( sim >= threshold )
 								results.add( p );
-							++count;
+							++verifyCount;
 						}
 					}
 				}
 			}
 		}
 		if( DEBUG.SIJoinON ) {
-			System.out.println( "Comparisons : " + count );
+			System.out.println( "Comparisons : " + verifyCount );
 			System.out.println( "set_union_count: " + set_union_count );
 			System.out.println( "set_union_sum: " + set_union_sum );
 			System.out.println( "set_union_setsize_sum: " + set_union_setsize_sum );
@@ -303,7 +304,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		long set_union_sum = 0;
 		long set_union_setsize_sum = 0;
 		// Number of comparisions
-		long count = 0;
+		verifyCount = 0;
 
 		// Line 2 : For all the combinations of fence entries
 		for( FenceEntry fe_this : root.values() ) {
@@ -356,7 +357,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 									sim = rec1.similarity( t, checker );
 									if( sim >= threshold )
 										results.add( new Pair<T>( rec1, t ) );
-									++count;
+									++verifyCount;
 								}
 							}
 						}
@@ -364,7 +365,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 				}
 			}
 		}
-		System.out.println( "Comparisons : " + count );
+		System.out.println( "Comparisons : " + verifyCount );
 		System.out.println( "set_union_count: " + set_union_count );
 		System.out.println( "set_union_sum: " + set_union_sum );
 		System.out.println( "set_union_setsize_sum: " + set_union_setsize_sum );
