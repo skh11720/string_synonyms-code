@@ -278,11 +278,11 @@ public class NaiveIndex {
 					Util.printLog( "Rec " + recS.getID() + "(" + recS
 							+ ") is skipped joining due to too many transformed strings " + recS.getEstNumTransformed() );
 
-					if( query.selfJoin ) {
+//					if( query.selfJoin ) {
 //						rslt.add( new IntegerPair( recS.getID(), recS.getID() ) );
-						AlgorithmTemplate.addSeqResult( recS, recS, rslt, true );
-					}
-					skippedCount++;
+//						AlgorithmTemplate.addSeqResult( recS, recS, rslt, true );
+//					}
+//					skippedCount++;
 
 					continue;
 				}
