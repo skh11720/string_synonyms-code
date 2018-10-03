@@ -818,12 +818,23 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	@Override
 	public Set<Integer> getSignatures( ITF_Filter filter, double theta ) {
+		/*
+		 * theta is not used. 
+		 * In fact, theta is supposed to be 1.
+		 * Thus, sig is the set of the first token of every transformed record of this record.
+		 * 
+		 * In order to preserve the code in package sigmod13,
+		 * we use the unused theta as a flag which is 100 if this record is expandable (i.e., this record is from the searchedSet),
+		 * and -100 otherwise (i.e., this record is from the indexedSet).
+		 */
 		IntegerSet sig = new IntegerSet();
-		if( availableTokens != null )
+//		if( availableTokens != null )
+		if ( theta > 10 ) 
 			for( int token : availableTokens[ 0 ] )
 				sig.add( token );
-		else
-			sig.addAll( this.availableTokens[ 0 ] );
+		else if (theta < -10 )
+//			sig.addAll( this.availableTokens[ 0 ] );
+			sig.add( tokens[0] );
 		return sig;
 	}
 
