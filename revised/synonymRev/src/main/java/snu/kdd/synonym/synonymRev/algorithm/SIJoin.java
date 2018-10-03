@@ -8,6 +8,7 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import sigmod13.SI_Tree;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -22,6 +23,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 public class SIJoin extends AlgorithmTemplate {
 
 	static Validator checker;
+	private final double theta = 1.0;
 
 	public SIJoin( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -67,13 +69,14 @@ public class SIJoin extends AlgorithmTemplate {
 //		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, query.indexedSet.recordList, checker );
 
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, checker );
+		SI_Tree<Record> treeS = new SI_Tree<Record>( theta, null, checker, true );
 		for ( Record recS : query.searchedSet.recordList ) {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+//			if ( recS.getID() < 10 ) SampleDataTest.inspect_record( recS, query, 1 );
 			treeS.add( recS );
 		}
 
-		SI_Tree<Record> treeT = new SI_Tree<Record>( 1, null, checker );
+		SI_Tree<Record> treeT = new SI_Tree<Record>( theta, null, checker, false );
 		for ( Record recT : query.indexedSet.recordList ) {
 			if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			treeT.add( recT );
@@ -90,7 +93,7 @@ public class SIJoin extends AlgorithmTemplate {
 		// br.readLine();
 
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
-		rslt = join( treeS, treeT, 1 );
+		rslt = join( treeS, treeT, theta );
 		stepTime.stopAndAdd( stat );
 
 		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
@@ -132,8 +135,9 @@ public class SIJoin extends AlgorithmTemplate {
 		 * 1.00: initial version
 		 * 1.01: ignore records with too many transformations
 		 * 1.02: output stats
+		 * 1.03: fix bugs related to length filtering
 		 */
-		return "1.02";
+		return "1.03";
 	}
 
 	@Override
