@@ -9,7 +9,6 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -29,10 +28,13 @@ import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.GreedyValidator;
 import vldb17.ParamPkduck;
+import vldb17.set.PkduckSetDP;
+import vldb17.set.PkduckSetDPWithRC;
+import vldb17.set.PkduckSetIndex;
 
 public class JoinPkduck extends AlgorithmTemplate {
 
-	private PkduckIndex idx = null;
+	private PkduckSetIndex idx = null;
 //	private long threshold = Long.MAX_VALUE;
 //	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
 	AbstractGlobalOrder globalOrder;
@@ -119,7 +121,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		}
 
 		buildIndex( addStat );
-		if ( DEBUG.bIndexWriteToFile ) idx.writeToFile();
+//		if ( DEBUG.bIndexWriteToFile ) idx.writeToFile();
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -158,7 +160,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	}
 	
 	public void buildIndex(boolean addStat ) {
-		idx = new PkduckIndex( query, stat, globalOrder, addStat );
+		idx = new PkduckSetIndex( query.indexedSet.recordList, query, stat, globalOrder, addStat );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
@@ -227,22 +229,22 @@ public class JoinPkduck extends AlgorithmTemplate {
 //		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
 
 		int[] range = recS.getTransLengths();
-		PkduckDP pkduckDP;
-		if (useRuleComp) pkduckDP = new PkduckDPWithRC( recS, globalOrder );
-		pkduckDP = new PkduckDP( recS, globalOrder );
+		PkduckSetDP pkduckDP;
+		if (useRuleComp) pkduckDP = new PkduckSetDPWithRC( recS, globalOrder );
+		pkduckDP = new PkduckSetDP( recS, globalOrder );
 		for ( Entry<Integer, IntOpenHashSet> entry : candidateTokens.entrySet() ) {
 			int pos = entry.getKey();
 			if ( !idx.keySet().contains( pos ) ) continue;
 			IntOpenHashSet tokenSet = entry.getValue();
 			for (int token : tokenSet) {
 				long startDpTime = System.nanoTime();
-				Boolean isInSigU = pkduckDP.isInSigU( token, pos );
+				Boolean isInSigU = pkduckDP.isInSigU( token );
 //				Boolean isInSigU = true; // DEBUGgg
 				isInSigUTime += System.nanoTime() - startDpTime;
 				++nRunDP;
 //				if (debug) System.out.println( "["+token+", "+pos+"]: "+isInSigU );
 				if ( isInSigU ) {
-					List<Record> indexedList = idx.get( pos, token );
+					List<Record> indexedList = idx.get( token );
 					if ( indexedList == null ) continue;
 					++nScanList;
 					for (Record recT : indexedList) {
@@ -278,7 +280,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 		 * 1.06: reduce memory usage
 		 * 1.07: ignore records with too many transformations
 		 * 1.08: apply length filter, introduce TD validator
+		 * 1.09: use set based filtering
 		 */
-		return "1.08";
+		return "1.09";
 	}
 }
