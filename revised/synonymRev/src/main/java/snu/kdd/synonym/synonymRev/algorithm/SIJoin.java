@@ -11,6 +11,7 @@ import sigmod13.SI_Tree;
 import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
@@ -33,16 +34,22 @@ public class SIJoin extends AlgorithmTemplate {
 	public void preprocess() {
 		super.preprocess();
 		for( Record recS : query.searchedSet.get() ) {
-			recS.preprocessAvailableTokens( Integer.MAX_VALUE );
 			recS.preprocessSuffixApplicableRules();
 		}
 
-		if( !query.selfJoin ) {
-			for( Record recT : query.indexedSet.get() ) {
-				recT.preprocessAvailableTokens( Integer.MAX_VALUE );
-				recT.preprocessSuffixApplicableRules();
-			}
+		FrequencyFirstOrder globalOrder = new FrequencyFirstOrder( 1 );
+		globalOrder.initializeForSequence( query, true );
+
+		for( Record recS : query.searchedSet.get() ) {
+			recS.preprocessAvailableTokens( Integer.MAX_VALUE );
 		}
+
+//		if( !query.selfJoin ) {
+//			for( Record recT : query.indexedSet.get() ) {
+//				recT.preprocessAvailableTokens( Integer.MAX_VALUE );
+//				recT.preprocessSuffixApplicableRules();
+//			}
+//		}
 
 	}
 
@@ -136,8 +143,9 @@ public class SIJoin extends AlgorithmTemplate {
 		 * 1.01: ignore records with too many transformations
 		 * 1.02: output stats
 		 * 1.03: fix bugs related to length filtering
+		 * 1.04: use token global order, modify signature generation
 		 */
-		return "1.03";
+		return "1.04";
 	}
 
 	@Override
