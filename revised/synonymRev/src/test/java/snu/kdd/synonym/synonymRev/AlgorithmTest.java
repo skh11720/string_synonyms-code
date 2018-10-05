@@ -142,7 +142,7 @@ public class AlgorithmTest {
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
 //			testJoinHybridAll();
-//			testJoinPkduck();
+			testJoinPkduck();
 			
 //			testJoinMHDP();
 //			testJoinMHNaiveDP();
@@ -154,7 +154,7 @@ public class AlgorithmTest {
 //			testJoinSetNaive();
 //			testJoinPQFilterDPSet();
 //			testJoinPkduckSet();
-			testPassJoinExact();
+//			testPassJoinExact();
 		}
 
 //		testJoinMH();
