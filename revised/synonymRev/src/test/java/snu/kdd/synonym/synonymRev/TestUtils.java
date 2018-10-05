@@ -79,16 +79,6 @@ public class TestUtils {
 			record.preprocessTransformLength();
 			record.preprocessEstimatedRecords();
 		}
-
-		if ( !query.selfJoin ) {
-			for ( Record record : query.indexedSet.recordList ) {
-				record.preprocessRules( automata );
-				record.preprocessSuffixApplicableRules();
-				record.preprocessTransformLength();
-				record.preprocessTransformLength();
-				record.preprocessEstimatedRecords();
-			}
-		}
 		return query;
 	}
 	
