@@ -56,14 +56,18 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 	private final Comparator<Pair<T>> pairComparator;
 	private final Comparator<T> TComparator;
 
+	public long verifyCount = 0;
+
 	/**
 	 * Construct a SI-Tree
 	 */
 
 	private Validator checker = null;
+	private final boolean isExpandable;
 
-	public SI_Tree( double theta, ITF_Filter filter, Validator checker ) {
+	public SI_Tree( double theta, ITF_Filter filter, Validator checker, boolean isExpandable ) {
 		this.checker = checker;
+		this.isExpandable = isExpandable;
 
 		root = new IntegerMap<FenceEntry>();
 		this.theta = theta;
@@ -85,8 +89,8 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		};
 	}
 
-	public SI_Tree( double theta, ITF_Filter filter, List<T> tableT, Validator checker ) {
-		this( theta, filter, checker );
+	public SI_Tree( double theta, ITF_Filter filter, List<T> tableT, Validator checker, boolean isExpandable ) {
+		this( theta, filter, checker, isExpandable );
 		for( T rec : tableT )
 			add( rec );
 	}
@@ -98,7 +102,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 	 *            The record to add
 	 */
 	public void add( T rec ) {
-		int u = rec.getMinLength();
+		int u = isExpandable ? rec.getMinLength() : rec.size();
 		if( !root.containsKey( u ) )
 			root.put( u, new FenceEntry( u ) );
 		root.get( u ).add( rec );
@@ -178,8 +182,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		long set_union_setsize_sum = 0;
 
 		// Number of comparisions
-		@SuppressWarnings( "unused" )
-		long count = 0;
+		verifyCount = 0;
 
 		// Line 2 : For all the combinations of fence entries
 		for( FenceEntry fe_this : root.values() ) {
@@ -273,14 +276,14 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 							sim = rec1.similarity( rec2, checker );
 							if( sim >= threshold )
 								results.add( p );
-							++count;
+							++verifyCount;
 						}
 					}
 				}
 			}
 		}
 		if( DEBUG.SIJoinON ) {
-			System.out.println( "Comparisons : " + count );
+			System.out.println( "Comparisons : " + verifyCount );
 			System.out.println( "set_union_count: " + set_union_count );
 			System.out.println( "set_union_sum: " + set_union_sum );
 			System.out.println( "set_union_setsize_sum: " + set_union_setsize_sum );
@@ -303,7 +306,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		long set_union_sum = 0;
 		long set_union_setsize_sum = 0;
 		// Number of comparisions
-		long count = 0;
+		verifyCount = 0;
 
 		// Line 2 : For all the combinations of fence entries
 		for( FenceEntry fe_this : root.values() ) {
@@ -336,7 +339,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 								if( evaluated.contains( rec1 ) )
 									continue;
 								evaluated.add( rec1 );
-								Set<Integer> signatures = rec1.getSignatures( filter, sig );
+								Set<Integer> signatures = rec1.getSignatures( filter, 100 );
 								List<List<T>> candidates = new ArrayList<List<T>>();
 								for( int sig2 : signatures ) {
 									// Line 8 : get L_t
@@ -356,7 +359,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 									sim = rec1.similarity( t, checker );
 									if( sim >= threshold )
 										results.add( new Pair<T>( rec1, t ) );
-									++count;
+									++verifyCount;
 								}
 							}
 						}
@@ -364,7 +367,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 				}
 			}
 		}
-		System.out.println( "Comparisons : " + count );
+		System.out.println( "Comparisons : " + verifyCount );
 		System.out.println( "set_union_count: " + set_union_count );
 		System.out.println( "set_union_sum: " + set_union_sum );
 		System.out.println( "set_union_setsize_sum: " + set_union_setsize_sum );
@@ -529,7 +532,7 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		/**
 		 * The number of tokens of a string
 		 */
-		private final int u;
+		private int u;
 		/**
 		 * The maximal number of tokens in the full expanded sets of strings
 		 * whose length is u
@@ -552,8 +555,9 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 		 * @param rec
 		 */
 		void add( T rec ) {
-			int v = rec.getMaxLength();
+			int v = isExpandable ? rec.getMaxLength() : rec.size();
 			this.v = Math.max( v, this.v );
+			this.u = isExpandable ? Math.min( this.u, rec.getMinLength() ) : this.u;
 			if( !P.containsKey( v ) )
 				P.put( v, new LeafEntry( v ) );
 			P.get( v ).add( rec );
@@ -593,7 +597,8 @@ public class SI_Tree<T extends RecordInterface & Comparable<T>> {
 			// Special code for theta == 1 and filter == 1
 			if( theta == 1 ) {
 			}
-			Collection<Integer> signature = rec.getSignatures( filter, theta );
+			Collection<Integer> signature = rec.getSignatures( filter, isExpandable ? 100 : -100 );
+//			if ( rec.getID() < 1000 ) System.out.println( rec.getID()+"\t"+rec+"\t"+signature.size() );
 			// Add to inverted indices
 			for( int sig : signature ) {
 				if( !P.containsKey( sig ) )

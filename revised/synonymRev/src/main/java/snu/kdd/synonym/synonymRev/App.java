@@ -17,6 +17,8 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinBK;
 import snu.kdd.synonym.synonymRev.algorithm.JoinBK_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinCatesian;
 import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll;
+import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll2;
+import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll3;
 import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll_NEW;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHDP;
@@ -26,6 +28,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThres;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMHNaiveThresDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH_Split;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
+import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaiveDP;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinNaiveThres;
@@ -49,13 +52,15 @@ import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinNaiveThresDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinMinStrongDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinNaiveDelta2;
+import snu.kdd.synonym.synonymRev.algorithm.delta.PassJoinExact;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EquivTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.algorithm.misc.PrintManyEstimated;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinMinDP;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.seq.JoinPQFilterDP;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinBKPSet;
+import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinFKPSet;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinPQFilterDPSet;
-import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinPQFilterDPSet2;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -144,6 +149,10 @@ public class App {
 			alg = new JoinMin( query, stat );
 			break;
 
+		case JoinMinFast:
+			alg = new JoinMinFast( query, stat );
+			break;
+
 		case JoinMinPosition:
 			alg = new JoinMinPosition( query, stat );
 			break;
@@ -178,6 +187,14 @@ public class App {
 
 		case JoinHybridAll:
 			alg = new JoinHybridAll( query, stat );
+			break;
+
+		case JoinHybridAll2:
+			alg = new JoinHybridAll2( query, stat );
+			break;
+
+		case JoinHybridAll3:
+			alg = new JoinHybridAll3( query, stat );
 			break;
 
 		case JoinHybridAll_NEW:
@@ -292,13 +309,21 @@ public class App {
 			alg = new JoinPQFilterDPSet( query, stat );
 			break;
 
-		case JoinPQFilterDPSet2:
-			alg = new JoinPQFilterDPSet2( query, stat );
+		case JoinFKPSet:
+			alg = new JoinFKPSet( query, stat );
+			break;
+
+		case JoinBKPSet:
+			alg = new JoinBKPSet ( query, stat );
 			break;
 
 		case JoinSetNaive:
 			alg = new JoinSetNaive( query, stat );
 			break;
+		case PassJoinExact:
+			alg = new PassJoinExact( query, stat );
+			break;
+		
 		
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
@@ -307,7 +332,8 @@ public class App {
 		}
 		
 		// if query is not a self join, conduct semi-unidirectional join.
-		if ( !query.selfJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
+		// 18.09.26: disable semi-unidirectional computation
+//		if ( !query.selfJoin && !query.oneSideJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
 
 		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
 		stat.add( cmd );

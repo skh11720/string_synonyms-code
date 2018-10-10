@@ -30,6 +30,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinMH,
 		JoinBK,
 		JoinMin,
+		JoinMinFast,
 		JoinMinPosition,
 		JoinMinRange,
 		JoinMinNaive,
@@ -37,6 +38,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinMHNaive,
 		JoinMHNaiveThres,
 		JoinHybridAll,
+		JoinHybridAll2,
+		JoinHybridAll3,
 		JoinHybridAll_NEW,
 		SIJoin,
 		EquivTest,
@@ -66,8 +69,10 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinHybridAllDelta,
 		JoinPkduckSet,
 		JoinPQFilterDPSet,
-		JoinPQFilterDPSet2,
+		JoinFKPSet,
+		JoinBKPSet,
 		JoinSetNaive,
+		PassJoinExact,
 	}
 
 	// contains statistics of the algorithm

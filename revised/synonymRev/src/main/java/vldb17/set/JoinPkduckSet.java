@@ -48,7 +48,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private long nScanList = 0;
 	private long nRunDP = 0;
 
-	private final Boolean useLF = true;
+	private boolean useLF;
 	
 	public JoinPkduckSet( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -90,6 +90,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
 		else if (params.verifier.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
 		else throw new RuntimeException(getName()+" does not support verification: "+params.verifier);
+		useLF = params.useLF;
 //		this.threshold = -1;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
@@ -237,8 +238,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 							++checker.lengthFiltered;
 							continue;
 						}
-						candidateAfterLF.add( recOther );
 					}
+					candidateAfterLF.add( recOther );
 				}
 			}
 		}
@@ -275,7 +276,8 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		 * 1.06: reduce memory usage
 		 * 1.07: fix length filter
 		 * 1.08: ignore records with too many transformations
+		 * 1.09: enable the option for length filter
 		 */
-		return "1.08";
+		return "1.09";
 	}
 }

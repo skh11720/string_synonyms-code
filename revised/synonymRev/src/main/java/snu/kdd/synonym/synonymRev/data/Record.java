@@ -1,6 +1,7 @@
 package snu.kdd.synonym.synonymRev.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -816,15 +817,37 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 	}
 
+	private IntegerSet sigS = null;
+	private IntegerSet sigT = null;
+	
 	@Override
 	public Set<Integer> getSignatures( ITF_Filter filter, double theta ) {
-		IntegerSet sig = new IntegerSet();
-		if( availableTokens != null )
-			for( int token : availableTokens[ 0 ] )
-				sig.add( token );
-		else
-			sig.addAll( this.availableTokens[ 0 ] );
-		return sig;
+		/*
+		 * theta is not used. 
+		 * In fact, theta is supposed to be 1.
+		 * Thus, sig is the set of the first token of every transformed record of this record.
+		 * 
+		 * In order to preserve the code in package sigmod13,
+		 * we use the unused theta as a flag which is 100 if this record is expandable (i.e., this record is from the searchedSet),
+		 * and -100 otherwise (i.e., this record is from the indexedSet).
+		 * 
+		 * the signatures are generated in the same way with the original paper.
+		 */
+		if ( theta > 10 ) {
+			if ( sigS != null ) return sigS;
+			sigS = new IntegerSet();
+			for ( Record exp : this.expandAll() ) {
+				sigS.add( Arrays.stream( exp.getTokensArray() ).min().getAsInt() );
+			}
+			return sigS;
+		}
+		else if (theta < -10 ) {
+			if ( sigT != null ) return sigT;
+			sigT = new IntegerSet();
+			sigT.add( Arrays.stream( tokens ).min().getAsInt() );
+			return sigT;
+		}
+		else return null;
 	}
 
 	@Override

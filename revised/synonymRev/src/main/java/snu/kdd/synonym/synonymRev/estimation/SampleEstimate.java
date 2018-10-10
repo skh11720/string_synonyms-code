@@ -59,8 +59,8 @@ public class SampleEstimate {
 	public double sampleRatio;
 	public double bestEstTime = Double.MAX_VALUE;
 
-	Dataset originalSearched;
-	Dataset originalIndexed;
+	protected Dataset originalSearched;
+	protected Dataset originalIndexed;
 	
 	public long naive_term1;
 	public long[] naive_term2;
@@ -71,17 +71,17 @@ public class SampleEstimate {
 	public long[] min_term2;
 	public long[] min_term3;
 
-	boolean joinMinSelected = false;
-	double indexAvgTransform = 0;
+	protected boolean joinMinSelected = false;
+	protected double indexAvgTransform = 0;
 
-	final Query query;
-	Query sampleQuery;
-	protected final boolean stratified = false;
+	protected Query query;
+	protected Query sampleQuery;
+	protected boolean stratified = false;
 	public int sampleSearchedSize;
 	public long sampleSearchedNumEstTrans;
-	ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
-	ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
-	BufferedWriter bw_log = null;
+	protected ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
+	protected ObjectArrayList<Record> sampleIndexedList = new ObjectArrayList<Record>();
+	protected BufferedWriter bw_log = null;
 	
 	protected SampleEstimate(final Query query, double sampleRatio ) {
 		this.query = query;
@@ -233,7 +233,7 @@ public class SampleEstimate {
 			}
 			else {
 				joinmhinst.joinOneRecordThres( recS, rslt, checker, -1, sampleQuery.oneSideJoin );
-				mh_term2[i] =  joinmhinst.candQGramCount;
+				mh_term2[i] =  joinmhinst.candQGramCountSum;
 				mh_term3[i] =  joinmhinst.equivComparisons;
 			}
 		} // for sid in in searchedSet
@@ -251,7 +251,7 @@ public class SampleEstimate {
 
 		mh_term1 = joinmhinst.qgramCount;
 		coeff_mh_1 = joinmhinst.indexTime / (joinmhinst.qgramCount+1);
-		coeff_mh_2 = (joinmhinst.candQGramCountTime + joinmhinst.filterTime) / (joinmhinst.candQGramCount+1);
+		coeff_mh_2 = (joinmhinst.candQGramCountTime + joinmhinst.filterTime) / (joinmhinst.candQGramCountSum+1);
 //		coeff_mh_3 = (double) (joinTime - joinmhinst.candQGramCountTime - joinmhinst.filterTime) / (joinmhinst.predictCount+1);
 		coeff_mh_3 = (double) (joinmhinst.verifyTime) / (joinmhinst.equivComparisons+1);
 
@@ -1248,8 +1248,7 @@ public class SampleEstimate {
 		return sampledList;
 	}
 
-
-	class RecordComparator implements Comparator<Record> {
+	protected class RecordComparator implements Comparator<Record> {
 		@Override
 		public int compare( Record o1, Record o2 ) {
 			long est1 = o1.getEstNumTransformed();

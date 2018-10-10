@@ -16,7 +16,7 @@ import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class Param {
-	private static final Options argOptions;
+	protected static Options argOptions;
 
 	static {
 		Options options = new Options();
@@ -91,7 +91,7 @@ public class Param {
 
 	public int indexK = 2;
 	public int qgramSize = 2;
-	public double sampleRatio = 0.1;
+	public double sampleRatio = -1;
 	public Validator validator;
 	public int threshold = 10;
 	public boolean noLength = false;

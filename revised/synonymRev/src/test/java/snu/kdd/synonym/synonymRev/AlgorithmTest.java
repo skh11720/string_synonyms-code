@@ -121,14 +121,15 @@ public class AlgorithmTest {
 		
 		boolean[] flags = {true, false};
 		for ( boolean flag : flags ) {
-//			isSelfJoin = flag;
+			isSelfJoin = flag;
+			
 //			testJoinNaiveDelta();
 //			testJoinNaiveDelta2();
-			testJoinMHDelta();
-			testJoinMHStrongDelta();
+//			testJoinMHDelta();
+//			testJoinMHStrongDelta();
 //			testJoinMHDeltaDP();
-			testJoinMinDelta();
-			testJoinMinStrongDelta();
+//			testJoinMinDelta();
+//			testJoinMinStrongDelta();
 //			testJoinMinDeltaDP();
 //			testJoinHybridAllDelta();
 
@@ -137,10 +138,11 @@ public class AlgorithmTest {
 //			testJoinMHNaive();
 //			testJoinMHNaiveThres();
 //			testJoinMin();
+//			testJoinMinFast();
 //			testJoinMinNaive();
 //			testJoinMinNaiveThres();
 //			testJoinHybridAll();
-//			testJoinPkduck();
+			testJoinPkduck();
 			
 //			testJoinMHDP();
 //			testJoinMHNaiveDP();
@@ -152,6 +154,7 @@ public class AlgorithmTest {
 //			testJoinSetNaive();
 //			testJoinPQFilterDPSet();
 //			testJoinPkduckSet();
+//			testPassJoinExact();
 		}
 
 //		testJoinMH();
@@ -245,6 +248,20 @@ public class AlgorithmTest {
 		else answer = ANS_SEQ_NONSELF_DELTA[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
+
+	@Ignore
+	public void testJoinMinFast() throws ParseException, IOException {
+		args[1] = "JoinMinFast";
+		String[] param_list = {
+				"\"-K 1 -qSize 1 -sample 0.01\"",
+				"\"-K 1 -qSize 2 -sample 0.05\"",
+				"\"-K 2 -qSize 1 -sample 0.1\""
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
+		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
 	
 	@Ignore
 	public void testJoinMinNaive() throws ParseException, IOException {
@@ -292,21 +309,37 @@ public class AlgorithmTest {
 	public void testJoinPkduck() throws ParseException, IOException {
 		args[1] = "JoinPkduck";
 		String[] param_list = {
-				"\"-ord FF -verify naive -rc false\"",
-				"\"-ord FF -verify naive -rc true\"",
-				"\"-ord FF -verify greedy -rc false\"",
-				"\"-ord FF -verify greedy -rc true\""
+				"\"-ord FF -verify naive -rc false -lf true\"",
+				"\"-ord FF -verify naive -rc true -lf true\"",
+				"\"-ord FF -verify greedy -rc false -lf true\"",
+				"\"-ord FF -verify greedy -rc true -lf true\"",
+				"\"-ord FF -verify naive -rc false -lf false\"",
+				"\"-ord FF -verify naive -rc true -lf false\"",
+				"\"-ord FF -verify greedy -rc false -lf false\"",
+				"\"-ord FF -verify greedy -rc true -lf false\"",
 		};
 		int answer;
 		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
 		else answer = ANS_SEQ_NONSELF_DELTA[0];
 		int[] answer_list;
-		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-1, answer-1};
-		else answer_list = new int[] {answer, answer, answer, answer};
+		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-1, answer-1, answer, answer, answer-1, answer-1 };
+		else answer_list = new int[] {answer, answer, answer, answer, answer, answer, answer, answer};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
 			runAlgorithm( param, answer_list[i] , isSelfJoin );
 		}
+	}
+
+	@Ignore
+	public void testPassJoinExact() throws ParseException, IOException {
+		args[1] = "PassJoinExact";
+		String[] param_list = {
+				"\"-1\""
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
+		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 	
 	
@@ -760,10 +793,44 @@ public class AlgorithmTest {
 	public void testJoinPkduckSet() throws ParseException, IOException {
 		args[1] = "JoinPkduckSet";
 		String[] param_list = {
-				"\"-ord FF -verify naive -rc false\"",
-				"\"-ord FF -verify naive -rc true\"",
-				"\"-ord FF -verify greedy -rc false\"",
-				"\"-ord FF -verify greedy -rc true\""
+				"\"-ord FF -verify naive -rc false -lf true\"",
+				"\"-ord FF -verify naive -rc true -lf true\"",
+				"\"-ord FF -verify greedy -rc false -lf true\"",
+				"\"-ord FF -verify greedy -rc true -lf true\"",
+				"\"-ord FF -verify naive -rc false -lf false\"",
+				"\"-ord FF -verify naive -rc true -lf false\"",
+				"\"-ord FF -verify greedy -rc false -lf false\"",
+				"\"-ord FF -verify greedy -rc true -lf false\"",
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
+		else answer = ANS_SET_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+	
+	@Ignore
+	public void testJoinFKPSet() throws ParseException, IOException {
+		args[1] = "JoinFKPSet";
+		String[] param_list = {
+				"\"-K 1 -verify TD\"",
+				"\"-K 2 -verify TD\"",
+				"\"-K 1 -verify GR1\"",
+				"\"-K 2 -verify GR1\"",
+		};
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
+		else answer = ANS_SET_NONSELF_DELTA[0];
+		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+
+	@Ignore
+	public void testJoinBKPSet() throws ParseException, IOException {
+		args[1] = "JoinBKPSet";
+		String[] param_list = {
+				"\"-K 1 -verify TD\"",
+				"\"-K 2 -verify TD\"",
+				"\"-K 1 -verify GR1\"",
+				"\"-K 2 -verify GR1\"",
 		};
 		int answer;
 		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];

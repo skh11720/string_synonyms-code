@@ -216,22 +216,22 @@ public class PassJoinIndexForSynonyms {
 		Set<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
 		for (int id = 0; id < searchedList.size(); id++) {
 			Record recS = searchedList.get( id );
-			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+//			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinOneRecord( recS, rslt );
 		} // end for id
 		joinTime = System.nanoTime() - ts;
 
 		if (debug) System.out.println( "candNum: "+candNum );
 		if (debug) System.out.println( "realNum: "+realNum );
-		stat.add( "Stat_EquivComparison", candNum );
+		stat.add( "Stat_Equiv_Comparison", candNum );
 
 		// compute coefficients
 		coeff1 = indexTime/sumLenT;
 		coeff2 = (joinTime - verifyTime)/sumLenS;
 		coeff3 = verifyTime/verifyCost;
-		stat.add( "Stat_Index_indexTime", indexTime );
-		stat.add( "Stat_Index_substringTime", joinTime - verifyTime);
-		stat.add( "Stat_Index_verifyTime", verifyTime );
+		stat.add( "Stat_Index_indexTime", indexTime/1e6 );
+		stat.add( "Stat_Index_substringTime", (joinTime - verifyTime)/1e6);
+		stat.add( "Stat_Index_verifyTime", verifyTime/1e6 );
 		stat.add( "Stat_Index_sumLenT", sumLenT );
 		stat.add( "Stat_Index_sumLenS", sumLenS );
 		stat.add( "Stat_Index_veriifyCost", verifyCost );
@@ -257,8 +257,8 @@ public class PassJoinIndexForSynonyms {
 //				len2rec.get( len ).add( exp );
 //			}
 		
-//		if ( DEBUG.EstTooManyThreshold < recS.getEstNumTransformed() ) return;
 		long ts = System.nanoTime();
+		if ( DEBUG.EstTooManyThreshold < recS.getEstNumTransformed() ) return;
 		ArrayList<Record> expand_list = recS.expandAll();
 		expCount += expand_list.size();
 		long t_afterExpand = System.nanoTime();

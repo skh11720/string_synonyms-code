@@ -38,7 +38,9 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	protected int maxPosition = 0;
 
 	public long qgramCount = 0;
-	public long candQGramCount = 0;
+//	public long candQGramCount = 0;
+	public long candQGramCountSum = 0;
+	public double candQGramAvgCount = 0;
 	public int predictCount = 0;
 	public long equivComparisons = 0;
 
@@ -51,6 +53,9 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	double gamma;
 	double zeta;
 	double eta;
+	
+	public static boolean useLF = true;
+	public static boolean usePQF = true;
 
 
 	/**
@@ -288,7 +293,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 
 					int[] otherRange = otherRecord.getTransLengths();
 
-					if (StaticFunctions.overlap(range[0], range[1], otherRange[0], otherRange[1])) {
+					if ( !useLF || StaticFunctions.overlap(range[0], range[1], otherRange[0], otherRange[1])) {
 						if (prevCandidate == null) {
 							ithCandidates.add(otherRecord);
 						} else if (prevCandidate.contains(otherRecord)) {
@@ -363,13 +368,22 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 //			candidateTimes[i] = StopWatch.getWatchStopped("Result_3_2_2_Cand_" + i + " Time");
 //		}
 
+		int skipped = 0;
 		for (int sid = 0; sid < query.searchedSet.size(); sid++) {
 			Record recS = query.searchedSet.getRecord(sid);
-//			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
+				++skipped;
+				continue;
+			}
 
 			joinOneRecordThres( recS, rslt, checker, -1, query.oneSideJoin );
 		}
 
+		this.candQGramAvgCount = 1.0 * this.candQGramCountSum / (query.searchedSet.size() - skipped);
+		stat.add( "Stat_CandQGram_Sum", this.candQGramCountSum );
+		stat.add( "Stat_CandQGram_Avg", this.candQGramAvgCount );
+		stat.add( "Stat_Equiv_Comparison", this.equivComparisons );
+		stat.add( "Stat_Skipped", skipped );
 //		this.zeta = (double) totalCountTime / totalCountValue;
 		// totalCountTime: time for generating TPQ supersets
 		// totalCountValue: the size of TPQ supersets
@@ -385,11 +399,13 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	    boolean isUpperRecord = threshold <= 0 ? true : recS.getEstNumTransformed() > threshold;
 	    if (!isUpperRecord) return;
 
+	    int candQGramCount = 0;
 	    long ts = System.nanoTime();
 		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
 		for (List<QGram> list : availableQGrams) {
-			this.candQGramCount += list.size();
+			candQGramCount += list.size();
 		}
+		this.candQGramCountSum += candQGramCount;
 		long afterCandQgramTime = System.nanoTime();
 
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
@@ -431,7 +447,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 						otherRange = otherRecord.getTransLengths();
 					}
 
-					if (StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
+					if ( !useLF || StaticFunctions.overlap(otherRange[0], otherRange[1], range[0], range[1])) {
 						// length filtering
 
 						ithCandidates.add(otherRecord);
@@ -459,7 +475,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 			Record record = entry.getKey();
 			int recordCount = entry.getIntValue();
 
-			if (indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
+			if ( !usePQF || indexedCountList.getInt(record) <= recordCount || indexedCountList.getInt(recS) <= recordCount) {
 				candidates.add(record);
 			}
 			else ++checker.pqgramFiltered;
@@ -507,7 +523,15 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 
 	@Override
 	public long getCountValue() {
-		return candQGramCount;
+		return candQGramCountSum;
+	}
+	
+	public long getCandQGramCountSum() {
+		return candQGramCountSum;
+	}
+	
+	public double getCandQGramAvgCount() {
+		return candQGramAvgCount;
 	}
 
 	@Override

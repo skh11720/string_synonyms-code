@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.data;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -62,23 +63,7 @@ public class Generator {
 			double skewZ = Double.parseDouble( args[ 5 ] );
 			long seed = Long.parseLong( args[ 6 ] );
 			String outputPath = args[ 7 ];
-
-			String storePath = outputPath + "/rule/" + getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewZ, seed );
-
-			if( args[ 0 ].equals( "-cr" ) ) {
-				System.out.println( storePath + ".txt" );
-			}
-			else {
-				// if args[ 0 ].equals( "-r" )
-				// generate data
-
-				Generator gen = new Generator( nToken, skewZ, seed );
-				gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + ".txt" );
-
-				RuleInfo info = new RuleInfo();
-				info.setSynthetic( maxLhs, maxRhs, nRule, seed, nToken, skewZ );
-				info.saveToFile( storePath + "_rule_info.json" );
-			}
+			generateRules( nToken, maxLhs, maxRhs, nRule, skewZ, seed, outputPath );
 		}
 		else if( args[ 0 ].equals( "-d" ) || args[ 0 ].equals( "-cd" ) ) {
 			int nToken = Integer.parseInt( args[ 1 ] );
@@ -89,30 +74,40 @@ public class Generator {
 			long seed = Long.parseLong( args[ 6 ] );
 			String outputPath = args[ 7 ];
 			String rulefile = null;
+			generateRecords( nToken, avgRecLen, nRecord, skewZ, equivratio, seed, outputPath, rulefile );
 
-			String storePath = outputPath + "/data/" + getDataFilePath( nToken, avgRecLen, nRecord, skewZ, equivratio, seed );
-
-			if( args[ 0 ].equals( "-cd" ) ) {
-				System.out.println( storePath + ".txt" );
-			}
-			else {
-				Generator gen = new Generator( nToken, skewZ, seed );
-				ACAutomataR atm = null;
-
-				if( equivratio != 0 ) {
-					rulefile = args[ 8 ];
-					atm = gen.readRules( rulefile );
-				}
-				gen.genString( avgRecLen, nRecord, storePath + ".txt", equivratio, atm );
-
-				DataInfo info = new DataInfo();
-				info.setSynthetic( avgRecLen, nRecord, seed, nToken, skewZ, equivratio );
-				info.saveToFile( storePath + "_data_info.json" );
-			}
 		}
 		else {
 			printUsage();
 		}
+	}
+	
+	public static String generateRules( int nToken, int maxLhs, int maxRhs, int nRule, double skewZ, long seed, String outputPath ) throws IOException {
+		if (!(new File(outputPath+"/rule")).isDirectory()) (new File(outputPath+"/rule")).mkdirs();
+		String storePath = outputPath + "/rule/" + getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewZ, seed );
+		Generator gen = new Generator( nToken, skewZ, seed );
+		gen.genSkewRule( maxLhs, maxRhs, nRule, storePath + ".txt" );
+
+		RuleInfo info = new RuleInfo();
+		info.setSynthetic( maxLhs, maxRhs, nRule, seed, nToken, skewZ );
+		info.saveToFile( storePath + "_rule_info.json" );
+		return storePath+".txt";
+	}
+	
+	public static void generateRecords( int nToken, int avgRecLen, int nRecord, double skewZ, double equivratio, long seed, String outputPath, String rulefile ) throws IOException  {
+		if (!(new File(outputPath+"/data")).isDirectory()) (new File(outputPath+"/data")).mkdirs();
+		String storePath = outputPath + "/data/" + getDataFilePath( nToken, avgRecLen, nRecord, skewZ, equivratio, seed );
+		Generator gen = new Generator( nToken, skewZ, seed );
+		ACAutomataR atm = null;
+
+		if( equivratio != 0 ) {
+			atm = gen.readRules( rulefile );
+		}
+		gen.genString( avgRecLen, nRecord, storePath + ".txt", equivratio, atm );
+
+		DataInfo info = new DataInfo();
+		info.setSynthetic( avgRecLen, nRecord, seed, nToken, skewZ, equivratio );
+		info.saveToFile( storePath + "_data_info.json" );
 	}
 
 	public ACAutomataR readRules( String rulefile ) throws IOException {

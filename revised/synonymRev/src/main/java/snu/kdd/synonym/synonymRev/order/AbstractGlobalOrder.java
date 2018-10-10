@@ -64,6 +64,15 @@ abstract public class AbstractGlobalOrder {
 		indexByOrder( query.searchedSet.recordList, true, converted );
 		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, true, converted );
 	}
+	
+	public void initializeForSet( Query query, boolean expand ) {
+		count( query.searchedSet.recordList, expand );
+		if ( !query.selfJoin ) count( query.indexedSet.recordList, expand );
+		buildOrderMap();
+		IntOpenHashSet converted = new IntOpenHashSet();
+		indexByOrder( query.searchedSet.recordList, expand, converted );
+		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, expand, converted );
+	}
 
 	protected void indexByOrder( List<Record> recordList, boolean expand, IntOpenHashSet converted ) {
 		if ( qgramSize > 1 ) throw new RuntimeException("Unexpected error");
@@ -290,4 +299,5 @@ abstract public class AbstractGlobalOrder {
 	abstract public int getOrder( int token );
 	abstract public int compare( int token1, int token2 );
 
+	public Object2IntOpenHashMap<?> getCounter() { return counter; }
 }

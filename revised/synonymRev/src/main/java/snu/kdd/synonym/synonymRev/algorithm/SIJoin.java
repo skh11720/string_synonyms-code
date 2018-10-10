@@ -8,12 +8,15 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import sigmod13.SI_Tree;
+import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -21,6 +24,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 public class SIJoin extends AlgorithmTemplate {
 
 	static Validator checker;
+	private final double theta = 1.0;
 
 	public SIJoin( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -29,18 +33,24 @@ public class SIJoin extends AlgorithmTemplate {
 	@Override
 	public void preprocess() {
 		super.preprocess();
-
-		for( Record r : query.indexedSet.get() ) {
-			r.preprocessAvailableTokens( Integer.MAX_VALUE );
-			r.preprocessSuffixApplicableRules();
+		for( Record recS : query.searchedSet.get() ) {
+			recS.preprocessSuffixApplicableRules();
 		}
 
-		if( !query.selfJoin ) {
-			for( Record r : query.searchedSet.get() ) {
-				r.preprocessAvailableTokens( Integer.MAX_VALUE );
-				r.preprocessSuffixApplicableRules();
-			}
+		FrequencyFirstOrder globalOrder = new FrequencyFirstOrder( 1 );
+		globalOrder.initializeForSequence( query, true );
+
+		for( Record recS : query.searchedSet.get() ) {
+			recS.preprocessAvailableTokens( Integer.MAX_VALUE );
 		}
+
+//		if( !query.selfJoin ) {
+//			for( Record recT : query.indexedSet.get() ) {
+//				recT.preprocessAvailableTokens( Integer.MAX_VALUE );
+//				recT.preprocessSuffixApplicableRules();
+//			}
+//		}
+
 	}
 
 	public void run( Query query, String[] args ) throws IOException, ParseException {
@@ -58,40 +68,50 @@ public class SIJoin extends AlgorithmTemplate {
 			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		}
 
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
+		stepTime.stopAndAdd( stat );
 
 //		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, query.searchedSet.recordList, checker );
 //		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, query.indexedSet.recordList, checker );
-		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, checker );
+
+		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		SI_Tree<Record> treeS = new SI_Tree<Record>( theta, null, checker, true );
 		for ( Record recS : query.searchedSet.recordList ) {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-			treeR.add( recS );
+//			if ( recS.getID() < 10 ) SampleDataTest.inspect_record( recS, query, 1 );
+			treeS.add( recS );
 		}
 
-		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, checker );
+		SI_Tree<Record> treeT = new SI_Tree<Record>( theta, null, checker, false );
 		for ( Record recT : query.indexedSet.recordList ) {
 			if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-			treeS.add( recT );
+			treeT.add( recT );
 		}
+		stepTime.stopAndAdd( stat );
 
 		if( DEBUG.SIJoinON ) {
-			System.out.println( "Node size : " + ( treeR.FEsize + treeR.LEsize ) );
-			System.out.println( "Sig size : " + treeR.sigsize );
+			System.out.println( "Node size : " + ( treeS.FEsize + treeS.LEsize ) );
+			System.out.println( "Sig size : " + treeS.sigsize );
 
 			System.out.print( "Building SI-Tree finished" );
 			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
 		}
 		// br.readLine();
 
-		rslt = join( treeR, treeS, 1 );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		rslt = join( treeS, treeT, theta );
+		stepTime.stopAndAdd( stat );
+
+		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
 
 		writeResult();
 	}
 
-	public Set<IntegerPair> join( SI_Tree<Record> treeR, SI_Tree<Record> treeS, double threshold ) {
+	public Set<IntegerPair> join( SI_Tree<Record> treeS, SI_Tree<Record> treeT, double threshold ) {
 		long startTime = System.currentTimeMillis();
 
-		List<Pair<Record>> candidates = treeR.join( treeS, threshold );
+		List<Pair<Record>> candidates = treeS.join( treeT, threshold );
 		// long counter = treeR.join(treeS, threshold);
 
 		if( DEBUG.SIJoinON ) {
@@ -121,8 +141,11 @@ public class SIJoin extends AlgorithmTemplate {
 		/*
 		 * 1.00: initial version
 		 * 1.01: ignore records with too many transformations
+		 * 1.02: output stats
+		 * 1.03: fix bugs related to length filtering
+		 * 1.04: use token global order, modify signature generation
 		 */
-		return "1.01";
+		return "1.04";
 	}
 
 	@Override
