@@ -43,8 +43,6 @@ public class TestUtils {
 		}
 		
 		String sep = "\\" + File.separator;
-		int ruleSize = 100000;
-		
 		String dataOnePath, dataTwoPath, rulePath;
 		if ( name.equals( "AOL" )) {
 			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
@@ -76,135 +74,383 @@ public class TestUtils {
 			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
 			rulePath = prefix + "rule"+sep+"30000_2_2_1000000_0.0_0.txt";
 		}
-		else if ( name.equals( "SYN_D_2.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_2.0"+sep+"data"+sep+"100_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_2.0"+sep+"data"+sep+"100_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_2.0"+sep+"rule"+sep+"100_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_D_2.5" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_2.5"+sep+"data"+sep+"316_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_2.5"+sep+"data"+sep+"316_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_2.5"+sep+"rule"+sep+"316_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_D_3.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_3.0"+sep+"data"+sep+"1000_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_3.0"+sep+"data"+sep+"1000_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_3.0"+sep+"rule"+sep+"1000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_D_3.5" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_3.5"+sep+"data"+sep+"3162_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_3.5"+sep+"data"+sep+"3162_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_3.5"+sep+"rule"+sep+"3162_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_D_4.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_4.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_D_4.5" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_4.5"+sep+"data"+sep+"31622_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_4.5"+sep+"data"+sep+"31622_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_4.5"+sep+"rule"+sep+"31622_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_D_5.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_5.0"+sep+"data"+sep+"100000_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_5.0"+sep+"data"+sep+"100000_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_5.0"+sep+"rule"+sep+"100000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_D_5.5" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_5.5"+sep+"data"+sep+"316227_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_5.5"+sep+"data"+sep+"316227_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_5.5"+sep+"rule"+sep+"316227_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_D_6.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_6.0"+sep+"data"+sep+"1000000_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_6.0"+sep+"data"+sep+"1000000_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_6.0"+sep+"rule"+sep+"1000000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_K_0.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.0"+sep+"data"+sep+"10000_5_%s_0.0_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.0"+sep+"data"+sep+"10000_5_%s_0.0_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.0"+sep+"rule"+sep+"10000_2_2_%s_0.0_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_K_0.2" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.2"+sep+"data"+sep+"10000_5_%s_0.2_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.2"+sep+"data"+sep+"10000_5_%s_0.2_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.2"+sep+"rule"+sep+"10000_2_2_%s_0.2_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_K_0.4" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.4"+sep+"data"+sep+"10000_5_%s_0.4_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.4"+sep+"data"+sep+"10000_5_%s_0.4_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.4"+sep+"rule"+sep+"10000_2_2_%s_0.4_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_K_0.6" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.6"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.6"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.6"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_K_0.8" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.8"+sep+"data"+sep+"10000_5_%s_0.8_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.8"+sep+"data"+sep+"10000_5_%s_0.8_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.8"+sep+"rule"+sep+"10000_2_2_%s_0.8_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_K_1.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_1.0"+sep+"data"+sep+"10000_5_%s_1.0_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_1.0"+sep+"data"+sep+"10000_5_%s_1.0_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_1.0"+sep+"rule"+sep+"10000_2_2_%s_1.0_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_L_11" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_11"+sep+"data"+sep+"10000_11_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_11"+sep+"data"+sep+"10000_11_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_11"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_L_3" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_3"+sep+"data"+sep+"10000_3_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_3"+sep+"data"+sep+"10000_3_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_3"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_L_5" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_5"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_5"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_5"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_L_7" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_7"+sep+"data"+sep+"10000_7_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_7"+sep+"data"+sep+"10000_7_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_7"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_L_9" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_9"+sep+"data"+sep+"10000_9_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_9"+sep+"data"+sep+"10000_9_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_9"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_S_-3.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-3.0"+sep+"data"+sep+"10000_5_%s_0.6_0.001_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-3.0"+sep+"data"+sep+"10000_5_%s_0.6_0.001_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-3.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_S_-4.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-4_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-4_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-4.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_S_-5.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-5.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-5.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-5.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_S_-6.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-6.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-6_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-6.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-6_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-6.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
-		else if ( name.equals( "SYN_S_0.0" ) ) {
-			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_0.0"+sep+"data"+sep+"10000_5_%s_0.6_0.0_1.txt", size );
-			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_0.0"+sep+"data"+sep+"10000_5_%s_0.6_0.0_2.txt", size );
-			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_0.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", ruleSize );
-		}
+		
+		
+		// SYN_FAM1
+//		else if ( name.equals( "SYN_D_2.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_2.0"+sep+"data"+sep+"100_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_2.0"+sep+"data"+sep+"100_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_2.0"+sep+"rule"+sep+"100_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_2.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_2.0"+sep+"data"+sep+"100_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_2.0"+sep+"data"+sep+"100_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_2.0"+sep+"rule"+sep+"100_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_D_2.5_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_2.5"+sep+"data"+sep+"316_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_2.5"+sep+"data"+sep+"316_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_2.5"+sep+"rule"+sep+"316_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_2.5_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_2.5"+sep+"data"+sep+"316_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_2.5"+sep+"data"+sep+"316_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_2.5"+sep+"rule"+sep+"316_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_D_3.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_3.0"+sep+"data"+sep+"1000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_3.0"+sep+"data"+sep+"1000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_3.0"+sep+"rule"+sep+"1000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_3.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_3.0"+sep+"data"+sep+"1000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_3.0"+sep+"data"+sep+"1000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_3.0"+sep+"rule"+sep+"1000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_D_3.5_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_3.5"+sep+"data"+sep+"3162_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_3.5"+sep+"data"+sep+"3162_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_3.5"+sep+"rule"+sep+"3162_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_3.5_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_3.5"+sep+"data"+sep+"3162_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_3.5"+sep+"data"+sep+"3162_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_3.5"+sep+"rule"+sep+"3162_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_D_4.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_4.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_4.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_4.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_D_4.5_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_4.5"+sep+"data"+sep+"31622_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_4.5"+sep+"data"+sep+"31622_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_4.5"+sep+"rule"+sep+"31622_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_4.5_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_4.5"+sep+"data"+sep+"31622_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_4.5"+sep+"data"+sep+"31622_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_4.5"+sep+"rule"+sep+"31622_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_D_5.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_5.0"+sep+"data"+sep+"100000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_5.0"+sep+"data"+sep+"100000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_5.0"+sep+"rule"+sep+"100000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_5.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_5.0"+sep+"data"+sep+"100000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_5.0"+sep+"data"+sep+"100000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_5.0"+sep+"rule"+sep+"100000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_D_5.5_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_5.5"+sep+"data"+sep+"316227_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_5.5"+sep+"data"+sep+"316227_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_5.5"+sep+"rule"+sep+"316227_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_5.5_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_5.5"+sep+"data"+sep+"316227_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_5.5"+sep+"data"+sep+"316227_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_5.5"+sep+"rule"+sep+"316227_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_D_6.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_6.0"+sep+"data"+sep+"1000000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_6.0"+sep+"data"+sep+"1000000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_6.0"+sep+"rule"+sep+"1000000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_D_6.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_D_6.0"+sep+"data"+sep+"1000000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_D_6.0"+sep+"data"+sep+"1000000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_D_6.0"+sep+"rule"+sep+"1000000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.0"+sep+"data"+sep+"10000_5_%s_0.0_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.0"+sep+"data"+sep+"10000_5_%s_0.0_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.0"+sep+"rule"+sep+"10000_2_2_%s_0.0_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.0"+sep+"data"+sep+"10000_5_%s_0.0_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.0"+sep+"data"+sep+"10000_5_%s_0.0_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.0"+sep+"rule"+sep+"10000_2_2_%s_0.0_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.2_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.2"+sep+"data"+sep+"10000_5_%s_0.2_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.2"+sep+"data"+sep+"10000_5_%s_0.2_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.2"+sep+"rule"+sep+"10000_2_2_%s_0.2_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.2_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.2"+sep+"data"+sep+"10000_5_%s_0.2_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.2"+sep+"data"+sep+"10000_5_%s_0.2_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.2"+sep+"rule"+sep+"10000_2_2_%s_0.2_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.4_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.4"+sep+"data"+sep+"10000_5_%s_0.4_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.4"+sep+"data"+sep+"10000_5_%s_0.4_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.4"+sep+"rule"+sep+"10000_2_2_%s_0.4_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.4_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.4"+sep+"data"+sep+"10000_5_%s_0.4_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.4"+sep+"data"+sep+"10000_5_%s_0.4_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.4"+sep+"rule"+sep+"10000_2_2_%s_0.4_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.6_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.6"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.6"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.6"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.6_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.6"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.6"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.6"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.8_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.8"+sep+"data"+sep+"10000_5_%s_0.8_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.8"+sep+"data"+sep+"10000_5_%s_0.8_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.8"+sep+"rule"+sep+"10000_2_2_%s_0.8_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_K_0.8_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_0.8"+sep+"data"+sep+"10000_5_%s_0.8_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_0.8"+sep+"data"+sep+"10000_5_%s_0.8_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_0.8"+sep+"rule"+sep+"10000_2_2_%s_0.8_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_K_1.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_1.0"+sep+"data"+sep+"10000_5_%s_1.0_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_1.0"+sep+"data"+sep+"10000_5_%s_1.0_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_1.0"+sep+"rule"+sep+"10000_2_2_%s_1.0_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_K_1.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_K_1.0"+sep+"data"+sep+"10000_5_%s_1.0_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_K_1.0"+sep+"data"+sep+"10000_5_%s_1.0_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_K_1.0"+sep+"rule"+sep+"10000_2_2_%s_1.0_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_L_11_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_11"+sep+"data"+sep+"10000_11_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_11"+sep+"data"+sep+"10000_11_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_11"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_L_11_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_11"+sep+"data"+sep+"10000_11_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_11"+sep+"data"+sep+"10000_11_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_11"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_L_3_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_3"+sep+"data"+sep+"10000_3_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_3"+sep+"data"+sep+"10000_3_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_3"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_L_3_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_3"+sep+"data"+sep+"10000_3_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_3"+sep+"data"+sep+"10000_3_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_3"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_L_5_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_5"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_5"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_5"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_L_5_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_5"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_5"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_5"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_L_7_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_7"+sep+"data"+sep+"10000_7_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_7"+sep+"data"+sep+"10000_7_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_7"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_L_7_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_7"+sep+"data"+sep+"10000_7_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_7"+sep+"data"+sep+"10000_7_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_7"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_L_9_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_9"+sep+"data"+sep+"10000_9_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_9"+sep+"data"+sep+"10000_9_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_9"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_L_9_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_L_9"+sep+"data"+sep+"10000_9_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_L_9"+sep+"data"+sep+"10000_9_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_L_9"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_S_-3.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-3.0"+sep+"data"+sep+"10000_5_%s_0.6_0.001_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-3.0"+sep+"data"+sep+"10000_5_%s_0.6_0.001_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-3.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_S_-3.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-3.0"+sep+"data"+sep+"10000_5_%s_0.6_0.001_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-3.0"+sep+"data"+sep+"10000_5_%s_0.6_0.001_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-3.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_S_-4.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-4_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-4_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-4.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_S_-4.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-4_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-4.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-4_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-4.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_S_-5.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-5.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-5.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-5.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_S_-5.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-5.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-5.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-5_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-5.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_S_-6.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-6.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-6_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-6.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-6_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-6.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_S_-6.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_-6.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-6_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_-6.0"+sep+"data"+sep+"10000_5_%s_0.6_1.0E-6_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_-6.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
+//		else if ( name.equals( "SYN_S_0.0_10000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_0.0"+sep+"data"+sep+"10000_5_%s_0.6_0.0_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_0.0"+sep+"data"+sep+"10000_5_%s_0.6_0.0_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_0.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 10000 );
+//		}
+//		else if ( name.equals( "SYN_S_0.0_100000" ) ) {
+//			dataOnePath = prefix + String.format("SYN"+sep+"SYN_S_0.0"+sep+"data"+sep+"10000_5_%s_0.6_0.0_1.txt", size );
+//			dataTwoPath = prefix + String.format("SYN"+sep+"SYN_S_0.0"+sep+"data"+sep+"10000_5_%s_0.6_0.0_2.txt", size );
+//			rulePath = prefix + String.format( "SYN"+sep+"SYN_S_0.0"+sep+"rule"+sep+"10000_2_2_%s_0.6_0.txt", 100000 );
+//		}
 
-
-
-		else throw new RuntimeException();
+		// SYN_FAM2
+		else {
+			String[] token = name.split( "_" ); // [0:syn_id]_[1:tag]_[2:val]_[3:nRule]_[4:is_self]
+			String dname = token[0]+"_"+token[1]+"_"+token[2];	
+			String nRule = token[3];
+			boolean selfJoin = token[4].equals( "SELF" )? true : false;
+			if ( dname.equals( "SYN2_D_2.5" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_D_2.5_SELF"+sep+"data"+sep+"25000_7_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_D_2.5_SELF"+sep+"data"+sep+"25000_7_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_D_2.5_SELF"+sep+"rule"+sep+"25000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_D_5.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_D_5.0_SELF"+sep+"data"+sep+"50000_7_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_D_5.0_SELF"+sep+"data"+sep+"50000_7_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_D_5.0_SELF"+sep+"rule"+sep+"50000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_D_10.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_D_10.0_SELF"+sep+"data"+sep+"100000_7_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_D_10.0_SELF"+sep+"data"+sep+"100000_7_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_D_10.0_SELF"+sep+"rule"+sep+"100000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_D_20.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_D_20.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_D_20.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_D_20.0_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_D_40.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_D_40.0_SELF"+sep+"data"+sep+"400000_7_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_D_40.0_SELF"+sep+"data"+sep+"400000_7_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_D_40.0_SELF"+sep+"rule"+sep+"400000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_K_0.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.0_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.0_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.0_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.0_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_K_0.2" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.2_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.2_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.2_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.2_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.2_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.2_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_K_0.4" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.4_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.4_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.4_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.4_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.4_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.4_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_K_0.6" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.6_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.6_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.6_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_K_0.8" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.8_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.8_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.8_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.8_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_K_0.8_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.8_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_K_1.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_K_1.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_1.0_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_K_1.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_1.0_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_K_1.0_SELF"+sep+"rule"+sep+"200000_2_2_%s_1.0_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_L_3" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_L_3_SELF"+sep+"data"+sep+"200000_3_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_L_3_SELF"+sep+"data"+sep+"200000_3_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_L_3_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_L_7" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_L_7_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_L_7_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_L_7_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_L_11" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_L_11_SELF"+sep+"data"+sep+"200000_11_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_L_11_SELF"+sep+"data"+sep+"200000_11_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_L_11_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_L_15" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_L_15_SELF"+sep+"data"+sep+"200000_15_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_L_15_SELF"+sep+"data"+sep+"200000_15_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_L_15_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_S_-4.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_S_-4.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_1.0E-4_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_S_-4.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_1.0E-4_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_S_-4.0_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_S_-3.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_S_-3.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_S_-3.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_S_-3.0_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_S_-2.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_S_-2.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.01_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_S_-2.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.01_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_S_-2.0_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_S_-1.0" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_S_-1.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.1_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_S_-1.0_SELF"+sep+"data"+sep+"200000_7_%s_-1_0.6_0.1_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_S_-1.0_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_A_3" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_A_3_SELF"+sep+"data"+sep+"200000_-1_%s_3_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_A_3_SELF"+sep+"data"+sep+"200000_-1_%s_3_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_A_3_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_A_6" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_A_6_SELF"+sep+"data"+sep+"200000_-1_%s_6_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_A_6_SELF"+sep+"data"+sep+"200000_-1_%s_6_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_A_6_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_A_12" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_A_12_SELF"+sep+"data"+sep+"200000_-1_%s_12_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_A_12_SELF"+sep+"data"+sep+"200000_-1_%s_12_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_A_12_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else if ( dname.equals( "SYN2_A_24" ) ) {
+			    dataOnePath = prefix + String.format( "SYN2"+sep+"SYN2_A_24_SELF"+sep+"data"+sep+"200000_-1_%s_24_0.6_0.001_1.txt", size );
+			    dataTwoPath = prefix + String.format( "SYN2"+sep+"SYN2_A_24_SELF"+sep+"data"+sep+"200000_-1_%s_24_0.6_0.001_%d.txt", size, selfJoin? 1:2 );
+			    rulePath = prefix + String.format( "SYN2"+sep+"SYN2_A_24_SELF"+sep+"rule"+sep+"200000_2_2_%s_0.6_0.txt", nRule );
+			}
+			else throw new RuntimeException();
+		}
 
 		String outputPath = "output";
 		boolean oneSideJoin = true;

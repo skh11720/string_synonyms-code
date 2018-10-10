@@ -20,9 +20,10 @@ import java.util.Set;
  */
 
 public class Generator {
-	private double[] ratio;
-	private Random random;
-	private TokenIndex tokenIndex;
+	protected double[] ratio;
+	protected Random random;
+	protected TokenIndex tokenIndex;
+	protected List<Rule> rulelist;
 
 	public Generator( int nDistinctTokens, double zipf, long seed ) {
 		ratio = new double[ nDistinctTokens ];
@@ -38,18 +39,18 @@ public class Generator {
 		tokenIndex.getID( "" );
 	}
 
-	private static void printUsage() {
+	protected static void printUsage() {
 		System.out.println(
 				"-d <rulefile> <#tokens> <#avg length> <#records> <skewness> <equiv ratio> <random seed> <output path>: generate data with given rulefile" );
 		System.out.println( "-r <#tokens> <max lhs len> <max rhs len> <#rules> <random seed>  <output path>: generate rule" );
 		System.exit( 1 );
 	}
 
-	private static String getRuleFilePath( int nToken, int maxLhs, int maxRhs, int nRule, double skewZ, long seed ) {
+	protected static String getRuleFilePath( int nToken, int maxLhs, int maxRhs, int nRule, double skewZ, long seed ) {
 		return nToken + "_" + maxLhs + "_" + maxRhs + "_" + nRule + "_" + skewZ + "_" + seed;
 	}
 
-	private static String getDataFilePath( int nToken, int avgRecLen, int nRecord, double skewZ, double equivratio, long seed ) {
+	protected static String getDataFilePath( int nToken, int avgRecLen, int nRecord, double skewZ, double equivratio, long seed ) {
 		return nToken + "_" + avgRecLen + "_" + nRecord + "_" + skewZ + "_" + equivratio + "_" + seed;
 	}
 
@@ -111,7 +112,8 @@ public class Generator {
 	}
 
 	public ACAutomataR readRules( String rulefile ) throws IOException {
-		List<Rule> rulelist = new ArrayList<Rule>();
+//		List<Rule> rulelist = new ArrayList<Rule>();
+		rulelist = new ArrayList<Rule>();
 		BufferedReader br = new BufferedReader( new FileReader( rulefile ) );
 		String line;
 		while( ( line = br.readLine() ) != null ) {
@@ -126,7 +128,7 @@ public class Generator {
 		return new ACAutomataR( rulelist );
 	}
 
-	private void genString( int avgLength, int nRecords, String fileName, double equivratio, ACAutomataR atm )
+	protected void genString( int avgLength, int nRecords, String fileName, double equivratio, ACAutomataR atm )
 			throws IOException {
 		HashSet<Record> records = new HashSet<Record>();
 		int count = 0;
@@ -135,7 +137,8 @@ public class Generator {
 				while( true ) {
 					// make sure there exists equivalent records in the data set
 					Record rec = randomString( avgLength );
-					Record equivrecord = randomTransform( randomTransform( rec, atm, random ), atm, random );
+//					Record equivrecord = randomTransform( randomTransform( rec, atm, random ), atm, random ); // bidirectional case
+					Record equivrecord = randomTransform( rec, atm, random ); // unidirectional case
 					if( equivrecord.compareTo( rec ) != 0 ) {
 						records.add( rec );
 						records.add( equivrecord );
@@ -158,7 +161,7 @@ public class Generator {
 		System.out.println( "[genString] equiv count: " + count );
 	}
 
-	private Record randomString( int avgLength ) {
+	protected Record randomString( int avgLength ) {
 		// 1. sample length of string
 		int len = (int) Math.max( 1, avgLength + random.nextGaussian() );
 		// 2. generate random string
@@ -170,7 +173,7 @@ public class Generator {
 	}
 
 	// generate random string
-	private int[] random( int len ) {
+	protected int[] random( int len ) {
 		Set<Integer> samples = new HashSet<Integer>();
 		int[] tokens = new int[ len ];
 		// 2. generate random string
