@@ -70,6 +70,7 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
+	public static boolean useSTPQ = true;
 
 	public Int2IntOpenHashMap posCounter = new Int2IntOpenHashMap();
 	

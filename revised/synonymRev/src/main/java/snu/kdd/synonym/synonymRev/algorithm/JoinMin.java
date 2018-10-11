@@ -35,7 +35,7 @@ public class JoinMin extends AlgorithmTemplate {
 	 */
 	public JoinMinIndexInterface idx;
 
-	protected boolean useLF, usePQF;
+	protected boolean useLF, usePQF, useSTPQ;
 
 	public JoinMin( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -47,6 +47,7 @@ public class JoinMin extends AlgorithmTemplate {
 		indexK = params.indexK;
 		useLF = params.useLF;
 		usePQF = params.usePQF;
+		useSTPQ = params.useSTPQ;
 	}
 
 	@Override
@@ -67,6 +68,7 @@ public class JoinMin extends AlgorithmTemplate {
 		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
 		JoinMinIndex.useLF = useLF;
 		JoinMinIndex.usePQF = usePQF;
+		JoinMinIndex.useSTPQ = useSTPQ;
 	}
 
 	public void statistics() {
@@ -178,6 +180,7 @@ public class JoinMin extends AlgorithmTemplate {
 		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
 		
 		runTime.stopAndAdd( stat );
+		this.writeResult();
 	}
 
 	@Override
@@ -194,12 +197,13 @@ public class JoinMin extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		preprocessTime.resetAndStart( "Result_3_Run_Time" );
 
-		if ( usePQF ) runWithoutPreprocess();
+		if ( usePQF ) {
+			runWithoutPreprocess();
+			idx.addStat( stat );
+		}
 		else runAfterPreprocessWithoutIndex();
 
 		preprocessTime.stopAndAdd( stat );
-
-		idx.addStat( stat );
 		checker.addStat( stat );
 	}
 
@@ -223,8 +227,9 @@ public class JoinMin extends AlgorithmTemplate {
 		/*
 		 * 2.5: the latest version by yjpark
 		 * 2.51: checkpoint
+		 * 2.511: test for filtering power test
 		 */
-		return "2.51";
+		return "2.511";
 	}
 
 	@Override

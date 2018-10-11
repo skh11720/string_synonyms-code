@@ -31,6 +31,7 @@ public class Param {
 
 		options.addOption( "useLF", true, "" );
 		options.addOption( "usePQF", true, "" );
+		options.addOption( "useSTPQ", true, "" );
 
 		argOptions = options;
 	}
@@ -90,11 +91,15 @@ public class Param {
 		else param.nEst = 1;
 
 		if (cmd.hasOption( "useLF" )) {
-			param.useLF = Boolean.parseBoolean( cmd.getOptionValue( "UseLF" ) );
+			param.useLF = Boolean.parseBoolean( cmd.getOptionValue( "useLF" ) );
 		}
 
 		if (cmd.hasOption( "usePQF" )) {
-			param.usePQF = Boolean.parseBoolean( cmd.getOptionValue( "UseLF" ) );
+			param.usePQF = Boolean.parseBoolean( cmd.getOptionValue( "usePQF" ) );
+		}
+
+		if (cmd.hasOption( "useSTPQ" )) {
+			param.useSTPQ = Boolean.parseBoolean( cmd.getOptionValue( "useSTPQ" ) );
 		}
 
 		return param;
@@ -110,4 +115,5 @@ public class Param {
 	public int nEst;
 	public boolean useLF = true;
 	public boolean usePQF = true;
+	public boolean useSTPQ = true;
 }

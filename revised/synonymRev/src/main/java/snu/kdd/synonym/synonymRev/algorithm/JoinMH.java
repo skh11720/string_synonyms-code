@@ -38,7 +38,7 @@ public class JoinMH extends AlgorithmTemplate {
 
 	protected JoinMHIndexInterface idx;
 
-	protected boolean useLF, usePQF;
+	protected boolean useLF, usePQF, useSTPQ;
 	
 	
 	
@@ -48,6 +48,7 @@ public class JoinMH extends AlgorithmTemplate {
 		checker = params.validator;
 		useLF = params.useLF;
 		usePQF = params.usePQF;
+		useSTPQ = params.useSTPQ;
 	}
 
 	@Override
@@ -152,6 +153,7 @@ public class JoinMH extends AlgorithmTemplate {
 		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
 		
 		runTime.stopAndAdd( stat );
+		writeResult();
 	}
 
 	protected void buildIndex( boolean writeResult ) {
@@ -162,6 +164,7 @@ public class JoinMH extends AlgorithmTemplate {
 		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 		JoinMHIndex.useLF = useLF;
 		JoinMHIndex.usePQF = usePQF;
+		JoinMHIndex.useSTPQ = useSTPQ;
 	}
 
 	@Override
@@ -169,8 +172,9 @@ public class JoinMH extends AlgorithmTemplate {
 		/*
 		 * 2.5: the latest version by yjpark
 		 * 2.51: checkpoint
+		 * 2.511: test for filtering power test
 		 */
-		return "2.51";
+		return "2.511";
 	}
 
 	@Override
