@@ -29,6 +29,9 @@ public class Param {
 		options.addOption( "delta", true, "deltaMax" );
 		options.addOption( "nEst", true, "nEst" );
 
+		options.addOption( "useLF", true, "" );
+		options.addOption( "usePQF", true, "" );
+
 		argOptions = options;
 	}
 
@@ -86,6 +89,14 @@ public class Param {
 		}
 		else param.nEst = 1;
 
+		if (cmd.hasOption( "useLF" )) {
+			param.useLF = Boolean.parseBoolean( cmd.getOptionValue( "UseLF" ) );
+		}
+
+		if (cmd.hasOption( "usePQF" )) {
+			param.usePQF = Boolean.parseBoolean( cmd.getOptionValue( "UseLF" ) );
+		}
+
 		return param;
 	}
 
@@ -97,4 +108,6 @@ public class Param {
 	public boolean noLength = false;
 	public int delta;
 	public int nEst;
+	public boolean useLF;
+	public boolean usePQF;
 }
