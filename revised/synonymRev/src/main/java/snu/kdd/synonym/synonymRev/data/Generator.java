@@ -20,20 +20,20 @@ import java.util.Set;
  */
 
 public class Generator {
-	protected double[] ratio;
+	protected double[] tokenRatio;
 	protected Random random;
 	protected TokenIndex tokenIndex;
 	protected List<Rule> rulelist;
 
 	public Generator( int nDistinctTokens, double zipf, long seed ) {
-		ratio = new double[ nDistinctTokens ];
-		for( int i = 0; i < ratio.length; ++i ) {
-			ratio[ i ] = 1.0 / Math.pow( i + 1, zipf );
+		tokenRatio = new double[ nDistinctTokens ];
+		for( int i = 0; i < tokenRatio.length; ++i ) {
+			tokenRatio[ i ] = 1.0 / Math.pow( i + 1, zipf );
 			if( i != 0 )
-				ratio[ i ] += ratio[ i - 1 ];
+				tokenRatio[ i ] += tokenRatio[ i - 1 ];
 		}
-		for( int i = 0; i < ratio.length; ++i )
-			ratio[ i ] /= ratio[ ratio.length - 1 ];
+		for( int i = 0; i < tokenRatio.length; ++i )
+			tokenRatio[ i ] /= tokenRatio[ tokenRatio.length - 1 ];
 		random = new Random( seed );
 		tokenIndex = new TokenIndex();
 		tokenIndex.getID( "" );
@@ -179,7 +179,7 @@ public class Generator {
 		// 2. generate random string
 		while( samples.size() < len ) {
 			double rd = random.nextDouble();
-			int token = Arrays.binarySearch( ratio, rd );
+			int token = Arrays.binarySearch( tokenRatio, rd );
 			if( token < 0 )
 				token = -token - 1;
 			if( samples.contains( token ) )

@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Map.Entry;
 
 import org.junit.Test;
@@ -15,6 +16,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -33,8 +35,12 @@ public class DataCharacteristicsTest {
 //		 "SYN_D_3.0_10000", "SYN_D_3.5_10000", "SYN_D_4.0_10000", "SYN_D_4.5_10000", "SYN_D_5.0_10000", "SYN_D_5.5_10000", "SYN_D_6.0_10000", "SYN_K_0.0_10000", "SYN_K_0.2_10000", "SYN_K_0.4_10000", "SYN_K_0.6_10000", "SYN_K_0.8_10000", 
 //		 "SYN_L_3_10000", "SYN_L_5_10000", "SYN_L_7_10000", "SYN_L_9_10000", "SYN_L_11_10000", "SYN_S_0.0_10000", "SYN_S_-6.0_10000", "SYN_S_-5.0_10000", "SYN_S_-4.0_10000", "SYN_S_-3.0_10000",
 //		 "SYN_D_3.5_100000", "SYN_D_4.0_100000", "SYN_D_4.5_100000", "SYN_D_5.0_100000", "SYN_D_5.5_100000", "SYN_D_6.0_100000", "SYN_K_0.0_100000", "SYN_K_0.2_100000", "SYN_K_0.4_100000", "SYN_K_0.6_100000", "SYN_K_0.8_100000", "SYN_K_1.0_100000", "SYN_L_11_100000", "SYN_L_3_100000", "SYN_L_5_100000", "SYN_L_7_100000", "SYN_L_9_100000", "SYN_S_0.0_100000", "SYN_S_-6.0_100000", "SYN_S_-5.0_100000", "SYN_S_-4.0_100000", "SYN_S_-3.0_100000",
-		"SYN2_D_2.5_10000_SELF", "SYN2_D_5.0_10000_SELF", "SYN2_D_10.0_10000_SELF", "SYN2_D_20.0_10000_SELF", "SYN2_D_40.0_10000_SELF", "SYN2_K_0.0_10000_SELF", "SYN2_K_0.2_10000_SELF", "SYN2_K_0.4_10000_SELF", "SYN2_K_0.6_10000_SELF", "SYN2_K_0.8_10000_SELF", "SYN2_K_1.0_10000_SELF", "SYN2_L_3_10000_SELF", "SYN2_L_7_10000_SELF", "SYN2_L_11_10000_SELF", "SYN2_L_15_10000_SELF", "SYN2_S_-4.0_10000_SELF", "SYN2_S_-3.0_10000_SELF", "SYN2_S_-2.0_10000_SELF", "SYN2_S_-1.0_10000_SELF", "SYN2_A_3_10000_SELF", "SYN2_A_6_10000_SELF", "SYN2_A_12_10000_SELF", "SYN2_A_24_10000_SELF",
- 
+//		"SYN2_D_2.5_10000_SELF", "SYN2_D_5.0_10000_SELF", "SYN2_D_10.0_10000_SELF", "SYN2_D_20.0_10000_SELF", "SYN2_D_40.0_10000_SELF", "SYN2_K_0.0_10000_SELF", "SYN2_K_0.2_10000_SELF", "SYN2_K_0.4_10000_SELF", "SYN2_K_0.6_10000_SELF", "SYN2_K_0.8_10000_SELF", "SYN2_K_1.0_10000_SELF", "SYN2_L_3_10000_SELF", "SYN2_L_7_10000_SELF", "SYN2_L_11_10000_SELF", "SYN2_L_15_10000_SELF", "SYN2_S_-4.0_10000_SELF", "SYN2_S_-3.0_10000_SELF", "SYN2_S_-2.0_10000_SELF", "SYN2_S_-1.0_10000_SELF", "SYN2_A_3_10000_SELF", "SYN2_A_6_10000_SELF", "SYN2_A_12_10000_SELF", "SYN2_A_24_10000_SELF",
+//		"SYN3_A_1_SELF", "SYN3_A_3_SELF", "SYN3_A_6_SELF", "SYN3_A_12_SELF", "SYN3_A_24_SELF", "SYN3_KR_0.0_SELF", "SYN3_KR_0.2_SELF", "SYN3_KR_0.4_SELF", "SYN3_KR_0.6_SELF", "SYN3_KR_0.8_SELF", "SYN3_KP_0.0_SELF", "SYN3_KP_0.5_SELF", "SYN3_KP_1.0_SELF"
+//		"SYN3_A_1_SELF", "SYN3_A_3_SELF", "SYN3_A_6_SELF", "SYN3_A_12_SELF", "SYN3_A_24_SELF",
+//		"SYN3_KP_0.0_SELF", "SYN3_KP_0.5_SELF", "SYN3_KP_1.0_SELF"
+//		"SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.2_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.2_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.2_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.4_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.4_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.4_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.6_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.6_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.6_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.8_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.8_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_1_KAP_0.5_KR_0.8_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.2_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.2_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.2_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.4_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.4_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.4_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.6_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.6_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.6_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.8_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.8_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_3_KAP_0.5_KR_0.8_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.2_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.2_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.2_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.4_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.4_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.4_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.6_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.6_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.6_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.8_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.8_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_6_KAP_0.5_KR_0.8_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.2_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.2_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.2_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.4_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.4_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.4_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.6_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.6_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.6_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.8_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.8_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_12_KAP_0.5_KR_0.8_KP_1.0_S_1.0e-02_SELF", 
+		"SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.2_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.2_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.2_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.4_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.4_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.4_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.6_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.6_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.6_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.8_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.8_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.8_KP_1.0_S_1.0e-02_SELF"
 		};
 
 		// banned list
@@ -44,7 +50,8 @@ public class DataCharacteristicsTest {
 //		String[] datasetList = {"SPROT", "SYN_D_3.0"};
 		PrintWriter writer = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/DataCharacteristicsTest.txt" ) ) );
 		int[] pos_arr = {10, 20, 30, 40, 50, 60, 70, 80, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100};
-		int size;
+		int size = 1000000;
+		int nRule = 10000;
 		Object2ObjectOpenHashMap<String, IntArrayList> narMap = new Object2ObjectOpenHashMap<>();
 		Object2ObjectOpenHashMap<String, LongArrayList> netMap = new Object2ObjectOpenHashMap<>();
 		
@@ -64,8 +71,18 @@ public class DataCharacteristicsTest {
 
 		for ( String dataset : datasetList ) {
 			if ( dataset.equals( "SPROT" ) ) size = 466158;
-			else size = 1000000;
-			Query query = TestUtils.getTestQuery( dataset, size );
+			Query query = TestUtils.getTestQuery( dataset, size, nRule );
+
+//			final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
+			
+//			Object2IntOpenHashMap lhsFreqMap = new Object2IntOpenHashMap<>();
+//			lhsFreqMap.defaultReturnValue(0);
+//			for ( Rule rule : query.ruleSet.get() ) {
+//				lhsFreqMap.addTo( rule.getLeft(), 1 );
+//				System.out.println( rule );
+//			}
+//			System.out.println( "LHS frequency" );
+//			System.out.println( Arrays.toString( lhsFreqMap.values().stream().sorted((x,y)->-Integer.compare(x,y)).mapToInt( Integer::intValue ).limit( 20 ).toArray() ) );
 			
 			int nTokens = countNumTokens( query );
 			int nRules = query.ruleSet.size();
