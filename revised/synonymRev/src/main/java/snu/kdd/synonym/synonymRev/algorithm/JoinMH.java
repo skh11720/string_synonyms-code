@@ -116,6 +116,7 @@ public class JoinMH extends AlgorithmTemplate {
 	}
 
 	public void runAfterPreprocessWithoutIndex() {
+		rslt = new ObjectOpenHashSet<IntegerPair>();
 		StopWatch runTime = null;
 		//StopWatch stepTime = null;
 
@@ -159,6 +160,8 @@ public class JoinMH extends AlgorithmTemplate {
 			indexPosition[ i ] = i;
 		}
 		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		JoinMHIndex.useLF = useLF;
+		JoinMHIndex.usePQF = usePQF;
 	}
 
 	@Override
@@ -167,7 +170,7 @@ public class JoinMH extends AlgorithmTemplate {
 		 * 2.5: the latest version by yjpark
 		 * 2.51: checkpoint
 		 */
-		return "2.511";
+		return "2.51";
 	}
 
 	@Override
