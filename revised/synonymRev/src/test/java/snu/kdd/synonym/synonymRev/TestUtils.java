@@ -65,6 +65,21 @@ public class TestUtils {
 			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
 			rulePath = prefix + "rule"+sep+"30000_2_2_100000_0.0_0.txt";
 		}
+		else if ( name.equals( "SYN_300K" ) ) {
+			dataOnePath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_1.txt", size );
+			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
+			rulePath = prefix + "rule"+sep+"30000_2_2_300000_0.0_0.txt";
+		}
+		else if ( name.equals( "SYN_1M" ) ) {
+			dataOnePath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_1.txt", size );
+			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
+			rulePath = prefix + "rule"+sep+"30000_2_2_1000000_0.0_0.txt";
+		}
+		else if ( name.equals( "SYN_D_3.0" ) ) {
+			dataOnePath = prefix + String.format( "SYN_D_3.0"+sep+"data"+sep+"1000_5_%d_0.6_1.0E-5_1.txt", size );
+			dataTwoPath = prefix + String.format( "SYN_D_3.0"+sep+"data"+sep+"1000_5_%d_0.6_1.0E-5_1.txt", size );
+			rulePath = prefix + "SYN_D_3.0"+sep+"rule"+sep+"1000_2_2_10000_0.6_0.txt";
+		}
 		else throw new RuntimeException();
 
 		String outputPath = "output";
