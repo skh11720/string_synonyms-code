@@ -24,6 +24,7 @@ public class Query {
 
 	public final boolean oneSideJoin;
 	public final boolean selfJoin;
+	public boolean isSelfJoin;
 
 	public Query( String ruleFile, String indexedFile, String searchedFile, boolean oneSideJoin, String outputFile ) throws IOException {
 		this.ruleFile = ruleFile;

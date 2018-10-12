@@ -2,9 +2,11 @@ package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -14,6 +16,7 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -32,6 +35,8 @@ public class JoinMin extends AlgorithmTemplate {
 	 */
 	public JoinMinIndexInterface idx;
 
+	protected boolean useLF, usePQF;
+
 	public JoinMin( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
@@ -40,6 +45,8 @@ public class JoinMin extends AlgorithmTemplate {
 		checker = params.validator;
 		qSize = params.qgramSize;
 		indexK = params.indexK;
+		useLF = params.useLF;
+		usePQF = params.usePQF;
 	}
 
 	@Override
@@ -58,6 +65,8 @@ public class JoinMin extends AlgorithmTemplate {
 
 	protected void buildIndex( boolean writeResult ) throws IOException {
 		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
+		JoinMinIndex.useLF = useLF;
+		JoinMinIndex.usePQF = usePQF;
 	}
 
 	public void statistics() {
@@ -132,6 +141,45 @@ public class JoinMin extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
+	public void runAfterPreprocessWithoutIndex() {
+		rslt = new ObjectOpenHashSet<IntegerPair>();
+		StopWatch runTime = null;
+		//StopWatch stepTime = null;
+
+		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
+		long t_filter = 0;
+		long t_verify = 0;
+
+		for ( Record recS : query.searchedSet.recordList ) {
+			long ts = System.nanoTime();
+			int[] range = recS.getTransLengths();
+			ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
+			for ( Record recT : query.indexedSet.recordList ) {
+				int[] otherRange = recT.getTransLengths();
+				if ( !useLF || StaticFunctions.overlap(range[0], range[1], otherRange[0], otherRange[1])) {
+					candidates.add(recT);
+				}
+			}
+			
+			long afterFilterTime = System.nanoTime();
+			for ( Record recT : candidates ) {
+				int compare = checker.isEqual(recS, recT);
+				if (compare >= 0) {
+					addSeqResult( recS, recT, (Set<IntegerPair>) rslt, query.selfJoin );
+				}
+			}
+			long afterVerifyTime = System.nanoTime();
+			t_filter += afterFilterTime - ts;
+			t_verify += afterVerifyTime - afterFilterTime;
+		}
+
+		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
+		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
+		
+		runTime.stopAndAdd( stat );
+	}
+
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
 		Param params = Param.parseArgs( args, stat, query );
@@ -146,7 +194,8 @@ public class JoinMin extends AlgorithmTemplate {
 		stat.addMemory( "Mem_2_Preprocessed" );
 		preprocessTime.resetAndStart( "Result_3_Run_Time" );
 
-		runWithoutPreprocess();
+		if ( usePQF ) runWithoutPreprocess();
+		else runAfterPreprocessWithoutIndex();
 
 		preprocessTime.stopAndAdd( stat );
 
