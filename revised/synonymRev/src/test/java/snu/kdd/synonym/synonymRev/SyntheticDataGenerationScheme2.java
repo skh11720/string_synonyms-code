@@ -3,9 +3,11 @@ package snu.kdd.synonym.synonymRev;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Generator2;
 
 public class SyntheticDataGenerationScheme2 {
@@ -25,8 +27,8 @@ public class SyntheticDataGenerationScheme2 {
 //	static final double[] arr_SEL = {1e-4, 1e-3, 1e-2, 1e-1};
 //	static final int[] arr_id_SEL = {-4, -3, -2, -1};
 
-	static final int[] arr_NAR = {1, 3, 6, 12, 24};
-	static final double[] arr_skewR = {0.0, 0.2, 0.4, 0.6, 0.8};
+	static final int[] arr_NAR = {5, 10, 15, 20};
+	static final double[] arr_skewR = {0.0, 0.5, 1.0};
 	static final double[] arr_skewP = {0.0, 0.5, 1.0};
 
 	static final long seed0 = 0;
@@ -45,7 +47,7 @@ public class SyntheticDataGenerationScheme2 {
 		static final int NAR = arr_NAR[2];
 		static final double KAP = 0.5;
 		static final double SEL = 1e-2;
-		static final double skewR = arr_skewR[3];
+		static final double skewR = arr_skewR[1];
 		static final double skewP = arr_skewP[1];
 	}
 	
@@ -67,6 +69,7 @@ public class SyntheticDataGenerationScheme2 {
 		skewP = Default.skewP;
 	}
 	
+	static List<String> dname_list = new ObjectArrayList<>();
 	
 	
 	@Test
@@ -75,6 +78,7 @@ public class SyntheticDataGenerationScheme2 {
 //		generateVaryingNAR();
 //		generateVaryingSkewR();
 //		generateVaryingSkewP();
+		for ( String dname : dname_list ) System.out.print( dname+", " );
 	}
 	
 	static void generateDataset( int DIC, int LEN, int NAR, double KAP, double SEL, double skewR, double skewP ) throws IOException {
@@ -107,6 +111,7 @@ public class SyntheticDataGenerationScheme2 {
 				String.format( "\trulePath = prefix + String.format(\"%s\"+sep+\"%s\"+sep+\"rule\"+sep+\"%s\", nRule );\n", syn_id, dname, rulePathTemplate ) +
 				"}"
 				);
+		dname_list.add( dname );
 	}
 	
 	static void generateVaryingNAR() throws IOException {
@@ -137,8 +142,8 @@ public class SyntheticDataGenerationScheme2 {
 		resetToDefault();
 		for ( int i0=0; i0<arr_NAR.length; ++i0 ) {
 			int NAR = arr_NAR[i0];
-//			for ( int i1=0; i1<arr_skewR.length; ++i1 ) {
-//				double skewR = arr_skewR[i1];
+			for ( int i1=0; i1<arr_skewR.length; ++i1 ) {
+				double skewR = arr_skewR[i1];
 				for ( int i2=0; i2<arr_skewP.length; ++i2 ) {
 					double skewP = arr_skewP[i2];
 //					for ( int i3=0; i3<arr_KAP.length; ++i3 ) { 
@@ -146,7 +151,7 @@ public class SyntheticDataGenerationScheme2 {
 						generateDataset( DIC, LEN, NAR, KAP, SEL, skewR, skewP );
 //					}
 				}
-//			}
+			}
 		}
 	}
 }
