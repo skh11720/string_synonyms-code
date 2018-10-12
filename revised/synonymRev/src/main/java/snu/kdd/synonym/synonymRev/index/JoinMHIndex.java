@@ -395,6 +395,8 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 //		this.eta = ((double) (this.joinTime - totalCountTime) / this.predictCount);
 		// this.joinTime: time for counting and verifications
 		// this.predictCount: the sum of minimum invokes (number of records in searchedSet to be verified) of records in indexedSet
+		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
+		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
 
 		return rslt;
 	}

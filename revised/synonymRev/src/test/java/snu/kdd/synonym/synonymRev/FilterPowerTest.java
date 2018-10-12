@@ -27,7 +27,8 @@ public class FilterPowerTest {
 	@Test
 	public void test() throws IOException, ParseException, org.json.simple.parser.ParseException {
 		String[] datasetList = {"AOL", "SPROT", "USPS"};
-		String[] attrList = {"Val_Comparisons", "Val_Length_filtered", "Val_PQGram_filtered"};
+		String[] attrList = {"Val_Comparisons", "Val_Length_filtered", "Val_PQGram_filtered", "Result_0_Total_Time", "Final Result Size", "Result_5_1_Filter_Time",
+		"Result_5_2_Verify_Time",};
 		int size = 1000;
 		
 		PrintWriter writer = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/FilterPowerTest_"+size+".txt" ) ) );

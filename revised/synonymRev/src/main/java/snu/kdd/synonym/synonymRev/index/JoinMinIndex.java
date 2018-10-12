@@ -509,6 +509,9 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 //		stat.add( "Const_Mu", mu );
 //		stat.add( "Const_Rho", rho );
 
+		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
+		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
+
 		return rslt;
 	}
 	
