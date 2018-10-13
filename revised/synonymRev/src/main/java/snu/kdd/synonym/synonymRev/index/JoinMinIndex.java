@@ -168,18 +168,20 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 				recordStartTime = System.nanoTime();
 			}
 
-			List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
 			List<List<QGram>> availableQGrams = null;
-			if ( useSTPQ ) availableQGrams = getCandidatePQGrams( recS );
+			if ( useSTPQ ) availableQGrams = rec.getQGrams( qgramSize );
 			else {
-				availableQGrams = new ObjectArrayList<>();
-				for ( int k=0; k<indexK; ++k ) availableQGrams.add( new ObjectArrayList<>() );
-				for ( Record exp : recS.expandAll() ) {
+				List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
+				for ( Record exp : rec.expandAll() ) {
 					List<List<QGram>> qgramsList = exp.getSelfQGrams( qgramSize, indexK );
-					for ( int k=0; k<Math.min( indexK, qgramsList.size() ); ++k ) {
-						availableQGrams.get( k ).add( qgramsList.get( k ).get( 0 ) );
+					while ( availableQGramsSet.size() < qgramsList.size() ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
+					for ( int k=0; k<qgramsList.size(); ++k ) {
+						QGram qgram = qgramsList.get( k ).get( 0 );
+						availableQGramsSet.get( k ).add( qgram );
 					}
 				}
+				availableQGrams = new ObjectArrayList<>();
+				for ( int k=0; k<indexK; ++k ) availableQGrams.add( new ObjectArrayList<>( availableQGramsSet.get( k ) ) );
 			}
 
 //			if( DEBUG.JoinMinON ) {
@@ -564,19 +566,20 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 		if ( useSTPQ ) availableQGrams = getCandidatePQGrams( recS );
 		else {
 			List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
-			for ( int k=0; k<indexK; ++k ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
 			for ( Record exp : recS.expandAll() ) {
-				List<List<QGram>> qgramsList = exp.getSelfQGrams( qgramSize, indexK );
-				int maxK = Math.min( indexK, qgramsList.size() );
-				for ( int k=0; k<maxK; ++k ) {
-					WYK_HashMap<QGram, List<Record>> curidx = idx.get( k );
+				List<List<QGram>> qgramsList = exp.getSelfQGrams(qgramSize, exp.size());
+				while ( availableQGramsSet.size() < qgramsList.size() ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
+				for ( int k=0; k<qgramsList.size(); ++k ) {
 					QGram qgram = qgramsList.get( k ).get( 0 );
-					if ( !curidx.containsKey( qgram ) ) continue;
-					else availableQGramsSet.get( k ).add( qgram );
+					if ( idx.size() <= k || !idx.get( k ).containsKey( qgram ) ) continue;
+					availableQGramsSet.get( k ).add( qgram );
 				}
 			}
 			availableQGrams = new ObjectArrayList<>();
-			for ( int k=0; k<indexK; ++k ) availableQGrams.add( new ObjectArrayList<>( availableQGramsSet.get( k ) ) );
+			for ( int k=0; k<availableQGramsSet.size(); ++k ) availableQGrams.add( new ObjectArrayList<>( availableQGramsSet.get( k ) ) );
+			for ( int k=0; k<availableQGrams.size(); ++k ) {
+				System.out.println( availableQGrams.get( k ) );
+			}
 		}
 
 		for ( List<QGram> candidateQGrams : availableQGrams ) {
