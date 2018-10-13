@@ -39,17 +39,17 @@ public class Generator2 extends Generator {
 		return nToken + "_" + nRule + "_" + skewR + "_" + seed;
 	}
 
-	protected static String getDataFilePath( int nToken, int avgRecLen, int nRecord, int avgNAR, double skewZ, double skewP, double equivratio, long seed ) {
+	protected static String getDataFilePath( int nToken, int avgRecLen, int nRecord, int avgNAR, double SEL, double skewP, double equivratio, long seed ) {
 //		return nToken + "_" + avgRecLen + "_" + nRecord + "_" + avgNAR + "_" + skewZ + "_" + skewP + "_" + equivratio + "_" + seed;
-		return nToken + "_" + nRecord + "_" + avgNAR + "_" + skewZ + "_" + skewP + "_" + seed;
+		return nToken + "_" + nRecord + "_" + avgNAR + "_" + SEL + "_" + skewP + "_" + seed;
 	}
 
-	public static String generateRules( Generator2 gen, int nToken, int nRule, int avgNMR, double skewZ, double skewR, long seed, String outputPath ) throws IOException {
+	public static String generateRules( Generator2 gen, int nToken, int nRule, int LCF, double skewZ, double skewR, long seed, String outputPath ) throws IOException {
 		if (!(new File(outputPath+"/rule")).isDirectory()) (new File(outputPath+"/rule")).mkdirs();
 		String storePath = outputPath + "/rule/" + getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewR, seed );
 //		System.out.println( storePath );
 //		Generator2 gen = new Generator2( nToken, skewZ, seed );
-		gen.genRule( maxLhs, maxRhs, nRule, avgNMR, skewR, seed, storePath + ".txt" );
+		gen.genRule( maxLhs, maxRhs, nRule, LCF, skewR, seed, storePath + ".txt" );
 
 		RuleInfo info = new RuleInfo();
 		info.setSynthetic( maxLhs, maxRhs, nRule, seed, nToken, skewZ );
@@ -72,13 +72,14 @@ public class Generator2 extends Generator {
 		return storePath+".txt";
 	}
 
-	public void genRule( int lhsmax, int rhsmax, int nRules, int avgNMR, double skewR, long seed, String filename ) throws IOException {
+	public void genRule( int lhsmax, int rhsmax, int nRules, int lhsFactor, double skewR, long seed, String filename ) throws IOException {
+		random.setSeed( seed0 ); // re-initialize the randomizer
 		HashSet<Rule> rules = new HashSet<Rule>();
 		BufferedWriter bw = new BufferedWriter( new FileWriter( filename ) );
 		
 		// build LHS zipfian distribution of size nRules
 		Set<int[]> lhsSet = new ObjectOpenHashSet<>();
-		while ( lhsSet.size() < 2*(nRules) ) lhsSet.add( randomArrayWithMaxLen( maxLhs ) );
+		while ( lhsSet.size() < lhsFactor*tokenRatio.length ) lhsSet.add( randomArrayWithMaxLen( maxLhs ) );
 		List<int[]> lhsCandList = new ObjectArrayList<>( lhsSet );
 		double[] lhsRatio = new double[lhsSet.size()];
 		for ( int j=0; j<lhsRatio.length; ++j ) {
@@ -150,7 +151,7 @@ public class Generator2 extends Generator {
 	}
 
 	protected void genString( int avgLength, int avgNAR, int nRecords, double skewP, String fileName, double equivratio, ACAutomataR atm ) throws IOException {
-
+		random.setSeed( seed0 ); // re-initialize the randomizer
 		HashSet<Record> records = new HashSet<Record>();
 		int count = 0;
 		while( records.size() < nRecords ) {

@@ -24,6 +24,7 @@ public class Generator {
 	protected Random random;
 	protected TokenIndex tokenIndex;
 	protected List<Rule> rulelist;
+	protected final long seed0;
 
 	public Generator( int nDistinctTokens, double zipf, long seed ) {
 		tokenRatio = new double[ nDistinctTokens ];
@@ -37,6 +38,7 @@ public class Generator {
 		random = new Random( seed );
 		tokenIndex = new TokenIndex();
 		tokenIndex.getID( "" );
+		seed0 = seed;
 	}
 
 	protected static void printUsage() {
