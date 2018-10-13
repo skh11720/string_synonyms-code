@@ -47,9 +47,9 @@ public class Generator2 extends Generator {
 		return nToken + "_" + nRecord + "_" + avgNAR + "_" + SEL + "_" + skewP + "_" + seed;
 	}
 
-	public static String generateRules( int nToken, int nRule, int LCF, double skewZ, double skewR, long seed, String outputPath ) throws IOException {
+	public static String generateRules( String syn_id, int nToken, int nRule, int LCF, double skewZ, double skewR, long seed, String outputPath ) throws IOException {
 		if (!(new File(outputPath+"/rule")).isDirectory()) (new File(outputPath+"/rule")).mkdirs();
-		String storePath = outputPath + "/rule/" + getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewR, seed );
+		String storePath = outputPath + "/rule/" + syn_id+"_"+getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewR, seed );
 //		System.out.println( storePath );
 		Generator2 gen = new Generator2( nToken, skewZ, seed );
 		gen.genRule( maxLhs, maxRhs, nRule, LCF, skewR, seed, storePath + ".txt" );
@@ -60,9 +60,9 @@ public class Generator2 extends Generator {
 		return storePath+".txt";
 	}
 
-	public static String generateRecords( int nToken, int avgRecLen, int avgNAR, int nRecord, double skewZ, double skewP, double equivratio, long seed, String outputPath, String rulefile ) throws IOException  {
+	public static String generateRecords( String syn_id, int nToken, int avgRecLen, int avgNAR, int nRecord, double skewZ, double skewP, double equivratio, long seed, String outputPath, String rulefile ) throws IOException  {
 		if (!(new File(outputPath+"/data")).isDirectory()) (new File(outputPath+"/data")).mkdirs();
-		String storePath = outputPath + "/data/" + getDataFilePath( nToken, avgRecLen, nRecord, avgNAR, skewZ, skewP, equivratio, seed );
+		String storePath = outputPath + "/data/" +  syn_id+"_"+getDataFilePath( nToken, avgRecLen, nRecord, avgNAR, skewZ, skewP, equivratio, seed );
 //		System.out.println( storePath );
 		Generator2 gen = new Generator2( nToken, skewZ, seed );
 		ACAutomataR atm = gen.readRules( rulefile );

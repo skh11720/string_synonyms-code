@@ -17,8 +17,8 @@ public class SyntheticDataGenerationScheme5 {
 
 //	static final int[] arr_nRec = {10000, 15848};
 //	static final int[] arr_nRule = {10000, 30000, 100000};
-	static final int[] arr_nRec = {100, 1000};
-	static final int[] arr_nRule = {100, 1000};
+	static final int[] arr_nRec = {10000, 15848, 25118, 39810, 63095, 100000, 158489, 251188, 398107, 630957, 1000000};
+	static final int[] arr_nRule = {10000, 100000};
 
 	static final int[] arr_DIC = {400000};
 	static final int nRecMax = arr_nRec[arr_nRec.length-1];
@@ -45,7 +45,7 @@ public class SyntheticDataGenerationScheme5 {
 	static final int maxRhs = 2;
 	static final boolean selfJoin = true;
 	static final String syn_id = "SYN5";
-	static final String parentPath = "D:/ghsong/data/synonyms/"+syn_id;
+	static final String parentPath = "run/data_store/"+syn_id;
 	
 	
 	static class Default {
@@ -130,7 +130,7 @@ public class SyntheticDataGenerationScheme5 {
 //		for ( int nRule : arr_nRule ) {
 //			rulePath = Generator2.generateRules( DIC, nRule, LCF, SEL, skewR, seed0, parentPath+"/"+outputPath );
 //		}
-		String rulePath = Generator2.generateRules( DIC, nRuleMax, LCF, SEL, skewR, seed0, parentPath+"/"+outputPath );
+		String rulePath = Generator2.generateRules( syn_id, DIC, nRuleMax, LCF, SEL, skewR, seed0, parentPath+"/"+outputPath );
 		String[] token = rulePath.split( "/" );
 		String rulePathTemplate = token[token.length-1].replaceFirst( "_"+arr_nRule[arr_nRule.length-1]+"_", "_%s_" );
 		for ( int nRule : arr_nRule ) {
@@ -141,7 +141,7 @@ public class SyntheticDataGenerationScheme5 {
 			writer.flush(); writer.close(); reader.close();
 		}
 
-		String recordPath = Generator2.generateRecords( DIC, LEN, NAR, nRecMax, KAP, skewP, SEL, seed1, parentPath+"/"+outputPath, rulePath );
+		String recordPath = Generator2.generateRecords( syn_id, DIC, LEN, NAR, nRecMax, KAP, skewP, SEL, seed1, parentPath+"/"+outputPath, rulePath );
 		token = recordPath.split( "/" );
 		String recordPathTemplate = token[token.length-1].replaceFirst( "_"+arr_nRec[arr_nRec.length-1]+"_", "_%s_" );
 		for ( int nRec : arr_nRec ) {
@@ -152,7 +152,7 @@ public class SyntheticDataGenerationScheme5 {
 			writer.flush(); writer.close(); reader.close();
 		}
 		if (!selfJoin) {
-			recordPath = Generator2.generateRecords( DIC, LEN, NAR, nRecMax, KAP, skewP, SEL, seed2, parentPath+"/"+outputPath, rulePath );
+			recordPath = Generator2.generateRecords( syn_id, DIC, LEN, NAR, nRecMax, KAP, skewP, SEL, seed2, parentPath+"/"+outputPath, rulePath );
 			token = recordPath.split( "/" );
 			recordPathTemplate = token[token.length-1].replaceFirst( "_"+arr_nRec[arr_nRec.length-1]+"_", "_%s_" );
 			for ( int nRec : arr_nRec ) {
@@ -185,8 +185,8 @@ public class SyntheticDataGenerationScheme5 {
 //			rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
 //		}
 		ps_run.println(
-				"dict_path[\'"+dname+"\'] = \'" + recordPath.replaceAll( "_"+nRecMax+"_", "_%%s_" ).replaceAll( "_1.txt", "_%%s.txt" ) + "\'\n" +
-				"dict_path[\'"+dname+"\'] = \'" + rulePath.replaceAll( "_"+nRuleMax+"_", "_%%s" ) + "\'"
+				"dict_path[\'"+dname+"\'] = \'../" + recordPath.replaceAll( "_"+nRecMax+"_", "_%s_" ).replaceAll( "_1.txt", "_%s.txt" ) + "\'\n" +
+				"dict_path[\'"+dname+"_rule\'] = \'../" + rulePath.replaceAll( "_"+nRuleMax+"_", "_%s_" ) + "\'"
 				);
 		
 		flush_all();
