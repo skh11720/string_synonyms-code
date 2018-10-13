@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
@@ -19,7 +18,6 @@ import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -41,6 +39,7 @@ public class JoinHybridAll3 extends JoinHybridAll {
 	SampleEstimateSelf3 estimate;
 	protected double sampleRatioH;
 	protected double sampleRatioB;
+	protected int sampleMax;
 
 	public JoinHybridAll3( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -55,6 +54,7 @@ public class JoinHybridAll3 extends JoinHybridAll {
 		indexK = params.indexK;
 		sampleRatioH = params.sampleRatioH;
 		sampleRatioB = params.sampleRatioB;
+		sampleMax = params.sampleMax;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
@@ -72,7 +72,7 @@ public class JoinHybridAll3 extends JoinHybridAll {
 		writeResult();
 		stepTime.stopAndAdd( stat );
 	}
-
+	
 	protected void buildJoinMinIndex() {
 		// Build an index
 		joinMinIdx = new JoinMinFastIndex( indexK, qSize, stat, query, sampleRatioB, joinThreshold, true );
@@ -129,7 +129,10 @@ public class JoinHybridAll3 extends JoinHybridAll {
 		}
 
 //		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
-		if( joinQGramRequired ) buildJoinMinIndex();
+		if( joinQGramRequired ) {
+			if( joinMinSelected ) buildJoinMinIndex();
+			else buildJoinMHIndex();
+		}
 		buildNaiveIndex();
 
 		buildTime.stopAndAdd( stat );
@@ -151,7 +154,8 @@ public class JoinHybridAll3 extends JoinHybridAll {
 				continue;
 			}
 			if( joinQGramRequired && s.getEstNumTransformed() > joinThreshold ) {
-				joinMinIdx.joinRecordMaxKThres( indexK, s, rsltPQGram, true, null, checker, joinThreshold, query.oneSideJoin );
+				if( joinMinSelected ) joinMinIdx.joinRecordMaxKThres( indexK, s, rsltPQGram, true, null, checker, joinThreshold, query.oneSideJoin );
+				else joinMHIdx.joinOneRecordThres( s, rsltPQGram, checker, joinThreshold, query.oneSideJoin );
 				++pqgramSearch;
 				joinPQGramTime += System.nanoTime() - joinStartOne;
 			}
@@ -227,8 +231,9 @@ public class JoinHybridAll3 extends JoinHybridAll {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: use JoinFK
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override
@@ -244,6 +249,7 @@ class ParamSelf3 extends Param {
 	static {
 		argOptions.addOption( "sampleH", true, "Sampling Ratio H" );
 		argOptions.addOption( "sampleB", true, "Sampling Ratio B" );
+		argOptions.addOption( "sampleMax", true, "Maximum number of samples" );
 	}
 
 	public static ParamSelf3 parseArgs( String[] args, StatContainer stat, Query query ) throws IOException, ParseException {
@@ -268,6 +274,10 @@ class ParamSelf3 extends Param {
 		if( cmd.hasOption( "sampleB" ) ) {
 			param.sampleRatioB = Double.parseDouble( cmd.getOptionValue( "sampleB" ) );
 		}
+
+		if( cmd.hasOption( "sampleMax" ) ) {
+			param.sampleRatioB = Integer.parseInt( cmd.getOptionValue( "sampleMax" ) );
+		}
 		
 		if( cmd.hasOption( "naiveVal" ) ) {
 			if( query.oneSideJoin ) {
@@ -291,6 +301,7 @@ class ParamSelf3 extends Param {
 
 	public double sampleRatioH = -1;
 	public double sampleRatioB = -1;
+	public int sampleMax = Integer.MAX_VALUE;
 }
 
 
@@ -341,7 +352,7 @@ class SampleEstimateSelf3 extends SampleEstimate {
 
 	public void estimateJoinHybridWithSample( StatContainer stat, Validator checker, int indexK, int qSize ) {
 		estimateJoinNaive( stat );
-//		estimateJoinMH( stat, checker, indexK, qSize );
+		estimateJoinMH( stat, checker, indexK, qSize );
 		estimateJoinMin( stat, checker, indexK, qSize );
 		
 //		try {
@@ -508,8 +519,8 @@ class SampleEstimateSelf3 extends SampleEstimate {
 			}
 
 			long curr_naive_term2 = (sidx==0?0:naive_term2[sidx-1]);
-//			long curr_mh_term2 = (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]));
-//			long curr_mh_term3 = (mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]));
+			long curr_mh_term2 = (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]));
+			long curr_mh_term3 = (mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]));
 			long curr_min_term2 = (min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]));
 			long curr_min_term3 = (min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]));
 			long curr_min_term4 = (min_term4[tableSearchedSize-1] - (sidx==0?0:min_term4[sidx-1]));
@@ -518,7 +529,7 @@ class SampleEstimateSelf3 extends SampleEstimate {
 			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
 			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
 
-//			double joinmhEstimation = this.getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3);
+			double joinmhEstimation = this.getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3);
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 			// totalJoinMHInvokes: the sum of the minimum number of records to be verified with t for every t in sampleIndexedSet
@@ -528,8 +539,8 @@ class SampleEstimateSelf3 extends SampleEstimate {
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 
-//			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
-			boolean tempJoinMinSelected = true;
+			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
+//			boolean tempJoinMinSelected = true;
 
 			if( DEBUG.PrintEstimationON ) {
 				BufferedWriter bw = EstimationTest.getWriter();
@@ -546,9 +557,9 @@ class SampleEstimateSelf3 extends SampleEstimate {
 			System.out.print( sampleSearchedNumEstTrans+"\t" );
 			System.out.print(naive_term1+"\t");
 			System.out.print(curr_naive_term2+"\t");
-//			System.out.print( mh_term1+"\t");
-//			System.out.print( curr_mh_term2+"\t" );
-//			System.out.print( curr_mh_term3+"\t" );
+			System.out.print( mh_term1+"\t");
+			System.out.print( curr_mh_term2+"\t" );
+			System.out.print( curr_mh_term3+"\t" );
 			System.out.print(min_term1+"\t");
 			System.out.print(curr_min_term2+"\t");
 			System.out.print(curr_min_term3+"\t");
@@ -556,8 +567,8 @@ class SampleEstimateSelf3 extends SampleEstimate {
 			System.out.print("|\t");
 			System.out.print(currentThreshold+"\t");
 			System.out.print(naiveEstimation+"\t");
-//			System.out.print(joinmhEstimation+"\t");
-//			System.out.print((naiveEstimation+joinmhEstimation)+"\t");
+			System.out.print(joinmhEstimation+"\t");
+			System.out.print((naiveEstimation+joinmhEstimation)+"\t");
 			System.out.print(joinminEstimation+"\t");
 			System.out.print((naiveEstimation+joinminEstimation)+"\t");
 			System.out.println(  );
@@ -574,14 +585,14 @@ class SampleEstimateSelf3 extends SampleEstimate {
 						) );
 
 				// FKP
-//				bw_log.write( String.format( "%d\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
-//						mh_term1, curr_mh_term2, curr_mh_term3,
-//						coeff_mh_1*mh_term1/1e6, coeff_mh_2*curr_mh_term2/1e6, coeff_mh_3*curr_mh_term3/1e6,
-//						getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3)/1e6,
-//						coeff_mh_1*mh_term1/sampleRatio/1e6, coeff_mh_2*curr_mh_term2/sampleRatio/1e6, 
-//						coeff_mh_3*curr_mh_term3/sampleRatio/sampleRatio/1e6, 
-//						getEstimateJoinMH( mh_term1/sampleRatio, curr_mh_term2/sampleRatio, curr_mh_term3/sampleRatio/sampleRatio)/1e6
-//						) );
+				bw_log.write( String.format( "%d\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
+						mh_term1, curr_mh_term2, curr_mh_term3,
+						coeff_mh_1*mh_term1/1e6, coeff_mh_2*curr_mh_term2/1e6, coeff_mh_3*curr_mh_term3/1e6,
+						getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3)/1e6,
+						coeff_mh_1*mh_term1/sampleRatio/1e6, coeff_mh_2*curr_mh_term2/sampleRatio/1e6, 
+						coeff_mh_3*curr_mh_term3/sampleRatio/sampleRatio/1e6, 
+						getEstimateJoinMH( mh_term1/sampleRatio, curr_mh_term2/sampleRatio, curr_mh_term3/sampleRatio/sampleRatio)/1e6
+						) );
 
 				// BKP
 				bw_log.write( 
@@ -606,8 +617,8 @@ class SampleEstimateSelf3 extends SampleEstimate {
 
 			double tempBestTime = naiveEstimation + joinminEstimation;
 
-//			if( tempJoinMinSelected ) tempBestTime += joinminEstimation;
-//			else tempBestTime += joinmhEstimation;
+			if( tempJoinMinSelected ) tempBestTime += joinminEstimation;
+			else tempBestTime += joinmhEstimation;
 
 			if( bestEstTime > tempBestTime ) {
 				bestEstTime = tempBestTime;

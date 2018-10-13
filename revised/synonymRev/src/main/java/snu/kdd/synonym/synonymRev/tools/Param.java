@@ -108,6 +108,6 @@ public class Param {
 	public boolean noLength = false;
 	public int delta;
 	public int nEst;
-	public boolean useLF;
-	public boolean usePQF;
+	public boolean useLF = true;
+	public boolean usePQF = true;
 }
