@@ -130,7 +130,7 @@ public class SyntheticDataGenerationScheme5 {
 //		for ( int nRule : arr_nRule ) {
 //			rulePath = Generator2.generateRules( DIC, nRule, LCF, SEL, skewR, seed0, parentPath+"/"+outputPath );
 //		}
-		String rulePath = Generator2.generateRules( DIC, nRuleMax, LCF, SEL, skewR, seed0, parentPath+"/"+outputPath );
+		String rulePath = Generator2.generateRules( syn_id, DIC, nRuleMax, LCF, SEL, skewR, seed0, parentPath+"/"+outputPath );
 		String[] token = rulePath.split( "/" );
 		String rulePathTemplate = token[token.length-1].replaceFirst( "_"+arr_nRule[arr_nRule.length-1]+"_", "_%s_" );
 		for ( int nRule : arr_nRule ) {
@@ -141,7 +141,7 @@ public class SyntheticDataGenerationScheme5 {
 			writer.flush(); writer.close(); reader.close();
 		}
 
-		String recordPath = Generator2.generateRecords( DIC, LEN, NAR, nRecMax, KAP, skewP, SEL, seed1, parentPath+"/"+outputPath, rulePath );
+		String recordPath = Generator2.generateRecords( syn_id, DIC, LEN, NAR, nRecMax, KAP, skewP, SEL, seed1, parentPath+"/"+outputPath, rulePath );
 		token = recordPath.split( "/" );
 		String recordPathTemplate = token[token.length-1].replaceFirst( "_"+arr_nRec[arr_nRec.length-1]+"_", "_%s_" );
 		for ( int nRec : arr_nRec ) {
@@ -152,7 +152,7 @@ public class SyntheticDataGenerationScheme5 {
 			writer.flush(); writer.close(); reader.close();
 		}
 		if (!selfJoin) {
-			recordPath = Generator2.generateRecords( DIC, LEN, NAR, nRecMax, KAP, skewP, SEL, seed2, parentPath+"/"+outputPath, rulePath );
+			recordPath = Generator2.generateRecords( syn_id, DIC, LEN, NAR, nRecMax, KAP, skewP, SEL, seed2, parentPath+"/"+outputPath, rulePath );
 			token = recordPath.split( "/" );
 			recordPathTemplate = token[token.length-1].replaceFirst( "_"+arr_nRec[arr_nRec.length-1]+"_", "_%s_" );
 			for ( int nRec : arr_nRec ) {
