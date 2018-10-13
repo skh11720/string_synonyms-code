@@ -410,14 +410,20 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 		List<List<QGram>> availableQGrams = null;
 		if ( useSTPQ ) availableQGrams = getCandidatePQGrams( recS );
 		else {
-			availableQGrams = new ObjectArrayList<>();
-			for ( int k=0; k<indexK; ++k ) availableQGrams.add( new ObjectArrayList<>() );
+			List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
+			for ( int k=0; k<indexK; ++k ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
 			for ( Record exp : recS.expandAll() ) {
 				List<List<QGram>> qgramsList = exp.getSelfQGrams( qgramSize, indexK );
-				for ( int k=0; k<Math.min( indexK, qgramsList.size() ); ++k ) {
-					availableQGrams.get( k ).add( qgramsList.get( k ).get( 0 ) );
+				int maxK = Math.min( indexK, qgramsList.size() );
+				for ( int k=0; k<maxK; ++k ) {
+					WYK_HashMap<QGram, List<Record>> curidx = joinMHIndex.get( k );
+					QGram qgram = qgramsList.get( k ).get( 0 );
+					if ( !curidx.containsKey( qgram ) ) continue;
+					else availableQGramsSet.get( k ).add( qgram );
 				}
 			}
+			availableQGrams = new ObjectArrayList<>();
+			for ( int k=0; k<indexK; ++k ) availableQGrams.add( new ObjectArrayList<>( availableQGramsSet.get( k ) ) );
 		}
 		for (List<QGram> list : availableQGrams) {
 			candQGramCount += list.size();
