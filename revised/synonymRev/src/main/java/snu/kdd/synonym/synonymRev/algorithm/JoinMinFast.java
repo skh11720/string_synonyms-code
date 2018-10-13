@@ -36,11 +36,15 @@ public class JoinMinFast extends JoinMin {
 		indexK = params.indexK;
 		sampleRatio = params.sampleRatio;
 		if ( sampleRatio <= 0 ) throw new RuntimeException("sampleRatio should be larger than 0.");
+		useLF = params.useLF;
+		usePQF = params.usePQF;
 	}
 
 	@Override
 	protected void buildIndex( boolean writeResult ) throws IOException {
 		idx = new JoinMinFastIndex( indexK, qSize, stat, query, sampleRatio, 0, writeResult );
+		JoinMinFastIndex.useLF = useLF;
+		JoinMinFastIndex.usePQF = usePQF;
 	}
 
 	@Override
