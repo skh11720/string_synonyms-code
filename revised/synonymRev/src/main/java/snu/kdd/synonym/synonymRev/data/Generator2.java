@@ -1,9 +1,12 @@
 package snu.kdd.synonym.synonymRev.data;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +29,7 @@ public class Generator2 extends Generator {
 	static final int maxRhs = 2;
 
 	ObjectArrayList<int[]> lhsList = null;
-	Object2IntOpenHashMap<int[]> lhsFreqMap = null;
+	static Object2IntOpenHashMap<int[]> lhsFreqMap = null;
 //	Object2ObjectOpenHashMap<int[], ObjectArrayList<Rule>> lhs2rulesMap = null;
 
 	public Generator2( int nDistinctTokens, double zipf, long seed ) {
@@ -44,11 +47,11 @@ public class Generator2 extends Generator {
 		return nToken + "_" + nRecord + "_" + avgNAR + "_" + SEL + "_" + skewP + "_" + seed;
 	}
 
-	public static String generateRules( Generator2 gen, int nToken, int nRule, int LCF, double skewZ, double skewR, long seed, String outputPath ) throws IOException {
+	public static String generateRules( int nToken, int nRule, int LCF, double skewZ, double skewR, long seed, String outputPath ) throws IOException {
 		if (!(new File(outputPath+"/rule")).isDirectory()) (new File(outputPath+"/rule")).mkdirs();
 		String storePath = outputPath + "/rule/" + getRuleFilePath( nToken, maxLhs, maxRhs, nRule, skewR, seed );
 //		System.out.println( storePath );
-//		Generator2 gen = new Generator2( nToken, skewZ, seed );
+		Generator2 gen = new Generator2( nToken, skewZ, seed );
 		gen.genRule( maxLhs, maxRhs, nRule, LCF, skewR, seed, storePath + ".txt" );
 
 		RuleInfo info = new RuleInfo();
@@ -57,13 +60,13 @@ public class Generator2 extends Generator {
 		return storePath+".txt";
 	}
 
-	public static String generateRecords( Generator2 gen, int nToken, int avgRecLen, int avgNAR, int nRecord, double skewZ, double skewP, double equivratio, long seed, String outputPath, String rulefile ) throws IOException  {
+	public static String generateRecords( int nToken, int avgRecLen, int avgNAR, int nRecord, double skewZ, double skewP, double equivratio, long seed, String outputPath, String rulefile ) throws IOException  {
 		if (!(new File(outputPath+"/data")).isDirectory()) (new File(outputPath+"/data")).mkdirs();
 		String storePath = outputPath + "/data/" + getDataFilePath( nToken, avgRecLen, nRecord, avgNAR, skewZ, skewP, equivratio, seed );
 //		System.out.println( storePath );
-//		Generator2 gen = new Generator2( nToken, skewZ, seed );
-//		ACAutomataR atm = gen.readRules( rulefile );
-		ACAutomataR atm = new ACAutomataR( gen.rulelist );
+		Generator2 gen = new Generator2( nToken, skewZ, seed );
+		ACAutomataR atm = gen.readRules( rulefile );
+//		ACAutomataR atm = new ACAutomataR( gen.rulelist );
 		gen.genString( avgRecLen, avgNAR, nRecord, skewP, storePath + ".txt", equivratio, atm );
 
 		DataInfo info = new DataInfo();
@@ -193,7 +196,7 @@ public class Generator2 extends Generator {
 			int len = (int) Math.max( 1, avgLength + random.nextGaussian() );
 			int target_nar = (int) Math.max( 0, avgNAR + random.nextGaussian() );
 			IntArrayList tokenList = new IntArrayList();
-			for ( int nar=0; nar<target_nar || tokenList.size() < len; ) {
+			for ( int nar=0; nar<target_nar; ) {
 				int[] lhs = null;
 				if ( nar ==0 && random.nextDouble() < skewP ) { // sample from the zipfian dist of LHSs, only the first lhs
 					lhs = rulelist.get( random.nextInt( rulelist.size() ) ).getLeft();
@@ -233,4 +236,38 @@ public class Generator2 extends Generator {
 		if( token < 0 ) token = -token - 1;
 		return token;
 	}
+
+	public ACAutomataR readRules( String rulefile ) throws IOException {
+//		List<Rule> rulelist = new ArrayList<Rule>();
+		rulelist = new ArrayList<Rule>();
+		BufferedReader br = new BufferedReader( new FileReader( rulefile ) );
+		String line;
+		while( ( line = br.readLine() ) != null ) {
+			Rule rule = new Rule( line, tokenIndex );
+			rulelist.add( rule );
+		}
+		br.close();
+		for( Integer token : tokenIndex.token2IntMap.values() ) {
+			Rule rule = new Rule( token, token );
+			rulelist.add( rule );
+		}
+		// build the inverted index and the lhsList
+//		lhs2rulesMap = new Object2ObjectOpenHashMap<>();
+//		lhs2rulesMap.defaultReturnValue( new ObjectArrayList<>() );
+//		for ( Rule rule : rules ) lhs2rulesMap.get( rule.getLeft() ).add( rule );
+		lhsFreqMap = new Object2IntOpenHashMap<>();
+		lhsFreqMap.defaultReturnValue(0);
+		lhsList = new ObjectArrayList<>();
+		for ( Rule rule : rulelist ) {
+			lhsFreqMap.addTo( rule.getLeft(), 1 );
+//			System.out.println( rule );
+		}
+		for ( Entry<int[], Integer> entry : lhsFreqMap.entrySet() ) {
+			int[] lhs = entry.getKey();
+			int count = entry.getValue().intValue();
+			if ( count > 0 ) lhsList.add( lhs );
+		}
+		return new ACAutomataR( rulelist );
+	}
+
 }

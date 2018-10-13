@@ -11,7 +11,7 @@
 //import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 //import snu.kdd.synonym.synonymRev.data.Generator2;
 //
-//public class SyntheticDataGenerationScheme2 {
+//public class SyntheticDataGenerationScheme4 {
 //
 ////	static final int[] arr_nRec = {10000, 15848};
 ////	static final int[] arr_nRule = {10000, 30000, 100000};

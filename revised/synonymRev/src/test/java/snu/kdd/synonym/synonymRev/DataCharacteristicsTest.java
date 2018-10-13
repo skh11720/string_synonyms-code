@@ -43,7 +43,13 @@ public class DataCharacteristicsTest {
 //		"SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.2_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.2_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.2_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.4_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.4_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.4_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.6_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.6_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.6_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.8_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.8_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_24_KAP_0.5_KR_0.8_KP_1.0_S_1.0e-02_SELF"
 //		"SYN3_D_200000_L_5_A_5_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_5_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_5_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_5_KAP_0.5_KR_0.5_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_5_KAP_0.5_KR_0.5_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_5_KAP_0.5_KR_0.5_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_5_KAP_0.5_KR_1.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_5_KAP_0.5_KR_1.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_5_KAP_0.5_KR_1.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_0.5_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_0.5_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_0.5_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_1.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_1.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_10_KAP_0.5_KR_1.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_0.5_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_0.5_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_0.5_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_1.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_1.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_15_KAP_0.5_KR_1.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_0.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_0.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_0.0_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_0.5_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_0.5_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_0.5_KP_1.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_1.0_KP_0.0_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_1.0_KP_0.5_S_1.0e-02_SELF", "SYN3_D_200000_L_5_A_20_KAP_0.5_KR_1.0_KP_1.0_S_1.0e-02_SELF",
 //		"SYN4_D_25000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_50000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_100000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_400000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF",
-		"SYN4_D_25000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_50000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_100000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_400000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_24_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_1_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_5_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_15_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_20_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.00_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.30_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.60_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.90_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-04_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-01_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.25_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.75_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.25_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.75_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-03_SELF", 
+//		"SYN4_D_25000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_50000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_100000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_400000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", 
+//		"SYN4_D_200000_L_7_A_24_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", 
+//		"SYN4_D_200000_L_7_A_6_LCF_1_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_5_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_15_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_20_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.00_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.30_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.60_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.90_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-04_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-01_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.25_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.75_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.25_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.75_S_1.0e-03_SELF", "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-03_SELF", 
+//		"SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_9_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_1_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_20_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.00_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_1.00_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-05_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_400000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-02_SELF",
+		"SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_0.00_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_0.00_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_1.00_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_3_LCF_10_KAP_0.50_KR_1.00_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_0.00_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_6_LCF_10_KAP_0.50_KR_1.00_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_0.00_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_0.00_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_1.00_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_9_LCF_10_KAP_0.50_KR_1.00_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_0.00_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_0.00_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_1.00_KP_0.00_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-02_SELF", "SYN5_D_200000_L_1_A_12_LCF_10_KAP_0.50_KR_1.00_KP_1.00_S_1.0e-02_SELF",
+
+
 
 		};
 
@@ -75,74 +81,77 @@ public class DataCharacteristicsTest {
 		for ( String dataset : datasetList ) {
 			for ( int nRule : new int[] {10000, 100000} ) {
 				if ( dataset.equals( "SPROT" ) ) size = 466158;
-				Query query = TestUtils.getTestQuery( dataset, size, nRule );
+				try {
+					Query query = TestUtils.getTestQuery( dataset, size, nRule );
 
-	//			final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
-				
-	//			Object2IntOpenHashMap lhsFreqMap = new Object2IntOpenHashMap<>();
-	//			lhsFreqMap.defaultReturnValue(0);
-	//			for ( Rule rule : query.ruleSet.get() ) {
-	//				lhsFreqMap.addTo( rule.getLeft(), 1 );
-	//				System.out.println( rule );
-	//			}
-	//			System.out.println( "LHS frequency" );
-	//			System.out.println( Arrays.toString( lhsFreqMap.values().stream().sorted((x,y)->-Integer.compare(x,y)).mapToInt( Integer::intValue ).limit( 20 ).toArray() ) );
-				
-				int nTokens = countNumTokens( query );
-				int nRules = query.ruleSet.size();
-				double[] statLEN = getStatLen( query );
-				double[] statNAR = getStatNumApplicableRules( query );
-				double[] statNET = getStatEstNuMTrans( query );
-				double[] statNMT = getStatNumMultipleTrans( query );
+		//			final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
+					
+		//			Object2IntOpenHashMap lhsFreqMap = new Object2IntOpenHashMap<>();
+		//			lhsFreqMap.defaultReturnValue(0);
+		//			for ( Rule rule : query.ruleSet.get() ) {
+		//				lhsFreqMap.addTo( rule.getLeft(), 1 );
+		//				System.out.println( rule );
+		//			}
+		//			System.out.println( "LHS frequency" );
+		//			System.out.println( Arrays.toString( lhsFreqMap.values().stream().sorted((x,y)->-Integer.compare(x,y)).mapToInt( Integer::intValue ).limit( 20 ).toArray() ) );
+					
+					int nTokens = countNumTokens( query );
+					int nRules = query.ruleSet.size();
+					double[] statLEN = getStatLen( query );
+					double[] statNAR = getStatNumApplicableRules( query );
+					double[] statNET = getStatEstNuMTrans( query );
+					double[] statNMT = getStatNumMultipleTrans( query );
 
-				int[] arrNarPosDist = getStatNumPosApplicableRules( query );
-				String narPosDist = "";
-				for ( int nar : arrNarPosDist ) narPosDist += nar+"\t";
-				narPosDist = narPosDist.trim();
+					int[] arrNarPosDist = getStatNumPosApplicableRules( query );
+					String narPosDist = "";
+					for ( int nar : arrNarPosDist ) narPosDist += nar+"\t";
+					narPosDist = narPosDist.trim();
 
-				IntArrayList naList = getNumARulesDistInfo( query );
-				narMap.put( dataset, naList );
-				String numARulesDistInfo = "";
-				for ( int pos : pos_arr ) {
-					numARulesDistInfo += naList.getInt( (int)(pos*naList.size()/100.0)-1 )+"\t";
+					IntArrayList naList = getNumARulesDistInfo( query );
+					narMap.put( dataset, naList );
+					String numARulesDistInfo = "";
+					for ( int pos : pos_arr ) {
+						numARulesDistInfo += naList.getInt( (int)(pos*naList.size()/100.0)-1 )+"\t";
+					}
+					numARulesDistInfo = numARulesDistInfo.trim();
+
+					LongArrayList estNumTransList = getEstNumTransDistInfo( query );
+					netMap.put( dataset, estNumTransList );
+					String numEstTransDistInfo = "";
+					for ( int pos : pos_arr ) {
+						numEstTransDistInfo += estNumTransList.getLong( (int)(pos*estNumTransList.size()/100.0)-1 )+"\t";
+					}
+					numEstTransDistInfo = numEstTransDistInfo.trim();
+					
+					String[] arr_attr_vals = {
+						dataset,
+						Integer.toString( size ),
+						Integer.toString( nRules ),
+						Integer.toString( nTokens ),
+						Double.toString( statLEN[0] ),
+						Double.toString( statLEN[1] ),
+						Double.toString( statLEN[2] ),
+						Double.toString( statNAR[0] ),
+						Double.toString( statNAR[1] ),
+						Double.toString( statNAR[2] ),
+						Double.toString( statNET[0] ),
+						Double.toString( statNET[1] ),
+						Double.toString( statNET[2] ),
+						Double.toString( statNMT[0] ),
+						Double.toString( statNMT[1] ),
+						Double.toString( statNMT[2] ),
+						narPosDist,
+						numARulesDistInfo,
+						numEstTransDistInfo,
+					};
+					
+					for ( String val : arr_attr_vals ) {
+						writer.print(val+"\t");
+					}
+					writer.println();
+					writer.flush();
 				}
-				numARulesDistInfo = numARulesDistInfo.trim();
-
-				LongArrayList estNumTransList = getEstNumTransDistInfo( query );
-				netMap.put( dataset, estNumTransList );
-				String numEstTransDistInfo = "";
-				for ( int pos : pos_arr ) {
-					numEstTransDistInfo += estNumTransList.getLong( (int)(pos*estNumTransList.size()/100.0)-1 )+"\t";
-				}
-				numEstTransDistInfo = numEstTransDistInfo.trim();
-				
-				String[] arr_attr_vals = {
-					dataset,
-					Integer.toString( size ),
-					Integer.toString( nRules ),
-					Integer.toString( nTokens ),
-					Double.toString( statLEN[0] ),
-					Double.toString( statLEN[1] ),
-					Double.toString( statLEN[2] ),
-					Double.toString( statNAR[0] ),
-					Double.toString( statNAR[1] ),
-					Double.toString( statNAR[2] ),
-					Double.toString( statNET[0] ),
-					Double.toString( statNET[1] ),
-					Double.toString( statNET[2] ),
-					Double.toString( statNMT[0] ),
-					Double.toString( statNMT[1] ),
-					Double.toString( statNMT[2] ),
-					narPosDist,
-					numARulesDistInfo,
-					numEstTransDistInfo,
-				};
-				
-				for ( String val : arr_attr_vals ) {
-					writer.print(val+"\t");
-				}
-				writer.println();
-				writer.flush();
+				catch ( Exception e ) {e.printStackTrace();}
 			}
 		}
 		writer.close();
