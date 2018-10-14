@@ -577,9 +577,7 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 			}
 			availableQGrams = new ObjectArrayList<>();
 			for ( int k=0; k<availableQGramsSet.size(); ++k ) availableQGrams.add( new ObjectArrayList<>( availableQGramsSet.get( k ) ) );
-			for ( int k=0; k<availableQGrams.size(); ++k ) {
-				System.out.println( availableQGrams.get( k ) );
-			}
+//			for ( int k=0; k<availableQGrams.size(); ++k ) System.out.println( availableQGrams.get( k ) );
 		}
 
 		for ( List<QGram> candidateQGrams : availableQGrams ) {
