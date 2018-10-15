@@ -22,10 +22,14 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 public class TestUtils {
 
 	public static Query getTestQuery( long size ) throws IOException {
-		return getTestQuery("AOL", size);
+		return getTestQuery("AOL", size );
+	}
+
+	public static Query getTestQuery( String name, long size ) throws IOException {
+		return getTestQuery(name, size, 0);
 	}
 	
-	public static Query getTestQuery( String name, long size ) throws IOException {
+	public static Query getTestQuery( String name, long size, int nRule ) throws IOException {
 		String osName = System.getProperty( "os.name" );
 		String prefix = null;
 		if ( osName.startsWith( "Windows" ) ) {
@@ -43,7 +47,6 @@ public class TestUtils {
 		}
 		
 		String sep = "\\" + File.separator;
-		
 		String dataOnePath, dataTwoPath, rulePath;
 		if ( name.equals( "AOL" )) {
 			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
@@ -75,12 +78,174 @@ public class TestUtils {
 			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
 			rulePath = prefix + "rule"+sep+"30000_2_2_1000000_0.0_0.txt";
 		}
-		else if ( name.equals( "SYN_D_3.0" ) ) {
-			dataOnePath = prefix + String.format( "SYN_D_3.0"+sep+"data"+sep+"1000_5_%d_0.6_1.0E-5_1.txt", size );
-			dataTwoPath = prefix + String.format( "SYN_D_3.0"+sep+"data"+sep+"1000_5_%d_0.6_1.0E-5_1.txt", size );
-			rulePath = prefix + "SYN_D_3.0"+sep+"rule"+sep+"1000_2_2_10000_0.6_0.txt";
+		
+		// SYN_FAM4
+		else {
+			String[] token = name.split( "_" ); // [0:syn_id]_[1:tag]_[2:val]_[3:nRule]_[4:is_self]
+			boolean selfJoin = token[token.length-1].equals( "SELF" )? true : false;
+			if ( name.equals( "SYN4_D_25000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_25000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"25000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_25000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"25000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_25000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"25000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_50000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_50000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"50000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_50000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"50000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_50000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"50000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_100000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_100000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"100000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_100000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"100000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_100000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"100000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_400000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_400000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"400000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_400000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"400000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_400000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"400000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_3_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_3_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_3_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_12_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_12_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_12_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_24_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_24_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_24_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_24_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_24_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_24_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_1_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_1_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_1_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_1_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_5_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_5_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_5_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_5_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_15_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_15_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_15_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_15_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_20_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_20_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_20_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_20_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.00_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.00_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.0_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.00_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.0_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.00_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.30_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.30_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.3_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.30_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.3_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.30_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.60_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.60_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.6_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.60_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.6_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.60_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.90_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.90_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.9_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.90_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.9_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.90_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-04_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-04_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-04_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-04_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-02_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-01_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-01_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-01_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-01_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.00_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.0_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.25_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.25_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.25_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.25_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.25_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.75_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.75_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.75_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.75_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.75_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_1.00_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_1.0_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.0_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.0_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.00_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.25_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.25_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.25_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.25_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.25_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.25_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.5_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.50_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.75_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.75_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.75_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.75_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_0.75_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_0.75_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+			else if ( name.equals( "SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-03_SELF" ) ) {
+				dataOnePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_1.0_1.txt", size );
+				dataTwoPath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-03_SELF"+sep+"data"+sep+"200000_%s_6_0.5_1.0_%d.txt", size, selfJoin? 1:2 );
+				rulePath = prefix + String.format("SYN4"+sep+"SYN4_D_200000_L_7_A_6_LCF_10_KAP_0.50_KR_0.50_KP_1.00_S_1.0e-03_SELF"+sep+"rule"+sep+"200000_%s_0.5_0.txt", nRule );
+			}
+
+			else throw new RuntimeException();
 		}
-		else throw new RuntimeException();
 
 		String outputPath = "output";
 		boolean oneSideJoin = true;
