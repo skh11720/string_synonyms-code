@@ -691,8 +691,9 @@ class SampleEstimateSelf3 extends SampleEstimate {
 				}
 				else { // estimate terms using the linear interpolation and the DP estimator
 //					naive_term2[i] = (naive_term2[sidx] - naive_term2[sidx-1])/(sidxList[sidx] - sidxList[sidx-1]) * (i - sidxList[sidx-1]) + naive_term2[sidx-1];
-					naive_term2[i] = naive_term2[i-1];
-					naiveinst.sumTransLenS += recS.getEstNumTransformed();
+//					naive_term2[i] = naive_term2[i-1];
+					naiveinst.sumTransLenS += recS.getEstNumTransformed() * recS.size();
+					naive_term2[i] = naiveinst.sumTransLenS;
 				}
 			}
 		} // end for id
