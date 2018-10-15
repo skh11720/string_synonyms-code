@@ -20,6 +20,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
+import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
@@ -232,8 +233,9 @@ public class JoinHybridAll3 extends JoinHybridAll {
 		/*
 		 * 1.00: the initial version
 		 * 1.01: use JoinFK
+		 * 1.02: approximate the estimation of JoinNaive
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override
@@ -312,6 +314,9 @@ class SampleEstimateSelf3 extends SampleEstimate {
 	protected double sampleRatioB;
 	public double coeff_min_4;
 	public long[] min_term4;
+
+	protected final int nMax_naive = 1000;
+	
 
 	public SampleEstimateSelf3( final Query query, double sampleRatioH, double sampleRatioB, boolean isSelfJoin ) {
 		super( query, sampleRatioH );
@@ -650,5 +655,80 @@ class SampleEstimateSelf3 extends SampleEstimate {
 		stat.add( "Auto_Best_Estimated_Time", bestEstTime );
 		stat.add( "Auto_JoinMin_Selected", "" + joinMinSelected );
 		return bestThreshold;
+	}
+
+	@Override
+	public Object2DoubleMap<String> estimateJoinNaive( StatContainer stat ) {
+
+		// Infer alpha and beta
+		NaiveIndex naiveinst;
+		StatContainer tmpStat = new StatContainer();
+		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+
+		int ns = Math.min(nMax_naive, sampleSearchedSize);
+		int[] sidxList = new int[ns+1];
+		sidxList[0] = 0; // starts from 0
+		sidxList[ns] = Integer.MAX_VALUE; // ends with INF
+		for ( int j=1; j<ns; ++j ) {
+			int idx = (int) Math.floor( sampleSearchedSize/ns*j + 1e-10 );
+			sidxList[j] = idx;
+		}
+		long ts = System.nanoTime();
+		int sidx = 0;
+		naiveinst = new NaiveIndex( sampleQuery.indexedSet, sampleQuery, tmpStat, false, -1, indexAvgTransform );
+		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
+			Record recS = sampleQuery.searchedSet.getRecord( i );
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
+				naive_term2[i] = (i == 0 ? 0 : naive_term2[i-1]);
+			}
+			else {
+				if ( sidxList[sidx] == i ) {
+					naiveinst.joinOneRecord( recS, rslt );
+					naive_term2[i] = naiveinst.sumTransLenS;
+					++sidx;
+	//				naive_term3[i] = naiveinst.verifyCost;
+	//				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
+				}
+				else { // estimate terms using the linear interpolation and the DP estimator
+//					naive_term2[i] = (naive_term2[sidx] - naive_term2[sidx-1])/(sidxList[sidx] - sidxList[sidx-1]) * (i - sidxList[sidx-1]) + naive_term2[sidx-1];
+					naive_term2[i] = naive_term2[i-1];
+					naiveinst.sumTransLenS += recS.getEstNumTransformed();
+				}
+			}
+		} // end for id
+		long joinTime = System.nanoTime() - ts;
+		long indexTime = naiveinst.indexTime;
+		long searchTime = naiveinst.searchTime;
+		naive_term1 = naiveinst.sumLenT;
+		
+		// estimate the times
+		joinTime = (long)(joinTime/ns*sampleSearchedSize);
+		indexTime = (long)(indexTime/ns*sampleSearchedSize);
+		searchTime = (long)(searchTime/ns*sampleSearchedSize);
+
+		// compute coefficients
+		coeff_naive_1 = indexTime/(naiveinst.sumLenT+1);
+		coeff_naive_2 = joinTime/(naiveinst.sumTransLenS+1);
+		
+		System.out.println( "estimateJoinNaive" );
+		System.out.println( "coeff_naive1: "+coeff_naive_1 );
+		System.out.println( "coeff_naive_2: "+coeff_naive_2 );
+		System.out.println( "Naive_Term_1: "+naive_term1 );
+		System.out.println( "Naive_Term_2: "+naive_term2[sampleSearchedList.size()-1] );
+
+		estTime_naive = getEstimateNaive( naive_term1, naive_term2[sampleSearchedList.size()-1] );
+		System.out.println( "Est_Time: "+ estTime_naive );
+		System.out.println( "Join_Time: "+String.format( "%.10e", (double)joinTime ) );
+		System.out.println( "indexTime: "+indexTime );
+		System.out.println( "searchTime: "+searchTime );
+		
+		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
+		output.put( "Naive_Coeff_1", coeff_naive_1 );
+		output.put( "Naive_Coeff_2", coeff_naive_2 );
+		output.put( "Naive_Term_1", naive_term1 );
+		output.put( "Naive_Term_2", naive_term2[sampleSearchedList.size()-1] );
+		output.put( "Naive_Est_Time", estTime_naive );
+		output.put( "Naive_Join_Time", (double)joinTime );
+		return output;
 	}
 }
