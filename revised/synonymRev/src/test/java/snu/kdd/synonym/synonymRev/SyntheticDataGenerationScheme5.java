@@ -17,7 +17,7 @@ public class SyntheticDataGenerationScheme5 {
 
 //	static final int[] arr_nRec = {10000, 15848};
 //	static final int[] arr_nRule = {10000, 30000, 100000};
-	static final int[] arr_nRec = {10000, 15848, 25118, 39810, 63095, 100000, 158489, 251188, 398107, 630957, 1000000};
+	static final int[] arr_nRec = {1000000};
 	static final int[] arr_nRule = {10000, 100000};
 
 	static final int[] arr_DIC = {400000};
@@ -49,8 +49,8 @@ public class SyntheticDataGenerationScheme5 {
 	
 	
 	static class Default {
-		static final int DIC = 200000;
-		static final int LEN = 1;
+		static final int DIC = 100000;
+		static final int LEN = 5;
 		static final int NAR = 6;
 		static final int LCF = 10;
 		static final double KAP = 0.5;
