@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -17,7 +16,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -479,19 +477,6 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 				System.out.println( "[Rho] JoinTime " + joinTime );
 				System.out.println( "[Rho] PredictCount " + predictCount );
 				System.out.println( "[Rho] ActualCount " + equivComparisons );
-			}
-
-			if( DEBUG.PrintEstimationON ) {
-				BufferedWriter bwEstimation = EstimationTest.getWriter();
-				try {
-					bwEstimation.write( "[Rho] " + rho );
-					bwEstimation.write( " JoinTime " + joinTime );
-					bwEstimation.write( " PredictCount " + predictCount );
-					bwEstimation.write( " ActualCount " + equivComparisons + "\n" );
-				}
-				catch( Exception e ) {
-					e.printStackTrace();
-				}
 			}
 		}
 

@@ -7,14 +7,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -246,7 +244,6 @@ public class PassJoinIndexForSynonyms {
 //			if ( searchedList.get( id ).getID() < 10 ) debug = true;
 //			if ( searchedList.get( id ).getID() == 677 ) debug = true;
 //			if ( searchedList.get( id ).getID() == 681 ) debug = true;
-		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
 		if (debug) System.out.println( "searched ID: "+recS.getID() );
 
 		IntOpenHashSet answer_ids = new IntOpenHashSet();

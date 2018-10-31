@@ -1,16 +1,13 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
-import snu.kdd.synonym.synonymRev.estimation.SampleEstimateByRegression;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;

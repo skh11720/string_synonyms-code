@@ -1,6 +1,5 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
@@ -14,7 +13,6 @@ import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
@@ -507,17 +505,6 @@ class SampleEstimateSelf3 extends SampleEstimate {
 				nextThreshold = Long.min( nextThresholdSearched, nextThresholdIndexed );
 			}
 
-			if( DEBUG.PrintEstimationON ) {
-				BufferedWriter bw = EstimationTest.getWriter();
-
-				try {
-					bw.write( "Estimation " + currentThreshold + "\n" );
-				}
-				catch( IOException e ) {
-					e.printStackTrace();
-				}
-			}
-
 			long curr_naive_term2 = (sidx==0?0:naive_term2[sidx-1]);
 			long curr_mh_term2 = (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]));
 			long curr_mh_term3 = (mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]));
@@ -542,17 +529,6 @@ class SampleEstimateSelf3 extends SampleEstimate {
 			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
 //			boolean tempJoinMinSelected = true;
 
-			if( DEBUG.PrintEstimationON ) {
-				BufferedWriter bw = EstimationTest.getWriter();
-
-				try {
-					bw.write( "\n" );
-				}
-				catch( IOException e ) {
-					e.printStackTrace();
-				}
-			}
-			
 			System.out.print( (sidx)+"\t" );
 			System.out.print( sampleSearchedNumEstTrans+"\t" );
 			System.out.print(naive_term1+"\t");

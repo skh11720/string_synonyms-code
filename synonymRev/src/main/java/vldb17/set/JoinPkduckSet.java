@@ -1,7 +1,5 @@
 package vldb17.set;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +9,6 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.algorithm.misc.SampleDataTest;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetTopDownOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -20,7 +17,6 @@ import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
-import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;

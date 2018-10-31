@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.algorithm.misc.EstimationTest;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -239,17 +238,6 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 		this.gamma = ((double) this.indexTime) / this.qgramCount;
 		// this.indexTime: time for indexing records in T
 		// this.qgramCount: number of pqgrams from records in T
-
-		if (DEBUG.PrintEstimationON) {
-			BufferedWriter bwEstimation = EstimationTest.getWriter();
-			try {
-				bwEstimation.write("[gamma] " + gamma);
-				bwEstimation.write(" IndexTime " + indexTime);
-				bwEstimation.write(" IndexedSigCount " + qgramCount + "\n");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 
 		Util.printGCStats(stat, "Stat_Index");
 	}
