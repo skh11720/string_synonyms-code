@@ -1,30 +1,23 @@
-package snu.kdd.synonym.synonymRev.algorithm.delta;
+package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import passjoin.PassJoinIndexForSynonyms;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class JoinNaiveDelta2 extends AlgorithmTemplate{
+public class PassJoinExact extends AlgorithmTemplate{
 	
 	protected PassJoinIndexForSynonyms index = null;
 	protected int deltaMax;
 
-	public JoinNaiveDelta2( Query query, StatContainer stat ) throws IOException {
+	public PassJoinExact( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 	
@@ -38,11 +31,8 @@ public class JoinNaiveDelta2 extends AlgorithmTemplate{
 
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
-		Param param = Param.parseArgs( args, stat, query );
-		this.deltaMax = param.delta;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		stat.add( "cmd_delta", deltaMax );
 
 		preprocess();
 
@@ -87,15 +77,15 @@ public class JoinNaiveDelta2 extends AlgorithmTemplate{
 	
 	@Override
 	public String getName() {
-		return "JoinNaiveDelta2";
+		return "PassJoinExact";
 	}
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 * 1.01: ignore records with too many transformations
-		 */
+        /*
+         * 1.00: initial version
+         * 1.01: ignore records with too many transformations
+         */
 		return "1.01";
 	}
 }
