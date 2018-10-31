@@ -49,9 +49,6 @@ public class JoinMinFast extends JoinMin {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 */
 		return "1.00";
 	}
 

@@ -22,15 +22,6 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-/**
- * Given threshold, if a record has more than 'threshold' 1-expandable strings,
- * use an index to store them.
- * Otherwise, generate all 1-expandable strings and then use them to check
- * if two strings are equivalent.
- * Utilize only one index by sorting records according to their expanded size.
- * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
- * index in order to find the best execution time.
- */
 public class JoinHybridAll extends AlgorithmTemplate {
 	public JoinHybridAll( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -295,15 +286,6 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 2.6: the latest version by yjpark
-		 * 2.61: ignore records with too many transformations
-		 * ---- rollback 2.61
-		 * 2.62: estimate by scaling up terms: 11/122/122
-		 * 2.63: estimate by scaling up terms: 11/112/112
-		 * 2.64: estimate using regression
-		 * 2.65: nEst, conduct regression at most twice
-		 */
 		return "2.63";
 	}
 

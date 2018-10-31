@@ -227,10 +227,6 @@ public class JoinHybridAll3 extends JoinHybridAll {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: the initial version
-		 * 1.01: use JoinFK
-		 */
 		return "1.01";
 	}
 

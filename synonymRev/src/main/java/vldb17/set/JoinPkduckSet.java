@@ -262,18 +262,6 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.0: initial version, transform s and compare to t
-		 * 1.01: transform s or t and compare to the other
-		 * 1.02: optimized rule compression
-		 * 1.03: support token frequency order
-		 * 1.04: optimization, bug fix in RC when using FF
-		 * 1.05: checkpoint
-		 * 1.06: reduce memory usage
-		 * 1.07: fix length filter
-		 * 1.08: ignore records with too many transformations
-		 * 1.09: enable the option for length filter
-		 */
 		return "1.09";
 	}
 }

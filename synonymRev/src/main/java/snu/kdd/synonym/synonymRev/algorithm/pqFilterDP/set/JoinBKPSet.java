@@ -310,9 +310,6 @@ public class JoinBKPSet extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 */
 		return "1.00";
 	}
 }

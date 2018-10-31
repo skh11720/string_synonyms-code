@@ -137,13 +137,6 @@ public class SIJoin extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 * 1.01: ignore records with too many transformations
-		 * 1.02: output stats
-		 * 1.03: fix bugs related to length filtering
-		 * 1.04: use token global order, modify signature generation
-		 */
 		return "1.04";
 	}
 

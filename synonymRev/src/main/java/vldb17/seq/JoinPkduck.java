@@ -251,19 +251,6 @@ public class JoinPkduck extends AlgorithmTemplate {
 
 	@Override
 	public String getVersion() {
-		/*
-		 * 1.00: initial version
-		 * 1.01: ?
-		 * 1.02: bug fix
-		 * 1.03: bug fix
-		 * 1.04: optimized rule compression
-		 * 1.05: FF based indexing, improved DP, RC
-		 * 1.06: reduce memory usage
-		 * 1.07: ignore records with too many transformations
-		 * 1.08: apply length filter, introduce TD validator
-		 * 1.09: use set based filtering (error)
-		 * 1.10: fix a bug
-		 */
 		return "1.10";
 	}
 }
