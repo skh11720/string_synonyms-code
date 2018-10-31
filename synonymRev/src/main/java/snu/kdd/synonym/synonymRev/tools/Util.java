@@ -274,6 +274,36 @@ public class Util {
 		return L[x.length];
 	}
 
+	public static int edit( int[] x, int[] y ) {
+		/*
+		 * Compute and return the edit distance between x and y.
+		 */
+		return edit_all( x, y )[y.length];
+	}
+	
+	public static int[] edit_all( int[] x, int[] y ) {
+		/*
+		 * Compute and return the edit distance between x and y[:1], y[:2], ... y[:y.length].
+		 */
+		int[] D = new int[y.length+1];
+		int[] D_prev = new int[y.length+1];
+		for ( int j=0; j<=y.length; ++j ) D[j] = j;
+		for ( int i=0; i<x.length; ++i ) {
+			// swap tables
+			int[] tmp = D_prev;
+			D_prev = D;
+			D = tmp;
+
+			D[0] = i+1;
+			for ( int j=0; j<y.length; ++j ) {
+				D[j+1] = Math.min( D[j], D_prev[j+1] )+1;
+				if ( y[j] == x[i] ) D[j+1] = Math.min( D[j+1], D_prev[j] );
+				else D[j+1] = Math.min( D[j+1], D_prev[j]+1 );
+			}
+		}
+		return D;
+	}
+
 	public static int lcs( int[] x, int[] y, int threshold, int xpos, int ypos, int xlen, int ylen ) {
 		if (xlen == -1) xlen = x.length - xpos;
 		if (ylen == -1) ylen = y.length - ypos;
