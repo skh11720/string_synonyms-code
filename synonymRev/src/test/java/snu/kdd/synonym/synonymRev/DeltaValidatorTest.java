@@ -10,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidatorDP;
+import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidatorDPTopDown;
 import snu.kdd.synonym.synonymRev.algorithm.delta.DeltaValidatorNaive;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -57,7 +58,7 @@ public class DeltaValidatorTest {
 		assertEquals( 5, Util.edit( x, y ) );
 	}
 	
-	@Test
+	@Ignore
 	public void testDeltaValidators() throws IOException {
 		String name = "AOL";
 		int size = 100000;
@@ -65,28 +66,70 @@ public class DeltaValidatorTest {
 		Query query = TestUtils.getTestQuery( name, size );
 		Validator checker0 = new DeltaValidatorNaive( deltaMax );
 		Validator checker1 = new DeltaValidatorDP(deltaMax);
+		Validator checker2 = new DeltaValidatorDPTopDown(deltaMax);
+		Validator[] checker_list = {checker0, checker1, checker2};
+		long[] ts_list = new long[checker_list.length];
+		int[] answer_list = new int[checker_list.length];
 		
 		int nPairs = 1000000;
 		Random rand = new Random(0);
-		long ts0 = 0, ts1 = 0, ts;
+		long ts;
 		for ( int i=0; i<nPairs; ++i ) {
 			Record recS = query.searchedSet.recordList.get( rand.nextInt( query.searchedSet.size() ) );
 			Record recT = query.indexedSet.recordList.get( rand.nextInt( query.indexedSet.size() ) );
 			if ( recS.getEstNumTransformed() > 10000 ) continue;
-			ts = System.nanoTime();
-			int answer0 = checker0.isEqual(recS, recT);
-			ts0 += System.nanoTime() - ts;
-			ts = System.nanoTime();
-			int answer1 = checker1.isEqual(recS, recT);
-			ts1 += System.nanoTime() - ts;
-			System.out.println((i+1)+"\t"+recS.getID()+"\t"+recT.getID()+"\t"+answer0+"\t"+answer1);
-			if ( answer0 != answer1 ) {
-				testDeltaValidatorDP(recS, recT, deltaMax);
+
+			System.out.print((i+1)+"\t"+recS.getID()+"\t"+recT.getID());
+			for ( int j=0; j<checker_list.length; ++j ) {
+				ts = System.nanoTime();
+				answer_list[j] = checker_list[j].isEqual(recS, recT);
+				ts_list[j] += System.nanoTime() - ts;
+				System.out.print("\t"+answer_list[j]);
+				if ( j > 0 ) assertEquals(answer_list[0], answer_list[j]);
 			}
-			assertEquals(answer0, answer1);
+			System.out.println();
 		}
-		System.out.println("ts0: "+ts0/1e6);
-		System.out.println("ts1: "+ts1/1e6);
+		
+		System.out.println("Execution times");
+		for ( int j=0; j<checker_list.length; ++j ) {
+			System.out.println(checker_list[j].getName()+": "+ts_list[j]/1e6);
+		}
+	}
+
+	@Test
+	public void testTimeDeltaValidators() throws IOException {
+		String name = "AOL";
+		int size = 100000;
+		int deltaMax = 3; // TODO: vary deltaMax
+		Query query = TestUtils.getTestQuery( name, size );
+		Validator checker1 = new DeltaValidatorDP(deltaMax);
+		Validator checker2 = new DeltaValidatorDPTopDown(deltaMax);
+		Validator[] checker_list = {checker1, checker2};
+		long[] ts_list = new long[checker_list.length];
+		int[] answer_list = new int[checker_list.length];
+		
+		int nPairs = 1000000;
+		Random rand = new Random(0);
+		long ts;
+		for ( int i=0; i<nPairs; ++i ) {
+			Record recS = query.searchedSet.recordList.get( rand.nextInt( query.searchedSet.size() ) );
+			Record recT = query.indexedSet.recordList.get( rand.nextInt( query.indexedSet.size() ) );
+			if ( recS.getEstNumTransformed() > 10000 ) continue;
+
+			if ( (i+1) % 1000 == 0 ) System.out.print((i+1)+"\t"+recS.getID()+"\t"+recT.getID());
+			for ( int j=0; j<checker_list.length; ++j ) {
+				ts = System.nanoTime();
+				answer_list[j] = checker_list[j].isEqual(recS, recT);
+				ts_list[j] += System.nanoTime() - ts;
+				if ( (i+1) % 1000 == 0 ) System.out.print("\t"+answer_list[j]);
+			}
+			if ( (i+1) % 1000 == 0 ) System.out.println();
+		}
+		
+		System.out.println("Execution times");
+		for ( int j=0; j<checker_list.length; ++j ) {
+			System.out.println(checker_list[j].getName()+": "+ts_list[j]/1e6);
+		}
 	}
 	
 	public void testDeltaValidatorDP( Record x, Record y, int deltaMax ) throws IOException {
