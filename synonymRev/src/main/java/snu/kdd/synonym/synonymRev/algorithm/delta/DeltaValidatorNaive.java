@@ -1,5 +1,9 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
+import java.io.IOException;
+
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -8,11 +12,11 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class DeltaValidatorNaive extends Validator {
 	
-	private int deltaMax;
+	protected final int deltaMax;
 
-	private long numEqual = 0;
-	private long numDeltaEqual = 0;
-	private long numDeltaTransEqual = 0;
+	protected long numEqual = 0;
+	protected long numDeltaEqual = 0;
+	protected long numDeltaTransEqual = 0;
 	
 	public DeltaValidatorNaive( int deltaMax ) {
 		this.deltaMax = deltaMax;
@@ -37,6 +41,11 @@ public class DeltaValidatorNaive extends Validator {
 		for ( Record exp : x.expandAll() ) {
 			if ( Util.edit( exp.getTokensArray(), y.getTokensArray() ) <= deltaMax ) {
 				++numDeltaTransEqual;
+//				if ( y.size() > deltaMax ) {
+//					System.out.println("DKFJDLFKSDJFD\t"+x.getID()+", "+y.getID());
+//					try {System.in.read();}
+//					catch (IOException e) {e.printStackTrace();}
+//				}
 				return 1;
 			}
 		}

@@ -136,6 +136,39 @@ public class Util {
 		stat.add( prefix + "_Garbage_Collections", totalGarbageCollections );
 		stat.add( prefix + "_Garbage_Collections_Time", garbageCollectionTime );
 	}
+	
+	public static void print2dArray( int[][] arr ) {
+		for ( int i=0; i<arr.length; ++i ) {
+			for ( int j=0; j<arr[0].length; ++j ) {
+				System.out.print( String.format("%3d", arr[i][j]) );
+			}
+			System.out.println();
+		}
+	}
+	
+	public static void print3dArray( boolean[][][] arr ) {
+		for ( int j=0; j<arr[0].length; ++j ) {
+			for ( int i=0; i<arr.length; ++i ) {
+				for ( int k=0; k<arr[0][0].length; ++k ) {
+					System.out.print( String.format("%3d", arr[i][j][k]? 1: 0 ) );
+				}
+				System.out.print("\t");
+			}
+			System.out.println();
+		}
+	}
+
+	public static void print3dArray( int[][][] arr ) {
+		for ( int j=0; j<arr[0].length; ++j ) {
+			for ( int i=0; i<arr.length; ++i ) {
+				for ( int k=0; k<arr[0][0].length; ++k ) {
+					System.out.print( String.format("%3d", arr[i][j][k] ) );
+				}
+				System.out.print("\t");
+			}
+			System.out.println();
+		}
+	}
 
 	public static boolean equalsToSubArray( int[] a, int start, int end, int[] b ) {
 		// return true if a[start:end] is equal to b; otherwise false.
@@ -283,7 +316,7 @@ public class Util {
 	
 	public static int[] edit_all( int[] x, int[] y ) {
 		/*
-		 * Compute and return the edit distance between x and y[:1], y[:2], ... y[:y.length].
+		 * Compute and return the edit distances between x and y[:1], y[:2], ... y[:y.length].
 		 */
 		int[] D = new int[y.length+1];
 		int[] D_prev = new int[y.length+1];
@@ -296,6 +329,31 @@ public class Util {
 
 			D[0] = i+1;
 			for ( int j=0; j<y.length; ++j ) {
+				D[j+1] = Math.min( D[j], D_prev[j+1] )+1;
+				if ( y[j] == x[i] ) D[j+1] = Math.min( D[j+1], D_prev[j] );
+				else D[j+1] = Math.min( D[j+1], D_prev[j]+1 );
+			}
+		}
+		return D;
+	}
+
+	public static int[] edit_all( int[] x, int[] y, int j0 ) {
+		/*
+		 * Compute and return the edit distances between x and y[j0:j0], y[j0:j0+1], y[j0:j0+2], ..., y[j0:y.length].
+		 * The range of j0 is 0 <= j0 <= y.length.
+		 */
+		int[] D = new int[y.length+1];
+		int[] D_prev = new int[y.length+1];
+		for ( int j=j0; j<=y.length; ++j ) D[j] = j-j0;
+		for ( int i=0; i<x.length; ++i ) {
+			// swap tables
+			int[] tmp = D_prev;
+			D_prev = D;
+			D = tmp;
+
+			D[j0] = i+1;
+			for ( int j=j0; j<y.length; ++j ) {
+//				 compute the edit distances between x and y[jj0:j0+1], ..., y[j0:y0.length();
 				D[j+1] = Math.min( D[j], D_prev[j+1] )+1;
 				if ( y[j] == x[i] ) D[j+1] = Math.min( D[j+1], D_prev[j] );
 				else D[j+1] = Math.min( D[j+1], D_prev[j]+1 );
