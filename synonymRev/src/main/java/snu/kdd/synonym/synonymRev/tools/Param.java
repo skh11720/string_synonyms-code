@@ -81,7 +81,7 @@ public class Param {
 		}
 		
 		if (cmd.hasOption( "delta" )) {
-			param.delta = Integer.parseInt( cmd.getOptionValue( "delta" ) );
+			param.deltaMax = Integer.parseInt( cmd.getOptionValue( "delta" ) );
 		}
 
 		if (cmd.hasOption( "nEst" )) {
@@ -106,7 +106,7 @@ public class Param {
 	public Validator validator;
 	public int threshold = 10;
 	public boolean noLength = false;
-	public int delta;
+	public int deltaMax;
 	public int nEst;
 	public boolean useLF = true;
 	public boolean usePQF = true;

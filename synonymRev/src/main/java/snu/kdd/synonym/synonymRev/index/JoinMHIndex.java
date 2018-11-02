@@ -27,7 +27,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMHIndex implements JoinMHIndexInterface {
-	protected ArrayList<WYK_HashMap<QGram, List<Record>>> joinMHIndex;
+	protected ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
 	protected Object2IntOpenHashMap<Record> indexedCountList;
 	protected Query query;
 
@@ -99,13 +99,13 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 		}
 
 		// one WKY_HashMap per position
-		this.joinMHIndex = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
+		this.idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 
 		long elements = 0;
 
 		for (int i = 0; i < indexK; ++i) {
 			// initialize with indexedSet size
-			joinMHIndex.add(new WYK_HashMap<QGram, List<Record>>(query.indexedSet.size()));
+			idx.add(new WYK_HashMap<QGram, List<Record>>(query.indexedSet.size()));
 		}
 
 		long qGramTime = 0;
@@ -144,7 +144,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 					continue;
 				}
 
-				Map<QGram, List<Record>> map = joinMHIndex.get(i);
+				Map<QGram, List<Record>> map = idx.get(i);
 				List<QGram> qgramList = availableQGrams.get(actualIndex);
 
 				qgramCount += qgramList.size();
@@ -183,7 +183,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 				// computes the statistics of the indexes
 				String indexStr = "";
 				for (int i = 0; i < indexK; ++i) {
-					Map<QGram, List<Record>> ithidx = joinMHIndex.get(i);
+					Map<QGram, List<Record>> ithidx = idx.get(i);
 
 					System.out.println(i + "th iIdx key-value pairs: " + ithidx.size());
 
@@ -261,7 +261,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 
 			ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
 
-			Map<QGram, List<Record>> map = joinMHIndex.get(i);
+			Map<QGram, List<Record>> map = idx.get(i);
 
 			for (QGram qgram : availableQGrams.get(actualIndex)) {
 				// if( debug ) {
@@ -321,8 +321,8 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize, maxPosition+1 );
 		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
-			if ( k >= joinMHIndex.size() ) continue;
-			WYK_HashMap<QGram, List<Record>> curidx = joinMHIndex.get( k );
+			if ( k >= idx.size() ) continue;
+			WYK_HashMap<QGram, List<Record>> curidx = idx.get( k );
 			List<QGram> qgrams = new ArrayList<QGram>();
 			for ( QGram qgram : availableQGrams.get( k ) ) {
 				if ( !curidx.containsKey( qgram ) ) continue;
@@ -404,7 +404,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 			if (range[0] <= actualIndex) continue;
 
 			ObjectOpenHashSet<Record> ithCandidates = new ObjectOpenHashSet<Record>();
-			Map<QGram, List<Record>> map = joinMHIndex.get(i);
+			Map<QGram, List<Record>> map = idx.get(i);
 
 			for (QGram qgram : availableQGrams.get(actualIndex)) {
 				// if( debug ) {
@@ -498,11 +498,11 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	}
 
 	public int size() {
-		return joinMHIndex.size();
+		return idx.size();
 	}
 	
 	public WYK_HashMap<QGram, List<Record>> get(int i) {
-		return joinMHIndex.get( i );
+		return idx.get( i );
 	}
 
 	public int getIndexedCount( Record rec ) {
@@ -529,8 +529,8 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	
 	public int nInvList() {
 		int n = 0;
-		for (int i=0; i<joinMHIndex.size(); i++) {
-			n += joinMHIndex.get( i ).size();
+		for (int i=0; i<idx.size(); i++) {
+			n += idx.get( i ).size();
 		}
 		return n;
 	}
@@ -538,9 +538,9 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	public void writeToFile() {
 		try { 
 			BufferedWriter bw = new BufferedWriter( new FileWriter( "tmp/JoinMHIndex.txt" ) ); 
-			for ( int pos=0; pos<joinMHIndex.size(); ++pos ) {
+			for ( int pos=0; pos<idx.size(); ++pos ) {
 				bw.write( "pos: "+indexPosition[pos]+"\n" );
-				for ( Map.Entry<QGram, List<Record>> entry : joinMHIndex.get( pos ).entrySet() ) {
+				for ( Map.Entry<QGram, List<Record>> entry : idx.get( pos ).entrySet() ) {
 					bw.write( "qgram: "+entry.getKey()+"\n" );
 					for ( Record rec : entry.getValue() ) {
 						bw.write( Arrays.toString( rec.getTokensArray() ) + "\n");
