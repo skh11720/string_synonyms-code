@@ -11,6 +11,7 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
+import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -38,7 +39,7 @@ public class JoinMH extends AlgorithmTemplate {
 
 	protected JoinMHIndexInterface idx;
 
-	protected boolean useLF, usePQF;
+	protected boolean useLF, usePQF, useSTPQ;
 	
 	
 	
@@ -48,6 +49,7 @@ public class JoinMH extends AlgorithmTemplate {
 		checker = params.validator;
 		useLF = params.useLF;
 		usePQF = params.usePQF;
+		useSTPQ = params.useSTPQ;
 	}
 
 	@Override
@@ -126,6 +128,7 @@ public class JoinMH extends AlgorithmTemplate {
 		long t_verify = 0;
 
 		for ( Record recS : query.searchedSet.recordList ) {
+			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			long ts = System.nanoTime();
 			int[] range = recS.getTransLengths();
 			ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
@@ -148,10 +151,11 @@ public class JoinMH extends AlgorithmTemplate {
 			t_verify += afterVerifyTime - afterFilterTime;
 		}
 
-		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
-		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
+		stat.add( "Result_5_1_Filter_Time", t_filter/1e6 );
+		stat.add( "Result_5_2_Verify_Time", t_verify/1e6 );
 		
 		runTime.stopAndAdd( stat );
+		writeResult();
 	}
 
 	protected void buildIndex( boolean writeResult ) {
@@ -162,6 +166,7 @@ public class JoinMH extends AlgorithmTemplate {
 		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 		JoinMHIndex.useLF = useLF;
 		JoinMHIndex.usePQF = usePQF;
+		JoinMHIndex.useSTPQ = useSTPQ;
 	}
 
 	@Override
@@ -169,8 +174,9 @@ public class JoinMH extends AlgorithmTemplate {
 		/*
 		 * 2.5: the latest version by yjpark
 		 * 2.51: checkpoint
+		 * 2.511: test for filtering power test
 		 */
-		return "2.51";
+		return "2.511";
 	}
 
 	@Override

@@ -5,12 +5,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
@@ -55,6 +58,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 	
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
+	public static boolean useSTPQ = true;
 
 
 	/**
@@ -379,6 +383,8 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 //		this.eta = ((double) (this.joinTime - totalCountTime) / this.predictCount);
 		// this.joinTime: time for counting and verifications
 		// this.predictCount: the sum of minimum invokes (number of records in searchedSet to be verified) of records in indexedSet
+		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
+		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
 
 		return rslt;
 	}
@@ -389,7 +395,24 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 
 	    int candQGramCount = 0;
 	    long ts = System.nanoTime();
-		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
+		List<List<QGram>> availableQGrams = null;
+		if ( useSTPQ ) availableQGrams = getCandidatePQGrams( recS );
+		else {
+			List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
+			for ( int k=0; k<indexK; ++k ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
+			for ( Record exp : recS.expandAll() ) {
+				List<List<QGram>> qgramsList = exp.getSelfQGrams( qgramSize, indexK );
+				int maxK = Math.min( indexK, qgramsList.size() );
+				for ( int k=0; k<maxK; ++k ) {
+					WYK_HashMap<QGram, List<Record>> curidx = joinMHIndex.get( k );
+					QGram qgram = qgramsList.get( k ).get( 0 );
+					if ( !curidx.containsKey( qgram ) ) continue;
+					else availableQGramsSet.get( k ).add( qgram );
+				}
+			}
+			availableQGrams = new ObjectArrayList<>();
+			for ( int k=0; k<indexK; ++k ) availableQGrams.add( new ObjectArrayList<>( availableQGramsSet.get( k ) ) );
+		}
 		for (List<QGram> list : availableQGrams) {
 			candQGramCount += list.size();
 		}

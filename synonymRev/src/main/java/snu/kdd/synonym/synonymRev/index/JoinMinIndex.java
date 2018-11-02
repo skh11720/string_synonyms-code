@@ -13,6 +13,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
@@ -68,6 +69,7 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
+	public static boolean useSTPQ = true;
 
 	public Int2IntOpenHashMap posCounter = new Int2IntOpenHashMap();
 	
@@ -164,7 +166,21 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 				recordStartTime = System.nanoTime();
 			}
 
-			List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
+			List<List<QGram>> availableQGrams = null;
+			if ( useSTPQ ) availableQGrams = rec.getQGrams( qgramSize );
+			else {
+				List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
+				for ( Record exp : rec.expandAll() ) {
+					List<List<QGram>> qgramsList = exp.getSelfQGrams( qgramSize, indexK );
+					while ( availableQGramsSet.size() < qgramsList.size() ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
+					for ( int k=0; k<qgramsList.size(); ++k ) {
+						QGram qgram = qgramsList.get( k ).get( 0 );
+						availableQGramsSet.get( k ).add( qgram );
+					}
+				}
+				availableQGrams = new ObjectArrayList<>();
+				for ( int k=0; k<indexK; ++k ) availableQGrams.add( new ObjectArrayList<>( availableQGramsSet.get( k ) ) );
+			}
 
 //			if( DEBUG.JoinMinON ) {
 			recordMidTime = System.nanoTime();
@@ -493,6 +509,9 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 //		stat.add( "Const_Mu", mu );
 //		stat.add( "Const_Rho", rho );
 
+		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
+		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
+
 		return rslt;
 	}
 	
@@ -528,7 +547,24 @@ public class JoinMinIndex implements JoinMinIndexInterface {
 //		boolean debug = false;
 //		if ( recS.getID() == 15756 ) debug = true;
 
-		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
+		List<List<QGram>> availableQGrams = null;
+		if ( useSTPQ ) availableQGrams = getCandidatePQGrams( recS );
+		else {
+			List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
+			for ( Record exp : recS.expandAll() ) {
+				List<List<QGram>> qgramsList = exp.getSelfQGrams(qgramSize, exp.size());
+				while ( availableQGramsSet.size() < qgramsList.size() ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
+				for ( int k=0; k<qgramsList.size(); ++k ) {
+					QGram qgram = qgramsList.get( k ).get( 0 );
+					if ( idx.size() <= k || !idx.get( k ).containsKey( qgram ) ) continue;
+					availableQGramsSet.get( k ).add( qgram );
+				}
+			}
+			availableQGrams = new ObjectArrayList<>();
+			for ( int k=0; k<availableQGramsSet.size(); ++k ) availableQGrams.add( new ObjectArrayList<>( availableQGramsSet.get( k ) ) );
+//			for ( int k=0; k<availableQGrams.size(); ++k ) System.out.println( availableQGrams.get( k ) );
+		}
+
 		for ( List<QGram> candidateQGrams : availableQGrams ) {
 			candQGramCount += candidateQGrams.size();
 		}

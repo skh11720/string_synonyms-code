@@ -38,6 +38,7 @@ public class JoinMinFast extends JoinMin {
 		if ( sampleRatio <= 0 ) throw new RuntimeException("sampleRatio should be larger than 0.");
 		useLF = params.useLF;
 		usePQF = params.usePQF;
+		useSTPQ = params.useSTPQ;
 	}
 
 	@Override
@@ -45,14 +46,16 @@ public class JoinMinFast extends JoinMin {
 		idx = new JoinMinFastIndex( indexK, qSize, stat, query, sampleRatio, 0, writeResult );
 		JoinMinFastIndex.useLF = useLF;
 		JoinMinFastIndex.usePQF = usePQF;
+		JoinMinFastIndex.useSTPQ = useSTPQ;
 	}
 
 	@Override
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: test for filtering power test
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override
