@@ -643,6 +643,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 		return resultList;
 	}
+	
+	public List<List<QGram>> getSelfQGrams( int q ) {
+		return getSelfQGrams( q, tokens.length );
+	}
 
 	public List<List<QGram>> getSelfQGrams( int q, int range ) {
 		getQGramCount++;
