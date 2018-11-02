@@ -404,7 +404,7 @@ public class JoinMHIndex implements JoinMHIndexInterface {
 				List<List<QGram>> qgramsList = exp.getSelfQGrams( qgramSize, indexK );
 				int maxK = Math.min( indexK, qgramsList.size() );
 				for ( int k=0; k<maxK; ++k ) {
-					WYK_HashMap<QGram, List<Record>> curidx = joinMHIndex.get( k );
+					WYK_HashMap<QGram, List<Record>> curidx = idx.get( k );
 					QGram qgram = qgramsList.get( k ).get( 0 );
 					if ( !curidx.containsKey( qgram ) ) continue;
 					else availableQGramsSet.get( k ).add( qgram );
