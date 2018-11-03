@@ -287,7 +287,7 @@ public class SampleEstimate {
 				min_term3[i] = ( i== 0? 0 : min_term3[i-1]);
 			}
 			else {
-				joinmininst.joinRecordMaxK( indexK, recS, rslt, false, null, checker, query.oneSideJoin );
+				joinmininst.joinOneRecord( recS, rslt, checker );
 				min_term2[i] = joinmininst.searchedTotalSigCount;
 				min_term3[i] = joinmininst.equivComparisons;
 			}

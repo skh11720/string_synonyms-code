@@ -213,7 +213,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 				continue;
 			}
 			if( joinQGramRequired && s.getEstNumTransformed() > joinThreshold ) {
-				if( joinMinSelected ) joinMinIdx.joinRecordMaxKThres( indexK, s, rsltPQGram, true, null, checker, joinThreshold, query.oneSideJoin );
+				if( joinMinSelected ) joinMinIdx.joinOneRecord( s, rsltPQGram, checker );
 				else joinMHIdx.joinOneRecord( s, rsltPQGram, checker );
 				++pqgramSearch;
 				joinPQGramTime += System.nanoTime() - joinStartOne;

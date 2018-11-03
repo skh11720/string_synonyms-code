@@ -153,7 +153,7 @@ public class JoinHybridAll3 extends JoinHybridAll {
 				continue;
 			}
 			if( joinQGramRequired && s.getEstNumTransformed() > joinThreshold ) {
-				if( joinMinSelected ) joinMinIdx.joinRecordMaxKThres( indexK, s, rsltPQGram, true, null, checker, joinThreshold, query.oneSideJoin );
+				if( joinMinSelected ) joinMinIdx.joinOneRecord( s, rsltPQGram, checker );
 				else joinMHIdx.joinOneRecord( s, rsltPQGram, checker );
 				++pqgramSearch;
 				joinPQGramTime += System.nanoTime() - joinStartOne;
@@ -381,7 +381,8 @@ class SampleEstimateSelf3 extends SampleEstimate {
 				min_term4[i] = ( i== 0? 0 : min_term4[i-1]);
 			}
 			else {
-				joinmininst.joinRecordMaxK( indexK, recS, rslt, false, null, checker, query.oneSideJoin );
+				joinmininst.joinOneRecord( recS, rslt, checker );
+
 				min_term2[i] = joinmininst.searchedTotalSigCount;
 				min_term3[i] = joinmininst.searchedTotalSigCount;
 				min_term4[i] = joinmininst.equivComparisons;

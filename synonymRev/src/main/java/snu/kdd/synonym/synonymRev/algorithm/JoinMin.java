@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
@@ -11,7 +10,6 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMinIndexInterface;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
@@ -33,7 +31,7 @@ public class JoinMin extends AlgorithmTemplate {
 	 * Key: (2gram, index) pair<br/>
 	 * Value: (min, max, record) triple
 	 */
-	public JoinMinIndexInterface idx;
+	public JoinMinIndex idx;
 
 	protected boolean useLF, usePQF, useSTPQ;
 
@@ -120,7 +118,7 @@ public class JoinMin extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		rslt = idx.joinMaxK( indexK, writeResult, stat, checker, query );
+		rslt = idx.join( query, stat, checker, writeResult );
 
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );

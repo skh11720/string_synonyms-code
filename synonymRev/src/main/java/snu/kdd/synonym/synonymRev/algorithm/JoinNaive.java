@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 import snu.kdd.synonym.synonymRev.data.Query;

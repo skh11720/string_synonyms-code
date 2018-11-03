@@ -1,2 +1,5 @@
 synonymRev/output/*
+synonymRev/result/*
 synonymRev/tmp/*
+*.swp
+*.un~
