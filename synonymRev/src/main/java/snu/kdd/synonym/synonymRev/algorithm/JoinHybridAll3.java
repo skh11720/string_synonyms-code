@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -177,7 +178,8 @@ public class JoinHybridAll3 extends JoinHybridAll {
 			long candQGramCountSum = 0;
 			double candQGramAvgCount = 0;
 			long equivComparison = 0;
-			candQGramCountSum = ((JoinMinIndex)joinMinIdx).getCandQGramCountSum();
+			if ( joinMinSelected ) candQGramCountSum = ((JoinMinIndex)joinMinIdx).getCandQGramCountSum();
+			else candQGramCountSum = ((JoinMHIndex)joinMHIdx).getCandQGramCountSum();
 			equivComparison = joinMinIdx.getEquivComparisons();
 
 			candQGramAvgCount = pqgramSearch == 0 ? 0 : 1.0 * candQGramCountSum / pqgramSearch;

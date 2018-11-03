@@ -122,7 +122,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 	}
 
 	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold / 2 );
+		naiveIndex = new NaiveIndex( query, stat, true, joinThreshold, joinThreshold / 2 );
 	}
 
 	/**

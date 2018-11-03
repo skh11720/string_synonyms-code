@@ -72,7 +72,7 @@ public class JoinNaive extends AlgorithmTemplate {
 			}
 		}
 
-		idx = new NaiveIndex( query.indexedSet, query, stat, addStat, threshold, avgTransformed );
+		idx = new NaiveIndex( query, stat, addStat, threshold, avgTransformed );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -87,7 +87,7 @@ public class JoinNaive extends AlgorithmTemplate {
 		}
 
 		// Join
-		final Set<IntegerPair> rslt = idx.join( query, stat, addStat );
+		final Set<IntegerPair> rslt = idx.join( query, stat, null, writeResult );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
