@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
+import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -152,13 +153,13 @@ public class JoinHybridAll3 extends JoinHybridAll {
 				continue;
 			}
 			if( joinQGramRequired && s.getEstNumTransformed() > joinThreshold ) {
-				if( joinMinSelected ) joinMinIdx.joinRecordMaxKThres( indexK, s, rsltPQGram, true, null, checker, joinThreshold, query.oneSideJoin );
-				else joinMHIdx.joinOneRecordThres( s, rsltPQGram, checker, joinThreshold, query.oneSideJoin );
+				if( joinMinSelected ) joinMinIdx.joinOneRecord( s, rsltPQGram, checker );
+				else joinMHIdx.joinOneRecord( s, rsltPQGram, checker );
 				++pqgramSearch;
 				joinPQGramTime += System.nanoTime() - joinStartOne;
 			}
 			else {
-				naiveIndex.joinOneRecord( s, rsltNaive );
+				naiveIndex.joinOneRecord( s, rsltNaive, null );
 				++naiveSearch;
 				joinNaiveTime += System.nanoTime() - joinStartOne;
 			}
@@ -177,8 +178,14 @@ public class JoinHybridAll3 extends JoinHybridAll {
 			long candQGramCountSum = 0;
 			double candQGramAvgCount = 0;
 			long equivComparison = 0;
-			candQGramCountSum = ((JoinMinIndex)joinMinIdx).getCandQGramCountSum();
-			equivComparison = joinMinIdx.getEquivComparisons();
+			if ( joinMinSelected ) {
+				candQGramCountSum = joinMinIdx.getCandQGramCountSum();
+				equivComparison = joinMinIdx.getEquivComparisons();
+			}
+			else {
+				candQGramCountSum = joinMHIdx.getCandQGramCountSum();
+				equivComparison = joinMHIdx.getEquivComparisons();
+			}
 
 			candQGramAvgCount = pqgramSearch == 0 ? 0 : 1.0 * candQGramCountSum / pqgramSearch;
 			stat.add( "Stat_CandQGram_Sum", candQGramCountSum );
@@ -374,7 +381,8 @@ class SampleEstimateSelf3 extends SampleEstimate {
 				min_term4[i] = ( i== 0? 0 : min_term4[i-1]);
 			}
 			else {
-				joinmininst.joinRecordMaxK( indexK, recS, rslt, false, null, checker, query.oneSideJoin );
+				joinmininst.joinOneRecord( recS, rslt, checker );
+
 				min_term2[i] = joinmininst.searchedTotalSigCount;
 				min_term3[i] = joinmininst.searchedTotalSigCount;
 				min_term4[i] = joinmininst.equivComparisons;

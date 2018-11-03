@@ -9,9 +9,7 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMinIndexInterface;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -48,8 +46,8 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	protected NaiveIndex naiveIndex;
 
-	protected JoinMinIndexInterface joinMinIdx = null;
-	protected JoinMHIndexInterface joinMHIdx = null;
+	protected JoinMinIndex joinMinIdx = null;
+	protected JoinMHIndex joinMHIdx = null;
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;
@@ -122,7 +120,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 	}
 
 	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveIndex( query.indexedSet, query, stat, true, joinThreshold, joinThreshold / 2 );
+		naiveIndex = new NaiveIndex( query, stat, true, joinThreshold, joinThreshold / 2 );
 	}
 
 	/**
@@ -215,13 +213,13 @@ public class JoinHybridAll extends AlgorithmTemplate {
 				continue;
 			}
 			if( joinQGramRequired && s.getEstNumTransformed() > joinThreshold ) {
-				if( joinMinSelected ) joinMinIdx.joinRecordMaxKThres( indexK, s, rsltPQGram, true, null, checker, joinThreshold, query.oneSideJoin );
-				else joinMHIdx.joinOneRecordThres( s, rsltPQGram, checker, joinThreshold, query.oneSideJoin );
+				if( joinMinSelected ) joinMinIdx.joinOneRecord( s, rsltPQGram, checker );
+				else joinMHIdx.joinOneRecord( s, rsltPQGram, checker );
 				++pqgramSearch;
 				joinPQGramTime += System.nanoTime() - joinStartOne;
 			}
 			else {
-				naiveIndex.joinOneRecord( s, rsltNaive );
+				naiveIndex.joinOneRecord( s, rsltNaive, null );
 				++naiveSearch;
 				joinNaiveTime += System.nanoTime() - joinStartOne;
 			}

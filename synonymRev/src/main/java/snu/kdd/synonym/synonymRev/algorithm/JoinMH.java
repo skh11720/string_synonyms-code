@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
@@ -10,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
@@ -37,7 +35,7 @@ public class JoinMH extends AlgorithmTemplate {
 	 * Value IntervalTree Value: record
 	 */
 
-	protected JoinMHIndexInterface idx;
+	protected JoinMHIndex idx;
 
 	protected boolean useLF, usePQF, useSTPQ;
 	
@@ -103,7 +101,7 @@ public class JoinMH extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		rslt = idx.join( stat, query, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResult );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
