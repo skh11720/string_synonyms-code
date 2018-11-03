@@ -154,12 +154,12 @@ public class JoinHybridAll3 extends JoinHybridAll {
 			}
 			if( joinQGramRequired && s.getEstNumTransformed() > joinThreshold ) {
 				if( joinMinSelected ) joinMinIdx.joinRecordMaxKThres( indexK, s, rsltPQGram, true, null, checker, joinThreshold, query.oneSideJoin );
-				else joinMHIdx.joinOneRecordThres( s, rsltPQGram, checker, joinThreshold, query.oneSideJoin );
+				else joinMHIdx.joinOneRecord( s, rsltPQGram, checker );
 				++pqgramSearch;
 				joinPQGramTime += System.nanoTime() - joinStartOne;
 			}
 			else {
-				naiveIndex.joinOneRecord( s, rsltNaive );
+				naiveIndex.joinOneRecord( s, rsltNaive, null );
 				++naiveSearch;
 				joinNaiveTime += System.nanoTime() - joinStartOne;
 			}
@@ -178,9 +178,14 @@ public class JoinHybridAll3 extends JoinHybridAll {
 			long candQGramCountSum = 0;
 			double candQGramAvgCount = 0;
 			long equivComparison = 0;
-			if ( joinMinSelected ) candQGramCountSum = ((JoinMinIndex)joinMinIdx).getCandQGramCountSum();
-			else candQGramCountSum = ((JoinMHIndex)joinMHIdx).getCandQGramCountSum();
-			equivComparison = joinMinIdx.getEquivComparisons();
+			if ( joinMinSelected ) {
+				candQGramCountSum = joinMinIdx.getCandQGramCountSum();
+				equivComparison = joinMinIdx.getEquivComparisons();
+			}
+			else {
+				candQGramCountSum = joinMHIdx.getCandQGramCountSum();
+				equivComparison = joinMHIdx.getEquivComparisons();
+			}
 
 			candQGramAvgCount = pqgramSearch == 0 ? 0 : 1.0 * candQGramCountSum / pqgramSearch;
 			stat.add( "Stat_CandQGram_Sum", candQGramCountSum );
