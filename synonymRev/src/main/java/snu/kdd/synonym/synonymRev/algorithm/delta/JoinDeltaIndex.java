@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.index.AbstractIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
@@ -19,7 +20,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinDeltaIndex {
+public class JoinDeltaIndex extends AbstractIndex {
 
 	protected ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
 	protected final int qgramSize;
@@ -58,25 +59,14 @@ public class JoinDeltaIndex {
 				kthMap.get(qgram).add(recT);
 			}
 		}
-		
 		indexTime = System.nanoTime() - ts;
 	}
 
-	public Set<IntegerPair> join(StatContainer stat, Query query, Validator checker, boolean writeResult) {
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
-
-		int skipped = 0;
-		for ( Record recS : query.searchedSet.recordList ) {
-			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
-				++skipped;
-				continue;
-			}
-
-			joinOneRecordThres( recS, rslt, checker, -1, query.oneSideJoin );
-		}
-
-		stat.add( "Stat_Skipped", skipped );
-		return rslt;
+	@Override
+	protected void postprocessAfterJoin(StatContainer stat) {
+		stat.add( "Stat_CandQGramCount", candQGramCount );
+		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
+		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
 	}
 
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
@@ -95,10 +85,7 @@ public class JoinDeltaIndex {
 		return candidatePQGrams;
 	}
 
-	public void joinOneRecordThres( Record recS, Set<IntegerPair> rslt, Validator checker, int threshold, boolean oneSideJoin ) {
-	    boolean isUpperRecord = threshold <= 0 ? true : recS.getEstNumTransformed() > threshold;
-	    if (!isUpperRecord) return;
-	    
+	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
 	    long ts = System.nanoTime();
 		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
 		for (List<QGram> list : availableQGrams) {

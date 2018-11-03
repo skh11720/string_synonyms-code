@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
@@ -10,8 +9,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndexInterface;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -26,13 +23,17 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 		super( query, stat );
 	}
 
+	protected Validator checker;
 	protected int qgramSize;
 	protected int deltaMax;
+	
+	public static boolean useLF = true;
 
 	
 	protected void setup( Param params ) {
 		qgramSize = params.qgramSize;
 		deltaMax = params.deltaMax;
+		checker = new DeltaValidatorDPTopDown(deltaMax);
 	}
 
 	@Override

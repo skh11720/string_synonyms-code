@@ -31,6 +31,7 @@ public abstract class AbstractIndex {
 		}
 		joinTime = System.nanoTime() - ts;
 		
+		stat.add( "Stat_Skipped", skipped );
 		postprocessAfterJoin(stat);
 		
 		return rslt;
