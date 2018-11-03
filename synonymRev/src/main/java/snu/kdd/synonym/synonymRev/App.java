@@ -20,6 +20,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
 import snu.kdd.synonym.synonymRev.algorithm.PassJoinExact;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinBKPSet;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -126,6 +127,9 @@ public class App {
 			alg = new PassJoinExact( query, stat );
 			break;
 		
+		case JoinDeltaNaive:
+			alg = new JoinDeltaNaive( query, stat );
+			break;
 		
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );

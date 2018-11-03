@@ -33,10 +33,13 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinHybridAll3,
 		SIJoin,
 		JoinPkduck,
+
+		JoinSetNaive,
 		JoinPkduckSet,
 		JoinBKPSet,
-		JoinSetNaive,
 		PassJoinExact,
+		
+		JoinDeltaNaive,
 	}
 
 	// contains statistics of the algorithm
