@@ -174,14 +174,14 @@ public class SampleEstimate {
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		long ts = System.nanoTime();
-		naiveinst = new NaiveIndex( sampleQuery.indexedSet, sampleQuery, tmpStat, false, -1, indexAvgTransform );
+		naiveinst = new NaiveIndex( sampleQuery, tmpStat, false, -1, indexAvgTransform );
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
 				naive_term2[i] = (i == 0 ? 0 : naive_term2[i-1]);
 			}
 			else {
-				naiveinst.joinOneRecord( recS, rslt );
+				naiveinst.joinOneRecord( recS, rslt, null );
 				naive_term2[i] = naiveinst.sumTransLenS;
 //				naive_term3[i] = naiveinst.verifyCost;
 //				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
@@ -228,7 +228,7 @@ public class SampleEstimate {
 				mh_term3[i] = (i == 0 ? 0 : mh_term3[i-1]);
 			}
 			else {
-				joinmhinst.joinOneRecordThres( recS, rslt, checker, -1, sampleQuery.oneSideJoin );
+				joinmhinst.joinOneRecord( recS, rslt, checker );
 				mh_term2[i] =  joinmhinst.candQGramCountSum;
 				mh_term3[i] =  joinmhinst.equivComparisons;
 			}
@@ -287,7 +287,7 @@ public class SampleEstimate {
 				min_term3[i] = ( i== 0? 0 : min_term3[i-1]);
 			}
 			else {
-				joinmininst.joinRecordMaxK( indexK, recS, rslt, false, null, checker, query.oneSideJoin );
+				joinmininst.joinOneRecord( recS, rslt, checker );
 				min_term2[i] = joinmininst.searchedTotalSigCount;
 				min_term3[i] = joinmininst.equivComparisons;
 			}
