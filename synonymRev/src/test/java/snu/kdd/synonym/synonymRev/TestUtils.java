@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Ignore;
@@ -14,6 +16,8 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class TestUtils {
@@ -268,6 +272,45 @@ public class TestUtils {
 		}
 		return query;
 	}
+
+	public static void inspect_record( final Record record, final Query query ) {
+		//System.out.println("record: "+record.toString(query.tokenIndex));
+		System.out.println("record ("+record.getID()+"): "+Arrays.toString(record.getTokensArray()) );
+		System.out.println( "num applicable rules: "+record.getNumApplicableRules() );
+		System.out.println( "range of transform length: "+record.getTransLengths()[0]+", "+record.getTransLengths()[1] );
+
+		System.out.println( "applicable rules: " );
+		for (int pos=0; pos<record.size(); pos++ ) {
+			for (final Rule rule : record.getSuffixApplicableRules( pos )) {
+				//System.out.println("\t("+rule.toOriginalString(query.tokenIndex)+", "+pos+")");
+				System.out.println("\t("+rule.toString()+", "+pos+")");
+			}
+		}
+
+		System.out.println( "transformed strings: " );
+		final List<Record> expanded = record.expandAll();
+		for( final Record exp : expanded ) {
+			System.out.println( "\t"+Arrays.toString( exp.getTokensArray() ) );
+		}
+		
+//		System.out.println( "positional q-grams: " );
+//		List<List<QGram>> qgrams_self = record.getSelfQGrams( q, record.getTokenCount() );
+//		for (int i=0; i<qgrams_self.size(); i++) {
+//			for (final QGram qgram : qgrams_self.get(i)) {
+//				//System.out.println( "\t["+qgram.toString( query.tokenIndex )+", "+i+"]" );
+//				System.out.println( "\t["+qgram.toString()+", "+i+"]" );
+//			}
+//		}
+//		
+//		System.out.println( "positional q-grams in a transformed string: " );
+//		List<List<QGram>> qgrams = record.getQGrams(q);
+//		for (int i=0; i<qgrams.size(); i++) {
+//			for (final QGram qgram : qgrams.get(i)) {
+//				//System.out.println( "\t["+qgram.toString( query.tokenIndex )+", "+i+"]" );
+//				System.out.println( "\t["+qgram.toString()+", "+i+"]" );
+//			}
+//		}
+	}
 	
 	@Test
 	public void testLCS() {
@@ -331,5 +374,10 @@ public class TestUtils {
 		// check the output
 		for ( IntArrayList comb : Util.getCombinationsAll( 7, 3 ) )
 			System.out.println( comb );
+	}
+	
+	public static void main(String[] args) throws IOException {
+		Query query  =getTestQuery("AOL", 10000);
+		inspect_record( query.searchedSet.getRecord(3235), query );
 	}
 }
