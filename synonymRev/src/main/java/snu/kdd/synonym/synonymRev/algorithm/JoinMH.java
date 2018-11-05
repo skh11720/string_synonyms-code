@@ -70,22 +70,19 @@ public class JoinMH extends AlgorithmTemplate {
 		Param params = Param.parseArgs( args, stat, query );
 		setup( params );
 
-		run();
-
-		checker.addStat( stat );
-	}
-
-	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
 		preprocess();
-
 		stat.addMemory( "Mem_2_Preprocessed" );
 
 		stepTime.stopAndAdd( stat );
 
 		if ( usePQF ) runAfterPreprocess();
 		else runAfterPreprocessWithoutIndex();
+
+		checker.addStat( stat );
+		stepTime.resetAndStart( "Result_4_Write_Time" );
+		writeResult();
+		stepTime.stopAndAdd( stat );
 	}
 
 	public void runAfterPreprocess() {
@@ -105,14 +102,7 @@ public class JoinMH extends AlgorithmTemplate {
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-
 		runTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		writeResult();
-
-		stepTime.stopAndAdd( stat );
 	}
 
 	public void runAfterPreprocessWithoutIndex() {
@@ -153,7 +143,6 @@ public class JoinMH extends AlgorithmTemplate {
 		stat.add( "Result_5_2_Verify_Time", t_verify/1e6 );
 		
 		runTime.stopAndAdd( stat );
-		writeResult();
 	}
 
 	protected void buildIndex( boolean writeResult ) {
