@@ -18,7 +18,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
-import snu.kdd.synonym.synonymRev.algorithm.PassJoinExact;
+import snu.kdd.synonym.synonymRev.algorithm.PassJoin;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
@@ -122,8 +122,8 @@ public class App {
 			alg = new JoinSetNaive( query, stat );
 			break;
 
-		case PassJoinExact:
-			alg = new PassJoinExact( query, stat );
+		case PassJoin:
+			alg = new PassJoin( query, stat );
 			break;
 		
 		case JoinDeltaNaive:

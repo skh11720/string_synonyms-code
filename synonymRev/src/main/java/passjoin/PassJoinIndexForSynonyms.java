@@ -15,13 +15,14 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.index.AbstractIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
+import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class PassJoinIndexForSynonyms {
+public class PassJoinIndexForSynonyms extends AbstractIndex {
 	/*
 	 * Suppose a 2-way join with S (searchedList) and T (indexedList).
 	 * partIndex[pid][clen]: info of candidate substrings of s in S where pid is the partition id and clen is the length of s.
@@ -208,19 +209,8 @@ public class PassJoinIndexForSynonyms {
 		}	
 	}
 	
-	public Set<IntegerPair> join() {
-		boolean debug = false;
-		long ts = System.nanoTime();
-		Set<IntegerPair> rslt = new WYK_HashSet<IntegerPair>();
-		for (int id = 0; id < searchedList.size(); id++) {
-			Record recS = searchedList.get( id );
-//			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-			joinOneRecord( recS, rslt );
-		} // end for id
-		joinTime = System.nanoTime() - ts;
-
-		if (debug) System.out.println( "candNum: "+candNum );
-		if (debug) System.out.println( "realNum: "+realNum );
+	@Override
+	public void postprocessAfterJoin( StatContainer stat ) {
 		stat.add( "Stat_Equiv_Comparison", candNum );
 
 		// compute coefficients
@@ -236,10 +226,10 @@ public class PassJoinIndexForSynonyms {
 		stat.add( "Stat_Index_Coeff1", coeff1 );
 		stat.add( "Stat_Index_Coeff2", coeff2 );
 		stat.add( "Stat_Index_Coeff3", coeff3 );
-		return rslt;
 	}
 	
-	public void joinOneRecord( Record recS, Set<IntegerPair> rslt ) {
+	@Override
+	protected void joinOneRecord(Record recS, Set<IntegerPair> rslt, Validator checker) {
 		boolean debug = false;
 //			if ( searchedList.get( id ).getID() < 10 ) debug = true;
 //			if ( searchedList.get( id ).getID() == 677 ) debug = true;
@@ -293,15 +283,15 @@ public class PassJoinIndexForSynonyms {
 //								if (debug) System.out.println( "y: "+searchedList.get( id ).getID()+", "+Arrays.toString( y ) );
 //								if (debug) System.out.println( "x: "+indexedList.get( cand ).getID()+", "+Arrays.toString( x ) );
 //								if (debug) System.out.println( "pardId: "+partId );
-//								if (debug) System.out.println( "lcs(x[0:0+Lo], y[0:0+stPos]): "+ Util.lcs(x, y, partId, 0, 0, Lo, stPos) );
-//								if (debug) System.out.println( "lcs(x[Lo+pLen:], y[stPos+pLen:]): "+ Util.lcs(x, y, D - partId, Lo + pLen, stPos + pLen, -1, -1) );
-//								if (debug) System.out.println( "lcs(x, y): "+ Util.lcs(x, y, D, 0, 0, -1, -1) );
+//								if (debug) System.out.println( "edit(x[0:0+Lo], y[0:0+stPos]): "+ Util.edit(x, y, partId, 0, 0, Lo, stPos) );
+//								if (debug) System.out.println( "edit(x[Lo+pLen:], y[stPos+pLen:]): "+ Util.edit(x, y, D - partId, Lo + pLen, stPos + pLen, -1, -1) );
+//								if (debug) System.out.println( "edit(x, y): "+ Util.edit(x, y, D, 0, 0, -1, -1) );
 							if (partId == D) checked_ids.add(cand);
-							if (partId == 0 || Util.lcs(x, y, partId, 0, 0, Lo, stPos) <= partId) {
+							if (partId == 0 || Util.edit(x, y, partId, 0, 0, Lo, stPos) <= partId) {
 								if (partId == 0) checked_ids.add(cand);
-								if (partId == D || Util.lcs(x, y, D - partId, Lo + pLen, stPos + pLen, -1, -1) <= D - partId) {
-//										if (debug) System.out.println( "d_lcs: "+Util.lcs(x, y, D, 0, 0, -1, -1) );
-									if (Util.lcs(x, y, D, 0, 0, -1, -1) <= D) {
+								if (partId == D || Util.edit(x, y, D - partId, Lo + pLen, stPos + pLen, -1, -1) <= D - partId) {
+//										if (debug) System.out.println( "d_edit: "+Util.edit(x, y, D, 0, 0, -1, -1) );
+									if (Util.edit(x, y, D, 0, 0, -1, -1) <= D) {
 										checked_ids.add(cand);
 										answer_ids.add( cand );
 										++realNum;
