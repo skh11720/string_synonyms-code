@@ -21,7 +21,15 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaIndex extends AbstractIndex {
 
-	protected ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
+	protected ArrayList<WYK_HashMap<QGram, List<Record>>> idxByPQgram;
+	protected ArrayList<List<Record>> idxByLen;
+	/*
+	 * idxByPQGram is used to filter out non-matching pairs by applying the positional q-gram filtering.
+	 * Since the filtering method can miss some matching pairs,
+	 * we use idxByLen to find all of such pairs.
+	 * The range of keys for idxByLen is from 0 to qgramSize * deltaMax - 1 = qd-1.
+	 * idxByLen[0] is the list of recTs whose length is 1.
+	 */
 	protected final int qgramSize;
 	protected final int deltaMax;
 	protected final int qd;
@@ -38,27 +46,37 @@ public class JoinDeltaIndex extends AbstractIndex {
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
 
-	public JoinDeltaIndex( int qgramSize, int deltaMax, Iterable<Record> indexedSet, Query query, StatContainer stat ) {
+	public JoinDeltaIndex( int qgramSize, int deltaMax, Query query, StatContainer stat ) {
 		this.qgramSize = qgramSize;
 		this.deltaMax = deltaMax;
 		this.qd = qgramSize * deltaMax;
 		this.isSelfJoin = query.selfJoin;
 
 		long ts = System.nanoTime();
-		idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
+		idxByPQgram = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
+		idxByLen = new ArrayList<>();
 		
-		for ( Record recT : indexedSet ) {
+		for ( Record recT : query.indexedSet.recordList ) {
+			int lenT = recT.size();
+			if ( lenT <= qd ) {
+				while ( idxByLen.size() < lenT ) idxByLen.add( new ArrayList<>() ); 
+				idxByLen.get(lenT-1).add(recT);
+			}
 			List<List<QGram>> availableQGrams = recT.getSelfQGrams(qgramSize);
-			while ( idx.size() < availableQGrams.size() ) idx.add( new WYK_HashMap<>() );
+			while ( idxByPQgram.size() < availableQGrams.size() ) idxByPQgram.add( new WYK_HashMap<>() );
 
 			for ( int k=0; k<availableQGrams.size(); ++k ) {
-				WYK_HashMap<QGram, List<Record>> kthMap = idx.get(k);
+				WYK_HashMap<QGram, List<Record>> kthMap = idxByPQgram.get(k);
 				QGram qgram = availableQGrams.get(k).get(0);
+//				if ( recT.getID() == 3232 ) System.out.println( qgram+", "+k);
 				if ( !kthMap.containsKey(qgram) ) kthMap.put( qgram, new ArrayList<Record>() );
 				kthMap.get(qgram).add(recT);
 			}
 		}
 		indexTime = System.nanoTime() - ts;
+		
+		stat.add("Stat_IdxByPQgram_Size", sizeIdxByPQGram() );
+		stat.add("Stat_IdxByLen_Size", sizeIdxByLen() );
 	}
 
 	@Override
@@ -72,12 +90,15 @@ public class JoinDeltaIndex extends AbstractIndex {
 		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
 		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
-			if ( k >= idx.size() ) continue;
-			WYK_HashMap<QGram, List<Record>> curidx = idx.get( k );
 			List<QGram> qgrams = new ArrayList<QGram>();
 			for ( QGram qgram : availableQGrams.get( k ) ) {
-				if ( !curidx.containsKey( qgram ) ) continue;
-				qgrams.add( qgram );
+				for ( int kd=Math.max(0, k-deltaMax); kd<=k+deltaMax; ++kd ) {
+					if ( kd >= idxByPQgram.size() ) continue;
+					WYK_HashMap<QGram, List<Record>> curidx = idxByPQgram.get( kd );
+					if ( !curidx.containsKey( qgram ) ) continue;
+					qgrams.add( qgram );
+					break;
+				}
 			}
 			candidatePQGrams.add( qgrams );
 		}
@@ -98,27 +119,33 @@ public class JoinDeltaIndex extends AbstractIndex {
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
 			ObjectOpenHashSet<Record> kthCandidates = new ObjectOpenHashSet<Record>();
 			for ( QGram qgram : availableQGrams.get(k) ) {
-				if ( !idx.get(k).containsKey(qgram ) ) continue;
-				for ( Record recT : idx.get(k).get(qgram) ) {
-					if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, recT.size(), recT.size())) {
-						kthCandidates.add( recT );
+				for ( int kd=Math.max(0, k-deltaMax); kd<=k+deltaMax; ++kd ) {
+//					if ( recS.getID() == 3235 ) System.out.println(qgram+", "+kd);
+					if ( idxByPQgram.size() <= kd ) continue;
+					if ( !idxByPQgram.get(kd).containsKey(qgram ) ) continue;
+					for ( Record recT : idxByPQgram.get(kd).get(qgram) ) { kthCandidates.add( recT );
 					}
-					else ++checker.lengthFiltered;
 				}
 			} // end for qgram in availableQgrams.get(k)
 			
-			for ( Record recT : kthCandidates ) candidatesCount.addTo(recT, 1);
+			for ( Record recT : kthCandidates ) {
+				useLF = false;
+				if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, recT.size(), recT.size())) {
+					candidatesCount.addTo(recT, 1);
+				}
+				else ++checker.lengthFiltered;
+			}
 		} // end for k
 		
 		Set<Record> candidates = new WYK_HashSet<>();
 		for ( Map.Entry<Record, Integer> entry : candidatesCount.entrySet() ) {
 			Record recT = entry.getKey();
 			int count = entry.getValue().intValue();
+//			if ( recS.getID() == 3235 ) System.out.println(recT.getID()+", "+count);
 			
 			if ( !usePQF || count >= Math.max(rangeS[0], recT.size()) - qd ) {
 				candidates.add( recT );
 			}
-			else ++checker.pqgramFiltered;
 		}
 		long afterFilterTime = System.nanoTime();
 		
@@ -133,5 +160,19 @@ public class JoinDeltaIndex extends AbstractIndex {
 		candQGramCountTime += afterCandQgramTime - ts;
 		filterTime += afterFilterTime - afterCandQgramTime;
 		verifyTime += afterVerifyTime - afterFilterTime;
+	}
+
+	protected int sizeIdxByPQGram() {
+		int size = 0;
+		for ( WYK_HashMap<QGram, List<Record>> posMap : idxByPQgram ) {
+			for ( List<Record> invList : posMap.values() ) size += invList.size();
+		}
+		return size;
+	}
+
+	protected int sizeIdxByLen() {
+		int size = 0;
+		for ( List<Record> invList : idxByLen ) size += invList.size();
+		return size;
 	}
 }

@@ -6,13 +6,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -40,6 +38,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		PassJoinExact,
 		
 		JoinDeltaNaive,
+		JoinDeltaSimple,
 	}
 
 	// contains statistics of the algorithm
