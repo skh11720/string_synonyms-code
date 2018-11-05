@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.index.AbstractIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -17,7 +18,6 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaNaive extends AlgorithmTemplate {
-	// RecordIDComparator idComparator;
 
 	public JoinDeltaNaive( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
@@ -34,6 +34,7 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 		qgramSize = params.qgramSize;
 		deltaMax = params.deltaMax;
 		checker = new DeltaValidatorDPTopDown(deltaMax);
+		useLF = params.useLF;
 	}
 
 	@Override
@@ -56,16 +57,9 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 		Param params = Param.parseArgs( args, stat, query );
 		setup( params );
 
-		run();
-	}
-
-	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
 		preprocess();
-
 		stat.addMemory( "Mem_2_Preprocessed" );
-
 		stepTime.stopAndAdd( stat );
 
 		runAfterPreprocess();
@@ -77,12 +71,12 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 
 		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-
+		Index idx = new Index();
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		join( stat, query, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResult );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
@@ -95,15 +89,14 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 
 		stepTime.stopAndAdd( stat );
 	}
+	
+	private class Index extends AbstractIndex {
 
-	public void join( StatContainer stat, Query query, Validator checker, boolean writeResult ) {
-		rslt = new ObjectOpenHashSet<IntegerPair>();
-		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
 		long t_filter = 0;
 		long t_verify = 0;
 
-		for ( Record recS : query.searchedSet.recordList ) {
+		@Override
+		protected void joinOneRecord(Record recS, Set<IntegerPair> rslt, Validator checker) {
 			long ts = System.nanoTime();
 			int[] range = recS.getTransLengths();
 			ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
@@ -125,10 +118,12 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 			t_verify += afterVerifyTime - afterFilterTime;
 		}
 
-		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
-		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
+		@Override
+		protected void postprocessAfterJoin(StatContainer stat) {
+			stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
+			stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
+		}
 		
-		runTime.stopAndAdd( stat );
 	}
 
 	@Override
