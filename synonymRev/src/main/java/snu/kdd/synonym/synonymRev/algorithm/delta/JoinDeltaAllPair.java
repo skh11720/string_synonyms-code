@@ -17,9 +17,10 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinDeltaNaive extends AlgorithmTemplate {
+@Deprecated
+public class JoinDeltaAllPair extends AlgorithmTemplate {
 
-	public JoinDeltaNaive( Query query, StatContainer stat ) throws IOException {
+	public JoinDeltaAllPair( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 
@@ -136,6 +137,6 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinDeltaNaive";
+		return "JoinDeltaAllPair";
 	}
 }
