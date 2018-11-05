@@ -11,7 +11,6 @@ import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
-import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -101,7 +100,7 @@ public class JoinDeltaIndex extends AbstractIndex {
 			for ( QGram qgram : availableQGrams.get(k) ) {
 				if ( !idx.get(k).containsKey(qgram ) ) continue;
 				for ( Record recT : idx.get(k).get(qgram) ) {
-					if ( !useLF || StaticFunctions.overlap(recT.size(), recT.size(), rangeS[0] - deltaMax, rangeS[1] + deltaMax)) {
+					if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, recT.size(), recT.size())) {
 						kthCandidates.add( recT );
 					}
 					else ++checker.lengthFiltered;

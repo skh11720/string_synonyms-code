@@ -118,8 +118,7 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 			int[] range = recS.getTransLengths();
 			ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
 			for ( Record recT : query.indexedSet.recordList ) {
-				int[] otherRange = recT.getTransLengths();
-				if ( !useLF || StaticFunctions.overlap(range[0], range[1], otherRange[0], otherRange[1])) {
+				if ( !useLF || StaticFunctions.overlap(range[0] - deltaMax, range[1] + deltaMax, recT.size(), recT.size())) {
 					candidates.add(recT);
 				}
 			}
