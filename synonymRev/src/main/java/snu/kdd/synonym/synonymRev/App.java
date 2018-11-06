@@ -18,8 +18,10 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
 import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
-import snu.kdd.synonym.synonymRev.algorithm.PassJoinExact;
+import snu.kdd.synonym.synonymRev.algorithm.PassJoin;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinBKPSet;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -75,8 +77,6 @@ public class App {
 		AlgorithmInterface alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
-		boolean split = cmd.hasOption( "split" );
-
 		switch( algorithmName ) {
 		case JoinNaive:
 			alg = new JoinNaive( query, stat );
@@ -122,10 +122,18 @@ public class App {
 			alg = new JoinSetNaive( query, stat );
 			break;
 
-		case PassJoinExact:
-			alg = new PassJoinExact( query, stat );
+		case PassJoin:
+			alg = new PassJoin( query, stat );
 			break;
 		
+		case JoinDeltaNaive:
+			alg = new JoinDeltaNaive( query, stat );
+			break;
+
+		case JoinDeltaSimple:
+			alg = new JoinDeltaSimple( query, stat );
+			break;
+
 		
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );

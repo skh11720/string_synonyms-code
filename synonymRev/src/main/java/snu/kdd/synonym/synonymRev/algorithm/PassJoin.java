@@ -9,15 +9,16 @@ import passjoin.PassJoinIndexForSynonyms;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class PassJoinExact extends AlgorithmTemplate{
+public class PassJoin extends AlgorithmTemplate{
 	
 	protected PassJoinIndexForSynonyms index = null;
 	protected int deltaMax;
 
-	public PassJoinExact( Query query, StatContainer stat ) throws IOException {
+	public PassJoin( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 	
@@ -31,6 +32,8 @@ public class PassJoinExact extends AlgorithmTemplate{
 
 	@Override
 	public void run( Query query, String[] args ) throws IOException, ParseException {
+		Param params = Param.parseArgs( args, stat, query );
+		deltaMax = params.deltaMax;
 
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
@@ -59,7 +62,7 @@ public class PassJoinExact extends AlgorithmTemplate{
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		Set<IntegerPair> rslt = join();
+		Set<IntegerPair> rslt = index.join( query, stat, null, writeResult );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
@@ -69,15 +72,10 @@ public class PassJoinExact extends AlgorithmTemplate{
 	protected void buildIndex( boolean addStat ) {
 		index = new PassJoinIndexForSynonyms( query, deltaMax, stat );
 	}
-
-	protected Set<IntegerPair> join() {
-		Set<IntegerPair> rslt = index.join();
-		return rslt;
-	}
 	
 	@Override
 	public String getName() {
-		return "PassJoinExact";
+		return "PassJoin";
 	}
 
 	@Override
@@ -85,7 +83,8 @@ public class PassJoinExact extends AlgorithmTemplate{
         /*
          * 1.00: initial version
          * 1.01: ignore records with too many transformations
+         * 1.02: modify from PassJoinExact to PassJoin
          */
-		return "1.01";
+		return "1.02";
 	}
 }

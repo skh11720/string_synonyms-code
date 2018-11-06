@@ -1,4 +1,4 @@
-package snu.kdd.synonym.synonymRev.algorithm;
+package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import java.io.IOException;
 import java.util.Set;
@@ -6,10 +6,9 @@ import java.util.Set;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
-import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -17,37 +16,29 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMH extends AlgorithmTemplate {
+public class JoinDeltaSimple extends AlgorithmTemplate {
 	// RecordIDComparator idComparator;
 
-	public JoinMH( Query query, StatContainer stat ) throws IOException {
+	public JoinDeltaSimple( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 
-	public int indexK;
-	public int qgramSize;
+	protected int qgramSize;
+	protected int deltaMax;
 
 	public Validator checker;
+	protected JoinDeltaIndex idx;
 
-	/**
-	 * Key: twogram<br/>
-	 * Value IntervalTree Key: length of record (min, max)<br/>
-	 * Value IntervalTree Value: record
-	 */
-
-	protected JoinMHIndex idx;
-
-	protected boolean useLF, usePQF, useSTPQ;
+	protected boolean useLF, usePQF;
 	
 	
 	
 	protected void setup( Param params ) {
-		indexK = params.indexK;
 		qgramSize = params.qgramSize;
-		checker = params.validator;
+		deltaMax = params.deltaMax;
+		checker = new DeltaValidatorDPTopDown(deltaMax);
 		useLF = params.useLF;
 		usePQF = params.usePQF;
-		useSTPQ = params.useSTPQ;
 	}
 
 	@Override
@@ -102,29 +93,25 @@ public class JoinMH extends AlgorithmTemplate {
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
+
 		runTime.stopAndAdd( stat );
 	}
 
 	public void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
-		StopWatch runTime = null;
-		//StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
 		long t_filter = 0;
 		long t_verify = 0;
 
 		for ( Record recS : query.searchedSet.recordList ) {
-			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			long ts = System.nanoTime();
 			int[] range = recS.getTransLengths();
 			ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
 			for ( Record recT : query.indexedSet.recordList ) {
-				if ( !useLF || StaticFunctions.overlap(range[0], range[1], recT.size(), recT.size())) {
+				if ( !useLF || StaticFunctions.overlap(range[0] - deltaMax, range[1] + deltaMax, recT.size(), recT.size())) {
 					candidates.add(recT);
 				}
-				else ++checker.lengthFiltered;
 			}
 			
 			long afterFilterTime = System.nanoTime();
@@ -139,47 +126,28 @@ public class JoinMH extends AlgorithmTemplate {
 			t_verify += afterVerifyTime - afterFilterTime;
 		}
 
-		stat.add( "Result_5_1_Filter_Time", t_filter/1e6 );
-		stat.add( "Result_5_2_Verify_Time", t_verify/1e6 );
+		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
+		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
 		
 		runTime.stopAndAdd( stat );
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		int[] indexPosition = new int[ indexK ];
-		for( int i = 0; i < indexK; i++ ) {
-			indexPosition[ i ] = i;
-		}
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
-		JoinMHIndex.useLF = useLF;
-		JoinMHIndex.usePQF = usePQF;
-		JoinMHIndex.useSTPQ = useSTPQ;
+		idx = new JoinDeltaIndex( qgramSize, deltaMax, query, stat );
+		JoinDeltaIndex.useLF = useLF;
+		JoinDeltaIndex.usePQF = usePQF;
 	}
 
 	@Override
 	public String getVersion() {
 		/*
-		 * 2.5: the latest version by yjpark
-		 * 2.51: checkpoint
-		 * 2.511: test for filtering power test
+		 * 1.00: the initial version
 		 */
-		return "2.511";
+		return "1.00";
 	}
 
 	@Override
 	public String getName() {
-		return "JoinMH";
-	}
-
-	public double getGamma() {
-		return idx.getGamma();
-	}
-
-	public double getZeta() {
-		return idx.getZeta();
-	}
-
-	public double getEta() {
-		return idx.getEta();
+		return "JoinDeltaSimple";
 	}
 }

@@ -1,14 +1,11 @@
 package snu.kdd.synonym.synonymRev;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import passjoin.PassJoinIndex;
 import passjoin.PassJoinIndexForSynonyms;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -27,7 +24,7 @@ public class PassJoinIndexTest {
 	public void test() {
 		int deltaMax = 1;
 		PassJoinIndexForSynonyms index = new PassJoinIndexForSynonyms( query, deltaMax, new StatContainer() );
-		Set<IntegerPair> rslt = index.join();
+		Set<IntegerPair> rslt = index.join(query, null, null, true );
 		System.out.println( rslt.size() );
 	}
 

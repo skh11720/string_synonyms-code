@@ -105,7 +105,7 @@ public class Param {
 		return param;
 	}
 
-	public int indexK = 2;
+	public int indexK = 1;
 	public int qgramSize = 2;
 	public double sampleRatio = -1;
 	public Validator validator;

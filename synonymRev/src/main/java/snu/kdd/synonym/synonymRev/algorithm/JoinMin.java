@@ -135,10 +135,6 @@ public class JoinMin extends AlgorithmTemplate {
 				stat.add( "Sample_JoinMin_Result", rslt.size() );
 			}
 		}
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		this.writeResult();
-		stepTime.stopAndAdd( stat );
 	}
 
 	public void runAfterPreprocessWithoutIndex() {
@@ -179,7 +175,6 @@ public class JoinMin extends AlgorithmTemplate {
 		stat.add( "Result_5_2_Verify_Time", t_verify/1e6 );
 		
 		runTime.stopAndAdd( stat );
-		this.writeResult();
 	}
 
 	@Override
@@ -187,14 +182,14 @@ public class JoinMin extends AlgorithmTemplate {
 		Param params = Param.parseArgs( args, stat, query );
 		setup( params );
 
-		StopWatch preprocessTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 		preprocess();
 
-		preprocessTime.stopAndAdd( stat );
+		stepTime.stopAndAdd( stat );
 
 		stat.addMemory( "Mem_2_Preprocessed" );
-		preprocessTime.resetAndStart( "Result_3_Run_Time" );
+		stepTime.resetAndStart( "Result_3_Run_Time" );
 
 		if ( usePQF ) {
 			runWithoutPreprocess();
@@ -202,8 +197,12 @@ public class JoinMin extends AlgorithmTemplate {
 		}
 		else runAfterPreprocessWithoutIndex();
 
-		preprocessTime.stopAndAdd( stat );
+		stepTime.stopAndAdd( stat );
+
 		checker.addStat( stat );
+		stepTime.resetAndStart( "Result_4_Write_Time" );
+		writeResult();
+		stepTime.stopAndAdd( stat );
 	}
 
 	public double getLambda() {

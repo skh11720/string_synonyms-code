@@ -269,7 +269,6 @@ public class JoinMHIndex extends AbstractIndex {
 		stat.add( "Stat_CandQGram_Sum", this.candQGramCountSum );
 		stat.add( "Stat_CandQGram_Avg", this.candQGramAvgCount );
 		stat.add( "Stat_Equiv_Comparison", this.equivComparisons );
-		stat.add( "Stat_Skipped", skipped );
 //		this.zeta = (double) totalCountTime / totalCountValue;
 		// totalCountTime: time for generating TPQ supersets
 		// totalCountValue: the size of TPQ supersets
