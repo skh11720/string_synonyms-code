@@ -157,9 +157,9 @@ public class JoinDeltaIndex extends AbstractIndex {
 		if ( rangeS[0] <= qd ) {
 			for ( int l=0; l<qd; ++l ) {
 				candidates.addAll( idxByLen.get(l) );
-				nCandByLen += idxByLen.get(l).size();
 			}
 		}
+		nCandByLen += candidates.size() - nCandByPQF;
 		long afterFilterTime = System.nanoTime();
 		
 		equivComparisons += candidates.size();

@@ -307,11 +307,20 @@ public class Util {
 		return L[x.length];
 	}
 
+	@Deprecated // since TOOOOO SLOW compared to edit(int[], int[], int, int, int, int, int)
 	public static int edit( int[] x, int[] y ) {
 		/*
 		 * Compute and return the edit distance between x and y.
 		 */
 		return edit_all( x, y )[y.length];
+	}
+	
+	public static int edit( int[] x, int[] y, int threshold ) {
+		/*
+		 * Compute and return the exact edit distance between x and y if the value is at most threshold.
+		 * Otherwise, it returns any value larger then the threshold.
+		 */
+		return edit(x, y, threshold, 0, 0, x.length, y.length );
 	}
 	
 	public static int[] edit_all( int[] x, int[] y ) {
@@ -398,6 +407,9 @@ public class Util {
 	}
 
 	public static int edit( int[] x, int[] y, int threshold, int xpos, int ypos, int xlen, int ylen ) {
+		/*
+		 *  G. Li, D. Deng, J. Wang, and J. Feng: PVLDB 2011
+		 */
 		if (xlen == -1) xlen = x.length - xpos;
 		if (ylen == -1) ylen = y.length - ypos;
 		if ( xlen > ylen + threshold || ylen > xlen + threshold ) return threshold+1;
