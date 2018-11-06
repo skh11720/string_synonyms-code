@@ -38,7 +38,7 @@ public class DeltaValidatorDPTopDown extends DeltaValidatorNaive {
 			++numEqual;
 			return 0; 
 		}
-		if ( Util.edit( x.getTokensArray(), y.getTokensArray() ) <= deltaMax ) {
+		if ( Util.edit( x.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
 			++numDeltaEqual;
 			return 1;
 		}

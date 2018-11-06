@@ -151,15 +151,16 @@ public class JoinDeltaIndex extends AbstractIndex {
 				candidates.add( recT );
 			}
 		}
+		final int thisNCandByPQF = candidates.size();
 		nCandByPQF += candidates.size();
 		
 		// utilize idxByLen for short strings
 		if ( rangeS[0] <= qd ) {
-			for ( int l=0; l<qd; ++l ) {
-				candidates.addAll( idxByLen.get(l) );
-				nCandByLen += idxByLen.get(l).size();
+			for ( int l=Math.max(1, rangeS[0]-deltaMax); l<=Math.min(qd, rangeS[1]+deltaMax); ++l ) { // apply the length filtering
+				candidates.addAll( idxByLen.get(l-1) );
 			}
 		}
+		nCandByLen += candidates.size() - thisNCandByPQF;
 		long afterFilterTime = System.nanoTime();
 		
 		equivComparisons += candidates.size();

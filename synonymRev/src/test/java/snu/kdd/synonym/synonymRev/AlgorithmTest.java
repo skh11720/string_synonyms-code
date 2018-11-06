@@ -121,17 +121,19 @@ public class AlgorithmTest {
 		for ( boolean flag : flags ) {
 			isSelfJoin = flag;
 			
-			testJoinNaive();
-			testJoinMH();
-			testJoinMin();
-			testJoinMinFast();
-			testJoinHybridAll(); // JoinHybridAll3
-			testJoinPkduck();
-			testPassJoinExact();
+//			testJoinNaive();
+//			testJoinMH();
+//			testJoinMin();
+//			testJoinMinFast();
+//			testJoinHybridAll(); // JoinHybridAll3
+//			testJoinPkduck();
+//			testPassJoinExact();
+//			
+//			testJoinSetNaive();
+//			testJoinPkduckSet();
+//			testJoinBKPSet();
 			
-			testJoinSetNaive();
-			testJoinPkduckSet();
-			testJoinBKPSet();
+			testJoinDeltaNaive();
 		}
 
 //		testJoinMH();
@@ -405,5 +407,27 @@ public class AlgorithmTest {
 		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
 		else answer = ANS_SET_NONSELF_DELTA[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+	
+	
+	
+	/********************************
+	 *  DELTA JOIN ALGORITHMS
+	 ********************************/
+	
+	@Ignore
+	public void testJoinDeltaNaive() throws IOException, ParseException {
+		args[1] = "JoinDeltaNaive";
+		String[] param_list = {
+				"\"-delta 0\"",
+				"\"-delta 1\"",
+				"\"-delta 2\"",
+		};
+		int answer;
+		for ( int i=0; i<param_list.length; ++i ) {
+			if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[i];
+			else answer = ANS_SEQ_NONSELF_DELTA[i];
+			runAlgorithm( param_list[i], answer, isSelfJoin );
+		}
 	}
 }

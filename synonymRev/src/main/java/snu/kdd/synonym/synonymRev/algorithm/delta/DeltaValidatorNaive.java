@@ -28,14 +28,14 @@ public class DeltaValidatorNaive extends Validator {
 			++numEqual;
 			return 0; 
 		}
-		if ( Util.edit( x.getTokensArray(), y.getTokensArray() ) <= deltaMax ) {
+		if ( Util.edit( x.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
 			++numDeltaEqual;
 			return 1;
 		}
 		
 		// transform x
 		for ( Record exp : x.expandAll() ) {
-			if ( Util.edit( exp.getTokensArray(), y.getTokensArray() ) <= deltaMax ) {
+			if ( Util.edit( exp.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
 				++numDeltaTransEqual;
 //				if ( y.size() > deltaMax ) {
 //					System.out.println("DKFJDLFKSDJFD\t"+x.getID()+", "+y.getID());
