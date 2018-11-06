@@ -38,6 +38,8 @@ public class JoinDeltaIndex extends AbstractIndex {
 	protected long indexTime;
 
 	protected long candQGramCount = 0;
+	protected long nCandByPQF = 0;
+	protected long nCandByLen = 0;
 	protected long equivComparisons = 0;
 	protected long candQGramCountTime = 0;
 	protected long filterTime = 0;
@@ -82,6 +84,8 @@ public class JoinDeltaIndex extends AbstractIndex {
 	@Override
 	protected void postprocessAfterJoin(StatContainer stat) {
 		stat.add( "Stat_CandQGramCount", candQGramCount );
+		stat.add( "Stat_CandByPQF", nCandByPQF );
+		stat.add( "Stat_CandByLen", nCandByLen );
 		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
 		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
 	}
@@ -145,6 +149,15 @@ public class JoinDeltaIndex extends AbstractIndex {
 			
 			if ( !usePQF || count >= Math.max(rangeS[0], recT.size()) - qd ) {
 				candidates.add( recT );
+			}
+		}
+		nCandByPQF += candidates.size();
+		
+		// utilize idxByLen for short strings
+		if ( rangeS[0] <= qd ) {
+			for ( int l=0; l<qd; ++l ) {
+				candidates.addAll( idxByLen.get(l) );
+				nCandByLen += idxByLen.get(l).size();
 			}
 		}
 		long afterFilterTime = System.nanoTime();
