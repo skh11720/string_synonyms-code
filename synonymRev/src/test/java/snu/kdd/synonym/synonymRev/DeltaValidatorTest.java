@@ -58,7 +58,7 @@ public class DeltaValidatorTest {
 		assertEquals( 5, Util.edit( x, y ) );
 	}
 	
-	@Ignore
+	@Test
 	public void testDeltaValidators() throws IOException {
 		String name = "AOL";
 		int size = 100000;
@@ -96,7 +96,7 @@ public class DeltaValidatorTest {
 		}
 	}
 
-	@Test
+	@Ignore
 	public void testTimeDeltaValidators() throws IOException {
 		String name = "AOL";
 		int size = 100000;

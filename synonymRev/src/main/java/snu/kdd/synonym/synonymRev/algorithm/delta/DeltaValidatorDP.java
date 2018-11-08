@@ -17,20 +17,7 @@ public class DeltaValidatorDP extends DeltaValidatorNaive {
 	}
 
 	@Override
-	public int isEqual(Record x, Record y) {
-		// Check whether x -> y
-		++checked;
-		
-		// trivial cases
-		if ( areSameString( x, y )) {
-			++numEqual;
-			return 0; 
-		}
-		if ( Util.edit( x.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
-			++numDeltaEqual;
-			return 1;
-		}
-		
+	protected boolean isDeltaTransEqual( Record x, Record y ) {
 		// enlarge the array M if necessary
 		int lx = x.size();
 		int ly = y.size();
@@ -76,11 +63,7 @@ public class DeltaValidatorDP extends DeltaValidatorNaive {
 			}
 		}
 		// end computing M
-		if ( M[deltaMax][lx][ly] ) {
-			++numDeltaTransEqual;
-			return 1;
-		}
-		else return -1;
+		return M[deltaMax][lx][ly];
 	}
 
 	@Override
