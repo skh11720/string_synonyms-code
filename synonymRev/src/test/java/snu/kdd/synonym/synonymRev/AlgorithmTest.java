@@ -25,9 +25,11 @@ public class AlgorithmTest {
 	public static boolean isSelfJoin = false;
 	
 	// answer values
-	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 1190, 2447};
-	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{4, 149, 3281};
-	private static final int[] ANS_SET_SELF_DELTA = new int[] {1028};
+//	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 1190, 2447}; // LCS dist
+	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 2126, 33711}; // edit dist
+//	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{4, 149, 3281}; // LCS dist
+	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{2, 168, 1964};
+	private static final int[] ANS_SET_SELF_DELTA = new int[] {1028}; 
 	private static final int[] ANS_SET_NONSELF_DELTA = new int[] {7};
 	
 	public static Query getSelfJoinQuery() throws ParseException, IOException {
@@ -58,13 +60,13 @@ public class AlgorithmTest {
 		String osName = System.getProperty( "os.name" );
 		final String dataOnePath, dataTwoPath, rulePath;
 		if ( osName.startsWith( "Windows" ) ) {
-			dataOnePath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_10000_1.0_0.0_1.txt";
-			dataTwoPath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_10000_1.0_0.0_2.txt";
+			dataOnePath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_1000_1.0_0.0_1.txt";
+			dataTwoPath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_1000_1.0_0.0_2.txt";
 			rulePath = "D:\\ghsong\\data\\synonyms\\rule\\30000_2_2_10000_0.0_0.txt";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			dataOnePath = "run/data_store/data/1000000_5_10000_1.0_0.0_1.txt";
-			dataTwoPath = "run/data_store/data/1000000_5_10000_1.0_0.0_2.txt";
+			dataOnePath = "run/data_store/data/1000000_5_1000_1.0_0.0_1.txt";
+			dataTwoPath = "run/data_store/data/1000000_5_1000_1.0_0.0_2.txt";
 			rulePath = "run/data_store/rule/30000_2_2_10000_0.0_0.txt";
 		}
 		else dataOnePath = dataTwoPath = rulePath = null;
@@ -111,6 +113,7 @@ public class AlgorithmTest {
 		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
 		App.run( alg, query, cmd );
+		System.out.println( "Result size: "+alg.getResult().size() );
 		assertEquals( answer, alg.getResult().size() );
 	}
 	
