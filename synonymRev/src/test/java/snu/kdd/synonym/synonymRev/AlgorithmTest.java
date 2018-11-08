@@ -3,6 +3,9 @@ package snu.kdd.synonym.synonymRev;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -136,7 +139,8 @@ public class AlgorithmTest {
 //			testJoinPkduckSet();
 //			testJoinBKPSet();
 			
-			testJoinDeltaNaive();
+//			testJoinDeltaNaive();
+			testJoinDeltaVar();
 		}
 
 //		testJoinMH();
@@ -431,6 +435,32 @@ public class AlgorithmTest {
 			if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[i];
 			else answer = ANS_SEQ_NONSELF_DELTA[i];
 			runAlgorithm( param_list[i], answer, isSelfJoin );
+		}
+	}
+
+	@Ignore
+	public void testJoinDeltaVar() throws IOException, ParseException {
+		args[1] = "JoinDeltaVar";
+		String[][] param_list = new String[3][];
+		for ( int d=0; d<3; ++d ) {
+			List<String> pstr_list = new ArrayList<>();
+			for ( int k=1; k<=3; ++k ) {
+				for ( int q=1; q<=3; ++q ) {
+					pstr_list.add( String.format("\"-K %d -qSize %d -delta %d\"", k, q, d ) );
+				}
+			}
+			param_list[d] = new String[pstr_list.size()];
+			pstr_list.toArray( param_list[d] );
+		}
+
+		int answer;
+		for ( int d=0; d<param_list.length; ++d ) {
+			for ( int i=0; i<param_list[d].length; ++i ) {
+				if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[d];
+				else answer = ANS_SEQ_NONSELF_DELTA[d];
+				runAlgorithm( param_list[d][i], answer, isSelfJoin );
+			
+			}
 		}
 	}
 }

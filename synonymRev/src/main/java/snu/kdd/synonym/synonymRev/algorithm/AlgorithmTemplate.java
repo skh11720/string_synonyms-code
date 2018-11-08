@@ -39,6 +39,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		
 		JoinDeltaNaive,
 		JoinDeltaSimple,
+		JoinDeltaVar,
 	}
 
 	// contains statistics of the algorithm
