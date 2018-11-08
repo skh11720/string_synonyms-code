@@ -16,24 +16,26 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinDeltaSimple extends AlgorithmTemplate {
+public class JoinDeltaVar extends AlgorithmTemplate {
 	// RecordIDComparator idComparator;
 
-	public JoinDeltaSimple( Query query, StatContainer stat ) throws IOException {
+	public JoinDeltaVar( Query query, StatContainer stat ) throws IOException {
 		super( query, stat );
 	}
 
+	protected int indexK;
 	protected int qgramSize;
 	protected int deltaMax;
 
 	public Validator checker;
-	protected JoinDeltaIndex idx;
+	protected JoinDeltaVarIndex idx;
 
 	protected boolean useLF, usePQF;
 	
 	
 	
 	protected void setup( Param params ) {
+		indexK = params.indexK;
 		qgramSize = params.qgramSize;
 		deltaMax = params.deltaMax;
 		checker = new DeltaValidatorDPTopDown(deltaMax);
@@ -134,7 +136,7 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinDeltaIndex( qgramSize, deltaMax, query, stat );
+		idx = new JoinDeltaVarIndex(indexK, qgramSize, deltaMax, query, stat);
 		JoinDeltaIndex.useLF = useLF;
 		JoinDeltaIndex.usePQF = usePQF;
 	}
@@ -149,6 +151,6 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 
 	@Override
 	public String getName() {
-		return "JoinDeltaSimple";
+		return "JoinDeltaVar";
 	}
 }
