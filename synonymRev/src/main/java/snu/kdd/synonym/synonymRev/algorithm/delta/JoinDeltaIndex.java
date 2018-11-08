@@ -133,7 +133,6 @@ public class JoinDeltaIndex extends AbstractIndex {
 			} // end for qgram in availableQgrams.get(k)
 			
 			for ( Record recT : kthCandidates ) {
-				useLF = false;
 				if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, recT.size(), recT.size())) {
 					candidatesCount.addTo(recT, 1);
 				}
@@ -156,8 +155,11 @@ public class JoinDeltaIndex extends AbstractIndex {
 		
 		// utilize idxByLen for short strings
 		if ( rangeS[0] <= qd ) {
-			for ( int l=Math.max(1, rangeS[0]-deltaMax); l<=Math.min(qd, rangeS[1]+deltaMax); ++l ) { // apply the length filtering
-				candidates.addAll( idxByLen.get(l-1) );
+			for ( int l=1; l<=qd; ++l ) {
+				if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, l, l )) { // apply the length filtering 
+					candidates.addAll( idxByLen.get(l-1) );
+				}
+				else checker.lengthFiltered += idxByLen.get(l-1).size();
 			}
 		}
 		nCandByLen += candidates.size() - thisNCandByPQF;

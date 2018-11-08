@@ -112,6 +112,7 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 				if ( !useLF || StaticFunctions.overlap(range[0] - deltaMax, range[1] + deltaMax, recT.size(), recT.size())) {
 					candidates.add(recT);
 				}
+				else ++checker.lengthFiltered;
 			}
 			
 			long afterFilterTime = System.nanoTime();
