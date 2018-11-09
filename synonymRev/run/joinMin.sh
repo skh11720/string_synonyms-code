@@ -4,11 +4,12 @@ rulefile=$3
 outputPath=$4
 logdir=$5
 LIBS=$6
-k=$7
-qSize=$8
-project=$9
-oneSide=${10}
-UPLOAD=${11}
+project=$7
+oneSide=${8}
+split=${9}
+UPLOAD=${10}
+k=${11}
+qSize=${12}
 
 ADDITIONAL="-K $k -qSize $qSize"
 
@@ -24,7 +25,7 @@ else
 fi
 
 
-if [[ $# -ne 11 ]];
+if [[ $# -ne 12 ]];
 then
 	echo illegal number of parameters: [$ALG]
 	echo one $inputfile_one
