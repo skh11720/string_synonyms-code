@@ -28,24 +28,33 @@ public class DeltaValidatorNaive extends Validator {
 			++numEqual;
 			return 0; 
 		}
-		if ( Util.edit( x.getTokensArray(), y.getTokensArray() ) <= deltaMax ) {
+		if ( Util.edit( x.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
 			++numDeltaEqual;
 			return 1;
 		}
 		
 		// transform x
+		if ( isDeltaTransEqual(x, y) ) {
+			++numDeltaTransEqual;
+			return 1;
+		}
+		
+		// otherwise
+		return -1;
+	}
+	
+	protected boolean isDeltaTransEqual( Record x, Record y ) {
 		for ( Record exp : x.expandAll() ) {
-			if ( Util.edit( exp.getTokensArray(), y.getTokensArray() ) <= deltaMax ) {
-				++numDeltaTransEqual;
+			if ( Util.edit( exp.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
 //				if ( y.size() > deltaMax ) {
 //					System.out.println("DKFJDLFKSDJFD\t"+x.getID()+", "+y.getID());
 //					try {System.in.read();}
 //					catch (IOException e) {e.printStackTrace();}
 //				}
-				return 1;
+				return true;
 			}
 		}
-		return -1;
+		return false;
 	}
 
 	@Override

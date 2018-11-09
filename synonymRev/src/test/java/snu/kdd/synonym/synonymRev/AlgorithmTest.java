@@ -3,6 +3,9 @@ package snu.kdd.synonym.synonymRev;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -25,9 +28,11 @@ public class AlgorithmTest {
 	public static boolean isSelfJoin = false;
 	
 	// answer values
-	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 1190, 2447};
-	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{4, 149, 3281};
-	private static final int[] ANS_SET_SELF_DELTA = new int[] {1028};
+//	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 1190, 2447}; // LCS dist
+	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 2126, 33711}; // edit dist
+//	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{4, 149, 3281}; // LCS dist
+	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{2, 168, 1964};
+	private static final int[] ANS_SET_SELF_DELTA = new int[] {1028}; 
 	private static final int[] ANS_SET_NONSELF_DELTA = new int[] {7};
 	
 	public static Query getSelfJoinQuery() throws ParseException, IOException {
@@ -58,13 +63,13 @@ public class AlgorithmTest {
 		String osName = System.getProperty( "os.name" );
 		final String dataOnePath, dataTwoPath, rulePath;
 		if ( osName.startsWith( "Windows" ) ) {
-			dataOnePath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_10000_1.0_0.0_1.txt";
-			dataTwoPath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_10000_1.0_0.0_2.txt";
+			dataOnePath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_1000_1.0_0.0_1.txt";
+			dataTwoPath = "D:\\ghsong\\data\\synonyms\\data\\1000000_5_1000_1.0_0.0_2.txt";
 			rulePath = "D:\\ghsong\\data\\synonyms\\rule\\30000_2_2_10000_0.0_0.txt";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			dataOnePath = "run/data_store/data/1000000_5_10000_1.0_0.0_1.txt";
-			dataTwoPath = "run/data_store/data/1000000_5_10000_1.0_0.0_2.txt";
+			dataOnePath = "run/data_store/data/1000000_5_1000_1.0_0.0_1.txt";
+			dataTwoPath = "run/data_store/data/1000000_5_1000_1.0_0.0_2.txt";
 			rulePath = "run/data_store/rule/30000_2_2_10000_0.0_0.txt";
 		}
 		else dataOnePath = dataTwoPath = rulePath = null;
@@ -111,6 +116,7 @@ public class AlgorithmTest {
 		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
 		App.run( alg, query, cmd );
+		System.out.println( "Result size: "+alg.getResult().size() );
 		assertEquals( answer, alg.getResult().size() );
 	}
 	
@@ -121,17 +127,20 @@ public class AlgorithmTest {
 		for ( boolean flag : flags ) {
 			isSelfJoin = flag;
 			
-			testJoinNaive();
-			testJoinMH();
-			testJoinMin();
-			testJoinMinFast();
-			testJoinHybridAll(); // JoinHybridAll3
-			testJoinPkduck();
-			testPassJoinExact();
+//			testJoinNaive();
+//			testJoinMH();
+//			testJoinMin();
+//			testJoinMinFast();
+//			testJoinHybridAll(); // JoinHybridAll3
+//			testJoinPkduck();
+//			testPassJoinExact();
+//			
+//			testJoinSetNaive();
+//			testJoinPkduckSet();
+//			testJoinBKPSet();
 			
-			testJoinSetNaive();
-			testJoinPkduckSet();
-			testJoinBKPSet();
+//			testJoinDeltaNaive();
+			testJoinDeltaVar();
 		}
 
 //		testJoinMH();
@@ -405,5 +414,53 @@ public class AlgorithmTest {
 		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
 		else answer = ANS_SET_NONSELF_DELTA[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+	
+	
+	
+	/********************************
+	 *  DELTA JOIN ALGORITHMS
+	 ********************************/
+	
+	@Ignore
+	public void testJoinDeltaNaive() throws IOException, ParseException {
+		args[1] = "JoinDeltaNaive";
+		String[] param_list = {
+				"\"-delta 0\"",
+				"\"-delta 1\"",
+				"\"-delta 2\"",
+		};
+		int answer;
+		for ( int i=0; i<param_list.length; ++i ) {
+			if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[i];
+			else answer = ANS_SEQ_NONSELF_DELTA[i];
+			runAlgorithm( param_list[i], answer, isSelfJoin );
+		}
+	}
+
+	@Ignore
+	public void testJoinDeltaVar() throws IOException, ParseException {
+		args[1] = "JoinDeltaVar";
+		String[][] param_list = new String[3][];
+		for ( int d=0; d<3; ++d ) {
+			List<String> pstr_list = new ArrayList<>();
+			for ( int k=1; k<=3; ++k ) {
+				for ( int q=1; q<=3; ++q ) {
+					pstr_list.add( String.format("\"-K %d -qSize %d -delta %d\"", k, q, d ) );
+				}
+			}
+			param_list[d] = new String[pstr_list.size()];
+			pstr_list.toArray( param_list[d] );
+		}
+
+		int answer;
+		for ( int d=0; d<param_list.length; ++d ) {
+			for ( int i=0; i<param_list[d].length; ++i ) {
+				if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[d];
+				else answer = ANS_SEQ_NONSELF_DELTA[d];
+				runAlgorithm( param_list[d][i], answer, isSelfJoin );
+			
+			}
+		}
 	}
 }

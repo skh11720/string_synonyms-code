@@ -22,6 +22,7 @@ import snu.kdd.synonym.synonymRev.algorithm.PassJoin;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVar;
 import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinBKPSet;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -132,6 +133,10 @@ public class App {
 
 		case JoinDeltaSimple:
 			alg = new JoinDeltaSimple( query, stat );
+			break;
+
+		case JoinDeltaVar:
+			alg = new JoinDeltaVar( query, stat );
 			break;
 
 		

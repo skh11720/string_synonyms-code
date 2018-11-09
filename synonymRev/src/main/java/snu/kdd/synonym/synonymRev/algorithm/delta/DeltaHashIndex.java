@@ -6,6 +6,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -24,6 +25,7 @@ public class DeltaHashIndex extends AbstractIndex {
 	 */
 	protected final int deltaMax;
 	protected final boolean isSelfJoin;
+	protected int n_verified = 0;
 	
 	public DeltaHashIndex( int deltaMax, Query query, StatContainer stat ) {
 		this.deltaMax = deltaMax;
@@ -50,27 +52,32 @@ public class DeltaHashIndex extends AbstractIndex {
 
 	@Override
 	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
+		Set<Record> matched = new ObjectOpenHashSet<>();
 		for ( Record exp : recS.expandAll() ) {
+			Set<Record> candidates = new ObjectOpenHashSet<>();
 			int[] arrExp = exp.getTokensArray();
 			for ( int d=0; d<=deltaMax; ++d ) {
 				List<IntArrayList> combList = Util.getCombinations( exp.size(), d );
 				for ( IntArrayList idxList : combList ) {
 					int[] key = Util.getSubsequence( arrExp, idxList );
-					if ( idx.get(deltaMax-d).containsKey(key) ) {
-						for ( Record recT : idx.get(deltaMax-d).get(key) ) {
-							if ( Util.edit( exp.getTokensArray(), recT.getTokensArray() ) <= deltaMax ) {
-								AlgorithmTemplate.addSeqResult(recS, recT, rslt, isSelfJoin);
-							}
-						}
-					}
+					if ( idx.get(deltaMax-d).containsKey(key) ) candidates.addAll( idx.get(deltaMax-d).get(key) );
 				} // end for idxList
 			} // end for d
+
+			candidates.removeAll(matched);
+			n_verified += candidates.size();
+			for ( Record recT : candidates ) {
+//				if ( Util.edit( exp.getTokensArray(), recT.getTokensArray() ) <= deltaMax ) {
+				if ( Util.edit( exp.getTokensArray(), recT.getTokensArray(), deltaMax, 0, 0, exp.size(), recT.size() ) <= deltaMax ) {
+					AlgorithmTemplate.addSeqResult(recS, recT, rslt, isSelfJoin);
+					matched.add(recT);
+				}
+			}
 		} // end for exp
 	}
 
 	@Override
 	protected void postprocessAfterJoin(StatContainer stat) {
-		// TODO Auto-generated method stub
-		
+		stat.add("Val_Comparisons", n_verified );
 	}
 }
