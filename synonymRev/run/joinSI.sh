@@ -6,13 +6,14 @@ logdir=$5
 LIBS=$6
 project=$7
 oneSide=$8
-UPLOAD=$9
+split=$9
+UPLOAD=${10}
 
 ADDITIONAL=""
 
 ALG=SIJoin
 
-if [[ $# -ne 9 ]];
+if [[ $# -ne 10 ]];
 then
 	echo 'illegal number of parameters: [$ALG]'
 	echo 'inputfile one' $1

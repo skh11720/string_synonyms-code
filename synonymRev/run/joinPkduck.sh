@@ -9,7 +9,7 @@ oneSide=$8
 split=$9
 UPLOAD=${10}
 
-ADDITIONAL="-globalOrder ${11} -verify ${12}"
+ADDITIONAL="-ord ${11} -verify ${12} -rc ${13} -lf ${14}"
 
 ALG=JoinPkduck
 
@@ -23,7 +23,7 @@ else
 fi
 
 
-if [[ $# -ne 12 ]];
+if [[ $# -ne 14 ]];
 then
 	echo illegal number of parameters: [$ALG]
 	echo 1 $1
@@ -36,8 +36,10 @@ then
 	echo oneSide $oneSide
 	echo split $split
 	echo UPLOAD $UPLOAD
-	echo globalOrder $11
-	echo verify $12
+	echo globalOrder ${11}
+	echo verify ${12}
+	echo useRulecomp ${13}
+	echo length filter ${14}
 else
 	rm output/$ALG
 	if [[ "$split" = true ]];

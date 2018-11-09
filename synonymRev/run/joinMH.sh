@@ -4,12 +4,12 @@ rulefile=$3
 outputPath=$4
 logdir=$5
 LIBS=$6
-k=$7
-qSize=$8
-project=$9
-oneSide=${10}
-split=${11}
-UPLOAD=${12}
+project=${7}
+oneSide=${8}
+split=${9}
+UPLOAD=${10}
+k=${11}
+qSize=${12}
 
 ADDITIONAL="-K $k -qSize $qSize"
 
