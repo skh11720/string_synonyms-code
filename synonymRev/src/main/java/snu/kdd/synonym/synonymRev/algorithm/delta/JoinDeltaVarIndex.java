@@ -63,6 +63,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		long ts = System.nanoTime();
 		this.indexK = indexK;
 		this.indexPosition = new int[indexK];
+		setupIndexPosition();
 		this.maxPosition = Arrays.stream(indexPosition).max().getAsInt();
 		this.qgramSize = qgramSize;
 		this.deltaMax = deltaMax;
@@ -141,6 +142,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		
 		stat.add("Stat_InvListCount", nInvList());
 		stat.add("Stat_InvSize", indexSize());
+	}
+
+	protected void setupIndexPosition() {
+		for ( int k=0; k<indexK; ++k ) indexPosition[k] = k;
 	}
 
 //	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
