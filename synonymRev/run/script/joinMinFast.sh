@@ -12,7 +12,7 @@ k=${11}
 qSize=${12}
 sample=${13}
 
-ADDITIONAL="-K $k -qSize $qSize $sample"
+ADDITIONAL="-K $k -qSize $qSize -sample $sample"
 
 ALG=JoinMin
 
