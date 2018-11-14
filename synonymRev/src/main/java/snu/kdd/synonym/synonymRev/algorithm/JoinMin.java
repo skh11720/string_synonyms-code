@@ -19,11 +19,13 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
+import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMin extends AlgorithmTemplate {
-	public int qSize = 0;
-	public int indexK = 0;
+
+	public int qSize;
+	public int indexK;
 
 	public Validator checker;
 
@@ -35,17 +37,20 @@ public class JoinMin extends AlgorithmTemplate {
 
 	protected boolean useLF, usePQF, useSTPQ;
 
-	public JoinMin( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
 	
-	protected void setup( Param params ) {
-		checker = params.validator;
-		qSize = params.qgramSize;
-		indexK = params.indexK;
-		useLF = params.useLF;
-		usePQF = params.usePQF;
-		useSTPQ = params.useSTPQ;
+	public JoinMin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+	}
+
+	@Override
+	protected void setup( String[] args ) throws IOException, ParseException {
+		Param param = new Param(args);
+		checker = new TopDownOneSide();
+		qSize = param.qSize;
+		indexK = param.indexK;
+		useLF = param.useLF;
+		usePQF = param.usePQF;
+		useSTPQ = param.useSTPQ;
 	}
 
 	@Override
@@ -62,7 +67,7 @@ public class JoinMin extends AlgorithmTemplate {
 		}
 	}
 
-	protected void buildIndex( boolean writeResult ) throws IOException {
+	protected void buildIndex( boolean writeResult ) {
 		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
 		JoinMinIndex.useLF = useLF;
 		JoinMinIndex.usePQF = usePQF;
@@ -106,7 +111,7 @@ public class JoinMin extends AlgorithmTemplate {
 		Util.printLog( "Maximum rhs length: " + maxrhslength );
 	}
 
-	public void runWithoutPreprocess() throws IOException {
+	public void runWithoutPreprocess() {
 		// Retrieve statistics
 		StopWatch stepTime = null;
 		statistics();
@@ -178,10 +183,7 @@ public class JoinMin extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 		preprocess();

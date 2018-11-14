@@ -16,7 +16,6 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
@@ -25,8 +24,14 @@ public class SIJoin extends AlgorithmTemplate {
 	static Validator checker;
 	private final double theta = 1.0;
 
-	public SIJoin( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
+
+	public SIJoin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+	}
+
+	@Override
+	protected void setup(String[] args) throws IOException, ParseException {
+		checker = new TopDownOneSide();
 	}
 
 	@Override
@@ -52,14 +57,7 @@ public class SIJoin extends AlgorithmTemplate {
 
 	}
 
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		if( query.oneSideJoin ) {
-			checker = new TopDownOneSide();
-		}
-		else {
-			checker = new TopDown();
-		}
-
+	public void run() {
 		long startTime = System.currentTimeMillis();
 
 		if( DEBUG.SIJoinON ) {

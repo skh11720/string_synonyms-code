@@ -49,8 +49,9 @@ public class FilterPowerTest {
 				{
 					Query query = TestUtils.getTestQuery( dataset, size );
 					StatContainer stat_joinmh = new StatContainer();
-					JoinMH joinmh = new JoinMH( query, stat_joinmh );
-					joinmh.run( query, ("-K "+K+" -qSize "+q+" -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " ) );
+					String[] args = ("-K "+K+" -qSize "+q+" -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " );
+					JoinMH joinmh = new JoinMH( query, stat_joinmh, args );
+					joinmh.run();
 					System.out.println( stat_joinmh.toJson() );
 					JSONParser jparser = new JSONParser();
 					JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmh.toJson()+"}" );
@@ -64,8 +65,9 @@ public class FilterPowerTest {
 				{
 					Query query = TestUtils.getTestQuery( dataset, size );
 					StatContainer stat_joinmh = new StatContainer();
-					JoinMin joinmh = new JoinMin( query, stat_joinmh );
-					joinmh.run( query, ("-K "+K+" -qSize "+q+" -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " ) );
+					String[] args = ("-K "+K+" -qSize "+q+" -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " );
+					JoinMin joinmh = new JoinMin( query, stat_joinmh, args );
+					joinmh.run();
 					System.out.println( stat_joinmh.toJson() );
 					JSONParser jparser = new JSONParser();
 					JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmh.toJson()+"}" );

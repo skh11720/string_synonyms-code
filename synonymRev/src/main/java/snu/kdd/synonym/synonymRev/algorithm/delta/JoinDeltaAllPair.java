@@ -20,22 +20,24 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 @Deprecated
 public class JoinDeltaAllPair extends AlgorithmTemplate {
 
-	public JoinDeltaAllPair( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
-
 	protected Validator checker;
-	protected int qgramSize;
+	protected int qSize;
 	protected int deltaMax;
 	
 	public static boolean useLF = true;
 
 	
-	protected void setup( Param params ) {
-		qgramSize = params.qgramSize;
-		deltaMax = params.deltaMax;
+	public JoinDeltaAllPair(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+	}
+
+	@Override
+	protected void setup( String[] args ) throws IOException, ParseException {
+		Param param = new Param(args);
+		qSize = param.qSize;
+		deltaMax = param.deltaMax;
 		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = params.useLF;
+		useLF = param.useLF;
 	}
 
 	@Override
@@ -53,11 +55,7 @@ public class JoinDeltaAllPair extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stat.addMemory( "Mem_2_Preprocessed" );

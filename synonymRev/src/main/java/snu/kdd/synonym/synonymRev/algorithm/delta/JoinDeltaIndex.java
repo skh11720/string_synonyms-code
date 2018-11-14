@@ -27,10 +27,10 @@ public class JoinDeltaIndex extends AbstractIndex {
 	 * idxByPQGram is used to filter out non-matching pairs by applying the positional q-gram filtering.
 	 * Since the filtering method can miss some matching pairs,
 	 * we use idxByLen to find all of such pairs.
-	 * The range of keys for idxByLen is from 0 to qgramSize * deltaMax - 1 = qd-1.
+	 * The range of keys for idxByLen is from 0 to qSize * deltaMax - 1 = qd-1.
 	 * idxByLen[0] is the list of recTs whose length is 1.
 	 */
-	protected final int qgramSize;
+	protected final int qSize;
 	protected final int deltaMax;
 	protected final int qd;
 	protected final boolean isSelfJoin;
@@ -48,10 +48,10 @@ public class JoinDeltaIndex extends AbstractIndex {
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
 
-	public JoinDeltaIndex( int qgramSize, int deltaMax, Query query, StatContainer stat ) {
-		this.qgramSize = qgramSize;
+	public JoinDeltaIndex( int qSize, int deltaMax, Query query, StatContainer stat ) {
+		this.qSize = qSize;
 		this.deltaMax = deltaMax;
-		this.qd = qgramSize * deltaMax;
+		this.qd = qSize * deltaMax;
 		this.isSelfJoin = query.selfJoin;
 
 		long ts = System.nanoTime();
@@ -64,7 +64,7 @@ public class JoinDeltaIndex extends AbstractIndex {
 				while ( idxByLen.size() < lenT ) idxByLen.add( new ArrayList<>() ); 
 				idxByLen.get(lenT-1).add(recT);
 			}
-			List<List<QGram>> availableQGrams = recT.getSelfQGrams(qgramSize);
+			List<List<QGram>> availableQGrams = recT.getSelfQGrams(qSize);
 			while ( idxByPQgram.size() < availableQGrams.size() ) idxByPQgram.add( new WYK_HashMap<>() );
 
 			for ( int k=0; k<availableQGrams.size(); ++k ) {
@@ -91,7 +91,7 @@ public class JoinDeltaIndex extends AbstractIndex {
 	}
 
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
 			List<QGram> qgrams = new ArrayList<QGram>();

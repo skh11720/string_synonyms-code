@@ -40,7 +40,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 
 	protected final int indexK;
 	protected final int[] indexPosition;
-	protected final int qgramSize;
+	protected final int qSize;
 	protected final int deltaMax;
 	protected final boolean isSelfJoin;
   
@@ -59,22 +59,22 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
 
-	public JoinDeltaVarIndex( int indexK, int qgramSize, int deltaMax, Query query, StatContainer stat ) {
+	public JoinDeltaVarIndex( int indexK, int qSize, int deltaMax, Query query, StatContainer stat ) {
 		long ts = System.nanoTime();
 		this.indexK = indexK;
 		this.indexPosition = new int[indexK];
 		setupIndexPosition();
 		this.maxPosition = Arrays.stream(indexPosition).max().getAsInt();
-		this.qgramSize = qgramSize;
+		this.qSize = qSize;
 		this.deltaMax = deltaMax;
 		this.isSelfJoin = query.selfJoin;
-		this.qdgen = new QGramDeltaGenerator(qgramSize, deltaMax);
+		this.qdgen = new QGramDeltaGenerator(qSize, deltaMax);
 		this.indexedCountList = new Object2IntOpenHashMap<>();
 		
-		int[] tokens = new int[qgramSize];
+		int[] tokens = new int[qSize];
 		Arrays.fill( tokens, Integer.MAX_VALUE );
 		qgram_pad = new QGram( tokens );
-		tokens = new int[qgramSize + deltaMax];
+		tokens = new int[qSize + deltaMax];
 		Arrays.fill( tokens, Integer.MAX_VALUE );
 		qgramDelta_pad = new QGram( tokens );
 
@@ -87,7 +87,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		
 		for ( Record recT : query.indexedSet.recordList ) {
 //			int lenT = recT.size();
-			List<List<QGram>> availableQGrams = recT.getSelfQGrams(qgramSize+deltaMax, maxPosition + 1); // pos -> delta -> qgram
+			List<List<QGram>> availableQGrams = recT.getSelfQGrams(qSize+deltaMax, maxPosition + 1); // pos -> delta -> qgram
 			int indexedCount = 0;
 
 			for ( int i=0;i <indexPosition.length; ++i) {
@@ -149,7 +149,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	}
 
 //	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-//		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
+//		List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 //		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
 //		for ( int k=0; k<availableQGrams.size(); ++k ) {
 //			List<QGram> qgrams = new ArrayList<QGram>();
@@ -174,7 +174,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		 */
 		boolean debug = false;
 //		if ( rec.getID() == 598 ) debug = true;
-		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize+deltaMax, maxPosition+1 );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qSize+deltaMax, maxPosition+1 );
 		if (debug) {
 			System.out.println( "availableQGrams:" );
 			for ( List<QGram> qgramList : availableQGrams ) {
@@ -190,7 +190,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new WYK_HashSet<QGram>() );
 			for ( QGram qgram : availableQGrams.get( k ) ) {
-				if ( !qgram_pad_appended && qgramSize+deltaMax > 1 && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
+				if ( !qgram_pad_appended && qSize+deltaMax > 1 && qgram.qgram[1] == Integer.MAX_VALUE && k < availableQGrams.size()-1 ) {
 					availableQGrams.get( k+1 ).add( qgramDelta_pad );
 					qgram_pad_appended = true;
 				}
@@ -213,7 +213,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			candidatePQGrams.add( cand_pos );
 		} // end for k
 		return candidatePQGrams;
-//		return rec.getQGrams( qgramSize, maxPosition+1 );
+//		return rec.getQGrams( qSize, maxPosition+1 );
 	}
 
 	@Override

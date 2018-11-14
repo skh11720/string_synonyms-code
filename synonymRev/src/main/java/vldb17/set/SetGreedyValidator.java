@@ -7,7 +7,7 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.AbstractSetValidator;
+import snu.kdd.synonym.synonymRev.algorithm.set.AbstractSetValidator;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;

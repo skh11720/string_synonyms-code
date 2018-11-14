@@ -9,8 +9,8 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetNaiveOneSide;
-import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.SetTopDownOneSide;
+import snu.kdd.synonym.synonymRev.algorithm.set.SetNaiveOneSide;
+import snu.kdd.synonym.synonymRev.algorithm.set.SetTopDownOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -29,7 +29,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 
 	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
-	private final int qgramSize = 1; // a string is represented as a set of (token, pos) pairs.
+	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
 	AbstractGlobalOrder globalOrder;
 	private Boolean useRuleComp;
 	private Validator checker;
@@ -45,11 +45,13 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private long nRunDP = 0;
 
 	private boolean useLF;
-	
-	public JoinPkduckSet( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
 
+
+	public JoinPkduckSet(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+	}
+	
+	@Override
 	public void preprocess() {
 		super.preprocess();
 		
@@ -71,24 +73,25 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 //		}
 //		avgTransformed = estTransformed / query.indexedSet.size();
 	}
-
+	
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-//		this.threshold = Long.valueOf( args[ 0 ] );
-		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-		Ordering mode = Ordering.valueOf( params.globalOrder );
+	protected void setup(String[] args) throws IOException, ParseException {
+		ParamPkduck param = new ParamPkduck(args);
+		Ordering mode = Ordering.valueOf( param.globalOrder );
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
-		useRuleComp = params.useRuleComp;
-		if (params.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
-		else if (params.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
-		else if (params.verifier.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
-		else throw new RuntimeException(getName()+" does not support verification: "+params.verifier);
-		useLF = params.useLF;
-//		this.threshold = -1;
+		useRuleComp = param.useRuleComp;
+		if (param.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
+		else if (param.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
+		else if (param.verifier.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
+		else throw new RuntimeException(getName()+" does not support verification: "+param.verifier);
+		useLF = param.useLF;
+	}
 
+	@Override
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 		preprocess();
@@ -162,7 +165,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	
 	public void buildIndex(boolean addStat ) {
 		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, stat, globalOrder, addStat );
-		if ( !query.selfJoin ) idxS = new PkduckSetIndex( query.searchedSet.recordList, query, stat, globalOrder, addStat );
+//		if ( !query.selfJoin ) idxS = new PkduckSetIndex( query.searchedSet.recordList, query, stat, globalOrder, addStat );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
@@ -175,13 +178,13 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 			joinOneRecord( recS, rslt, idxT );
 		}
 		
-		if ( !query.selfJoin ) {
-			// T -> T' ~ S
-			for ( Record recT : query.indexedSet.recordList ) {
-				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-				joinOneRecord( recT, rslt, idxS );
-			}
-		}
+//		if ( !query.selfJoin ) {
+//			// T -> T' ~ S
+//			for ( Record recT : query.indexedSet.recordList ) {
+//				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+//				joinOneRecord( recT, rslt, idxS );
+//			}
+//		}
 		
 		if ( addStat ) {
 			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
@@ -200,7 +203,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		for (int i=0; i<rec.size(); i++) {
 			for (Rule rule : rec.getSuffixApplicableRules( i )) {
 				int[] rhs = rule.getRight();
-				for (int j=0; j<rule.rightSize()+1-qgramSize; j++) {
+				for (int j=0; j<rule.rightSize()+1-qSize; j++) {
 					candidateTokens.add( rhs[j] );
 				}
 			}

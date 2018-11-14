@@ -93,13 +93,13 @@ public class RCTableTest {
 		loadData();
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PF, GlobalOrder.TF};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PF};
-		int qgramSize = 2;
+		int qSize = 2;
 		Ordering[] orderList = {Ordering.TF};
 		for (Ordering order: orderList) {
 			AbstractGlobalOrder globalOrder;
 			switch (order) {
-			case PF: globalOrder = new PositionFirstOrder(qgramSize); break;
-			case FF: globalOrder = new FrequencyFirstOrder(qgramSize); break;
+			case PF: globalOrder = new PositionFirstOrder(qSize); break;
+			case FF: globalOrder = new FrequencyFirstOrder(qSize); break;
 			default: throw new RuntimeException("Unexpected error");
 			}
 			RCTableTest.globalOrder = globalOrder;

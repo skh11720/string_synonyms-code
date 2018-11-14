@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
@@ -16,9 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
@@ -26,9 +21,6 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
-import snu.kdd.synonym.synonymRev.validator.Naive;
-import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
-import snu.kdd.synonym.synonymRev.validator.TopDown;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
@@ -38,23 +30,24 @@ public class JoinHybridAll3 extends JoinHybridAll {
 	SampleEstimateSelf3 estimate;
 	protected double sampleRatioH;
 	protected double sampleRatioB;
-	protected int sampleMax;
 
-	public JoinHybridAll3( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
+
+	public JoinHybridAll3(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+	}
+	
+	@Override
+	public void setup( String[] args ) throws IOException, ParseException {
+		Param param = new Param(args);
+		checker = new TopDownOneSide();
+		qSize = param.qSize;
+		indexK = param.indexK;
+		sampleRatioH = param.sampleH;
+		sampleRatioB = param.sampleB;
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		ParamSelf3 params = ParamSelf3.parseArgs( args, stat, query );
-		// Setup parameters
-		checker = params.validator;
-		qSize = params.qgramSize;
-		indexK = params.indexK;
-		sampleRatioH = params.sampleRatioH;
-		sampleRatioB = params.sampleRatioB;
-		sampleMax = params.sampleMax;
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stepTime.stopAndAdd( stat );
@@ -245,68 +238,6 @@ public class JoinHybridAll3 extends JoinHybridAll {
 	public String getName() {
 		return "JoinHybridAll3";
 	}
-}
-
-
-
-class ParamSelf3 extends Param {
-
-	static {
-		argOptions.addOption( "sampleH", true, "Sampling Ratio H" );
-		argOptions.addOption( "sampleB", true, "Sampling Ratio B" );
-		argOptions.addOption( "sampleMax", true, "Maximum number of samples" );
-	}
-
-	public static ParamSelf3 parseArgs( String[] args, StatContainer stat, Query query ) throws IOException, ParseException {
-		CommandLineParser parser = new DefaultParser();
-		ParamSelf3 param = new ParamSelf3();
-		CommandLine cmd = parser.parse( argOptions, args );
-
-		stat.add( cmd );
-
-		if( cmd.hasOption( "K" ) ) {
-			param.indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
-		}
-
-		if( cmd.hasOption( "qSize" ) ) {
-			param.qgramSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
-		}
-
-		if( cmd.hasOption( "sampleH" ) ) {
-			param.sampleRatioH = Double.parseDouble( cmd.getOptionValue( "sampleH" ) );
-		}
-
-		if( cmd.hasOption( "sampleB" ) ) {
-			param.sampleRatioB = Double.parseDouble( cmd.getOptionValue( "sampleB" ) );
-		}
-
-		if( cmd.hasOption( "sampleMax" ) ) {
-			param.sampleRatioB = Integer.parseInt( cmd.getOptionValue( "sampleMax" ) );
-		}
-		
-		if( cmd.hasOption( "naiveVal" ) ) {
-			if( query.oneSideJoin ) {
-				param.validator = new NaiveOneSide();
-			}
-			else {
-				param.validator = new Naive();
-			}
-		}
-		else {
-			if( query.oneSideJoin ) {
-				param.validator = new TopDownOneSide();
-			}
-			else {
-				param.validator = new TopDown();
-			}
-		}
-
-		return param;
-	}
-
-	public double sampleRatioH = -1;
-	public double sampleRatioB = -1;
-	public int sampleMax = Integer.MAX_VALUE;
 }
 
 

@@ -17,13 +17,8 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaSimple extends AlgorithmTemplate {
-	// RecordIDComparator idComparator;
 
-	public JoinDeltaSimple( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
-
-	protected int qgramSize;
+	protected int qSize;
 	protected int deltaMax;
 
 	public Validator checker;
@@ -32,9 +27,16 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	protected boolean useLF, usePQF;
 	
 	
+
+	public JoinDeltaSimple(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+		// TODO Auto-generated constructor stub
+	}
 	
-	protected void setup( Param params ) {
-		qgramSize = params.qgramSize;
+	@Override
+	protected void setup( String[] args ) throws IOException, ParseException {
+		Param params = new Param(args);
+		qSize = params.qSize;
 		deltaMax = params.deltaMax;
 		checker = new DeltaValidatorDPTopDown(deltaMax);
 		useLF = params.useLF;
@@ -56,11 +58,7 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stat.addMemory( "Mem_2_Preprocessed" );
@@ -134,7 +132,7 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinDeltaIndex( qgramSize, deltaMax, query, stat );
+		idx = new JoinDeltaIndex( qSize, deltaMax, query, stat );
 		JoinDeltaIndex.useLF = useLF;
 		JoinDeltaIndex.usePQF = usePQF;
 	}

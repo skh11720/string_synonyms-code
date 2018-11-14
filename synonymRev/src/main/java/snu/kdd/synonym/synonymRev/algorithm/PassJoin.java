@@ -18,10 +18,11 @@ public class PassJoin extends AlgorithmTemplate{
 	protected PassJoinIndexForSynonyms index = null;
 	protected int deltaMax;
 
-	public PassJoin( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
+
+	public PassJoin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
 	}
-	
+
 	@Override
 	protected void preprocess() {
 		super.preprocess();
@@ -29,12 +30,15 @@ public class PassJoin extends AlgorithmTemplate{
 			rec.preprocessSuffixApplicableRules();
 		}
 	}
+	
+	@Override
+	protected void setup(String[] args) throws IOException, ParseException {
+		Param param = new Param(args);
+		deltaMax = param.deltaMax;
+	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		Param params = Param.parseArgs( args, stat, query );
-		deltaMax = params.deltaMax;
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 		preprocess();

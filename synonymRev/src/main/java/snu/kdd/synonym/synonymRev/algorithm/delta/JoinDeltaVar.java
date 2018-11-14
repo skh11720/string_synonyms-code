@@ -17,14 +17,9 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaVar extends AlgorithmTemplate {
-	// RecordIDComparator idComparator;
-
-	public JoinDeltaVar( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
 
 	protected int indexK;
-	protected int qgramSize;
+	protected int qSize;
 	protected int deltaMax;
 
 	public Validator checker;
@@ -33,14 +28,8 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	protected boolean useLF, usePQF;
 	
 	
-	
-	protected void setup( Param params ) {
-		indexK = params.indexK;
-		qgramSize = params.qgramSize;
-		deltaMax = params.deltaMax;
-		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = params.useLF;
-		usePQF = params.usePQF;
+	public JoinDeltaVar(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
 	}
 
 	@Override
@@ -58,11 +47,18 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
+	protected void setup( String[] args ) throws IOException, ParseException {
+		Param param = new Param(args);
+		indexK = param.indexK;
+		qSize = param.qSize;
+		deltaMax = param.deltaMax;
+		checker = new DeltaValidatorDPTopDown(deltaMax);
+		useLF = param.useLF;
+		usePQF = param.usePQF;
+	}
 
+	@Override
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stat.addMemory( "Mem_2_Preprocessed" );
@@ -136,7 +132,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinDeltaVarIndex(indexK, qgramSize, deltaMax, query, stat);
+		idx = new JoinDeltaVarIndex(indexK, qSize, deltaMax, query, stat);
 		JoinDeltaIndex.useLF = useLF;
 		JoinDeltaIndex.usePQF = usePQF;
 	}

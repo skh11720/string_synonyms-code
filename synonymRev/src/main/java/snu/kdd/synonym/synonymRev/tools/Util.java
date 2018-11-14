@@ -200,17 +200,17 @@ public class Util {
 		 */
 		List<IntegerPair> qgramPrefixList = new ObjectArrayList<IntegerPair>();
 		List<QGram> keyList = new ObjectArrayList<QGram>( qgramSet );
-		int qgramSize = keyList.get( 0 ).qgram.length;
+		int qSize = keyList.get( 0 ).qgram.length;
 		keyList.sort( new QGramComparator() );
 		int d = 1;
 		QGram qgramPrev = null;
 		for (QGram qgram : keyList ) {
 			if ( qgramPrev != null ) {
-				for ( d=1; d<qgramSize; d++) {
+				for ( d=1; d<qSize; d++) {
 					if ( qgram.qgram[d-1] != qgramPrev.qgram[d-1] ) break;
 				}
 			}
-			for (; d<=qgramSize; d++) {
+			for (; d<=qSize; d++) {
 				qgramPrefixList.add(new IntegerPair( qgram.qgram[d-1], d ));
 //					System.out.println( new IntegerPair( qgram.qgram[d-1], d) );
 			}

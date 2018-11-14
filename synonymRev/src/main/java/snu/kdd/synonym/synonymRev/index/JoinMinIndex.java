@@ -43,7 +43,7 @@ public class JoinMinIndex extends AbstractIndex {
 	public double rhoPrime;
 
 	protected final int indexK;
-	protected final int qgramSize;
+	protected final int qSize;
 
 	public long searchedTotalSigCount = 0;
 	public long indexedTotalSigCount = 0;
@@ -77,7 +77,7 @@ public class JoinMinIndex extends AbstractIndex {
 		
 		this.idx = new ArrayList<WYK_HashMap<QGram, List<Record>>>();
 		this.indexK = indexK;
-		this.qgramSize = qSize;
+		this.qSize = qSize;
 		this.query = query;
 		posCounter.defaultReturnValue(0);
 	}
@@ -165,11 +165,11 @@ public class JoinMinIndex extends AbstractIndex {
 			}
 
 			List<List<QGram>> availableQGrams = null;
-			if ( useSTPQ ) availableQGrams = rec.getQGrams( qgramSize );
+			if ( useSTPQ ) availableQGrams = rec.getQGrams( qSize );
 			else {
 				List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
 				for ( Record exp : rec.expandAll() ) {
-					List<List<QGram>> qgramsList = exp.getSelfQGrams( qgramSize, indexK );
+					List<List<QGram>> qgramsList = exp.getSelfQGrams( qSize, indexK );
 					while ( availableQGramsSet.size() < qgramsList.size() ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
 					for ( int k=0; k<qgramsList.size(); ++k ) {
 						QGram qgram = qgramsList.get( k ).get( 0 );
@@ -307,11 +307,11 @@ public class JoinMinIndex extends AbstractIndex {
 			boolean isLowRecord = hybridIndex && ( rec.getEstNumTransformed() <= threshold );
 
 			if( query.oneSideJoin ) {
-				availableQGrams = rec.getSelfQGrams( qgramSize, searchmax );
+				availableQGrams = rec.getSelfQGrams( qSize, searchmax );
 				// System.out.println( availableQGrams.toString() );
 			}
 			else {
-				availableQGrams = rec.getQGrams( qgramSize, searchmax );
+				availableQGrams = rec.getQGrams( qSize, searchmax );
 			}
 
 			for( List<QGram> set : availableQGrams ) {
@@ -433,7 +433,7 @@ public class JoinMinIndex extends AbstractIndex {
 	}
 	
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qSize );
 		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
 			if ( k >= idx.size() ) continue;
@@ -463,7 +463,7 @@ public class JoinMinIndex extends AbstractIndex {
 		else {
 			List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
 			for ( Record exp : recS.expandAll() ) {
-				List<List<QGram>> qgramsList = exp.getSelfQGrams(qgramSize, exp.size());
+				List<List<QGram>> qgramsList = exp.getSelfQGrams(qSize, exp.size());
 				while ( availableQGramsSet.size() < qgramsList.size() ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
 				for ( int k=0; k<qgramsList.size(); ++k ) {
 					QGram qgram = qgramsList.get( k ).get( 0 );

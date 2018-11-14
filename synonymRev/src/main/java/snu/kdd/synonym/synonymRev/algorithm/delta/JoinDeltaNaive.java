@@ -16,22 +16,14 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 	
 	protected DeltaHashIndex idx;
 	protected Validator checker;
-	protected int qgramSize;
+	protected int qSize;
 	protected int deltaMax;
 	
 	public static boolean useLF = true;
 
 	
-
-	public JoinDeltaNaive( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
-
-	protected void setup( Param params ) {
-		qgramSize = params.qgramSize;
-		deltaMax = params.deltaMax;
-		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = params.useLF;
+	public JoinDeltaNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
 	}
 
 	@Override
@@ -47,13 +39,18 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 			}
 		}
 	}
+	
+	@Override
+	protected void setup(String[] args) throws IOException, ParseException {
+		Param param = new Param(args);
+		qSize = param.qSize;
+		deltaMax = param.deltaMax;
+		checker = new DeltaValidatorDPTopDown(deltaMax);
+		useLF = param.useLF;
+	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stat.addMemory( "Mem_2_Preprocessed" );

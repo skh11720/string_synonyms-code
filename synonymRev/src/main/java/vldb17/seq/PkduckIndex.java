@@ -18,7 +18,7 @@ public class PkduckIndex {
 	private WYK_HashMap<Integer, WYK_HashMap<Integer, List<Record>>> idx;
 	
 	/*
-	 * Currently, qgramSize and prefixSize are fixed to 1,
+	 * Currently, qSize and prefixSize are fixed to 1,
 	 * since we are interested in the uni-directional equivalence only.
 	 */
 	private final AbstractGlobalOrder globalOrder;

@@ -12,8 +12,8 @@ import snu.kdd.synonym.synonymRev.tools.QGram;
 
 public class FrequencyFirstOrder extends AbstractGlobalOrder {
 	
-	public FrequencyFirstOrder( int qgramSize ) {
-		super( qgramSize );
+	public FrequencyFirstOrder( int qSize ) {
+		super( qSize );
 	}
 	
 	@Override

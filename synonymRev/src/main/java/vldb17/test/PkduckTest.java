@@ -11,9 +11,9 @@ import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
-import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
+import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
@@ -96,8 +96,8 @@ public class PkduckTest {
 	
 	public static void joinTest(AbstractGlobalOrder globalOrder) throws IOException, ParseException {
 		StatContainer stat = new StatContainer();
-		JoinPkduck joinPkduck = new JoinPkduck( query, stat );
-		joinPkduck.run( query, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"});
+		JoinPkduck joinPkduck = new JoinPkduck( query, stat, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"} );
+		joinPkduck.run();
 	}
 
 	public static void naiveValidatorTest() {
@@ -226,12 +226,12 @@ public class PkduckTest {
 		Ordering[] orderList = {Ordering.PF, Ordering.FF};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.PositionFirst};
 //		GlobalOrder[] globalOrderList = {GlobalOrder.TokenIndexFirst};
-		int qgramSize = 2;
+		int qSize = 2;
 		for (Ordering order: orderList) {
 			AbstractGlobalOrder globalOrder;
 			switch (order) {
-			case PF: globalOrder = new PositionFirstOrder(qgramSize); break;
-			case FF: globalOrder = new FrequencyFirstOrder(qgramSize); break;
+			case PF: globalOrder = new PositionFirstOrder(qSize); break;
+			case FF: globalOrder = new FrequencyFirstOrder(qSize); break;
 			default: throw new RuntimeException("Unexpected error");
 			}
 			System.out.println( "Global order: "+globalOrder );

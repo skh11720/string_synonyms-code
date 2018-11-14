@@ -1,4 +1,4 @@
-package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
+package snu.kdd.synonym.synonymRev.algorithm.set;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -36,7 +36,7 @@ public class JoinBKPSet extends AlgorithmTemplate {
 	public WYK_HashMap<Integer, List<Record>> idxT = null;
 	public Object2IntOpenHashMap<Record> idxCountS = null;
 	public Object2IntOpenHashMap<Record> idxCountT = null;
-	public int indexK = 0;
+	public int indexK;
 
 	protected Validator checker;
 	protected long candTokenTime = 0;
@@ -59,32 +59,43 @@ public class JoinBKPSet extends AlgorithmTemplate {
 	// staticitics used for building indexes
 	double avgTransformed;
 
-	public JoinBKPSet( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
+
+	public JoinBKPSet(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
 	}
 
+	@Override
 	public void preprocess() {
 		super.preprocess();
 
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : query.searchedSet.recordList ) {
 			rec.preprocessSuffixApplicableRules();
 		}
 		idxT = new WYK_HashMap<Integer, List<Record>>();
 		idxCountT = new Object2IntOpenHashMap<Record>(query.indexedSet.size());
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
-			idxS = new WYK_HashMap<Integer, List<Record>>();
-			idxCountS = new Object2IntOpenHashMap<Record>(query.searchedSet.size());
-		}
+//		if( !query.selfJoin ) {
+//			for( Record rec : query.searchedSet.get() ) {
+//				rec.preprocessSuffixApplicableRules();
+//			}
+//			idxS = new WYK_HashMap<Integer, List<Record>>();
+//			idxCountS = new Object2IntOpenHashMap<Record>(query.searchedSet.size());
+//		}
 		globalOrder.initializeForSet( query );
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		getParams( query, args );
-		
+	protected void setup( String[] args ) throws IOException, ParseException {
+		ParamForSet param = new ParamForSet(args);
+		indexK = param.indexK;
+		if ( param.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
+		else if ( param.verifier.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, param.beamWidth );
+		else if ( param.verifier.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
+		else throw new RuntimeException("Unexpected value for verifier: "+param.verifier);
+	}
+
+
+	@Override
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 
 //		if( DEBUG.NaiveON ) {
@@ -108,19 +119,6 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		checker.addStat( stat );
 	}
 	
-	protected ParamPQFilterDPSet getParams( Query query, String[] args ) throws IOException, ParseException {
-		ParamPQFilterDPSet params = ParamPQFilterDPSet.parseArgs( args, stat, query );
-		indexK = params.K;
-		if( query.oneSideJoin ) {
-			if ( params.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
-			else if ( params.verifier.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, params.beamWidth );
-			else if ( params.verifier.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
-			else throw new RuntimeException("Unexpected value for verifier: "+params.verifier);
-		}
-		else throw new RuntimeException("BothSide is not supported.");
-		return params;
-	}
-
 	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
 		// Index building
 		StopWatch stepTime = null;
@@ -135,7 +133,7 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		}
 
 		buildIndex( query.indexedSet );
-		if ( !query.selfJoin ) buildIndex( query.searchedSet );
+//		if ( !query.selfJoin ) buildIndex( query.searchedSet );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -171,13 +169,13 @@ public class JoinBKPSet extends AlgorithmTemplate {
 			joinOneRecord( recS, rslt, idxT, idxCountT );
 		}
 
-		if ( !query.selfJoin ) {
-			// T -> T' ~ S
-			for ( Record recT : query.indexedSet.recordList ) {
-				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-				joinOneRecord( recT, rslt, idxS, idxCountS );
-			}
-		}
+//		if ( !query.selfJoin ) {
+//			// T -> T' ~ S
+//			for ( Record recT : query.indexedSet.recordList ) {
+//				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+//				joinOneRecord( recT, rslt, idxS, idxCountS );
+//			}
+//		}
 		
 		if ( addStat ) {
 			stat.add( "Result_3_3_CandTokenTime", candTokenTime );

@@ -174,7 +174,7 @@ public class SampleEstimate {
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		long ts = System.nanoTime();
-		naiveinst = new NaiveIndex( sampleQuery, tmpStat, false, -1, indexAvgTransform );
+		naiveinst = new NaiveIndex( sampleQuery, tmpStat, false, indexAvgTransform );
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {

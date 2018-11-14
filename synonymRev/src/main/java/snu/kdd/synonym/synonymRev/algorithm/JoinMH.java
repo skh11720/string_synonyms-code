@@ -15,17 +15,14 @@ import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
+import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMH extends AlgorithmTemplate {
 	// RecordIDComparator idComparator;
 
-	public JoinMH( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
-
 	public int indexK;
-	public int qgramSize;
+	public int qSize;
 
 	public Validator checker;
 
@@ -40,14 +37,19 @@ public class JoinMH extends AlgorithmTemplate {
 	protected boolean useLF, usePQF, useSTPQ;
 	
 	
-	
-	protected void setup( Param params ) {
-		indexK = params.indexK;
-		qgramSize = params.qgramSize;
-		checker = params.validator;
-		useLF = params.useLF;
-		usePQF = params.usePQF;
-		useSTPQ = params.useSTPQ;
+	public JoinMH(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+	}
+
+	@Override
+	protected void setup( String[] args ) throws IOException, ParseException {
+		Param param = new Param(args);
+		indexK = param.indexK;
+		qSize = param.qSize;
+		checker = new TopDownOneSide();
+		useLF = param.useLF;
+		usePQF = param.usePQF;
+		useSTPQ = param.useSTPQ;
 	}
 
 	@Override
@@ -65,11 +67,7 @@ public class JoinMH extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stat.addMemory( "Mem_2_Preprocessed" );
@@ -150,7 +148,7 @@ public class JoinMH extends AlgorithmTemplate {
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		idx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 		JoinMHIndex.useLF = useLF;
 		JoinMHIndex.usePQF = usePQF;
 		JoinMHIndex.useSTPQ = useSTPQ;

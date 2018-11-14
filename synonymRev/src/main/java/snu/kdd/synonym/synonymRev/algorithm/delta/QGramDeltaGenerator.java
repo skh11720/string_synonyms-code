@@ -12,16 +12,16 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class QGramDeltaGenerator {
 	
-	private final int qgramSize;
+	private final int qSize;
 	private final int deltaMax;
 	private final List<Entry<IntArrayList, Integer>> combList; // list of pairs of (comb, delta).
 
-	public QGramDeltaGenerator( int qgramSize, int deltaMax ) {
-		this.qgramSize = qgramSize;
+	public QGramDeltaGenerator( int qSize, int deltaMax ) {
+		this.qSize = qSize;
 		this.deltaMax = deltaMax;
 		this.combList = new ArrayList<>();
-		for ( IntArrayList comb : Util.getCombinations( qgramSize+deltaMax, qgramSize ) ) {
-			int delta = comb.getInt( qgramSize-1 ) - qgramSize + 1;
+		for ( IntArrayList comb : Util.getCombinations( qSize+deltaMax, qSize ) ) {
+			int delta = comb.getInt( qSize-1 ) - qSize + 1;
 			combList.add( new AbstractMap.SimpleEntry<IntArrayList, Integer>( comb, delta ) );
 		}
 	}
@@ -29,18 +29,18 @@ public class QGramDeltaGenerator {
 	public Iterable<Entry<QGram, Integer>> getQGramDelta( final QGram qgram ) {
 		/*
 		 * Return the list of pairs, where each pair consists of a qgram and the value of delta.
-		 * Note: the length of the input qgram must be qgramSize+deltaMax.
+		 * Note: the length of the input qgram must be qSize+deltaMax.
 		 */
 		List<Entry<QGram, Integer>> qgramDeltaList = new ObjectArrayList<Entry<QGram, Integer>>();
 		int[] qgramTokens = qgram.qgram;
 		for ( Entry<IntArrayList, Integer> entry : combList ) {
 			IntArrayList comb = entry.getKey();
 			int delta = entry.getValue();
-			int[] tokens = new int[qgramSize];
+			int[] tokens = new int[qSize];
 			// selecting PAD as an error is invalid; ignore such cases.
 			int j = 0;
 			int pick = comb.getInt( j );
-			for ( int i=0; i<qgramSize+deltaMax; ++i ) {
+			for ( int i=0; i<qSize+deltaMax; ++i ) {
 				if ( i == pick ) {
 					tokens[j++] = qgramTokens[i];
 					if ( j >= tokens.length ) break;
@@ -49,7 +49,7 @@ public class QGramDeltaGenerator {
 				else if ( qgramTokens[i] == Integer.MAX_VALUE ) break;
 //				tokens[i] = qgramTokens[comb.getInt(i)];
 			}
-//			for ( int i=0; i<qgramSize; ++i ) tokens[i] = qgramTokens[comb.getInt(i)];
+//			for ( int i=0; i<qSize; ++i ) tokens[i] = qgramTokens[comb.getInt(i)];
 //			if ( tokens[0] == Integer.MAX_VALUE ) continue; // this line incurs incorrect result.
 			if ( j == tokens.length ) {
 				QGram qgramDelta = new QGram( tokens );

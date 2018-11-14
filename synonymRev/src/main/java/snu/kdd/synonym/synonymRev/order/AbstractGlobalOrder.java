@@ -26,13 +26,13 @@ abstract public class AbstractGlobalOrder {
 	
 	protected Object2IntOpenHashMap<?> counter = null;
 	protected Object2IntOpenHashMap<?> orderMap = null;
-	protected final int qgramSize;
+	protected final int qSize;
 	protected int nEntry;
 	protected int max_pos = 0;
 
-	public AbstractGlobalOrder( int qgramSize) {
-		this.qgramSize = qgramSize;
-		if ( qgramSize == 1 ) {
+	public AbstractGlobalOrder( int qSize) {
+		this.qSize = qSize;
+		if ( qSize == 1 ) {
 			counter = new Object2IntOpenHashMap<Integer>();
 			counter.defaultReturnValue( 0 );
 			orderMap = new Object2IntOpenHashMap<Integer>();
@@ -46,7 +46,7 @@ abstract public class AbstractGlobalOrder {
 	
 	public void initializeForSequence( Query query, boolean indexByOrder ) {
 		count( query.searchedSet.recordList, true );
-		if ( !query.selfJoin ) count( query.indexedSet.recordList, false );
+//		if ( !query.selfJoin ) count( query.indexedSet.recordList, false );
 		buildOrderMap();
 		if ( indexByOrder ) {
 			IntOpenHashSet converted = new IntOpenHashSet();
@@ -58,16 +58,16 @@ abstract public class AbstractGlobalOrder {
 
 	public void initializeForSet( Query query ) {
 		count( query.searchedSet.recordList, true );
-		if ( !query.selfJoin ) count( query.indexedSet.recordList, true );
+//		if ( !query.selfJoin ) count( query.indexedSet.recordList, true );
 		buildOrderMap();
 		IntOpenHashSet converted = new IntOpenHashSet();
 		indexByOrder( query.searchedSet.recordList, true, converted );
-		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, true, converted );
+		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
 	}
 	
 	public void initializeForSet( Query query, boolean expand ) {
 		count( query.searchedSet.recordList, expand );
-		if ( !query.selfJoin ) count( query.indexedSet.recordList, expand );
+//		if ( !query.selfJoin ) count( query.indexedSet.recordList, expand );
 		buildOrderMap();
 		IntOpenHashSet converted = new IntOpenHashSet();
 		indexByOrder( query.searchedSet.recordList, expand, converted );
@@ -75,7 +75,7 @@ abstract public class AbstractGlobalOrder {
 	}
 
 	protected void indexByOrder( List<Record> recordList, boolean expand, IntOpenHashSet converted ) {
-		if ( qgramSize > 1 ) throw new RuntimeException("Unexpected error");
+		if ( qSize > 1 ) throw new RuntimeException("Unexpected error");
 		for ( Record rec : recordList ) {
 //			Boolean debug = false;
 //			if ( rec.getID() == 11487 ) debug = true;
@@ -116,13 +116,13 @@ abstract public class AbstractGlobalOrder {
 //		System.out.println( "Counter size: "+counter.size() );
 		for ( int i=0; i<counter.size(); i++ ) {
 			Entry<?, Integer> entry = iter.next();
-			if( qgramSize == 1 ) ((Object2IntOpenHashMap<Integer>)orderMap).put( (Integer)entry.getKey(), i );
+			if( qSize == 1 ) ((Object2IntOpenHashMap<Integer>)orderMap).put( (Integer)entry.getKey(), i );
 			else ((Object2IntOpenHashMap<QGram>)orderMap).put( (QGram)entry.getKey(), i );
 		}
 	}
 	
 	protected void count( List<Record> recordList, boolean expand ) {
-		if ( qgramSize == 1 ) countTokens( recordList, expand );
+		if ( qSize == 1 ) countTokens( recordList, expand );
 		else countQGrams( recordList, expand );
 	}
 
@@ -130,13 +130,13 @@ abstract public class AbstractGlobalOrder {
 		Object2IntOpenHashMap<QGram> _counter = (Object2IntOpenHashMap<QGram>)counter;
 		for ( Record rec : recordList ) {
 			max_pos = Math.max( max_pos, rec.getMaxTransLength() );
-			List<List<QGram>> selfQGrams = rec.getSelfQGrams( qgramSize, rec.size() );
+			List<List<QGram>> selfQGrams = rec.getSelfQGrams( qSize, rec.size() );
 			for ( int i=0; i<rec.size(); i++ ) {
 				if ( expand ) {
 					for ( Rule rule : rec.getSuffixApplicableRules( i ) ) {
-						int[] rhs_padded = Util.pad( rule.getRight(), rule.rightSize()+qgramSize-1, Integer.MAX_VALUE );
+						int[] rhs_padded = Util.pad( rule.getRight(), rule.rightSize()+qSize-1, Integer.MAX_VALUE );
 						for ( int j=0; j<rule.rightSize(); j++ ) {
-							QGram qgram = new QGram( Arrays.copyOfRange( rhs_padded, j, j+qgramSize ));
+							QGram qgram = new QGram( Arrays.copyOfRange( rhs_padded, j, j+qSize ));
 							_counter.put( qgram, _counter.getInt( qgram )+1 );
 						}
 					}
@@ -175,26 +175,26 @@ abstract public class AbstractGlobalOrder {
 				for ( Rule rule : recS.getSuffixApplicableRules( i ) ) {
 					int[] rhs = rule.getRight();
 					for ( int j=0; j<rhs.length; j++ ) {
-						QGram qgram = new QGram( Arrays.copyOfRange( rhs, j, j+qgramSize ));
+						QGram qgram = new QGram( Arrays.copyOfRange( rhs, j, j+qSize ));
 						counter.put( qgram, counter.getInt( qgram )+1 );
 					}
 				}
 			}
 		}
 		
-		if ( !query.selfJoin ) {
-			for ( Record recT : query.indexedSet.recordList ) {
-				for ( int i=0; i<recT.size(); i++ ) {
-					for ( Rule rule : recT.getSuffixApplicableRules( i ) ) {
-						int[] rhs = rule.getRight();
-						for ( int j=0; j<rhs.length; j++ ) {
-							QGram qgram = new QGram( Arrays.copyOfRange( rhs, j, j+qgramSize ));
-							counter.put( qgram, counter.getInt( qgram )+1 );
-						}
-					}
-				}
-			}
-		}
+//		if ( !query.selfJoin ) {
+//			for ( Record recT : query.indexedSet.recordList ) {
+//				for ( int i=0; i<recT.size(); i++ ) {
+//					for ( Rule rule : recT.getSuffixApplicableRules( i ) ) {
+//						int[] rhs = rule.getRight();
+//						for ( int j=0; j<rhs.length; j++ ) {
+//							QGram qgram = new QGram( Arrays.copyOfRange( rhs, j, j+qSize ));
+//							counter.put( qgram, counter.getInt( qgram )+1 );
+//						}
+//					}
+//				}
+//			}
+//		}
 
 		Object2IntOpenHashMap<QGram> orderMap = new Object2IntOpenHashMap<QGram>( counter.size() );
 		orderMap.defaultReturnValue( Integer.MAX_VALUE );
@@ -239,7 +239,7 @@ abstract public class AbstractGlobalOrder {
 ////		System.out.println( "Counter size: "+counter.size() );
 //		for ( int i=0; i<counter.size(); i++ ) {
 //			Entry<?, Integer> entry = iter.next();
-//			if( qgramSize == 1 ) ((Object2IntOpenHashMap<Integer>)orderMap).put( (Integer)entry.getKey(), i );
+//			if( qSize == 1 ) ((Object2IntOpenHashMap<Integer>)orderMap).put( (Integer)entry.getKey(), i );
 //			else ((Object2IntOpenHashMap<QGram>)orderMap).put( (QGram)entry.getKey(), i );
 //		}
 	}

@@ -18,6 +18,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
+import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 /**
@@ -30,16 +31,13 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
  * index in order to find the best execution time.
  */
 public class JoinHybridAll extends AlgorithmTemplate {
-	public JoinHybridAll( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
 
 	public Validator checker;
 	SampleEstimate estimate;
-	protected int qSize = 0;
-	protected int indexK = 0;
-	protected double sampleRatio = 0;
-	protected int nEst = 1;
+	protected int qSize;
+	protected int indexK;
+	protected double sampleRatio;
+	protected int nEst;
 	protected int joinThreshold = 1;
 	protected boolean joinQGramRequired = true;
 	protected boolean joinMinSelected = false;
@@ -51,6 +49,11 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;
+
+
+	public JoinHybridAll(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+	}
 
 	@Override
 	public void preprocess() {
@@ -77,17 +80,18 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		stat.add( "MaxIndexedEstNumRecords", maxIndexedEstNumRecords );
 		stat.add( "MaxSearchedEstNumRecords", maxSearchedEstNumRecords );
 	}
+	
+	@Override
+	protected void setup( String[] args ) throws IOException, ParseException {
+		Param param = new Param(args);
+		checker = new TopDownOneSide();
+		qSize = param.qSize;
+		indexK = param.indexK;
+		sampleRatio = param.sampleH;
+	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		Param params = Param.parseArgs( args, stat, query );
-		// Setup parameters
-		checker = params.validator;
-		qSize = params.qgramSize;
-		indexK = params.indexK;
-		sampleRatio = params.sampleRatio;
-		nEst = params.nEst;
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stepTime.stopAndAdd( stat );
@@ -120,7 +124,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 	}
 
 	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveIndex( query, stat, true, joinThreshold, joinThreshold / 2 );
+		naiveIndex = new NaiveIndex( query, stat, true, joinThreshold / 2 );
 	}
 
 	/**

@@ -17,6 +17,7 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -44,21 +45,24 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 
 	// contains statistics of the algorithm
 	public boolean writeResult = true;
-	protected StatContainer stat;
-	protected Query query;
-	protected ACAutomataR automata;
+	protected final StatContainer stat;
+	protected final Query query;
 	public Collection<IntegerPair> rslt = null;
 
-	public AlgorithmTemplate( Query query, StatContainer stat ) throws IOException {
+
+	public AlgorithmTemplate( Query query, StatContainer stat, String[] args ) throws IOException, ParseException {
 		this.stat = stat;
 		this.query = query;
+		setup(args);
 	}
 
 	public abstract String getName();
 
 	public abstract String getVersion();
+	
+	protected abstract void setup( String[] args ) throws IOException, ParseException;
 
-	public abstract void run( Query query, String[] args ) throws IOException, ParseException;
+	public abstract void run();
 
 	public void printStat() {
 		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
@@ -77,7 +81,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
 		}
 
-		automata = new ACAutomataR( query.ruleSet.get() );
+		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 
 		long applicableRules = 0;
 
