@@ -15,9 +15,9 @@ import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.tools.AbstractParam;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -47,29 +47,20 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	public boolean writeResult = true;
 	protected final StatContainer stat;
 	protected final Query query;
+	protected AbstractParam param;
 	public Collection<IntegerPair> rslt = null;
 
 
 	public AlgorithmTemplate( Query query, StatContainer stat, String[] args ) throws IOException, ParseException {
 		this.stat = stat;
 		this.query = query;
-		setup(args);
 	}
 
 	public abstract String getName();
 
 	public abstract String getVersion();
-	
-	protected abstract void setup( String[] args ) throws IOException, ParseException;
 
 	public abstract void run();
-
-	public void printStat() {
-		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
-		stat.printResult();
-		System.out.println(
-				"==============" + new String( new char[ getName().length() ] ).replace( "\0", "=" ) + "====================" );
-	}
 
 	protected void preprocess() {
 		// builds an automata of the set of rules
@@ -161,6 +152,13 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		}
 	}
 
+	public void printStat() {
+		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
+		stat.printResult();
+		System.out.println(
+				"==============" + new String( new char[ getName().length() ] ).replace( "\0", "=" ) + "====================" );
+	}
+
 	public void writeResult() {
 		if ( !writeResult ) return;
 		stat.addPrimary( "Final Result Size", rslt.size() );
@@ -202,27 +200,33 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 							+ new java.text.SimpleDateFormat( "yyyyMMdd_HHmmss_z" ).format( new java.util.Date() ) + ".txt",
 					true ) );
 
+			// start JSON object
 			bw_json.write( "{" );
-
-			bw_json.write( "\"Date\": \"" + new Date().toString() + "\"," );
-
-			bw_json.write( "\"Algorithm\": {" );
-			bw_json.write( "\"name\": \"" + getName() + "\"," );
-			bw_json.write( "\"version\": \"" + getVersion() + "\"" );
+			// metadata
+			bw_json.write( "\"Date\":\"" + new Date().toString() + "\", " );
+			// input
+			bw_json.write("\"Input\":{");
+				// input.algorithm
+				bw_json.write( "\"Algorithm\":{" );
+					bw_json.write( "\"Name\":\"" + getName() + "\", " );
+					bw_json.write( "\"Version\":\"" + getVersion() + "\", " );
+					// input.algorithm.param
+					bw_json.write("\"Param\":"+param.getJSONString() );
+				bw_json.write( "}" );
+				// input.dataset
+				bw_json.write( ", \"Dataset\":{" );
+				bw_json.write( dataInfo.toJson() );
+				bw_json.write( "}" );
 			bw_json.write( "}" );
-
-			bw_json.write( ", \"Result\":{" );
+			// output
+			bw_json.write( ", \"Output\":{" );
 			bw_json.write( stat.toJson() );
 			bw_json.write( "}" );
 
-			bw_json.write( ", \"Dataset\": {" );
-			bw_json.write( dataInfo.toJson() );
-			bw_json.write( "}" );
-
-			bw_json.write( ", \"ParametersUsed\": {" );
-			bw_json.write( "\"additional\": " );
-			bw_json.write( "\"" + cmd.getOptionValue( "additional", "" ) + "\"," );
-			bw_json.write( "\"oneSideJoin\": " );
+			bw_json.write( ", \"ParametersUsed\":{" );
+			bw_json.write( "\"additional\":" );
+			bw_json.write( "\"" + cmd.getOptionValue( "additional", "" ) + "\", " );
+			bw_json.write( "\"oneSideJoin\":" );
 			bw_json.write( "\"" + cmd.getOptionValue( "oneSideJoin" ) + "\"" );
 			bw_json.write( "}" );
 

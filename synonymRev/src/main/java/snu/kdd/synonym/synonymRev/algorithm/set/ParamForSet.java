@@ -10,8 +10,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import snu.kdd.synonym.synonymRev.tools.AbstractParam;
 
-public class ParamForSet {
+public class ParamForSet extends AbstractParam {
 
 	private static final Options argOptions;
 
@@ -29,23 +30,22 @@ public class ParamForSet {
 		CommandLine cmd = parser.parse( argOptions, args );
 		
 		if ( cmd.hasOption( "K" ) ) {
-			indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
+			int indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
 			if ( indexK < 0 ) throw new RuntimeException("K must be larger than 0, not "+indexK);
+			mapParamI.put("indexK", indexK);
 		}
 
 		if( cmd.hasOption( "verify" ) ) {
-			verifier = cmd.getOptionValue( "verify" );
+			String verifier = cmd.getOptionValue( "verify" );
 			Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"TD", "MIT_GR"} );
 			if ( verifier.startsWith( "GR" ) ) {
-				beamWidth = Integer.parseInt( verifier.substring( 2 ) );
+				int beamWidth = Integer.parseInt( verifier.substring( 2 ) );
+				mapParamI.put("beamWidth", beamWidth);
 			}
 			else if ( !possibleValues.contains( verifier ) )
 				throw new RuntimeException("unexpected value for option -verify: "+verifier);
+			mapParamS.put("verify", verifier);
 		}
 		else throw new RuntimeException("verify is not specified.");
     }
-
-    public String verifier;
-    public int beamWidth;
-    public int indexK;
 }

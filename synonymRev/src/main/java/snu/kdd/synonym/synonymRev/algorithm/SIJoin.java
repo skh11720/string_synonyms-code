@@ -27,10 +27,6 @@ public class SIJoin extends AlgorithmTemplate {
 
 	public SIJoin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-	}
-
-	@Override
-	protected void setup(String[] args) throws IOException, ParseException {
 		checker = new TopDownOneSide();
 	}
 

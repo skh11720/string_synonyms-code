@@ -10,4 +10,6 @@
 /run/known_hosts
 /run/encrypted.bin
 /run/sandbox.py
+/result/
+/json/
 *.pyc

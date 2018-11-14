@@ -138,7 +138,8 @@ public class AlgorithmTest {
 			testJoinPkduckSet();
 			testJoinBKPSet();
 			
-//			testJoinDeltaNaive();
+			testJoinDeltaNaive();
+			testJoinDeltaSimple();
 			testJoinDeltaVar();
 		}
 	}
@@ -327,6 +328,29 @@ public class AlgorithmTest {
 			if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[i];
 			else answer = ANS_SEQ_NONSELF_DELTA[i];
 			runAlgorithm( param_list[i], answer, isSelfJoin );
+		}
+	}
+
+	@Ignore
+	public void testJoinDeltaSimple() throws IOException, ParseException {
+		args[1] = "JoinDeltaSimple";
+		String[][] param_list = new String[3][];
+		for ( int d=0; d<3; ++d ) {
+			List<String> pstr_list = new ArrayList<>();
+			for ( int q=1; q<=3; ++q ) {
+				pstr_list.add( String.format("\"-qSize %d -delta %d\"", q, d ) );
+			}
+			param_list[d] = new String[pstr_list.size()];
+			pstr_list.toArray( param_list[d] );
+		}
+
+		int answer;
+		for ( int d=0; d<param_list.length; ++d ) {
+			for ( int i=0; i<param_list[d].length; ++i ) {
+				if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[d];
+				else answer = ANS_SEQ_NONSELF_DELTA[d];
+				runAlgorithm( param_list[d][i], answer, isSelfJoin );
+			}
 		}
 	}
 

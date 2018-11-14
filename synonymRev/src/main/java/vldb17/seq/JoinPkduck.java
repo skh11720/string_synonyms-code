@@ -49,7 +49,20 @@ public class JoinPkduck extends AlgorithmTemplate {
 
 	public JoinPkduck(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-		// TODO Auto-generated constructor stub
+		ParamPkduck param = new ParamPkduck(args);
+		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
+		switch(mode) {
+		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
+		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
+		default: throw new RuntimeException("Unexpected error");
+		}
+		useRuleComp = param.getBooleanParam("rc");
+		String verify = param.getStringParam("verify");
+		if (verify.equals( "naive" )) checker = new NaiveOneSide();
+		else if (verify.equals( "greedy" )) checker = new GreedyValidator( query.oneSideJoin );
+		else if (verify.equals( "TD" )) checker = new TopDownOneSide();
+		else throw new RuntimeException(getName()+" does not support verification: "+verify);
+		useLF = param.getBooleanParam("useLF");
 	}
 	
 	@Override
@@ -65,23 +78,6 @@ public class JoinPkduck extends AlgorithmTemplate {
 //		for( Record rec : query.indexedSet.get() ) {
 //			estTransformed += rec.getEstNumTransformed();
 //		}
-	}
-
-	@Override
-	protected void setup(String[] args) throws IOException, ParseException {
-		ParamPkduck param = new ParamPkduck(args);
-		Ordering mode = Ordering.valueOf( param.globalOrder );
-		switch(mode) {
-		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
-		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
-		default: throw new RuntimeException("Unexpected error");
-		}
-		useRuleComp = param.useRuleComp;
-		if (param.verifier.equals( "naive" )) checker = new NaiveOneSide();
-		else if (param.verifier.equals( "greedy" )) checker = new GreedyValidator( query.oneSideJoin );
-		else if (param.verifier.equals( "TD" )) checker = new TopDownOneSide();
-		else throw new RuntimeException(getName()+" does not support verification: "+param.verifier);
-		useLF = param.useLF;
 	}
 
 	@Override

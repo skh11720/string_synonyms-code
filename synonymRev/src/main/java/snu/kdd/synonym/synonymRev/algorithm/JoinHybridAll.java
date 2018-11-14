@@ -53,6 +53,11 @@ public class JoinHybridAll extends AlgorithmTemplate {
 
 	public JoinHybridAll(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
+		param = new Param(args);
+		checker = new TopDownOneSide();
+		qSize = param.getIntParam("qSize");
+		indexK = param.getIntParam("indexK");
+		sampleRatio = param.getDoubleParam("sampleH");
 	}
 
 	@Override
@@ -81,15 +86,6 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		stat.add( "MaxSearchedEstNumRecords", maxSearchedEstNumRecords );
 	}
 	
-	@Override
-	protected void setup( String[] args ) throws IOException, ParseException {
-		Param param = new Param(args);
-		checker = new TopDownOneSide();
-		qSize = param.qSize;
-		indexK = param.indexK;
-		sampleRatio = param.sampleH;
-	}
-
 	@Override
 	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );

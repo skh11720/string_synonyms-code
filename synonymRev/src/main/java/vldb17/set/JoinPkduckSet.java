@@ -27,7 +27,7 @@ import vldb17.ParamPkduck;
 
 public class JoinPkduckSet extends AlgorithmTemplate {
 
-	private PkduckSetIndex idxS = null;
+//	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
 	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
 	AbstractGlobalOrder globalOrder;
@@ -49,6 +49,19 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 
 	public JoinPkduckSet(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
+		ParamPkduck param = new ParamPkduck(args);
+		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
+		switch(mode) {
+		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
+		default: throw new RuntimeException("Unexpected error");
+		}
+		String verify = param.getStringParam("verify");
+		if (verify.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
+		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator( query.oneSideJoin );
+		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
+		else throw new RuntimeException(getName()+" does not support verification: "+verify);
+		useRuleComp = param.getBooleanParam("rc");
+		useLF = param.getBooleanParam("useLF");
 	}
 	
 	@Override
@@ -74,22 +87,6 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 //		avgTransformed = estTransformed / query.indexedSet.size();
 	}
 	
-	@Override
-	protected void setup(String[] args) throws IOException, ParseException {
-		ParamPkduck param = new ParamPkduck(args);
-		Ordering mode = Ordering.valueOf( param.globalOrder );
-		switch(mode) {
-		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
-		default: throw new RuntimeException("Unexpected error");
-		}
-		useRuleComp = param.useRuleComp;
-		if (param.verifier.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
-		else if (param.verifier.equals( "greedy" )) checker = new SetGreedyValidator( query.selfJoin );
-		else if (param.verifier.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
-		else throw new RuntimeException(getName()+" does not support verification: "+param.verifier);
-		useLF = param.useLF;
-	}
-
 	@Override
 	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );

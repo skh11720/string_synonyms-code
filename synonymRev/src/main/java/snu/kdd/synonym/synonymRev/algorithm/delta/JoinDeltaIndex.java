@@ -157,7 +157,7 @@ public class JoinDeltaIndex extends AbstractIndex {
 		if ( rangeS[0] <= qd ) {
 			for ( int l=1; l<=qd; ++l ) {
 				if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, l, l )) { // apply the length filtering 
-					candidates.addAll( idxByLen.get(l-1) );
+					if ( idxByLen.size() >= l ) candidates.addAll( idxByLen.get(l-1) );
 				}
 				else checker.lengthFiltered += idxByLen.get(l-1).size();
 			}

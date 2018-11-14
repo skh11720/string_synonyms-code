@@ -59,9 +59,6 @@ public class JoinSetNaive extends AlgorithmTemplate {
 	}
 	
 	@Override
-	protected void setup(String[] args) throws IOException, ParseException {}
-
-	@Override
 	public void run() { 
 //		this.threshold = Long.valueOf( args[ 0 ] );
 //		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );

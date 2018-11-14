@@ -21,6 +21,8 @@ public class PassJoin extends AlgorithmTemplate{
 
 	public PassJoin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
+		param = new Param(args);
+		deltaMax = param.getIntParam("deltaMax");
 	}
 
 	@Override
@@ -29,12 +31,6 @@ public class PassJoin extends AlgorithmTemplate{
 		for( Record rec : query.searchedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
 		}
-	}
-	
-	@Override
-	protected void setup(String[] args) throws IOException, ParseException {
-		Param param = new Param(args);
-		deltaMax = param.deltaMax;
 	}
 
 	@Override

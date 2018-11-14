@@ -11,7 +11,6 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
@@ -29,15 +28,10 @@ public class JoinDeltaAllPair extends AlgorithmTemplate {
 	
 	public JoinDeltaAllPair(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-	}
-
-	@Override
-	protected void setup( String[] args ) throws IOException, ParseException {
-		Param param = new Param(args);
-		qSize = param.qSize;
-		deltaMax = param.deltaMax;
+		qSize = param.getIntParam("qSize");
+		deltaMax = param.getIntParam("deltaMax");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = param.useLF;
+		useLF = param.getBooleanParam("useLF");
 	}
 
 	@Override

@@ -40,17 +40,13 @@ public class JoinMin extends AlgorithmTemplate {
 	
 	public JoinMin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-	}
-
-	@Override
-	protected void setup( String[] args ) throws IOException, ParseException {
-		Param param = new Param(args);
+		param = new Param(args);
 		checker = new TopDownOneSide();
-		qSize = param.qSize;
-		indexK = param.indexK;
-		useLF = param.useLF;
-		usePQF = param.usePQF;
-		useSTPQ = param.useSTPQ;
+		indexK = param.getIntParam("indexK");
+		qSize = param.getIntParam("qSize");
+		useLF = param.getBooleanParam("useLF");
+		usePQF = param.getBooleanParam("usePQF");
+		useSTPQ = param.getBooleanParam("useSTPQ");
 	}
 
 	@Override

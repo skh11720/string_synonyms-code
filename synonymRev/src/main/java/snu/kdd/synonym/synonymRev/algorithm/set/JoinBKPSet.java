@@ -62,6 +62,12 @@ public class JoinBKPSet extends AlgorithmTemplate {
 
 	public JoinBKPSet(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
+		param = new ParamForSet(args);
+		indexK = param.getIntParam("indexK");
+		String verify = param.getStringParam("verify");
+		if ( verify.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
+		else if ( verify.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, param.getIntParam("beamWidth") );
+		else if ( verify.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
 	}
 
 	@Override
@@ -82,17 +88,6 @@ public class JoinBKPSet extends AlgorithmTemplate {
 //		}
 		globalOrder.initializeForSet( query );
 	}
-
-	@Override
-	protected void setup( String[] args ) throws IOException, ParseException {
-		ParamForSet param = new ParamForSet(args);
-		indexK = param.indexK;
-		if ( param.verifier.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
-		else if ( param.verifier.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, param.beamWidth );
-		else if ( param.verifier.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
-		else throw new RuntimeException("Unexpected value for verifier: "+param.verifier);
-	}
-
 
 	@Override
 	public void run() {

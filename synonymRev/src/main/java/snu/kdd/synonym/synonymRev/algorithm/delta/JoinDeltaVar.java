@@ -30,6 +30,13 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	
 	public JoinDeltaVar(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
+		param = new Param(args);
+		indexK = param.getIntParam("indexK");
+		qSize = param.getIntParam("qSize");
+		deltaMax = param.getIntParam("deltaMax");
+		useLF = param.getBooleanParam("useLF");
+		usePQF = param.getBooleanParam("usePQF");
+		checker = new DeltaValidatorDPTopDown(deltaMax);
 	}
 
 	@Override
@@ -44,17 +51,6 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 				rec.preprocessSuffixApplicableRules();
 			}
 		}
-	}
-
-	@Override
-	protected void setup( String[] args ) throws IOException, ParseException {
-		Param param = new Param(args);
-		indexK = param.indexK;
-		qSize = param.qSize;
-		deltaMax = param.deltaMax;
-		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = param.useLF;
-		usePQF = param.usePQF;
 	}
 
 	@Override

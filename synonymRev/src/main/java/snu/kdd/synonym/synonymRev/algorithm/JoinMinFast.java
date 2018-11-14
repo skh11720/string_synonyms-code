@@ -16,19 +16,14 @@ public class JoinMinFast extends JoinMin {
 
 	public JoinMinFast(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-	}
-
-	@Override
-	protected void setup( String[] args ) throws IOException, ParseException {
-		Param param = new Param(args);
+		param = new Param(args);
 		checker = new TopDownOneSide();
-		qSize = param.qSize;
-		indexK = param.indexK;
-		sampleRatio = param.sampleB;
-		if ( sampleRatio <= 0 ) throw new RuntimeException("sampleRatio should be larger than 0.");
-		useLF = param.useLF;
-		usePQF = param.usePQF;
-		useSTPQ = param.useSTPQ;
+		qSize = param.getIntParam("qSize");
+		indexK = param.getIntParam("indexK");
+		sampleRatio = param.getDoubleParam("sampleB");
+		useLF = param.getBooleanParam("useLF");
+		usePQF = param.getBooleanParam("usePQF");
+		useSTPQ = param.getBooleanParam("useSTPQ");
 	}
 
 	@Override

@@ -5,11 +5,10 @@ import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-public class Param {
+public class Param extends AbstractParam {
 	private static final Options argOptions;
 
 	static {
@@ -23,9 +22,6 @@ public class Param {
 		argOptions.addOption( "useLF", true, "" );
 		argOptions.addOption( "usePQF", true, "" );
 		argOptions.addOption( "useSTPQ", true, "" );
-
-		argOptions.addOption( "verify", true, "Verification" );
-		argOptions.addOption( "rc", true, "Rule compression" );
 	}
 
 	public Param( String[] args ) throws IOException, ParseException {
@@ -33,41 +29,47 @@ public class Param {
 		CommandLine cmd = parser.parse( argOptions, args );
 
 		if( cmd.hasOption( "K" ) ) {
-			indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
+			int indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
 			if ( indexK <= 0 ) throw new ParseException("K must be larger than 0, not "+indexK);
+			mapParamI.put("indexK", indexK);
 		}
 		
 		if( cmd.hasOption( "qSize" ) ) {
-			qSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
+			int qSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
 			if ( qSize <= 0 ) throw new ParseException("qSize must be larger than 0, not "+qSize);
+			mapParamI.put("qSize", qSize);
 		}
 
-		if( cmd.hasOption( "sampleB" ) ) sampleB = Double.parseDouble( cmd.getOptionValue( "sampleB" ) );
+		if( cmd.hasOption( "sampleB" ) ) {
+			double sampleB = Double.parseDouble( cmd.getOptionValue( "sampleB" ) );
+			if ( sampleB < 0 || sampleB > 1 ) throw new ParseException("sampleB must be between 0 and 1, not "+sampleB);
+			mapParamD.put("sampleB", sampleB);
+		}
 
-		if( cmd.hasOption( "sampleH" ) ) sampleH = Double.parseDouble( cmd.getOptionValue( "sampleH" ) );
+		if( cmd.hasOption( "sampleH" ) ) {
+			double sampleH = Double.parseDouble( cmd.getOptionValue( "sampleH" ) );
+			if ( sampleH < 0 || sampleH > 1 ) throw new ParseException("sampleH must be between 0 and 1, not "+sampleH);
+			mapParamD.put("sampleH", sampleH);
+		}
 
-		if (cmd.hasOption( "delta" )) deltaMax = Integer.parseInt( cmd.getOptionValue( "delta" ) );
+		if (cmd.hasOption( "delta" )) {
+			int deltaMax = Integer.parseInt( cmd.getOptionValue( "delta" ) );
+			if ( deltaMax < 0 ) throw new ParseException("delta must be nonnegative integer, not "+deltaMax);
+			mapParamI.put("deltaMax", deltaMax);
+		}
 
+		boolean useLF = true;
 		if (cmd.hasOption( "useLF" )) useLF = Boolean.parseBoolean( cmd.getOptionValue( "useLF" ) );
-		else useLF = true;
+		mapParamB.put("useLF", useLF);
 
+		boolean usePQF = true;
 		if (cmd.hasOption( "usePQF" )) usePQF = Boolean.parseBoolean( cmd.getOptionValue( "usePQF" ) );
-		else usePQF = true;
+		mapParamB.put("usePQF", usePQF);
 
+		boolean useSTPQ = true;
 		if (cmd.hasOption( "useSTPQ" )) useSTPQ = Boolean.parseBoolean( cmd.getOptionValue( "useSTPQ" ) );
-		else useSTPQ = true;
+		mapParamB.put("useSTPQ", useSTPQ);
 	}
-	
-	// TODO toJSON
-
-	public int indexK;
-	public int qSize;
-	public double sampleB;
-	public double sampleH;
-	public int deltaMax;
-	public boolean useLF;
-	public boolean usePQF;
-	public boolean useSTPQ;
 	
 //	public static void main(String[] args) throws ParseException {
 //		args = new String[]{"-K", "1", "-qSize", "2", "-sampleB", "0.01", "-usePQF", "false"};

@@ -30,17 +30,12 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 
 	public JoinDeltaSimple(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-		// TODO Auto-generated constructor stub
-	}
-	
-	@Override
-	protected void setup( String[] args ) throws IOException, ParseException {
-		Param params = new Param(args);
-		qSize = params.qSize;
-		deltaMax = params.deltaMax;
+		param = new Param(args);
+		qSize = param.getIntParam("qSize");
+		deltaMax = param.getIntParam("deltaMax");
+		useLF = param.getBooleanParam("useLF");
+		usePQF = param.getBooleanParam("usePQF");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = params.useLF;
-		usePQF = params.usePQF;
 	}
 
 	@Override

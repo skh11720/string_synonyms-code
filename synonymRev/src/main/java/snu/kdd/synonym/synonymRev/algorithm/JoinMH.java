@@ -39,17 +39,13 @@ public class JoinMH extends AlgorithmTemplate {
 	
 	public JoinMH(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-	}
-
-	@Override
-	protected void setup( String[] args ) throws IOException, ParseException {
-		Param param = new Param(args);
-		indexK = param.indexK;
-		qSize = param.qSize;
+		param = new Param(args);
+		indexK = param.getIntParam("indexK");
+		qSize = param.getIntParam("qSize");
 		checker = new TopDownOneSide();
-		useLF = param.useLF;
-		usePQF = param.usePQF;
-		useSTPQ = param.useSTPQ;
+		useLF = param.getBooleanParam("useLF");
+		usePQF = param.getBooleanParam("usePQF");
+		useSTPQ = param.getBooleanParam("useSTPQ");
 	}
 
 	@Override

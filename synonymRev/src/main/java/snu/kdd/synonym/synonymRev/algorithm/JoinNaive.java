@@ -10,7 +10,6 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
@@ -18,15 +17,12 @@ public class JoinNaive extends AlgorithmTemplate {
 
 	public NaiveIndex idx;
 
-	// staticitics used for building indexes
+	// statistics used for building indexes
 	public double avgTransformed;
 
 	public JoinNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
 	}
-
-	@Override
-	protected void setup(String[] args) {}
 
 	@Override
 	public void preprocess() {

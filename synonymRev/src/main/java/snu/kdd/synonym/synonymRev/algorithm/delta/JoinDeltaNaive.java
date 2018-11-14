@@ -16,7 +16,6 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 	
 	protected DeltaHashIndex idx;
 	protected Validator checker;
-	protected int qSize;
 	protected int deltaMax;
 	
 	public static boolean useLF = true;
@@ -24,6 +23,10 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 	
 	public JoinDeltaNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
+		param = new Param(args);
+		deltaMax = param.getIntParam("deltaMax");
+		useLF = param.getBooleanParam("useLF");
+		checker = new DeltaValidatorDPTopDown(deltaMax);
 	}
 
 	@Override
@@ -40,15 +43,6 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 		}
 	}
 	
-	@Override
-	protected void setup(String[] args) throws IOException, ParseException {
-		Param param = new Param(args);
-		qSize = param.qSize;
-		deltaMax = param.deltaMax;
-		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = param.useLF;
-	}
-
 	@Override
 	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );

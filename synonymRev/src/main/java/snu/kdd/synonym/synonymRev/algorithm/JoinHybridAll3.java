@@ -34,16 +34,12 @@ public class JoinHybridAll3 extends JoinHybridAll {
 
 	public JoinHybridAll3(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-	}
-	
-	@Override
-	public void setup( String[] args ) throws IOException, ParseException {
-		Param param = new Param(args);
+		param = new Param(args);
 		checker = new TopDownOneSide();
-		qSize = param.qSize;
-		indexK = param.indexK;
-		sampleRatioH = param.sampleH;
-		sampleRatioB = param.sampleB;
+		qSize = param.getIntParam("qSize");
+		indexK = param.getIntParam("indexK");
+		sampleRatioH = param.getDoubleParam("sampleH");
+		sampleRatioB = param.getDoubleParam("sampleB");
 	}
 
 	@Override
