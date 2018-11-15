@@ -67,8 +67,7 @@ public class DeltaHashIndex extends AbstractIndex {
 			candidates.removeAll(matched);
 			n_verified += candidates.size();
 			for ( Record recT : candidates ) {
-//				if ( Util.edit( exp.getTokensArray(), recT.getTokensArray() ) <= deltaMax ) {
-				if ( Util.edit( exp.getTokensArray(), recT.getTokensArray(), deltaMax, 0, 0, exp.size(), recT.size() ) <= deltaMax ) {
+				if ( isEquivalent( exp, recT ) ) {
 					AlgorithmTemplate.addSeqResult(recS, recT, rslt, isSelfJoin);
 					matched.add(recT);
 				}
@@ -79,5 +78,10 @@ public class DeltaHashIndex extends AbstractIndex {
 	@Override
 	protected void postprocessAfterJoin(StatContainer stat) {
 		stat.add("Val_Comparisons", n_verified );
+	}
+	
+	protected boolean isEquivalent( Record x, Record y ) {
+		if ( deltaMax == 0 ) return true;
+		return Util.edit( x.getTokensArray(), y.getTokensArray(), deltaMax, 0, 0, x.size(), y.size() ) <= deltaMax;
 	}
 }
