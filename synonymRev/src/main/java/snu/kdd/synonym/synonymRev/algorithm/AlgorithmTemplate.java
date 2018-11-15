@@ -223,13 +223,6 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			bw_json.write( stat.toJson() );
 			bw_json.write( "}" );
 
-			bw_json.write( ", \"ParametersUsed\":{" );
-			bw_json.write( "\"additional\":" );
-			bw_json.write( "\"" + cmd.getOptionValue( "additional", "" ) + "\", " );
-			bw_json.write( "\"oneSideJoin\":" );
-			bw_json.write( "\"" + cmd.getOptionValue( "oneSideJoin" ) + "\"" );
-			bw_json.write( "}" );
-
 			bw_json.write( "}\n" );
 			bw_json.close();
 		}

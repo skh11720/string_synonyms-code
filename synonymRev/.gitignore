@@ -13,3 +13,5 @@
 /result/
 /json/
 *.pyc
+
+/run/assign_test.py

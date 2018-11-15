@@ -2,16 +2,10 @@ package snu.kdd.synonym.synonymRev.tools;
 
 import java.util.Map;
 
-import org.apache.commons.cli.CommandLine;
-
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public abstract class AbstractParam {
 

@@ -153,10 +153,10 @@ public class App {
 		// 18.09.26: disable semi-unidirectional computation
 //		if ( !query.selfJoin && !query.oneSideJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
 
-		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
-		stat.add( cmd );
-		stat.add( "cmd_alg", alg.getName() );
-		stat.add( "cmd_alg_v", alg.getVersion() );
+//		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
+//		stat.add( cmd );
+//		stat.add( "cmd_alg", alg.getName() );
+//		stat.add( "cmd_alg_v", alg.getVersion() );
 		
 		return alg;
 	}
