@@ -222,6 +222,7 @@ public class Util {
 	public static List<IntArrayList> getCombinations( int n, int k ) {
 		/*
 		 * Return all combinations of n choose k.
+		 * TODO slow when k is large...!
 		 */
 		List<IntArrayList> combList = new ObjectArrayList<IntArrayList>();
 
