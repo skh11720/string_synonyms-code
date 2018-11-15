@@ -34,6 +34,8 @@ public abstract class AbstractParam {
 		for ( Map.Entry<String, Double> entry : mapParamD.entrySet() ) bld.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\", ");
 		for ( Map.Entry<String, Boolean> entry : mapParamB.entrySet() ) bld.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\", ");
 		for ( Map.Entry<String, String> entry : mapParamS.entrySet() ) bld.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\", ");
+		int l = bld.length();
+		bld.delete(l-2, l);
 		bld.append("}");
 		return bld.toString();
 	}
