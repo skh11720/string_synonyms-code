@@ -32,7 +32,7 @@ public abstract class AbstractParam {
 		bld.delete(l-2, l);
 		
 		// add the string of whole parameters for displaying
-		bld.append(", \"Param_all\":\""+bld.toString());
+		bld.append(", \"Param_all\":\""+bld.toString().replaceAll("\"", "")+"\"");
 
 		return "{"+bld.toString()+"}";
 	}
