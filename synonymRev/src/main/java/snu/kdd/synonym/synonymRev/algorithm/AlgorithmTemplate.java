@@ -203,7 +203,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			// start JSON object
 			bw_json.write( "{" );
 			// metadata
-			bw_json.write( "\"Date\":\"" + new Date().toString() + "\", " );
+			bw_json.write( "\"Date\":\"" + new Date().toString()+"\"");
 
 			// dataset
 			bw_json.write( ", \"Dataset\":{" );
@@ -211,13 +211,13 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			bw_json.write( "}" );
 
 			// algorithm
-			bw_json.write( "\"Algorithm\":{" );
+			bw_json.write( ", \"Algorithm\":{" );
 				bw_json.write( "\"Name\":\"" + getName() + "\", " );
-				bw_json.write( "\"Version\":\"" + getVersion());
+				bw_json.write( "\"Version\":\"" + getVersion()+"\"");
 			bw_json.write( "}" );
 			
 			// param
-			bw_json.write("\"Param\":"+param.getJSONString() );
+			bw_json.write(", \"Param\":"+param.getJSONString() );
 
 			// output
 			bw_json.write( ", \"Output\":{" );

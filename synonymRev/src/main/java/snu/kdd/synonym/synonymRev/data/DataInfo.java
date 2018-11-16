@@ -151,7 +151,7 @@ public class DataInfo {
 		bld.append( "\"Name\": \"" + name + "\"" );
 		bld.append( ", \"Is_synthetic\": \"" + isSynthetic + "\"" );
 		bld.append( ", \"File_size\": \"" + size + "\"" );
-		bld.append( "\"Data One Path\": \"" + dataOnePath + "\"" );
+		bld.append( ", \"Data One Path\": \"" + dataOnePath + "\"" );
 		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
 		bld.append( ", \"Info\": \"" + info + "\"" );
