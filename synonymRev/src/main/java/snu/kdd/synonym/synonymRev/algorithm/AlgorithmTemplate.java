@@ -204,20 +204,21 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			bw_json.write( "{" );
 			// metadata
 			bw_json.write( "\"Date\":\"" + new Date().toString() + "\", " );
-			// input
-			bw_json.write("\"Input\":{");
-				// input.algorithm
-				bw_json.write( "\"Algorithm\":{" );
-					bw_json.write( "\"Name\":\"" + getName() + "\", " );
-					bw_json.write( "\"Version\":\"" + getVersion() + "\", " );
-					// input.algorithm.param
-					bw_json.write("\"Param\":"+param.getJSONString() );
-				bw_json.write( "}" );
-				// input.dataset
-				bw_json.write( ", \"Dataset\":{" );
-				bw_json.write( dataInfo.toJson() );
-				bw_json.write( "}" );
+
+			// dataset
+			bw_json.write( ", \"Dataset\":{" );
+			bw_json.write( dataInfo.toJson() );
 			bw_json.write( "}" );
+
+			// algorithm
+			bw_json.write( "\"Algorithm\":{" );
+				bw_json.write( "\"Name\":\"" + getName() + "\", " );
+				bw_json.write( "\"Version\":\"" + getVersion());
+			bw_json.write( "}" );
+			
+			// param
+			bw_json.write("\"Param\":"+param.getJSONString() );
+
 			// output
 			bw_json.write( ", \"Output\":{" );
 			bw_json.write( stat.toJson() );

@@ -23,14 +23,17 @@ public abstract class AbstractParam {
 	public final String getStringParam( String key ) { return mapParamS.get(key); }
 	
 	public final String getJSONString() { 
-		StringBuilder bld = new StringBuilder("{");
+		StringBuilder bld = new StringBuilder("");
 		for ( Map.Entry<String, Integer> entry : mapParamI.entrySet() ) bld.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\", ");
 		for ( Map.Entry<String, Double> entry : mapParamD.entrySet() ) bld.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\", ");
 		for ( Map.Entry<String, Boolean> entry : mapParamB.entrySet() ) bld.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\", ");
 		for ( Map.Entry<String, String> entry : mapParamS.entrySet() ) bld.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\", ");
 		int l = bld.length();
 		bld.delete(l-2, l);
-		bld.append("}");
-		return bld.toString();
+		
+		// add the string of whole parameters for displaying
+		bld.append(", \"Param_all\":\""+bld.toString());
+
+		return "{"+bld.toString()+"}";
 	}
 }
