@@ -34,7 +34,6 @@ public class JoinMinIndex extends AbstractIndex {
 	protected ArrayList<WYK_HashMap<QGram, List<Record>>> idx;
 	protected ArrayList<Integer> countPerPosition = null;
 	protected Object2IntOpenHashMap<Record> indexedCountMap;
-	protected Object2IntOpenHashMap<Record> estimatedCountMap;
 	protected Query query;
 
 	public double mu;
@@ -187,7 +186,7 @@ public class JoinMinIndex extends AbstractIndex {
 
 			int searchmax = availableQGrams.size();
 
-			for( int i = invokes.size(); i < searchmax; i++ ) {
+			while ( invokes.size() < searchmax ) { // seems to be a bug .... why don't just use a while loop?
 				Object2IntOpenHashMap<QGram> inv = new Object2IntOpenHashMap<QGram>();
 				inv.defaultReturnValue( 0 );
 
@@ -293,7 +292,6 @@ public class JoinMinIndex extends AbstractIndex {
 	protected void findBestPositions(List<Object2IntOpenHashMap<QGram>> invokes, List<Object2IntOpenHashMap<QGram>> lowInvokes, boolean hybridIndex, int threshold, int nIndex ) {
 		// find best K positions for each string in T
 		indexedCountMap = new Object2IntOpenHashMap<>();
-		estimatedCountMap = new Object2IntOpenHashMap<>();
 		for( Record rec : query.targetIndexedSet.get() ) {
 //			int[] range = rec.getTransLengths();
 
@@ -449,15 +447,9 @@ public class JoinMinIndex extends AbstractIndex {
 	}
 
 	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
-//	    boolean isUpperRecord = threshold <= 0 ? true : recS.getEstNumTransformed() > threshold;
-//		if (!isUpperRecord) return;
-
 		long ts = System.nanoTime();
 
 		long candQGramCount = 0;
-//		boolean debug = false;
-//		if ( recS.getID() == 15756 ) debug = true;
-
 		List<List<QGram>> availableQGrams = null;
 		if ( useSTPQ ) availableQGrams = getCandidatePQGrams( recS );
 		else {
@@ -486,7 +478,7 @@ public class JoinMinIndex extends AbstractIndex {
 		int searchmax = Integer.min( availableQGrams.size(), idx.size() );
 //		ArrayList<String> debugArray = new ArrayList<String>();
 
-		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet( indexK, recS, estimatedCountMap.getInt( recS ) );
+		JoinMinCandidateSet allCandidateSet = new JoinMinCandidateSet();
 
 		for( int i = 0; i < searchmax; ++i ) {
 			this.searchedTotalSigCount += availableQGrams.get( i ).size();
@@ -622,41 +614,23 @@ public class JoinMinIndex extends AbstractIndex {
 	}
 
 	public class JoinMinCandidateSet {
-		int nIndex;
 		int pqgramFiltered = 0;
 
-		WYK_HashMap<Record, Integer> appearingMap = null;
+		Object2IntOpenHashMap<Record> appearingMap = null;		
 
-		public JoinMinCandidateSet( int nIndex, Record rec, int predictedInvokes ) {
-			this.nIndex = nIndex;
-
-			if( predictedInvokes < 10 ) {
-				appearingMap = new WYK_HashMap<Record, Integer>( 10 );
-			}
-			else {
-				appearingMap = new WYK_HashMap<Record, Integer>( predictedInvokes * 2 );
-			}
-		}
+		public JoinMinCandidateSet() {
+		appearingMap = new Object2IntOpenHashMap<>();
+		appearingMap.defaultReturnValue(0);
+}
 
 		public void add( WYK_HashSet<Record> set ) {
-			for( Record r : set ) {
-				Integer count = appearingMap.get( r );
-
-				if( count == null ) {
-					appearingMap.put( r, 1 );
-				}
-				else {
-					appearingMap.put( r, count + 1 );
-				}
-			}
+			for( Record r : set ) appearingMap.addTo(r, 1);
 		}
 
 		public ArrayList<Record> getCandSet( Object2IntOpenHashMap<Record> indexedCountMap, ArrayList<String> debugArray ) {
 			ArrayList<Record> list = new ArrayList<Record>( appearingMap.size() );
-			Iterator<Entry<Record, Integer>> iter = appearingMap.entrySet().iterator();
 
-			while( iter.hasNext() ) {
-				Entry<Record, Integer> entry = iter.next();
+			for ( Entry<Record, Integer> entry : appearingMap.entrySet() ) {
 
 				Record r = entry.getKey();
 
