@@ -19,7 +19,7 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinDeltaIndex extends AbstractIndex {
+public class JoinDeltaSimpleIndex extends AbstractIndex {
 
 	protected ArrayList<WYK_HashMap<QGram, List<Record>>> idxByPQgram;
 	protected ArrayList<List<Record>> idxByLen;
@@ -48,7 +48,7 @@ public class JoinDeltaIndex extends AbstractIndex {
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
 
-	public JoinDeltaIndex( int qSize, int deltaMax, Query query, StatContainer stat ) {
+	public JoinDeltaSimpleIndex( int qSize, int deltaMax, Query query, StatContainer stat ) {
 		this.qSize = qSize;
 		this.deltaMax = deltaMax;
 		this.qd = qSize * deltaMax;
@@ -145,7 +145,6 @@ public class JoinDeltaIndex extends AbstractIndex {
 			Record recT = entry.getKey();
 			int count = entry.getValue().intValue();
 //			if ( recS.getID() == 3235 ) System.out.println(recT.getID()+", "+count);
-			
 			if ( !usePQF || count >= Math.max(rangeS[0], recT.size()) - qd ) {
 				candidates.add( recT );
 			}
@@ -173,9 +172,9 @@ public class JoinDeltaIndex extends AbstractIndex {
 		}
 		long afterVerifyTime = System.nanoTime();
 
-		candQGramCountTime += afterCandQgramTime - ts;
-		filterTime += afterFilterTime - afterCandQgramTime;
-		verifyTime += afterVerifyTime - afterFilterTime;
+		candQGramCountTime += afterCandQgramTime - ts; // time to enumerate delta-variants of qgrams in STPQ for a string recS
+		filterTime += afterFilterTime - afterCandQgramTime; // time to filter out by applying the length and pos q-gram filtering
+		verifyTime += afterVerifyTime - afterFilterTime; // time to verify the remaining string pairs
 	}
 
 	protected int sizeIdxByPQGram() {

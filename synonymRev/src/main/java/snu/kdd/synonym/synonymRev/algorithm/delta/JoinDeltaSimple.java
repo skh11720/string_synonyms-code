@@ -22,7 +22,7 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	protected int deltaMax;
 
 	public Validator checker;
-	protected JoinDeltaIndex idx;
+	protected JoinDeltaSimpleIndex idx;
 
 	protected boolean useLF, usePQF;
 	
@@ -127,9 +127,9 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinDeltaIndex( qSize, deltaMax, query, stat );
-		JoinDeltaIndex.useLF = useLF;
-		JoinDeltaIndex.usePQF = usePQF;
+		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query, stat );
+		JoinDeltaSimpleIndex.useLF = useLF;
+		JoinDeltaSimpleIndex.usePQF = usePQF;
 	}
 
 	@Override
