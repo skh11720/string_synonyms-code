@@ -25,7 +25,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	public Validator checker;
 	protected JoinDeltaVarIndex idx;
 
-	protected boolean useLF, usePQF;
+	protected boolean useLF, usePQF, useSTPQ;
 	
 	
 	public JoinDeltaVar(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
@@ -36,6 +36,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 		deltaMax = param.getIntParam("deltaMax");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
+		useSTPQ = param.getBooleanParam("useSTPQ");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
 	}
 
@@ -70,7 +71,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	public void runAfterPreprocess() {
+	protected void runAfterPreprocess() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
 
@@ -91,7 +92,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 		runTime.stopAndAdd( stat );
 	}
 
-	public void runAfterPreprocessWithoutIndex() {
+	protected void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
 		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
@@ -128,9 +129,10 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
+		JoinDeltaVarIndex.useLF = useLF;
+		JoinDeltaVarIndex.usePQF = usePQF;
+		JoinDeltaVarIndex.useSTPQ = useSTPQ;
 		idx = new JoinDeltaVarIndex(indexK, qSize, deltaMax, query, stat);
-		JoinDeltaIndex.useLF = useLF;
-		JoinDeltaIndex.usePQF = usePQF;
 	}
 
 	@Override
