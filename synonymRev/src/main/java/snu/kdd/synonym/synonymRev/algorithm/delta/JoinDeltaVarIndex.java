@@ -44,6 +44,11 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	/*
 	 * Keep the number of indexed positions for every string in the indexedSet.
 	 */
+	
+	protected final ObjectArrayList<Record> shortList;
+	/*
+	 * A list of records in indexedSet whose length is not larger than deltaMax.
+	 */
 
 	protected final Query query;
 	protected final int indexK;
@@ -81,6 +86,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		this.idxPD = new ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>>();
 		this.pos2QGramSetMap = new ArrayList<Set<QGram>>();
 		this.indexedCountList = new Object2IntOpenHashMap<>();
+		this.shortList = new ObjectArrayList<>();
 		this.firstKPosArr = new IntArrayList();
 		for ( int k=0; k<indexK; ++k ) this.firstKPosArr.add(k); // First Top K
 	
@@ -95,7 +101,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	public void build() {
 		long ts = System.nanoTime();
 		// build idxPD
-		for ( Record recT : query.indexedSet.recordList ) insertRecordIntoIdxPD(recT);
+		for ( Record recT : query.indexedSet.recordList ) {
+			if ( recT.size() <= deltaMax ) shortList.add(recT);
+			insertRecordIntoIdxPD(recT);
+		}
 			
 		// build pos2QGramSetMap using idxPD
 		for ( int k=0; k<idxPD.size(); ++k ) {
@@ -325,6 +334,11 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 //						rslt.add(new IntegerPair(recS.getID(), recR.getID()));
 				AlgorithmTemplate.addSeqResult( recS, recT, rslt, isSelfJoin );
 			}
+		}
+			
+		// use the idxByLen to add the equivalent pairs not covered by the filterings.
+		if ( range[0] <= deltaMax ) {
+			for ( Record recT : shortList ) AlgorithmTemplate.addSeqResult( recS, recT, rslt, isSelfJoin );
 		}
 		long afterEquivTime = System.nanoTime();
 
