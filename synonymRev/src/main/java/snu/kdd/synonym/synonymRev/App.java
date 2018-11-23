@@ -23,6 +23,7 @@ import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVar;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVarBK;
 import snu.kdd.synonym.synonymRev.algorithm.set.JoinBKPSet;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -142,6 +143,10 @@ public class App {
 			alg = new JoinDeltaVar( query, stat, additionalArgs );
 			break;
 
+		case JoinDeltaVarBK:
+			alg = new JoinDeltaVarBK( query, stat, additionalArgs );
+			break;
+
 		
 		default:
 			Util.printLog( "Invalid algorithm " + algorithmName );
@@ -155,8 +160,8 @@ public class App {
 
 //		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
 //		stat.add( cmd );
-		stat.add( "cmd_alg", alg.getName() );
-		stat.add( "cmd_alg_v", alg.getVersion() );
+		stat.add( "alg", alg.getName() );
+		stat.add( "alg_version", alg.getVersion() );
 		
 		return alg;
 	}
