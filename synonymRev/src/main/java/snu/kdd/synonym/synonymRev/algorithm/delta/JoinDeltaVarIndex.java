@@ -70,8 +70,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	
 	private final int[] firstKPosArr;
 
-	public JoinDeltaVarIndex( int indexK, int qSize, int deltaMax, Query query, StatContainer stat ) {
-		long ts = System.nanoTime();
+	public JoinDeltaVarIndex( int indexK, int qSize, int deltaMax, Query query ) {
+		/*
+		 * methods called in here: insertRecordIntoIdxPD(Record)
+		 */
 		this.indexK = indexK;
 		this.qSize = qSize;
 		this.deltaMax = deltaMax;
@@ -87,7 +89,13 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		tokens = new int[qSize + deltaMax];
 		Arrays.fill( tokens, Integer.MAX_VALUE );
 		qgramDelta_pad = new QGram( tokens );
+
+		long ts = System.nanoTime();
+		buildIndex(query);
+		indexTime = System.nanoTime() - ts;
+	}
 	
+	protected void buildIndex( Query query ) {
 		// build idxPD
 		this.idxPD = new ArrayList<ArrayList<WYK_HashMap<QGram, List<Record>>>>();
 		for ( Record recT : query.indexedSet.recordList ) insertRecordIntoIdxPD(recT);
@@ -100,14 +108,6 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			Set<QGram> qgramSet_k = pos2QGramSetMap.get(k);
 			for ( int d=0; d<idxPD_k.size(); ++d ) qgramSet_k.addAll( idxPD_k.get(d).keySet() );
 		}
-		indexTime = System.nanoTime() - ts;
-		
-		stat.add("Stat_InvListCount", nInvList());
-		stat.add("Stat_InvSize", indexSize());
-	}
-
-	protected int[] getIndexPosition( Record recT ) {
-		return this.firstKPosArr;
 	}
 
 	protected void insertRecordIntoIdxPD( Record recT ) {
@@ -116,6 +116,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		 * Additionally, update indexedCountList.
 		 * 
 		 * Supposed to be used in the index with the best top k positions.
+		 * Calls getIndexPosition(Record).
 		 */
 		int[] idxPosArr = getIndexPosition(recT);
 		int maxPosition = Arrays.stream(idxPosArr).max().getAsInt();
@@ -174,10 +175,15 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		indexedCountList.put( recT, indexedCount );
 	}
 
-	protected List<List<Set<QGram>>> getCandidatePQGrams( Record rec ) {
+	protected int[] getIndexPosition( Record recT ) {
+		return this.firstKPosArr;
+	}
+
+	protected List<List<Set<QGram>>> getVarSTPQ( Record rec, boolean usePruning ) {
 		/*
 		 * Return the lists of delta-variant positional qgrams in STPQ, where each list is indexed by pos and delta.
-		 * key: (pos, delta)
+		 * If usePruning is true, prune qgrams which do not appear in the index (by referring idxPD and pos12QGramSetMap).
+		 * key of the result: (pos, delta)
 		 */
 		boolean debug = false;
 //		if ( rec.getID() == 598 ) debug = true;
@@ -191,7 +197,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		
 		List< List<Set<QGram>>> candidatePQGrams = new ArrayList<List<Set<QGram>>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
-			if ( k >= idxPD.size() ) break;
+			if ( usePruning && k >= idxPD.size() ) break;
 			boolean qgram_pad_appended = false;
 			List<Set<QGram>> cand_pos = new ArrayList<Set<QGram>>();
 			for ( int d=0; d<=deltaMax; ++d ) cand_pos.add( new WYK_HashSet<QGram>() );
@@ -206,7 +212,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 				for ( Entry<QGram, Integer> entry: qdgen.getQGramDelta( qgram ) ) {
 					QGram qgramDelta = entry.getKey();
 					int delta_s = entry.getValue();
-					if ( !pos2QGramSetMap.get(k).contains(qgramDelta) ) continue;
+					if ( usePruning && !pos2QGramSetMap.get(k).contains(qgramDelta) ) continue;
 					cand_pos.get(delta_s).add(qgramDelta);
 				} // end for (qgramDelta, delta)
 //				qgrams.add( qgram );
@@ -217,7 +223,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 //		return rec.getQGrams( qSize, maxPosition+1 );
 	}
 	
-	protected List<List<Set<QGram>>> getTPQ( Record rec ) {
+	protected List<List<Set<QGram>>> getVarTPQ( Record rec, boolean usePruning ) {
 		/*
 		 * Return the lists of delta-variant positional qgrams in TPQ.
 		 * This function is called instead of getCandidatePQGrams() when useSTPQ is false.
@@ -232,19 +238,19 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 				availableQGrams.add( qgrams_k );
 			}
 			for ( int k=0; k<selfQGramsList.size(); ++k ) {
-				if ( k >= idxPD.size() ) break;
+				if ( usePruning && k >= idxPD.size() ) break;
 				QGram qgram = selfQGramsList.get( k ).get( 0 );
 				for ( Entry<QGram, Integer> entry: qdgen.getQGramDelta( qgram ) ) {
 					QGram qgramDelta = entry.getKey();
 					int delta_t = entry.getValue();
-					if ( !pos2QGramSetMap.get(k).contains( qgramDelta ) ) continue;
+					if ( usePruning && !pos2QGramSetMap.get(k).contains( qgramDelta ) ) continue;
 					availableQGrams.get(k).get(delta_t).add( qgramDelta );
 				}
 			}
 		}
 		return availableQGrams;
 	}
-
+	
 	@Override
 	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
 		long ts = System.nanoTime();
@@ -254,8 +260,8 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 
 		// build the available q-grams from recS.
 		List<List<Set<QGram>>> availableQGrams = null;
-		if ( useSTPQ ) availableQGrams = getCandidatePQGrams(recS);
-		else availableQGrams = getTPQ(recS);
+		if ( useSTPQ ) availableQGrams = getVarSTPQ(recS, true);
+		else availableQGrams = getVarTPQ(recS, true);
 		long afterCandQGramTime = System.nanoTime();
 //		System.out.println("MBKDDFE");
 //		System.out.println(availableQGrams.size());
@@ -331,6 +337,8 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 
 	@Override
 	protected void postprocessAfterJoin( StatContainer stat ) {
+		stat.add("Stat_InvListCount", nInvList());
+		stat.add("Stat_InvSize", indexSize());
 		stat.add("Stat_EquivComparison", equivComparisons);
 		stat.add("Stat_CandQGramCount", candQGramCount );
 		stat.add("Stat_CandQGramCountTime", (long)(candQGramCountTime/1e6));

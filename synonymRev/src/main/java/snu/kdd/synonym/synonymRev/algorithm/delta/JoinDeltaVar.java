@@ -132,7 +132,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 		JoinDeltaVarIndex.useLF = useLF;
 		JoinDeltaVarIndex.usePQF = usePQF;
 		JoinDeltaVarIndex.useSTPQ = useSTPQ;
-		idx = new JoinDeltaVarIndex(indexK, qSize, deltaMax, query, stat);
+		idx = new JoinDeltaVarIndex(indexK, qSize, deltaMax, query);
 	}
 
 	@Override
