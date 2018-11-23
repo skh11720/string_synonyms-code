@@ -147,8 +147,9 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: refactor, consider short strings
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override
