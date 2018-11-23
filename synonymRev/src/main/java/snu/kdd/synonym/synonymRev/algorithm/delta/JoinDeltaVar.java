@@ -38,6 +38,13 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
+		
+		stat.add("indexK", indexK);
+		stat.add("qSize", qSize);
+		stat.add("deltaMax", deltaMax);
+		stat.add("useLF", useLF);
+		stat.add("usePQF", usePQF);
+		stat.add("useSTPQ", useSTPQ);
 	}
 
 	@Override
@@ -132,7 +139,8 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 		JoinDeltaVarIndex.useLF = useLF;
 		JoinDeltaVarIndex.usePQF = usePQF;
 		JoinDeltaVarIndex.useSTPQ = useSTPQ;
-		idx = new JoinDeltaVarIndex(indexK, qSize, deltaMax, query);
+		idx = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax);
+		idx.build();
 	}
 
 	@Override
