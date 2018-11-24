@@ -66,6 +66,16 @@ public class StatContainer {
 	public void add( StopWatch time ) {
 		add( time.getName(), time.getTotalTime() );
 	}
+	
+	public void add( String name, boolean value ) {
+		nameList.add( name );
+		valueList.add( Boolean.toString(value) );
+	}
+
+	public void add( String name, int value ) {
+		nameList.add( name );
+		valueList.add( Integer.toString( value ) );
+	}
 
 	public void add( String name, long value ) {
 		nameList.add( name );
