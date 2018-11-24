@@ -123,9 +123,15 @@ public class JoinDeltaVarBKIndex extends JoinDeltaVarIndex {
 
 	@Override
 	protected IntArrayList getIndexPosition( Record recT ) {
+//		boolean debug = false;
+//		if ( recT.getID() == 0 ) debug = true;
+//		if (debug) System.out.println(Arrays.toString(recT.getTokensArray()));
+
 		// find best K positions for recT.
 		IntArrayList posList = new IntArrayList();
-		int searchmax = Math.min( recT.size(), countMapVTPQ.size() );
+		int searchmax = Math.min( recT.size()-deltaMax, countMapVTPQ.size() );
+		if (searchmax <= 0) searchmax = 1;
+//		if (debug) System.out.println(recT.size()+", "+countMapVTPQ.size());
 		List<List<QGram>> PQt = recT.getSelfQGrams( qSize+deltaMax, searchmax );
 
 		MinPositionQueue mpq = new MinPositionQueue( indexK );
@@ -146,6 +152,7 @@ public class JoinDeltaVarBKIndex extends JoinDeltaVarIndex {
 			posCounter.addTo( minIdx, 1 );
 			posList.add(minIdx);
 		}
+//		if (debug) System.out.println("posList: "+posList);
 
 		return posList;
 	}

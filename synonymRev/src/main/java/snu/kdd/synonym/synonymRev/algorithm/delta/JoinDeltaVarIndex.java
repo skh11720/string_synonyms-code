@@ -125,6 +125,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		 * Calls getIndexPosition(Record).
 		 */
 		IntArrayList posList = getIndexPosition(recT);
+		if ( posList == null ) return;
 		int maxPosition = posList.stream().max(Integer::compare).get().intValue();
 		List<List<QGram>> availableQGrams = recT.getSelfQGrams(qSize+deltaMax, maxPosition + 1); // pos -> delta -> qgram
 		int indexedCount = 0;
@@ -312,14 +313,14 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		} // end for k
 
 		for ( Object2IntMap.Entry<Record> entry : candidatesCount.object2IntEntrySet() ) {
-			Record record = entry.getKey();
+			Record recT = entry.getKey();
 			int recordCount = entry.getIntValue();
 			// recordCount: number of lists containing the target record given recS
 			// indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
-//		        if ( recS.getID() == 598 && record.getID() == 677 ) System.out.println( record.getID()+", "+recordCount );
+//			if ( recS.getID() == 138 && recT.getID() == 0 ) System.out.println( indexedCountList.getInt(recT)+", "+availableQGrams.size()+", "+recordCount );
 
-			if ( !usePQF || ( indexedCountList.getInt(record) <= recordCount || availableQGrams.size() <= recordCount ) ) {
-				candidates.add(record);
+			if ( !usePQF || ( indexedCountList.getInt(recT) <= recordCount || range[0]-deltaMax <= recordCount ) ) {
+				candidates.add(recT);
 			}
 			else ++checker.pqgramFiltered;
 		}
