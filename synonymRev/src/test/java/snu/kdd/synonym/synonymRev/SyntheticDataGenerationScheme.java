@@ -39,29 +39,10 @@ public class SyntheticDataGenerationScheme {
 //	static final double[] arr_SEL = {0, 1e-1};
 //
 	static final boolean selfJoin = true;
-	static final String syn_id = "SYN07";
+//	static final String syn_id = "SYN07";
 	static final String parentPath = "run/data_store/";
 //	static final String parentPath = "./";
 	
-	
-	// loggers
-	static PrintWriter ps_stat = null; // for stat computation
-	static PrintWriter ps_run = null; // for writing execution scripts
-	static PrintWriter ps_res = null; // for plotting 
-	static {
-		try {
-			ps_stat = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/"+syn_id+"_stat.txt" ) ) );
-			ps_run = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/"+syn_id+"_run.txt" ) ) );
-			ps_res = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/"+syn_id+"_res.txt" ) ) );
-		}
-		catch( IOException e ) { e.printStackTrace(); }
-	}
-	
-	static void flush_all() {
-		ps_stat.flush();
-		ps_run.flush();
-		ps_res.flush();
-	}
 	
 	@Test
 	public void generate() throws IOException, ParseException {
@@ -94,6 +75,7 @@ public class SyntheticDataGenerationScheme {
 		for ( int i=0; i<jarr.size(); ++i ) arr_SEL[i] = ((Double)jarr.get(i)).doubleValue();
 		
 		int nRecordMax = arr_nRecord[arr_nRecord.length-1];
+		String syn_id = (String)jobj.get("ID");
 		
 		
 		NewGenerator gen = new NewGenerator(0);
