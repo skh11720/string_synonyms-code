@@ -37,6 +37,9 @@ public class NewGenerator {
 	private static final int maxRhs = 2;
 	private static final int avgLen = 10;
 
+	private final String dataHomeTmpl; // args: nToken, skewD
+	private final String rulePathTmpl; // args: nToken, nRule, skewD
+	private final String dataPathTmpl; // args: nToken, nRule, nRecord, ANR, skewD, SEL
 	private final long seed;
 	
 	private int nToken;
@@ -46,6 +49,7 @@ public class NewGenerator {
 	private double skewD;
 	private double SEL;
 	private Random random;
+	private String dataHome;
 
 	private List<Rule> ruleList = null;
 	private Object2IntOpenHashMap<int[]> lhsFreqMap = null;
@@ -63,7 +67,10 @@ public class NewGenerator {
 //		catch ( IOException e ) { e.printStackTrace(); }
 //	}
 
-	public NewGenerator( long seed ) {
+	public NewGenerator( String dataHomeTmpl, String rulePathTmpl, String dataPathTmpl, long seed ) {
+		this.dataHomeTmpl = dataHomeTmpl;
+		this.rulePathTmpl = rulePathTmpl;
+		this.dataPathTmpl = dataPathTmpl;
 		this.seed = seed;
 	}
 	
@@ -78,6 +85,7 @@ public class NewGenerator {
 	public void buildDict( int nToken, double skewD ) {
 		this.nToken = nToken;
 		this.skewD = skewD;
+		dataHome = String.format( dataHomeTmpl, nToken, skewD );
 		tokenDist = new double[nToken];
 		tokenIndex = new TokenIndex();
 		for( int i=0; i<tokenDist.length; ++i ) {
@@ -94,14 +102,15 @@ public class NewGenerator {
 	/*
 	 * Return the writePath of the generated rules.
 	 */
-	public String generateRules( String datadir, int nRule ) throws IOException {
+//	String datadir = parentPath + syn_id + String.format("_D%d_K%.2f", nToken, skewD );
+	public String generateRules( int nRule ) throws IOException {
 		ruleList = new ArrayList<Rule>();
 		lhsFreqMap = new Object2IntOpenHashMap<>();
 		lhsList = new ObjectArrayList<>();
 		freq2lhsMap = new Int2ObjectOpenHashMap<>();
 		random = new Random(seed);
 		this.nRule = nRule;
-		if (!(new File(datadir+"/rule")).isDirectory()) (new File(datadir+"/rule")).mkdirs();
+		if (!(new File(dataHome+"/rule")).isDirectory()) (new File(dataHome+"/rule")).mkdirs();
 
 		while( ruleList.size() < nRule ) {
 			int lhslen = random.nextInt( maxLhs ) + 1;
@@ -128,7 +137,7 @@ public class NewGenerator {
 		atm = new ACAutomataR( ruleList );
 
 		// write the rules into disk
-		String writePath = datadir + "/rule/" + String.format( "D%d_R%d_K%.2f.txt", nToken, nRule, skewD );
+		String writePath = dataHome + String.format( rulePathTmpl, nToken, nRule, skewD );
 		BufferedWriter bw = new BufferedWriter( new FileWriter( writePath ) );
 		for ( Rule rule : ruleList ) {
 			for( int from : rule.getLeft() ) bw.write( from + " " );
@@ -147,14 +156,14 @@ public class NewGenerator {
 	/*
 	 * Return the writePath of the generated records.
 	 */
-	public String generateRecords( String datadir, int nRecord, int ANR, double SEL ) throws IOException  {
+	public String generateRecords( int nRecord, int ANR, double SEL ) throws IOException  {
 		this.nRecord = nRecord;
 		this.ANR = ANR;
 		this.SEL = SEL;
 		random = new Random(seed);
 
-		if (!(new File(datadir+"/data")).isDirectory()) (new File(datadir+"/data")).mkdirs();
-		String writePath = datadir + "/data/" + String.format( "D%d_R%d_N%d_M%d_K%.2f_S%.2e.txt", nToken, nRule, nRecord, ANR, skewD, SEL );
+		if (!(new File(dataHome+"/data")).isDirectory()) (new File(dataHome+"/data")).mkdirs();
+		String writePath = dataHome + String.format( dataPathTmpl, nToken, nRule, nRecord, ANR, skewD, SEL );
 		PrintWriter pw = new PrintWriter( new BufferedWriter( new FileWriter( writePath ) ) );
 		
 		int recordCount = 0;
@@ -297,15 +306,17 @@ public class NewGenerator {
 			double skewD = Double.parseDouble( cmd.getOptionValue("K") );
 			double SEL = Double.parseDouble( cmd.getOptionValue("S") );
 			long seed = 0;
-			String datadir = "SYN";
+			String dataHomeTmpl = "SYN_D%d_K%.2f";
+			String rulePathTmpl = "/rule/D%d_R%d_K%.2f.txt";
+			String dataPathTmpl = "/data/D%d_R%d_N%d_M%d_K%.2f_S%.2e.txt";
 
-			NewGenerator gen = new NewGenerator(seed);
+			NewGenerator gen = new NewGenerator(dataHomeTmpl, rulePathTmpl, dataPathTmpl, seed);
 			long ts = System.nanoTime();
 			gen.buildDict(nToken, skewD);
 			long afterBuildDictTime = System.nanoTime();
-			gen.generateRules(datadir, nRule);
+			gen.generateRules(nRule);
 			long afterGenRuleTime = System.nanoTime();
-			gen.generateRecords(datadir, nRecord, ANR, SEL);
+			gen.generateRecords(nRecord, ANR, SEL);
 			long afterGenRecrodTime = System.nanoTime();
 			
 			System.out.println("buildDictTime: "+(afterBuildDictTime-ts)/1e6);
