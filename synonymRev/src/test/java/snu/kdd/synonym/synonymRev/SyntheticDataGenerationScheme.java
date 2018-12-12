@@ -101,7 +101,7 @@ public class SyntheticDataGenerationScheme {
 		
 		for ( int nToken : arr_nToken ) {
 			for ( double skewD : arr_skewD ) {
-				String datadir = syn_id+String.format("_D%d_K%.2f", nToken, skewD );
+				String datadir = parentPath + syn_id + String.format("_D%d_K%.2f", nToken, skewD );
 				System.out.println("Build dict for "+datadir);
 				gen.buildDict(nToken, skewD);
 				for ( int nRule : arr_nRule ) {
@@ -116,7 +116,7 @@ public class SyntheticDataGenerationScheme {
 							for ( int nRecord : arr_nRecord ) {
 								if ( nRecord == nRecordMax ) continue;
 								BufferedReader reader = new BufferedReader( new FileReader( recordPath ) );
-								BufferedWriter writer = new BufferedWriter( new FileWriter( parentPath+datadir+"/data/"+String.format( recordPathTemplate, nRecord ) ) );
+								BufferedWriter writer = new BufferedWriter( new FileWriter( datadir+"/data/"+String.format( recordPathTemplate, nRecord ) ) );
 								for ( int i=0; i<nRecord; ++i ) writer.write( reader.readLine()+'\n' );
 								writer.close(); reader.close();
 							}
