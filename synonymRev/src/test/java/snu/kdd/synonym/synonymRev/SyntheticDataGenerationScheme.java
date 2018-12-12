@@ -2,16 +2,20 @@ package snu.kdd.synonym.synonymRev;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
+import java.util.Arrays;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.synonym.synonymRev.data.Generator2;
 import snu.kdd.synonym.synonymRev.data.NewGenerator;
 
 /*
@@ -20,20 +24,20 @@ import snu.kdd.synonym.synonymRev.data.NewGenerator;
 
 public class SyntheticDataGenerationScheme {
 
-	static final int[] arr_nRecord = {10000, 31622, 100000};
-//	static final int[] arr_nRecord = {10000, 31622, 100000, 316227, 1_000_000, 3_162_277, 10_000_000};
-	static final int nRecordMax = arr_nRecord[arr_nRecord.length-1];
-
-//	static final int[] arr_nRule = {10000, 30000, 100000};
-	static final int[] arr_nRule = {100000};
-	static final int nRuleMax = arr_nRule[arr_nRule.length-1];
-
-	static final int[] arr_nToken = {100000, 500000};
-
-	static final int[] arr_ANR = {2, 4, 6, 8, 10};
-	static final double[] arr_skewD = {0.0, 1.0};
-	static final double[] arr_SEL = {0, 1e-1};
-
+//	static final int[] arr_nRecord = {10000, 31622, 100000};
+////	static final int[] arr_nRecord = {10000, 31622, 100000, 316227, 1_000_000, 3_162_277, 10_000_000};
+//	static final int nRecordMax = arr_nRecord[arr_nRecord.length-1];
+//
+////	static final int[] arr_nRule = {10000, 30000, 100000};
+//	static final int[] arr_nRule = {100000};
+//	static final int nRuleMax = arr_nRule[arr_nRule.length-1];
+//
+//	static final int[] arr_nToken = {100000, 500000};
+//
+//	static final int[] arr_ANR = {2, 4, 6, 8, 10};
+//	static final double[] arr_skewD = {0.0, 1.0};
+//	static final double[] arr_SEL = {0, 1e-1};
+//
 	static final boolean selfJoin = true;
 	static final String syn_id = "SYN07";
 	static final String parentPath = "run/data_store/";
@@ -50,10 +54,7 @@ public class SyntheticDataGenerationScheme {
 			ps_run = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/"+syn_id+"_run.txt" ) ) );
 			ps_res = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/"+syn_id+"_res.txt" ) ) );
 		}
-		catch( IOException e ) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		catch( IOException e ) { e.printStackTrace(); }
 	}
 	
 	static void flush_all() {
@@ -63,7 +64,38 @@ public class SyntheticDataGenerationScheme {
 	}
 	
 	@Test
-	public void generate() throws IOException {
+	public void generate() throws IOException, ParseException {
+		JSONParser parser = new JSONParser();
+		JSONObject jobj = (JSONObject)parser.parse( new FileReader("SYN_catalog.json"));
+		JSONArray jarr;
+		
+		jarr = (JSONArray) jobj.get("nRecord");
+		int[] arr_nRecord = new int[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_nRecord[i] = ((Long)jarr.get(i)).intValue();
+
+		jarr = (JSONArray) jobj.get("nRule");
+		int[] arr_nRule= new int[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_nRule[i] = ((Long)jarr.get(i)).intValue();
+
+		jarr = (JSONArray) jobj.get("nToken");
+		int[] arr_nToken= new int[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_nToken[i] = ((Long)jarr.get(i)).intValue();
+
+		jarr = (JSONArray) jobj.get("ANR");
+		int[] arr_ANR= new int[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_ANR[i] = ((Long)jarr.get(i)).intValue();
+
+		jarr = (JSONArray) jobj.get("skewD");
+		double[] arr_skewD = new double[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_skewD[i] = ((Double)jarr.get(i)).doubleValue();
+
+		jarr = (JSONArray) jobj.get("SEL");
+		double[] arr_SEL= new double[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_SEL[i] = ((Double)jarr.get(i)).doubleValue();
+		
+		int nRecordMax = arr_nRecord[arr_nRecord.length-1];
+		
+		
 		NewGenerator gen = new NewGenerator(0);
 		System.out.println("Number of datasets to be generated: "+arr_nToken.length*arr_skewD.length*arr_nRule.length*arr_ANR.length*arr_SEL.length);
 		
@@ -93,5 +125,43 @@ public class SyntheticDataGenerationScheme {
 				}
 			}
 		}
+	}
+	
+	@Ignore
+	public void testReadCatalog() throws FileNotFoundException, IOException, ParseException {
+		JSONParser parser = new JSONParser();
+		JSONObject jobj = (JSONObject)parser.parse( new FileReader("SYN_catalog.json"));
+		JSONArray jarr;
+		
+		jarr = (JSONArray) jobj.get("nRecord");
+		int[] arr_nRecord = new int[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_nRecord[i] = ((Long)jarr.get(i)).intValue();
+
+		jarr = (JSONArray) jobj.get("nRule");
+		int[] arr_nRule= new int[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_nRule[i] = ((Long)jarr.get(i)).intValue();
+
+		jarr = (JSONArray) jobj.get("nToken");
+		int[] arr_nToken= new int[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_nToken[i] = ((Long)jarr.get(i)).intValue();
+
+		jarr = (JSONArray) jobj.get("ANR");
+		int[] arr_ANR= new int[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_ANR[i] = ((Long)jarr.get(i)).intValue();
+
+		jarr = (JSONArray) jobj.get("skewD");
+		double[] arr_skewD = new double[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_skewD[i] = ((Double)jarr.get(i)).doubleValue();
+
+		jarr = (JSONArray) jobj.get("SEL");
+		double[] arr_SEL= new double[jarr.size()];
+		for ( int i=0; i<jarr.size(); ++i ) arr_SEL[i] = ((Double)jarr.get(i)).doubleValue();
+		
+		System.out.println(Arrays.toString(arr_nRecord));
+		System.out.println(Arrays.toString(arr_nRule));
+		System.out.println(Arrays.toString(arr_nToken));
+		System.out.println(Arrays.toString(arr_ANR));
+		System.out.println(Arrays.toString(arr_skewD));
+		System.out.println(Arrays.toString(arr_SEL));
 	}
 }
