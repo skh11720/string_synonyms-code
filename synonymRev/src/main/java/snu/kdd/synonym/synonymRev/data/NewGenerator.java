@@ -39,7 +39,7 @@ public class NewGenerator {
 
 	private final String dataHomeTmpl; // args: nToken, skewD
 	private final String rulePathTmpl; // args: nToken, nRule, skewD
-	private final String dataPathTmpl; // args: nToken, nRule, nRecord, ANR, skewD, SEL
+	private final String dataPathTmpl; // args: nToken, nRule, ANR, skewD, SEL, nRecord
 	private final long seed;
 	
 	private int nToken;
@@ -163,7 +163,7 @@ public class NewGenerator {
 		random = new Random(seed);
 
 		if (!(new File(dataHome+"/data")).isDirectory()) (new File(dataHome+"/data")).mkdirs();
-		String writePath = dataHome + String.format( dataPathTmpl, nToken, nRule, nRecord, ANR, skewD, SEL );
+		String writePath = dataHome + String.format( dataPathTmpl, nToken, nRule, ANR, skewD, SEL, nRecord );
 		PrintWriter pw = new PrintWriter( new BufferedWriter( new FileWriter( writePath ) ) );
 		
 		int recordCount = 0;
@@ -308,7 +308,7 @@ public class NewGenerator {
 			long seed = 0;
 			String dataHomeTmpl = "SYN_D%d_K%.2f";
 			String rulePathTmpl = "/rule/D%d_R%d_K%.2f.txt";
-			String dataPathTmpl = "/data/D%d_R%d_N%d_M%d_K%.2f_S%.2e.txt";
+			String dataPathTmpl = "/data/D%d_R%d_M%d_K%.2f_S%.2e_N%d.txt";
 
 			NewGenerator gen = new NewGenerator(dataHomeTmpl, rulePathTmpl, dataPathTmpl, seed);
 			long ts = System.nanoTime();

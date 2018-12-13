@@ -55,7 +55,7 @@ public class SyntheticDataGenerationScheme {
 		for ( int i=0; i<jarr.size(); ++i ) arr_SEL[i] = ((Double)jarr.get(i)).doubleValue();
 		
 		int nRecordMax = arr_nRecord[arr_nRecord.length-1];
-		String dataHome = (String)jobj.get("data_home");
+		String dataHome = "./run/"+(String)jobj.get("data_home");
 		String syn_id = (String)jobj.get("ID");
 		String syn_suffix = (String)jobj.get("ID_suffix");
 		String dataHomeTmpl = dataHome+syn_id+syn_suffix;
