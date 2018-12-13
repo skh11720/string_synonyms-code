@@ -24,8 +24,6 @@ import snu.kdd.synonym.synonymRev.data.NewGenerator;
 public class SyntheticDataGenerationScheme {
 
 	static final boolean selfJoin = true;
-//	static final String parentPath = "run/data_store/";
-	static final String parentPath = "./";
 	@Test
 	public void generate() throws IOException, ParseException {
 		JSONParser parser = new JSONParser();
@@ -57,9 +55,10 @@ public class SyntheticDataGenerationScheme {
 		for ( int i=0; i<jarr.size(); ++i ) arr_SEL[i] = ((Double)jarr.get(i)).doubleValue();
 		
 		int nRecordMax = arr_nRecord[arr_nRecord.length-1];
+		String dataHome = (String)jobj.get("data_home");
 		String syn_id = (String)jobj.get("ID");
 		String syn_suffix = (String)jobj.get("ID_suffix");
-		String dataHomeTmpl = parentPath+syn_id+syn_suffix;
+		String dataHomeTmpl = dataHome+syn_id+syn_suffix;
 		String rulePathTmpl = (String)jobj.get("rule_path");
 		String dataPathTmpl = (String)jobj.get("data_path");
 		
