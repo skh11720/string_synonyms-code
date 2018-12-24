@@ -42,4 +42,6 @@ public class TokenIndex {
 	public String getToken( int index ) {
 		return int2TokenList.get( index );
 	}
+	
+	public Object2IntOpenHashMap<String> getMap() { return token2IntMap; }
 }

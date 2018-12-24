@@ -32,6 +32,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinHybridAll3,
 		SIJoin,
 		JoinPkduck,
+		
+		SIJoinOriginal,
 
 		JoinSetNaive,
 		JoinPkduckSet,
@@ -270,6 +272,15 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			else rslt.add( new IntegerPair( rec2.getID(), rec1.getID()) );
 		}
 	}
+	
+//	public static void addSetResult( int rec1id, int rec2id, Set<IntegerPair> rslt, boolean isSelfJoin ) {
+//		if ( isSelfJoin ) {
+//			int id_smaller = rec1id < rec2id? rec1id : rec2id;
+//			int id_larger = rec1id >= rec2id? rec1id : rec2id;
+//			rslt.add( new IntegerPair( id_smaller, id_larger) );
+//		}
+//		else rslt.add( new IntegerPair( rec1id, rec2id) );
+//	}
 	
 	@Override
 	public void setWriteResult( boolean flag ) {

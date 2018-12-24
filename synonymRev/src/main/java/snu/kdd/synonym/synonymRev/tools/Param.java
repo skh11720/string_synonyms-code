@@ -18,6 +18,7 @@ public class Param extends AbstractParam {
 		argOptions.addOption( "sampleB", true, "Sampling Ratio for JoinBKPFast" );
 		argOptions.addOption( "sampleH", true, "Sampling Ratio for JoinHybridAll" );
 		argOptions.addOption( "delta", true, "deltaMax" );
+		argOptions.addOption( "theta", true, "theta" );
 
 		argOptions.addOption( "useLF", true, "" );
 		argOptions.addOption( "usePQF", true, "" );
@@ -56,6 +57,12 @@ public class Param extends AbstractParam {
 			int deltaMax = Integer.parseInt( cmd.getOptionValue( "delta" ) );
 			if ( deltaMax < 0 ) throw new ParseException("delta must be nonnegative integer, not "+deltaMax);
 			mapParamI.put("deltaMax", deltaMax);
+		}
+
+		if (cmd.hasOption( "theta" )) {
+			double theta = Double.parseDouble( cmd.getOptionValue( "theta" ) );
+			if ( theta < 0 || theta > 1 ) throw new ParseException("theta must be in [0,1], not "+theta);
+			mapParamD.put("theta", theta);
 		}
 
 		boolean useLF = true;

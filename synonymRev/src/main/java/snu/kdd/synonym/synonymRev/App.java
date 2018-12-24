@@ -20,6 +20,7 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
 import snu.kdd.synonym.synonymRev.algorithm.PassJoin;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.SIJoinOriginal;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVar;
@@ -109,6 +110,10 @@ public class App {
 
 		case SIJoin:
 			alg = new SIJoin( query, stat, additionalArgs );
+			break;
+
+		case SIJoinOriginal:
+			alg = new SIJoinOriginal( query, stat, additionalArgs );
 			break;
 
 		case JoinPkduck:

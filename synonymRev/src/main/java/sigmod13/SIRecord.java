@@ -204,10 +204,11 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	}
 
 	@Override
+	// use selectiveExp
 	public double similarity( RecordInterface rec, Validator checker ) {
 		if( rec.getClass() != SIRecord.class )
 			return 0;
-		return SimilarityFunc.fullExp2( this, (SIRecord) rec );
+		return SimilarityFunc.selectiveExp( this, (SIRecord) rec );
 	}
 
 	@Override

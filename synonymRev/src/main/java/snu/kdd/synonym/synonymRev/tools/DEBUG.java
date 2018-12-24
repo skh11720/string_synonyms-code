@@ -18,7 +18,7 @@ public class DEBUG {
 	public static final boolean JoinPkduckON = false; 
 
 	// Print index contents and detailed information
-	public static final boolean printSelfJoinON = true;
+	public static final boolean printSelfJoinON = false;
 	public static final boolean PrintNaiveIndexON = false;
 	public static final boolean PrintJoinMinIndexON = false;
 	public static final boolean PrintJoinMinJoinON = false;
