@@ -183,7 +183,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 
 //				bw.write( r.toString( query.tokenIndex ) + "(" + r.getID() + ")\t==\t" + s.toString( query.tokenIndex ) + "("+ s.getID() + ")\n" );
 //				bw.write( "(" + r.getID() + ")\t==\t" + "("+ s.getID() + ")\n" );
-				bw.write( Arrays.toString( r.getTokensArray() ) + "(" + r.getID() + ")\t==\t" + Arrays.toString( s.getTokensArray() ) + "("+ s.getID() + ")\n" );
+//				bw.write( Arrays.toString( r.getTokensArray() ) + "(" + r.getID() + ")\t==\t" + Arrays.toString( s.getTokensArray() ) + "("+ s.getID() + ")\n" );
+				bw.write( r.toString() + "(" + r.getID() + ")\t==\t" + s.toString() + "("+ s.getID() + ")\n" );
 			}
 			bw.close();
 		}
