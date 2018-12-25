@@ -33,6 +33,7 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import vldb17.seq.JoinPkduck;
+import vldb17.set.JoinPkduckOriginal;
 import vldb17.set.JoinPkduckSet;
 
 public class App {
@@ -122,6 +123,10 @@ public class App {
 
 		case JoinPkduckSet:
 			alg = new JoinPkduckSet( query, stat, additionalArgs );
+			break;
+
+		case JoinPkduckOriginal:
+			alg = new JoinPkduckOriginal( query, stat, additionalArgs );
 			break;
 
 		case JoinBKPSet:

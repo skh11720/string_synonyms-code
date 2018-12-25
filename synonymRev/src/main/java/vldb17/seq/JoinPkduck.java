@@ -24,7 +24,7 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.GreedyValidator;
+import vldb17.GreedyValidatorEquiv;
 import vldb17.ParamPkduck;
 import vldb17.set.PkduckSetDP;
 import vldb17.set.PkduckSetDPWithRC;
@@ -59,7 +59,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 		useRuleComp = param.getBooleanParam("rc");
 		String verify = param.getStringParam("verify");
 		if (verify.equals( "naive" )) checker = new NaiveOneSide();
-		else if (verify.equals( "greedy" )) checker = new GreedyValidator( query.oneSideJoin );
+		else if (verify.equals( "greedy" )) checker = new GreedyValidatorEquiv( query.oneSideJoin );
 		else if (verify.equals( "TD" )) checker = new TopDownOneSide();
 		else throw new RuntimeException(getName()+" does not support verification: "+verify);
 		useLF = param.getBooleanParam("useLF");
@@ -152,7 +152,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 	}
 	
 	public void buildIndex(boolean addStat ) {
-		idx = new PkduckSetIndex( query.indexedSet.recordList, query, stat, globalOrder, addStat );
+		idx = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, addStat );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
@@ -208,9 +208,9 @@ public class JoinPkduck extends AlgorithmTemplate {
 //		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
 
 		int[] range = recS.getTransLengths();
-		PkduckSetDP pkduckDP;
-		if (useRuleComp) pkduckDP = new PkduckSetDPWithRC( recS, globalOrder );
-		pkduckDP = new PkduckSetDP( recS, globalOrder );
+		PkduckSetDP pkduckDP; // TODO: why set version is used...? bug??
+		if (useRuleComp) pkduckDP = new PkduckSetDPWithRC( recS, 1, globalOrder );
+		pkduckDP = new PkduckSetDP( recS, 1, globalOrder );
 		for (int token : candidateTokens) {
 			long startDpTime = System.nanoTime();
 			Boolean isInSigU = pkduckDP.isInSigU( token );

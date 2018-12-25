@@ -13,8 +13,8 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 	private final RCTableSet rcTable;
 //	private Boolean debug = false;
 
-	public PkduckSetDPWithRC( Record rec, AbstractGlobalOrder globalOrder ) {
-		super( rec, globalOrder );
+	public PkduckSetDPWithRC( Record rec, double theta, AbstractGlobalOrder globalOrder ) {
+		super( rec, theta, globalOrder );
 		rcTable = new RCTableSet( rec, globalOrder );
 //		if (rec.getID() == 0) debug = true;
 //		if (debug) System.out.println( rcTable );
@@ -87,7 +87,7 @@ public class PkduckSetDPWithRC extends PkduckSetDP {
 //		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 
 		Boolean res = false;
-		for (int l=1; l<=len_max_S; l++) res |= (g[1][rec.size()][l] == 0);
+		for (int l=1; l<=len_max_S; l++) res |= (g[1][rec.size()][l] <= lenPrefix-1);
 		
 		// DEBUG
 //		if (debug) System.out.println(Arrays.deepToString(g[0]).replaceAll( "],", "]\n" ));

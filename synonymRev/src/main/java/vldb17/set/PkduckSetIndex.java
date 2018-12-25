@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -24,6 +25,7 @@ public class PkduckSetIndex {
 	 * since we are interested in the uni-directional equivalence only.
 	 */
 	private final AbstractGlobalOrder globalOrder;
+	private final double theta;
 	
 	long indexTime = 0;
 	long joinTime = 0;
@@ -37,10 +39,11 @@ public class PkduckSetIndex {
 	 * @param addStat
 	 */
 	
-	public PkduckSetIndex(List<Record> recordList, Query query, StatContainer stat, AbstractGlobalOrder globalOrder, boolean addStat) {
+	public PkduckSetIndex(List<Record> recordList, Query query, double theta, StatContainer stat, AbstractGlobalOrder globalOrder, boolean addStat) {
 		
 		long startTime = System.nanoTime();
 		this.globalOrder = globalOrder;
+		this.theta = theta;
 		
 		idx = new Int2ObjectOpenHashMap<List<Record>>();
 		
@@ -110,11 +113,27 @@ public class PkduckSetIndex {
 	
 	private void indexRecord(final Record record ) {
 		int[] tokens = record.getTokensArray();
-		int key = tokens[0];
+		int lenPrefix = (int)Math.floor((1-theta)*record.size())+1;
+		int[] keys = new int[lenPrefix];
+		
+		int keyMax = tokens[0];
+		keys[0] = tokens[0];
 		for (int i=1; i<tokens.length; i++) {
-			if ( globalOrder.compare( key, tokens[i]) > 0 ) key = tokens[i];
+			if ( globalOrder.compare( keys[0], tokens[i]) > 0 ) keys[0] = tokens[i];
+			if ( globalOrder.compare( tokens[i], keyMax ) > 0 ) keyMax = tokens[i];
 		}
-		if ( idx.get( key ) == null ) idx.put( key, new ObjectArrayList<Record>() );
-		idx.get( key ).add( record );
+		
+		for ( int j=1; j<lenPrefix; ++j ) {
+			keys[j] = keyMax;
+			for ( int i=0; i<tokens.length; ++i ) {
+				if ( tokens[i] <= keys[j-1] ) continue;
+				if ( globalOrder.compare( keys[j], tokens[i] ) > 0 ) keys[j] = tokens[i];
+			}
+		}
+
+		for ( int key : new IntOpenHashSet(keys) ) {
+			if ( idx.get( key ) == null ) idx.put( key, new ObjectArrayList<Record>() );
+			idx.get( key ).add( record );
+		}
 	}
 }

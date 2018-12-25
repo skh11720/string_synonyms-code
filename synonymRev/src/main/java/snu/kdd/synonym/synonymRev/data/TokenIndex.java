@@ -6,7 +6,7 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 
 public class TokenIndex {
 	Object2IntOpenHashMap<String> token2IntMap;
-	ObjectArrayList<String> int2TokenList;
+	public ObjectArrayList<String> int2TokenList;
 
 	int nextNewId = 0;
 
@@ -18,6 +18,13 @@ public class TokenIndex {
 
 		// add an empty string with id 0
 		getID( "" );
+	}
+	
+	public TokenIndex( int size ) {
+		token2IntMap = new Object2IntOpenHashMap<String>(size);
+		token2IntMap.defaultReturnValue(-1);
+		int2TokenList = new ObjectArrayList<String>(size);
+		for ( int i=0; i<size; ++i ) int2TokenList.add("");
 	}
 
 	public int getID( String token ) {
@@ -44,4 +51,9 @@ public class TokenIndex {
 	}
 	
 	public Object2IntOpenHashMap<String> getMap() { return token2IntMap; }
+	
+	public void put( String token, int id ) {
+		token2IntMap.put( token, id );
+		int2TokenList.set( id, token );
+	}
 }

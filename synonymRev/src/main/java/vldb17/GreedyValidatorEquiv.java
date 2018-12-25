@@ -12,7 +12,7 @@ import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class GreedyValidator extends Validator{
+public class GreedyValidatorEquiv extends Validator{
 	
 	private final Boolean oneSideJoin;
 	private long nCorrect = 0;
@@ -29,7 +29,7 @@ public class GreedyValidator extends Validator{
 	public long reconstTime = 0;
 	public long compareTime = 0;
 	
-	public GreedyValidator(Boolean oneSideJoin) {
+	public GreedyValidatorEquiv(Boolean oneSideJoin) {
 		this.oneSideJoin = oneSideJoin;
 		if (!this.oneSideJoin) 
 			throw new RuntimeException("GreedyValidator currently does not accept bothSidejoin.");
@@ -187,7 +187,7 @@ public class GreedyValidator extends Validator{
 	
 	@Override
 	public String getName() {
-		return "GreedyValidator";
+		return "GreedyValidatorEquiv";
 	}
 
 	private class PosRule {

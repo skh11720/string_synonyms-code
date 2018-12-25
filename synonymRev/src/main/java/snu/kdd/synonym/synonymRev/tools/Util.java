@@ -13,6 +13,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenCustomHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashBigSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -443,5 +446,15 @@ public class Util {
 			if (!valid) return threshold + 1;
 		}
 		return matrix[xlen][ylen - xlen + threshold];
+	}
+	
+	public static double jaccard( int[] x, int[] y ) {
+		int[] shorter = x.length <= y.length? x: y;
+		int[] longer = x.length <= y.length? y: x;
+		IntOpenHashSet setLonger = new IntOpenHashSet(longer);
+		int common = 0;
+		for ( int token : shorter ) if (setLonger.contains(token)) ++common;
+		double sim = 1.0*common/(x.length + y.length - common);
+		return sim;
 	}
 }

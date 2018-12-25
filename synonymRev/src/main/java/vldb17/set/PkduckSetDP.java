@@ -11,6 +11,7 @@ public class PkduckSetDP {
 	protected final AbstractGlobalOrder globalOrder;
 	protected final int len_max_S;
 	protected final Record rec;
+	protected final int lenPrefix;
 	protected final int[] tokens;
 	
 	protected static final int inf = Integer.MAX_VALUE/2;
@@ -21,8 +22,9 @@ public class PkduckSetDP {
 		else return a+b;
 	}
 	
-	public PkduckSetDP( Record rec, AbstractGlobalOrder globalOrder ) {
+	public PkduckSetDP( Record rec, double theta, AbstractGlobalOrder globalOrder ) {
 		this.rec = rec;
+		this.lenPrefix = (int)Math.floor((1-theta)*rec.size())+1;
 		this.tokens = rec.getTokensArray();
 		this.len_max_S = rec.getMaxTransLength();
 		this.globalOrder = globalOrder;
@@ -106,7 +108,7 @@ public class PkduckSetDP {
 //		System.out.println(Arrays.deepToString(g[1]).replaceAll( "],", "]\n" ));
 
 		Boolean res = false;
-		for (int l=1; l<=len_max_S; l++) res |= (g[1][rec.size()][l] == 0);
+		for (int l=1; l<=len_max_S; l++) res |= (g[1][rec.size()][l] <= lenPrefix-1);
 		return res;
 	}
 }

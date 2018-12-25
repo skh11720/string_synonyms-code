@@ -3,6 +3,7 @@ package snu.kdd.synonym.synonymRev.order;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +16,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
+import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.PosQGram;
 import snu.kdd.synonym.synonymRev.tools.QGram;
@@ -30,6 +32,7 @@ abstract public class AbstractGlobalOrder {
 	protected int nEntry;
 	protected int max_pos = 0;
 
+	public TokenIndex tokenIndex = null;
 	public AbstractGlobalOrder( int qSize) {
 		this.qSize = qSize;
 		if ( qSize == 1 ) {
@@ -63,6 +66,7 @@ abstract public class AbstractGlobalOrder {
 		IntOpenHashSet converted = new IntOpenHashSet();
 		indexByOrder( query.searchedSet.recordList, true, converted );
 		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
+		buildTokenIndex(query);
 	}
 	
 	public void initializeForSet( Query query, boolean expand ) {
@@ -205,6 +209,27 @@ abstract public class AbstractGlobalOrder {
 			orderMap.put( entry.getKey(), i );
 		}
 		return orderMap;
+	}
+	
+	protected void buildTokenIndex( Query query ) {
+		// qSize must be 1.
+//		orderMap: token index -> order
+//		query.tokenIndex: string <-> token index
+//		this.tokenIndex: string <-> order
+//		PrintWriter pw = null;
+//		try { pw= new PrintWriter( new BufferedWriter( new FileWriter("tmp/AbstractGlobalOrder.buildTokenIndex.txt"))); }
+//		catch ( IOException e ) { e.printStackTrace(); }
+
+		tokenIndex = new TokenIndex(orderMap.size());
+		for ( Entry<?, Integer> entry : orderMap.entrySet() ) {
+			int index = (int)entry.getKey();
+			int order = entry.getValue();
+//			System.out.println(orderMap.size()+", "+order +", "+tokenIndex.int2TokenList.size());
+			String token = query.tokenIndex.getToken(index);
+			this.tokenIndex.put( token, order );
+//			pw.println( index +"\t"+token+"\t"+order );
+		}
+//		pw.close();
 	}
 	
 	public void writeToFile() {

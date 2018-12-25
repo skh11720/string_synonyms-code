@@ -20,6 +20,7 @@ public class ParamPkduck extends AbstractParam {
 		options.addOption( "verify", true, "Verification method" );
 		options.addOption( "rc", true, "Use rule compression" );
 		options.addOption( "lf", true, "Use the length filter" );
+		options.addOption( "theta", true, "similarity threshold" );
 
 		argOptions = options;
 	}
@@ -42,6 +43,11 @@ public class ParamPkduck extends AbstractParam {
 			if ( !possibleValues.contains( verifier ) )
 				throw new RuntimeException("unexpected value for option -verify: "+verifier);
 			mapParamS.put("verify", verifier);
+		}
+		
+		if ( cmd.hasOption( "theta" ) ) {
+			double theta = Double.parseDouble( cmd.getOptionValue( "theta" ) );
+			mapParamD.put("theta", theta);
 		}
 
 		boolean rc = false;

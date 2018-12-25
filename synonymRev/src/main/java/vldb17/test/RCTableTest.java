@@ -18,7 +18,7 @@ import snu.kdd.synonym.synonymRev.order.PositionFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
-import vldb17.GreedyValidator;
+import vldb17.GreedyValidatorEquiv;
 import vldb17.seq.JoinPkduck;
 import vldb17.seq.PkduckDP;
 import vldb17.seq.PkduckDPWithRC;

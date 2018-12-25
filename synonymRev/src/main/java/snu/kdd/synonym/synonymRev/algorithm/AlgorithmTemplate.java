@@ -34,6 +34,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinPkduck,
 		
 		SIJoinOriginal,
+		JoinPkduckOriginal,
 
 		JoinSetNaive,
 		JoinPkduckSet,
