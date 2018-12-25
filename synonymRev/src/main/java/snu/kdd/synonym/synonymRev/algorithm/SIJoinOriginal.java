@@ -1,6 +1,9 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +19,7 @@ import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
@@ -29,9 +33,21 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 	private final ObjectArrayList<SIRecord> S, T;
 	private final Int2IntOpenHashMap tokenFreqS, tokenFreqT;
 
+	public static TokenIndex tokenMap;
+
+	public static PrintWriter pw = null;
+	static {
+		try {
+			pw = new PrintWriter( new BufferedWriter( new FileWriter("tmp/SIJoinOriginal_exp_results.txt") ) );
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public SIJoinOriginal(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
+		tokenMap = query.tokenIndex;
 		param = new Param(args);
 		theta = param.getDoubleParam("theta");
 		S = new ObjectArrayList<>();

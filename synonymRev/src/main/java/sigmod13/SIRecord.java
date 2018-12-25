@@ -1,5 +1,6 @@
 package sigmod13;
 
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -19,12 +20,15 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	final IntegerSet fullExpanded;
 	final HashSet<Rule> applicableRules;
 	private static final HashSet<Rule> emptyRules = new HashSet<Rule>();
+	
+	public String str;
 
 	/**
 	 * Create a record and preprocess applicable rules
 	 */
 	public SIRecord( int id, String str, Map<String, Integer> str2int, ACAutomataR automata ) {
 		this.id = id;
+		this.str = str;
 		String[] pstr = str.split( "( |\t)+" );
 		int[] tokens = new int[ pstr.length ];
 		this.tokens = new IntegerSet();
@@ -208,7 +212,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	public double similarity( RecordInterface rec, Validator checker ) {
 		if( rec.getClass() != SIRecord.class )
 			return 0;
-		return SimilarityFunc.selectiveExp( this, (SIRecord) rec );
+		return SimilarityFunc.selectiveExp( this, (SIRecord) rec, false );
 	}
 
 	@Override

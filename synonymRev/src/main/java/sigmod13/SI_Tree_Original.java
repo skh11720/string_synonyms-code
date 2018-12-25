@@ -1,5 +1,9 @@
 package sigmod13;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -15,6 +19,7 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class SI_Tree_Original<T extends RecordInterface & Comparable<T>> {
+
 	public static boolean skipEquiCheck = false;
 	/**
 	 * A root entry of S-Directory (level 0) <br/>
@@ -355,8 +360,10 @@ public class SI_Tree_Original<T extends RecordInterface & Comparable<T>> {
 								for( T t : union_candidates ) {
 									double sim = 0;
 									sim = rec1.similarity( t, checker );
-									if( sim >= threshold )
+									if( sim >= threshold ) {
+										if ( rec1.getID() != t.getID() ) SimilarityFunc.selectiveExp( (SIRecord) rec1, (SIRecord) t, true );
 										results.add( new Pair<T>( rec1, t ) );
+									}
 									++verifyCount;
 								}
 							}
