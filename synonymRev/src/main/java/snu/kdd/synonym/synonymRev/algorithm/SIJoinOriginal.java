@@ -55,7 +55,7 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 
 		tokenMap = query.tokenIndex;
 		try {
-			String[] tokens = query.searchedFile.split("\\\\");
+			String[] tokens = query.searchedFile.split("\\"+File.separator);
 			String dataName = tokens[tokens.length-1].split("\\.")[0];
 			pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/SIJoinOriginal_verify_%s_%.1f.txt", dataName, theta ) ) ) ); 
 		}
