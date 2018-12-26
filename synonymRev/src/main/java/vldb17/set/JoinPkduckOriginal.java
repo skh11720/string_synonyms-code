@@ -52,14 +52,6 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 	
 	public static PrintWriter pw = null;
 	public static TokenIndex tokenIndex;
-	static {
-		try {
-			pw = new PrintWriter( new BufferedWriter( new FileWriter( "tmp/JoinPkduckOriginal_exp_results.txt")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 
 	public JoinPkduckOriginal(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
@@ -73,6 +65,13 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		useRuleComp = param.getBooleanParam("rc");
 		useLF = param.getBooleanParam("useLF");
 		checker = new GreedyValidatorOriginal(query, theta);
+
+		try {
+			String[] tokens = query.searchedFile.split("\\\\");
+			String dataName = tokens[tokens.length-1].split("\\.")[0];
+			pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/JoinPkduckOriginal_verify_%s_%.1f.txt", dataName, theta ) ) ) ); 
+		}
+		catch (IOException e) { e.printStackTrace(); }
 	}
 	
 	@Override

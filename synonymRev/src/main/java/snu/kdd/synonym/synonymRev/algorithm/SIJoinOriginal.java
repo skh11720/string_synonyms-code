@@ -1,9 +1,11 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,20 +36,10 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 	private final Int2IntOpenHashMap tokenFreqS, tokenFreqT;
 
 	public static TokenIndex tokenMap;
-
 	public static PrintWriter pw = null;
-	static {
-		try {
-			pw = new PrintWriter( new BufferedWriter( new FileWriter("tmp/SIJoinOriginal_exp_results.txt") ) );
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	public SIJoinOriginal(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-		tokenMap = query.tokenIndex;
 		param = new Param(args);
 		theta = param.getDoubleParam("theta");
 		S = new ObjectArrayList<>();
@@ -61,6 +53,13 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 			tokenFreqT = new Int2IntOpenHashMap();
 		}
 
+		tokenMap = query.tokenIndex;
+		try {
+			String[] tokens = query.searchedFile.split("\\\\");
+			String dataName = tokens[tokens.length-1].split("\\.")[0];
+			pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/SIJoinOriginal_verify_%s_%.1f.txt", dataName, theta ) ) ) ); 
+		}
+		catch (IOException e) { e.printStackTrace(); }
 	}
 
 	@Override
