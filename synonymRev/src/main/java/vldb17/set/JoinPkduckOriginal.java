@@ -67,7 +67,7 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		checker = new GreedyValidatorOriginal(query, theta);
 
 		try {
-			String[] tokens = query.searchedFile.split("\\\\");
+			String[] tokens = query.searchedFile.split("\\"+File.separator);
 			String dataName = tokens[tokens.length-1].split("\\.")[0];
 			pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/JoinPkduckOriginal_verify_%s_%.1f.txt", dataName, theta ) ) ) ); 
 		}
