@@ -222,7 +222,7 @@ abstract public class AbstractGlobalOrder {
 
 		tokenIndex = new TokenIndex(orderMap.size());
 		for ( Entry<?, Integer> entry : orderMap.entrySet() ) {
-			int index = (int)entry.getKey();
+			int index = ((Integer)entry.getKey()).intValue();
 			int order = entry.getValue();
 //			System.out.println(orderMap.size()+", "+order +", "+tokenIndex.int2TokenList.size());
 			String token = query.tokenIndex.getToken(index);
