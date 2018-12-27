@@ -84,7 +84,7 @@ public class DataCharacteristicsTest {
 				if ( dataset.equals( "SPROT" ) ) size = 466158;
 				else size = 1000000;
 				try {
-					Query query = TestUtils.getTestQuery( dataset, size, nRule );
+					Query query = TestUtils.getTestQuery( dataset, size );
 
 		//			final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
 					
