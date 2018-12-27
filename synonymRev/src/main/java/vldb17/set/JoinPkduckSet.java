@@ -49,7 +49,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 
 	public JoinPkduckSet(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-		ParamPkduck param = new ParamPkduck(args);
+		param = new ParamPkduck(args);
 		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;

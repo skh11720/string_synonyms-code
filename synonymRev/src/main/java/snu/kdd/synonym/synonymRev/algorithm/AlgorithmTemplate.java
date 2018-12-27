@@ -222,7 +222,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			bw_json.write( "}" );
 			
 			// param
-			bw_json.write(", \"Param\":"+param.getJSONString() );
+			if ( param == null ) bw_json.write(", \"Param\": \"\"");
+			else bw_json.write(", \"Param\":"+param.getJSONString() );
 
 			// output
 			bw_json.write( ", \"Output\":{" );

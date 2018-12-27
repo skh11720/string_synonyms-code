@@ -49,7 +49,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 
 	public JoinPkduck(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
-		ParamPkduck param = new ParamPkduck(args);
+		param = new ParamPkduck(args);
 		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
