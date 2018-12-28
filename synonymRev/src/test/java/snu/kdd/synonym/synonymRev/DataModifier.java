@@ -85,10 +85,11 @@ public class DataModifier {
 		if ( !fDst.exists() ) fDst.mkdirs();
 		int i=0;
 		for ( final Record record : query.searchedSet.recordList ) {
+			recordList.add(record); // original record
 			Record zipRemoved = null, equivRec = null, oneTokenRemoved = null;
 			zipRemoved = getZIPRemoved(record, query);
 			if ( zipRemoved == null ) zipRemoved = record;
-			recordList.add(zipRemoved);
+			else recordList.add(zipRemoved);
 			equivRec = getEquivalent(zipRemoved, automata);
 			
 			if ( equivRec != null ) {
