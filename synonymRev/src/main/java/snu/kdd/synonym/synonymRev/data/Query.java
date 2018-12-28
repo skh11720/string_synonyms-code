@@ -38,6 +38,8 @@ public class Query {
 		this.oneSideJoin = oneSideJoin;
 
 		tokenIndex = new TokenIndex();
+		Record.tokenIndex = tokenIndex;
+
 		ruleSet = new Ruleset( ruleFile, tokenIndex );
 
 		indexedSet = new Dataset( indexedFile, tokenIndex );
