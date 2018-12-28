@@ -23,14 +23,10 @@ import snu.kdd.synonym.synonymRev.tools.Util;
 public class TestUtils {
 
 	public static Query getTestQuery( long size ) throws IOException {
-		return getTestQuery("AOL", size );
+		return getTestQuery( "AOL", size );
 	}
 
 	public static Query getTestQuery( String name, long size ) throws IOException {
-		return getTestQuery(name, size, 0);
-	}
-	
-	public static Query getTestQuery( String name, long size, int nRule ) throws IOException {
 		String osName = System.getProperty( "os.name" );
 		String prefix = null;
 		if ( osName.startsWith( "Windows" ) ) {
