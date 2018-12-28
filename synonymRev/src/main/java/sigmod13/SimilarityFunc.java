@@ -55,7 +55,10 @@ public class SimilarityFunc {
 	 */
 	public static double selectiveExp( SIRecord rec1, SIRecord rec2, boolean expPrint ) {
 		++invoked;
-		if ( expPrint ) SIJoinOriginal.pw.println( rec1.getID()+"\t"+rec1.str+"\n"+rec2.getID()+"\t"+rec2.str );
+		if ( expPrint ) {
+			if ( rec1.str.equals(rec2.str) ) expPrint = false;
+			else SIJoinOriginal.pw.println( rec1.getID()+"\t"+rec1.str+"\n"+rec2.getID()+"\t"+rec2.str );
+		}
 
 		// Line 1 : Calcualte candidate rule set
 		// Procedure findCandidateRuleSet(), line 4
