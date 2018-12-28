@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -22,9 +23,42 @@ public class DataModifier {
 	
 	public static long seed = 0L;
 	public static Random rand = new Random(seed);
+	public final String sep = "\\" + File.separator;
 
 	@Test
 	public void modifyUSPS() throws IOException {
+		String prefix = getPrefix();
+		for ( final int size : new int[] {10000, 100000, 1000000} ) {
+			String dataOnePath, dataTwoPath, rulePath;
+			dataOnePath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+			dataTwoPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+			modifyDataset(dataOnePath, dataTwoPath, rulePath, "USPS_mod1", "USPS_mod1_%d.txt", size);
+		}
+	}
+	
+	@Test
+	public void modifyOPENADDR() throws IOException {
+		String prefix = getPrefix();
+		for ( final int size : new int[] {10000, 100000, 1000000} ) {
+			String dataOnePath, dataTwoPath, rulePath;
+			dataOnePath = prefix + String.format( "openaddr"+sep+"address_strings_%d.txt", size );
+			dataTwoPath = prefix + String.format( "openaddr"+sep+"address_strings_%d.txt", size );
+			rulePath = prefix + "openaddr"+sep+"rule.txt";
+			modifyDataset(dataOnePath, dataTwoPath, rulePath, "openaddr_mod1", "address_strings_mod1_%d.txt", size);
+		}
+
+	}
+	
+	public static String getPrefix() {
+		final String osName = System.getProperty( "os.name" );
+		String prefix = null;
+		if ( osName.startsWith( "Windows" ) ) { prefix = "D:\\ghsong\\data\\synonyms\\"; }
+		else if ( osName.startsWith( "Linux" ) ) { prefix = "run/data_store/"; }
+		return prefix;
+	}
+	
+	public static void modifyDataset( String dataOnePath, String dataTwoPath, String rulePath, String outputDir, String outputName, int size ) throws IOException {
 		/*
 		 * For each record s in USPS, produce:
 		 * - a record s' without zipcode
@@ -32,16 +66,12 @@ public class DataModifier {
 		 * - a record s''' created by deleting from s'' a token chosen randomly 
 		 * And output s', s'', s''' to the destination.
 		 */
+		rand = new Random(seed);
 		final String osName = System.getProperty( "os.name" );
 		String prefix = null;
 		if ( osName.startsWith( "Windows" ) ) { prefix = "D:\\ghsong\\data\\synonyms\\"; }
 		else if ( osName.startsWith( "Linux" ) ) { prefix = "run/data_store/"; }
-		final int size = 1_000_000;
 		final String sep = "\\" + File.separator;
-		String dataOnePath, dataTwoPath, rulePath;
-		dataOnePath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-		dataTwoPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
-		rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		
 		final Query query = new Query(rulePath, dataOnePath, dataTwoPath, true, "output");
 		final ACAutomataR automata = new ACAutomataR(query.ruleSet.get());
@@ -50,36 +80,40 @@ public class DataModifier {
 		}
 		
 		ObjectArrayList<Record> recordList = new ObjectArrayList<>();
-		String dstPath = prefix + String.format("USPS_mod1");
+		String dstPath = prefix + String.format(outputDir);
 		File fDst = new File(dstPath);
 		if ( !fDst.exists() ) fDst.mkdirs();
 		int i=0;
 		for ( final Record record : query.searchedSet.recordList ) {
-			Record zipRemoved = getZIPRemoved(record, query);
-			if ( zipRemoved != null ) {
-				recordList.add(zipRemoved);
-				Record equivRec = getEquivalent(zipRemoved, automata);
+			Record zipRemoved = null, equivRec = null, oneTokenRemoved = null;
+			zipRemoved = getZIPRemoved(record, query);
+			if ( zipRemoved == null ) zipRemoved = record;
+			recordList.add(zipRemoved);
+			equivRec = getEquivalent(zipRemoved, automata);
+			
+			if ( equivRec != null ) {
+				recordList.add(equivRec);
+				oneTokenRemoved = getOneTokenRemoved(equivRec);
 				
-				if ( equivRec != null ) {
-					recordList.add(equivRec);
-					Record oneTokenRemoved = getOneTokenRemoved(equivRec);
-					
-					if ( oneTokenRemoved != null ) recordList.add(oneTokenRemoved);
-				}
+				if ( oneTokenRemoved != null ) recordList.add(oneTokenRemoved);
 			}
 
 //			System.out.println("ORIGINAL: " + record);
 //			System.out.println("ORIGINAL INT ARRAY: " + Arrays.toString(record.getTokensArray()));
-//			System.out.println("ZIP REMOVED: "+ zipRemoved.toString());
-//			System.out.println("EQUIV RECORD: "+equivRec.toString());
-//			System.out.println("TOKEN REMOVED: "+oneTokenRemoved.toString());
+//			System.out.println("ZIP REMOVED: "+ zipRemoved);
+//			System.out.println("EQUIV RECORD: "+equivRec);
+//			System.out.println("TOKEN REMOVED: "+oneTokenRemoved);
 //			if ( ++i > 5 ) break;
 			
 		}
 
 		Collections.shuffle(recordList, rand);
-		PrintWriter pw = new PrintWriter( new BufferedWriter( new FileWriter(dstPath+sep+String.format("USPS_mod1_%d.txt", size))));
-		for ( final Record record : recordList ) pw.println(record.toString());
+		PrintWriter pw = new PrintWriter( new BufferedWriter( new FileWriter(dstPath+sep+String.format(outputName, size))));
+		for ( final Record record : recordList ) {
+//			System.out.println(Arrays.toString(record.getTokensArray()));
+//			System.out.println(record);
+			pw.println(record.toString());
+		}
 		pw.close();
 	}
 	
