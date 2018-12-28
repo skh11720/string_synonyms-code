@@ -70,7 +70,7 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		try {
 			String[] tokens = query.searchedFile.split("\\"+File.separator);
 			String dataName = tokens[tokens.length-1].split("\\.")[0];
-			pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/JoinPkduckOriginal_verify_%s_%.1f.txt", dataName, theta ) ) ) ); 
+			pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/JoinPkduckOriginal_verify_%s_%.3f.txt", dataName, theta ) ) ) ); 
 		}
 		catch (IOException e) { e.printStackTrace(); }
 	}
