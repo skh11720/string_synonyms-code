@@ -68,7 +68,7 @@ public class GreedyValidatorOriginal extends Validator{
 	public double getSimL2R( Record x, Record y, boolean expPrint ) {
 		// Make a copy of applicable rules to x.
 		if (expPrint) {
-			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString(JoinPkduckOriginal.tokenIndex)+"\t"+
+			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString(JoinPkduckOriginal.tokenIndex)+"\n"+
 					y.getID()+"\t"+y.toString(JoinPkduckOriginal.tokenIndex));
 		}
 		List<PosRule> candidateRules = new ObjectArrayList<PosRule>( x.getNumApplicableRules() );
