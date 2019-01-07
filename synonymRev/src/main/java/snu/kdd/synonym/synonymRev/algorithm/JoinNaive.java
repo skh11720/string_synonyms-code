@@ -29,10 +29,10 @@ public class JoinNaive extends AlgorithmTemplate {
 		super.preprocess();
 
 		double estTransformed = 0.0;
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : query.searchedSet.get() ) {
 			estTransformed += rec.getEstNumTransformed();
 		}
-		avgTransformed = estTransformed / query.indexedSet.size();
+		avgTransformed = estTransformed / query.searchedSet.size();
 	}
 
 	@Override

@@ -52,14 +52,8 @@ public class JoinMin extends AlgorithmTemplate {
 	@Override
 	public void preprocess() {
 		super.preprocess();
-
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : query.searchedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
 		}
 	}
 

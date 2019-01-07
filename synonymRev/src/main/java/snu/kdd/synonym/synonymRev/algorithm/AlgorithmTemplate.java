@@ -131,23 +131,6 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		long maxSSize = 0;
 		applicableRules = 0;
 
-		if( !query.selfJoin ) {
-			for( final Record rec : query.indexedSet.get() ) {
-				rec.preprocessRules( automata );
-				rec.preprocessTransformLength();
-				rec.preprocessEstimatedRecords();
-
-				if( DEBUG.AlgorithmON ) {
-					applicableRules += rec.getNumApplicableRules();
-
-					long est = rec.getEstNumTransformed();
-					if( maxSSize < est ) {
-						maxSSize = est;
-					}
-				}
-			}
-		}
-
 		if( DEBUG.AlgorithmON ) {
 			stat.add( "Stat_maximum Size of Table S", maxSSize );
 			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );

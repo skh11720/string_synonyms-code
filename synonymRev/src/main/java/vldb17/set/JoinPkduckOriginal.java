@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -52,7 +54,6 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 	private boolean useLF;
 	
 	public static PrintWriter pw = null;
-	public static TokenIndex tokenIndex;
 
 	public JoinPkduckOriginal(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
 		super(query, stat, args);
@@ -84,18 +85,23 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 	public void preprocess() {
 		super.preprocess();
 		
-		for (Record rec : query.indexedSet.get()) {
+		for ( Record rec : query.searchedSet.get()) {
 			rec.preprocessSuffixApplicableRules();
 		}
-		
-		if ( !query.selfJoin ) {
-			for ( Record rec : query.searchedSet.get()) {
+		if ( ! query.selfJoin ) {
+			Record prev = null;
+			ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
+			for ( Record rec : query.indexedSet.get() ) {
+				rec.preprocessRules( automata );
+				rec.preprocessTransformLength();
+				rec.preprocessEstimatedRecords();
 				rec.preprocessSuffixApplicableRules();
+				prev = rec;
 			}
 		}
 
-		globalOrder.initializeForSet( query );
-		tokenIndex = globalOrder.tokenIndex;
+		globalOrder.initializeForSet( query, true );
+		Record.tokenIndex = globalOrder.tokenIndex;
 		
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {

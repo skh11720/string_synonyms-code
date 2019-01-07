@@ -14,6 +14,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 
+@Deprecated
 public class PkduckIndex {
 	private WYK_HashMap<Integer, WYK_HashMap<Integer, List<Record>>> idx;
 	

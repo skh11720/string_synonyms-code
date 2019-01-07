@@ -57,6 +57,7 @@ abstract public class AbstractGlobalOrder {
 			if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
 		}
 		if ( DEBUG.bGlobalOrderWriteToFile ) writeToFile();
+		buildTokenIndex(query);
 	}
 
 	public void initializeForSet( Query query ) {
@@ -76,6 +77,7 @@ abstract public class AbstractGlobalOrder {
 		IntOpenHashSet converted = new IntOpenHashSet();
 		indexByOrder( query.searchedSet.recordList, expand, converted );
 		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, expand, converted );
+		buildTokenIndex(query);
 	}
 
 	protected void indexByOrder( List<Record> recordList, boolean expand, IntOpenHashSet converted ) {
@@ -93,9 +95,9 @@ abstract public class AbstractGlobalOrder {
 //						if (debug) System.out.println( "rule, before: "+rule.toString() );
 						if ( converted.contains( rule.id ) ) continue;
 						int[] lhs = rule.getLeft();
-						for ( int j=0; j<lhs.length; j++ ) lhs[j] = orderMap.getInt( lhs[j] );
+						for ( int j=0; j<lhs.length; j++ ) lhs[j] = getOrderFromToken( lhs[j] );
 						int[] rhs = rule.getRight();
-						for ( int j=0; j<rhs.length; j++ ) rhs[j] = orderMap.getInt( rhs[j] );
+						for ( int j=0; j<rhs.length; j++ ) rhs[j] = getOrderFromToken( rhs[j] );
 //						if (debug) System.out.println( "rule, after: "+rule.toString() );
 						
 	//					if ( convertedRuleSet.contains( rule ) ) {
@@ -107,7 +109,7 @@ abstract public class AbstractGlobalOrder {
 						converted.add( rule.id );
 					}
 				}
-				tokens[i] = orderMap.getInt( tokens[i] );
+				tokens[i] = getOrderFromToken( tokens[i] );
 			} // end for i
 //			if(debug) System.out.println( "record, after: "+Arrays.toString( rec.getTokensArray() ) );
 //			if ( debug && rec.getID() > 10 ) System.exit( 1 );
@@ -216,20 +218,25 @@ abstract public class AbstractGlobalOrder {
 //		orderMap: token index -> order
 //		query.tokenIndex: string <-> token index
 //		this.tokenIndex: string <-> order
-//		PrintWriter pw = null;
-//		try { pw= new PrintWriter( new BufferedWriter( new FileWriter("tmp/AbstractGlobalOrder.buildTokenIndex.txt"))); }
-//		catch ( IOException e ) { e.printStackTrace(); }
+		PrintWriter pw = null;
+		try { pw= new PrintWriter( new BufferedWriter( new FileWriter("tmp/AbstractGlobalOrder.buildTokenIndex.txt"))); }
+		catch ( IOException e ) { e.printStackTrace(); }
 
-		tokenIndex = new TokenIndex(orderMap.size());
+		this.tokenIndex = new TokenIndex(orderMap.size());
 		for ( Entry<?, Integer> entry : orderMap.entrySet() ) {
 			int index = ((Integer)entry.getKey()).intValue();
 			int order = entry.getValue();
 //			System.out.println(orderMap.size()+", "+order +", "+tokenIndex.int2TokenList.size());
 			String token = query.tokenIndex.getToken(index);
 			this.tokenIndex.put( token, order );
-//			pw.println( index +"\t"+token+"\t"+order );
+			pw.println( index +"\t"+token+"\t"+order );
 		}
-//		pw.close();
+		pw.close();
+	}
+	
+	protected int getOrderFromToken( int token ) {
+		if ( !orderMap.containsKey(token) ) ((Object2IntOpenHashMap<Integer>)orderMap).put( (Integer)token, orderMap.size() );
+		return orderMap.getInt(token);
 	}
 	
 	public void writeToFile() {

@@ -449,12 +449,14 @@ public class Util {
 	}
 	
 	public static double jaccard( int[] x, int[] y ) {
+		// consider x and y as sets, not multisets
 		int[] shorter = x.length <= y.length? x: y;
 		int[] longer = x.length <= y.length? y: x;
 		IntOpenHashSet setLonger = new IntOpenHashSet(longer);
+		IntOpenHashSet setShorter = new IntOpenHashSet(shorter);
 		int common = 0;
-		for ( int token : shorter ) if (setLonger.contains(token)) ++common;
-		double sim = 1.0*common/(x.length + y.length - common);
+		for ( int token : setShorter ) if (setLonger.contains(token)) ++common;
+		double sim = 1.0*common/(setLonger.size() + setShorter.size() - common);
 		return sim;
 	}
 }

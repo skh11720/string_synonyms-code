@@ -130,13 +130,11 @@ public class JoinMHIndex extends AbstractIndex {
 			long afterQGram = System.currentTimeMillis();
 
 			int indexedCount = 0;
-			int[] range = rec.getTransLengths();
-
 			if (useIndexCount) {
 				for (int i = 0; i < indexPosition.length; i++) {
 					int actual = indexPosition[i];
 
-					if (range[0] > actual) {
+					if (rec.size() > actual) {
 						indexedCount++;
 					}
 				}

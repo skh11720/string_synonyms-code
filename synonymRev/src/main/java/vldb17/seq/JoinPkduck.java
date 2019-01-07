@@ -73,6 +73,7 @@ public class JoinPkduck extends AlgorithmTemplate {
 			rec.preprocessSuffixApplicableRules();
 		}
 		globalOrder.initializeForSequence( query, true );
+		Record.tokenIndex = globalOrder.tokenIndex;
 
 //		double estTransformed = 0.0;
 //		for( Record rec : query.indexedSet.get() ) {

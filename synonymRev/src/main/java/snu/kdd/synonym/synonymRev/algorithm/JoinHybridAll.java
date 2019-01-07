@@ -64,22 +64,11 @@ public class JoinHybridAll extends AlgorithmTemplate {
 	public void preprocess() {
 		super.preprocess();
 
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : query.searchedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
-			if( maxIndexedEstNumRecords < rec.getEstNumTransformed() ) {
-				maxIndexedEstNumRecords = rec.getEstNumTransformed();
+			if( maxSearchedEstNumRecords < rec.getEstNumTransformed() ) {
+				maxSearchedEstNumRecords = rec.getEstNumTransformed();
 			}
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-				if( maxSearchedEstNumRecords < rec.getEstNumTransformed() ) {
-					maxSearchedEstNumRecords = rec.getEstNumTransformed();
-				}
-			}
-		}
-		else {
-			maxSearchedEstNumRecords = maxIndexedEstNumRecords;
 		}
 
 		stat.add( "MaxIndexedEstNumRecords", maxIndexedEstNumRecords );

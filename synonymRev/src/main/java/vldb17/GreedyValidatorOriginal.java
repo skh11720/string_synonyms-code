@@ -68,8 +68,8 @@ public class GreedyValidatorOriginal extends Validator{
 	public double getSimL2R( Record x, Record y, boolean expPrint ) {
 		// Make a copy of applicable rules to x.
 		if (expPrint) {
-			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString(JoinPkduckOriginal.tokenIndex)+"\n"+
-					y.getID()+"\t"+y.toString(JoinPkduckOriginal.tokenIndex));
+			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString()+"\n"+
+					y.getID()+"\t"+y.toString());
 		}
 		List<PosRule> candidateRules = new ObjectArrayList<PosRule>( x.getNumApplicableRules() );
 		for (int i=0; i<x.size(); i++) {
@@ -118,7 +118,7 @@ public class GreedyValidatorOriginal extends Validator{
 			for (int j=0; j<bestRule.leftSize(); j++) bAvailable[bestRule.pos-j] = false;
 			candidateRules.remove( bestRuleIdx );
 			appliedRuleSet.add( bestRule );
-			if ( expPrint ) JoinPkduckOriginal.pw.println( "APPLY: "+bestRule.rule.toOriginalString(JoinPkduckOriginal.tokenIndex));
+			if ( expPrint ) JoinPkduckOriginal.pw.println( "APPLY"+(bestRule.rule.isSelfRule()?"":"*")+": "+bestRule.rule.toOriginalString(Record.tokenIndex));
 
 			if (getTime) {
 				bestRuleTime += System.nanoTime() - ts;
