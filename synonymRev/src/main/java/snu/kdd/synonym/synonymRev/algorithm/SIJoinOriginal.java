@@ -33,7 +33,7 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 
 	private final double theta;
 	private final ObjectArrayList<SIRecord> S, T;
-	private final Int2IntOpenHashMap tokenFreqS, tokenFreqT;
+	private final Int2IntOpenHashMap tokenFreq;
 
 	public static TokenIndex tokenMap;
 	public static PrintWriter pw = null;
@@ -43,14 +43,12 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		param = new Param(args);
 		theta = param.getDoubleParam("theta");
 		S = new ObjectArrayList<>();
-		tokenFreqS = new Int2IntOpenHashMap();
+		tokenFreq = new Int2IntOpenHashMap();
 		if ( query.selfJoin ) {
 			T = S;
-			tokenFreqT = tokenFreqS;
 		}
 		else {
 			T = new ObjectArrayList<>();
-			tokenFreqT = new Int2IntOpenHashMap();
 		}
 
 		tokenMap = query.tokenIndex;
@@ -76,13 +74,13 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 
 		for( Record recS : query.searchedSet.get() ) {
 			S.add( new SIRecord( recS.getID(), recS.toString(), str2int, automata) );
-			for ( int token : recS.getTokens() ) tokenFreqS.addTo(token, 1);
+			for ( int token : recS.getTokens() ) tokenFreq.addTo(token, 1);
 		}
 
 		if( !query.selfJoin ) {
 			for( Record recT : query.indexedSet.get() ) {
 				T.add( new SIRecord( recT.getID(), recT.toString(), str2int, automata) );
-				for ( int token : recT.getTokens() ) tokenFreqT.addTo(token, 1);
+				for ( int token : recT.getTokens() ) tokenFreq.addTo(token, 1);
 			}
 		}
 	}
@@ -103,22 +101,16 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 //		SI_Tree_Original<Record> treeS = new SI_Tree_Original<Record>( 1, null, query.indexedSet.recordList, checker );
 
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		ITF_Filter filterS = new ITF_Filter(null, null) {
+		ITF_Filter filter = new ITF_Filter(null, null) {
 			@Override
 			public int compare(int t1, boolean t1_from_record, int t2, boolean t2_from_record) {
-				return Integer.compare( tokenFreqS.get(t1), tokenFreqS.get(t2) );
+				return Integer.compare( tokenFreq.get(t1), tokenFreq.get(t2) );
 			}
 		};
-		SI_Tree_Original<SIRecord> treeS = new SI_Tree_Original<SIRecord>( theta, filterS, S, null );
+		SI_Tree_Original<SIRecord> treeS = new SI_Tree_Original<SIRecord>( theta, filter, S, null );
 		SI_Tree_Original<SIRecord> treeT = null;
 		if ( !query.selfJoin ) {
-			ITF_Filter filterT = new ITF_Filter(null, null) {
-				@Override
-				public int compare(int t1, boolean t1_from_record, int t2, boolean t2_from_record) {
-					return Integer.compare( tokenFreqT.get(t1), tokenFreqT.get(t2) );
-				}
-			};
-			treeT = new SI_Tree_Original<SIRecord>( theta, filterT, T, null );
+			treeT = new SI_Tree_Original<SIRecord>( theta, filter, T, null );
 		}
 		else treeT = treeS;
 		stepTime.stopAndAdd( stat );
