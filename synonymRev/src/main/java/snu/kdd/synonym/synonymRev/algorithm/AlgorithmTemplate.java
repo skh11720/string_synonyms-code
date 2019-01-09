@@ -1,6 +1,7 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -155,7 +156,16 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 				Util.printLog( "Writing results " + rslt.size() );
 			}
 
-			final BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile + "/" + getName() ) );
+			BufferedWriter bw = null;
+			String[] tokens = query.searchedFile.split("\\"+File.separator);
+			String data1Name = tokens[tokens.length-1].split("\\.")[0];
+			if ( query.selfJoin ) bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output_%s.txt", query.outputFile, getName(), data1Name ) ) );
+			else {
+				tokens = query.indexedFile.split("\\"+File.separator);
+				String data2Name = tokens[tokens.length-1].split("\\.")[0];
+				bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output_%s_%s.txt", query.outputFile, getName(), data1Name, data2Name ) ) );
+			}
+
 			bw.write( rslt.size() + "\n" );
 			for( final IntegerPair ip : rslt ) {
 				final Record r = query.searchedSet.getRecord( ip.i1 );

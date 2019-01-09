@@ -60,8 +60,7 @@ public class GreedyValidatorOriginal extends Validator{
 			}
 		}
 		totalTime += System.nanoTime() - ts;
-		if ( res == 1 ) getSimL2R( x, y, true );
-		else if ( res == 2 ) getSimL2R( y, x, true );
+		if ( res == 1 || res == 2 ) getSimL2R( x, y, true );
 		return res;
 	}
 	
