@@ -96,6 +96,7 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_2_Preprocessed" );
 
 //		SI_Tree_Original<Record> treeR = new SI_Tree_Original<Record>( 1, null, query.searchedSet.recordList, checker );
 //		SI_Tree_Original<Record> treeS = new SI_Tree_Original<Record>( 1, null, query.indexedSet.recordList, checker );
@@ -114,6 +115,7 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		}
 		else treeT = treeS;
 		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_3_BuildIndex" );
 
 		if( DEBUG.SIJoinON ) {
 			System.out.println( "Node size : " + ( treeS.FEsize + treeS.LEsize ) );
@@ -128,6 +130,7 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		rslt = join( treeS, treeT, theta );
 		stepTime.stopAndAdd( stat );
 
+		stat.addMemory( "Mem_4_Joined" );
 		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
 
 		writeResult();

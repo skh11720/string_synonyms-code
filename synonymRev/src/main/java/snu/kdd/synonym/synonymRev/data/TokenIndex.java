@@ -56,4 +56,10 @@ public class TokenIndex {
 		token2IntMap.put( token, id );
 		int2TokenList.set( id, token );
 	}
+	
+	public String toString( int[] arr ) {
+		StringBuilder bld = new StringBuilder();
+		for ( int idx : arr ) bld.append( getToken(idx)+' ' );
+		return bld.toString().trim();
+	}
 }
