@@ -117,7 +117,7 @@ public class GreedyValidatorOriginal extends Validator{
 			for (int j=0; j<bestRule.leftSize(); j++) bAvailable[bestRule.pos-j] = false;
 			candidateRules.remove( bestRuleIdx );
 			appliedRuleSet.add( bestRule );
-			if ( expPrint ) JoinPkduckOriginal.pw.println( "APPLY"+(bestRule.rule.isSelfRule()?"":"*")+": "+bestRule.rule.toOriginalString(Record.tokenIndex));
+			if ( expPrint && !bestRule.rule.isSelfRule() ) JoinPkduckOriginal.pw.println( "APPLY"+(bestRule.rule.isSelfRule()?"":"*")+": "+bestRule.rule.toOriginalString(Record.tokenIndex));
 
 			if (getTime) {
 				bestRuleTime += System.nanoTime() - ts;
