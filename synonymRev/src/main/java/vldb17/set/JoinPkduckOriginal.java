@@ -267,6 +267,8 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		
 		// verification
 		for (Record recOther : candidateAfterLF ) {
+			if ( rslt.contains( new IntegerPair( rec.getID(), recOther.getID() ) ) || rslt.contains( new IntegerPair( recOther.getID(), rec.getID() ) ) )
+				continue;
 			int comp = checker.isEqual( rec, recOther );
 //			if (debug) System.out.println( "compare "+rec.getID()+" and "+recOther.getID()+": "+comp );
 			if (comp >= 0) addSetResult( rec, recOther, rslt, idx == idxT, query.selfJoin );
