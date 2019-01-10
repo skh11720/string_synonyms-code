@@ -60,16 +60,20 @@ public class GreedyValidatorOriginal extends Validator{
 			}
 		}
 		totalTime += System.nanoTime() - ts;
-		if ( res == 1 || res == 2 ) getSimL2R( x, y, true );
+		// print output for debugging
+		if ( res == 1 || res == 2 ) {
+			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString()+"\n"+y.getID()+"\t"+y.toString());
+			if ( res == 1 ) getSimL2R( x, y, true );
+			else getSimL2R( y, x, true );
+		}
 		return res;
 	}
 	
 	public double getSimL2R( Record x, Record y, boolean expPrint ) {
-		// Make a copy of applicable rules to x.
-		if (expPrint) {
-			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString()+"\n"+
-					y.getID()+"\t"+y.toString());
+		if ( expPrint ) {
+			JoinPkduckOriginal.pw.println(x.getID()+" -> "+y.getID());
 		}
+		// Make a copy of applicable rules to x.
 		List<PosRule> candidateRules = new ObjectArrayList<PosRule>( x.getNumApplicableRules() );
 		for (int i=0; i<x.size(); i++) {
 			for (Rule rule : x.getSuffixApplicableRules( i )) {
