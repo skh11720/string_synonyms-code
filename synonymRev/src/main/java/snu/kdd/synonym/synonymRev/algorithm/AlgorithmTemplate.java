@@ -159,11 +159,11 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			BufferedWriter bw = null;
 			String[] tokens = query.searchedFile.split("\\"+File.separator);
 			String data1Name = tokens[tokens.length-1].split("\\.")[0];
-			if ( query.selfJoin ) bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output_%s.txt", query.outputFile, getName(), data1Name ) ) );
+			if ( query.selfJoin ) bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output_%s.txt", query.outputFile, getOutputName(), data1Name ) ) );
 			else {
 				tokens = query.indexedFile.split("\\"+File.separator);
 				String data2Name = tokens[tokens.length-1].split("\\.")[0];
-				bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output_%s_%s.txt", query.outputFile, getName(), data1Name, data2Name ) ) );
+				bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output_%s_%s.txt", query.outputFile, getOutputName(), data1Name, data2Name ) ) );
 			}
 
 			bw.write( rslt.size() + "\n" );
@@ -284,4 +284,9 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	
 	@Override
 	public StatContainer getStat() { return stat; }
+	
+
+	public String getOutputName() {
+		return getName();
+	}
 }

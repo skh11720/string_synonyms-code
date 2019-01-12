@@ -292,4 +292,9 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		 */
 		return "1.00";
 	}
+	
+	@Override
+	public String getOutputName() {
+		return String.format( "%s_%.3f", getName(), theta );
+	}
 }
