@@ -23,7 +23,8 @@ public class FilterPowerTest {
 
 	@Test
 	public void test() throws IOException, ParseException, org.json.simple.parser.ParseException {
-		String[] datasetList = {"AOL", "SPROT", "USPS"};
+//		String[] datasetList = {"AOL", "SPROT", "USPS"};
+		String[] datasetList = {"AOL"};
 		String[] attrList = {"Val_Comparisons", "Val_Length_filtered", "Val_PQGram_filtered", "Final Result Size", "Result_3_Run_Time", "Result_5_1_Filter_Time",
 		"Result_5_2_Verify_Time",};
 		int size = 100000;
@@ -62,34 +63,36 @@ public class FilterPowerTest {
 				}
 				
 				// JoinMin
-				{
-					Query query = TestUtils.getTestQuery( dataset, size );
-					StatContainer stat_joinmh = new StatContainer();
-					String[] args = ("-K "+K+" -qSize "+q+" -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " );
-					JoinMin joinmh = new JoinMin( query, stat_joinmh, args );
-					joinmh.run();
-					System.out.println( stat_joinmh.toJson() );
-					JSONParser jparser = new JSONParser();
-					JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmh.toJson()+"}" );
-					String result = dataset+"\t"+size+"\tJoinMin\t"+K+"\t"+q+"\t"+useLF+"\t"+usePQF+"\t"+useSTPQ;
-					for ( String key : attrList ) result += "\t"+jobj.get( key );
-					writer.println(result);
-					writer.flush(); 
-				}
-
-				// JoinMinFast
 //				{
 //					Query query = TestUtils.getTestQuery( dataset, size );
-//					StatContainer stat_joinmhfast = new StatContainer();
-//					JoinMinFast joinmhfast = new JoinMinFast( query, stat_joinmhfast );
-//					joinmhfast.run( query, ("-K "+K+" -qSize "+q+" -sample 0.01 -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " ) );
-//					System.out.println( stat_joinmhfast.toJson() );
+//					StatContainer stat_joinmh = new StatContainer();
+//					String[] args = ("-K "+K+" -qSize "+q+" -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " );
+//					JoinMin joinmh = new JoinMin( query, stat_joinmh, args );
+//					joinmh.run();
+//					System.out.println( stat_joinmh.toJson() );
 //					JSONParser jparser = new JSONParser();
-//					JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmhfast.toJson()+"}" );
-//					String result = dataset+"\t"+size+"\tJoinMinFast\t"+K+"\t"+q+"\t"+useLF+"\t"+usePQF+"\t"+useSTPQ;
+//					JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmh.toJson()+"}" );
+//					String result = dataset+"\t"+size+"\tJoinMin\t"+K+"\t"+q+"\t"+useLF+"\t"+usePQF+"\t"+useSTPQ;
 //					for ( String key : attrList ) result += "\t"+jobj.get( key );
 //					writer.println(result);
+//					writer.flush(); 
 //				}
+
+				// JoinMinFast
+				for ( int i=0; i<5; ++i) 
+				{
+					Query query = TestUtils.getTestQuery( dataset, size );
+					StatContainer stat_joinmhfast = new StatContainer();
+					String[] args = ("-K "+K+" -qSize "+q+" -sampleB 0.01 -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " );
+					JoinMinFast joinmhfast = new JoinMinFast( query, stat_joinmhfast, args );
+					joinmhfast.run();
+					System.out.println( stat_joinmhfast.toJson() );
+					JSONParser jparser = new JSONParser();
+					JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmhfast.toJson()+"}" );
+					String result = dataset+"\t"+size+"\tJoinMinFast\t"+K+"\t"+q+"\t"+useLF+"\t"+usePQF+"\t"+useSTPQ;
+					for ( String key : attrList ) result += "\t"+jobj.get( key );
+					writer.println(result);
+				}
 			}
 		}
 		
