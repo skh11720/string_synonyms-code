@@ -144,4 +144,9 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	public String getName() {
 		return "JoinDeltaSimple";
 	}
+	
+	@Override
+	public String getOutputName() {
+		return String.format( "%s_d%d", getName(), deltaMax );
+	}
 }
