@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import sigmod13.filter.ITF_Filter;
+import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerMap;
 import snu.kdd.synonym.synonymRev.tools.Pair;
@@ -601,7 +602,9 @@ public class SI_Tree_Original<T extends RecordInterface & Comparable<T>> {
 			// Special code for theta == 1 and filter == 1
 			if( theta == 1 ) {
 			}
+//			System.out.println(rec.getID()+"\t"+rec);
 			Collection<Integer> signature = rec.getSignatures( filter, theta );
+			if ( signature == null ) return;
 			// Add to inverted indices
 			for( int sig : signature ) {
 				if( !P.containsKey( sig ) )
