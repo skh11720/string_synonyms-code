@@ -179,6 +179,6 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 
 	@Override
 	public String getOutputName() {
-		return String.format( "%s_%.3f", getName(), theta );
+		return String.format( "%s_%.3f", super.getOutputName(), theta );
 	}
 }

@@ -287,6 +287,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	
 
 	public String getOutputName() {
-		return getName();
+		if ( query.selfJoin ) return getName()+"_"+query.searchedFile;
+		else return getName()+"_"+query.searchedFile+"_"+query.indexedFile;
 	}
 }

@@ -49,6 +49,6 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 	
 	@Override
 	public String getOutputName() {
-		return String.format( "%s_d%d", getName(), deltaMax );
+		return String.format( "%s_d%d", super.getOutputName(), deltaMax );
 	}
 }
