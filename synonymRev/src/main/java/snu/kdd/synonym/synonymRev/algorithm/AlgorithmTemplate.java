@@ -287,7 +287,14 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	
 
 	public String getOutputName() {
-		if ( query.selfJoin ) return getName()+"_"+query.searchedFile;
-		else return getName()+"_"+query.searchedFile+"_"+query.indexedFile;
+		String[] tokens = query.searchedFile.split("\\"+File.separator);
+		String data1Name = tokens[tokens.length-1].split("\\.")[0];
+		String data2Name = null;
+		if ( !query.selfJoin ) {
+			tokens = query.indexedFile.split("\\"+File.separator);
+			data2Name = tokens[tokens.length-1].split("\\.")[0];
+		}
+		if ( query.selfJoin ) return getName()+"_"+data1Name;
+		else return getName()+"_"+data1Name+"_"+data2Name;
 	}
 }
