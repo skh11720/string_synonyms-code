@@ -8,112 +8,83 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.validator.Naive;
-import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
-import snu.kdd.synonym.synonymRev.validator.TopDown;
-import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
-
-public class Param {
-	protected static Options argOptions;
+public class Param extends AbstractParam {
+	private static final Options argOptions;
 
 	static {
-		Options options = new Options();
-		options.addOption( "K", true, "Represents a number of indexes" );
-		options.addOption( "qSize", true, "Q gram size" );
-		options.addOption( "sample", true, "Sampling Ratio" );
-		options.addOption( "t", true, "Threshold" );
-		options.addOption( "noLength", false, "No Length Filtering" );
-		options.addOption( "naiveVal", false, "Naive Validator" );
-		options.addOption( "delta", true, "deltaMax" );
-		options.addOption( "nEst", true, "nEst" );
+		argOptions = new Options();
+		argOptions.addOption( "K", true, "Represents a number of indexes" );
+		argOptions.addOption( "qSize", true, "Q gram size" );
+		argOptions.addOption( "sampleB", true, "Sampling Ratio for JoinBKPFast" );
+		argOptions.addOption( "sampleH", true, "Sampling Ratio for JoinHybridAll" );
+		argOptions.addOption( "delta", true, "deltaMax" );
+		argOptions.addOption( "theta", true, "theta" );
 
-		options.addOption( "useLF", true, "" );
-		options.addOption( "usePQF", true, "" );
-		options.addOption( "useSTPQ", true, "" );
-
-		argOptions = options;
+		argOptions.addOption( "useLF", true, "" );
+		argOptions.addOption( "usePQF", true, "" );
+		argOptions.addOption( "useSTPQ", true, "" );
 	}
 
-	public static Param parseArgs( String[] args, StatContainer stat, Query query ) throws IOException, ParseException {
+	public Param( String[] args ) throws IOException, ParseException {
 		CommandLineParser parser = new DefaultParser();
-		Param param = new Param();
-
 		CommandLine cmd = parser.parse( argOptions, args );
 
-		stat.add( cmd );
-
 		if( cmd.hasOption( "K" ) ) {
-			param.indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
+			int indexK = Integer.parseInt( cmd.getOptionValue( "K" ) );
+			if ( indexK <= 0 ) throw new ParseException("K must be larger than 0, not "+indexK);
+			mapParamI.put("indexK", indexK);
 		}
-
+		
 		if( cmd.hasOption( "qSize" ) ) {
-			param.qgramSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
+			int qSize = Integer.parseInt( cmd.getOptionValue( "qSize" ) );
+			if ( qSize <= 0 ) throw new ParseException("qSize must be larger than 0, not "+qSize);
+			mapParamI.put("qSize", qSize);
 		}
 
-		if( cmd.hasOption( "sample" ) ) {
-			param.sampleRatio = Double.parseDouble( cmd.getOptionValue( "sample" ) );
+		if( cmd.hasOption( "sampleB" ) ) {
+			double sampleB = Double.parseDouble( cmd.getOptionValue( "sampleB" ) );
+			if ( sampleB < 0 || sampleB > 1 ) throw new ParseException("sampleB must be between 0 and 1, not "+sampleB);
+			mapParamD.put("sampleB", sampleB);
 		}
 
-		if( cmd.hasOption( "t" ) ) {
-			param.threshold = Integer.parseInt( cmd.getOptionValue( "t" ) );
+		if( cmd.hasOption( "sampleH" ) ) {
+			double sampleH = Double.parseDouble( cmd.getOptionValue( "sampleH" ) );
+			if ( sampleH < 0 || sampleH > 1 ) throw new ParseException("sampleH must be between 0 and 1, not "+sampleH);
+			mapParamD.put("sampleH", sampleH);
 		}
 
-		if( cmd.hasOption( "noLength" ) ) {
-			param.noLength = true;
-		}
-		
-		if( cmd.hasOption( "naiveVal" ) ) {
-			if( query.oneSideJoin ) {
-				param.validator = new NaiveOneSide();
-			}
-			else {
-				param.validator = new Naive();
-			}
-		}
-		else {
-			if( query.oneSideJoin ) {
-				param.validator = new TopDownOneSide();
-			}
-			else {
-				param.validator = new TopDown();
-			}
-		}
-		
 		if (cmd.hasOption( "delta" )) {
-			param.deltaMax = Integer.parseInt( cmd.getOptionValue( "delta" ) );
+			int deltaMax = Integer.parseInt( cmd.getOptionValue( "delta" ) );
+			if ( deltaMax < 0 ) throw new ParseException("delta must be nonnegative integer, not "+deltaMax);
+			mapParamI.put("deltaMax", deltaMax);
 		}
 
-		if (cmd.hasOption( "nEst" )) {
-			param.nEst = Integer.parseInt( cmd.getOptionValue( "nEst" ) );
-		}
-		else param.nEst = 1;
-
-		if (cmd.hasOption( "useLF" )) {
-			param.useLF = Boolean.parseBoolean( cmd.getOptionValue( "useLF" ) );
+		if (cmd.hasOption( "theta" )) {
+			double theta = Double.parseDouble( cmd.getOptionValue( "theta" ) );
+			if ( theta < 0 || theta > 1 ) throw new ParseException("theta must be in [0,1], not "+theta);
+			mapParamD.put("theta", theta);
 		}
 
-		if (cmd.hasOption( "usePQF" )) {
-			param.usePQF = Boolean.parseBoolean( cmd.getOptionValue( "usePQF" ) );
-		}
+		boolean useLF = true;
+		if (cmd.hasOption( "useLF" )) useLF = Boolean.parseBoolean( cmd.getOptionValue( "useLF" ) );
+		mapParamB.put("useLF", useLF);
 
-		if (cmd.hasOption( "useSTPQ" )) {
-			param.useSTPQ = Boolean.parseBoolean( cmd.getOptionValue( "useSTPQ" ) );
-		}
+		boolean usePQF = true;
+		if (cmd.hasOption( "usePQF" )) usePQF = Boolean.parseBoolean( cmd.getOptionValue( "usePQF" ) );
+		mapParamB.put("usePQF", usePQF);
 
-		return param;
+		boolean useSTPQ = true;
+		if (cmd.hasOption( "useSTPQ" )) useSTPQ = Boolean.parseBoolean( cmd.getOptionValue( "useSTPQ" ) );
+		mapParamB.put("useSTPQ", useSTPQ);
 	}
-
-	public int indexK = 1;
-	public int qgramSize = 2;
-	public double sampleRatio = -1;
-	public Validator validator;
-	public int threshold = 10;
-	public boolean noLength = false;
-	public int deltaMax;
-	public int nEst;
-	public boolean useLF = true;
-	public boolean usePQF = true;
-	public boolean useSTPQ = true;
+	
+//	public static void main(String[] args) throws ParseException {
+//		args = new String[]{"-K", "1", "-qSize", "2", "-sampleB", "0.01", "-usePQF", "false"};
+//		CommandLineParser parser = new DefaultParser();
+//		CommandLine cmd = parser.parse( argOptions, args );
+//		System.out.println( cmd.getOptionValue("usePQF") );
+//		for ( Option opt : cmd.getOptions() ) System.out.println(opt.toString());
+//		for ( Option opt : cmd.getOptions() ) System.out.println(opt.getOpt() );
+//		for ( Option opt : argOptions.getOptions() ) System.out.println(opt.getOpt());
+//	}
 }

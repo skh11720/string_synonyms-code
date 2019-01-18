@@ -13,6 +13,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntOpenCustomHashSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashBigSet;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -200,17 +203,17 @@ public class Util {
 		 */
 		List<IntegerPair> qgramPrefixList = new ObjectArrayList<IntegerPair>();
 		List<QGram> keyList = new ObjectArrayList<QGram>( qgramSet );
-		int qgramSize = keyList.get( 0 ).qgram.length;
+		int qSize = keyList.get( 0 ).qgram.length;
 		keyList.sort( new QGramComparator() );
 		int d = 1;
 		QGram qgramPrev = null;
 		for (QGram qgram : keyList ) {
 			if ( qgramPrev != null ) {
-				for ( d=1; d<qgramSize; d++) {
+				for ( d=1; d<qSize; d++) {
 					if ( qgram.qgram[d-1] != qgramPrev.qgram[d-1] ) break;
 				}
 			}
-			for (; d<=qgramSize; d++) {
+			for (; d<=qSize; d++) {
 				qgramPrefixList.add(new IntegerPair( qgram.qgram[d-1], d ));
 //					System.out.println( new IntegerPair( qgram.qgram[d-1], d) );
 			}
@@ -222,6 +225,7 @@ public class Util {
 	public static List<IntArrayList> getCombinations( int n, int k ) {
 		/*
 		 * Return all combinations of n choose k.
+		 * TODO slow when k is large...!
 		 */
 		List<IntArrayList> combList = new ObjectArrayList<IntArrayList>();
 
@@ -442,5 +446,17 @@ public class Util {
 			if (!valid) return threshold + 1;
 		}
 		return matrix[xlen][ylen - xlen + threshold];
+	}
+	
+	public static double jaccard( int[] x, int[] y ) {
+		// consider x and y as sets, not multisets
+		int[] shorter = x.length <= y.length? x: y;
+		int[] longer = x.length <= y.length? y: x;
+		IntOpenHashSet setLonger = new IntOpenHashSet(longer);
+		IntOpenHashSet setShorter = new IntOpenHashSet(shorter);
+		int common = 0;
+		for ( int token : setShorter ) if (setLonger.contains(token)) ++common;
+		double sim = 1.0*common/(setLonger.size() + setShorter.size() - common);
+		return sim;
 	}
 }

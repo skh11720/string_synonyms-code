@@ -20,10 +20,12 @@ import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
 import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
 import snu.kdd.synonym.synonymRev.algorithm.PassJoin;
 import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
+import snu.kdd.synonym.synonymRev.algorithm.SIJoinOriginal;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVar;
-import snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set.JoinBKPSet;
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVarBK;
+import snu.kdd.synonym.synonymRev.algorithm.set.JoinBKPSet;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -31,6 +33,7 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import vldb17.seq.JoinPkduck;
+import vldb17.set.JoinPkduckOriginal;
 import vldb17.set.JoinPkduckSet;
 
 public class App {
@@ -74,69 +77,84 @@ public class App {
 		return new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
 	}
 	
-	public static AlgorithmInterface getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException {
+	public static AlgorithmInterface getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException, ParseException {
 		AlgorithmInterface alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
+		String additionalOptions = cmd.getOptionValue( "additional", "" );
+		String[] additionalArgs = null;
+		if( additionalOptions != null ) additionalArgs = additionalOptions.split( " " );
 
 		switch( algorithmName ) {
 		case JoinNaive:
-			alg = new JoinNaive( query, stat );
+			alg = new JoinNaive( query, stat, additionalArgs );
 			break;
 
 		case JoinMH:
-			alg = new JoinMH( query, stat );
+			alg = new JoinMH( query, stat, additionalArgs );
 			break;
 
 		case JoinMin:
-			alg = new JoinMin( query, stat );
+			alg = new JoinMin( query, stat, additionalArgs );
 			break;
 
 		case JoinMinFast:
-			alg = new JoinMinFast( query, stat );
+			alg = new JoinMinFast( query, stat, additionalArgs );
 			break;
 
 		case JoinHybridAll:
-			alg = new JoinHybridAll( query, stat );
+			alg = new JoinHybridAll( query, stat, additionalArgs );
 			break;
 
 		case JoinHybridAll3:
-			alg = new JoinHybridAll3( query, stat );
+			alg = new JoinHybridAll3( query, stat, additionalArgs );
 			break;
 
 		case SIJoin:
-			alg = new SIJoin( query, stat );
+			alg = new SIJoin( query, stat, additionalArgs );
+			break;
+
+		case SIJoinOriginal:
+			alg = new SIJoinOriginal( query, stat, additionalArgs );
 			break;
 
 		case JoinPkduck:
-			alg = new JoinPkduck( query, stat );
+			alg = new JoinPkduck( query, stat, additionalArgs );
 			break;
 
 		case JoinPkduckSet:
-			alg = new JoinPkduckSet( query, stat );
+			alg = new JoinPkduckSet( query, stat, additionalArgs );
+			break;
+
+		case JoinPkduckOriginal:
+			alg = new JoinPkduckOriginal( query, stat, additionalArgs );
 			break;
 
 		case JoinBKPSet:
-			alg = new JoinBKPSet ( query, stat );
+			alg = new JoinBKPSet ( query, stat, additionalArgs );
 			break;
 
 		case JoinSetNaive:
-			alg = new JoinSetNaive( query, stat );
+			alg = new JoinSetNaive( query, stat, additionalArgs );
 			break;
 
 		case PassJoin:
-			alg = new PassJoin( query, stat );
+			alg = new PassJoin( query, stat, additionalArgs );
 			break;
 		
 		case JoinDeltaNaive:
-			alg = new JoinDeltaNaive( query, stat );
+			alg = new JoinDeltaNaive( query, stat, additionalArgs );
 			break;
 
 		case JoinDeltaSimple:
-			alg = new JoinDeltaSimple( query, stat );
+			alg = new JoinDeltaSimple( query, stat, additionalArgs );
 			break;
 
 		case JoinDeltaVar:
-			alg = new JoinDeltaVar( query, stat );
+			alg = new JoinDeltaVar( query, stat, additionalArgs );
+			break;
+
+		case JoinDeltaVarBK:
+			alg = new JoinDeltaVarBK( query, stat, additionalArgs );
 			break;
 
 		
@@ -150,23 +168,12 @@ public class App {
 		// 18.09.26: disable semi-unidirectional computation
 //		if ( !query.selfJoin && !query.oneSideJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
 
-		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
-		stat.add( cmd );
-		stat.add( "cmd_alg", alg.getName() );
-		stat.add( "cmd_alg_v", alg.getVersion() );
+//		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
+//		stat.add( cmd );
+		stat.add( "alg", alg.getName() );
+		stat.add( "alg_version", alg.getVersion() );
 		
 		return alg;
-	}
-	
-	public static void run( AlgorithmInterface alg, Query query, CommandLine cmd ) throws IOException, ParseException {
-		String additionalOptions = cmd.getOptionValue( "additional", "" );
-		if( additionalOptions != null ) {
-			String additionalArgs[] = additionalOptions.split( " " );
-			alg.run( query, additionalArgs );
-		}
-		else {
-			alg.run( query, null );
-		}
 	}
 	
 	public static void main( String args[] ) throws IOException, ParseException {
@@ -182,7 +189,7 @@ public class App {
 		AlgorithmInterface alg = getAlgorithm( query, stat, cmd );
 
 		initializeTime.stopAndAdd( stat );
-		run( alg, query, cmd );
+		alg.run();
 
 		totalTime.stop();
 		Util.printGCStats( stat, "Stat" );

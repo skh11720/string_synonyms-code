@@ -1,6 +1,7 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.tools.AbstractParam;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -31,6 +33,9 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinHybridAll3,
 		SIJoin,
 		JoinPkduck,
+		
+		SIJoinOriginal,
+		JoinPkduckOriginal,
 
 		JoinSetNaive,
 		JoinPkduckSet,
@@ -40,16 +45,18 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		JoinDeltaNaive,
 		JoinDeltaSimple,
 		JoinDeltaVar,
+		JoinDeltaVarBK,
 	}
 
 	// contains statistics of the algorithm
 	public boolean writeResult = true;
-	protected StatContainer stat;
-	protected Query query;
-	protected ACAutomataR automata;
+	protected final StatContainer stat;
+	protected final Query query;
+	protected AbstractParam param;
 	public Collection<IntegerPair> rslt = null;
 
-	public AlgorithmTemplate( Query query, StatContainer stat ) throws IOException {
+
+	public AlgorithmTemplate( Query query, StatContainer stat, String[] args ) throws IOException, ParseException {
 		this.stat = stat;
 		this.query = query;
 	}
@@ -58,14 +65,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 
 	public abstract String getVersion();
 
-	public abstract void run( Query query, String[] args ) throws IOException, ParseException;
-
-	public void printStat() {
-		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
-		stat.printResult();
-		System.out.println(
-				"==============" + new String( new char[ getName().length() ] ).replace( "\0", "=" ) + "====================" );
-	}
+	public abstract void run();
 
 	protected void preprocess() {
 		// builds an automata of the set of rules
@@ -77,7 +77,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
 		}
 
-		automata = new ACAutomataR( query.ruleSet.get() );
+		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 
 		long applicableRules = 0;
 
@@ -132,29 +132,19 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		long maxSSize = 0;
 		applicableRules = 0;
 
-		if( !query.selfJoin ) {
-			for( final Record rec : query.indexedSet.get() ) {
-				rec.preprocessRules( automata );
-				rec.preprocessTransformLength();
-				rec.preprocessEstimatedRecords();
-
-				if( DEBUG.AlgorithmON ) {
-					applicableRules += rec.getNumApplicableRules();
-
-					long est = rec.getEstNumTransformed();
-					if( maxSSize < est ) {
-						maxSSize = est;
-					}
-				}
-			}
-		}
-
 		if( DEBUG.AlgorithmON ) {
 			stat.add( "Stat_maximum Size of Table S", maxSSize );
 			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
 
 			preprocessTime.stopQuietAndAdd( stat );
 		}
+	}
+
+	public void printStat() {
+		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
+		stat.printResult();
+		System.out.println(
+				"==============" + new String( new char[ getName().length() ] ).replace( "\0", "=" ) + "====================" );
 	}
 
 	public void writeResult() {
@@ -166,7 +156,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 				Util.printLog( "Writing results " + rslt.size() );
 			}
 
-			final BufferedWriter bw = new BufferedWriter( new FileWriter( query.outputFile + "/" + getName() ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output.txt", query.outputFile, getOutputName() ) ) );
+
 			bw.write( rslt.size() + "\n" );
 			for( final IntegerPair ip : rslt ) {
 				final Record r = query.searchedSet.getRecord( ip.i1 );
@@ -180,7 +171,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 
 //				bw.write( r.toString( query.tokenIndex ) + "(" + r.getID() + ")\t==\t" + s.toString( query.tokenIndex ) + "("+ s.getID() + ")\n" );
 //				bw.write( "(" + r.getID() + ")\t==\t" + "("+ s.getID() + ")\n" );
-				bw.write( Arrays.toString( r.getTokensArray() ) + "(" + r.getID() + ")\t==\t" + Arrays.toString( s.getTokensArray() ) + "("+ s.getID() + ")\n" );
+//				bw.write( Arrays.toString( r.getTokensArray() ) + "(" + r.getID() + ")\t==\t" + Arrays.toString( s.getTokensArray() ) + "("+ s.getID() + ")\n" );
+				bw.write( r.toString() + "(" + r.getID() + ")\t==\t" + s.toString() + "("+ s.getID() + ")\n" );
 			}
 			bw.close();
 		}
@@ -198,28 +190,29 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 							+ new java.text.SimpleDateFormat( "yyyyMMdd_HHmmss_z" ).format( new java.util.Date() ) + ".txt",
 					true ) );
 
+			// start JSON object
 			bw_json.write( "{" );
+			// metadata
+			bw_json.write( "\"Date\":\"" + new Date().toString()+"\"");
 
-			bw_json.write( "\"Date\": \"" + new Date().toString() + "\"," );
-
-			bw_json.write( "\"Algorithm\": {" );
-			bw_json.write( "\"name\": \"" + getName() + "\"," );
-			bw_json.write( "\"version\": \"" + getVersion() + "\"" );
-			bw_json.write( "}" );
-
-			bw_json.write( ", \"Result\":{" );
-			bw_json.write( stat.toJson() );
-			bw_json.write( "}" );
-
-			bw_json.write( ", \"Dataset\": {" );
+			// dataset
+			bw_json.write( ", \"Dataset\":{" );
 			bw_json.write( dataInfo.toJson() );
 			bw_json.write( "}" );
 
-			bw_json.write( ", \"ParametersUsed\": {" );
-			bw_json.write( "\"additional\": " );
-			bw_json.write( "\"" + cmd.getOptionValue( "additional", "" ) + "\"," );
-			bw_json.write( "\"oneSideJoin\": " );
-			bw_json.write( "\"" + cmd.getOptionValue( "oneSideJoin" ) + "\"" );
+			// algorithm
+			bw_json.write( ", \"Algorithm\":{" );
+				bw_json.write( "\"Name\":\"" + getName() + "\", " );
+				bw_json.write( "\"Version\":\"" + getVersion()+"\"");
+			bw_json.write( "}" );
+			
+			// param
+			if ( param == null ) bw_json.write(", \"Param\": \"\"");
+			else bw_json.write(", \"Param\":"+param.getJSONString() );
+
+			// output
+			bw_json.write( ", \"Output\":{" );
+			bw_json.write( stat.toJson() );
 			bw_json.write( "}" );
 
 			bw_json.write( "}\n" );
@@ -267,6 +260,15 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		}
 	}
 	
+//	public static void addSetResult( int rec1id, int rec2id, Set<IntegerPair> rslt, boolean isSelfJoin ) {
+//		if ( isSelfJoin ) {
+//			int id_smaller = rec1id < rec2id? rec1id : rec2id;
+//			int id_larger = rec1id >= rec2id? rec1id : rec2id;
+//			rslt.add( new IntegerPair( id_smaller, id_larger) );
+//		}
+//		else rslt.add( new IntegerPair( rec1id, rec2id) );
+//	}
+	
 	@Override
 	public void setWriteResult( boolean flag ) {
 		this.writeResult = flag;
@@ -274,4 +276,17 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	
 	@Override
 	public StatContainer getStat() { return stat; }
+	
+
+	public String getOutputName() {
+		String[] tokens = query.searchedFile.split("\\"+File.separator);
+		String data1Name = tokens[tokens.length-1].split("\\.")[0];
+		String data2Name = null;
+		if ( !query.selfJoin ) {
+			tokens = query.indexedFile.split("\\"+File.separator);
+			data2Name = tokens[tokens.length-1].split("\\.")[0];
+		}
+		if ( query.selfJoin ) return getName()+"_"+data1Name;
+		else return getName()+"_"+data1Name+"_"+data2Name;
+	}
 }

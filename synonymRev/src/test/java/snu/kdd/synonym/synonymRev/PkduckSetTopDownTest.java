@@ -37,7 +37,7 @@ public class PkduckSetTopDownTest {
 						}
 					}
 					
-					PkduckSetDP pkduck0 = new PkduckSetDP( recS, globalOrder );
+					PkduckSetDP pkduck0 = new PkduckSetDP( recS, 1, globalOrder );
 					PkduckSetDPTopDown pkduck1 = new PkduckSetDPTopDown( recS, globalOrder );
 					for ( int token : candTokenSet ) {
 						long ts = System.nanoTime();

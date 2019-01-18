@@ -1,9 +1,11 @@
 package sigmod13;
 
+import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import snu.kdd.synonym.synonymRev.algorithm.SIJoinOriginal;
 import snu.kdd.synonym.synonymRev.data.Rule;
 
 public class SimilarityFunc {
@@ -51,8 +53,12 @@ public class SimilarityFunc {
 	 * Calculate Selective-expanded Jaccard similarity value <br/>
 	 * Algorithm 2 in the paper
 	 */
-	public static double selectiveExp( SIRecord rec1, SIRecord rec2 ) {
+	public static double selectiveExp( SIRecord rec1, SIRecord rec2, boolean expPrint ) {
 		++invoked;
+		if ( expPrint ) {
+			if ( rec1.str.equals(rec2.str) ) expPrint = false;
+			else SIJoinOriginal.pw.println( rec1.getID()+"\t"+rec1.str+"\n"+rec2.getID()+"\t"+rec2.str );
+		}
 
 		// Line 1 : Calcualte candidate rule set
 		// Procedure findCandidateRuleSet(), line 4
@@ -152,10 +158,14 @@ public class SimilarityFunc {
 			if( max_gain > 0 ) {
 				// Line 18 : Expand
 				try {
-					if( best_from_1 )
+					if( best_from_1 ) {
 						erec1.applyRule( best_rule );
-					else
+						if ( expPrint ) SIJoinOriginal.pw.println("APPLY TO REC1: "+best_rule.toOriginalString(SIJoinOriginal.tokenMap));
+					}
+					else {
 						erec2.applyRule( best_rule );
+						if ( expPrint ) SIJoinOriginal.pw.println("APPLY TO REC2: "+best_rule.toOriginalString(SIJoinOriginal.tokenMap));
+					}
 				}
 				catch( Exception e ) {
 					// This should never be happen
@@ -173,7 +183,12 @@ public class SimilarityFunc {
 		}
 
 		// Line 20 : return the similarity
-		return Math.max( erec1.calcJaccard( erec2 ), rec1.calcJaccard( rec2 ) );
+		double sim = Math.max( erec1.calcJaccard( erec2 ), rec1.calcJaccard( rec2 ) );
+		if ( expPrint ) {
+			SIJoinOriginal.pw.println("SIM: "+sim);
+			SIJoinOriginal.pw.flush();
+		}
+		return sim;
 	}
 
 	/**

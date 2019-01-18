@@ -1,4 +1,4 @@
-package snu.kdd.synonym.synonymRev.algorithm.pqFilterDP.set;
+package snu.kdd.synonym.synonymRev.algorithm.set;
 
 import java.util.Arrays;
 

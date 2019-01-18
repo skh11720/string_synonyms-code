@@ -34,7 +34,7 @@ public class JoinMHIndex extends AbstractIndex {
 	protected final long threshold;
 
 	protected final int indexK;
-	protected final int qgramSize;
+	protected final int qSize;
 	protected final int[] indexPosition;
 
 	protected int maxPosition = 0;
@@ -65,7 +65,7 @@ public class JoinMHIndex extends AbstractIndex {
 	 * JoinMHIndex: builds a MH Index
 	 * 
 	 * @param indexK
-	 * @param qgramSize
+	 * @param qSize
 	 * @param indexedSet
 	 * @param query
 	 * @param stat
@@ -75,14 +75,14 @@ public class JoinMHIndex extends AbstractIndex {
 	 * @param threshold
 	 */
 	
-	public JoinMHIndex(int indexK, int qgramSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
+	public JoinMHIndex(int indexK, int qSize, Iterable<Record> indexedSet, Query query, StatContainer stat,
 			int[] indexPosition, boolean addStat, boolean useIndexCount, int threshold) {
 		// TODO: Need to be fixed to make index just for given sequences
 		// NOW, it makes index for all sequences
 		
 		long starttime = System.nanoTime();
 		this.indexK = indexK;
-		this.qgramSize = qgramSize;
+		this.qSize = qSize;
 		this.indexPosition = indexPosition;
 		this.query = query;
 		this.threshold = threshold;
@@ -122,21 +122,19 @@ public class JoinMHIndex extends AbstractIndex {
 			long recordStartTime = System.currentTimeMillis();
 			List<List<QGram>> availableQGrams = null;
 			if (!query.oneSideJoin) {
-				availableQGrams = rec.getQGrams(qgramSize, maxPosition + 1);
+				availableQGrams = rec.getQGrams(qSize, maxPosition + 1);
 			} else {
-				availableQGrams = rec.getSelfQGrams(qgramSize, maxPosition + 1);
+				availableQGrams = rec.getSelfQGrams(qSize, maxPosition + 1);
 			}
 
 			long afterQGram = System.currentTimeMillis();
 
 			int indexedCount = 0;
-			int[] range = rec.getTransLengths();
-
 			if (useIndexCount) {
 				for (int i = 0; i < indexPosition.length; i++) {
 					int actual = indexPosition[i];
 
-					if (range[0] > actual) {
+					if (rec.size() > actual) {
 						indexedCount++;
 					}
 				}
@@ -248,7 +246,7 @@ public class JoinMHIndex extends AbstractIndex {
 	}
 	
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
-		List<List<QGram>> availableQGrams = rec.getQGrams( qgramSize, maxPosition+1 );
+		List<List<QGram>> availableQGrams = rec.getQGrams( qSize, maxPosition+1 );
 		List<List<QGram>> candidatePQGrams = new ArrayList<List<QGram>>();
 		for ( int k=0; k<availableQGrams.size(); ++k ) {
 			if ( k >= idx.size() ) continue;
@@ -261,7 +259,7 @@ public class JoinMHIndex extends AbstractIndex {
 			candidatePQGrams.add( qgrams );
 		}
 		return candidatePQGrams;
-//		return rec.getQGrams( qgramSize, maxPosition+1 );
+//		return rec.getQGrams( qSize, maxPosition+1 );
 	}
 	
 	protected void postprocessAfterJoin( StatContainer stat ) {
@@ -292,7 +290,7 @@ public class JoinMHIndex extends AbstractIndex {
 			List<Set<QGram>> availableQGramsSet = new ObjectArrayList<>();
 			for ( int k=0; k<indexK; ++k ) availableQGramsSet.add( new ObjectOpenHashSet<>() );
 			for ( Record exp : recS.expandAll() ) {
-				List<List<QGram>> qgramsList = exp.getSelfQGrams( qgramSize, indexK );
+				List<List<QGram>> qgramsList = exp.getSelfQGrams( qSize, indexK );
 				int maxK = Math.min( indexK, qgramsList.size() );
 				for ( int k=0; k<maxK; ++k ) {
 					WYK_HashMap<QGram, List<Record>> curidx = idx.get( k );

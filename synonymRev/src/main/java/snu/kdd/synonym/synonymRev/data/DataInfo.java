@@ -148,16 +148,13 @@ public class DataInfo {
 	public String toJson() {
 		StringBuilder bld = new StringBuilder();
 
-		bld.append( "\"name\": \"" + name + "\"" );
-		bld.append( ", \"is_synthetic\": \"" + isSynthetic + "\"" );
-		bld.append( ", \"file_size\": \"" + size + "\"" );
-
-		bld.append( ", \"data_info\": {" );
-		bld.append( "\"Data One Path\": \"" + dataOnePath + "\"" );
+		bld.append( "\"Name\": \"" + name + "\"" );
+		bld.append( ", \"Is_synthetic\": \"" + isSynthetic + "\"" );
+		bld.append( ", \"File_size\": \"" + size + "\"" );
+		bld.append( ", \"Data One Path\": \"" + dataOnePath + "\"" );
 		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
 		bld.append( ", \"Info\": \"" + info + "\"" );
-		bld.append( "}" );
 
 		return bld.toString();
 	}

@@ -3,6 +3,8 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.io.IOException;
 import java.util.Set;
 
+import org.apache.commons.cli.ParseException;
+
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
@@ -14,35 +16,28 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 public class JoinNaive extends AlgorithmTemplate {
 
 	public NaiveIndex idx;
-	public long threshold = Long.MAX_VALUE;
 
-	// staticitics used for building indexes
+	// statistics used for building indexes
 	public double avgTransformed;
 
-	public JoinNaive( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
+	public JoinNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
 	}
 
+	@Override
 	public void preprocess() {
 		super.preprocess();
 
 		double estTransformed = 0.0;
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : query.searchedSet.get() ) {
 			estTransformed += rec.getEstNumTransformed();
 		}
-		avgTransformed = estTransformed / query.indexedSet.size();
+		avgTransformed = estTransformed / query.searchedSet.size();
 	}
 
 	@Override
-	public void run( Query query, String[] args ) {
-		this.threshold = Long.valueOf( args[ 0 ] );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
-		if( DEBUG.NaiveON ) {
-			stat.addPrimary( "cmd_threshold", threshold );
-		}
-
 		preprocess();
 
 		stepTime.stopAndAdd( stat );
@@ -71,7 +66,7 @@ public class JoinNaive extends AlgorithmTemplate {
 			}
 		}
 
-		idx = new NaiveIndex( query, stat, addStat, threshold, avgTransformed );
+		idx = new NaiveIndex( query, stat, addStat, avgTransformed );
 
 		if( addStat ) {
 			stepTime.stopAndAdd( stat );
@@ -132,5 +127,4 @@ public class JoinNaive extends AlgorithmTemplate {
 		 */
 		return "2.02";
 	}
-
 }

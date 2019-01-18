@@ -18,7 +18,6 @@ public class NaiveIndex extends AbstractIndex {
 	private WYK_HashMap<Record, ArrayList<Integer>> idx;
 	protected final boolean isSelfJoin;
 	protected final String filenamePrefix = "NaiveIndex";
-	protected final long threshold;
 
 	public long indexTime = 0;
 	public long joinTime = 0;
@@ -37,10 +36,9 @@ public class NaiveIndex extends AbstractIndex {
 	public double alpha;
 	public double beta;
 
-	public NaiveIndex( Query query, StatContainer stat, boolean addStat, long threshold, double avgTransformed ) {
+	public NaiveIndex( Query query, StatContainer stat, boolean addStat, double avgTransformed ) {
 		isSelfJoin = query.selfJoin;
 
-		this.threshold = threshold;
 		final long starttime = System.nanoTime();
 		int initialSize = (int) ( query.indexedSet.size() * avgTransformed / 2 );
 		if ( initialSize > 10000 ) initialSize = 10000;

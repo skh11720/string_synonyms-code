@@ -25,25 +25,27 @@ public class JoinSetNaive extends AlgorithmTemplate {
 	
 	private WYK_HashMap<IntOpenHashSet, IntArrayList> idxS;
 	private WYK_HashMap<IntOpenHashSet, IntArrayList> idxT;
-	private long candTokenTime = 0;
-	private long isInSigUTime = 0;
-	private long filteringTime = 0;
-	private long validateTime = 0;
-	private long nScanList = 0;
+//	private long candTokenTime = 0;
+//	private long isInSigUTime = 0;
+//	private long filteringTime = 0;
+//	private long validateTime = 0;
+//	private long nScanList = 0;
 
-	public JoinSetNaive( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
+
+	public JoinSetNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
 	}
 
+	@Override
 	public void preprocess() {
 		super.preprocess();
 		
-		for (Record rec : query.indexedSet.get()) {
+		for (Record rec : query.searchedSet.recordList) {
 			rec.preprocessSuffixApplicableRules();
 		}
 		
 		if ( !query.selfJoin ) {
-			for ( Record rec : query.searchedSet.get()) {
+			for ( Record rec : query.indexedSet.recordList) {
 				rec.preprocessSuffixApplicableRules();
 			}
 		}
@@ -55,9 +57,9 @@ public class JoinSetNaive extends AlgorithmTemplate {
 //		}
 //		avgTransformed = estTransformed / query.indexedSet.size();
 	}
-
+	
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
+	public void run() { 
 //		this.threshold = Long.valueOf( args[ 0 ] );
 //		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
 //		this.threshold = -1;
@@ -142,15 +144,15 @@ public class JoinSetNaive extends AlgorithmTemplate {
 			idxT.get( key ).add(i);
 		}
 
-		if ( !query.selfJoin ) {
-			idxS = new WYK_HashMap<IntOpenHashSet, IntArrayList>();
-			for ( int i=0; i<query.searchedSet.size(); i++ ) {
-				Record recS = query.searchedSet.getRecord( i );
-				IntOpenHashSet key = new IntOpenHashSet(recS.getTokens());
-				if ( !idxS.containsKey( key ) ) idxS.put( key, new IntArrayList() );
-				idxS.get( key ).add(i);
-			}
-		}
+//		if ( !query.selfJoin ) {
+//			idxS = new WYK_HashMap<IntOpenHashSet, IntArrayList>();
+//			for ( int i=0; i<query.searchedSet.size(); i++ ) {
+//				Record recS = query.searchedSet.getRecord( i );
+//				IntOpenHashSet key = new IntOpenHashSet(recS.getTokens());
+//				if ( !idxS.containsKey( key ) ) idxS.put( key, new IntArrayList() );
+//				idxS.get( key ).add(i);
+//			}
+//		}
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
@@ -163,13 +165,13 @@ public class JoinSetNaive extends AlgorithmTemplate {
 			joinOneRecord( recS, rslt, idxT );
 		}
 		
-		if ( !query.selfJoin ) {
-			// T -> T' ~ S
-			for ( Record recT : query.indexedSet.recordList ) {
-				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-				joinOneRecord( recT, rslt, idxS );
-			}
-		}
+//		if ( !query.selfJoin ) {
+//			// T -> T' ~ S
+//			for ( Record recT : query.indexedSet.recordList ) {
+//				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+//				joinOneRecord( recT, rslt, idxS );
+//			}
+//		}
 		return rslt;
 	}
 	

@@ -15,17 +15,14 @@ import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
+import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMH extends AlgorithmTemplate {
 	// RecordIDComparator idComparator;
 
-	public JoinMH( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
-
 	public int indexK;
-	public int qgramSize;
+	public int qSize;
 
 	public Validator checker;
 
@@ -40,36 +37,28 @@ public class JoinMH extends AlgorithmTemplate {
 	protected boolean useLF, usePQF, useSTPQ;
 	
 	
-	
-	protected void setup( Param params ) {
-		indexK = params.indexK;
-		qgramSize = params.qgramSize;
-		checker = params.validator;
-		useLF = params.useLF;
-		usePQF = params.usePQF;
-		useSTPQ = params.useSTPQ;
+	public JoinMH(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+		param = new Param(args);
+		indexK = param.getIntParam("indexK");
+		qSize = param.getIntParam("qSize");
+		checker = new TopDownOneSide();
+		useLF = param.getBooleanParam("useLF");
+		usePQF = param.getBooleanParam("usePQF");
+		useSTPQ = param.getBooleanParam("useSTPQ");
 	}
 
 	@Override
 	protected void preprocess() {
 		super.preprocess();
 
-		for( Record rec : query.indexedSet.get() ) {
+		for( Record rec : query.searchedSet.get() ) {
 			rec.preprocessSuffixApplicableRules();
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
 		}
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stat.addMemory( "Mem_2_Preprocessed" );
@@ -150,7 +139,7 @@ public class JoinMH extends AlgorithmTemplate {
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex( indexK, qgramSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		idx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
 		JoinMHIndex.useLF = useLF;
 		JoinMHIndex.usePQF = usePQF;
 		JoinMHIndex.useSTPQ = useSTPQ;

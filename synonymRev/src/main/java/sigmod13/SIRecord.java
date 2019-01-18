@@ -1,14 +1,20 @@
 package sigmod13;
 
+import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
+import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -19,12 +25,15 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	final IntegerSet fullExpanded;
 	final HashSet<Rule> applicableRules;
 	private static final HashSet<Rule> emptyRules = new HashSet<Rule>();
+	
+	public String str;
 
 	/**
 	 * Create a record and preprocess applicable rules
 	 */
 	public SIRecord( int id, String str, Map<String, Integer> str2int, ACAutomataR automata ) {
 		this.id = id;
+		this.str = str;
 		String[] pstr = str.split( "( |\t)+" );
 		int[] tokens = new int[ pstr.length ];
 		this.tokens = new IntegerSet();
@@ -76,12 +85,15 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	 */
 	@Override
 	public HashSet<SIRecordExpanded> generateAll() {
+		if ( applicableRules.size() > 10 ) return null;
 		try {
 			Queue<SIRecordExpanded> queue = new LinkedList<SIRecordExpanded>();
 			queue.add( new SIRecordExpanded( this ) );
 
 			Queue<SIRecordExpanded> bufferQueue = new LinkedList<SIRecordExpanded>();
 			for( Rule rule : applicableRules ) {
+//				System.out.println(rule.toOriginalString(Record.tokenIndex));
+				//if ( queue.size() > 1_000_000 ) return null;
 				if( rule.getLeft().length == 1 && rule.getRight().length == 1 && rule.getLeft()[ 0 ] == rule.getRight()[ 0 ] )
 					continue;
 				while( !queue.isEmpty() ) {
@@ -186,12 +198,15 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 
 	@Override
 	public Set<Integer> getSignatures( ITF_Filter filter, double theta ) {
-		IntegerSet signature = new IntegerSet();
-		if( theta == 1 ) {
-			signature.addAll( filter.filter( new SIRecordExpanded( this ), 1 ) );
-			return signature;
-		}
+		IntOpenHashSet signature = new IntOpenHashSet();
+		// 19.01.09. commented out: why this fi block is used?????
+		// this block does not generate the correct signature since it does not expand the record.
+//		if( theta == 1 ) { 
+//			signature.addAll( filter.filter( new SIRecordExpanded( this ), 1 ) );
+//			return signature;
+//		}
 		HashSet<SIRecordExpanded> expanded = generateAll();
+		if ( expanded == null ) return null;
 		for( SIRecordExpanded exp : expanded ) {
 			// In the paper the number of signature is states as belows.
 			// int cut = (int) Math.ceil((1.0 - theta) * exp.size());
@@ -204,10 +219,11 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	}
 
 	@Override
+	// use selectiveExp
 	public double similarity( RecordInterface rec, Validator checker ) {
 		if( rec.getClass() != SIRecord.class )
 			return 0;
-		return SimilarityFunc.fullExp2( this, (SIRecord) rec );
+		return SimilarityFunc.selectiveExp( this, (SIRecord) rec, false );
 	}
 
 	@Override

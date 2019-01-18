@@ -49,10 +49,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	}
 
 	public Record( int id, String str, TokenIndex tokenIndex ) {
-		if( Record.tokenIndex == null ) {
-			Record.tokenIndex = tokenIndex;
-		}
-
 		this.id = id;
 		String[] pstr = str.split( "( |\t)+" );
 		tokens = new int[ pstr.length ];

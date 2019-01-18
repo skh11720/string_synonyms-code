@@ -1,4 +1,4 @@
-package vldb17.set;
+package vldb17;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,14 +7,19 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.set.AbstractSetValidator;
+import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.validator.Validator;
+import vldb17.set.JoinPkduckOriginal;
 
-public class SetGreedyValidator extends AbstractSetValidator {
+public class GreedyValidatorOriginal extends Validator{
 	
 	private long nCorrect = 0;
+	private final double theta;
+	private final Query query;
 	
 	private final static Boolean getTime = false;
 	private final static Boolean debugPrint = false;
@@ -28,23 +33,46 @@ public class SetGreedyValidator extends AbstractSetValidator {
 	public long reconstTime = 0;
 	public long compareTime = 0;
 	
-	public SetGreedyValidator(Boolean selfJoin) {
-		super( selfJoin );
+	public GreedyValidatorOriginal(Query query, double theta) {
+		this.query = query;
+		this.theta = theta;
 	}
 
 	@Override
-	public int isEqualOneSide( Record x, Record y ) {
-
-		// DEBUG
-//		Boolean debug = false;
-//		if ( x.getID() == 7706 && y.getID() == 7707 ) debug = true;
-//		if ( y.getID() == 7706 && x.getID() == 7707 ) debug = true;
-//		if ( debug ) {
-//			System.out.println( "x: "+x.toString()+", "+Arrays.toString( x.getTokensArray() ) );
-//			System.out.println( "y: "+y.toString()+", "+Arrays.toString( y.getTokensArray() ) );
-//		}
-
-		if (getTime) ts = System.nanoTime();
+	public int isEqual( Record x, Record y ) {
+		/*
+		 * -1: not equivalent
+		 * 0: exactly same
+		 * 1: equivalent, x -> y
+		 * 2: equivalent, y -> x
+		 */
+		++checked;
+		ts = System.nanoTime();
+		int res;
+		if( areSameString( x, y )) res = 0;
+		else {
+			double simx2y = getSimL2R( x, y, false );
+			if ( simx2y >= theta ) res = 1;
+			else {
+				double simy2x = getSimL2R( y, x, false );
+				if ( simy2x >= theta ) res = 2;
+				else res = -1;
+			}
+		}
+		totalTime += System.nanoTime() - ts;
+		// print output for debugging
+		if ( res == 1 || res == 2 ) {
+			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString()+"\n"+y.getID()+"\t"+y.toString());
+			if ( res == 1 ) getSimL2R( x, y, true );
+			else getSimL2R( y, x, true );
+		}
+		return res;
+	}
+	
+	public double getSimL2R( Record x, Record y, boolean expPrint ) {
+		if ( expPrint ) {
+			JoinPkduckOriginal.pw.println(x.getID()+" -> "+y.getID());
+		}
 		// Make a copy of applicable rules to x.
 		List<PosRule> candidateRules = new ObjectArrayList<PosRule>( x.getNumApplicableRules() );
 		for (int i=0; i<x.size(); i++) {
@@ -90,13 +118,10 @@ public class SetGreedyValidator extends AbstractSetValidator {
 			
 			// Apply a rule with the largest score.
 			PosRule bestRule = candidateRules.get( bestRuleIdx );
-			
-			// DEBUG
-//			if ( debug ) System.out.println( "best: "+bestRule.toString() );
-			
 			for (int j=0; j<bestRule.leftSize(); j++) bAvailable[bestRule.pos-j] = false;
 			candidateRules.remove( bestRuleIdx );
 			appliedRuleSet.add( bestRule );
+			if ( expPrint && !bestRule.rule.isSelfRule() ) JoinPkduckOriginal.pw.println( "APPLY"+(bestRule.rule.isSelfRule()?"":"*")+": "+bestRule.rule.toOriginalString(Record.tokenIndex));
 
 			if (getTime) {
 				bestRuleTime += System.nanoTime() - ts;
@@ -163,19 +188,20 @@ public class SetGreedyValidator extends AbstractSetValidator {
 		}
 
 		if (debugPrint) System.out.println( Arrays.toString( transformedRecord ) );
-		Boolean res;
-		IntOpenHashSet transformedSet = new IntOpenHashSet(transformedRecord);
-		IntOpenHashSet ySet = new IntOpenHashSet(y.getTokensArray());
-		res = ySet.equals( transformedSet );
+		IntOpenHashSet setTrans = new IntOpenHashSet(transformedRecord);
+		IntOpenHashSet setY = new IntOpenHashSet(y.getTokens());
+		double sim = Util.jaccard( transformedRecord, y.getTokensArray());
+		if ( expPrint ) {
+			JoinPkduckOriginal.pw.println("SIM: "+sim);
+			JoinPkduckOriginal.pw.flush();
+		}
 
 		if (getTime) {
 			compareTime += System.nanoTime() - ts;
 			ts = System.nanoTime();
 		}
 
-		if (getTime) totalTime += System.nanoTime() - ts;
-		if (res) return 1;
-		else return -1;
+		return sim;
 	}
 	
 //	public int isEqual( Record x, Record y, Boolean bIsEqual ) {
@@ -192,7 +218,7 @@ public class SetGreedyValidator extends AbstractSetValidator {
 	
 	@Override
 	public String getName() {
-		return "SetGreedyValidator";
+		return "GreedyValidatorOriginal";
 	}
 
 	private class PosRule {
@@ -223,11 +249,6 @@ public class SetGreedyValidator extends AbstractSetValidator {
 		@Override
 		public int hashCode() {
 			return rule.hashCode();
-		}
-		
-		@Override
-		public String toString() {
-			return "("+rule.toString()+", "+pos+")";
 		}
 	}
 }

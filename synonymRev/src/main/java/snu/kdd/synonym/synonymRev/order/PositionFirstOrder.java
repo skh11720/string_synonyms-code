@@ -6,8 +6,8 @@ import snu.kdd.synonym.synonymRev.tools.QGram;
 
 public class PositionFirstOrder extends AbstractGlobalOrder {
 	
-	public PositionFirstOrder( int qgramSize ) {
-		super( qgramSize );
+	public PositionFirstOrder( int qSize ) {
+		super( qSize );
 	}
 
 	@Override

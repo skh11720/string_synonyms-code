@@ -1,6 +1,5 @@
 package vldb17;
 
-import java.io.IOException;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -10,11 +9,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.AbstractParam;
 
-public class ParamPkduck extends Param {
+public class ParamPkduck extends AbstractParam {
 	private static final Options argOptions;
 
 	static {
@@ -23,51 +20,42 @@ public class ParamPkduck extends Param {
 		options.addOption( "verify", true, "Verification method" );
 		options.addOption( "rc", true, "Use rule compression" );
 		options.addOption( "lf", true, "Use the length filter" );
+		options.addOption( "theta", true, "similarity threshold" );
 
 		argOptions = options;
 	}
 
-	public static ParamPkduck parseArgs( String[] args, StatContainer stat, Query query ) throws IOException, ParseException {
+	public ParamPkduck( String[] args ) throws ParseException {
 		CommandLineParser parser = new DefaultParser();
-		ParamPkduck param = new ParamPkduck();
-
 		CommandLine cmd = parser.parse( argOptions, args );
-
-		stat.add( cmd );
 
 		if( cmd.hasOption( "ord" ) ) {
 			Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"PF", "TF", "FF"} );
-			param.globalOrder = cmd.getOptionValue( "ord" );
-			if ( !possibleValues.contains( param.globalOrder ) )
-				throw new RuntimeException( "unexpected value for option -ord: "+param.globalOrder );
+			String globalOrder = cmd.getOptionValue( "ord" );
+			if ( !possibleValues.contains( globalOrder ) )
+				throw new RuntimeException( "unexpected value for option -ord: "+globalOrder );
+			mapParamS.put("ord", globalOrder);
 		}
 
 		if( cmd.hasOption( "verify" ) ) {
 			Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"naive", "greedy", "TD"} );
-			param.verifier = cmd.getOptionValue( "verify" );
-			if ( !possibleValues.contains( param.verifier ) )
-				throw new RuntimeException("unexpected value for option -verify: "+param.verifier);
+			String verifier = cmd.getOptionValue( "verify" );
+			if ( !possibleValues.contains( verifier ) )
+				throw new RuntimeException("unexpected value for option -verify: "+verifier);
+			mapParamS.put("verify", verifier);
 		}
 		
-		if ( cmd.hasOption( "rc" ) ) {
-			param.useRuleComp = Boolean.valueOf( cmd.getOptionValue( "rc" ) );
-			if ( param.useRuleComp == null )
-				throw new RuntimeException("unexpected value for option -rc: "+param.useRuleComp);
+		if ( cmd.hasOption( "theta" ) ) {
+			double theta = Double.parseDouble( cmd.getOptionValue( "theta" ) );
+			mapParamD.put("theta", theta);
 		}
-		else throw new RuntimeException("the vaule for option -rc is not specified.");
-		
-		if ( cmd.hasOption( "lf" ) ) {
-			param.useLF = Boolean.valueOf( cmd.getOptionValue( "lf" ) );
-			if ( param.useLF == null )
-				throw new RuntimeException("unexpected value for option -lf: "+param.useLF );
-		}
-		else throw new RuntimeException("the vaule for option -lf is not specified.");
 
-		return param;
+		boolean rc = false;
+		if ( cmd.hasOption( "rc" ) ) rc = Boolean.parseBoolean( cmd.getOptionValue( "rc" ) );
+		mapParamB.put("rc", rc);
+		
+		boolean useLF = true;
+		if ( cmd.hasOption( "lf" ) ) useLF = Boolean.valueOf( cmd.getOptionValue( "lf" ) );
+		mapParamB.put("useLF", useLF);
 	}
-
-	public String globalOrder = null;
-	public String verifier = null;
-	public Boolean useRuleComp = null;
-	public Boolean useLF = null;
 }

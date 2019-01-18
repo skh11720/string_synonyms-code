@@ -17,30 +17,34 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaVar extends AlgorithmTemplate {
-	// RecordIDComparator idComparator;
-
-	public JoinDeltaVar( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
 
 	protected int indexK;
-	protected int qgramSize;
+	protected int qSize;
 	protected int deltaMax;
 
 	public Validator checker;
 	protected JoinDeltaVarIndex idx;
 
-	protected boolean useLF, usePQF;
+	protected boolean useLF, usePQF, useSTPQ;
 	
 	
-	
-	protected void setup( Param params ) {
-		indexK = params.indexK;
-		qgramSize = params.qgramSize;
-		deltaMax = params.deltaMax;
+	public JoinDeltaVar(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+		param = new Param(args);
+		indexK = param.getIntParam("indexK");
+		qSize = param.getIntParam("qSize");
+		deltaMax = param.getIntParam("deltaMax");
+		useLF = param.getBooleanParam("useLF");
+		usePQF = param.getBooleanParam("usePQF");
+		useSTPQ = param.getBooleanParam("useSTPQ");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = params.useLF;
-		usePQF = params.usePQF;
+		
+		stat.add("indexK", indexK);
+		stat.add("qSize", qSize);
+		stat.add("deltaMax", deltaMax);
+		stat.add("useLF", useLF);
+		stat.add("usePQF", usePQF);
+		stat.add("useSTPQ", useSTPQ);
 	}
 
 	@Override
@@ -58,11 +62,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stat.addMemory( "Mem_2_Preprocessed" );
@@ -78,7 +78,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 	}
 
-	public void runAfterPreprocess() {
+	protected void runAfterPreprocess() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
 
@@ -99,7 +99,7 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 		runTime.stopAndAdd( stat );
 	}
 
-	public void runAfterPreprocessWithoutIndex() {
+	protected void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
 		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
@@ -136,17 +136,20 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinDeltaVarIndex(indexK, qgramSize, deltaMax, query, stat);
-		JoinDeltaIndex.useLF = useLF;
-		JoinDeltaIndex.usePQF = usePQF;
+		JoinDeltaVarIndex.useLF = useLF;
+		JoinDeltaVarIndex.usePQF = usePQF;
+		JoinDeltaVarIndex.useSTPQ = useSTPQ;
+		idx = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax);
+		idx.build();
 	}
 
 	@Override
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: refactor, consider short strings
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override

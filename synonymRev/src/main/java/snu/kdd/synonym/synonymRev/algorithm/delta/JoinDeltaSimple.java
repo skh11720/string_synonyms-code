@@ -17,28 +17,25 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaSimple extends AlgorithmTemplate {
-	// RecordIDComparator idComparator;
 
-	public JoinDeltaSimple( Query query, StatContainer stat ) throws IOException {
-		super( query, stat );
-	}
-
-	protected int qgramSize;
+	protected int qSize;
 	protected int deltaMax;
 
 	public Validator checker;
-	protected JoinDeltaIndex idx;
+	protected JoinDeltaSimpleIndex idx;
 
 	protected boolean useLF, usePQF;
 	
 	
-	
-	protected void setup( Param params ) {
-		qgramSize = params.qgramSize;
-		deltaMax = params.deltaMax;
+
+	public JoinDeltaSimple(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
+		super(query, stat, args);
+		param = new Param(args);
+		qSize = param.getIntParam("qSize");
+		deltaMax = param.getIntParam("deltaMax");
+		useLF = param.getBooleanParam("useLF");
+		usePQF = param.getBooleanParam("usePQF");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
-		useLF = params.useLF;
-		usePQF = params.usePQF;
 	}
 
 	@Override
@@ -56,11 +53,7 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void run( Query query, String[] args ) throws IOException, ParseException {
-		// System.out.println( Arrays.toString( args ) );
-		Param params = Param.parseArgs( args, stat, query );
-		setup( params );
-
+	public void run() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
 		preprocess();
 		stat.addMemory( "Mem_2_Preprocessed" );
@@ -134,9 +127,9 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	}
 
 	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinDeltaIndex( qgramSize, deltaMax, query, stat );
-		JoinDeltaIndex.useLF = useLF;
-		JoinDeltaIndex.usePQF = usePQF;
+		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query, stat );
+		JoinDeltaSimpleIndex.useLF = useLF;
+		JoinDeltaSimpleIndex.usePQF = usePQF;
 	}
 
 	@Override
@@ -150,5 +143,10 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	@Override
 	public String getName() {
 		return "JoinDeltaSimple";
+	}
+	
+	@Override
+	public String getOutputName() {
+		return String.format( "%s_d%d", getName(), deltaMax );
 	}
 }
