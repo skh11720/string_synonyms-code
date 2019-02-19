@@ -14,8 +14,8 @@ public class JoinMinFast extends JoinMin {
 	
 	protected double sampleRatio;
 
-	public JoinMinFast(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinMinFast(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		checker = new TopDownOneSide();
 		qSize = param.getIntParam("qSize");

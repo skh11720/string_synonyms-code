@@ -21,8 +21,8 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 	public static boolean useLF = true;
 
 	
-	public JoinDeltaNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinDeltaNaive(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		deltaMax = param.getIntParam("deltaMax");
 		useLF = param.getBooleanParam("useLF");

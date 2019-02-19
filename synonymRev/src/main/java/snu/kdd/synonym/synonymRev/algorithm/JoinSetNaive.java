@@ -32,8 +32,8 @@ public class JoinSetNaive extends AlgorithmTemplate {
 //	private long nScanList = 0;
 
 
-	public JoinSetNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinSetNaive(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 	}
 
 	@Override

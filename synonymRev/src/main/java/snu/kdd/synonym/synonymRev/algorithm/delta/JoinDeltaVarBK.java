@@ -20,8 +20,8 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 	
 	protected final double sampleB;
 
-	public JoinDeltaVarBK(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinDeltaVarBK(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		sampleB = param.getDoubleParam("sampleB");
 		stat.add("sampleB", sampleB);
 	}

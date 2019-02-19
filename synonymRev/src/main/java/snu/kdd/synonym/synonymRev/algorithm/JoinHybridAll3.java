@@ -32,8 +32,8 @@ public class JoinHybridAll3 extends JoinHybridAll {
 	protected double sampleRatioB;
 
 
-	public JoinHybridAll3(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinHybridAll3(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		checker = new TopDownOneSide();
 		qSize = param.getIntParam("qSize");

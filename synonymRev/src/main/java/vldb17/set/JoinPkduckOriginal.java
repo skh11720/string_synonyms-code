@@ -55,8 +55,8 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 	
 	public static PrintWriter pw = null;
 
-	public JoinPkduckOriginal(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinPkduckOriginal(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new ParamPkduck(args);
 		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {

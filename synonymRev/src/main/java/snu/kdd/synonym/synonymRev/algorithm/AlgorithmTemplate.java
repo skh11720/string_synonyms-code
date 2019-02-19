@@ -56,9 +56,11 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	public Collection<IntegerPair> rslt = null;
 
 
-	public AlgorithmTemplate( Query query, StatContainer stat, String[] args ) throws IOException, ParseException {
-		this.stat = stat;
+	public AlgorithmTemplate( Query query, String[] args ) throws IOException, ParseException {
+		this.stat = new StatContainer();
 		this.query = query;
+		stat.add( "alg", getName() );
+		stat.add( "alg_version", getVersion() );
 	}
 
 	public abstract String getName();

@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -39,6 +38,40 @@ import vldb17.set.JoinPkduckSet;
 public class App {
 	private static Options argOptions;
 	
+	public static void main( String args[] ) throws IOException, ParseException {
+
+		CommandLine cmd = parseInput( args );
+		Util.printArgsError( cmd );
+
+		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
+		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
+		
+		Query query = Query.parseQuery( cmd );
+		StatContainer stat = new StatContainer();
+		AlgorithmInterface alg = getAlgorithm( query, cmd );
+
+		initializeTime.stopAndAdd( stat );
+		alg.run();
+
+		totalTime.stop();
+		Util.printGCStats( stat, "Stat" );
+
+		stat.addPrimary( totalTime );
+		addWYKMapCount( stat );
+		alg.printStat();
+
+		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
+
+//		DataInfo dataInfo = new DataInfo( dataOnePath, dataTwoPath, rulePath );
+
+		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
+		if( upload ) {
+			alg.writeJSON( getDataInfo( cmd ), cmd );
+		}
+
+		Util.printLog( alg.getName() + " finished" );
+	}
+	
 	public static CommandLine parseInput( String args[] ) throws ParseException {
 		if( argOptions == null ) {
 			Options options = new Options();
@@ -68,16 +101,7 @@ public class App {
 		return new DataInfo( dataOnePath, dataTwoPath, rulePath );
 	}
 	
-	public static Query getQuery( CommandLine cmd ) throws IOException {
-		final String rulePath = cmd.getOptionValue( "rulePath" );
-		final String dataOnePath = cmd.getOptionValue( "dataOnePath" );
-		final String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
-		final String outputPath = cmd.getOptionValue( "outputPath" );
-		Boolean oneSideJoin = Boolean.parseBoolean( cmd.getOptionValue( "oneSideJoin" ) );
-		return new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
-	}
-	
-	public static AlgorithmInterface getAlgorithm( Query query, StatContainer stat, CommandLine cmd ) throws IOException, ParseException {
+	public static AlgorithmInterface getAlgorithm( Query query, CommandLine cmd ) throws IOException, ParseException {
 		AlgorithmInterface alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 		String additionalOptions = cmd.getOptionValue( "additional", "" );
@@ -86,75 +110,75 @@ public class App {
 
 		switch( algorithmName ) {
 		case JoinNaive:
-			alg = new JoinNaive( query, stat, additionalArgs );
+			alg = new JoinNaive( query, additionalArgs );
 			break;
 
 		case JoinMH:
-			alg = new JoinMH( query, stat, additionalArgs );
+			alg = new JoinMH( query, additionalArgs );
 			break;
 
 		case JoinMin:
-			alg = new JoinMin( query, stat, additionalArgs );
+			alg = new JoinMin( query, additionalArgs );
 			break;
 
 		case JoinMinFast:
-			alg = new JoinMinFast( query, stat, additionalArgs );
+			alg = new JoinMinFast( query, additionalArgs );
 			break;
 
 		case JoinHybridAll:
-			alg = new JoinHybridAll( query, stat, additionalArgs );
+			alg = new JoinHybridAll( query, additionalArgs );
 			break;
 
 		case JoinHybridAll3:
-			alg = new JoinHybridAll3( query, stat, additionalArgs );
+			alg = new JoinHybridAll3( query, additionalArgs );
 			break;
 
 		case SIJoin:
-			alg = new SIJoin( query, stat, additionalArgs );
+			alg = new SIJoin( query, additionalArgs );
 			break;
 
 		case SIJoinOriginal:
-			alg = new SIJoinOriginal( query, stat, additionalArgs );
+			alg = new SIJoinOriginal( query, additionalArgs );
 			break;
 
 		case JoinPkduck:
-			alg = new JoinPkduck( query, stat, additionalArgs );
+			alg = new JoinPkduck( query, additionalArgs );
 			break;
 
 		case JoinPkduckSet:
-			alg = new JoinPkduckSet( query, stat, additionalArgs );
+			alg = new JoinPkduckSet( query, additionalArgs );
 			break;
 
 		case JoinPkduckOriginal:
-			alg = new JoinPkduckOriginal( query, stat, additionalArgs );
+			alg = new JoinPkduckOriginal( query, additionalArgs );
 			break;
 
 		case JoinBKPSet:
-			alg = new JoinBKPSet ( query, stat, additionalArgs );
+			alg = new JoinBKPSet ( query, additionalArgs );
 			break;
 
 		case JoinSetNaive:
-			alg = new JoinSetNaive( query, stat, additionalArgs );
+			alg = new JoinSetNaive( query, additionalArgs );
 			break;
 
 		case PassJoin:
-			alg = new PassJoin( query, stat, additionalArgs );
+			alg = new PassJoin( query, additionalArgs );
 			break;
 		
 		case JoinDeltaNaive:
-			alg = new JoinDeltaNaive( query, stat, additionalArgs );
+			alg = new JoinDeltaNaive( query, additionalArgs );
 			break;
 
 		case JoinDeltaSimple:
-			alg = new JoinDeltaSimple( query, stat, additionalArgs );
+			alg = new JoinDeltaSimple( query, additionalArgs );
 			break;
 
 		case JoinDeltaVar:
-			alg = new JoinDeltaVar( query, stat, additionalArgs );
+			alg = new JoinDeltaVar( query, additionalArgs );
 			break;
 
 		case JoinDeltaVarBK:
-			alg = new JoinDeltaVarBK( query, stat, additionalArgs );
+			alg = new JoinDeltaVarBK( query, additionalArgs );
 			break;
 
 		
@@ -164,51 +188,7 @@ public class App {
 			break;
 		}
 		
-		// if query is not a self join, conduct semi-unidirectional join.
-		// 18.09.26: disable semi-unidirectional computation
-//		if ( !query.selfJoin && !query.oneSideJoin ) alg = new AlgorithmSemiUniWrapper( (AlgorithmTemplate)alg );
-
-//		stat.addPrimary( "Date", "\"" + new Date().toString().replaceAll( " ", "_" ) + "\"" );
-//		stat.add( cmd );
-		stat.add( "alg", alg.getName() );
-		stat.add( "alg_version", alg.getVersion() );
-		
 		return alg;
-	}
-	
-	public static void main( String args[] ) throws IOException, ParseException {
-
-		CommandLine cmd = parseInput( args );
-		Util.printArgsError( cmd );
-
-		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
-		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
-		
-		Query query = getQuery( cmd );
-		StatContainer stat = new StatContainer();
-		AlgorithmInterface alg = getAlgorithm( query, stat, cmd );
-
-		initializeTime.stopAndAdd( stat );
-		alg.run();
-
-		totalTime.stop();
-		Util.printGCStats( stat, "Stat" );
-
-		stat.addPrimary( totalTime );
-		addWYKMapCount( stat );
-		alg.printStat();
-
-		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
-
-//		DataInfo dataInfo = new DataInfo( dataOnePath, dataTwoPath, rulePath );
-
-		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
-		if( upload ) {
-			alg.writeJSON( getDataInfo( cmd ), cmd );
-		}
-
-		Util.printLog( alg.getName() + " finished" );
-
 	}
 
 	public static void addWYKMapCount( StatContainer stat ) {

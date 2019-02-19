@@ -51,8 +51,8 @@ public class JoinHybridAll extends AlgorithmTemplate {
 	protected long maxIndexedEstNumRecords = 0;
 
 
-	public JoinHybridAll(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinHybridAll(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		checker = new TopDownOneSide();
 		qSize = param.getIntParam("qSize");

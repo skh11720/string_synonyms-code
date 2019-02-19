@@ -38,8 +38,8 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 	public static TokenIndex tokenMap;
 	public static PrintWriter pw = null;
 
-	public SIJoinOriginal(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public SIJoinOriginal(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		theta = param.getDoubleParam("theta");
 		S = new ObjectArrayList<>();

@@ -28,8 +28,8 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 	protected boolean useLF, usePQF, useSTPQ;
 	
 	
-	public JoinDeltaVar(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinDeltaVar(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		indexK = param.getIntParam("indexK");
 		qSize = param.getIntParam("qSize");

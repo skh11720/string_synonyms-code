@@ -47,8 +47,8 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private boolean useLF;
 
 
-	public JoinPkduck(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinPkduck(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new ParamPkduck(args);
 		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {

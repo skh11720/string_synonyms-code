@@ -26,8 +26,8 @@ public class JoinDeltaAllPair extends AlgorithmTemplate {
 	public static boolean useLF = true;
 
 	
-	public JoinDeltaAllPair(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinDeltaAllPair(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");
 		checker = new DeltaValidatorDPTopDown(deltaMax);

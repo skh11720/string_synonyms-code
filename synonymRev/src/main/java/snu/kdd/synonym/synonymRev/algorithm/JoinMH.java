@@ -37,8 +37,8 @@ public class JoinMH extends AlgorithmTemplate {
 	protected boolean useLF, usePQF, useSTPQ;
 	
 	
-	public JoinMH(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinMH(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		indexK = param.getIntParam("indexK");
 		qSize = param.getIntParam("qSize");

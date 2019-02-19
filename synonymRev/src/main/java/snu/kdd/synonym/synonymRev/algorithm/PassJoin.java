@@ -19,8 +19,8 @@ public class PassJoin extends AlgorithmTemplate{
 	protected int deltaMax;
 
 
-	public PassJoin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public PassJoin(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		deltaMax = param.getIntParam("deltaMax");
 	}

@@ -60,8 +60,8 @@ public class JoinBKPSet extends AlgorithmTemplate {
 	double avgTransformed;
 
 
-	public JoinBKPSet(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinBKPSet(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new ParamForSet(args);
 		indexK = param.getIntParam("indexK");
 		String verify = param.getStringParam("verify");

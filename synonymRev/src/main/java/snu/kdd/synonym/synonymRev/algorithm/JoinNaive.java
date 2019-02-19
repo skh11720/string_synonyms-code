@@ -20,8 +20,8 @@ public class JoinNaive extends AlgorithmTemplate {
 	// statistics used for building indexes
 	public double avgTransformed;
 
-	public JoinNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinNaive(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 	}
 
 	@Override

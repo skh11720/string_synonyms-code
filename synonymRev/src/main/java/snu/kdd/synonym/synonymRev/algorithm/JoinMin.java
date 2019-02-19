@@ -38,8 +38,8 @@ public class JoinMin extends AlgorithmTemplate {
 	protected boolean useLF, usePQF, useSTPQ;
 
 	
-	public JoinMin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinMin(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		checker = new TopDownOneSide();
 		indexK = param.getIntParam("indexK");

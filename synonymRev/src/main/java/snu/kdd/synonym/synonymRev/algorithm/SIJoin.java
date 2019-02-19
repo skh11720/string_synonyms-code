@@ -25,8 +25,8 @@ public class SIJoin extends AlgorithmTemplate {
 	private final double theta = 1.0;
 
 
-	public SIJoin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public SIJoin(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		checker = new TopDownOneSide();
 	}
 

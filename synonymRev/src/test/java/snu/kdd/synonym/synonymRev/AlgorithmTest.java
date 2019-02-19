@@ -93,25 +93,15 @@ public class AlgorithmTest {
 		return out;
 	}
 	
-//	private static void runAlgorithm( String param ) throws ParseException, IOException {
-//		args[5] = param;
-//		CommandLine cmd = App.parseInput( args );
-//		AlgorithmTemplate alg = App.getAlgorithm( query, stat, cmd );
-//		alg.writeResult = false;
-//		App.run( alg, query, cmd );
-//		assertEquals( 1014, alg.rsltSize );
-//	}
-
 	private static void runAlgorithm( String param, int answer, boolean isSelfJoin ) throws ParseException, IOException {
 		Record.initStatic();
 		Rule.initStatic();
 		Query query = null;
 		if ( isSelfJoin ) query = AlgorithmTest.getSelfJoinQuery();
 		else query = AlgorithmTest.get2WayJoinQuery();
-		StatContainer stat = new StatContainer();
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
-		AlgorithmInterface alg = (AlgorithmInterface)App.getAlgorithm( query, stat, cmd );
+		AlgorithmInterface alg = App.getAlgorithm( query, cmd );
 		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
 		alg.run();

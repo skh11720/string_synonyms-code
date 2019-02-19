@@ -28,8 +28,8 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	
 	
 
-	public JoinDeltaSimple(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinDeltaSimple(Query query, String[] args) throws IOException, ParseException {
+		super(query, args);
 		param = new Param(args);
 		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");

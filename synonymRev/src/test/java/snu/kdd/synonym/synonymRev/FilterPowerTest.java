@@ -49,13 +49,12 @@ public class FilterPowerTest {
 				// JoinMH
 				{
 					Query query = TestUtils.getTestQuery( dataset, size );
-					StatContainer stat_joinmh = new StatContainer();
 					String[] args = ("-K "+K+" -qSize "+q+" -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " );
-					JoinMH joinmh = new JoinMH( query, stat_joinmh, args );
+					JoinMH joinmh = new JoinMH( query, args );
 					joinmh.run();
-					System.out.println( stat_joinmh.toJson() );
+					System.out.println( joinmh.getStat().toJson() );
 					JSONParser jparser = new JSONParser();
-					JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmh.toJson()+"}" );
+					JSONObject jobj = (JSONObject) jparser.parse( "{"+joinmh.getStat().toJson()+"}" );
 					String result = dataset+"\t"+size+"\tJoinMH\t"+K+"\t"+q+"\t"+useLF+"\t"+usePQF+"\t"+useSTPQ;
 					for ( String key : attrList ) result += "\t"+jobj.get( key );
 					writer.println(result);
@@ -82,13 +81,12 @@ public class FilterPowerTest {
 				for ( int i=0; i<5; ++i) 
 				{
 					Query query = TestUtils.getTestQuery( dataset, size );
-					StatContainer stat_joinmhfast = new StatContainer();
 					String[] args = ("-K "+K+" -qSize "+q+" -sampleB 0.01 -useLF "+useLF+" -usePQF "+usePQF+" -useSTPQ "+useSTPQ).split( " " );
-					JoinMinFast joinmhfast = new JoinMinFast( query, stat_joinmhfast, args );
+					JoinMinFast joinmhfast = new JoinMinFast( query, args );
 					joinmhfast.run();
-					System.out.println( stat_joinmhfast.toJson() );
+					System.out.println( joinmhfast.getStat().toJson() );
 					JSONParser jparser = new JSONParser();
-					JSONObject jobj = (JSONObject) jparser.parse( "{"+stat_joinmhfast.toJson()+"}" );
+					JSONObject jobj = (JSONObject) jparser.parse( "{"+joinmhfast.getStat().toJson()+"}" );
 					String result = dataset+"\t"+size+"\tJoinMinFast\t"+K+"\t"+q+"\t"+useLF+"\t"+usePQF+"\t"+useSTPQ;
 					for ( String key : attrList ) result += "\t"+jobj.get( key );
 					writer.println(result);
