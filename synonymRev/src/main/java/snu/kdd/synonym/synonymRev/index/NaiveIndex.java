@@ -25,10 +25,8 @@ public class NaiveIndex extends AbstractIndex {
 	public long expandTime = 0;
 	public long searchTime = 0;
 
-	public long idxsize = 0;
 	public double totalExp = 0;
 	public double totalExpLength = 0;
-	public int skippedCount = 0;
 	
 	public long sumTransLenS = 0;
 	public long sumLenT = 0;
@@ -36,10 +34,11 @@ public class NaiveIndex extends AbstractIndex {
 	public double alpha;
 	public double beta;
 
-	public NaiveIndex( Query query, StatContainer stat, boolean addStat, double avgTransformed ) {
+	public NaiveIndex( Query query, StatContainer stat, boolean addStat ) {
+		final long starttime = System.nanoTime();
 		isSelfJoin = query.selfJoin;
 
-		final long starttime = System.nanoTime();
+		double avgTransformed = getAvgNumTransform( query.searchedSet.recordList );
 		int initialSize = (int) ( query.indexedSet.size() * avgTransformed / 2 );
 		if ( initialSize > 10000 ) initialSize = 10000;
 		if ( initialSize < 10 ) initialSize = 10;
@@ -70,6 +69,14 @@ public class NaiveIndex extends AbstractIndex {
 		indexTime = System.nanoTime() - starttime;
 		if( totalExpLength == 0 ) totalExpLength = 1;
 		alpha = indexTime / totalExpLength;
+	}
+
+	private double getAvgNumTransform( List<Record> searchedList ) {
+		double estTransformed = 0.0;
+		for( Record rec : searchedList ) {
+			estTransformed += rec.getEstNumTransformed();
+		}
+		return estTransformed / searchedList.size();
 	}
 
 	protected void addExpaneded( Record expanded, int recordId ) {

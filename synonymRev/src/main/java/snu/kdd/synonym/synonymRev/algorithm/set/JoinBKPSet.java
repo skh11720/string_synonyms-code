@@ -13,8 +13,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.data.Dataset;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -30,11 +29,11 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.set.SetGreedyValidator;
 
-public class JoinBKPSet extends AlgorithmTemplate {
+public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 
-	public WYK_HashMap<Integer, List<Record>> idxS = null;
+//	public WYK_HashMap<Integer, List<Record>> idxS = null;
 	public WYK_HashMap<Integer, List<Record>> idxT = null;
-	public Object2IntOpenHashMap<Record> idxCountS = null;
+//	public Object2IntOpenHashMap<Record> idxCountS = null;
 	public Object2IntOpenHashMap<Record> idxCountT = null;
 	public int indexK;
 
@@ -68,90 +67,31 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		if ( verify.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
 		else if ( verify.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, param.getIntParam("beamWidth") );
 		else if ( verify.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
+
+		idxT = new WYK_HashMap<Integer, List<Record>>();
+		idxCountT = new Object2IntOpenHashMap<Record>(query.indexedSet.size());
 	}
 
 	@Override
 	public void preprocess() {
 		super.preprocess();
 
-		for( Record rec : query.searchedSet.recordList ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		idxT = new WYK_HashMap<Integer, List<Record>>();
-		idxCountT = new Object2IntOpenHashMap<Record>(query.indexedSet.size());
-//		if( !query.selfJoin ) {
-//			for( Record rec : query.searchedSet.get() ) {
-//				rec.preprocessSuffixApplicableRules();
-//			}
-//			idxS = new WYK_HashMap<Integer, List<Record>>();
-//			idxCountS = new Object2IntOpenHashMap<Record>(query.searchedSet.size());
-//		}
 		globalOrder.initializeForSet( query );
 	}
-
-	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
-//		if( DEBUG.NaiveON ) {
-//			stat.addPrimary( "cmd_threshold", threshold );
-//		}
-
-		preprocess();
-
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-
-		rslt = runAfterPreprocess( true );
-
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		this.writeResult();
-
-		stepTime.stopAndAdd( stat );
-		checker.addStat( stat );
-	}
 	
-	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
-		// Index building
+	@Override
+	protected void executeJoin() {
 		StopWatch stepTime = null;
-		if( addStat ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
-//			}
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
+		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		buildIndex( writeResult );
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stat.addMemory( "Mem_3_BuildIndex" );
 
-		buildIndex( query.indexedSet );
-//		if ( !query.selfJoin ) buildIndex( query.searchedSet );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-			stat.addMemory( "Mem_3_BuildIndex" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime.stopAndAdd( stat );
-//				stepTime.resetAndStart( "Sample_2_Naive_Join_Time" );
-//			}
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
-
-		// Join
-		final Set<IntegerPair> rslt = join( stat, query, addStat );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stat.addMemory( "Mem_4_Joined" );
-		}
-		
-		return rslt;
+		rslt = join( stat, query, writeResult );
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
+		checker.addStat( stat );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
@@ -182,21 +122,15 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	protected void buildIndex( Dataset indexedSet ) {
+	protected void buildIndex( boolean writeResult ) {
 		WYK_HashMap<Integer, List<Record>> idx = null;
 		Object2IntOpenHashMap<Record> idxCount = null;
 
-		if ( indexedSet == query.indexedSet ) {
-			idx = idxT;
-			idxCount = idxCountT;
-		}
-		else if ( indexedSet == query.searchedSet ) {
-			idx = idxS;
-			idxCount = idxCountS;
-		}
+		idx = idxT;
+		idxCount = idxCountT;
 		idxCount.defaultReturnValue( 0 );
 
-		for ( Record rec : indexedSet.recordList ) {
+		for ( Record rec : query.indexedSet.recordList ) {
 			int[] tokens = rec.getTokensArray();
 			int j_max = Math.min( indexK, tokens.length );
 			IntOpenHashSet smallestK = new IntOpenHashSet(indexK);
@@ -218,8 +152,7 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		if (DEBUG.bIndexWriteToFile) {
 			try {
 				String name = "";
-				if ( idx == idxS ) name = "idxS";
-				else if ( idx == idxT ) name = "idxT";
+				name = "idxT";
 				BufferedWriter bw = new BufferedWriter( new FileWriter( "./tmp/PQFilterDPSetIndex_"+name+".txt" ) );
 				for ( int key : idx.keySet() ) {
 					bw.write( "token: "+query.tokenIndex.getToken( key )+" ("+key+")\n" );

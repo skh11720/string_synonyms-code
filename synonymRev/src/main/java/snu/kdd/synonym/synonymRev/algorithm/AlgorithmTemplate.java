@@ -53,7 +53,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	public Collection<IntegerPair> rslt = null;
 
 
-	public AlgorithmTemplate( Query query, String[] args ) throws IOException, ParseException {
+	public AlgorithmTemplate( Query query, String[] args ) {
 		this.stat = new StatContainer();
 		this.query = query;
 		stat.add( "alg", getName() );
@@ -64,12 +64,12 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 
 	public abstract String getVersion();
 	
-//	protected abstract void executeJoin();
+	protected abstract void executeJoin();
 
 	public void run() {
 		StopWatch watch = StopWatch.getWatchStarted( "Result_0_Total_Time" );
 		preprocess();
-//		executeJoin();
+		executeJoin();
 		watch.stop();
 		stat.addPrimary(watch);
 		printStat();

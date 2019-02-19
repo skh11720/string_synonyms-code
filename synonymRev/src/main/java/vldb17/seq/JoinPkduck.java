@@ -8,7 +8,7 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -30,11 +30,9 @@ import vldb17.set.PkduckSetDP;
 import vldb17.set.PkduckSetDPWithRC;
 import vldb17.set.PkduckSetIndex;
 
-public class JoinPkduck extends AlgorithmTemplate {
+public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 
 	private PkduckSetIndex idx = null;
-//	private long threshold = Long.MAX_VALUE;
-//	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
 	AbstractGlobalOrder globalOrder;
 	private Boolean useRuleComp;
 	private Validator checker;
@@ -69,87 +67,23 @@ public class JoinPkduck extends AlgorithmTemplate {
 	public void preprocess() {
 		super.preprocess();
 		
-		for (Record rec : query.searchedSet.get()) {
-			rec.preprocessSuffixApplicableRules();
-		}
 		globalOrder.initializeForSequence( query, true );
 		Record.tokenIndex = globalOrder.tokenIndex;
-
-//		double estTransformed = 0.0;
-//		for( Record rec : query.indexedSet.get() ) {
-//			estTransformed += rec.getEstNumTransformed();
-//		}
 	}
 
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-
-		runAfterPreprocess( true );
-
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		this.writeResult();
-
-		stepTime.stopAndAdd( stat );
-		checker.addStat( stat );
-	}
-
-	public void runAfterPreprocess( boolean addStat ) {
-		// Index building
+	protected void executeJoin() {
 		StopWatch stepTime = null;
-		if( addStat ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
-//			}
-			try { throw new Exception("UNIMPLEMENTED CASE"); }
-			catch( Exception e ) { e.printStackTrace(); }
-		}
+		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		buildIndex( writeResult );
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stat.addMemory( "Mem_3_BuildIndex" );
 
-		buildIndex( addStat );
-//		if ( DEBUG.bIndexWriteToFile ) idx.writeToFile();
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-			stat.addMemory( "Mem_3_BuildIndex" );
-		}
-		else {
-			if( DEBUG.SampleStatON ) {
-				stepTime.stopAndAdd( stat );
-				stepTime.resetAndStart( "Sample_2_Pkduck_Join_Time" );
-			}
-		}
-
-		// Join
 		rslt = join( stat, query, true );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stat.addMemory( "Mem_4_Joined" );
-		}
-//		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime.stopAndAdd( stat );
-//				stat.add( "Stat_Expanded", idx.totalExp );
-//			}
-//		}
-//
-//		if( DEBUG.NaiveON ) {
-//			if( addStat ) {
-//				idx.addStat( stat, "Counter_Join" );
-//			}
-//		}
-//		stat.add( "idx_skipped_counter", idx.skippedCount );
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
+		checker.addStat( stat );
 	}
 	
 	public void buildIndex(boolean addStat ) {

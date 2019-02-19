@@ -65,60 +65,15 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		super.preprocess();
 
 		for( Record rec : query.searchedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
 			if( maxSearchedEstNumRecords < rec.getEstNumTransformed() ) {
 				maxSearchedEstNumRecords = rec.getEstNumTransformed();
 			}
 		}
-
-		stat.add( "MaxIndexedEstNumRecords", maxIndexedEstNumRecords );
 		stat.add( "MaxSearchedEstNumRecords", maxSearchedEstNumRecords );
 	}
 	
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stepTime.stopAndAdd( stat );
-		// Retrieve statistics
-
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-		// Estimate constants
-
-		rslt = join();
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_4_Joined" );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult();
-		stepTime.stopAndAdd( stat );
-	}
-
-	protected void buildJoinMinIndex() {
-		// Build an index
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
-	}
-
-	protected void buildJoinMHIndex() {
-		// Build an index
-		int[] index = new int[ indexK ];
-		for( int i = 0; i < indexK; i++ ) {
-			index[ i ] = i;
-		}
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
-	}
-
-	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveIndex( query, stat, true, joinThreshold / 2 );
-	}
-
-	/**
-	 * Although this implementation is not efficient, we did like this to measure
-	 * the execution time of each part more accurate.
-	 *
-	 * @return
-	 */
-	protected Set<IntegerPair> join() {
+	protected void executeJoin() {
 		StopWatch estimateTime = StopWatch.getWatchStarted( "Result_2_1_Estimation_Time" );
 		StatContainer statEst = new StatContainer();
 		int[] list_thres = new int[nEst];
@@ -156,33 +111,15 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		estimateTime.stopAndAdd( stat );
 		
 		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-//		if( Long.max( maxSearchedEstNumRecords, maxIndexedEstNumRecords ) <= joinThreshold ) {
 		if ( maxSearchedEstNumRecords <= joinThreshold ) {
 			joinQGramRequired = false; // in this case both joinmh and joinmin are not used.
 		}
 
-//		StopWatch stepTime = StopWatch.getWatchStarted( "Result_7_0_JoinMin_Index_Build_Time" );
 		if( joinQGramRequired ) {
 			if( joinMinSelected ) buildJoinMinIndex();
 			else buildJoinMHIndex();
 		}
 		buildNaiveIndex();
-
-//		if( DEBUG.JoinMinNaiveON ) {
-//			if( joinQGramRequired ) {
-//				if( joinMinSelected ) {
-//					stat.add( "Const_Lambda_Actual", String.format( "%.2f", joinMinIdx.getLambda() ) );
-//					stat.add( "Const_Lambda_IndexedSigCount_Actual", joinMinIdx.getIndexedTotalSigCount() );
-//					stat.add( "Const_Lambda_IndexTime_Actual", String.format( "%.2f", joinMinIdx.getIndexTime() ) );
-//
-//					stat.add( "Const_Mu_Actual", String.format( "%.2f", joinMinIdx.getMu()) );
-//					stat.add( "Const_Mu_SearchedSigCount_Actual", joinMinIdx.getSearchedTotalSigCount() );
-//					stat.add( "Const_Mu_CountTime_Actual", String.format( "%.2f", joinMinIdx.getCountTime() ) );
-//				}
-//			}
-//			stepTime.stopAndAdd( stat );
-//			stepTime.resetAndStart( "Result_7_1_SearchEquiv_JoinMin_Time" );
-//		}
 		buildTime.stopAndAdd( stat );
 
 		// join
@@ -245,10 +182,26 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		// evaluate the accuracy of estimation ???
 		
 		// return the final result
-		Set<IntegerPair> rslt = new WYK_HashSet<>();
 		rslt.addAll( rsltNaive );
 		rslt.addAll( rsltPQGram );
-		return rslt;
+	}
+
+	protected void buildJoinMinIndex() {
+		// Build an index
+		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
+	}
+
+	protected void buildJoinMHIndex() {
+		// Build an index
+		int[] index = new int[ indexK ];
+		for( int i = 0; i < indexK; i++ ) {
+			index[ i ] = i;
+		}
+		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
+	}
+
+	protected void buildNaiveIndex() {
+		naiveIndex = new NaiveIndex( query, stat, true );
 	}
 
 	protected void findConstants( double sampleratio, StatContainer stat ) {

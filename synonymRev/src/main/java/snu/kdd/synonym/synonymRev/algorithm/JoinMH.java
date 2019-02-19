@@ -12,13 +12,12 @@ import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMH extends AlgorithmTemplate {
+public class JoinMH extends AbstractIndexBasedAlgorithm {
 	// RecordIDComparator idComparator;
 
 	public int indexK;
@@ -47,34 +46,15 @@ public class JoinMH extends AlgorithmTemplate {
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
 	}
-
+	
 	@Override
-	protected void preprocess() {
-		super.preprocess();
-
-		for( Record rec : query.searchedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-	}
-
-	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stat.addMemory( "Mem_2_Preprocessed" );
-
-		stepTime.stopAndAdd( stat );
-
+	protected void executeJoin() {
 		if ( usePQF ) runAfterPreprocess();
 		else runAfterPreprocessWithoutIndex();
-
 		checker.addStat( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult();
-		stepTime.stopAndAdd( stat );
 	}
-
-	public void runAfterPreprocess() {
+	
+	protected void runAfterPreprocess() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
 
@@ -94,7 +74,7 @@ public class JoinMH extends AlgorithmTemplate {
 		runTime.stopAndAdd( stat );
 	}
 
-	public void runAfterPreprocessWithoutIndex() {
+	protected void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
 		StopWatch runTime = null;
 		//StopWatch stepTime = null;
@@ -134,6 +114,7 @@ public class JoinMH extends AlgorithmTemplate {
 		runTime.stopAndAdd( stat );
 	}
 
+	@Override
 	protected void buildIndex( boolean writeResult ) {
 		int[] indexPosition = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {

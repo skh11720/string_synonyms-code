@@ -6,9 +6,7 @@ import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
@@ -30,30 +28,7 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 	}
 
 	@Override
-	protected void preprocess() {
-		super.preprocess();
-
-		for( Record rec : query.indexedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
-		}
-	}
-	
-	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.stopAndAdd( stat );
-
-		runAfterPreprocess();
-	}
-
-	public void runAfterPreprocess() {
+	protected void executeJoin() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
 
@@ -68,14 +43,7 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-
 		runTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		writeResult();
-
-		stepTime.stopAndAdd( stat );
 	}
 
 	@Override

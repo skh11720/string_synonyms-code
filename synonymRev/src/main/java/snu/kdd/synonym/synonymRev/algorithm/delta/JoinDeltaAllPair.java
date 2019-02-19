@@ -35,30 +35,7 @@ public class JoinDeltaAllPair extends AlgorithmTemplate {
 	}
 
 	@Override
-	protected void preprocess() {
-		super.preprocess();
-
-		for( Record rec : query.indexedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
-		}
-	}
-
-	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.stopAndAdd( stat );
-
-		runAfterPreprocess();
-	}
-
-	public void runAfterPreprocess() {
+	protected void executeJoin() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
 
@@ -73,14 +50,7 @@ public class JoinDeltaAllPair extends AlgorithmTemplate {
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-
 		runTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		writeResult();
-
-		stepTime.stopAndAdd( stat );
 	}
 	
 	private class Index extends AbstractIndex {

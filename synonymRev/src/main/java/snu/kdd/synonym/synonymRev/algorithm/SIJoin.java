@@ -14,7 +14,6 @@ import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -33,9 +32,6 @@ public class SIJoin extends AlgorithmTemplate {
 	@Override
 	public void preprocess() {
 		super.preprocess();
-		for( Record recS : query.searchedSet.get() ) {
-			recS.preprocessSuffixApplicableRules();
-		}
 
 		FrequencyFirstOrder globalOrder = new FrequencyFirstOrder( 1 );
 		globalOrder.initializeForSequence( query, true );
@@ -43,31 +39,11 @@ public class SIJoin extends AlgorithmTemplate {
 		for( Record recS : query.searchedSet.get() ) {
 			recS.preprocessAvailableTokens( Integer.MAX_VALUE );
 		}
-
-//		if( !query.selfJoin ) {
-//			for( Record recT : query.indexedSet.get() ) {
-//				recT.preprocessAvailableTokens( Integer.MAX_VALUE );
-//				recT.preprocessSuffixApplicableRules();
-//			}
-//		}
-
 	}
 
-	public void run() {
-		long startTime = System.currentTimeMillis();
-
-		if( DEBUG.SIJoinON ) {
-			System.out.print( "Constructor finished" );
-			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		}
-
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stepTime.stopAndAdd( stat );
-
-//		SI_Tree<Record> treeR = new SI_Tree<Record>( 1, null, query.searchedSet.recordList, checker );
-//		SI_Tree<Record> treeS = new SI_Tree<Record>( 1, null, query.indexedSet.recordList, checker );
-
+	@Override
+	protected void executeJoin() {
+		StopWatch stepTime = null;
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		SI_Tree<Record> treeS = new SI_Tree<Record>( theta, null, checker, true );
 		for ( Record recS : query.searchedSet.recordList ) {
@@ -75,7 +51,6 @@ public class SIJoin extends AlgorithmTemplate {
 //			if ( recS.getID() < 10 ) SampleDataTest.inspect_record( recS, query, 1 );
 			treeS.add( recS );
 		}
-
 		SI_Tree<Record> treeT = new SI_Tree<Record>( theta, null, checker, false );
 		for ( Record recT : query.indexedSet.recordList ) {
 			if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
@@ -83,47 +58,16 @@ public class SIJoin extends AlgorithmTemplate {
 		}
 		stepTime.stopAndAdd( stat );
 
-		if( DEBUG.SIJoinON ) {
-			System.out.println( "Node size : " + ( treeS.FEsize + treeS.LEsize ) );
-			System.out.println( "Sig size : " + treeS.sigsize );
-
-			System.out.print( "Building SI-Tree finished" );
-			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		}
-		// br.readLine();
-
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		rslt = join( treeS, treeT, theta );
 		stepTime.stopAndAdd( stat );
-
 		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
-
-		writeResult();
 	}
 
-	public Set<IntegerPair> join( SI_Tree<Record> treeS, SI_Tree<Record> treeT, double threshold ) {
-		long startTime = System.currentTimeMillis();
-
+	protected Set<IntegerPair> join( SI_Tree<Record> treeS, SI_Tree<Record> treeT, double threshold ) {
 		List<Pair<Record>> candidates = treeS.join( treeT, threshold );
-		// long counter = treeR.join(treeS, threshold);
-
-		if( DEBUG.SIJoinON ) {
-			System.out.print( "Retrieveing candidates finished" );
-
-			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-			System.out.println( "Candidates : " + candidates.size() );
-
-			startTime = System.currentTimeMillis();
-
-			System.out.print( "Validating finished" );
-			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-			System.out.println( "Similar pairs : " + candidates.size() );
-		}
-
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
-
 		for( Pair<Record> ip : candidates ) {
-//			rslt.add( new IntegerPair( ip.rec1.getID(), ip.rec2.getID() ) );
 			addSeqResult( ip.rec1, ip.rec2, rslt, query.selfJoin );
 		}
 		return rslt;

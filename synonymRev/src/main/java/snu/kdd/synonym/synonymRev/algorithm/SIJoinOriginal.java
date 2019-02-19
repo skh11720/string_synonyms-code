@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +25,6 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
 import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
 public class SIJoinOriginal extends AlgorithmTemplate {
@@ -67,8 +65,6 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 
 	@Override
 	public void preprocess() {
-//		super.preprocess();
-
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 		Map<String, Integer> str2int = query.tokenIndex.getMap();
 
@@ -85,22 +81,9 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		}
 	}
 
-	public void run() {
-		long startTime = System.currentTimeMillis();
-
-		if( DEBUG.SIJoinON ) {
-			System.out.print( "Constructor finished" );
-			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		}
-
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-
-//		SI_Tree_Original<Record> treeR = new SI_Tree_Original<Record>( 1, null, query.searchedSet.recordList, checker );
-//		SI_Tree_Original<Record> treeS = new SI_Tree_Original<Record>( 1, null, query.indexedSet.recordList, checker );
-
+	@Override
+	protected void executeJoin() {
+		StopWatch stepTime = null;
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		ITF_Filter filter = new ITF_Filter(null, null) {
 			@Override
@@ -117,26 +100,15 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		if( DEBUG.SIJoinON ) {
-			System.out.println( "Node size : " + ( treeS.FEsize + treeS.LEsize ) );
-			System.out.println( "Sig size : " + treeS.sigsize );
-
-			System.out.print( "Building SI-Tree finished" );
-			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		}
-		// br.readLine();
-
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		rslt = join( treeS, treeT, theta );
 		stepTime.stopAndAdd( stat );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
-
-		writeResult();
 	}
 
-	public Set<IntegerPair> join( SI_Tree_Original<SIRecord> treeS, SI_Tree_Original<SIRecord> treeT, double threshold ) {
+	protected Set<IntegerPair> join( SI_Tree_Original<SIRecord> treeS, SI_Tree_Original<SIRecord> treeT, double threshold ) {
 		long startTime = System.currentTimeMillis();
 
 		List<Pair<SIRecord>> candidates = treeS.join( treeT, threshold );
@@ -158,7 +130,6 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
 
 		for( Pair<SIRecord> ip : candidates ) {
-//			rslt.add( new IntegerPair( ip.rec1.getID(), ip.rec2.getID() ) );
 			addSetResult( query.searchedSet.getRecord(ip.rec1.getID()), query.indexedSet.getRecord(ip.rec2.getID()), rslt, true, query.selfJoin );
 		}
 		return rslt;
