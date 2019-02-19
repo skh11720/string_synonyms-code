@@ -98,7 +98,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	 * Set applicable rules
 	 */
 
-	public void preprocessRules( ACAutomataR automata ) {
+	public void preprocessApplicableRules( ACAutomataR automata ) {
 		applicableRules = automata.applicableRules( tokens );
 	}
 

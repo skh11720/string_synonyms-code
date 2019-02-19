@@ -92,7 +92,7 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 			Record prev = null;
 			ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 			for ( Record rec : query.indexedSet.get() ) {
-				rec.preprocessRules( automata );
+				rec.preprocessApplicableRules( automata );
 				rec.preprocessTransformLength();
 				rec.preprocessEstimatedRecords();
 				rec.preprocessSuffixApplicableRules();

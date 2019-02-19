@@ -9,7 +9,6 @@ public interface AlgorithmInterface {
 	public String getName();
 	public String getVersion();
 	public void run();
-	public void printStat();
 	public void writeJSON();
 	public Collection<IntegerPair> getResult();
 	public StatContainer getStat();

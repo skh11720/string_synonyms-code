@@ -76,7 +76,7 @@ public class DataModifier {
 		final Query query = new Query(rulePath, dataOnePath, dataTwoPath, true, "output");
 		final ACAutomataR automata = new ACAutomataR(query.ruleSet.get());
 		for ( final Record record : query.searchedSet.recordList ) {
-			record.preprocessRules( automata );
+			record.preprocessApplicableRules( automata );
 		}
 		
 		ObjectArrayList<Record> recordList = new ObjectArrayList<>();
@@ -132,7 +132,7 @@ public class DataModifier {
 	}
 	
 	private static Record getEquivalent( final Record record, final ACAutomataR automata ) {
-		if ( record.applicableRules == null ) record.preprocessRules(automata);
+		if ( record.applicableRules == null ) record.preprocessApplicableRules(automata);
 		final int nRule = record.getNumApplicableRules();
 		if ( nRule == 0 ) return null;
 		final int[] tokenArr = record.getTokensArray();

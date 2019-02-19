@@ -63,83 +63,68 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	public abstract String getName();
 
 	public abstract String getVersion();
+	
+//	protected abstract void executeJoin();
 
-	public abstract void run();
+	public void run() {
+		StopWatch watch = StopWatch.getWatchStarted( "Result_0_Total_Time" );
+		preprocess();
+//		executeJoin();
+		watch.stop();
+		stat.addPrimary(watch);
+		printStat();
+		writeResult();
+		Util.printGCStats( stat, "Stat" );
+		stat.resultWriter( "result/" + getName() + "_" + getVersion() );
+	}
 
 	protected void preprocess() {
-		// builds an automata of the set of rules
-		StopWatch preprocessTime = null;
-
-		stat.addMemory( "Mem_1_Initialized" );
-
-		if( DEBUG.AlgorithmON ) {
-			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
-		}
-
+		StopWatch watch = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		preprocessRules();
+		computeTransformLengths();
+		estimateNumTransforms();
+		watch.stopQuietAndAdd(stat);
+		stat.addMemory("Mem_2_Preprocessed");
+	}
+	
+	private void preprocessRules() {
+		StopWatch watch = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
-
 		long applicableRules = 0;
-
-		// Preprocess each records in R
-		for( final Record rec : query.searchedSet.get() ) {
-			rec.preprocessRules( automata );
-
-			if( DEBUG.AlgorithmON ) {
-				applicableRules += rec.getNumApplicableRules();
-			}
+		for( final Record record : query.searchedSet.get() ) {
+			record.preprocessApplicableRules( automata );
+			record.preprocessSuffixApplicableRules();
+			applicableRules += record.getNumApplicableRules();
 		}
-
-		if( DEBUG.AlgorithmON ) {
-			preprocessTime.stopQuietAndAdd( stat );
-			stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
-			stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
-
-			preprocessTime.resetAndStart( "Result_2_2_Preprocess length time" );
-		}
-
+		watch.stopQuietAndAdd(stat);
+		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
+		stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
+	}
+	
+	private final void computeTransformLengths() {
+		StopWatch watch = StopWatch.getWatchStarted( "Result_2_2_Preprocess length time" );
 		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessTransformLength();
 		}
-
-		if( DEBUG.AlgorithmON ) {
-			preprocessTime.stopQuietAndAdd( stat );
-
-			preprocessTime.resetAndStart( "Result_2_3_Preprocess est record time" );
-		}
-
-		long maxTSize = 0;
+		watch.stopQuietAndAdd(stat);
+	}
+	
+	private final void estimateNumTransforms() {
+		StopWatch watch = StopWatch.getWatchStarted( "Result_2_3_Preprocess est record time" );
+		long maxNumTrans = 0;
 		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessEstimatedRecords();
-
-			if( DEBUG.AlgorithmON ) {
-				long est = rec.getEstNumTransformed();
-
-				if( maxTSize < est ) {
-					maxTSize = est;
-				}
+			long est = rec.getEstNumTransformed();
+			if( maxNumTrans < est ) {
+				maxNumTrans = est;
 			}
 		}
-
-		if( DEBUG.AlgorithmON ) {
-			stat.add( "Stat_maximum Size of Table T", maxTSize );
-
-			preprocessTime.stopQuietAndAdd( stat );
-			// Preprocess each records in S
-			preprocessTime.resetAndStart( "Result_2_6_Preprocess records in S time" );
-		}
-
-		long maxSSize = 0;
-		applicableRules = 0;
-
-		if( DEBUG.AlgorithmON ) {
-			stat.add( "Stat_maximum Size of Table S", maxSSize );
-			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
-
-			preprocessTime.stopQuietAndAdd( stat );
-		}
+		watch.stopQuietAndAdd(stat);
+		stat.add( "Stat_maximum Size of TableSearched", maxNumTrans );
 	}
 
-	public void printStat() {
+
+	private void printStat() {
 		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
 		stat.printResult();
 		System.out.println(

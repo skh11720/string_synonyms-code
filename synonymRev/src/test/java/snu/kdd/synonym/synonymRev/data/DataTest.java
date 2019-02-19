@@ -53,7 +53,7 @@ public class DataTest {
 		int[] tokens = { 1, 2, 3, 4 };
 		Record r = new Record( tokens );
 
-		r.preprocessRules( automata );
+		r.preprocessApplicableRules( automata );
 		r.preprocessTransformLength();
 
 		int maxTransformed = r.getMaxTransLength();

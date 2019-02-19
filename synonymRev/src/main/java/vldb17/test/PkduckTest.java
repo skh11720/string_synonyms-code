@@ -209,7 +209,7 @@ public class PkduckTest {
 		//System.exit(1);
 		
 		for (Record record : query.searchedSet.recordList) {
-			record.preprocessRules( automata );
+			record.preprocessApplicableRules( automata );
 			record.preprocessSuffixApplicableRules();
 			record.preprocessTransformLength();
 		}

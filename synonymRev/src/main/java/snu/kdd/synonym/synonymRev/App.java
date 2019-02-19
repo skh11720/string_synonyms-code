@@ -25,10 +25,7 @@ import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVar;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVarBK;
 import snu.kdd.synonym.synonymRev.algorithm.set.JoinBKPSet;
-import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import vldb17.seq.JoinPkduck;
 import vldb17.set.JoinPkduckOriginal;
@@ -42,23 +39,9 @@ public class App {
 		CommandLine cmd = parseInput( args );
 		Util.printArgsError( cmd );
 
-		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
-		StopWatch initializeTime = StopWatch.getWatchStarted( "Result_1_Initialize_Time" );
-		
 		Query query = Query.parseQuery( cmd );
-		StatContainer stat = new StatContainer();
 		AlgorithmInterface alg = getAlgorithm( query, cmd );
-
-		initializeTime.stopAndAdd( stat );
 		alg.run();
-
-		totalTime.stop();
-		Util.printGCStats( stat, "Stat" );
-
-		stat.addPrimary( totalTime );
-		alg.printStat();
-
-		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
 		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
 		if( upload ) {
@@ -88,13 +71,6 @@ public class App {
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse( argOptions, args, false );
 		return cmd;
-	}
-	
-	public static DataInfo getDataInfo( CommandLine cmd ) {
-		final String rulePath = cmd.getOptionValue( "rulePath" );
-		final String dataOnePath = cmd.getOptionValue( "dataOnePath" );
-		final String dataTwoPath = cmd.getOptionValue( "dataTwoPath" );
-		return new DataInfo( dataOnePath, dataTwoPath, rulePath );
 	}
 	
 	public static AlgorithmInterface getAlgorithm( Query query, CommandLine cmd ) throws IOException, ParseException {
