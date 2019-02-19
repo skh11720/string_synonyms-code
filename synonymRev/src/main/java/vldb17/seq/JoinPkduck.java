@@ -143,7 +143,13 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 //		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
 
 		int[] range = recS.getTransLengths();
-		PkduckSetDP pkduckDP; // TODO: why set version is used...? bug??
+		/*
+		 * PkduckSetDP is used instead of PkduckSet since
+		 * we can still find all SMATCH pairs with PkduckSetDP
+		 * which is the original algorithm proposed by pkduck's authors.
+		 * The only difference between this and the original one is the verification algorithm. 
+		 */
+		PkduckSetDP pkduckDP; 
 		if (useRuleComp) pkduckDP = new PkduckSetDPWithRC( recS, 1, globalOrder );
 		pkduckDP = new PkduckSetDP( recS, 1, globalOrder );
 		for (int token : candidateTokens) {
