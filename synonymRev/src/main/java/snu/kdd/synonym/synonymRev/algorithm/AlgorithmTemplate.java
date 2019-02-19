@@ -4,16 +4,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
-import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.AbstractParam;
@@ -184,7 +181,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		}
 	}
 
-	public void writeJSON( DataInfo dataInfo, CommandLine cmd ) {
+	@Override
+	public void writeJSON() {
 		BufferedWriter bw_json;
 		try {
 			bw_json = new BufferedWriter( new FileWriter(
@@ -199,7 +197,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 
 			// dataset
 			bw_json.write( ", \"Dataset\":{" );
-			bw_json.write( dataInfo.toJson() );
+			bw_json.write( query.dataInfo.toJson() );
 			bw_json.write( "}" );
 
 			// algorithm
@@ -261,15 +259,6 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 			else rslt.add( new IntegerPair( rec2.getID(), rec1.getID()) );
 		}
 	}
-	
-//	public static void addSetResult( int rec1id, int rec2id, Set<IntegerPair> rslt, boolean isSelfJoin ) {
-//		if ( isSelfJoin ) {
-//			int id_smaller = rec1id < rec2id? rec1id : rec2id;
-//			int id_larger = rec1id >= rec2id? rec1id : rec2id;
-//			rslt.add( new IntegerPair( id_smaller, id_larger) );
-//		}
-//		else rslt.add( new IntegerPair( rec1id, rec2id) );
-//	}
 	
 	@Override
 	public void setWriteResult( boolean flag ) {

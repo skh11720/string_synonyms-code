@@ -30,7 +30,6 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import vldb17.seq.JoinPkduck;
 import vldb17.set.JoinPkduckOriginal;
 import vldb17.set.JoinPkduckSet;
@@ -57,16 +56,13 @@ public class App {
 		Util.printGCStats( stat, "Stat" );
 
 		stat.addPrimary( totalTime );
-		addWYKMapCount( stat );
 		alg.printStat();
 
 		stat.resultWriter( "result/" + alg.getName() + "_" + alg.getVersion() );
 
-//		DataInfo dataInfo = new DataInfo( dataOnePath, dataTwoPath, rulePath );
-
 		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
 		if( upload ) {
-			alg.writeJSON( getDataInfo( cmd ), cmd );
+			alg.writeJSON();
 		}
 
 		Util.printLog( alg.getName() + " finished" );
@@ -189,16 +185,5 @@ public class App {
 		}
 		
 		return alg;
-	}
-
-	public static void addWYKMapCount( StatContainer stat ) {
-		stat.add( "hm_getCount", WYK_HashMap.getCount );
-		stat.add( "hm_getIterCount", WYK_HashMap.getIterCount );
-		stat.add( "hm_putCount", WYK_HashMap.putCount );
-		stat.add( "hm_resizeCount", WYK_HashMap.resizeCount );
-		stat.add( "hm_removeCount", WYK_HashMap.removeCount );
-		stat.add( "hm_removeIterCount", WYK_HashMap.removeIterCount );
-		stat.add( "hm_putRemovedCount", WYK_HashMap.putRemovedCount );
-		stat.add( "hm_removeFoundCount", WYK_HashMap.removeFoundCount );
 	}
 }

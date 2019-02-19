@@ -7,14 +7,13 @@ import org.apache.commons.cli.CommandLine;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 
 public class Query {
+	
+	public final DataInfo dataInfo;
 	public final Ruleset ruleSet;
 	public final Dataset indexedSet;
 	public final Dataset searchedSet;
-
 	public final String outputPath;
-	
 	public final TokenIndex tokenIndex;
-
 	public final boolean oneSideJoin;
 	public final boolean selfJoin;
 
@@ -28,6 +27,7 @@ public class Query {
 	}
 
 	public Query( String rulePath, String indexedPath, String searchedPath, boolean oneSideJoin, String outputPath ) throws IOException {
+		this.dataInfo = new DataInfo(indexedPath, searchedPath, rulePath);
 		this.outputPath = outputPath;
 		this.oneSideJoin = oneSideJoin;
 		this.tokenIndex = new TokenIndex();
@@ -45,6 +45,7 @@ public class Query {
 	}
 
 	public Query( Ruleset ruleSet, Dataset indexedSet, Dataset searchedSet, TokenIndex tokenIndex, boolean oneSideJoin, boolean selfJoin, String outputPath ) {
+		this.dataInfo = null;
 		this.ruleSet = ruleSet;
 		this.indexedSet = indexedSet;
 		this.searchedSet = searchedSet;
