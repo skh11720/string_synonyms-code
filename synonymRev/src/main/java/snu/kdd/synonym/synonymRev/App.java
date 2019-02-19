@@ -11,7 +11,6 @@ import org.apache.commons.cli.ParseException;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
 import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll;
-import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll3;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
@@ -99,10 +98,6 @@ public class App {
 
 		case JoinHybridAll:
 			alg = new JoinHybridAll( query, additionalArgs );
-			break;
-
-		case JoinHybridAll3:
-			alg = new JoinHybridAll3( query, additionalArgs );
 			break;
 
 		case SIJoin:
