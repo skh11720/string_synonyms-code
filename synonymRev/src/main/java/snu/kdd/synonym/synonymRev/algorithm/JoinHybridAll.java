@@ -31,7 +31,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
  * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
  * index in order to find the best execution time.
  */
-public class JoinHybridAll extends AlgorithmTemplate {
+public class JoinHybridAll extends AbstractAlgorithm {
 
 	public Validator checker;
 	SampleEstimate estimate;

@@ -27,7 +27,7 @@ import snu.kdd.synonym.synonymRev.tools.Pair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class SIJoinOriginal extends AlgorithmTemplate {
+public class SIJoinOriginal extends AbstractAlgorithm {
 
 	private final double theta;
 	private final ObjectArrayList<SIRecord> S, T;

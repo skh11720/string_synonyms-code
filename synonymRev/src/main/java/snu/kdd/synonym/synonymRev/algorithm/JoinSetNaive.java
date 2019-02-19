@@ -18,7 +18,7 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 
 
-public class JoinSetNaive extends AlgorithmTemplate {
+public class JoinSetNaive extends AbstractAlgorithm {
 
 	// staticitics used for building indexes
 	double avgTransformed;

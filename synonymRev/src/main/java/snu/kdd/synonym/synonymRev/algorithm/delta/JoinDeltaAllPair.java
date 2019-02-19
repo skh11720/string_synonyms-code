@@ -6,7 +6,7 @@ import java.util.Set;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
@@ -17,7 +17,7 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 @Deprecated
-public class JoinDeltaAllPair extends AlgorithmTemplate {
+public class JoinDeltaAllPair extends AbstractAlgorithm {
 
 	protected Validator checker;
 	protected int qSize;

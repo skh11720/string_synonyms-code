@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -131,7 +131,7 @@ public class NaiveIndex extends AbstractIndex {
 		}
 		for( final Integer idx : candidates ) {
 //			rslt.add( new IntegerPair( recS.getID(), idx ) );
-			AlgorithmTemplate.addSeqResult( recS, idx, rslt, isSelfJoin );
+			AbstractAlgorithm.addSeqResult( recS, idx, rslt, isSelfJoin );
 		}
 
 		searchTime += System.nanoTime() - searchStartTime;

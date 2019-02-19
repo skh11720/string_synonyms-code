@@ -8,7 +8,7 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class JoinNaive extends AlgorithmTemplate {
+public class JoinNaive extends AbstractAlgorithm {
 
 	public NaiveIndex idx;
 

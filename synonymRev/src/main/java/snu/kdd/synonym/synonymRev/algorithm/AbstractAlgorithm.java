@@ -20,7 +20,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
-public abstract class AlgorithmTemplate implements AlgorithmInterface {
+public abstract class AbstractAlgorithm implements AlgorithmInterface {
 
 	protected final Query query;
 	protected final StatContainer stat;
@@ -29,7 +29,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	public boolean writeResult = true;
 
 
-	public AlgorithmTemplate( Query query, String[] args ) {
+	public AbstractAlgorithm( Query query, String[] args ) {
 		this.stat = new StatContainer();
 		this.query = query;
 		stat.add( "alg", getName() );

@@ -12,7 +12,7 @@ import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -28,7 +28,7 @@ import vldb17.GreedyValidatorOriginal;
 import vldb17.ParamPkduck;
 
 
-public class JoinPkduckOriginal extends AlgorithmTemplate {
+public class JoinPkduckOriginal extends AbstractAlgorithm {
 
 //	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;

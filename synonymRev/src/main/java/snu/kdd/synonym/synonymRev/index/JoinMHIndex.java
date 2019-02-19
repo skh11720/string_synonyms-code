@@ -14,7 +14,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -377,7 +377,7 @@ public class JoinMHIndex extends AbstractIndex {
 			int compare = checker.isEqual(recS, recR);
 			if (compare >= 0) {
 //				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
-				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
+				AbstractAlgorithm.addSeqResult( recS, recR, rslt, query.selfJoin );
 			}
 		}
 		long afterVerifyTime = System.nanoTime();

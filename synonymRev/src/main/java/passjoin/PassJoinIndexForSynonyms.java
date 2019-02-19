@@ -12,7 +12,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
@@ -310,7 +310,7 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 		// output the results
 		for ( int answer_id : answer_ids ) {
 			Record recT = indexedList.get( answer_id );
-			AlgorithmTemplate.addSeqResult( recS, recT, rslt, isSelfJoin );
+			AbstractAlgorithm.addSeqResult( recS, recT, rslt, isSelfJoin );
 //				if (debug) System.out.println( rslt.size()+ " output: "+rec1.getID()+", "+rec2.getID() );
 		}
 		
