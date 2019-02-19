@@ -16,11 +16,9 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class SIJoin extends AbstractAlgorithm {
 
-	static Validator checker;
 	private final double theta = 1.0;
 
 

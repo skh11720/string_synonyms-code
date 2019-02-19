@@ -23,7 +23,6 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.GreedyValidatorOriginal;
 import vldb17.ParamPkduck;
 
@@ -36,7 +35,6 @@ public class JoinPkduckOriginal extends AbstractAlgorithm {
 	private final double theta;
 	AbstractGlobalOrder globalOrder;
 	private boolean useRuleComp;
-	private final Validator checker;
 
 	// staticitics used for building indexes
 	double avgTransformed;
@@ -98,8 +96,6 @@ public class JoinPkduckOriginal extends AbstractAlgorithm {
 		rslt = join( stat, query, writeResult );
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
-
-		checker.addStat(stat);
 	}
 	
 	public void buildIndex(boolean addStat ) {

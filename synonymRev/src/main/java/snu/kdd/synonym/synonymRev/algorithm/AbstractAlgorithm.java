@@ -19,11 +19,13 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public abstract class AbstractAlgorithm implements AlgorithmInterface {
 
 	protected final Query query;
 	protected final StatContainer stat;
+	protected Validator checker = null;
 	protected AbstractParam param;
 	public Collection<IntegerPair> rslt = null;
 	public boolean writeResult = true;
@@ -48,6 +50,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 		executeJoin();
 		watch.stop();
 		stat.addPrimary(watch);
+		if (checker != null) checker.addStat(stat);
 		printStat();
 		writeResult();
 		Util.printGCStats( stat, "Stat" );

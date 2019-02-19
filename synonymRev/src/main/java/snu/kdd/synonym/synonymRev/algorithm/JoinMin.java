@@ -17,14 +17,11 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMin extends AbstractIndexBasedAlgorithm {
 
 	public int qSize;
 	public int indexK;
-
-	public Validator checker;
 
 	/**
 	 * Key: (2gram, index) pair<br/>
@@ -50,7 +47,6 @@ public class JoinMin extends AbstractIndexBasedAlgorithm {
 	protected void executeJoin() {
 		if ( usePQF ) runAfterPreprocess();
 		else runAfterPreprocessWithoutIndex();
-		checker.addStat( stat );
 	}
 
 	public void runAfterPreprocess() {

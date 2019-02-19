@@ -19,7 +19,6 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 @Deprecated
 public class JoinDeltaAllPair extends AbstractAlgorithm {
 
-	protected Validator checker;
 	protected int qSize;
 	protected int deltaMax;
 	

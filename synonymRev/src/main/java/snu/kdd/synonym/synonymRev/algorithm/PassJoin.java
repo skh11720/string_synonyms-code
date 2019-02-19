@@ -10,14 +10,11 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class PassJoin extends AbstractIndexBasedAlgorithm {
 	
 	protected PassJoinIndexForSynonyms idx = null;
 	protected int deltaMax;
-	protected final Validator checker;
-
 
 	public PassJoin(Query query, String[] args) throws IOException, ParseException {
 		super(query, args);

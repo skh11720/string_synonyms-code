@@ -20,7 +20,6 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 /**
  * Given threshold, if a record has more than 'threshold' 1-expandable strings,
@@ -33,7 +32,6 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
  */
 public class JoinHybridAll extends AbstractAlgorithm {
 
-	public Validator checker;
 	SampleEstimate estimate;
 	protected int qSize;
 	protected int indexK;

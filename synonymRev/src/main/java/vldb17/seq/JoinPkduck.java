@@ -23,7 +23,6 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.GreedyValidatorEquiv;
 import vldb17.ParamPkduck;
 import vldb17.set.PkduckSetDP;
@@ -35,7 +34,6 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 	private PkduckSetIndex idx = null;
 	AbstractGlobalOrder globalOrder;
 	private Boolean useRuleComp;
-	private Validator checker;
 
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
@@ -83,7 +81,6 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 		rslt = join( stat, query, true );
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
-		checker.addStat( stat );
 	}
 	
 	@Override

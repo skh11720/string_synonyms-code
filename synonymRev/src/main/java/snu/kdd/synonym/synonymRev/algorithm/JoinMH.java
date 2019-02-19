@@ -15,15 +15,12 @@ import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinMH extends AbstractIndexBasedAlgorithm {
 	// RecordIDComparator idComparator;
 
 	public int indexK;
 	public int qSize;
-
-	public Validator checker;
 
 	/**
 	 * Key: twogram<br/>
@@ -51,7 +48,6 @@ public class JoinMH extends AbstractIndexBasedAlgorithm {
 	protected void executeJoin() {
 		if ( usePQF ) runAfterPreprocess();
 		else runAfterPreprocessWithoutIndex();
-		checker.addStat( stat );
 	}
 	
 	protected void runAfterPreprocess() {

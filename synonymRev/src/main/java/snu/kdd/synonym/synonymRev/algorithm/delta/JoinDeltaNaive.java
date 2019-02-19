@@ -8,12 +8,10 @@ import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaNaive extends AbstractAlgorithm {
 	
 	protected DeltaHashIndex idx;
-	protected Validator checker;
 	protected int deltaMax;
 	
 	public static boolean useLF = true;

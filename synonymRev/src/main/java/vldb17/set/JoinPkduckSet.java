@@ -21,7 +21,6 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.ParamPkduck;
 
 
@@ -32,7 +31,6 @@ public class JoinPkduckSet extends AbstractAlgorithm {
 	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
 	AbstractGlobalOrder globalOrder;
 	private Boolean useRuleComp;
-	private Validator checker;
 
 	// staticitics used for building indexes
 	double avgTransformed;
@@ -83,8 +81,6 @@ public class JoinPkduckSet extends AbstractAlgorithm {
 		rslt = join( stat, query, writeResult );
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
-
-		checker.addStat( stat );
 	}
 	
 	public void buildIndex(boolean addStat ) {

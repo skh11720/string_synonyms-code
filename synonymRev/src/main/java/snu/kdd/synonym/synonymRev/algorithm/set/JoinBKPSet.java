@@ -26,7 +26,6 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.set.SetGreedyValidator;
 
 public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
@@ -37,7 +36,6 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 	public Object2IntOpenHashMap<Record> idxCountT = null;
 	public int indexK;
 
-	protected Validator checker;
 	protected long candTokenTime = 0;
 	protected long dpTime = 0;
 	protected long CountingTime = 0;
@@ -91,7 +89,6 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 		rslt = join( stat, query, writeResult );
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
-		checker.addStat( stat );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {

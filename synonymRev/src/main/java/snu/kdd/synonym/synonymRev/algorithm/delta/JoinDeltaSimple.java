@@ -13,14 +13,12 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaSimple extends AbstractIndexBasedAlgorithm {
 
 	protected int qSize;
 	protected int deltaMax;
 
-	public Validator checker;
 	protected JoinDeltaSimpleIndex idx;
 
 	protected boolean useLF, usePQF;
@@ -41,7 +39,6 @@ public class JoinDeltaSimple extends AbstractIndexBasedAlgorithm {
 	protected void executeJoin() {
 		if ( usePQF ) runAfterPreprocess();
 		else runAfterPreprocessWithoutIndex();
-		checker.addStat( stat );
 	}
 
 	public void runAfterPreprocess() {
