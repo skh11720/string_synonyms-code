@@ -5,21 +5,25 @@ import java.io.IOException;
 import org.apache.commons.cli.ParseException;
 
 import passjoin.PassJoinIndexForSynonyms;
+import passjoin.PassJoinValidator;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
+import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class PassJoin extends AbstractIndexBasedAlgorithm {
 	
-	protected PassJoinIndexForSynonyms index = null;
+	protected PassJoinIndexForSynonyms idx = null;
 	protected int deltaMax;
+	protected final Validator checker;
 
 
 	public PassJoin(Query query, String[] args) throws IOException, ParseException {
 		super(query, args);
 		param = new Param(args);
 		deltaMax = param.getIntParam("deltaMax");
+		checker = new PassJoinValidator(deltaMax);
 	}
 
 	@Override
@@ -40,7 +44,7 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 
-		rslt = index.join( query, stat, null, writeResult );
+		rslt = idx.join( query, stat, checker, writeResult );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
@@ -48,7 +52,7 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 	
 	@Override
 	protected void buildIndex() {
-		index = new PassJoinIndexForSynonyms( query, deltaMax, stat );
+		idx = new PassJoinIndexForSynonyms( query, deltaMax, stat );
 	}
 	
 	@Override
