@@ -6,7 +6,7 @@ import java.util.Set;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -14,16 +14,12 @@ import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class JoinDeltaSimple extends AbstractIndexBasedAlgorithm {
+public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 
-	protected int qSize;
 	protected int deltaMax;
 
 	protected JoinDeltaSimpleIndex idx;
 
-	protected boolean useLF, usePQF;
-	
-	
 
 	public JoinDeltaSimple(Query query, String[] args) throws IOException, ParseException {
 		super(query, args);
@@ -36,12 +32,7 @@ public class JoinDeltaSimple extends AbstractIndexBasedAlgorithm {
 	}
 
 	@Override
-	protected void executeJoin() {
-		if ( usePQF ) runAfterPreprocess();
-		else runAfterPreprocessWithoutIndex();
-	}
-
-	public void runAfterPreprocess() {
+	protected void runAfterPreprocess() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
 
@@ -62,7 +53,8 @@ public class JoinDeltaSimple extends AbstractIndexBasedAlgorithm {
 		runTime.stopAndAdd( stat );
 	}
 
-	public void runAfterPreprocessWithoutIndex() {
+	@Override
+	protected void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
 		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );

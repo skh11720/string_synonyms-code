@@ -6,7 +6,7 @@ import java.util.Set;
 import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
@@ -14,15 +14,12 @@ import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class JoinDeltaVar extends AbstractIndexBasedAlgorithm {
+public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 
 	protected int indexK;
-	protected int qSize;
 	protected int deltaMax;
 
 	protected JoinDeltaVarIndex idx;
-
-	protected boolean useLF, usePQF, useSTPQ;
 	
 	
 	public JoinDeltaVar(Query query, String[] args) throws IOException, ParseException {
@@ -45,11 +42,6 @@ public class JoinDeltaVar extends AbstractIndexBasedAlgorithm {
 	}
 	
 	@Override
-	protected void executeJoin() {
-		if ( usePQF ) runAfterPreprocess();
-		else runAfterPreprocessWithoutIndex();
-	}
-
 	protected void runAfterPreprocess() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
@@ -71,6 +63,7 @@ public class JoinDeltaVar extends AbstractIndexBasedAlgorithm {
 		runTime.stopAndAdd( stat );
 	}
 
+	@Override
 	protected void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
 		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );

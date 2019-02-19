@@ -16,11 +16,10 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
-public class JoinMH extends AbstractIndexBasedAlgorithm {
+public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 	// RecordIDComparator idComparator;
 
 	public int indexK;
-	public int qSize;
 
 	/**
 	 * Key: twogram<br/>
@@ -30,8 +29,6 @@ public class JoinMH extends AbstractIndexBasedAlgorithm {
 
 	protected JoinMHIndex idx;
 
-	protected boolean useLF, usePQF, useSTPQ;
-	
 	
 	public JoinMH(Query query, String[] args) throws IOException, ParseException {
 		super(query, args);
@@ -45,11 +42,6 @@ public class JoinMH extends AbstractIndexBasedAlgorithm {
 	}
 	
 	@Override
-	protected void executeJoin() {
-		if ( usePQF ) runAfterPreprocess();
-		else runAfterPreprocessWithoutIndex();
-	}
-	
 	protected void runAfterPreprocess() {
 		StopWatch runTime = null;
 		StopWatch stepTime = null;
@@ -70,6 +62,7 @@ public class JoinMH extends AbstractIndexBasedAlgorithm {
 		runTime.stopAndAdd( stat );
 	}
 
+	@Override
 	protected void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
 		StopWatch runTime = null;

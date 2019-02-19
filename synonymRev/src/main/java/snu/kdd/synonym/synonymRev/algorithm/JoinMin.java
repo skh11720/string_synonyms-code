@@ -18,9 +18,8 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
-public class JoinMin extends AbstractIndexBasedAlgorithm {
+public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 
-	public int qSize;
 	public int indexK;
 
 	/**
@@ -28,8 +27,6 @@ public class JoinMin extends AbstractIndexBasedAlgorithm {
 	 * Value: (min, max, record) triple
 	 */
 	public JoinMinIndex idx;
-
-	protected boolean useLF, usePQF, useSTPQ;
 
 	
 	public JoinMin(Query query, String[] args) throws IOException, ParseException {
@@ -44,11 +41,6 @@ public class JoinMin extends AbstractIndexBasedAlgorithm {
 	}
 	
 	@Override
-	protected void executeJoin() {
-		if ( usePQF ) runAfterPreprocess();
-		else runAfterPreprocessWithoutIndex();
-	}
-
 	public void runAfterPreprocess() {
 		StopWatch stepTime = null;
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
@@ -79,6 +71,7 @@ public class JoinMin extends AbstractIndexBasedAlgorithm {
 		idx.addStat( stat );
 	}
 
+	@Override
 	public void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
 		StopWatch runTime = null;
