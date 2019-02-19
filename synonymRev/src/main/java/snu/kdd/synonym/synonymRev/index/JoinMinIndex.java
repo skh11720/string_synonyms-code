@@ -292,7 +292,7 @@ public class JoinMinIndex extends AbstractIndex {
 	protected void findBestPositions(List<Object2IntOpenHashMap<QGram>> invokes, List<Object2IntOpenHashMap<QGram>> lowInvokes, boolean hybridIndex, int threshold, int nIndex ) {
 		// find best K positions for each string in T
 		indexedCountMap = new Object2IntOpenHashMap<>();
-		for( Record rec : query.targetIndexedSet.get() ) {
+		for( Record rec : query.indexedSet.get() ) {
 //			int[] range = rec.getTransLengths();
 
 			int searchmax;

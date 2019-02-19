@@ -156,7 +156,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 				Util.printLog( "Writing results " + rslt.size() );
 			}
 
-			BufferedWriter bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output.txt", query.outputFile, getOutputName() ) ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output.txt", query.outputPath, getOutputName() ) ) );
 
 			bw.write( rslt.size() + "\n" );
 			for( final IntegerPair ip : rslt ) {
@@ -279,11 +279,11 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	
 
 	public String getOutputName() {
-		String[] tokens = query.searchedFile.split("\\"+File.separator);
+		String[] tokens = query.getSearchedPath().split("\\"+File.separator);
 		String data1Name = tokens[tokens.length-1].split("\\.")[0];
 		String data2Name = null;
 		if ( !query.selfJoin ) {
-			tokens = query.indexedFile.split("\\"+File.separator);
+			tokens = query.getIndexedPath().split("\\"+File.separator);
 			data2Name = tokens[tokens.length-1].split("\\.")[0];
 		}
 		if ( query.selfJoin ) return getName()+"_"+data1Name;

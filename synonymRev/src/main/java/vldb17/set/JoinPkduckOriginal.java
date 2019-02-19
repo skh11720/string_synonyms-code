@@ -69,11 +69,11 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		checker = new GreedyValidatorOriginal(query, theta);
 
 		try {
-			String[] tokens = query.searchedFile.split("\\"+File.separator);
+			String[] tokens = query.getSearchedPath().split("\\"+File.separator);
 			String data1Name = tokens[tokens.length-1].split("\\.")[0];
 			if ( query.selfJoin ) pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/JoinPkduckOriginal_verify_%s_%.3f.txt", data1Name, theta ) ) ) ); 
 			else {
-				tokens = query.indexedFile.split("\\"+File.separator);
+				tokens = query.getIndexedPath().split("\\"+File.separator);
 				String data2Name = tokens[tokens.length-1].split("\\.")[0];
 				pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/JoinPkduckOriginal_verify_%s_%s_%.3f.txt", data1Name, data2Name, theta) ) ) );
 			}

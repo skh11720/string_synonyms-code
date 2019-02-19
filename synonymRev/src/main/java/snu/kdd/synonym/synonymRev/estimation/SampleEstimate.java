@@ -84,7 +84,7 @@ public class SampleEstimate {
 		this.sampleRatio = sampleRatio;
 
 		try { 
-			String[] tokenList = query.searchedFile.split( "\\"+(File.separator) );
+			String[] tokenList = query.getSearchedPath().split( "\\"+(File.separator) );
 			String dataAndSize = tokenList[tokenList.length-1].split( "\\.", 2)[0];
 			String nameTmp = String.format( "SampleEst_%s_%.2f", dataAndSize, sampleRatio );
 			bw_log = new BufferedWriter( new FileWriter( "tmp/"+nameTmp+".txt" ) );
@@ -154,7 +154,7 @@ public class SampleEstimate {
 		Dataset sampleIndexed = new Dataset( sampleIndexedList );
 		Dataset sampleSearched = new Dataset( sampleSearchedList );
 		sampleQuery = new Query( query.ruleSet, sampleIndexed, sampleSearched, query.tokenIndex, query.oneSideJoin,
-				query.selfJoin );
+				query.selfJoin, query.outputPath );
 		
 		for ( Record rec : sampleIndexed.recordList ) indexAvgTransform += rec.getEstNumTransformed();
 		indexAvgTransform /= sampleIndexed.size();

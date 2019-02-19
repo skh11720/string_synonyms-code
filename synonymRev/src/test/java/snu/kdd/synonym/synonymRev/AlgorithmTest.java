@@ -54,7 +54,7 @@ public class AlgorithmTest {
 				"-outputPath output -algorithm * -oneSideJoin True -additional *").split( " ", 14 );
 		
 		CommandLine cmd = App.parseInput( args );
-		Query query = App.getQuery( cmd );
+		Query query = Query.parseQuery( cmd );
 		return query;
 	}
 	
@@ -78,7 +78,7 @@ public class AlgorithmTest {
 				"-outputPath output -algorithm * -oneSideJoin True -additional *").split( " ", 14 );
 		
 		CommandLine cmd = App.parseInput( args );
-		Query query = App.getQuery( cmd );
+		Query query = Query.parseQuery( cmd );
 		return query;
 	}
 	
