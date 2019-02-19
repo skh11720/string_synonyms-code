@@ -21,36 +21,12 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
 public abstract class AlgorithmTemplate implements AlgorithmInterface {
-	public enum AlgorithmName {
-		JoinNaive,
-		JoinMH,
-		JoinMin,
-		JoinMinFast,
-		JoinHybridAll,
-		JoinHybridAll3,
-		SIJoin,
-		JoinPkduck,
-		
-		SIJoinOriginal,
-		JoinPkduckOriginal,
 
-		JoinSetNaive,
-		JoinPkduckSet,
-		JoinBKPSet,
-		PassJoin,
-		
-		JoinDeltaNaive,
-		JoinDeltaSimple,
-		JoinDeltaVar,
-		JoinDeltaVarBK,
-	}
-
-	// contains statistics of the algorithm
-	public boolean writeResult = true;
-	protected final StatContainer stat;
 	protected final Query query;
+	protected final StatContainer stat;
 	protected AbstractParam param;
 	public Collection<IntegerPair> rslt = null;
+	public boolean writeResult = true;
 
 
 	public AlgorithmTemplate( Query query, String[] args ) {

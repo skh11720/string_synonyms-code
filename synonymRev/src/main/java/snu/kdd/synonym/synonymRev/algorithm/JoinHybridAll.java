@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.apache.commons.cli.ParseException;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
@@ -182,6 +183,7 @@ public class JoinHybridAll extends AlgorithmTemplate {
 		// evaluate the accuracy of estimation ???
 		
 		// return the final result
+		rslt = new ObjectOpenHashSet<IntegerPair>();  
 		rslt.addAll( rsltNaive );
 		rslt.addAll( rsltPQGram );
 	}

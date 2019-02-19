@@ -13,11 +13,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmFactory;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AlgorithmTest {
@@ -101,7 +101,7 @@ public class AlgorithmTest {
 		else query = AlgorithmTest.get2WayJoinQuery();
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
-		AlgorithmInterface alg = App.getAlgorithm( query, cmd );
+		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(query, cmd);
 		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
 		alg.run();
@@ -120,7 +120,7 @@ public class AlgorithmTest {
 			testJoinMH();
 			testJoinMin();
 			testJoinMinFast();
-			testJoinHybridAll(); // JoinHybridAll3
+			testJoinHybridAll();
 			testJoinPkduck();
 			testPassJoin();
 			
@@ -198,7 +198,7 @@ public class AlgorithmTest {
 	
 	@Ignore
 	public void testJoinHybridAll() throws ParseException, IOException {
-		args[1] = "JoinHybridAll3";
+		args[1] = "JoinHybridAll";
 		String[] param_list = {
 				"\"-K 1 -qSize 1 -sampleH 0.01 -sampleB 0.01\"",
 				"\"-K 1 -qSize 2 -sampleH 0.01 -sampleB 0.01\"",

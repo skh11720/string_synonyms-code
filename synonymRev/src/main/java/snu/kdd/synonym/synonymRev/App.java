@@ -8,27 +8,10 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmFactory;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate.AlgorithmName;
-import snu.kdd.synonym.synonymRev.algorithm.JoinHybridAll;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
-import snu.kdd.synonym.synonymRev.algorithm.JoinNaive;
-import snu.kdd.synonym.synonymRev.algorithm.JoinSetNaive;
-import snu.kdd.synonym.synonymRev.algorithm.PassJoin;
-import snu.kdd.synonym.synonymRev.algorithm.SIJoin;
-import snu.kdd.synonym.synonymRev.algorithm.SIJoinOriginal;
-import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
-import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
-import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVar;
-import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVarBK;
-import snu.kdd.synonym.synonymRev.algorithm.set.JoinBKPSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import vldb17.seq.JoinPkduck;
-import vldb17.set.JoinPkduckOriginal;
-import vldb17.set.JoinPkduckSet;
 
 public class App {
 	private static Options argOptions;
@@ -39,7 +22,7 @@ public class App {
 		Util.printArgsError( cmd );
 
 		Query query = Query.parseQuery( cmd );
-		AlgorithmInterface alg = getAlgorithm( query, cmd );
+		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(query, cmd);
 		alg.run();
 
 		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
@@ -70,91 +53,5 @@ public class App {
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse( argOptions, args, false );
 		return cmd;
-	}
-	
-	public static AlgorithmInterface getAlgorithm( Query query, CommandLine cmd ) throws IOException, ParseException {
-		AlgorithmInterface alg = null;
-		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
-		String additionalOptions = cmd.getOptionValue( "additional", "" );
-		String[] additionalArgs = null;
-		if( additionalOptions != null ) additionalArgs = additionalOptions.split( " " );
-
-		switch( algorithmName ) {
-		case JoinNaive:
-			alg = new JoinNaive( query, additionalArgs );
-			break;
-
-		case JoinMH:
-			alg = new JoinMH( query, additionalArgs );
-			break;
-
-		case JoinMin:
-			alg = new JoinMin( query, additionalArgs );
-			break;
-
-		case JoinMinFast:
-			alg = new JoinMinFast( query, additionalArgs );
-			break;
-
-		case JoinHybridAll:
-			alg = new JoinHybridAll( query, additionalArgs );
-			break;
-
-		case SIJoin:
-			alg = new SIJoin( query, additionalArgs );
-			break;
-
-		case SIJoinOriginal:
-			alg = new SIJoinOriginal( query, additionalArgs );
-			break;
-
-		case JoinPkduck:
-			alg = new JoinPkduck( query, additionalArgs );
-			break;
-
-		case JoinPkduckSet:
-			alg = new JoinPkduckSet( query, additionalArgs );
-			break;
-
-		case JoinPkduckOriginal:
-			alg = new JoinPkduckOriginal( query, additionalArgs );
-			break;
-
-		case JoinBKPSet:
-			alg = new JoinBKPSet ( query, additionalArgs );
-			break;
-
-		case JoinSetNaive:
-			alg = new JoinSetNaive( query, additionalArgs );
-			break;
-
-		case PassJoin:
-			alg = new PassJoin( query, additionalArgs );
-			break;
-		
-		case JoinDeltaNaive:
-			alg = new JoinDeltaNaive( query, additionalArgs );
-			break;
-
-		case JoinDeltaSimple:
-			alg = new JoinDeltaSimple( query, additionalArgs );
-			break;
-
-		case JoinDeltaVar:
-			alg = new JoinDeltaVar( query, additionalArgs );
-			break;
-
-		case JoinDeltaVarBK:
-			alg = new JoinDeltaVarBK( query, additionalArgs );
-			break;
-
-		
-		default:
-			Util.printLog( "Invalid algorithm " + algorithmName );
-			System.exit( 0 );
-			break;
-		}
-		
-		return alg;
 	}
 }
