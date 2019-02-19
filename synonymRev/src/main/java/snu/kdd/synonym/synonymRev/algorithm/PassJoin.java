@@ -34,7 +34,7 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 	protected void executeJoin() {
 		StopWatch stepTime = null;
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
@@ -47,7 +47,7 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 	}
 	
 	@Override
-	protected void buildIndex( boolean addStat ) { // TODO: the argument, addStat? or writeResult?
+	protected void buildIndex() {
 		index = new PassJoinIndexForSynonyms( query, deltaMax, stat );
 	}
 	

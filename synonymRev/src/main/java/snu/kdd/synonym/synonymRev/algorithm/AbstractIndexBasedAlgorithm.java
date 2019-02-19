@@ -8,5 +8,5 @@ public abstract class AbstractIndexBasedAlgorithm extends AlgorithmTemplate {
 		super(query, args);
 	}
 
-	protected abstract void buildIndex( boolean writeResult );
+	protected abstract void buildIndex();
 }

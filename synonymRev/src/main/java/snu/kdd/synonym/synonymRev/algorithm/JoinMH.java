@@ -61,7 +61,7 @@ public class JoinMH extends AbstractIndexBasedAlgorithm {
 		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
@@ -115,7 +115,7 @@ public class JoinMH extends AbstractIndexBasedAlgorithm {
 	}
 
 	@Override
-	protected void buildIndex( boolean writeResult ) {
+	protected void buildIndex() {
 		int[] indexPosition = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;

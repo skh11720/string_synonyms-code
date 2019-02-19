@@ -51,7 +51,7 @@ public class JoinDeltaSimple extends AbstractIndexBasedAlgorithm {
 		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
@@ -101,7 +101,8 @@ public class JoinDeltaSimple extends AbstractIndexBasedAlgorithm {
 		runTime.stopAndAdd( stat );
 	}
 
-	protected void buildIndex( boolean writeResult ) {
+	@Override
+	protected void buildIndex() {
 		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query, stat );
 		JoinDeltaSimpleIndex.useLF = useLF;
 		JoinDeltaSimpleIndex.usePQF = usePQF;

@@ -852,7 +852,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	@Override
 	public Set<? extends Expanded> generateAll() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

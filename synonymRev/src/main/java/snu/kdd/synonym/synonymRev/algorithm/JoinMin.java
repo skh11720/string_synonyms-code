@@ -8,14 +8,12 @@ import org.apache.commons.cli.ParseException;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
@@ -56,12 +54,10 @@ public class JoinMin extends AbstractIndexBasedAlgorithm {
 	}
 
 	public void runAfterPreprocess() {
-		// Retrieve statistics
 		StopWatch stepTime = null;
-		statistics();
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
@@ -128,49 +124,11 @@ public class JoinMin extends AbstractIndexBasedAlgorithm {
 	}
 
 	@Override
-	protected void buildIndex( boolean writeResult ) {
+	protected void buildIndex() {
 		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
 		JoinMinIndex.useLF = useLF;
 		JoinMinIndex.usePQF = usePQF;
 		JoinMinIndex.useSTPQ = useSTPQ;
-	}
-
-	public void statistics() {
-		// TODO: extract this function from this class
-		long strlengthsum = 0;
-
-		int strs = 0;
-		int maxstrlength = 0;
-
-		long rhslengthsum = 0;
-		int rules = 0;
-		int maxrhslength = 0;
-
-		for( Record rec : query.searchedSet.get() ) {
-			int length = rec.getTokenCount();
-			++strs;
-			strlengthsum += length;
-			maxstrlength = Math.max( maxstrlength, length );
-		}
-
-		for( Record rec : query.indexedSet.get() ) {
-			int length = rec.getTokenCount();
-			++strs;
-			strlengthsum += length;
-			maxstrlength = Math.max( maxstrlength, length );
-		}
-
-		for( Rule rule : query.ruleSet.get() ) {
-			int length = rule.getRight().length;
-			++rules;
-			rhslengthsum += length;
-			maxrhslength = Math.max( maxrhslength, length );
-		}
-
-		Util.printLog( "Average str length: " + strlengthsum + "/" + strs );
-		Util.printLog( "Maximum str length: " + maxstrlength );
-		Util.printLog( "Average rhs length: " + rhslengthsum + "/" + rules );
-		Util.printLog( "Maximum rhs length: " + maxrhslength );
 	}
 
 	public double getLambda() {

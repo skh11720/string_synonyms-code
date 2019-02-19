@@ -60,7 +60,7 @@ public class JoinDeltaVar extends AbstractIndexBasedAlgorithm {
 		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
@@ -111,7 +111,7 @@ public class JoinDeltaVar extends AbstractIndexBasedAlgorithm {
 	}
 
 	@Override
-	protected void buildIndex( boolean writeResult ) {
+	protected void buildIndex() {
 		JoinDeltaVarIndex.useLF = useLF;
 		JoinDeltaVarIndex.usePQF = usePQF;
 		JoinDeltaVarIndex.useSTPQ = useSTPQ;

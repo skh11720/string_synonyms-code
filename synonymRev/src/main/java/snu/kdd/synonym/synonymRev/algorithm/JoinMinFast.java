@@ -7,7 +7,6 @@ import org.apache.commons.cli.ParseException;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
 import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
 public class JoinMinFast extends JoinMin {
@@ -27,7 +26,7 @@ public class JoinMinFast extends JoinMin {
 	}
 
 	@Override
-	protected void buildIndex( boolean writeResult ) {
+	protected void buildIndex() {
 		idx = new JoinMinFastIndex( indexK, qSize, stat, query, sampleRatio, 0, writeResult );
 		JoinMinFastIndex.useLF = useLF;
 		JoinMinFastIndex.usePQF = usePQF;

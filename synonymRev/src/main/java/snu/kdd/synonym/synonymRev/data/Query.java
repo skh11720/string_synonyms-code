@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
 
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
+import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class Query {
 	
@@ -77,5 +78,42 @@ public class Query {
 	
 	public String getSearchedPath() {
 		return searchedSet.path;
+	}
+	
+	public void statistics() {
+		long strlengthsum = 0;
+
+		int strs = 0;
+		int maxstrlength = 0;
+
+		long rhslengthsum = 0;
+		int rules = 0;
+		int maxrhslength = 0;
+
+		for( Record rec : searchedSet.get() ) {
+			int length = rec.getTokenCount();
+			++strs;
+			strlengthsum += length;
+			maxstrlength = Math.max( maxstrlength, length );
+		}
+
+		for( Record rec : indexedSet.get() ) {
+			int length = rec.getTokenCount();
+			++strs;
+			strlengthsum += length;
+			maxstrlength = Math.max( maxstrlength, length );
+		}
+
+		for( Rule rule : ruleSet.get() ) {
+			int length = rule.getRight().length;
+			++rules;
+			rhslengthsum += length;
+			maxrhslength = Math.max( maxrhslength, length );
+		}
+
+		Util.printLog( "Average str length: " + strlengthsum + "/" + strs );
+		Util.printLog( "Maximum str length: " + maxstrlength );
+		Util.printLog( "Average rhs length: " + rhslengthsum + "/" + rules );
+		Util.printLog( "Maximum rhs length: " + maxrhslength );
 	}
 }
