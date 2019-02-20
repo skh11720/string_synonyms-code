@@ -35,11 +35,7 @@ public class JoinDeltaAllPair extends AbstractAlgorithm {
 
 	@Override
 	protected void executeJoin() {
-		StopWatch runTime = null;
-		StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		Index idx = new Index();
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
@@ -49,7 +45,6 @@ public class JoinDeltaAllPair extends AbstractAlgorithm {
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-		runTime.stopAndAdd( stat );
 	}
 	
 	private class Index extends AbstractIndex {

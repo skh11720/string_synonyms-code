@@ -74,11 +74,6 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 	@Override
 	public void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
-		StopWatch runTime = null;
-		//StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
 		long t_filter = 0;
 		long t_verify = 0;
 
@@ -108,8 +103,6 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 
 		stat.add( "Result_5_1_Filter_Time", t_filter/1e6 );
 		stat.add( "Result_5_2_Verify_Time", t_verify/1e6 );
-		
-		runTime.stopAndAdd( stat );
 	}
 
 	@Override

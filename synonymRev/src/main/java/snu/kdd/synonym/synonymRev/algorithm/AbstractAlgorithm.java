@@ -45,11 +45,12 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 	protected abstract void executeJoin();
 
 	public void run() {
-		StopWatch watch = StopWatch.getWatchStarted( "Result_0_Total_Time" );
+		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
 		preprocess();
-		executeJoin();
-		watch.stop();
-		stat.addPrimary(watch);
+		executeJoinWrapper();
+		totalTime.stop();
+		stat.addPrimary(totalTime);
+
 		if (checker != null) checker.addStat(stat);
 		printStat();
 		writeResult();
@@ -102,6 +103,11 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 		stat.add( "Stat_maximum Size of TableSearched", maxNumTrans );
 	}
 
+	private void executeJoinWrapper() {
+		StopWatch watch = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		executeJoin();
+		watch.stopAndAdd( stat );
+	}
 
 	private void printStat() {
 		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );

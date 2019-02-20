@@ -27,11 +27,7 @@ public class JoinDeltaNaive extends AbstractAlgorithm {
 
 	@Override
 	protected void executeJoin() {
-		StopWatch runTime = null;
-		StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 		idx = new DeltaHashIndex(deltaMax, query, stat);
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
@@ -41,7 +37,6 @@ public class JoinDeltaNaive extends AbstractAlgorithm {
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-		runTime.stopAndAdd( stat );
 	}
 
 	@Override

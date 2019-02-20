@@ -43,11 +43,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 	
 	@Override
 	protected void runAfterPreprocess() {
-		StopWatch runTime = null;
-		StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
 
 		buildIndex();
 
@@ -59,14 +55,11 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-
-		runTime.stopAndAdd( stat );
 	}
 
 	@Override
 	protected void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
-		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
 		long t_filter = 0;
 		long t_verify = 0;
@@ -96,8 +89,6 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 
 		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
 		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
-		
-		runTime.stopAndAdd( stat );
 	}
 
 	@Override
