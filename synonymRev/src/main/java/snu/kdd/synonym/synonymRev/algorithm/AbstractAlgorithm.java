@@ -52,10 +52,10 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 		stat.addPrimary(totalTime);
 
 		if (checker != null) checker.addStat(stat);
-		printStat();
 		writeResult();
 		Util.printGCStats( stat, "Stat" );
 		stat.resultWriter( "result/" + getName() + "_" + getVersion() );
+		printStat();
 	}
 
 	protected void preprocess() {
