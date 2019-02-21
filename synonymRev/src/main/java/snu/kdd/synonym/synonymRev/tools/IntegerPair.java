@@ -1,8 +1,8 @@
 package snu.kdd.synonym.synonymRev.tools;
 
 public class IntegerPair {
-	public int i1;
-	public int i2;
+	public final int i1;
+	public final int i2;
 	// private static final long bigprime = 32416190071L;
 	private static final long bigprime = 179428399;
 
@@ -36,5 +36,12 @@ public class IntegerPair {
 	@Override
 	public String toString() {
 		return String.format( "%d %d ", i1, i2 );
+	}
+	
+	public IntegerPair ordered() {
+		if ( i2 < i1 )
+			return new IntegerPair( i2, i1 );
+		else
+			return this;
 	}
 }

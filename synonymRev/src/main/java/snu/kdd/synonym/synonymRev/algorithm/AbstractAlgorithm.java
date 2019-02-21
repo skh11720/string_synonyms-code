@@ -8,8 +8,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import org.apache.commons.cli.ParseException;
-
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -27,7 +25,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 	protected final StatContainer stat;
 	protected Validator checker = null;
 	protected AbstractParam param;
-	public Collection<IntegerPair> rslt = null;
+	public Set<IntegerPair> rslt = null;
 	public boolean writeResult = true;
 
 
@@ -55,7 +53,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 		writeResult();
 		Util.printGCStats( stat, "Stat" );
 		stat.resultWriter( "result/" + getName() + "_" + getVersion() );
-		printStat();
 	}
 
 	protected void preprocess() {
@@ -107,13 +104,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 		StopWatch watch = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		executeJoin();
 		watch.stopAndAdd( stat );
-	}
-
-	private void printStat() {
-		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
-		stat.printResult();
-		System.out.println(
-				"==============" + new String( new char[ getName().length() ] ).replace( "\0", "=" ) + "====================" );
 	}
 
 	public void writeResult() {
@@ -194,7 +184,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 	}
 
 	@Override
-	public Collection<IntegerPair> getResult() {
+	public Set<IntegerPair> getResult() {
 		return rslt;
 	}
 	

@@ -11,47 +11,53 @@ import org.apache.commons.cli.ParseException;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmFactory;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.tools.AlgorithmResultQualityEvaluator;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class App {
 	private static Options argOptions;
+	private static boolean uploadOn;
+	private static String groundPath = null;
+	
+	static {
+		argOptions = new Options();
+		argOptions.addOption( "rulePath", true, "rule path" );
+		argOptions.addOption( "dataOnePath", true, "data one path" );
+		argOptions.addOption( "dataTwoPath", true, "data two path" );
+		argOptions.addOption( "groundPath", true, "groundtruth path" );
+		argOptions.addOption( "outputPath", true, "output path" );
+		argOptions.addOption( "oneSideJoin", true, "One side join" );
+		argOptions.addOption( "algorithm", true, "Algorithm" );
+		argOptions.addOption( "split", false, "Split datasets" );
+		argOptions.addOption( "upload", true, "Upload experiments" );
+		argOptions.addOption( "additional", true, "Additional input arguments" );
+	}
 	
 	public static void main( String args[] ) throws IOException, ParseException {
-
 		CommandLine cmd = parseInput( args );
-		Util.printArgsError( cmd );
-
 		Query query = Query.parseQuery( cmd );
 		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(query, cmd);
 		alg.run();
+		AlgorithmResultQualityEvaluator.evaluate(alg, groundPath);
 
-		boolean upload = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
-		if( upload ) {
-			alg.writeJSON();
-		}
-
+		if (uploadOn) alg.writeJSON();
 		Util.printLog( alg.getName() + " finished" );
+		printStat(alg);
 	}
 	
 	public static CommandLine parseInput( String args[] ) throws ParseException {
-		if( argOptions == null ) {
-			Options options = new Options();
-			options.addOption( "rulePath", true, "rule path" );
-			options.addOption( "dataOnePath", true, "data one path" );
-			options.addOption( "dataTwoPath", true, "data two path" );
-			options.addOption( "outputPath", true, "output path" );
-			options.addOption( "oneSideJoin", true, "One side join" );
-			options.addOption( "algorithm", true, "Algorithm" );
-			options.addOption( "split", false, "Split datasets" );
-			options.addOption( "upload", true, "Upload experiments" );
-
-			options.addOption( "additional", true, "Additional input arguments" );
-
-			argOptions = options;
-		}
-
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse( argOptions, args, false );
+		Util.printArgsError( cmd );
+		uploadOn = Boolean.parseBoolean( cmd.getOptionValue( "upload" ) );
+		groundPath = cmd.getOptionValue( "groundPath" );
 		return cmd;
+	}
+
+	public static void printStat( AlgorithmInterface alg ) {
+		System.out.println( "=============[" + alg.getName() + " stats" + "]=============" );
+		alg.getStat().printResult();
+		System.out.println(
+				"==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
 	}
 }
