@@ -16,7 +16,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -292,7 +292,7 @@ public class JoinMinIndex extends AbstractIndex {
 	protected void findBestPositions(List<Object2IntOpenHashMap<QGram>> invokes, List<Object2IntOpenHashMap<QGram>> lowInvokes, boolean hybridIndex, int threshold, int nIndex ) {
 		// find best K positions for each string in T
 		indexedCountMap = new Object2IntOpenHashMap<>();
-		for( Record rec : query.targetIndexedSet.get() ) {
+		for( Record rec : query.indexedSet.get() ) {
 //			int[] range = rec.getTransLengths();
 
 			int searchmax;
@@ -534,7 +534,7 @@ public class JoinMinIndex extends AbstractIndex {
 			verifyTime += duration;
 			if( compare >= 0 ) {
 //				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
-				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
+				AbstractAlgorithm.addSeqResult( recS, recR, rslt, query.selfJoin );
 				appliedRulesSum += compare;
 
 //				if( DEBUG.PrintJoinMinJoinON ) {

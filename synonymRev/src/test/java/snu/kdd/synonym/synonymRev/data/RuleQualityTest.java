@@ -25,7 +25,7 @@ public class RuleQualityTest {
 		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
 		
 		for ( Record record : query.searchedSet.recordList ) {
-			record.preprocessRules( automata );
+			record.preprocessApplicableRules( automata );
 //			System.out.println(record);
 			for ( int k=0; k<record.size(); ++k ) {
 				for ( Rule rule : record.getApplicableRules(k) ) {

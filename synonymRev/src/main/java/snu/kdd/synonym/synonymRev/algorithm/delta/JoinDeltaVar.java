@@ -1,107 +1,62 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.io.IOException;
 import java.util.Set;
 
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinDeltaVar extends AlgorithmTemplate {
+public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 
-	protected int indexK;
-	protected int qSize;
-	protected int deltaMax;
+	public final int indexK;
+	public final int deltaMax;
 
-	public Validator checker;
 	protected JoinDeltaVarIndex idx;
-
-	protected boolean useLF, usePQF, useSTPQ;
 	
 	
-	public JoinDeltaVar(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new Param(args);
+	public JoinDeltaVar(Query query, String[] args) {
+		super(query, args);
 		indexK = param.getIntParam("indexK");
-		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
-		
-		stat.add("indexK", indexK);
-		stat.add("qSize", qSize);
-		stat.add("deltaMax", deltaMax);
-		stat.add("useLF", useLF);
-		stat.add("usePQF", usePQF);
-		stat.add("useSTPQ", useSTPQ);
+	}
+	
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("param_qSize", qSize);
+		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_useLF", useLF);
+		stat.add("Param_usePQF", usePQF);
+		stat.add("Param_useSTPQ", useSTPQ);
 	}
 
 	@Override
-	protected void preprocess() {
-		super.preprocess();
-
-		for( Record rec : query.indexedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
-		}
-	}
-
-	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stat.addMemory( "Mem_2_Preprocessed" );
-
-		stepTime.stopAndAdd( stat );
-
-		if ( usePQF ) runAfterPreprocess();
-		else runAfterPreprocessWithoutIndex();
-
-		checker.addStat( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult();
-		stepTime.stopAndAdd( stat );
-	}
-
 	protected void runAfterPreprocess() {
-		StopWatch runTime = null;
-		StopWatch stepTime = null;
+		StopWatch stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
 		rslt = idx.join( query, stat, checker, writeResult );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-
-		runTime.stopAndAdd( stat );
 	}
 
+	@Override
 	protected void runAfterPreprocessWithoutIndex() {
 		rslt = new ObjectOpenHashSet<IntegerPair>();
-		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
 		long t_filter = 0;
 		long t_verify = 0;
@@ -131,11 +86,10 @@ public class JoinDeltaVar extends AlgorithmTemplate {
 
 		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
 		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
-		
-		runTime.stopAndAdd( stat );
 	}
 
-	protected void buildIndex( boolean writeResult ) {
+	@Override
+	protected void buildIndex() {
 		JoinDeltaVarIndex.useLF = useLF;
 		JoinDeltaVarIndex.usePQF = usePQF;
 		JoinDeltaVarIndex.useSTPQ = useSTPQ;

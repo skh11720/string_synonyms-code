@@ -7,7 +7,7 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
@@ -167,7 +167,7 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 		equivComparisons += candidates.size();
 		for ( Record recT : candidates ) {
 			if ( checker.isEqual( recS, recT ) >= 0 ) {
-				AlgorithmTemplate.addSeqResult(recS, recT, rslt, isSelfJoin );
+				AbstractAlgorithm.addSeqResult(recS, recT, rslt, isSelfJoin );
 			}
 		}
 		long afterVerifyTime = System.nanoTime();

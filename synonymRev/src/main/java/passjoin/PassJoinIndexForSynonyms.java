@@ -12,7 +12,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
@@ -86,20 +86,11 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 		boolean debug = false;
 		long ts = System.nanoTime();
 		sort();
-		long afterSort = System.nanoTime();
-//		if (debug) System.out.println( "sort: "+(long)((afterSort - ts)/1e6)+", "+StatContainer.memoryUsage() );
 		init();
-		long afterInit = System.nanoTime();
-//		if (debug) System.out.println( "init: "+(long)((afterInit - afterSort)/1e6)+", "+StatContainer.memoryUsage() );
 		prepare();
-		long afterPrepare = System.nanoTime();
-//		if (debug) System.out.println( "prepare: "+(long)((afterPrepare- afterInit)/1e6)+", "+StatContainer.memoryUsage() );
 		buildIndex();
 		long afterBuildIndex= System.nanoTime();
-//		if (debug) System.out.println( "build index: "+(long)((afterBuildIndex - afterPrepare)/1e6)+", "+StatContainer.memoryUsage() );
-		long tBeforeJoin = System.nanoTime();
-//		if (debug) System.out.println( "before join: "+(long)((tBeforeJoin - ts)/1e6)+", "+StatContainer.memoryUsage() );
-		indexTime = afterBuildIndex - afterPrepare;
+		indexTime = afterBuildIndex - ts;
 
 		comp = new Comparator<Record>() {
 			@Override
@@ -279,7 +270,8 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 							++exp_checked;
 //								if ( searchedList.get( id ).getID() == 440 && indexedList.get( cand ).getID() == 518 ) debug = true;
 //								if ( searchedList.get( id ).getID() == 681 && indexedList.get( cand ).getID() == 478 ) debug = true;
-							int[] x = indexedList.get( cand ).getTokensArray();
+							Record candRecord = indexedList.get(cand);
+							int[] x = candRecord.getTokensArray();
 //								if (debug) System.out.println( "y: "+searchedList.get( id ).getID()+", "+Arrays.toString( y ) );
 //								if (debug) System.out.println( "x: "+indexedList.get( cand ).getID()+", "+Arrays.toString( x ) );
 //								if (debug) System.out.println( "pardId: "+partId );
@@ -291,7 +283,8 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 								if (partId == 0) checked_ids.add(cand);
 								if (partId == D || Util.edit(x, y, D - partId, Lo + pLen, stPos + pLen, -1, -1) <= D - partId) {
 //										if (debug) System.out.println( "d_edit: "+Util.edit(x, y, D, 0, 0, -1, -1) );
-									if (Util.edit(x, y, D, 0, 0, -1, -1) <= D) {
+									if ( checker.isEqual( candRecord, exp ) >= 0 ) {
+//									if (Util.edit(x, y, D, 0, 0, -1, -1) <= D) {
 										checked_ids.add(cand);
 										answer_ids.add( cand );
 										++realNum;
@@ -310,7 +303,7 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 		// output the results
 		for ( int answer_id : answer_ids ) {
 			Record recT = indexedList.get( answer_id );
-			AlgorithmTemplate.addSeqResult( recS, recT, rslt, isSelfJoin );
+			AbstractAlgorithm.addSeqResult( recS, recT, rslt, isSelfJoin );
 //				if (debug) System.out.println( rslt.size()+ " output: "+rec1.getID()+", "+rec2.getID() );
 		}
 		

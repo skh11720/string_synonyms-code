@@ -95,8 +95,7 @@ public class PkduckTest {
 	}
 	
 	public static void joinTest(AbstractGlobalOrder globalOrder) throws IOException, ParseException {
-		StatContainer stat = new StatContainer();
-		JoinPkduck joinPkduck = new JoinPkduck( query, stat, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"} );
+		JoinPkduck joinPkduck = new JoinPkduck( query, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"} );
 		joinPkduck.run();
 	}
 
@@ -210,7 +209,7 @@ public class PkduckTest {
 		//System.exit(1);
 		
 		for (Record record : query.searchedSet.recordList) {
-			record.preprocessRules( automata );
+			record.preprocessApplicableRules( automata );
 			record.preprocessSuffixApplicableRules();
 			record.preprocessTransformLength();
 		}

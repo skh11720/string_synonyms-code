@@ -31,12 +31,11 @@ public class JoinMinFastTest {
 		for ( String dataset : datasetList ) {
 			for ( double sampleRatio : sampleRatioList ) {
 				Query query = TestUtils.getTestQuery( dataset, size );
-				StatContainer stat = new StatContainer();
-				JoinMinFast alg = new JoinMinFast( query, stat, String.format( "-K %d -qSize %d -sample %.4f", K, q, sampleRatio ).split( " " ) );
+				JoinMinFast alg = new JoinMinFast( query, String.format( "-K %d -qSize %d -sample %.4f", K, q, sampleRatio ).split( " " ) );
 				alg.run();
 				JSONParser jparser = new JSONParser();
-				stat.printResult();
-				JSONObject jobj = (JSONObject) jparser.parse( "{"+stat.toJson()+"}" );
+				alg.getStat().printResult();
+				JSONObject jobj = (JSONObject) jparser.parse( "{"+alg.getStat().toJson()+"}" );
 //				String result = dataset+"\t"+size+"\tJoinMH\t"+K+"\t"+q+"\t"+sampleRatio;
 				String strPosDist = (String) jobj.get( "posDistribution" );
 				System.out.println( strPosDist );

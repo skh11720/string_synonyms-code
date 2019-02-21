@@ -83,7 +83,7 @@ public class TestUtils {
 
 		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
 		for ( Record record : query.searchedSet.recordList ) {
-			record.preprocessRules( automata );
+			record.preprocessApplicableRules( automata );
 			record.preprocessSuffixApplicableRules();
 			record.preprocessTransformLength();
 			record.preprocessTransformLength();
@@ -92,7 +92,7 @@ public class TestUtils {
 
 		if ( !query.selfJoin ) {
 			for ( Record record : query.indexedSet.recordList ) {
-				record.preprocessRules( automata );
+				record.preprocessApplicableRules( automata );
 				record.preprocessSuffixApplicableRules();
 				record.preprocessTransformLength();
 				record.preprocessTransformLength();

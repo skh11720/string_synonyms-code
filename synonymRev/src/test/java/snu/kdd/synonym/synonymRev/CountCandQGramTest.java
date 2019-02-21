@@ -146,7 +146,6 @@ public class CountCandQGramTest {
 		
 		public MyPrintStream( OutputStream out ) {
 			super( out );
-			// TODO Auto-generated constructor stub
 		}
 		
 		@Override

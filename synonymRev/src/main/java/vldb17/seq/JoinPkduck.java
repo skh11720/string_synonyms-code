@@ -1,14 +1,11 @@
 package vldb17.seq;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -23,21 +20,19 @@ import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.GreedyValidatorEquiv;
-import vldb17.ParamPkduck;
 import vldb17.set.PkduckSetDP;
 import vldb17.set.PkduckSetDPWithRC;
 import vldb17.set.PkduckSetIndex;
 
-public class JoinPkduck extends AlgorithmTemplate {
+public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 
-	private PkduckSetIndex idx = null;
-//	private long threshold = Long.MAX_VALUE;
-//	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
+	public final Ordering mode;
+	public final Boolean useRuleComp;
+	public String verify;
 	AbstractGlobalOrder globalOrder;
-	private Boolean useRuleComp;
-	private Validator checker;
+	private PkduckSetIndex idx = null;
+
 
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
@@ -47,17 +42,16 @@ public class JoinPkduck extends AlgorithmTemplate {
 	private boolean useLF;
 
 
-	public JoinPkduck(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new ParamPkduck(args);
-		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
+	public JoinPkduck(Query query, String[] args) {
+		super(query, args);
+		mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
 		useRuleComp = param.getBooleanParam("rc");
-		String verify = param.getStringParam("verify");
+		verify = param.getStringParam("verify");
 		if (verify.equals( "naive" )) checker = new NaiveOneSide();
 		else if (verify.equals( "greedy" )) checker = new GreedyValidatorEquiv( query.oneSideJoin );
 		else if (verify.equals( "TD" )) checker = new TopDownOneSide();
@@ -66,94 +60,38 @@ public class JoinPkduck extends AlgorithmTemplate {
 	}
 	
 	@Override
-	public void preprocess() {
-		super.preprocess();
-		
-		for (Record rec : query.searchedSet.get()) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		globalOrder.initializeForSequence( query, true );
-		Record.tokenIndex = globalOrder.tokenIndex;
-
-//		double estTransformed = 0.0;
-//		for( Record rec : query.indexedSet.get() ) {
-//			estTransformed += rec.getEstNumTransformed();
-//		}
+	protected void reportParamsToStat() {
+		stat.add("Param_mode", mode.toString());
+		stat.add("Param_useRuleComp", useRuleComp);
+		stat.add("Param_verify", verify);
+		stat.add("Param_useLF", useLF);
 	}
 
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-
-		runAfterPreprocess( true );
-
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		this.writeResult();
-
-		stepTime.stopAndAdd( stat );
-		checker.addStat( stat );
+	public void preprocess() {
+		super.preprocess();
+		
+		globalOrder.initializeForSequence( query, true );
+		Record.tokenIndex = globalOrder.tokenIndex;
 	}
 
-	public void runAfterPreprocess( boolean addStat ) {
-		// Index building
+	@Override
+	protected void executeJoin() {
 		StopWatch stepTime = null;
-		if( addStat ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
-//			}
-			try { throw new Exception("UNIMPLEMENTED CASE"); }
-			catch( Exception e ) { e.printStackTrace(); }
-		}
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
+		buildIndex();
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
+		stat.addMemory( "Mem_3_BuildIndex" );
 
-		buildIndex( addStat );
-//		if ( DEBUG.bIndexWriteToFile ) idx.writeToFile();
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-			stat.addMemory( "Mem_3_BuildIndex" );
-		}
-		else {
-			if( DEBUG.SampleStatON ) {
-				stepTime.stopAndAdd( stat );
-				stepTime.resetAndStart( "Sample_2_Pkduck_Join_Time" );
-			}
-		}
-
-		// Join
 		rslt = join( stat, query, true );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stat.addMemory( "Mem_4_Joined" );
-		}
-//		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime.stopAndAdd( stat );
-//				stat.add( "Stat_Expanded", idx.totalExp );
-//			}
-//		}
-//
-//		if( DEBUG.NaiveON ) {
-//			if( addStat ) {
-//				idx.addStat( stat, "Counter_Join" );
-//			}
-//		}
-//		stat.add( "idx_skipped_counter", idx.skippedCount );
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
 	}
 	
-	public void buildIndex(boolean addStat ) {
-		idx = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, addStat );
+	@Override
+	public void buildIndex() {
+		idx = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, writeResult );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
@@ -209,7 +147,13 @@ public class JoinPkduck extends AlgorithmTemplate {
 //		if (debug) SampleDataTest.inspect_record( recS, query, 1 );
 
 		int[] range = recS.getTransLengths();
-		PkduckSetDP pkduckDP; // TODO: why set version is used...? bug??
+		/*
+		 * PkduckSetDP is used instead of PkduckSet since
+		 * we can still find all SMATCH pairs with PkduckSetDP
+		 * which is the original algorithm proposed by pkduck's authors.
+		 * The only difference between this and the original one is the verification algorithm. 
+		 */
+		PkduckSetDP pkduckDP; 
 		if (useRuleComp) pkduckDP = new PkduckSetDPWithRC( recS, 1, globalOrder );
 		pkduckDP = new PkduckSetDP( recS, 1, globalOrder );
 		for (int token : candidateTokens) {

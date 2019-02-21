@@ -4,159 +4,118 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
-
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
-import snu.kdd.synonym.synonymRev.data.DataInfo;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.AbstractParam;
+import snu.kdd.synonym.synonymRev.tools.AlgorithmResultQualityEvaluator;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
+import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public abstract class AlgorithmTemplate implements AlgorithmInterface {
-	public enum AlgorithmName {
-		JoinNaive,
-		JoinMH,
-		JoinMin,
-		JoinMinFast,
-		JoinHybridAll,
-		JoinHybridAll3,
-		SIJoin,
-		JoinPkduck,
-		
-		SIJoinOriginal,
-		JoinPkduckOriginal,
+public abstract class AbstractAlgorithm implements AlgorithmInterface, AlgorithmStatInterface {
 
-		JoinSetNaive,
-		JoinPkduckSet,
-		JoinBKPSet,
-		PassJoin,
-		
-		JoinDeltaNaive,
-		JoinDeltaSimple,
-		JoinDeltaVar,
-		JoinDeltaVarBK,
-	}
-
-	// contains statistics of the algorithm
-	public boolean writeResult = true;
-	protected final StatContainer stat;
 	protected final Query query;
+	protected final StatContainer stat;
+	protected Validator checker = null;
 	protected AbstractParam param;
-	public Collection<IntegerPair> rslt = null;
+	public Set<IntegerPair> rslt = null;
+	public boolean writeResult = true;
 
 
-	public AlgorithmTemplate( Query query, StatContainer stat, String[] args ) throws IOException, ParseException {
-		this.stat = stat;
+	public AbstractAlgorithm( Query query, String[] args ) {
+		this.stat = new StatContainer();
 		this.query = query;
+		stat.add( "alg", getName() );
+		stat.add( "alg_version", getVersion() );
 	}
 
 	public abstract String getName();
 
 	public abstract String getVersion();
+	
+	protected abstract void executeJoin();
 
-	public abstract void run();
+	public void run() {
+		StopWatch totalTime = StopWatch.getWatchStarted(TOTAL_RUNNING_TIME);
+		preprocess();
+		executeJoinWrapper();
+		totalTime.stop();
+		stat.addPrimary(totalTime);
+
+		if (checker != null) checker.addStat(stat);
+		writeResult();
+		Util.printGCStats( stat, "Stat" );
+		stat.resultWriter( "result/" + getName() + "_" + getVersion() );
+	}
 
 	protected void preprocess() {
-		// builds an automata of the set of rules
-		StopWatch preprocessTime = null;
-
-		stat.addMemory( "Mem_1_Initialized" );
-
-		if( DEBUG.AlgorithmON ) {
-			preprocessTime = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
-		}
-
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_TOTAL_TIME);
+		preprocessRules();
+		computeTransformLengths();
+		estimateNumTransforms();
+		watch.stopQuietAndAdd(stat);
+		stat.addMemory("Mem_2_Preprocessed");
+	}
+	
+	private void preprocessRules() {
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_RULE_TIME);
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
-
 		long applicableRules = 0;
-
-		// Preprocess each records in R
-		for( final Record rec : query.searchedSet.get() ) {
-			rec.preprocessRules( automata );
-
-			if( DEBUG.AlgorithmON ) {
-				applicableRules += rec.getNumApplicableRules();
-			}
+		for( final Record record : query.searchedSet.get() ) {
+			record.preprocessApplicableRules( automata );
+			record.preprocessSuffixApplicableRules();
+			applicableRules += record.getNumApplicableRules();
 		}
-
-		if( DEBUG.AlgorithmON ) {
-			preprocessTime.stopQuietAndAdd( stat );
-			stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
-			stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
-
-			preprocessTime.resetAndStart( "Result_2_2_Preprocess length time" );
-		}
-
+		watch.stopQuietAndAdd(stat);
+		stat.add( "Stat_Applicable_Rule_TableSearched", applicableRules );
+		stat.add( "Stat_Avg_applicable_rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
+	}
+	
+	private final void computeTransformLengths() {
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_LENGTH_TIME);
 		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessTransformLength();
 		}
-
-		if( DEBUG.AlgorithmON ) {
-			preprocessTime.stopQuietAndAdd( stat );
-
-			preprocessTime.resetAndStart( "Result_2_3_Preprocess est record time" );
-		}
-
-		long maxTSize = 0;
+		watch.stopQuietAndAdd(stat);
+	}
+	
+	private final void estimateNumTransforms() {
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_EST_NUM_TRANS_TIME);
+		long maxNumTrans = 0;
 		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessEstimatedRecords();
-
-			if( DEBUG.AlgorithmON ) {
-				long est = rec.getEstNumTransformed();
-
-				if( maxTSize < est ) {
-					maxTSize = est;
-				}
+			long est = rec.getEstNumTransformed();
+			if( maxNumTrans < est ) {
+				maxNumTrans = est;
 			}
 		}
-
-		if( DEBUG.AlgorithmON ) {
-			stat.add( "Stat_maximum Size of Table T", maxTSize );
-
-			preprocessTime.stopQuietAndAdd( stat );
-			// Preprocess each records in S
-			preprocessTime.resetAndStart( "Result_2_6_Preprocess records in S time" );
-		}
-
-		long maxSSize = 0;
-		applicableRules = 0;
-
-		if( DEBUG.AlgorithmON ) {
-			stat.add( "Stat_maximum Size of Table S", maxSSize );
-			stat.add( "Stat_Applicable Rule TableIndexed", applicableRules );
-
-			preprocessTime.stopQuietAndAdd( stat );
-		}
+		watch.stopQuietAndAdd(stat);
+		stat.add( "Stat_maximum_Size_of_TableSearched", maxNumTrans );
 	}
 
-	public void printStat() {
-		System.out.println( "=============[" + this.getName() + " stats" + "]=============" );
-		stat.printResult();
-		System.out.println(
-				"==============" + new String( new char[ getName().length() ] ).replace( "\0", "=" ) + "====================" );
+	private void executeJoinWrapper() {
+		StopWatch watch = StopWatch.getWatchStarted(JOIN_TOTAL_TIME);
+		executeJoin();
+		watch.stopAndAdd( stat );
 	}
 
 	public void writeResult() {
 		if ( !writeResult ) return;
-		stat.addPrimary( "Final Result Size", rslt.size() );
+		stat.addPrimary( "Final_Result_Size", rslt.size() );
 
 		try {
 			if( DEBUG.AlgorithmON ) {
 				Util.printLog( "Writing results " + rslt.size() );
 			}
 
-			BufferedWriter bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output.txt", query.outputFile, getOutputName() ) ) );
+			BufferedWriter bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output.txt", query.outputPath, getOutputName() ) ) );
 
 			bw.write( rslt.size() + "\n" );
 			for( final IntegerPair ip : rslt ) {
@@ -182,7 +141,8 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		}
 	}
 
-	public void writeJSON( DataInfo dataInfo, CommandLine cmd ) {
+	@Override
+	public void writeJSON() {
 		BufferedWriter bw_json;
 		try {
 			bw_json = new BufferedWriter( new FileWriter(
@@ -197,7 +157,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 
 			// dataset
 			bw_json.write( ", \"Dataset\":{" );
-			bw_json.write( dataInfo.toJson() );
+			bw_json.write( query.dataInfo.toJson() );
 			bw_json.write( "}" );
 
 			// algorithm
@@ -224,7 +184,7 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	}
 
 	@Override
-	public Collection<IntegerPair> getResult() {
+	public Set<IntegerPair> getResult() {
 		return rslt;
 	}
 	
@@ -260,14 +220,13 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 		}
 	}
 	
-//	public static void addSetResult( int rec1id, int rec2id, Set<IntegerPair> rslt, boolean isSelfJoin ) {
-//		if ( isSelfJoin ) {
-//			int id_smaller = rec1id < rec2id? rec1id : rec2id;
-//			int id_larger = rec1id >= rec2id? rec1id : rec2id;
-//			rslt.add( new IntegerPair( id_smaller, id_larger) );
-//		}
-//		else rslt.add( new IntegerPair( rec1id, rec2id) );
-//	}
+	public void getEvaluationResult( AlgorithmResultQualityEvaluator eval ) {
+		stat.add(EVAL_TP, eval.tp);
+		stat.add(EVAL_FP, eval.fp);
+		stat.add(EVAL_FN, eval.fn);
+		stat.add(EVAL_PRECISION, eval.getPrecision());
+		stat.add(EVAL_RECALL, eval.getRecall());
+	}
 	
 	@Override
 	public void setWriteResult( boolean flag ) {
@@ -279,11 +238,11 @@ public abstract class AlgorithmTemplate implements AlgorithmInterface {
 	
 
 	public String getOutputName() {
-		String[] tokens = query.searchedFile.split("\\"+File.separator);
+		String[] tokens = query.getSearchedPath().split("\\"+File.separator);
 		String data1Name = tokens[tokens.length-1].split("\\.")[0];
 		String data2Name = null;
 		if ( !query.selfJoin ) {
-			tokens = query.indexedFile.split("\\"+File.separator);
+			tokens = query.getIndexedPath().split("\\"+File.separator);
 			data2Name = tokens[tokens.length-1].split("\\.")[0];
 		}
 		if ( query.selfJoin ) return getName()+"_"+data1Name;

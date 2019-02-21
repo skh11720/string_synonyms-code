@@ -8,6 +8,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 
+@Deprecated
 public class PkduckDPWithRC extends PkduckDP {
 	
 	private final RCTableSeq rcTable;
