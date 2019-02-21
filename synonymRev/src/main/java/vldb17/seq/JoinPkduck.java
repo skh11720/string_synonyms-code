@@ -21,16 +21,18 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import vldb17.GreedyValidatorEquiv;
-import vldb17.ParamPkduck;
 import vldb17.set.PkduckSetDP;
 import vldb17.set.PkduckSetDPWithRC;
 import vldb17.set.PkduckSetIndex;
 
 public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 
-	private PkduckSetIndex idx = null;
+	public final Ordering mode;
+	public final Boolean useRuleComp;
+	public String verify;
 	AbstractGlobalOrder globalOrder;
-	private Boolean useRuleComp;
+	private PkduckSetIndex idx = null;
+
 
 	private long candTokenTime = 0;
 	private long isInSigUTime = 0;
@@ -42,15 +44,14 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 
 	public JoinPkduck(Query query, String[] args) {
 		super(query, args);
-		param = new ParamPkduck(args);
-		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
+		mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
 		useRuleComp = param.getBooleanParam("rc");
-		String verify = param.getStringParam("verify");
+		verify = param.getStringParam("verify");
 		if (verify.equals( "naive" )) checker = new NaiveOneSide();
 		else if (verify.equals( "greedy" )) checker = new GreedyValidatorEquiv( query.oneSideJoin );
 		else if (verify.equals( "TD" )) checker = new TopDownOneSide();
@@ -58,6 +59,14 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 		useLF = param.getBooleanParam("useLF");
 	}
 	
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_mode", mode.toString());
+		stat.add("Param_useRuleComp", useRuleComp);
+		stat.add("Param_verify", verify);
+		stat.add("Param_useLF", useLF);
+	}
+
 	@Override
 	public void preprocess() {
 		super.preprocess();

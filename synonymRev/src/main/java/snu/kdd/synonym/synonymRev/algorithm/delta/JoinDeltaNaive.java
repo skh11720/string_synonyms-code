@@ -1,24 +1,29 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractParameterizedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class JoinDeltaNaive extends AbstractAlgorithm {
+public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
+
+	public static boolean useLF = true;
+
+	public final int deltaMax;
 	
 	protected DeltaHashIndex idx;
-	protected int deltaMax;
-	
-	public static boolean useLF = true;
 
 	
 	public JoinDeltaNaive(Query query, String[] args) {
 		super(query, args);
-		param = new Param(args);
 		deltaMax = param.getIntParam("deltaMax");
 		useLF = param.getBooleanParam("useLF");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
+	}
+
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_useLF", useLF);
 	}
 
 	@Override

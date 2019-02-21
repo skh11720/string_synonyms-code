@@ -13,31 +13,32 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
 public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 
-	protected int indexK;
-	protected int deltaMax;
+	public final int indexK;
+	public final int deltaMax;
 
 	protected JoinDeltaVarIndex idx;
 	
 	
 	public JoinDeltaVar(Query query, String[] args) {
 		super(query, args);
-		param = new Param(args);
 		indexK = param.getIntParam("indexK");
-		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
 		checker = new DeltaValidatorDPTopDown(deltaMax);
-		
-		stat.add("indexK", indexK);
-		stat.add("qSize", qSize);
-		stat.add("deltaMax", deltaMax);
-		stat.add("useLF", useLF);
-		stat.add("usePQF", usePQF);
-		stat.add("useSTPQ", useSTPQ);
 	}
 	
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("param_qSize", qSize);
+		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_useLF", useLF);
+		stat.add("Param_usePQF", usePQF);
+		stat.add("Param_useSTPQ", useSTPQ);
+	}
+
 	@Override
 	protected void runAfterPreprocess() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );

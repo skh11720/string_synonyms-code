@@ -4,11 +4,12 @@ import snu.kdd.synonym.synonymRev.data.Query;
 
 public abstract class AbstractPosQGramBasedAlgorithm extends AbstractIndexBasedAlgorithm {
 
-	protected int qSize;
+	public final int qSize;
 	protected boolean useLF, usePQF, useSTPQ;
 
 	public AbstractPosQGramBasedAlgorithm(Query query, String[] args) {
 		super(query, args);
+		qSize = param.getIntParam("qSize");
 		useLF = usePQF = useSTPQ = true;
 	}
 

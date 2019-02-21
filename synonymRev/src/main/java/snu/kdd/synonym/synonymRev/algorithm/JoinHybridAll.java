@@ -11,7 +11,6 @@ import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -27,12 +26,11 @@ import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
  * It first build JoinMin(JoinH2Gram) index and then change threshold / modify
  * index in order to find the best execution time.
  */
-public class JoinHybridAll extends AbstractAlgorithm {
+public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 
 	SampleEstimate estimate;
-	protected int qSize;
-	protected int indexK;
-	protected double sampleRatio;
+	public final int indexK;
+	public final double sampleH;
 	protected int nEst;
 	protected int joinThreshold = 1;
 	protected boolean joinQGramRequired = true;
@@ -49,11 +47,16 @@ public class JoinHybridAll extends AbstractAlgorithm {
 
 	public JoinHybridAll(Query query, String[] args) {
 		super(query, args);
-		param = new Param(args);
-		checker = new TopDownOneSide();
-		qSize = param.getIntParam("qSize");
 		indexK = param.getIntParam("indexK");
-		sampleRatio = param.getDoubleParam("sampleH");
+		sampleH = param.getDoubleParam("sampleH");
+		checker = new TopDownOneSide();
+	}
+
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("Param_qSize", qSize);
+		stat.add("Param_sampleH", sampleH);
 	}
 
 	@Override
@@ -76,7 +79,7 @@ public class JoinHybridAll extends AbstractAlgorithm {
 		double[] list_bestTime = new double[nEst];
 		boolean[] list_minSelected= new boolean[nEst];
 		for ( int i=0; i<nEst; ++i ) {
-			findConstants( sampleRatio, statEst );
+			findConstants( sampleH, statEst );
 			list_thres[i] = estimate.findThetaJoinHybridAll( qSize, indexK, statEst, maxIndexedEstNumRecords, maxSearchedEstNumRecords, query.oneSideJoin );
 			list_minSelected[i] = estimate.getJoinMinSelected();
 			list_bestTime[i] = estimate.bestEstTime;
@@ -106,18 +109,8 @@ public class JoinHybridAll extends AbstractAlgorithm {
 		stat.add( "Estimate_JoinMinSelected", joinMinSelected? "true":"false" );
 		estimateTime.stopAndAdd( stat );
 		
-		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		if ( maxSearchedEstNumRecords <= joinThreshold ) {
-			joinQGramRequired = false; // in this case both joinmh and joinmin are not used.
-		}
-
-		if( joinQGramRequired ) {
-			if( joinMinSelected ) buildJoinMinIndex();
-			else buildJoinMHIndex();
-		}
-		buildNaiveIndex();
-		buildTime.stopAndAdd( stat );
-
+		buildIndex();
+		
 		// join
 		Set<IntegerPair> rsltNaive = new WYK_HashSet<IntegerPair>();
 		Set<IntegerPair> rsltPQGram = new WYK_HashSet<IntegerPair>();
@@ -181,6 +174,31 @@ public class JoinHybridAll extends AbstractAlgorithm {
 		rslt = new ObjectOpenHashSet<IntegerPair>();  
 		rslt.addAll( rsltNaive );
 		rslt.addAll( rsltPQGram );
+	}
+
+	@Override
+	protected void runAfterPreprocess() {
+		System.err.println("THIS METHOD IS NOT SUPPOSED TO BE CALLED!");
+	}
+
+	@Override
+	protected void runAfterPreprocessWithoutIndex() {
+		System.err.println("THIS METHOD IS NOT SUPPOSED TO BE CALLED!");
+	}
+
+	@Override
+	protected void buildIndex() {
+		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		if ( maxSearchedEstNumRecords <= joinThreshold ) {
+			joinQGramRequired = false; // in this case both joinmh and joinmin are not used.
+		}
+
+		if( joinQGramRequired ) {
+			if( joinMinSelected ) buildJoinMinIndex();
+			else buildJoinMHIndex();
+		}
+		buildNaiveIndex();
+		buildTime.stopAndAdd( stat );
 	}
 
 	protected void buildJoinMinIndex() {

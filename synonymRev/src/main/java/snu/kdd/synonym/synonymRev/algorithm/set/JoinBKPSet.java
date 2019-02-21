@@ -29,10 +29,12 @@ import vldb17.set.SetGreedyValidator;
 public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 
 //	public WYK_HashMap<Integer, List<Record>> idxS = null;
-	public WYK_HashMap<Integer, List<Record>> idxT = null;
+	private WYK_HashMap<Integer, List<Record>> idxT = new WYK_HashMap<Integer, List<Record>>();
 //	public Object2IntOpenHashMap<Record> idxCountS = null;
-	public Object2IntOpenHashMap<Record> idxCountT = null;
-	public int indexK;
+	private Object2IntOpenHashMap<Record> idxCountT = new Object2IntOpenHashMap<Record>(query.indexedSet.size());
+
+	public final int indexK;
+	public final String verify;
 
 	protected long candTokenTime = 0;
 	protected long dpTime = 0;
@@ -57,15 +59,17 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 
 	public JoinBKPSet(Query query, String[] args) {
 		super(query, args);
-		param = new ParamForSet(args);
 		indexK = param.getIntParam("indexK");
-		String verify = param.getStringParam("verify");
+		verify = param.getStringParam("verify");
 		if ( verify.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
 		else if ( verify.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, param.getIntParam("beamWidth") );
 		else if ( verify.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
+	}
 
-		idxT = new WYK_HashMap<Integer, List<Record>>();
-		idxCountT = new Object2IntOpenHashMap<Record>(query.indexedSet.size());
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("Param_verify", verify);
 	}
 
 	@Override

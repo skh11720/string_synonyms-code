@@ -4,6 +4,7 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractParameterizedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
@@ -14,10 +15,10 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 @Deprecated
-public class JoinDeltaAllPair extends AbstractAlgorithm {
+public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 
-	protected int qSize;
-	protected int deltaMax;
+	public final int qSize;
+	public final int deltaMax;
 	
 	public static boolean useLF = true;
 
@@ -26,8 +27,14 @@ public class JoinDeltaAllPair extends AbstractAlgorithm {
 		super(query, args);
 		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
 		useLF = param.getBooleanParam("useLF");
+		checker = new DeltaValidatorDPTopDown(deltaMax);
+	}
+
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_qSize", qSize);
+		stat.add("Param_deltaMax", deltaMax);
 	}
 
 	@Override

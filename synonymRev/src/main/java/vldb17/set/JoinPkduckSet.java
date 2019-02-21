@@ -5,7 +5,7 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.algorithm.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.algorithm.set.SetTopDownOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -18,16 +18,18 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import vldb17.ParamPkduck;
 
 
-public class JoinPkduckSet extends AbstractAlgorithm {
+public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
+
+	public final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
+	public final Ordering mode;
+	public final String verify;
+	public final Boolean useRuleComp;
 
 //	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
-	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
 	AbstractGlobalOrder globalOrder;
-	private Boolean useRuleComp;
 
 	// staticitics used for building indexes
 	double avgTransformed;
@@ -44,13 +46,12 @@ public class JoinPkduckSet extends AbstractAlgorithm {
 
 	public JoinPkduckSet(Query query, String[] args) {
 		super(query, args);
-		param = new ParamPkduck(args);
-		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
+		mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
-		String verify = param.getStringParam("verify");
+		verify = param.getStringParam("verify");
 		if (verify.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
 		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator( query.oneSideJoin );
 		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
@@ -59,6 +60,14 @@ public class JoinPkduckSet extends AbstractAlgorithm {
 		useLF = param.getBooleanParam("useLF");
 	}
 	
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_mode", mode.toString());
+		stat.add("Param_verify", verify);
+		stat.add("Param_useRuleComp", useRuleComp);
+		stat.add("Param_useLF", useLF);
+	}
+
 	@Override
 	public void preprocess() {
 		super.preprocess();
@@ -70,7 +79,7 @@ public class JoinPkduckSet extends AbstractAlgorithm {
 	protected void executeJoin() {
 		StopWatch stepTime = null;
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		buildIndex( false );
+		buildIndex();
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		stat.addMemory( "Mem_3_BuildIndex" );
@@ -80,8 +89,8 @@ public class JoinPkduckSet extends AbstractAlgorithm {
 		stat.addMemory( "Mem_4_Joined" );
 	}
 	
-	public void buildIndex(boolean addStat ) {
-		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, addStat );
+	public void buildIndex() {
+		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, writeResult );
 //		if ( !query.selfJoin ) idxS = new PkduckSetIndex( query.searchedSet.recordList, query, stat, globalOrder, addStat );
 	}
 	

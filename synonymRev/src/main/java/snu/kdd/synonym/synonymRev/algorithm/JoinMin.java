@@ -8,7 +8,6 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -17,7 +16,7 @@ import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
 public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 
-	public int indexK;
+	public final int indexK;
 
 	/**
 	 * Key: (2gram, index) pair<br/>
@@ -28,15 +27,22 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 	
 	public JoinMin(Query query, String[] args) {
 		super(query, args);
-		param = new Param(args);
-		checker = new TopDownOneSide();
 		indexK = param.getIntParam("indexK");
-		qSize = param.getIntParam("qSize");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
+		checker = new TopDownOneSide();
 	}
 	
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("param_qSize", qSize);
+		stat.add("Param_useLF", useLF);
+		stat.add("Param_usePQF", usePQF);
+		stat.add("Param_useSTPQ", useSTPQ);
+	}
+
 	@Override
 	public void runAfterPreprocess() {
 		StopWatch stepTime = null;

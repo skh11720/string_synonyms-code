@@ -8,7 +8,6 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
@@ -16,7 +15,7 @@ import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 	// RecordIDComparator idComparator;
 
-	public int indexK;
+	public final int indexK;
 
 	/**
 	 * Key: twogram<br/>
@@ -29,15 +28,22 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 	
 	public JoinMH(Query query, String[] args) {
 		super(query, args);
-		param = new Param(args);
 		indexK = param.getIntParam("indexK");
-		qSize = param.getIntParam("qSize");
-		checker = new TopDownOneSide();
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
+		checker = new TopDownOneSide();
 	}
 	
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("param_qSize", qSize);
+		stat.add("Param_useLF", useLF);
+		stat.add("Param_usePQF", usePQF);
+		stat.add("Param_useSTPQ", useSTPQ);
+	}
+
 	@Override
 	protected void runAfterPreprocess() {
 		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );

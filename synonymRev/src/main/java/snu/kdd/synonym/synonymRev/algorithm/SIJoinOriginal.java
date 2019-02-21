@@ -22,12 +22,11 @@ import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class SIJoinOriginal extends AbstractAlgorithm {
+public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 
-	private final double theta;
+	public final double theta;
 	private final ObjectArrayList<SIRecord> S, T;
 	private final Int2IntOpenHashMap tokenFreq;
 
@@ -36,7 +35,6 @@ public class SIJoinOriginal extends AbstractAlgorithm {
 
 	public SIJoinOriginal(Query query, String[] args) {
 		super(query, args);
-		param = new Param(args);
 		theta = param.getDoubleParam("theta");
 		S = new ObjectArrayList<>();
 		tokenFreq = new Int2IntOpenHashMap();
@@ -59,6 +57,11 @@ public class SIJoinOriginal extends AbstractAlgorithm {
 			}
 		}
 		catch (IOException e) { e.printStackTrace(); }
+	}
+
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_theta", theta);
 	}
 
 	@Override

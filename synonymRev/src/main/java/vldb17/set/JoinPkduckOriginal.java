@@ -10,7 +10,7 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -22,17 +22,18 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import vldb17.GreedyValidatorOriginal;
-import vldb17.ParamPkduck;
 
 
-public class JoinPkduckOriginal extends AbstractAlgorithm {
+public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
+
+	public final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
+	public final Ordering mode;
+	public final double theta;
+	public boolean useRuleComp;
 
 //	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
-	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
-	private final double theta;
 	AbstractGlobalOrder globalOrder;
-	private boolean useRuleComp;
 
 	// staticitics used for building indexes
 	double avgTransformed;
@@ -50,8 +51,7 @@ public class JoinPkduckOriginal extends AbstractAlgorithm {
 
 	public JoinPkduckOriginal(Query query, String[] args) {
 		super(query, args);
-		param = new ParamPkduck(args);
-		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
+		mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
@@ -75,6 +75,14 @@ public class JoinPkduckOriginal extends AbstractAlgorithm {
 	}
 	
 	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_mode", mode.toString());
+		stat.add("Param_theta", theta);
+		stat.add("Param_useRuleComp", useRuleComp);
+		stat.add("Param_useLF", useLF);
+	}
+
+	@Override
 	public void preprocess() {
 		super.preprocess();
 
@@ -86,7 +94,7 @@ public class JoinPkduckOriginal extends AbstractAlgorithm {
 	protected void executeJoin() {
 		StopWatch stepTime = null;
 		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		buildIndex( false );
+		buildIndex();
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( "Result_3_2_Join_Time" );
 		stat.addMemory( "Mem_3_BuildIndex" );
@@ -96,8 +104,8 @@ public class JoinPkduckOriginal extends AbstractAlgorithm {
 		stat.addMemory( "Mem_4_Joined" );
 	}
 	
-	public void buildIndex(boolean addStat ) {
-		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, theta, stat, globalOrder, addStat );
+	public void buildIndex() {
+		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, theta, stat, globalOrder, writeResult );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
