@@ -17,7 +17,8 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 		stat.add("Param_sampleB", sampleB);
 	}
 
-	protected void buildIndex( boolean writeResult ) {
+	@Override
+	protected void buildIndex() {
 		JoinDeltaVarBKIndex.useLF = useLF;
 		JoinDeltaVarBKIndex.usePQF = usePQF;
 		JoinDeltaVarBKIndex.useSTPQ = useSTPQ;
