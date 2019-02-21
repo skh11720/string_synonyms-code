@@ -9,7 +9,12 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 	public JoinDeltaVarBK(Query query, String[] args) {
 		super(query, args);
 		sampleB = param.getDoubleParam("sampleB");
-		stat.add("sampleB", sampleB);
+	}
+
+	@Override
+	protected void reportParamsToStat() {
+		super.reportParamsToStat();
+		stat.add("Param_sampleB", sampleB);
 	}
 
 	protected void buildIndex( boolean writeResult ) {

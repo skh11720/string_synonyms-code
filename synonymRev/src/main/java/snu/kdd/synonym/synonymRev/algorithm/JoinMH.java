@@ -46,13 +46,13 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 
 	@Override
 	protected void runAfterPreprocess() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 
 		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
 		rslt = idx.join( query, stat, checker, writeResult );
 

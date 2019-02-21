@@ -8,12 +8,13 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmStatInterface;
 
 public class AlgorithmResultQualityEvaluator {
 	
-	private final int tp;
-	private final int fp;
-	private final int fn;
+	public final int tp;
+	public final int fp;
+	public final int fn;
 
 	public static void evaluate( AlgorithmInterface alg, String groundPath ) {
 		if (groundPath == null ) {
@@ -28,11 +29,11 @@ public class AlgorithmResultQualityEvaluator {
 			Set<IntegerPair> groundSet = getGroundTruthSet(groundPath);
 
 			AlgorithmResultQualityEvaluator evaluator = new AlgorithmResultQualityEvaluator(groundSet, rslt);
-			alg.getStat().add("Eval_TP", evaluator.tp);
-			alg.getStat().add("Eval_FP", evaluator.fp);
-			alg.getStat().add("Eval_FN", evaluator.fn);
-			alg.getStat().add("Eval_Precision", evaluator.getPrecision());
-			alg.getStat().add("Eval_Recall", evaluator.getRecall());
+			alg.getStat().add(AlgorithmStatInterface.EVAL_TP, evaluator.tp);
+			alg.getStat().add(AlgorithmStatInterface.EVAL_FP, evaluator.fp);
+			alg.getStat().add(AlgorithmStatInterface.EVAL_FN, evaluator.fn);
+			alg.getStat().add(AlgorithmStatInterface.EVAL_PRECISION, evaluator.getPrecision());
+			alg.getStat().add(AlgorithmStatInterface.EVAL_RECALL, evaluator.getRecall());
 		}
 	}
 	
@@ -71,11 +72,11 @@ public class AlgorithmResultQualityEvaluator {
 		this.fn = fn;
 	}
 	
-	private double getPrecision() {
+	public double getPrecision() {
 		return 1.0*tp/(tp + fp);
 	}
 	
-	private double getRecall() {
+	public double getRecall() {
 		return 1.0*tp/(tp + fn);
 	}
 }

@@ -3,7 +3,6 @@ package snu.kdd.synonym.synonymRev.algorithm.delta;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractParameterizedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -39,11 +38,11 @@ public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 
 	@Override
 	protected void executeJoin() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		StopWatch stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 		Index idx = new Index();
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
 		rslt = idx.join( query, stat, checker, writeResult );
 

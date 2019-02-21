@@ -350,7 +350,7 @@ public class StatContainer {
 		for ( int i=0; i< stat1.primaryNameList.size(); ++i ) {
 			String name = stat1.primaryNameList.get( i );
 			String value = stat1.primaryValueList.get( i );
-			if ( name.equals( "Final Result Size" ) ) value = String.valueOf( rslt.size() );
+			if ( name.equals( "Final_Result_Size" ) ) value = String.valueOf( rslt.size() );
 			merged.primaryNameList.add( name );
 			merged.primaryValueList.add( value );
 		}
@@ -415,7 +415,7 @@ public class StatContainer {
 		for ( int i=0; i< this.primaryNameList.size(); ++i ) {
 			String name = this.primaryNameList.get( i );
 			String value = this.primaryValueList.get( i );
-//			if ( name.equals( "Final Result Size" ) ) this.primaryValueList.set( i, String.valueOf( rslt.size() ) );
+//			if ( name.equals( "Final_Result_Size" ) ) this.primaryValueList.set( i, String.valueOf( rslt.size() ) );
 //			System.out.println( "\t"+name+" : "+value );
 		}
 		

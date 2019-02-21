@@ -36,10 +36,10 @@ public class JoinSetNaive extends AbstractAlgorithm {
 	@Override
 	protected void executeJoin() {
 		StopWatch stepTime = null;
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 		buildIndex( false );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
 		rslt = join( stat, query, writeResult );

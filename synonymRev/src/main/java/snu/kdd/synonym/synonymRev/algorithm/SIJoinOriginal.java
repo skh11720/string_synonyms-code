@@ -85,7 +85,7 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 	@Override
 	protected void executeJoin() {
 		StopWatch stepTime = null;
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 		ITF_Filter filter = new ITF_Filter(null, null) {
 			@Override
 			public int compare(int t1, boolean t1_from_record, int t2, boolean t2_from_record) {
@@ -101,7 +101,7 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		rslt = join( treeS, treeT, theta );
 		stepTime.stopAndAdd( stat );
 

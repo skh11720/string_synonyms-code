@@ -143,7 +143,7 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 
 		stat.add( "Join_Naive_Result", rsltNaive.size() );
 		stat.add( "Join_Min_Result", rsltPQGram.size() );
-		stat.add( "Result_3_2_Join_Time", joinTime/1e6 );
+		stat.add( JOIN_AFTER_INDEX_TIME, joinTime/1e6 );
 		stat.add( "Result_3_2_1_Join_Naive_Time", joinNaiveTime/1e6 );
 		stat.add( "Result_3_2_2_Join_PQGram_Time", joinPQGramTime/1e6 );
 		stat.add( "Stat_Naive_Search", naiveSearch );
@@ -188,7 +188,7 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 
 	@Override
 	protected void buildIndex() {
-		StopWatch buildTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		StopWatch buildTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 		if ( maxSearchedEstNumRecords <= joinThreshold ) {
 			joinQGramRequired = false; // in this case both joinmh and joinmin are not used.
 		}

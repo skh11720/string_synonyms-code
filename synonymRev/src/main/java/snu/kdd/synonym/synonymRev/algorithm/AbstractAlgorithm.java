@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 
@@ -12,15 +11,15 @@ import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.AbstractParam;
+import snu.kdd.synonym.synonymRev.tools.AlgorithmResultQualityEvaluator;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public abstract class AbstractAlgorithm implements AlgorithmInterface {
+public abstract class AbstractAlgorithm implements AlgorithmInterface, AlgorithmStatInterface {
 
 	protected final Query query;
 	protected final StatContainer stat;
@@ -44,7 +43,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 	protected abstract void executeJoin();
 
 	public void run() {
-		StopWatch totalTime = StopWatch.getWatchStarted( "Result_0_Total_Time" );
+		StopWatch totalTime = StopWatch.getWatchStarted(TOTAL_RUNNING_TIME);
 		preprocess();
 		executeJoinWrapper();
 		totalTime.stop();
@@ -57,7 +56,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 	}
 
 	protected void preprocess() {
-		StopWatch watch = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_TOTAL_TIME);
 		preprocessRules();
 		computeTransformLengths();
 		estimateNumTransforms();
@@ -66,7 +65,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 	}
 	
 	private void preprocessRules() {
-		StopWatch watch = StopWatch.getWatchStarted( "Result_2_1_Preprocess rule time" );
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_RULE_TIME);
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 		long applicableRules = 0;
 		for( final Record record : query.searchedSet.get() ) {
@@ -75,12 +74,12 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 			applicableRules += record.getNumApplicableRules();
 		}
 		watch.stopQuietAndAdd(stat);
-		stat.add( "Stat_Applicable Rule TableSearched", applicableRules );
-		stat.add( "Stat_Avg applicable rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
+		stat.add( "Stat_Applicable_Rule_TableSearched", applicableRules );
+		stat.add( "Stat_Avg_applicable_rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
 	}
 	
 	private final void computeTransformLengths() {
-		StopWatch watch = StopWatch.getWatchStarted( "Result_2_2_Preprocess length time" );
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_LENGTH_TIME);
 		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessTransformLength();
 		}
@@ -88,7 +87,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 	}
 	
 	private final void estimateNumTransforms() {
-		StopWatch watch = StopWatch.getWatchStarted( "Result_2_3_Preprocess est record time" );
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_EST_NUM_TRANS_TIME);
 		long maxNumTrans = 0;
 		for( final Record rec : query.searchedSet.get() ) {
 			rec.preprocessEstimatedRecords();
@@ -98,18 +97,18 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 			}
 		}
 		watch.stopQuietAndAdd(stat);
-		stat.add( "Stat_maximum Size of TableSearched", maxNumTrans );
+		stat.add( "Stat_maximum_Size_of_TableSearched", maxNumTrans );
 	}
 
 	private void executeJoinWrapper() {
-		StopWatch watch = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+		StopWatch watch = StopWatch.getWatchStarted(JOIN_TOTAL_TIME);
 		executeJoin();
 		watch.stopAndAdd( stat );
 	}
 
 	public void writeResult() {
 		if ( !writeResult ) return;
-		stat.addPrimary( "Final Result Size", rslt.size() );
+		stat.addPrimary( "Final_Result_Size", rslt.size() );
 
 		try {
 			if( DEBUG.AlgorithmON ) {
@@ -219,6 +218,14 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface {
 			// idx == idxS
 			else rslt.add( new IntegerPair( rec2.getID(), rec1.getID()) );
 		}
+	}
+	
+	public void getEvaluationResult( AlgorithmResultQualityEvaluator eval ) {
+		stat.add(EVAL_TP, eval.tp);
+		stat.add(EVAL_FP, eval.fp);
+		stat.add(EVAL_FN, eval.fn);
+		stat.add(EVAL_PRECISION, eval.getPrecision());
+		stat.add(EVAL_RECALL, eval.getRecall());
 	}
 	
 	@Override

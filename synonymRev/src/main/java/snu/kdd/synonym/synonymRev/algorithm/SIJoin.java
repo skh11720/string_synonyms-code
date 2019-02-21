@@ -39,7 +39,7 @@ public class SIJoin extends AbstractAlgorithm {
 	@Override
 	protected void executeJoin() {
 		StopWatch stepTime = null;
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 		SI_Tree<Record> treeS = new SI_Tree<Record>( theta, null, checker, true );
 		for ( Record recS : query.searchedSet.recordList ) {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
@@ -53,7 +53,7 @@ public class SIJoin extends AbstractAlgorithm {
 		}
 		stepTime.stopAndAdd( stat );
 
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		rslt = join( treeS, treeT, theta );
 		stepTime.stopAndAdd( stat );
 		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );

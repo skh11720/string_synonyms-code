@@ -25,7 +25,7 @@ public class FilterPowerTest {
 	public void test() throws IOException, ParseException, org.json.simple.parser.ParseException {
 //		String[] datasetList = {"AOL", "SPROT", "USPS"};
 		String[] datasetList = {"AOL"};
-		String[] attrList = {"Val_Comparisons", "Val_Length_filtered", "Val_PQGram_filtered", "Final Result Size", "Result_3_Run_Time", "Result_5_1_Filter_Time",
+		String[] attrList = {"Val_Comparisons", "Val_Length_filtered", "Val_PQGram_filtered", "Final_Result_Size", "Result_3_Run_Time", "Result_5_1_Filter_Time",
 		"Result_5_2_Verify_Time",};
 		int size = 100000;
 		
