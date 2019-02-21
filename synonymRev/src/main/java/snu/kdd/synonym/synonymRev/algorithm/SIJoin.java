@@ -1,10 +1,7 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import sigmod13.SI_Tree;
@@ -22,7 +19,7 @@ public class SIJoin extends AbstractAlgorithm {
 	private final double theta = 1.0;
 
 
-	public SIJoin(Query query, String[] args) throws IOException, ParseException {
+	public SIJoin(Query query, String[] args) {
 		super(query, args);
 		checker = new TopDownOneSide();
 	}

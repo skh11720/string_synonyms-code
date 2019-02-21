@@ -8,8 +8,6 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
@@ -50,7 +48,7 @@ public class JoinPkduckOriginal extends AbstractAlgorithm {
 	
 	public static PrintWriter pw = null;
 
-	public JoinPkduckOriginal(Query query, String[] args) throws IOException, ParseException {
+	public JoinPkduckOriginal(Query query, String[] args) {
 		super(query, args);
 		param = new ParamPkduck(args);
 		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );

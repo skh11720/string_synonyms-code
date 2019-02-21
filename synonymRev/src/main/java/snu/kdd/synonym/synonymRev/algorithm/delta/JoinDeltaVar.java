@@ -1,9 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.io.IOException;
 import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
@@ -22,7 +19,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 	protected JoinDeltaVarIndex idx;
 	
 	
-	public JoinDeltaVar(Query query, String[] args) throws IOException, ParseException {
+	public JoinDeltaVar(Query query, String[] args) {
 		super(query, args);
 		param = new Param(args);
 		indexK = param.getIntParam("indexK");

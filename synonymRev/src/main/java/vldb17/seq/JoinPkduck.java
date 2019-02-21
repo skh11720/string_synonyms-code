@@ -1,10 +1,7 @@
 package vldb17.seq;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -43,7 +40,7 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 	private boolean useLF;
 
 
-	public JoinPkduck(Query query, String[] args) throws IOException, ParseException {
+	public JoinPkduck(Query query, String[] args) {
 		super(query, args);
 		param = new ParamPkduck(args);
 		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );

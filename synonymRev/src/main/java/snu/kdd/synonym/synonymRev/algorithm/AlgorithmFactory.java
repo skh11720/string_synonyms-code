@@ -1,9 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
-
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
@@ -41,9 +38,10 @@ public class AlgorithmFactory {
 		JoinDeltaVarBK,
 	}
 
-	public static AlgorithmInterface getAlgorithmInstance(Query query, CommandLine cmd ) throws IOException, ParseException {
+	public static AlgorithmInterface getAlgorithmInstance(Query query, CommandLine cmd ) {
 		AlgorithmInterface alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
+
 		String additionalOptions = cmd.getOptionValue( "additional", "" );
 		String[] additionalArgs = null;
 		if( additionalOptions != null ) additionalArgs = additionalOptions.split( " " );

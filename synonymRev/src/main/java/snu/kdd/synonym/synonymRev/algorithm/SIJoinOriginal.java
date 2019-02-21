@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -36,7 +34,7 @@ public class SIJoinOriginal extends AbstractAlgorithm {
 	public static TokenIndex tokenMap;
 	public static PrintWriter pw = null;
 
-	public SIJoinOriginal(Query query, String[] args) throws IOException, ParseException {
+	public SIJoinOriginal(Query query, String[] args) {
 		super(query, args);
 		param = new Param(args);
 		theta = param.getDoubleParam("theta");

@@ -1,9 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
 import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -29,7 +26,7 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 	public JoinMinIndex idx;
 
 	
-	public JoinMin(Query query, String[] args) throws IOException, ParseException {
+	public JoinMin(Query query, String[] args) {
 		super(query, args);
 		param = new Param(args);
 		checker = new TopDownOneSide();

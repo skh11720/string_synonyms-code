@@ -1,9 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.io.IOException;
 import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
@@ -25,7 +22,7 @@ public class JoinDeltaAllPair extends AbstractAlgorithm {
 	public static boolean useLF = true;
 
 	
-	public JoinDeltaAllPair(Query query, String[] args) throws IOException, ParseException {
+	public JoinDeltaAllPair(Query query, String[] args) {
 		super(query, args);
 		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");

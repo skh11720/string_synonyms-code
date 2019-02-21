@@ -1,9 +1,5 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
-
-import org.apache.commons.cli.ParseException;
-
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
 import snu.kdd.synonym.synonymRev.tools.Param;
@@ -13,7 +9,7 @@ public class JoinMinFast extends JoinMin {
 	
 	protected double sampleRatio;
 
-	public JoinMinFast(Query query, String[] args) throws IOException, ParseException {
+	public JoinMinFast(Query query, String[] args) {
 		super(query, args);
 		param = new Param(args);
 		checker = new TopDownOneSide();

@@ -1,9 +1,5 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
-
-import org.apache.commons.cli.ParseException;
-
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
@@ -15,7 +11,7 @@ public class JoinNaive extends AbstractAlgorithm {
 	// statistics used for building indexes
 	public double avgTransformed;
 
-	public JoinNaive(Query query, String[] args) throws IOException, ParseException {
+	public JoinNaive(Query query, String[] args) {
 		super(query, args);
 	}
 

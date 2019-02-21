@@ -1,9 +1,5 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
-
-import org.apache.commons.cli.ParseException;
-
 import passjoin.PassJoinIndexForSynonyms;
 import passjoin.PassJoinValidator;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -16,7 +12,7 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 	protected PassJoinIndexForSynonyms idx = null;
 	protected int deltaMax;
 
-	public PassJoin(Query query, String[] args) throws IOException, ParseException {
+	public PassJoin(Query query, String[] args) {
 		super(query, args);
 		param = new Param(args);
 		deltaMax = param.getIntParam("deltaMax");

@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -57,7 +55,7 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 	double avgTransformed;
 
 
-	public JoinBKPSet(Query query, String[] args) throws IOException, ParseException {
+	public JoinBKPSet(Query query, String[] args) {
 		super(query, args);
 		param = new ParamForSet(args);
 		indexK = param.getIntParam("indexK");

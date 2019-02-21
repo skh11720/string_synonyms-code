@@ -1,10 +1,7 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -32,7 +29,7 @@ public class JoinSetNaive extends AbstractAlgorithm {
 //	private long nScanList = 0;
 
 
-	public JoinSetNaive(Query query, String[] args) throws IOException, ParseException {
+	public JoinSetNaive(Query query, String[] args) {
 		super(query, args);
 	}
 	
