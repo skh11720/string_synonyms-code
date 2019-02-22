@@ -316,6 +316,14 @@ public class Util {
 		return edit_all( x, y )[y.length];
 	}
 	
+	public static int lcs( int[] x, int[] y, int threshold ) {
+		/*
+		 * Compute and return the exact lcs distance between x and y if the value is at most threshold.
+		 * Otherwise, it returns any value larger then the threshold.
+		 */
+		return lcs(x, y, threshold, 0, 0, x.length, y.length );
+	}
+
 	public static int edit( int[] x, int[] y, int threshold ) {
 		/*
 		 * Compute and return the exact edit distance between x and y if the value is at most threshold.
@@ -342,6 +350,29 @@ public class Util {
 				D[j+1] = Math.min( D[j], D_prev[j+1] )+1;
 				if ( y[j] == x[i] ) D[j+1] = Math.min( D[j+1], D_prev[j] );
 				else D[j+1] = Math.min( D[j+1], D_prev[j]+1 );
+			}
+		}
+		return D;
+	}
+
+	public static int[] lcs_all( int[] x, int[] y, int j0 ) {
+		/*
+		 * Compute and return the lcs distances between x and y[j0:j0], y[j0:j0+1], y[j0:j0+2], ..., y[j0:y.length].
+		 * The range of j0 is 0 <= j0 <= y.length.
+		 */
+		int[] D = new int[y.length+1];
+		int[] D_prev = new int[y.length+1];
+		for ( int j=j0; j<=y.length; ++j ) D[j] = j-j0;
+		for ( int i=0; i<x.length; ++i ) {
+			// swap tables
+			int[] tmp = D_prev;
+			D_prev = D;
+			D = tmp;
+
+			D[j0] = i+1;
+			for ( int j=j0; j<y.length; ++j ) {
+				D[j+1] = Math.min( D[j], D_prev[j+1] )+1;
+				if ( y[j] == x[i] ) D[j+1] = Math.min( D[j+1], D_prev[j] );
 			}
 		}
 		return D;

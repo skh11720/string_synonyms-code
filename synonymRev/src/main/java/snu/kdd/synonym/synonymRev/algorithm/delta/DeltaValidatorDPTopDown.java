@@ -22,8 +22,8 @@ public class DeltaValidatorDPTopDown extends DeltaValidatorNaive {
 
 	private int lx, ly;
 
-	public DeltaValidatorDPTopDown(int deltaMax) {
-		super(deltaMax);
+	public DeltaValidatorDPTopDown( int deltaMax, String strDistFunc ) {
+		super(deltaMax, strDistFunc );
 		M = new Object2BooleanOpenHashMap<>();
 		mapD = new Object2ObjectOpenHashMap<>();
 	}
@@ -69,7 +69,7 @@ public class DeltaValidatorDPTopDown extends DeltaValidatorNaive {
 			else {
 				D = new int[ly+1][];
 				for ( int j0=0; j0<=ly; ++j0 ) {
-					D[j0] = Util.edit_all( rhs, y.getTokensArray(), j0 ); // D[j0][j0], D[j0][j0+1] ... are valid values
+					D[j0] = distAll.eval( rhs, y.getTokensArray(), j0 ); // D[j0][j0], D[j0][j0+1] ... are valid values
 				}
 				mapD.put(rule, D);
 			}

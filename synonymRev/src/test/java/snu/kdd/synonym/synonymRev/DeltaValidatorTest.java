@@ -64,9 +64,9 @@ public class DeltaValidatorTest {
 		int size = 100000;
 		int deltaMax = 3; // TODO: vary deltaMax
 		Query query = TestUtils.getTestQuery( name, size );
-		Validator checker0 = new DeltaValidatorNaive( deltaMax );
-		Validator checker1 = new DeltaValidatorDP(deltaMax);
-		Validator checker2 = new DeltaValidatorDPTopDown(deltaMax);
+		Validator checker0 = new DeltaValidatorNaive( deltaMax, "edit" );
+		Validator checker1 = new DeltaValidatorDP(deltaMax, "edit" );
+		Validator checker2 = new DeltaValidatorDPTopDown(deltaMax, "edit" );
 		Validator[] checker_list = {checker0, checker1, checker2};
 		long[] ts_list = new long[checker_list.length];
 		int[] answer_list = new int[checker_list.length];
@@ -102,8 +102,8 @@ public class DeltaValidatorTest {
 		int size = 100000;
 		int deltaMax = 3; // TODO: vary deltaMax
 		Query query = TestUtils.getTestQuery( name, size );
-		Validator checker1 = new DeltaValidatorDP(deltaMax);
-		Validator checker2 = new DeltaValidatorDPTopDown(deltaMax);
+		Validator checker1 = new DeltaValidatorDP(deltaMax, "edit" );
+		Validator checker2 = new DeltaValidatorDPTopDown(deltaMax, "edit" );
 		Validator[] checker_list = {checker1, checker2};
 		long[] ts_list = new long[checker_list.length];
 		int[] answer_list = new int[checker_list.length];
