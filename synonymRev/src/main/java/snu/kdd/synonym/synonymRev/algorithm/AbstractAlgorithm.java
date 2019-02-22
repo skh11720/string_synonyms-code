@@ -221,9 +221,9 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	}
 	
 	public void getEvaluationResult( AlgorithmResultQualityEvaluator eval ) {
-		stat.add(EVAL_TP, eval.tp);
-		stat.add(EVAL_FP, eval.fp);
-		stat.add(EVAL_FN, eval.fn);
+		stat.add(EVAL_TP, eval.getTP());
+		stat.add(EVAL_FP, eval.getFP());
+		stat.add(EVAL_FN, eval.getFN());
 		stat.add(EVAL_PRECISION, eval.getPrecision());
 		stat.add(EVAL_RECALL, eval.getRecall());
 	}
@@ -236,6 +236,11 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	@Override
 	public StatContainer getStat() { return stat; }
 	
+
+	@Override
+	public Query getQuery() {
+		return query;
+	}
 
 	public String getOutputName() {
 		String[] tokens = query.getSearchedPath().split("\\"+File.separator);

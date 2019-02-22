@@ -41,4 +41,5 @@ public class DEBUG {
 	// index
 	public static final boolean bIndexWriteToFile = false;
 	
+	public static final boolean bAlgorithmResultQualityEvaluator = false;
 }
