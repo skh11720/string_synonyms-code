@@ -1,5 +1,7 @@
 package snu.kdd.synonym.synonymRev.data;
 
+import java.io.File;
+
 public class DataInfo {
 
 	boolean isSynthetic = false;
@@ -13,13 +15,13 @@ public class DataInfo {
 		this.dataOnePath = dataOnePath;
 		this.dataTwoPath = dataTwoPath;
 		this.rulePath = rulePath;
-		name = getName();
+		name = setName();
 	}
 	
-	private String getName() {
-		String dataOneFileName = dataOnePath.substring( dataOnePath.lastIndexOf( "/" ) + 1 );
-		String dataTwoFileName = dataTwoPath.substring( dataTwoPath.lastIndexOf( "/" ) + 1 );
-		String ruleFileName = rulePath.substring( rulePath.lastIndexOf( "/" ) + 1 );
+	private String setName() {
+		final String dataOneFileName = dataOnePath.substring( dataOnePath.lastIndexOf(File.separator) + 1 );
+		final String dataTwoFileName = dataTwoPath.substring( dataTwoPath.lastIndexOf(File.separator) + 1 );
+		final String ruleFileName = rulePath.substring( rulePath.lastIndexOf(File.separator) + 1 );
 
 		if( isSelfJoin() ) {
 			return dataOneFileName + "_SelfJoin" + "_wrt_" + ruleFileName;
@@ -40,5 +42,9 @@ public class DataInfo {
 		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
 		return bld.toString();
+	}
+	
+	public String getName() {
+		return name;
 	}
 }
