@@ -46,7 +46,7 @@ public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

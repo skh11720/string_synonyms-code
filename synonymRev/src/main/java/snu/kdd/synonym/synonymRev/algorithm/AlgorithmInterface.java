@@ -8,12 +8,10 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public interface AlgorithmInterface {
 	public String getName();
-	public String getVersion();
 	public Query getQuery();
 	public void run();
 	public void writeJSON();
 	public Set<IntegerPair> getResult();
 	public StatContainer getStat();
 	public void setWriteResult( boolean flag );
-	public void writeResult();
 }

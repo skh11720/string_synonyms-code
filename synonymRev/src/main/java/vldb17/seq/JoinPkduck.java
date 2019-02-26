@@ -91,7 +91,7 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 	
 	@Override
 	public void buildIndex() {
-		idx = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, writeResult );
+		idx = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, writeResultOn );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {

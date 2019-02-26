@@ -54,13 +54,13 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 
 		if( DEBUG.JoinMinON ) {
-			if( writeResult ) {
+			if( writeResultOn ) {
 				stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
 				stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
 
@@ -110,7 +110,7 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 
 	@Override
 	protected void buildIndex() {
-		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
+		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResultOn );
 		JoinMinIndex.useLF = useLF;
 		JoinMinIndex.usePQF = usePQF;
 		JoinMinIndex.useSTPQ = useSTPQ;

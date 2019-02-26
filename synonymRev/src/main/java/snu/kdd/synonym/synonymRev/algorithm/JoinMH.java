@@ -54,7 +54,7 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
@@ -100,7 +100,7 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		idx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, indexPosition, writeResultOn, true, 0 );
 		JoinMHIndex.useLF = useLF;
 		JoinMHIndex.usePQF = usePQF;
 		JoinMHIndex.useSTPQ = useSTPQ;

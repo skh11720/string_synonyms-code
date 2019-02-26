@@ -26,7 +26,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	protected Validator checker = null;
 	protected AbstractParam param;
 	public Set<IntegerPair> rslt = null;
-	public boolean writeResult = true;
+	public boolean writeResultOn = true;
 
 
 	public AbstractAlgorithm( Query query, String[] args ) {
@@ -107,7 +107,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	}
 
 	public void writeResult() {
-		if ( !writeResult ) return;
+		if ( !writeResultOn ) return;
 		stat.addPrimary( "Final_Result_Size", rslt.size() );
 
 		try {
@@ -230,13 +230,12 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	
 	@Override
 	public void setWriteResult( boolean flag ) {
-		this.writeResult = flag;
+		this.writeResultOn = flag;
 	}
 	
 	@Override
 	public StatContainer getStat() { return stat; }
 	
-
 	@Override
 	public Query getQuery() {
 		return query;

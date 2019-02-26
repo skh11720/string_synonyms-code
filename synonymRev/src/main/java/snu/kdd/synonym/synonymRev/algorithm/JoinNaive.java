@@ -21,13 +21,13 @@ public class JoinNaive extends AbstractAlgorithm {
 		StopWatch stepTime = null;
 		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 
-		idx = new NaiveIndex( query, stat, writeResult );
+		idx = new NaiveIndex( query, stat, writeResultOn );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		rslt = idx.join( query, stat, null, writeResult );
+		rslt = idx.join( query, stat, null, writeResultOn );
 
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );

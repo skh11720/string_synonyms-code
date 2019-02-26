@@ -22,7 +22,7 @@ public class JoinMinFast extends JoinMin {
 
 	@Override
 	protected void buildIndex() {
-		idx = new JoinMinFastIndex( indexK, qSize, stat, query, sampleB, 0, writeResult );
+		idx = new JoinMinFastIndex( indexK, qSize, stat, query, sampleB, 0, writeResultOn );
 		JoinMinFastIndex.useLF = useLF;
 		JoinMinFastIndex.usePQF = usePQF;
 		JoinMinFastIndex.useSTPQ = useSTPQ;

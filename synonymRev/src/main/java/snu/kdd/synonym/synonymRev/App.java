@@ -41,8 +41,8 @@ public class App {
 		AlgorithmResultQualityEvaluator.evaluate(alg, groundPath);
 
 		if (uploadOn) alg.writeJSON();
-		Util.printLog( alg.getName() + " finished" );
 		printStat(alg);
+		Util.printLog( alg.getName() + " finished" );
 	}
 	
 	public static CommandLine parseInput( String args[] ) throws ParseException {

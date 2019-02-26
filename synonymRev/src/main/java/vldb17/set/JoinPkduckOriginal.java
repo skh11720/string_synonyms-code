@@ -99,13 +99,13 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		rslt = join( stat, query, writeResult );
+		rslt = join( stat, query, writeResultOn );
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 	}
 	
 	public void buildIndex() {
-		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, theta, stat, globalOrder, writeResult );
+		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, theta, stat, globalOrder, writeResultOn );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
