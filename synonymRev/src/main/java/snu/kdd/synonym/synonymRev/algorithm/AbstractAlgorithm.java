@@ -236,11 +236,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	@Override
 	public StatContainer getStat() { return stat; }
 	
-	@Override
-	public Query getQuery() {
-		return query;
-	}
-
 	public String getOutputName() {
 		String[] tokens = query.getSearchedPath().split("\\"+File.separator);
 		String data1Name = tokens[tokens.length-1].split("\\.")[0];

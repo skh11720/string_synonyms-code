@@ -37,7 +37,7 @@ public class App {
 		Query query = Query.parseQuery( cmd );
 		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd);
 		alg.run(query);
-		AlgorithmResultQualityEvaluator.evaluate(alg, groundPath);
+		AlgorithmResultQualityEvaluator.evaluate(alg, query, groundPath);
 
 		if (uploadOn) alg.writeJSON();
 		printStat(alg);
