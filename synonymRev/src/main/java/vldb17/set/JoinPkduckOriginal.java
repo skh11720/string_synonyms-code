@@ -52,13 +52,19 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 	public JoinPkduckOriginal(String[] args) {
 		super(args);
 		mode = Ordering.valueOf( param.getStringParam("ord") );
+		theta = param.getDoubleParam("theta");
+		useRuleComp = param.getBooleanParam("rc");
+		useLF = param.getBooleanParam("useLF");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
-		theta = param.getDoubleParam("theta");
-		useRuleComp = param.getBooleanParam("rc");
-		useLF = param.getBooleanParam("useLF");
+
 		checker = new GreedyValidatorOriginal(query, theta);
 
 		try {

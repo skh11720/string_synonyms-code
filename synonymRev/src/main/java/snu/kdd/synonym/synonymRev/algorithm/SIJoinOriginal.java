@@ -27,8 +27,8 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 
 	public final double theta;
-	private final ObjectArrayList<SIRecord> S, T;
-	private final Int2IntOpenHashMap tokenFreq;
+	private ObjectArrayList<SIRecord> S, T;
+	private Int2IntOpenHashMap tokenFreq;
 
 	public static TokenIndex tokenMap;
 	public static PrintWriter pw = null;
@@ -36,6 +36,12 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 	public SIJoinOriginal(String[] args) {
 		super(args);
 		theta = param.getDoubleParam("theta");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
+
 		S = new ObjectArrayList<>();
 		tokenFreq = new Int2IntOpenHashMap();
 		if ( query.selfJoin ) {
@@ -46,6 +52,7 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 		}
 
 		tokenMap = query.tokenIndex;
+
 		try {
 			String[] tokens = query.getSearchedPath().split("\\"+File.separator);
 			String data1Name = tokens[tokens.length-1].split("\\.")[0];

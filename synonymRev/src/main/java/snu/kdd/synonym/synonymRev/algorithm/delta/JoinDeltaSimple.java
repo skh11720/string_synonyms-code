@@ -23,6 +23,11 @@ public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 

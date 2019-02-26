@@ -21,7 +21,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public abstract class AbstractAlgorithm implements AlgorithmInterface, AlgorithmStatInterface {
 
-	protected final StatContainer stat;
+	protected StatContainer stat;
 	protected Query query;
 	protected Validator checker = null;
 	protected AbstractParam param;
@@ -30,9 +30,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 
 
 	public AbstractAlgorithm( String[] args ) {
-		this.stat = new StatContainer();
-		this.stat.add( "alg", getName() );
-		this.stat.add( "alg_version", getVersion() );
 	}
 
 	public abstract String getName();
@@ -40,10 +37,18 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	public abstract String getVersion();
 	
 	protected abstract void executeJoin();
+	
+	@Override
+	public void initialize() {
+		this.stat = new StatContainer();
+		this.stat.add( "alg", getName() );
+		this.stat.add( "alg_version", getVersion() );
+	}
 
 	public void run( Query query ) {
-		this.query = query;
 		StopWatch totalTime = StopWatch.getWatchStarted(TOTAL_RUNNING_TIME);
+		this.query = query;
+		initialize();
 		preprocess();
 		executeJoinWrapper();
 		totalTime.stop();

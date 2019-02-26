@@ -7,6 +7,7 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public interface AlgorithmInterface {
+	void initialize();
 	String getName();
 	void run( Query query );
 	void writeJSON();

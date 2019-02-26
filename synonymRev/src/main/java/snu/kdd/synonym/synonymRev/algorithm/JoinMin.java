@@ -30,6 +30,11 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new TopDownOneSide();
 	}
 	

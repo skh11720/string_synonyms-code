@@ -19,6 +19,11 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 		deltaMax = param.getIntParam("deltaMax");
 		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 

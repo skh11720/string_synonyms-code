@@ -13,6 +13,11 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 	public PassJoin(String[] args) {
 		super(args);
 		deltaMax = param.getIntParam("deltaMax");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new PassJoinValidator(deltaMax);
 	}
 	

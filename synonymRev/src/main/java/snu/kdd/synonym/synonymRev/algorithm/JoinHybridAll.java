@@ -48,6 +48,11 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		super(args);
 		indexK = param.getIntParam("indexK");
 		sampleH = param.getDoubleParam("sampleH");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new TopDownOneSide();
 	}
 

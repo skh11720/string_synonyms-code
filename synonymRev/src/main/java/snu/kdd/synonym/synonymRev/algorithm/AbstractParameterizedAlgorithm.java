@@ -13,8 +13,13 @@ public abstract class AbstractParameterizedAlgorithm extends AbstractAlgorithm {
 	protected abstract void reportParamsToStat();
 	
 	@Override
-	public void run( Query query ) {
+	public void initialize() {
+		super.initialize();
 		reportParamsToStat();
+	}
+	
+	@Override
+	public void run( Query query ) {
 		super.run(query);
 	}
 }

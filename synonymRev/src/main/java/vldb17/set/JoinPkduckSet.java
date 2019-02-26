@@ -47,17 +47,22 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 	public JoinPkduckSet(String[] args) {
 		super(args);
 		mode = Ordering.valueOf( param.getStringParam("ord") );
+		verify = param.getStringParam("verify");
+		useRuleComp = param.getBooleanParam("rc");
+		useLF = param.getBooleanParam("useLF");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
-		verify = param.getStringParam("verify");
 		if (verify.equals( "naive" )) checker = new SetNaiveOneSide();
 		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator();
 		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide();
 		else throw new RuntimeException(getName()+" does not support verification: "+verify);
-		useRuleComp = param.getBooleanParam("rc");
-		useLF = param.getBooleanParam("useLF");
 	}
 	
 	@Override

@@ -21,6 +21,11 @@ public class SIJoin extends AbstractAlgorithm {
 
 	public SIJoin(String[] args) {
 		super(args);
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new TopDownOneSide();
 	}
 
