@@ -13,6 +13,7 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 
 	public final int deltaMax;
+	public final String distFunc;
 
 	protected JoinDeltaSimpleIndex idx;
 
@@ -20,15 +21,17 @@ public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 	public JoinDeltaSimple(Query query, String[] args) {
 		super(query, args);
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
+		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_qSize", qSize);
 		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_distFunct", distFunc);
 		stat.add("Param_useLF", useLF);
 		stat.add("Param_usePQF", usePQF);
 	}

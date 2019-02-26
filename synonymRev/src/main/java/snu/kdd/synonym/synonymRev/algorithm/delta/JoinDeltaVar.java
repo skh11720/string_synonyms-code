@@ -14,6 +14,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 
 	public final int indexK;
 	public final int deltaMax;
+	public final String distFunc;
 
 	protected JoinDeltaVarIndex idx;
 	
@@ -22,10 +23,11 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 		super(query, args);
 		indexK = param.getIntParam("indexK");
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
+		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 	
 	@Override
@@ -33,6 +35,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 		stat.add("Param_indexK", indexK);
 		stat.add("param_qSize", qSize);
 		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_distFunct", distFunc);
 		stat.add("Param_useLF", useLF);
 		stat.add("Param_usePQF", usePQF);
 		stat.add("Param_useSTPQ", useSTPQ);

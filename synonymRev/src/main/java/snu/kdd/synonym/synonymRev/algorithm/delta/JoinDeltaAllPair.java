@@ -18,6 +18,7 @@ public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 
 	public final int qSize;
 	public final int deltaMax;
+	public final String distFunc;
 	
 	public static boolean useLF = true;
 
@@ -26,8 +27,9 @@ public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 		super(query, args);
 		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
+		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 
 	@Override

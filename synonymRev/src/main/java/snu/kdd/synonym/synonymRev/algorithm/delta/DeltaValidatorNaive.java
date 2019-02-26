@@ -22,6 +22,12 @@ public class DeltaValidatorNaive extends AbstractDeltaValidator {
 			++numEqual;
 			return 0; 
 		}
+
+		if ( distTrivialCase.check(x, y) ) {
+			++numTrivial;
+			return 1;
+		}
+
 		if ( distGivenThres.eval( x.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
 			++numDeltaEqual;
 			return 1;
@@ -55,6 +61,7 @@ public class DeltaValidatorNaive extends AbstractDeltaValidator {
 	public void addStat( StatContainer stat ) {
 		super.addStat(stat);
 		stat.add( "Val_NumEqual", numEqual );
+		stat.add( "Val_NumTrivial", numTrivial );
 		stat.add( "Val_NumDeltaEqual", numDeltaEqual );
 		stat.add( "Val_NumDeltaTransEqual", numDeltaTransEqual );
 	}

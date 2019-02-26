@@ -445,6 +445,7 @@ public class Util {
 		if (xlen == -1) xlen = x.length - xpos;
 		if (ylen == -1) ylen = y.length - ypos;
 		if ( xlen > ylen + threshold || ylen > xlen + threshold ) return threshold+1;
+		if ( xlen <= threshold && ylen <= threshold ) return threshold;
 		if ( xlen == 0 ) return ylen;
 
 		int[][] matrix = new int[xlen + 1][2 * threshold + 1];

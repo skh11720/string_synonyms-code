@@ -17,6 +17,7 @@ public class Param extends AbstractParam {
 		argOptions.addOption( "sampleH", true, "Sampling Ratio for JoinHybridAll" );
 		argOptions.addOption( "delta", true, "deltaMax" );
 		argOptions.addOption( "theta", true, "theta" );
+		argOptions.addOption( "dist", true, "distance function" );
 
 		argOptions.addOption( "useLF", true, "" );
 		argOptions.addOption( "usePQF", true, "" );
@@ -62,6 +63,11 @@ public class Param extends AbstractParam {
 				double theta = Double.parseDouble( cmd.getOptionValue( "theta" ) );
 				if ( theta < 0 || theta > 1 ) throw new ParseException("theta must be in [0,1], not "+theta);
 				mapParamD.put("theta", theta);
+			}
+
+			if (cmd.hasOption( "dist" )) {
+				String distFunc = cmd.getOptionValue( "dist" );
+				mapParamS.put("dist", distFunc);
 			}
 
 			boolean useLF = true;

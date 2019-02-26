@@ -23,7 +23,7 @@ public class DeltaValidatorDPTopDown extends DeltaValidatorNaive {
 	private int lx, ly;
 
 	public DeltaValidatorDPTopDown( int deltaMax, String strDistFunc ) {
-		super(deltaMax, strDistFunc );
+		super(deltaMax, strDistFunc);
 		M = new Object2BooleanOpenHashMap<>();
 		mapD = new Object2ObjectOpenHashMap<>();
 	}

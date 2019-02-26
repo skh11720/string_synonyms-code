@@ -9,6 +9,7 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 	public static boolean useLF = true;
 
 	public final int deltaMax;
+	public final String distFunc;
 	
 	protected DeltaHashIndex idx;
 
@@ -16,13 +17,15 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 	public JoinDeltaNaive(Query query, String[] args) {
 		super(query, args);
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
+		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_distFunct", distFunc);
 		stat.add("Param_useLF", useLF);
 	}
 
