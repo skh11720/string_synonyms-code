@@ -49,8 +49,8 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 	
 	public static PrintWriter pw = null;
 
-	public JoinPkduckOriginal(Query query, String[] args) {
-		super(query, args);
+	public JoinPkduckOriginal(String[] args) {
+		super(args);
 		mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;

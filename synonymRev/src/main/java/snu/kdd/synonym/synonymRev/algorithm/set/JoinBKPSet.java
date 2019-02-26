@@ -31,7 +31,7 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 //	public WYK_HashMap<Integer, List<Record>> idxS = null;
 	private WYK_HashMap<Integer, List<Record>> idxT = new WYK_HashMap<Integer, List<Record>>();
 //	public Object2IntOpenHashMap<Record> idxCountS = null;
-	private Object2IntOpenHashMap<Record> idxCountT = new Object2IntOpenHashMap<Record>(query.indexedSet.size());
+	private Object2IntOpenHashMap<Record> idxCountT = new Object2IntOpenHashMap<Record>();
 
 	public final int indexK;
 	public final String verify;
@@ -57,13 +57,13 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 	double avgTransformed;
 
 
-	public JoinBKPSet(Query query, String[] args) {
-		super(query, args);
+	public JoinBKPSet(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
 		verify = param.getStringParam("verify");
-		if ( verify.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
-		else if ( verify.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, param.getIntParam("beamWidth") );
-		else if ( verify.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
+		if ( verify.equals( "TD" ) ) checker = new SetTopDownOneSide();
+		else if ( verify.startsWith( "GR" ) ) checker = new SetGreedyOneSide( param.getIntParam("beamWidth") );
+		else if ( verify.equals( "MIT_GR" ) ) checker = new SetGreedyValidator();
 	}
 
 	@Override

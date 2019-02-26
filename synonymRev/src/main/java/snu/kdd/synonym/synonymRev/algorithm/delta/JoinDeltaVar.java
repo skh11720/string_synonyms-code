@@ -4,7 +4,6 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
@@ -19,8 +18,8 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 	protected JoinDeltaVarIndex idx;
 	
 	
-	public JoinDeltaVar(Query query, String[] args) {
-		super(query, args);
+	public JoinDeltaVar(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
 		deltaMax = param.getIntParam("deltaMax");
 		distFunc = param.getStringParam("dist");

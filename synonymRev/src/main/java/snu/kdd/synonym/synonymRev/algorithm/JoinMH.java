@@ -3,7 +3,6 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -26,8 +25,8 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 	protected JoinMHIndex idx;
 
 	
-	public JoinMH(Query query, String[] args) {
-		super(query, args);
+	public JoinMH(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");

@@ -5,16 +5,16 @@ import snu.kdd.synonym.synonymRev.tools.ParamFactory;
 
 public abstract class AbstractParameterizedAlgorithm extends AbstractAlgorithm {
 
-	public AbstractParameterizedAlgorithm(Query query, String[] args) {
-		super(query, args);
+	public AbstractParameterizedAlgorithm( String[] args ) {
+		super(args);
 		param = ParamFactory.getParamInstance(this, args);
 	}
 
 	protected abstract void reportParamsToStat();
 	
 	@Override
-	public void run() {
+	public void run( Query query ) {
 		reportParamsToStat();
-		super.run();
+		super.run(query);
 	}
 }

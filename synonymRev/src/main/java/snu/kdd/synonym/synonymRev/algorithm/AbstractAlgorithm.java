@@ -21,19 +21,18 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public abstract class AbstractAlgorithm implements AlgorithmInterface, AlgorithmStatInterface {
 
-	protected final Query query;
 	protected final StatContainer stat;
+	protected Query query;
 	protected Validator checker = null;
 	protected AbstractParam param;
 	public Set<IntegerPair> rslt = null;
 	public boolean writeResultOn = true;
 
 
-	public AbstractAlgorithm( Query query, String[] args ) {
+	public AbstractAlgorithm( String[] args ) {
 		this.stat = new StatContainer();
-		this.query = query;
-		stat.add( "alg", getName() );
-		stat.add( "alg_version", getVersion() );
+		this.stat.add( "alg", getName() );
+		this.stat.add( "alg_version", getVersion() );
 	}
 
 	public abstract String getName();
@@ -42,12 +41,14 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	
 	protected abstract void executeJoin();
 
-	public void run() {
+	public void run( Query query ) {
+		this.query = query;
 		StopWatch totalTime = StopWatch.getWatchStarted(TOTAL_RUNNING_TIME);
 		preprocess();
 		executeJoinWrapper();
 		totalTime.stop();
 		stat.addPrimary(totalTime);
+		stat.addPrimary( "Final_Result_Size", rslt.size() );
 
 		if (checker != null) checker.addStat(stat);
 		writeResult();
@@ -108,7 +109,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 
 	public void writeResult() {
 		if ( !writeResultOn ) return;
-		stat.addPrimary( "Final_Result_Size", rslt.size() );
 
 		try {
 			if( DEBUG.AlgorithmON ) {

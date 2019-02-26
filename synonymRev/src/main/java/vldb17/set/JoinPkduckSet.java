@@ -44,17 +44,17 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 	private boolean useLF;
 
 
-	public JoinPkduckSet(Query query, String[] args) {
-		super(query, args);
+	public JoinPkduckSet(String[] args) {
+		super(args);
 		mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
 		verify = param.getStringParam("verify");
-		if (verify.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
-		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator( query.oneSideJoin );
-		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
+		if (verify.equals( "naive" )) checker = new SetNaiveOneSide();
+		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator();
+		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide();
 		else throw new RuntimeException(getName()+" does not support verification: "+verify);
 		useRuleComp = param.getBooleanParam("rc");
 		useLF = param.getBooleanParam("useLF");

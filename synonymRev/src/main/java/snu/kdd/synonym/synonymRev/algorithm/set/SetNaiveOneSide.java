@@ -7,10 +7,6 @@ import snu.kdd.synonym.synonymRev.data.Record;
 
 public class SetNaiveOneSide extends AbstractSetValidator {
 	
-	public SetNaiveOneSide( Boolean selfJoin ) {
-		super( selfJoin );
-	}
-
 	@Override
 	protected int isEqualOneSide( Record x, Record y ) {
 		IntOpenHashSet ySet = new IntOpenHashSet(y.getTokensArray());

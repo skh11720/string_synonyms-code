@@ -14,8 +14,8 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 	protected DeltaHashIndex idx;
 
 	
-	public JoinDeltaNaive(Query query, String[] args) {
-		super(query, args);
+	public JoinDeltaNaive(String[] args) {
+		super(args);
 		deltaMax = param.getIntParam("deltaMax");
 		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");

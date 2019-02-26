@@ -2,7 +2,6 @@ package snu.kdd.synonym.synonymRev.algorithm;
 
 import passjoin.PassJoinIndexForSynonyms;
 import passjoin.PassJoinValidator;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
@@ -11,8 +10,8 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 	public final int deltaMax;
 	protected PassJoinIndexForSynonyms idx = null;
 
-	public PassJoin(Query query, String[] args) {
-		super(query, args);
+	public PassJoin(String[] args) {
+		super(args);
 		deltaMax = param.getIntParam("deltaMax");
 		checker = new PassJoinValidator(deltaMax);
 	}

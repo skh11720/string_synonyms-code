@@ -23,8 +23,8 @@ public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 	public static boolean useLF = true;
 
 	
-	public JoinDeltaAllPair(Query query, String[] args) {
-		super(query, args);
+	public JoinDeltaAllPair(String[] args) {
+		super(args);
 		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");
 		distFunc = param.getStringParam("dist");

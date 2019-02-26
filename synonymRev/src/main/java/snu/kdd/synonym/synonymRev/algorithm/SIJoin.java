@@ -19,8 +19,8 @@ public class SIJoin extends AbstractAlgorithm {
 	private final double theta = 1.0;
 
 
-	public SIJoin(Query query, String[] args) {
-		super(query, args);
+	public SIJoin(String[] args) {
+		super(args);
 		checker = new TopDownOneSide();
 	}
 

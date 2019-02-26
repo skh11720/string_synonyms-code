@@ -27,10 +27,6 @@ public class SetGreedyValidator extends AbstractSetValidator {
 	public long bTransformTime = 0;
 	public long reconstTime = 0;
 	public long compareTime = 0;
-	
-	public SetGreedyValidator(Boolean selfJoin) {
-		super( selfJoin );
-	}
 
 	@Override
 	public int isEqualOneSide( Record x, Record y ) {

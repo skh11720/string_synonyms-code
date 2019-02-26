@@ -1,6 +1,5 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
@@ -8,8 +7,8 @@ public class JoinMinFast extends JoinMin {
 	
 	public final double sampleB;
 
-	public JoinMinFast(Query query, String[] args) {
-		super(query, args);
+	public JoinMinFast(String[] args) {
+		super(args);
 		checker = new TopDownOneSide();
 		sampleB = param.getDoubleParam("sampleB");
 	}

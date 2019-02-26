@@ -29,8 +29,8 @@ public class JoinSetNaive extends AbstractAlgorithm {
 //	private long nScanList = 0;
 
 
-	public JoinSetNaive(Query query, String[] args) {
-		super(query, args);
+	public JoinSetNaive( String[] args) {
+		super(args);
 	}
 	
 	@Override

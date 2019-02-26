@@ -35,8 +35,8 @@ public class App {
 	public static void main( String args[] ) throws IOException, ParseException {
 		CommandLine cmd = parseInput( args );
 		Query query = Query.parseQuery( cmd );
-		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(query, cmd);
-		alg.run();
+		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd);
+		alg.run(query);
 		AlgorithmResultQualityEvaluator.evaluate(alg, groundPath);
 
 		if (uploadOn) alg.writeJSON();

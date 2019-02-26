@@ -33,8 +33,8 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 	public static TokenIndex tokenMap;
 	public static PrintWriter pw = null;
 
-	public SIJoinOriginal(Query query, String[] args) {
-		super(query, args);
+	public SIJoinOriginal(String[] args) {
+		super(args);
 		theta = param.getDoubleParam("theta");
 		S = new ObjectArrayList<>();
 		tokenFreq = new Int2IntOpenHashMap();

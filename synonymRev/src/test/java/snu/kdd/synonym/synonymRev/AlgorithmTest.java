@@ -158,10 +158,10 @@ public class AlgorithmTest {
 		else query = AlgorithmTest.get2WayJoinQuery();
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
-		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(query, cmd);
+		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd);
 		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
-		alg.run();
+		alg.run(query);
 		System.out.println( "Result size: "+alg.getResult().size() );
 		assertEquals( answer, alg.getResult().size() );
 	}

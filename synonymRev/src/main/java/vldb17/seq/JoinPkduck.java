@@ -42,8 +42,8 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 	private boolean useLF;
 
 
-	public JoinPkduck(Query query, String[] args) {
-		super(query, args);
+	public JoinPkduck(String[] args) {
+		super(args);
 		mode = Ordering.valueOf( param.getStringParam("ord") );
 		switch(mode) {
 		case PF: globalOrder = new PositionFirstOrder( 1 ); break;
@@ -53,7 +53,7 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 		useRuleComp = param.getBooleanParam("rc");
 		verify = param.getStringParam("verify");
 		if (verify.equals( "naive" )) checker = new NaiveOneSide();
-		else if (verify.equals( "greedy" )) checker = new GreedyValidatorEquiv( query.oneSideJoin );
+		else if (verify.equals( "greedy" )) checker = new GreedyValidatorEquiv();
 		else if (verify.equals( "TD" )) checker = new TopDownOneSide();
 		else throw new RuntimeException(getName()+" does not support verification: "+verify);
 		useLF = param.getBooleanParam("useLF");
