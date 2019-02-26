@@ -28,7 +28,6 @@ public class App {
 		argOptions.addOption( "outputPath", true, "output path" );
 		argOptions.addOption( "oneSideJoin", true, "One side join" );
 		argOptions.addOption( "algorithm", true, "Algorithm" );
-		argOptions.addOption( "split", false, "Split datasets" );
 		argOptions.addOption( "upload", true, "Upload experiments" );
 		argOptions.addOption( "additional", true, "Additional input arguments" );
 	}
