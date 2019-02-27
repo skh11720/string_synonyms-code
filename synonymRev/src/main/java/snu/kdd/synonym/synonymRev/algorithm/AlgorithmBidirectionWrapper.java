@@ -48,7 +48,15 @@ public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
 		Set<IntegerPair> rslt2 = alg.getResult();
 		StatContainer stat2 = alg.getStat();
 		
-//		 DEBUG: check results
+//		 DEBUG: check unidirectional results
+		checkUnidirResults(stat1, stat2);
+
+		// merge results
+		rslt = mergeResults(rslt1, rslt2);
+		stat = mergeStats(stat1, stat2);
+	}
+
+	private void checkUnidirResults( StatContainer stat1, StatContainer stat2 ) {
 		System.out.println( "=============[" + alg.getName() + " stats1" + "]=============" );
 		stat1.printResult();
 		System.out.println("==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
@@ -56,17 +64,6 @@ public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
 		System.out.println( "=============[" + alg.getName() + " stats2" + "]=============" );
 		stat2.printResult();
 		System.out.println("==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
-
-		// merge results
-		rslt = mergeResults(rslt1, rslt2);
-		stat = mergeStats(stat1, stat2);
-		
-		
-
-//		System.out.println( "=============[" + alg.getName() + " stats_merged" + "]=============" );
-//		stat.printResult();
-//		System.out.println("==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
-
 	}
 	
 	private Set<IntegerPair> mergeResults(Set<IntegerPair> rslt1, Set<IntegerPair> rslt2) {
@@ -86,7 +83,8 @@ public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
 
 	@Override
 	public void writeJSON() {
-		// TODO Auto-generated method stub
+		((AbstractAlgorithm)alg).stat = this.stat; // TODO: is there a better way with no casting..?
+		alg.writeJSON();
 	}
 
 	@Override
@@ -107,5 +105,10 @@ public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
 	@Override
 	public String getName() {
 		return alg.getName();
+	}
+	
+	@Override
+	public String getVersion() {
+		return alg.getVersion();
 	}
 }

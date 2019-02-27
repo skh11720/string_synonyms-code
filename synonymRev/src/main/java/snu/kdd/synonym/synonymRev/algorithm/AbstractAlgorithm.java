@@ -32,10 +32,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	public AbstractAlgorithm( String[] args ) {
 	}
 
-	public abstract String getName();
-
-	public abstract String getVersion();
-	
 	protected abstract void executeJoin();
 	
 	@Override
