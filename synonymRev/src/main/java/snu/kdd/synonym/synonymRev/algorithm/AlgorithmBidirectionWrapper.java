@@ -26,6 +26,7 @@ public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
 
 	@Override
 	public void run( Query query ) {
+		// TODO: skip pairs verified in a direction
 		if ( query.selfJoin ) 
 			throw new RuntimeException(this.getClass().getName()+" does not allow self join.");
 
