@@ -7,7 +7,6 @@ import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVar;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVarBK;
 import snu.kdd.synonym.synonymRev.algorithm.set.JoinBKPSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import vldb17.seq.JoinPkduck;
 import vldb17.set.JoinPkduckOriginal;
@@ -38,7 +37,7 @@ public class AlgorithmFactory {
 		JoinDeltaVarBK,
 	}
 
-	public static AlgorithmInterface getAlgorithmInstance( CommandLine cmd ) {
+	public static AlgorithmInterface getAlgorithmInstance( CommandLine cmd, boolean isSelfJoin ) {
 		AlgorithmInterface alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
@@ -120,6 +119,8 @@ public class AlgorithmFactory {
 			System.exit( 0 );
 			break;
 		}
+		
+		if (!isSelfJoin) alg = new AlgorithmBidirectionWrapper(alg);
 
 		return alg;
 	}

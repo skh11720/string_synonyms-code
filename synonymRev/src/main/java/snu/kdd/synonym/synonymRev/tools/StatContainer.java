@@ -1,5 +1,7 @@
 package snu.kdd.synonym.synonymRev.tools;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -279,6 +281,18 @@ public class StatContainer {
 		return bld.toString();
 	}
 	
+	public void setPrimaryValue( String key, String value ) {
+		for ( int i=0; i< this.primaryNameList.size(); ++i ) {
+			String name = this.primaryNameList.get( i );
+			if ( name.equals(key) ) {
+				this.primaryValueList.set(i, value);
+				return;
+			}
+		}
+		this.primaryNameList.add(key);
+		this.primaryValueList.add(value);
+	}
+	
 	public void merge( StatContainer statOther, Collection<IntegerPair> rslt ) {
 		// build primary(Name,Value)List
 		for ( int i=0; i< this.primaryNameList.size(); ++i ) {
@@ -314,5 +328,54 @@ public class StatContainer {
 			}
 			this.valueList.set( i, value );
 		}
+	}
+
+	public static StatContainer merge( StatContainer stat1, StatContainer stat2 ) {
+		StatContainer stat = new StatContainer();
+
+		// build primary(Name,Value)List
+		for ( int i=0; i< stat1.primaryNameList.size(); ++i ) {
+			String name1 = stat1.primaryNameList.get( i );
+			String value1 = stat1.primaryValueList.get( i );
+			String name2 = stat2.primaryNameList.get( i );
+			String value2 = stat2.primaryValueList.get( i );
+			if ( !name1.equals(name2) ) throw new RuntimeException(name1+", "+name2);
+			String value = value1;
+			try { value = String.valueOf( Long.parseLong(value1) + Long.parseLong(value2) ); }
+			catch ( NumberFormatException e ) {}
+			stat.primaryNameList.add(name1);
+			stat.primaryValueList.add(value);
+		}
+		
+		// build secondary(Name,Value)List
+		Object2ObjectOpenHashMap<String, String> mapStat2 = new Object2ObjectOpenHashMap<>();
+		for ( int i=0; i< stat2.nameList.size(); ++i ) {
+			String name = stat2.nameList.get( i );
+			String value = stat2.valueList.get( i );
+			mapStat2.put( name, value );
+		}
+
+		for ( int i=0; i< stat1.nameList.size(); ++i ) {
+			String name = stat1.nameList.get( i );
+			String value = stat1.valueList.get( i );
+			if ( !mapStat2.containsKey( name ) ) {}
+			else if ( name.startsWith("alg") || name.startsWith("Param_") ) {}
+			else if ( name.startsWith( "Mem_" ) ) {
+				String value2 = mapStat2.get( name );
+				value = String.valueOf( Long.max( Long.parseLong( value ),Long.parseLong( value2 ) ) );
+			}
+			else {
+				String value2 = mapStat2.get( name );
+				try { value = String.valueOf( Long.parseLong( value ) + Long.parseLong( value2 ) ); }
+				catch ( NumberFormatException e ) {
+					try { value = String.valueOf( Double.parseDouble( value ) + Double.parseDouble( value2 ) ); }
+					catch ( NumberFormatException e2 ) {}
+				}
+			}
+			stat.nameList.add(name);
+			stat.valueList.add(value);
+		}
+		
+		return stat;
 	}
 }

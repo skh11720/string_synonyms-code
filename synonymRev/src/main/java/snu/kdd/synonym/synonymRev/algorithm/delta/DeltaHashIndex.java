@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -26,7 +25,6 @@ public class DeltaHashIndex extends AbstractIndex {
 	 */
 	protected final int deltaMax;
 	protected final boolean isSelfJoin;
-	protected int n_verified = 0;
 	
 	public DeltaHashIndex( int deltaMax, Query query, StatContainer stat ) {
 		this.deltaMax = deltaMax;
@@ -51,7 +49,7 @@ public class DeltaHashIndex extends AbstractIndex {
 		int n_list = 0;
 		for ( Int2ObjectOpenHashMap<List<Record>> map : idx ) n_list += map.size();
 		stat.add("Stat_Index_Size", size );
-		stat.add("Stat_Avg_List_Length", (double)size/n_list);
+		stat.add("Stat_Index_nList", n_list );
 	}
 
 	@Override
@@ -63,24 +61,18 @@ public class DeltaHashIndex extends AbstractIndex {
 			List<IntArrayList> combList = Util.getCombinationsAll( exp.size(), deltaMax );
 			for ( IntArrayList idxList : combList ) {
 				int key = getKey(exp.getTokensArray(), idxList);
-				int d_s = idxList.size();
 				for ( int d_t=0; d_t<=deltaMax; ++d_t ) {
 					if ( idx.get(d_t).containsKey(key) ) {
-//						if ( d_s + d_t <= deltaMax ) {
 						for ( Record recT : idx.get(d_t).get(key) ) {
 							if ( exp.equals(recT) ) matched.add(recT);
 							else candidates.add(recT);
 						}
-//						}
-//						else 
-//							candidates.addAll( idx.get(d_t).get(key) );
 					}
 				}
 //				System.out.println(d_s+", "+key+", "+candidates.size());
 			} // end for idxList
 
-//			candidates.removeAll(matched);
-			n_verified += candidates.size();
+			checker.checked += candidates.size();
 			for ( Record recT : candidates ) {
 				if ( matched.contains(recT) ) continue;
 				/*
@@ -98,13 +90,7 @@ public class DeltaHashIndex extends AbstractIndex {
 
 	@Override
 	protected void postprocessAfterJoin(StatContainer stat) {
-		stat.add("Val_Comparisons", n_verified );
 	}
-	
-//	protected boolean isEquivalent( Record x, Record y ) {
-//		if ( deltaMax == 0 ) return true;
-//		return Util.edit( x.getTokensArray(), y.getTokensArray(), deltaMax, 0, 0, x.size(), y.size() ) <= deltaMax;
-//	}
 	
 	protected static int getKey( int[] arr, IntArrayList idxList ) {
 		/*

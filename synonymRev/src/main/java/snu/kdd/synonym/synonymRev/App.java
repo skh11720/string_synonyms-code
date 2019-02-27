@@ -35,7 +35,7 @@ public class App {
 	public static void main( String args[] ) throws IOException, ParseException {
 		CommandLine cmd = parseInput( args );
 		Query query = Query.parseQuery( cmd );
-		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd);
+		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd, query.selfJoin );
 		alg.run(query);
 		AlgorithmResultQualityEvaluator.evaluate(alg, query, groundPath);
 
@@ -56,7 +56,6 @@ public class App {
 	public static void printStat( AlgorithmInterface alg ) {
 		System.out.println( "=============[" + alg.getName() + " stats" + "]=============" );
 		alg.getStat().printResult();
-		System.out.println(
-				"==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
+		System.out.println("==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
 	}
 }

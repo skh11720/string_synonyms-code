@@ -81,7 +81,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 		}
 		watch.stopQuietAndAdd(stat);
 		stat.add( "Stat_Applicable_Rule_TableSearched", applicableRules );
-		stat.add( "Stat_Avg_applicable_rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
 	}
 	
 	private final void computeTransformLengths() {

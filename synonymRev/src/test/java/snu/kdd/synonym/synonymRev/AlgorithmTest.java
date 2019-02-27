@@ -158,7 +158,7 @@ public class AlgorithmTest {
 		else query = AlgorithmTest.get2WayJoinQuery();
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
-		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd);
+		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd, false);
 		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
 		alg.run(query);
