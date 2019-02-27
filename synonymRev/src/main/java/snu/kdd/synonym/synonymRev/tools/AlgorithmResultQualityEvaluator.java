@@ -39,7 +39,7 @@ public class AlgorithmResultQualityEvaluator {
 	}
 	
 	private AlgorithmResultQualityEvaluator( AlgorithmInterface alg, Query query, String groundPath ) {
-		outputPath = "./tmp/EVAL_" + query.dataInfo.getName();
+		outputPath = "./tmp/EVAL_" + query.dataInfo.datasetName;
 		searchedSet = query.searchedSet;
 		indexedSet = query.indexedSet;
 		Set<IntegerPair> rslt = alg.getResult();

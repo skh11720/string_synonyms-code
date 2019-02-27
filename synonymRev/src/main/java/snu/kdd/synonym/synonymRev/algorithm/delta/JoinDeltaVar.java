@@ -37,7 +37,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_indexK", indexK);
-		stat.add("param_qSize", qSize);
+		stat.add("Param_qSize", qSize);
 		stat.add("Param_deltaMax", deltaMax);
 		stat.add("Param_distFunct", distFunc);
 		stat.add("Param_useLF", useLF);

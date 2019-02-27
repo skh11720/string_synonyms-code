@@ -15,7 +15,7 @@ public class Query {
 	public final Dataset searchedSet;
 	public final String outputPath;
 	public final TokenIndex tokenIndex;
-	public final boolean oneSideJoin;
+	public final boolean oneSideJoin; // TODO: remove this variable
 	public final boolean selfJoin;
 
 	public static Query parseQuery( CommandLine cmd ) throws IOException {

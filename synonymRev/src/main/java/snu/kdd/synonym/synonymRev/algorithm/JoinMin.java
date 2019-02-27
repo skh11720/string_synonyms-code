@@ -41,7 +41,7 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_indexK", indexK);
-		stat.add("param_qSize", qSize);
+		stat.add("Param_qSize", qSize);
 		stat.add("Param_useLF", useLF);
 		stat.add("Param_usePQF", usePQF);
 		stat.add("Param_useSTPQ", useSTPQ);
