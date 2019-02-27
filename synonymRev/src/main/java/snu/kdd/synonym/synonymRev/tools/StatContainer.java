@@ -1,7 +1,5 @@
 package snu.kdd.synonym.synonymRev.tools;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,6 +67,13 @@ public class StatContainer {
 	public void addPrimary( String name, String value ) {
 		primaryNameList.add( name );
 		primaryValueList.add( value );
+	}
+	
+	public long getLong( String key ) {
+		for ( int i=0; i<nameList.size(); ++i ) {
+			if ( nameList.get(i).equals(key) ) return Long.parseLong(valueList.get(i));
+		}
+		throw new RuntimeException("StatContainer has no such key: "+key);
 	}
 
 	public String getLegend( int[] primarykeyblank, int[] keyblank ) {

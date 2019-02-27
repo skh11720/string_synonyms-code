@@ -74,30 +74,40 @@ public class TestUtils {
 			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
 			rulePath = prefix + "rule"+sep+"30000_2_2_1000000_0.0_0.txt";
 		}
+		else if ( name.equals( "UNIV_1_2" ) ) {
+			dataOnePath = prefix + String.format( "univ"+sep+"universities_list_1000_1.txt" );
+			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_1000_2.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "UNIV_2_1" ) ) {
+			dataOnePath = prefix + String.format( "univ"+sep+"universities_list_1000_2.txt" );
+			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_1000_1.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
 		else throw new RuntimeException();
 
 		String outputPath = "output";
 		boolean oneSideJoin = true;
 		Query query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
 
-		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
-		for ( Record record : query.searchedSet.recordList ) {
-			record.preprocessApplicableRules( automata );
-			record.preprocessSuffixApplicableRules();
-			record.preprocessTransformLength();
-			record.preprocessTransformLength();
-			record.preprocessEstimatedRecords();
-		}
-
-		if ( !query.selfJoin ) {
-			for ( Record record : query.indexedSet.recordList ) {
-				record.preprocessApplicableRules( automata );
-				record.preprocessSuffixApplicableRules();
-				record.preprocessTransformLength();
-				record.preprocessTransformLength();
-				record.preprocessEstimatedRecords();
-			}
-		}
+//		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
+//		for ( Record record : query.searchedSet.recordList ) {
+//			record.preprocessApplicableRules( automata );
+//			record.preprocessSuffixApplicableRules();
+//			record.preprocessTransformLength();
+//			record.preprocessTransformLength();
+//			record.preprocessEstimatedRecords();
+//		}
+//
+//		if ( !query.selfJoin ) {
+//			for ( Record record : query.indexedSet.recordList ) {
+//				record.preprocessApplicableRules( automata );
+//				record.preprocessSuffixApplicableRules();
+//				record.preprocessTransformLength();
+//				record.preprocessTransformLength();
+//				record.preprocessEstimatedRecords();
+//			}
+//		}
 		return query;
 	}
 
