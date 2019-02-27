@@ -64,22 +64,22 @@ public class DeltaHashIndex extends AbstractIndex {
 				for ( int d_t=0; d_t<=deltaMax; ++d_t ) {
 					if ( idx.get(d_t).containsKey(key) ) {
 						for ( Record recT : idx.get(d_t).get(key) ) {
-							if ( exp.equals(recT) ) matched.add(recT);
-							else candidates.add(recT);
+							candidates.add(recT);
 						}
 					}
 				}
 //				System.out.println(d_s+", "+key+", "+candidates.size());
 			} // end for idxList
 
-			checker.checked += candidates.size();
 			for ( Record recT : candidates ) {
 				if ( matched.contains(recT) ) continue;
 				/*
 				 * Even though exp and recT is equivalent, we have to compute the edit distance.
 				 * e.g., ABCDE and CDEFG with deltaMax=2
 				 */
-				if ( ((AbstractDeltaValidator)checker).distGivenThres.eval(exp.getTokensArray(), recT.getTokensArray(), deltaMax) <= deltaMax ) {
+				++checker.checked;
+				if ( exp.equals(recT) ) matched.add(recT);
+				else if ( ((AbstractDeltaValidator)checker).distGivenThres.eval(exp.getTokensArray(), recT.getTokensArray(), deltaMax) <= deltaMax ) {
 					matched.add(recT);
 				}
 			}

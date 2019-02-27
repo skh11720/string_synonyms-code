@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import snu.kdd.synonym.synonymRev.algorithm.AbstractParameterizedAlgorithm;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
 public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
@@ -24,7 +23,7 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 	@Override
 	public void initialize() {
 		super.initialize();
-		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
+		checker = new DeltaValidatorNaive(deltaMax, distFunc);
 	}
 
 	@Override
