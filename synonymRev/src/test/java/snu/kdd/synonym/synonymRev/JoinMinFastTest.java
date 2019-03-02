@@ -14,7 +14,6 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
 import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class JoinMinFastTest {
 	
@@ -31,8 +30,8 @@ public class JoinMinFastTest {
 		for ( String dataset : datasetList ) {
 			for ( double sampleRatio : sampleRatioList ) {
 				Query query = TestUtils.getTestQuery( dataset, size );
-				JoinMinFast alg = new JoinMinFast( query, String.format( "-K %d -qSize %d -sample %.4f", K, q, sampleRatio ).split( " " ) );
-				alg.run();
+				JoinMinFast alg = new JoinMinFast( String.format( "-K %d -qSize %d -sample %.4f", K, q, sampleRatio ).split( " " ) );
+				alg.run(query);
 				JSONParser jparser = new JSONParser();
 				alg.getStat().printResult();
 				JSONObject jobj = (JSONObject) jparser.parse( "{"+alg.getStat().toJson()+"}" );

@@ -7,7 +7,6 @@ import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVar;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaVarBK;
 import snu.kdd.synonym.synonymRev.algorithm.set.JoinBKPSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import vldb17.seq.JoinPkduck;
 import vldb17.set.JoinPkduckOriginal;
@@ -38,7 +37,7 @@ public class AlgorithmFactory {
 		JoinDeltaVarBK,
 	}
 
-	public static AlgorithmInterface getAlgorithmInstance(Query query, CommandLine cmd ) {
+	public static AlgorithmInterface getAlgorithmInstance( CommandLine cmd, boolean isSelfJoin ) {
 		AlgorithmInterface alg = null;
 		AlgorithmName algorithmName = AlgorithmName.valueOf( cmd.getOptionValue( "algorithm" ) );
 
@@ -48,71 +47,71 @@ public class AlgorithmFactory {
 
 		switch( algorithmName ) {
 		case JoinNaive:
-			alg = new JoinNaive( query, additionalArgs );
+			alg = new JoinNaive( additionalArgs );
 			break;
 
 		case JoinMH:
-			alg = new JoinMH( query, additionalArgs );
+			alg = new JoinMH( additionalArgs );
 			break;
 
 		case JoinMin:
-			alg = new JoinMin( query, additionalArgs );
+			alg = new JoinMin( additionalArgs );
 			break;
 
 		case JoinMinFast:
-			alg = new JoinMinFast( query, additionalArgs );
+			alg = new JoinMinFast( additionalArgs );
 			break;
 
 		case JoinHybridAll:
-			alg = new JoinHybridAll( query, additionalArgs );
+			alg = new JoinHybridAll( additionalArgs );
 			break;
 
 		case SIJoin:
-			alg = new SIJoin( query, additionalArgs );
+			alg = new SIJoin( additionalArgs );
 			break;
 
 		case SIJoinOriginal:
-			alg = new SIJoinOriginal( query, additionalArgs );
+			alg = new SIJoinOriginal( additionalArgs );
 			break;
 
 		case JoinPkduck:
-			alg = new JoinPkduck( query, additionalArgs );
+			alg = new JoinPkduck( additionalArgs );
 			break;
 
 		case JoinPkduckSet:
-			alg = new JoinPkduckSet( query, additionalArgs );
+			alg = new JoinPkduckSet( additionalArgs );
 			break;
 
 		case JoinPkduckOriginal:
-			alg = new JoinPkduckOriginal( query, additionalArgs );
+			alg = new JoinPkduckOriginal( additionalArgs );
 			break;
 
 		case JoinBKPSet:
-			alg = new JoinBKPSet ( query, additionalArgs );
+			alg = new JoinBKPSet ( additionalArgs );
 			break;
 
 		case JoinSetNaive:
-			alg = new JoinSetNaive( query, additionalArgs );
+			alg = new JoinSetNaive( additionalArgs );
 			break;
 
 		case PassJoin:
-			alg = new PassJoin( query, additionalArgs );
+			alg = new PassJoin( additionalArgs );
 			break;
 		
 		case JoinDeltaNaive:
-			alg = new JoinDeltaNaive( query, additionalArgs );
+			alg = new JoinDeltaNaive( additionalArgs );
 			break;
 
 		case JoinDeltaSimple:
-			alg = new JoinDeltaSimple( query, additionalArgs );
+			alg = new JoinDeltaSimple( additionalArgs );
 			break;
 
 		case JoinDeltaVar:
-			alg = new JoinDeltaVar( query, additionalArgs );
+			alg = new JoinDeltaVar( additionalArgs );
 			break;
 
 		case JoinDeltaVarBK:
-			alg = new JoinDeltaVarBK( query, additionalArgs );
+			alg = new JoinDeltaVarBK( additionalArgs );
 			break;
 		
 		default:
@@ -120,6 +119,8 @@ public class AlgorithmFactory {
 			System.exit( 0 );
 			break;
 		}
+		
+		if (!isSelfJoin) alg = new AlgorithmBidirectionWrapper(alg);
 
 		return alg;
 	}

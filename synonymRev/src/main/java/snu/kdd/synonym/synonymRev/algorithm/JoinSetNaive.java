@@ -29,8 +29,8 @@ public class JoinSetNaive extends AbstractAlgorithm {
 //	private long nScanList = 0;
 
 
-	public JoinSetNaive(Query query, String[] args) {
-		super(query, args);
+	public JoinSetNaive( String[] args) {
+		super(args);
 	}
 	
 	@Override
@@ -42,7 +42,7 @@ public class JoinSetNaive extends AbstractAlgorithm {
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		rslt = join( stat, query, writeResult );
+		rslt = join( stat, query, writeResultOn );
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 	}

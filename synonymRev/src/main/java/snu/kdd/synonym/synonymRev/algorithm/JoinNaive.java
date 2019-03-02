@@ -1,6 +1,5 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
@@ -11,8 +10,8 @@ public class JoinNaive extends AbstractAlgorithm {
 	// statistics used for building indexes
 	public double avgTransformed;
 
-	public JoinNaive(Query query, String[] args) {
-		super(query, args);
+	public JoinNaive( String[] args) {
+		super(args);
 	}
 
 	@Override
@@ -21,13 +20,13 @@ public class JoinNaive extends AbstractAlgorithm {
 		StopWatch stepTime = null;
 		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 
-		idx = new NaiveIndex( query, stat, writeResult );
+		idx = new NaiveIndex( query, stat, writeResultOn );
 
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		rslt = idx.join( query, stat, null, writeResult );
+		rslt = idx.join( query, stat, null, writeResultOn );
 
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );

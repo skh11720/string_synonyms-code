@@ -3,7 +3,6 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -25,19 +24,24 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 	public JoinMinIndex idx;
 
 	
-	public JoinMin(Query query, String[] args) {
-		super(query, args);
+	public JoinMin(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new TopDownOneSide();
 	}
 	
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_indexK", indexK);
-		stat.add("param_qSize", qSize);
+		stat.add("Param_qSize", qSize);
 		stat.add("Param_useLF", useLF);
 		stat.add("Param_usePQF", usePQF);
 		stat.add("Param_useSTPQ", useSTPQ);
@@ -54,13 +58,13 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 
 		if( DEBUG.JoinMinON ) {
-			if( writeResult ) {
+			if( writeResultOn ) {
 				stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
 				stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
 
@@ -110,7 +114,7 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 
 	@Override
 	protected void buildIndex() {
-		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
+		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResultOn );
 		JoinMinIndex.useLF = useLF;
 		JoinMinIndex.usePQF = usePQF;
 		JoinMinIndex.useSTPQ = useSTPQ;

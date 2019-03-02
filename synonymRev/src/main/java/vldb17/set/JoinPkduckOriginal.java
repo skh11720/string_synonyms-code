@@ -49,16 +49,22 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 	
 	public static PrintWriter pw = null;
 
-	public JoinPkduckOriginal(Query query, String[] args) {
-		super(query, args);
+	public JoinPkduckOriginal(String[] args) {
+		super(args);
 		mode = Ordering.valueOf( param.getStringParam("ord") );
+		theta = param.getDoubleParam("theta");
+		useRuleComp = param.getBooleanParam("rc");
+		useLF = param.getBooleanParam("useLF");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
-		theta = param.getDoubleParam("theta");
-		useRuleComp = param.getBooleanParam("rc");
-		useLF = param.getBooleanParam("useLF");
+
 		checker = new GreedyValidatorOriginal(query, theta);
 
 		try {
@@ -99,13 +105,13 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		rslt = join( stat, query, writeResult );
+		rslt = join( stat, query, writeResultOn );
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 	}
 	
 	public void buildIndex() {
-		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, theta, stat, globalOrder, writeResult );
+		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, theta, stat, globalOrder, writeResultOn );
 	}
 	
 	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {

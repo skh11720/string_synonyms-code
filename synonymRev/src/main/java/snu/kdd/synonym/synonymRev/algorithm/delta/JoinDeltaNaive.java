@@ -1,7 +1,6 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import snu.kdd.synonym.synonymRev.algorithm.AbstractParameterizedAlgorithm;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
 public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
@@ -9,20 +8,28 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 	public static boolean useLF = true;
 
 	public final int deltaMax;
+	public final String distFunc;
 	
 	protected DeltaHashIndex idx;
 
 	
-	public JoinDeltaNaive(Query query, String[] args) {
-		super(query, args);
+	public JoinDeltaNaive(String[] args) {
+		super(args);
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
+		checker = new DeltaValidatorNaive(deltaMax, distFunc);
 	}
 
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_distFunct", distFunc);
 		stat.add("Param_useLF", useLF);
 	}
 
@@ -34,7 +41,7 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

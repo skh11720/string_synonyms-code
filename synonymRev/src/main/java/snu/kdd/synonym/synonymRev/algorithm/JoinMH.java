@@ -3,7 +3,6 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -26,19 +25,24 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 	protected JoinMHIndex idx;
 
 	
-	public JoinMH(Query query, String[] args) {
-		super(query, args);
+	public JoinMH(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new TopDownOneSide();
 	}
 	
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_indexK", indexK);
-		stat.add("param_qSize", qSize);
+		stat.add("Param_qSize", qSize);
 		stat.add("Param_useLF", useLF);
 		stat.add("Param_usePQF", usePQF);
 		stat.add("Param_useSTPQ", useSTPQ);
@@ -54,7 +58,7 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
@@ -100,7 +104,7 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		idx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, indexPosition, writeResultOn, true, 0 );
 		JoinMHIndex.useLF = useLF;
 		JoinMHIndex.usePQF = usePQF;
 		JoinMHIndex.useSTPQ = useSTPQ;

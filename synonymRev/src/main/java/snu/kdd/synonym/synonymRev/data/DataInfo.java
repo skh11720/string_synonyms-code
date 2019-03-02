@@ -6,22 +6,25 @@ public class DataInfo {
 
 	boolean isSynthetic = false;
 
-	final String dataOnePath;
-	final String dataTwoPath;
-	final String rulePath;
-	final String name;
+	public final String dataOnePath;
+	public final String dataTwoPath;
+	public final String rulePath;
+	public final String dataOneFileName;
+	public final String dataTwoFileName;
+	public final String ruleFileName;
+	public final String datasetName;
 
 	public DataInfo( String dataOnePath, String dataTwoPath, String rulePath ) {
 		this.dataOnePath = dataOnePath;
 		this.dataTwoPath = dataTwoPath;
 		this.rulePath = rulePath;
-		name = setName();
+		this.dataOneFileName = dataOnePath.substring( dataOnePath.lastIndexOf(File.separator) + 1 );
+		this.dataTwoFileName = dataTwoPath.substring( dataTwoPath.lastIndexOf(File.separator) + 1 );
+		this.ruleFileName = rulePath.substring( rulePath.lastIndexOf(File.separator) + 1 );
+		this.datasetName = setName();
 	}
 	
 	private String setName() {
-		final String dataOneFileName = dataOnePath.substring( dataOnePath.lastIndexOf(File.separator) + 1 );
-		final String dataTwoFileName = dataTwoPath.substring( dataTwoPath.lastIndexOf(File.separator) + 1 );
-		final String ruleFileName = rulePath.substring( rulePath.lastIndexOf(File.separator) + 1 );
 
 		if( isSelfJoin() ) {
 			return dataOneFileName + "_SelfJoin" + "_wrt_" + ruleFileName;
@@ -37,7 +40,7 @@ public class DataInfo {
 
 	public String toJson() {
 		StringBuilder bld = new StringBuilder();
-		bld.append( "\"Name\": \"" + name + "\"" );
+		bld.append( "\"Name\": \"" + datasetName + "\"" );
 		bld.append( ", \"Data One Path\": \"" + dataOnePath + "\"" );
 		bld.append( ", \"Data Two Path\": \"" + dataTwoPath + "\"" );
 		bld.append( ", \"Rule Path\": \"" + rulePath + "\"" );
@@ -45,6 +48,6 @@ public class DataInfo {
 	}
 	
 	public String getName() {
-		return name;
+		return datasetName;
 	}
 }

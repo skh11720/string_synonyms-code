@@ -3,7 +3,6 @@ package snu.kdd.synonym.synonymRev.algorithm;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
@@ -45,10 +44,15 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 	protected long maxIndexedEstNumRecords = 0;
 
 
-	public JoinHybridAll(Query query, String[] args) {
-		super(query, args);
+	public JoinHybridAll(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
 		sampleH = param.getDoubleParam("sampleH");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		checker = new TopDownOneSide();
 	}
 

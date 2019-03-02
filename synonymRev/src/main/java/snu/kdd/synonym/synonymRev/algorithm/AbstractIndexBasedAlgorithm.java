@@ -1,11 +1,9 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import snu.kdd.synonym.synonymRev.data.Query;
-
 public abstract class AbstractIndexBasedAlgorithm extends AbstractParameterizedAlgorithm {
 
-	public AbstractIndexBasedAlgorithm(Query query, String[] args) {
-		super(query, args);
+	public AbstractIndexBasedAlgorithm(String[] args) {
+		super(args);
 	}
 
 	protected abstract void buildIndex();

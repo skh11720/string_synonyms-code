@@ -1,13 +1,11 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import snu.kdd.synonym.synonymRev.data.Query;
-
 public class JoinDeltaVarBK extends JoinDeltaVar {
 	
 	protected final double sampleB;
 
-	public JoinDeltaVarBK(Query query, String[] args) {
-		super(query, args);
+	public JoinDeltaVarBK(String[] args) {
+		super(args);
 		sampleB = param.getDoubleParam("sampleB");
 	}
 

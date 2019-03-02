@@ -95,8 +95,8 @@ public class PkduckTest {
 	}
 	
 	public static void joinTest(AbstractGlobalOrder globalOrder) throws IOException, ParseException {
-		JoinPkduck joinPkduck = new JoinPkduck( query, new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"} );
-		joinPkduck.run();
+		JoinPkduck joinPkduck = new JoinPkduck( new String[] {"-globalOrder", globalOrder.toString(), "-verify", "naive"} );
+		joinPkduck.run(query);
 	}
 
 	public static void naiveValidatorTest() {
@@ -130,7 +130,7 @@ public class PkduckTest {
 	}
 	
 	public static void greedyValidatorTest() {
-		GreedyValidatorEquiv checker = new GreedyValidatorEquiv( query.oneSideJoin );
+		GreedyValidatorEquiv checker = new GreedyValidatorEquiv();
 		int n = query.searchedSet.size();
 		int m = query.indexedSet.size();
 		long sec = 0;

@@ -21,33 +21,35 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public abstract class AbstractAlgorithm implements AlgorithmInterface, AlgorithmStatInterface {
 
-	protected final Query query;
-	protected final StatContainer stat;
+	protected StatContainer stat;
+	protected Query query;
 	protected Validator checker = null;
 	protected AbstractParam param;
 	public Set<IntegerPair> rslt = null;
-	public boolean writeResult = true;
+	public boolean writeResultOn = true;
 
 
-	public AbstractAlgorithm( Query query, String[] args ) {
-		this.stat = new StatContainer();
-		this.query = query;
-		stat.add( "alg", getName() );
-		stat.add( "alg_version", getVersion() );
+	public AbstractAlgorithm( String[] args ) {
 	}
 
-	public abstract String getName();
-
-	public abstract String getVersion();
-	
 	protected abstract void executeJoin();
+	
+	@Override
+	public void initialize() {
+		this.stat = new StatContainer();
+		this.stat.add( "alg", getName() );
+		this.stat.add( "alg_version", getVersion() );
+	}
 
-	public void run() {
+	public void run( Query query ) {
 		StopWatch totalTime = StopWatch.getWatchStarted(TOTAL_RUNNING_TIME);
+		this.query = query;
+		initialize();
 		preprocess();
 		executeJoinWrapper();
 		totalTime.stop();
 		stat.addPrimary(totalTime);
+		stat.addPrimary( "Final_Result_Size", rslt.size() );
 
 		if (checker != null) checker.addStat(stat);
 		writeResult();
@@ -75,7 +77,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 		}
 		watch.stopQuietAndAdd(stat);
 		stat.add( "Stat_Applicable_Rule_TableSearched", applicableRules );
-		stat.add( "Stat_Avg_applicable_rules", Double.toString( (double) applicableRules / query.searchedSet.size() ) );
 	}
 	
 	private final void computeTransformLengths() {
@@ -107,8 +108,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	}
 
 	public void writeResult() {
-		if ( !writeResult ) return;
-		stat.addPrimary( "Final_Result_Size", rslt.size() );
+		if ( !writeResultOn ) return;
 
 		try {
 			if( DEBUG.AlgorithmON ) {
@@ -230,18 +230,12 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	
 	@Override
 	public void setWriteResult( boolean flag ) {
-		this.writeResult = flag;
+		this.writeResultOn = flag;
 	}
 	
 	@Override
 	public StatContainer getStat() { return stat; }
 	
-
-	@Override
-	public Query getQuery() {
-		return query;
-	}
-
 	public String getOutputName() {
 		String[] tokens = query.getSearchedPath().split("\\"+File.separator);
 		String data1Name = tokens[tokens.length-1].split("\\.")[0];

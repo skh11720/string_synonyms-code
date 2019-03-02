@@ -7,12 +7,6 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 abstract public class AbstractSetValidator extends Validator {
 	
-	protected final Boolean selfJoin;
-	
-	public AbstractSetValidator( Boolean selfJoin ) {
-		this.selfJoin = selfJoin;
-	}
-	
 	protected static int[] getSortedTokenArray( Record rec ) {
 		int[] sorted = rec.getTokensArray().clone();
 		Arrays.sort(sorted);
@@ -44,7 +38,6 @@ abstract public class AbstractSetValidator extends Validator {
 		int res;
 		if( areSameString( x, y ) ) res = 0;
 		else if ( isEqualOneSide( x, y ) > 0 ) res = 1;
-//		else if ( !selfJoin && isEqualOneSide( y, x ) > 0 ) res = 1;
 		else res = -1;
 		return res;
 	}

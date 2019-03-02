@@ -4,7 +4,6 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
@@ -14,25 +13,33 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 
 	public final int indexK;
 	public final int deltaMax;
+	public final String distFunc;
 
 	protected JoinDeltaVarIndex idx;
 	
 	
-	public JoinDeltaVar(Query query, String[] args) {
-		super(query, args);
+	public JoinDeltaVar(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
+		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 	
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_indexK", indexK);
-		stat.add("param_qSize", qSize);
+		stat.add("Param_qSize", qSize);
 		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_distFunct", distFunc);
 		stat.add("Param_useLF", useLF);
 		stat.add("Param_usePQF", usePQF);
 		stat.add("Param_useSTPQ", useSTPQ);
@@ -48,7 +55,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );

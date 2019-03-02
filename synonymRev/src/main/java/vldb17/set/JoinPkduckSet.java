@@ -44,20 +44,25 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 	private boolean useLF;
 
 
-	public JoinPkduckSet(Query query, String[] args) {
-		super(query, args);
+	public JoinPkduckSet(String[] args) {
+		super(args);
 		mode = Ordering.valueOf( param.getStringParam("ord") );
+		verify = param.getStringParam("verify");
+		useRuleComp = param.getBooleanParam("rc");
+		useLF = param.getBooleanParam("useLF");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
-		verify = param.getStringParam("verify");
-		if (verify.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
-		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator( query.oneSideJoin );
-		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
+		if (verify.equals( "naive" )) checker = new SetNaiveOneSide();
+		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator();
+		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide();
 		else throw new RuntimeException(getName()+" does not support verification: "+verify);
-		useRuleComp = param.getBooleanParam("rc");
-		useLF = param.getBooleanParam("useLF");
 	}
 	
 	@Override
@@ -84,13 +89,13 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		rslt = join( stat, query, writeResult );
+		rslt = join( stat, query, writeResultOn );
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 	}
 	
 	public void buildIndex() {
-		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, writeResult );
+		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, writeResultOn );
 //		if ( !query.selfJoin ) idxS = new PkduckSetIndex( query.searchedSet.recordList, query, stat, globalOrder, addStat );
 	}
 	

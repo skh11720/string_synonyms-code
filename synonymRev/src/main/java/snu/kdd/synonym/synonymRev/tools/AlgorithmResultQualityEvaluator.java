@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmStatInterface;
 import snu.kdd.synonym.synonymRev.data.Dataset;
+import snu.kdd.synonym.synonymRev.data.Query;
 
 public class AlgorithmResultQualityEvaluator {
 	
@@ -23,12 +24,12 @@ public class AlgorithmResultQualityEvaluator {
 	private final Dataset searchedSet;
 	private final Dataset indexedSet;
 
-	public static void evaluate( AlgorithmInterface alg, String groundPath ) {
+	public static void evaluate( AlgorithmInterface alg, Query query, String groundPath ) {
 		if (groundPath == null ) {
 			System.err.println( "-groundPath option is not given. The quality evaluation skipped.");
 		}
 		else {
-			AlgorithmResultQualityEvaluator evaluator = new AlgorithmResultQualityEvaluator(alg, groundPath);
+			AlgorithmResultQualityEvaluator evaluator = new AlgorithmResultQualityEvaluator(alg, query, groundPath);
 			alg.getStat().add(AlgorithmStatInterface.EVAL_TP, evaluator.tp);
 			alg.getStat().add(AlgorithmStatInterface.EVAL_FP, evaluator.fp);
 			alg.getStat().add(AlgorithmStatInterface.EVAL_FN, evaluator.fn);
@@ -37,10 +38,10 @@ public class AlgorithmResultQualityEvaluator {
 		}
 	}
 	
-	private AlgorithmResultQualityEvaluator( AlgorithmInterface alg, String groundPath ) {
-		outputPath = "./tmp/EVAL_" + alg.getQuery().dataInfo.getName();
-		searchedSet = alg.getQuery().searchedSet;
-		indexedSet = alg.getQuery().indexedSet;
+	private AlgorithmResultQualityEvaluator( AlgorithmInterface alg, Query query, String groundPath ) {
+		outputPath = "./tmp/EVAL_" + query.dataInfo.datasetName;
+		searchedSet = query.searchedSet;
+		indexedSet = query.indexedSet;
 		Set<IntegerPair> rslt = alg.getResult();
 		Set<IntegerPair> groundSet = getGroundTruthSet(groundPath);
 		compareIntPairSetsWrapper(groundSet, rslt);

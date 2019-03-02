@@ -332,14 +332,18 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 //		    	catch ( IOException e ) { e.printStackTrace(); }
 			int compare = checker.isEqual(recS, recT);
 			if (compare >= 0) {
-//						rslt.add(new IntegerPair(recS.getID(), recR.getID()));
 				AbstractAlgorithm.addSeqResult( recS, recT, rslt, isSelfJoin );
 			}
 		}
 			
 		// use the idxByLen to add the equivalent pairs not covered by the filterings.
 		if ( range[0] <= deltaMax ) {
-			for ( Record recT : shortList ) AbstractAlgorithm.addSeqResult( recS, recT, rslt, isSelfJoin );
+			for ( Record recT : shortList ) {
+				int compare = checker.isEqual(recS, recT);
+				if (compare >= 0) {
+					AbstractAlgorithm.addSeqResult( recS, recT, rslt, isSelfJoin );
+				}
+			}
 		}
 		long afterEquivTime = System.nanoTime();
 

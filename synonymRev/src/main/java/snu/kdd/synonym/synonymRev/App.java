@@ -28,7 +28,6 @@ public class App {
 		argOptions.addOption( "outputPath", true, "output path" );
 		argOptions.addOption( "oneSideJoin", true, "One side join" );
 		argOptions.addOption( "algorithm", true, "Algorithm" );
-		argOptions.addOption( "split", false, "Split datasets" );
 		argOptions.addOption( "upload", true, "Upload experiments" );
 		argOptions.addOption( "additional", true, "Additional input arguments" );
 	}
@@ -36,13 +35,13 @@ public class App {
 	public static void main( String args[] ) throws IOException, ParseException {
 		CommandLine cmd = parseInput( args );
 		Query query = Query.parseQuery( cmd );
-		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(query, cmd);
-		alg.run();
-		AlgorithmResultQualityEvaluator.evaluate(alg, groundPath);
+		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd, query.selfJoin );
+		alg.run(query);
+		AlgorithmResultQualityEvaluator.evaluate(alg, query, groundPath);
 
 		if (uploadOn) alg.writeJSON();
-		Util.printLog( alg.getName() + " finished" );
 		printStat(alg);
+		Util.printLog( alg.getName() + " finished" );
 	}
 	
 	public static CommandLine parseInput( String args[] ) throws ParseException {
@@ -57,7 +56,6 @@ public class App {
 	public static void printStat( AlgorithmInterface alg ) {
 		System.out.println( "=============[" + alg.getName() + " stats" + "]=============" );
 		alg.getStat().printResult();
-		System.out.println(
-				"==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
+		System.out.println("==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
 	}
 }
