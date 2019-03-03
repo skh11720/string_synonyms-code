@@ -37,12 +37,12 @@ public class AlgorithmTest {
 			testJoinMin();
 			testJoinMinFast();
 			testJoinHybridAll();
-//			testJoinPkduck(); // FIXME: not working for 2-way join
+			testJoinPkduck();
 			testPassJoin();
-//			
+			
 			testJoinSetNaive();
-//			testJoinPkduckSet(); // FIXME: not working for 2-way join
-//			testJoinBKPSet(); // FIXME: not working for 2-way join
+			testJoinPkduckSet();
+			testJoinBKPSet();
 			
 			testJoinDeltaNaive();
 			testJoinDeltaSimple();
@@ -159,7 +159,7 @@ public class AlgorithmTest {
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
 		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd, query.selfJoin);
-		alg.setWriteResult( false );
+		alg.setWriteResult( true );
 		System.out.println( alg.getName()+", "+param );
 		alg.run(query);
 		System.out.println( "Result size: "+alg.getResult().size() );

@@ -27,8 +27,8 @@ public class Query {
 		return new Query( rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath );
 	}
 
-	public Query( String rulePath, String indexedPath, String searchedPath, boolean oneSideJoin, String outputPath ) throws IOException {
-		this.dataInfo = new DataInfo(indexedPath, searchedPath, rulePath);
+	public Query( String rulePath, String searchedPath, String indexedPath, boolean oneSideJoin, String outputPath ) throws IOException {
+		this.dataInfo = new DataInfo(searchedPath, indexedPath, rulePath);
 		this.outputPath = outputPath;
 		this.oneSideJoin = oneSideJoin;
 		this.tokenIndex = new TokenIndex();
