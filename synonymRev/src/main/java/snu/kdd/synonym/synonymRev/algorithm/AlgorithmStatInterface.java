@@ -19,4 +19,5 @@ public interface AlgorithmStatInterface {
 	public static final String EVAL_FN = "Eval_FN";
 	public static final String EVAL_PRECISION = "Eval_Precision";
 	public static final String EVAL_RECALL = "Eval_Recall";
+	public static final String EVAL_F1SCORE= "Eval_F1score";
 }
