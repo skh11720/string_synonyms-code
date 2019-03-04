@@ -93,7 +93,6 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 		super.preprocess();
 
 		globalOrder.initializeForSet( query );
-		Record.tokenIndex = globalOrder.tokenIndex;
 	}
 	
 	@Override

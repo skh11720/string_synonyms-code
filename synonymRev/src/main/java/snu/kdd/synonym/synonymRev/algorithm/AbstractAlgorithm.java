@@ -37,13 +37,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 
 	protected abstract void executeJoin();
 	
-	@Override
-	public void initialize() {
-		this.stat = new StatContainer();
-		this.stat.add( "alg", getName() );
-		this.stat.add( "alg_version", getVersion() );
-	}
-
 	public void run( Query query ) {
 		StopWatch totalTime = StopWatch.getWatchStarted(TOTAL_RUNNING_TIME);
 		this.query = query;
@@ -58,6 +51,12 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 		writeResult();
 		Util.printGCStats( stat, "Stat" );
 		stat.resultWriter( "result/" + getName() + "_" + getVersion() );
+	}
+	
+	protected void initialize() {
+		this.stat = new StatContainer();
+		this.stat.add( "alg", getName() );
+		this.stat.add( "alg_version", getVersion() );
 	}
 
 	protected void preprocess() {
@@ -113,6 +112,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	public void writeResult() {
 		if ( !writeResultOn ) return;
 
+		Record.tokenIndex = this.query.tokenIndex;
 		try {
 			if( DEBUG.AlgorithmON ) {
 				Util.printLog( "Writing results " + rslt.size() );
