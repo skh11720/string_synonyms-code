@@ -53,11 +53,12 @@ public class GreedyValidatorOriginal extends Validator{
 		else {
 			double simx2y = getSimL2R( x, y, false );
 			if ( simx2y >= theta ) res = 1;
-			else {
-				double simy2x = getSimL2R( y, x, false );
-				if ( simy2x >= theta ) res = 2;
-				else res = -1;
-			}
+//			else {
+//				double simy2x = getSimL2R( y, x, false );
+//				if ( simy2x >= theta ) res = 2;
+//				else res = -1;
+//			}
+			else res = -1;
 		}
 		totalTime += System.nanoTime() - ts;
 		// print output for debugging
