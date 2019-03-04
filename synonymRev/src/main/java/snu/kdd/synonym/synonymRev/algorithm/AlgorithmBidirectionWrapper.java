@@ -8,11 +8,9 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
-public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
+public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 	
 	private AlgorithmInterface alg;
-	private Set<IntegerPair> rslt;
-	private StatContainer stat;
 	
 	public AlgorithmBidirectionWrapper( AlgorithmInterface alg ) {
 		this.alg = alg;
@@ -23,16 +21,17 @@ public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
 	public void initialize() {
 		// NOT USED
 	}
-
+	
 	@Override
 	public void run( Query query ) {
+		this.query = query;
 		// TODO: skip pairs verified in a direction
 		if ( query.selfJoin ) 
 			throw new RuntimeException(this.getClass().getName()+" does not allow self join.");
 
 		Query queryRev = null;
 		try {
-			queryRev = new Query( query.getRulePath(), query.getSearchedPath(), query.getIndexedPath(), query.oneSideJoin, query.outputPath );
+			queryRev = new Query( query.getRulePath(), query.getIndexedPath(), query.getSearchedPath(), query.oneSideJoin, query.outputPath );
 		}
 		catch ( IOException e ) {
 			e.printStackTrace();
@@ -55,6 +54,11 @@ public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
 		// merge results
 		rslt = mergeResults(rslt1, rslt2);
 		stat = mergeStats(stat1, stat2);
+		writeResult();
+	}
+	
+	@Override
+	protected void executeJoin() {
 	}
 
 	private void checkUnidirResults( StatContainer stat1, StatContainer stat2 ) {
@@ -111,5 +115,10 @@ public class AlgorithmBidirectionWrapper implements AlgorithmInterface {
 	@Override
 	public String getVersion() {
 		return alg.getVersion();
+	}
+
+	@Override
+	public String getOutputName() {
+		return getName()+"_merged_"+query.dataInfo.dataOneFileName.split("\\.")[0]+"_"+query.dataInfo.dataTwoFileName.split("\\.")[0];
 	}
 }

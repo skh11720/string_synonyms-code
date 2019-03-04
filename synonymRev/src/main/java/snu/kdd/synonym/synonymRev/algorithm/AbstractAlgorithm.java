@@ -28,6 +28,9 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	public Set<IntegerPair> rslt = null;
 	public boolean writeResultOn = true;
 
+	
+	public AbstractAlgorithm() {
+	}
 
 	public AbstractAlgorithm( String[] args ) {
 	}
@@ -237,14 +240,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	public StatContainer getStat() { return stat; }
 	
 	public String getOutputName() {
-		String[] tokens = query.getSearchedPath().split("\\"+File.separator);
-		String data1Name = tokens[tokens.length-1].split("\\.")[0];
-		String data2Name = null;
-		if ( !query.selfJoin ) {
-			tokens = query.getIndexedPath().split("\\"+File.separator);
-			data2Name = tokens[tokens.length-1].split("\\.")[0];
-		}
-		if ( query.selfJoin ) return getName()+"_"+data1Name;
-		else return getName()+"_"+data1Name+"_"+data2Name;
+		if ( query.selfJoin ) return getName()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0];
+		else return getName()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0]+"_"+query.dataInfo.dataTwoFileName.split("\\.")[0];
 	}
 }
