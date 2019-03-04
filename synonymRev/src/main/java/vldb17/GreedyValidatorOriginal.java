@@ -19,7 +19,6 @@ public class GreedyValidatorOriginal extends Validator{
 	
 	private long nCorrect = 0;
 	private final double theta;
-	private final Query query;
 	
 	private final static Boolean getTime = false;
 	private final static Boolean debugPrint = false;
@@ -33,8 +32,9 @@ public class GreedyValidatorOriginal extends Validator{
 	public long reconstTime = 0;
 	public long compareTime = 0;
 	
-	public GreedyValidatorOriginal(Query query, double theta) {
-		this.query = query;
+	private static final boolean debug_print_transform = false;
+	
+	public GreedyValidatorOriginal(double theta) {
 		this.theta = theta;
 	}
 
@@ -62,7 +62,7 @@ public class GreedyValidatorOriginal extends Validator{
 		}
 		totalTime += System.nanoTime() - ts;
 		// print output for debugging
-		if ( res == 1 || res == 2 ) {
+		if ( debug_print_transform && (res == 1 || res == 2) ) {
 			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString()+"\n"+y.getID()+"\t"+y.toString());
 			if ( res == 1 ) getSimL2R( x, y, true );
 			else getSimL2R( y, x, true );

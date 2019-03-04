@@ -65,7 +65,7 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 		default: throw new RuntimeException("Unexpected error");
 		}
 
-		checker = new GreedyValidatorOriginal(query, theta);
+		checker = new GreedyValidatorOriginal(theta);
 
 		try {
 			String[] tokens = query.getSearchedPath().split("\\"+File.separator);
