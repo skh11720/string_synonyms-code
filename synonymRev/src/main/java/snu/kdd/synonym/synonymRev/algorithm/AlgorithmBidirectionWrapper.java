@@ -24,7 +24,6 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 	
 	@Override
 	public void run( Query query ) {
-		this.query = query;
 		// TODO: skip pairs verified in a direction
 		if ( query.selfJoin ) 
 			throw new RuntimeException(this.getClass().getName()+" does not allow self join.");
@@ -54,6 +53,9 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 		// merge results
 		rslt = mergeResults(rslt1, rslt2);
 		stat = mergeStats(stat1, stat2);
+		
+		// output results
+		this.query = query;
 		writeResult();
 	}
 	

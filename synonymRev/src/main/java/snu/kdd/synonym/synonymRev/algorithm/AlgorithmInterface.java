@@ -7,7 +7,6 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public interface AlgorithmInterface {
-	void initialize();
 	String getName();
 	String getVersion();
 	void run( Query query );

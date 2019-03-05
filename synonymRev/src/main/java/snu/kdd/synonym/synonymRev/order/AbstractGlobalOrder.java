@@ -32,7 +32,9 @@ abstract public class AbstractGlobalOrder {
 	protected int nEntry;
 	protected int max_pos = 0;
 
-	public TokenIndex tokenIndex = null;
+	private TokenIndex tokenIndex = null;
+
+
 	public AbstractGlobalOrder( int qSize) {
 		this.qSize = qSize;
 		if ( qSize == 1 ) {
@@ -57,7 +59,7 @@ abstract public class AbstractGlobalOrder {
 			if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
 		}
 		if ( DEBUG.bGlobalOrderWriteToFile ) writeToFile();
-		buildTokenIndex(query);
+		updateTokenIndex(query);
 	}
 
 	public void initializeForSet( Query query ) {
@@ -67,7 +69,7 @@ abstract public class AbstractGlobalOrder {
 		IntOpenHashSet converted = new IntOpenHashSet();
 		indexByOrder( query.searchedSet.recordList, true, converted );
 		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, false, converted );
-		buildTokenIndex(query);
+		updateTokenIndex(query);
 	}
 	
 	public void initializeForSet( Query query, boolean expand ) {
@@ -77,7 +79,7 @@ abstract public class AbstractGlobalOrder {
 		IntOpenHashSet converted = new IntOpenHashSet();
 		indexByOrder( query.searchedSet.recordList, expand, converted );
 		if ( !query.selfJoin ) indexByOrder( query.indexedSet.recordList, expand, converted );
-		buildTokenIndex(query);
+		updateTokenIndex(query);
 	}
 
 	protected void indexByOrder( List<Record> recordList, boolean expand, IntOpenHashSet converted ) {
@@ -213,7 +215,7 @@ abstract public class AbstractGlobalOrder {
 		return orderMap;
 	}
 	
-	protected void buildTokenIndex( Query query ) {
+	protected void updateTokenIndex( Query query ) {
 		// qSize must be 1.
 //		orderMap: token index -> order
 //		query.tokenIndex: string <-> token index
@@ -228,10 +230,11 @@ abstract public class AbstractGlobalOrder {
 			int order = entry.getValue();
 //			System.out.println(orderMap.size()+", "+order +", "+tokenIndex.int2TokenList.size());
 			String token = query.tokenIndex.getToken(index);
-			this.tokenIndex.put( token, order );
+			tokenIndex.put( token, order );
 			pw.println( index +"\t"+token+"\t"+order );
 		}
 		pw.close();
+		query.tokenIndex = this.tokenIndex;
 	}
 	
 	protected int getOrderFromToken( int token ) {
