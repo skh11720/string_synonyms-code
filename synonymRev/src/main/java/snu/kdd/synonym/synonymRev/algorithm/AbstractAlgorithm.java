@@ -218,34 +218,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 		}
 	}
 	
-	/// newly added
-	public static void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean isSelfJoin ) {
-		addSeqResult( rec1, rec2.getID(), rslt, isSelfJoin );
-	}
-
-	public static void addSeqResult( Record rec1, int rec2id, Set<IntegerPair> rslt, boolean isSelfJoin ) {
-		if ( isSelfJoin ) {
-			int id_smaller = rec1.getID() < rec2id? rec1.getID() : rec2id;
-			int id_larger = rec1.getID() >= rec2id? rec1.getID() : rec2id;
-			rslt.add( new IntegerPair( id_smaller, id_larger) );
-		}
-		else rslt.add( new IntegerPair(rec1.getID(), rec2id) );
-	}
-	
-	public static void addSetResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean leftFromS, boolean isSelfJoin ) {
-		if ( isSelfJoin ) {
-			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
-			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();
-			rslt.add( new IntegerPair( id_smaller, id_larger) );
-		}
-		else {
-			// idx == idxT
-			if ( leftFromS ) rslt.add( new IntegerPair( rec1.getID(), rec2.getID()) );
-			// idx == idxS
-			else rslt.add( new IntegerPair( rec2.getID(), rec1.getID()) );
-		}
-	}
-	
 	@Override
 	public void setWriteResult( boolean flag ) {
 		this.writeResultOn = flag;
