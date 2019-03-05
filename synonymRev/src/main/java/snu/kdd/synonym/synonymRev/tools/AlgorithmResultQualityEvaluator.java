@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
@@ -35,11 +36,12 @@ public class AlgorithmResultQualityEvaluator {
 			alg.getStat().add(AlgorithmStatInterface.EVAL_FN, evaluator.fn);
 			alg.getStat().add(AlgorithmStatInterface.EVAL_PRECISION, evaluator.getPrecision());
 			alg.getStat().add(AlgorithmStatInterface.EVAL_RECALL, evaluator.getRecall());
+			alg.getStat().add(AlgorithmStatInterface.EVAL_F1SCORE, evaluator.getF1score());
 		}
 	}
 	
 	private AlgorithmResultQualityEvaluator( AlgorithmInterface alg, Query query, String groundPath ) {
-		outputPath = "./tmp/EVAL_" + query.dataInfo.datasetName;
+		outputPath = "./tmp/EVAL_" + alg.getName() + "_" + query.dataInfo.datasetName;
 		searchedSet = query.searchedSet;
 		indexedSet = query.indexedSet;
 		Set<IntegerPair> rslt = alg.getResult();
@@ -52,8 +54,10 @@ public class AlgorithmResultQualityEvaluator {
 		try {
 			BufferedReader br = new BufferedReader( new FileReader(groundPath) 	);
 			for (String line = null; (line = br.readLine()) != null; ) {
-				int[] intPairArr = Arrays.stream( line.trim().split("\\s+") ).mapToInt( Integer::parseInt ).toArray();
-				groundSet.add( new IntegerPair(intPairArr) );
+				String[] token = line.trim().split("\\s+");
+				int i1 = Integer.parseInt(token[0]);
+				int i2 = Integer.parseInt(token[1]);
+				groundSet.add( new IntegerPair(i1, i2) );
 			}
 			br.close();
 		}
@@ -115,6 +119,13 @@ public class AlgorithmResultQualityEvaluator {
 	public double getRecall() {
 		if (tp + fn == 0) return 0.0;
 		else return 1.0*tp/(tp + fn);
+	}
+	
+	public double getF1score() {
+		double p = getPrecision();
+		double r = getRecall();
+		if (p+r == 0) return 0.0;
+		else return 2*p*r/(p+r);
 	}
 	
 	public int getTP() {

@@ -65,7 +65,7 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 		default: throw new RuntimeException("Unexpected error");
 		}
 
-		checker = new GreedyValidatorOriginal(query, theta);
+		checker = new GreedyValidatorOriginal(theta);
 
 		try {
 			String[] tokens = query.getSearchedPath().split("\\"+File.separator);
@@ -92,8 +92,7 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 	public void preprocess() {
 		super.preprocess();
 
-		globalOrder.initializeForSet( query, true );
-		Record.tokenIndex = globalOrder.tokenIndex;
+		globalOrder.initializeForSet( query );
 	}
 	
 	@Override
