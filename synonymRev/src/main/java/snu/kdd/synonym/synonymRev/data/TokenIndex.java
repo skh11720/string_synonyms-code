@@ -1,5 +1,10 @@
 package snu.kdd.synonym.synonymRev.data;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -61,5 +66,21 @@ public class TokenIndex {
 		StringBuilder bld = new StringBuilder();
 		for ( int idx : arr ) bld.append( getToken(idx)+' ' );
 		return bld.toString().trim();
+	}
+	
+	public void writeToFile() {
+		if ( token2IntMap.size() != int2TokenList.size() ) throw new RuntimeException("Size mismatch");
+		try {
+			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter("tmp/TokenIndex.txt")));
+			for ( int i=0; i<int2TokenList.size(); ++i ) {
+				String token = int2TokenList.get(i);
+				pw.println(i+"\t"+token+"\t"+token2IntMap.getInt(token));
+			}
+			pw.flush();
+			pw.close();
+		}
+		catch ( IOException e ) {
+			e.printStackTrace();
+		}
 	}
 }

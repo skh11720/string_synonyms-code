@@ -16,7 +16,6 @@ import sigmod13.SIRecord;
 import sigmod13.SI_Tree_Original;
 import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
@@ -74,7 +73,8 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 	@Override
 	public void preprocess() {
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
-		Map<String, Integer> str2int = query.tokenIndex.getMap();
+		Record.tokenIndex = query.tokenIndex;
+		Map<String, Integer> str2int = Record.tokenIndex.getMap();
 
 		for( Record recS : query.searchedSet.get() ) {
 			S.add( new SIRecord( recS.getID(), recS.toString(), str2int, automata) );

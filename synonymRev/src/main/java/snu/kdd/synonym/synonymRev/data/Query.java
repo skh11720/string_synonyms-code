@@ -37,10 +37,10 @@ public class Query {
 		if ( searchedPath == null ) searchedPath = indexedPath;
 		if( indexedPath.equals( searchedPath ) ) selfJoin = true;
 		else selfJoin = false;
-		ruleSet = new Ruleset( rulePath, tokenIndex );
 		indexedSet = new Dataset( indexedPath, tokenIndex );
 		if( selfJoin ) searchedSet = indexedSet;
 		else searchedSet = new Dataset( searchedPath, tokenIndex );
+		ruleSet = new Ruleset( rulePath, searchedSet, tokenIndex );
 
 		printDebugInfo();
 	}

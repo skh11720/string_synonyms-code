@@ -13,27 +13,9 @@ public class Rule implements Comparable<Rule> {
 	private final int hash;
 	boolean isSelfRule = false;
 
-	private static Int2ObjectOpenHashMap<Rule> selfRuleMap = new Int2ObjectOpenHashMap<Rule>();
-	
 	private static int count = 0;
 
 	protected static final Rule[] EMPTY_RULE = new Rule[ 0 ];
-	
-	public static void initStatic() {
-		selfRuleMap = new Int2ObjectOpenHashMap<Rule>();
-		count = 0;
-	}
-
-	public static Rule getSelfRule( int item ) {
-		Rule r = selfRuleMap.get( item );
-
-		if( r == null ) {
-			r = new Rule( item, item );
-			r.isSelfRule = true;
-			selfRuleMap.put( item, r );
-		}
-		return r;
-	}
 
 	public Rule( String str, TokenIndex tokenIndex ) {
 		int hash = 0;

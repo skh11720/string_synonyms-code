@@ -120,7 +120,7 @@ public class AlgorithmFactory {
 			break;
 		}
 		
-		if (!isSelfJoin) alg = new AlgorithmBidirectionWrapper(alg);
+		if (!isSelfJoin && algorithmName != AlgorithmName.SIJoinOriginal) alg = new AlgorithmBidirectionWrapper(alg);
 
 		return alg;
 	}

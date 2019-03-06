@@ -234,7 +234,7 @@ abstract public class AbstractGlobalOrder {
 			pw.println( index +"\t"+token+"\t"+order );
 		}
 		pw.close();
-		query.tokenIndex = this.tokenIndex;
+		Record.tokenIndex = query.tokenIndex = this.tokenIndex;
 	}
 	
 	protected int getOrderFromToken( int token ) {
