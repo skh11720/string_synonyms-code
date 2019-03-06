@@ -159,7 +159,7 @@ public class AlgorithmTest {
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
 		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd, query.selfJoin);
-		alg.setWriteResult( true );
+		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
 		alg.run(query);
 		System.out.println( "Result size: "+alg.getResult().size() );
