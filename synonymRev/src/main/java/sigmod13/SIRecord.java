@@ -85,7 +85,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	 */
 	@Override
 	public HashSet<SIRecordExpanded> generateAll() {
-		if ( applicableRules.size() > 10 ) return null;
+//		if ( applicableRules.size() > 10 ) return null;
 		try {
 			Queue<SIRecordExpanded> queue = new LinkedList<SIRecordExpanded>();
 			queue.add( new SIRecordExpanded( this ) );
@@ -206,7 +206,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 //			return signature;
 //		}
 		HashSet<SIRecordExpanded> expanded = generateAll();
-		if ( expanded == null ) return null;
+//		if ( expanded == null ) return null;
 		for( SIRecordExpanded exp : expanded ) {
 			// In the paper the number of signature is states as belows.
 			// int cut = (int) Math.ceil((1.0 - theta) * exp.size());
