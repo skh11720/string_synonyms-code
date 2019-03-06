@@ -6,9 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
@@ -41,7 +39,7 @@ public class AlgorithmResultQualityEvaluator {
 	}
 	
 	private AlgorithmResultQualityEvaluator( AlgorithmInterface alg, Query query, String groundPath ) {
-		outputPath = "./tmp/EVAL_" + alg.getName() + "_" + query.dataInfo.datasetName;
+		outputPath = "./tmp/EVAL_" + alg.getNameWithParam() + "_" + query.dataInfo.datasetName;
 		searchedSet = query.searchedSet;
 		indexedSet = query.indexedSet;
 		Set<IntegerPair> rslt = alg.getResult();

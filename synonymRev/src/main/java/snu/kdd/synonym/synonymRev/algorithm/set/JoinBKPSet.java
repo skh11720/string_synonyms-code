@@ -235,15 +235,20 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 	}
 
 	@Override
-	public String getName() {
-		return "JoinBKPSet";
-	}
-
-	@Override
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
 		 */
 		return "1.00";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinBKPSet";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%s", getName(), indexK, verify);
 	}
 }

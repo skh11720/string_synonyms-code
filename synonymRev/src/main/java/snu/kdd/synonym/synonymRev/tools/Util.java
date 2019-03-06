@@ -437,7 +437,9 @@ public class Util {
 		}
 		return matrix[xlen][ylen - xlen + threshold];
 	}
-
+	
+	private static int[][] matrix = new int[1][1];
+	
 	public static int edit( int[] x, int[] y, int threshold, int xpos, int ypos, int xlen, int ylen ) {
 		/*
 		 *  G. Li, D. Deng, J. Wang, and J. Feng: PVLDB 2011
@@ -448,7 +450,10 @@ public class Util {
 		if ( xlen <= threshold && ylen <= threshold ) return threshold;
 		if ( xlen == 0 ) return ylen;
 
-		int[][] matrix = new int[xlen + 1][2 * threshold + 1];
+		if ( matrix.length < xlen+1 ) matrix = new int[xlen + 1][2 * threshold + 1];
+		else if ( matrix[0].length < 2*threshold+1 ) {
+			for ( int i=0; i<matrix.length; ++i ) matrix[i] = new int[2*threshold+1];
+		}
 		for (int k = 0; k <= threshold; k++) matrix[0][threshold + k] = k;
 
 		int right = (threshold + (ylen - xlen)) / 2;

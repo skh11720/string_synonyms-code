@@ -270,4 +270,9 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 	public String getName() {
 		return "JoinHybridAll";
 	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d_%.2f", getName(), indexK, qSize, sampleH);
+	}
 }

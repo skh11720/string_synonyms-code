@@ -42,11 +42,6 @@ public class JoinNaive extends AbstractAlgorithm {
 	}
 
 	@Override
-	public String getName() {
-		return "JoinNaive";
-	}
-
-	@Override
 	public String getVersion() {
 		/*
 		 * 2.00: the latest version by yjpark
@@ -54,5 +49,15 @@ public class JoinNaive extends AbstractAlgorithm {
 		 * 2.02: ignore strings with too many transformations
 		 */
 		return "2.02";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinNaive";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return getName();
 	}
 }

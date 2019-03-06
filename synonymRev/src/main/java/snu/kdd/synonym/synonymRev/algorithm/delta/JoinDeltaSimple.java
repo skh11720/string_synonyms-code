@@ -111,7 +111,7 @@ public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 	}
 	
 	@Override
-	public String getOutputName() {
-		return String.format( "%s_d%d", getName(), deltaMax );
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d_%s", getName(), qSize, deltaMax, distFunc);
 	}
 }

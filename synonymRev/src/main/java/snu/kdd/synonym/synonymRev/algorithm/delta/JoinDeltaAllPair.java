@@ -105,4 +105,9 @@ public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 	public String getName() {
 		return "JoinDeltaAllPair";
 	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d_%s", getName(), qSize, deltaMax, distFunc);
+	}
 }

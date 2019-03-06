@@ -192,12 +192,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	}
 	
 	public static void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean isSelfJoin ) {
-		if ( isSelfJoin ) {
-			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
-			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();
-			rslt.add( new IntegerPair( id_smaller, id_larger) );
-		}
-		else rslt.add( new IntegerPair(rec1.getID(), rec2.getID()) );
+		addSeqResult( rec1, rec2.getID(), rslt, isSelfJoin );
 	}
 
 	public static void addSeqResult( Record rec1, int rec2id, Set<IntegerPair> rslt, boolean isSelfJoin ) {
@@ -223,14 +218,6 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 		}
 	}
 	
-	public void getEvaluationResult( AlgorithmResultQualityEvaluator eval ) {
-		stat.add(EVAL_TP, eval.getTP());
-		stat.add(EVAL_FP, eval.getFP());
-		stat.add(EVAL_FN, eval.getFN());
-		stat.add(EVAL_PRECISION, eval.getPrecision());
-		stat.add(EVAL_RECALL, eval.getRecall());
-	}
-	
 	@Override
 	public void setWriteResult( boolean flag ) {
 		this.writeResultOn = flag;
@@ -239,8 +226,8 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	@Override
 	public StatContainer getStat() { return stat; }
 	
-	public String getOutputName() {
-		if ( query.selfJoin ) return getName()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0];
-		else return getName()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0]+"_"+query.dataInfo.dataTwoFileName.split("\\.")[0];
+	public final String getOutputName() {
+		if ( query.selfJoin ) return getNameWithParam()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0];
+		else return getNameWithParam()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0]+"_"+query.dataInfo.dataTwoFileName.split("\\.")[0];
 	}
 }

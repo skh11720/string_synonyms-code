@@ -199,11 +199,6 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 	}
 
 	@Override
-	public String getName() {
-		return "JoinPkduckOriginal";
-	}
-
-	@Override
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
@@ -212,7 +207,12 @@ public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
 	}
 	
 	@Override
-	public String getOutputName() {
-		return String.format( "%s_%.3f", super.getOutputName(), theta );
+	public String getName() {
+		return "JoinPkduckOriginal";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format( "%s_%s_%.2f_%s", getName(), mode, theta, useRuleComp?"T":"F" );
 	}
 }

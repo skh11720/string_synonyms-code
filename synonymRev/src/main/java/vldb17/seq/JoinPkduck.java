@@ -186,11 +186,6 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 	}
 
 	@Override
-	public String getName() {
-		return "JoinPkduck";
-	}
-
-	@Override
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
@@ -206,5 +201,15 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 		 * 1.10: fix a bug
 		 */
 		return "1.10";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinPkduck";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%s_%s_%s", getName(), mode, useRuleComp?"T":"F", verify);
 	}
 }

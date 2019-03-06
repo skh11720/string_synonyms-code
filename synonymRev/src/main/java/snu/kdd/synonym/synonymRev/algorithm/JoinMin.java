@@ -149,4 +149,9 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 	public String getName() {
 		return "JoinMin";
 	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d", getName(), indexK, qSize);
+	}
 }

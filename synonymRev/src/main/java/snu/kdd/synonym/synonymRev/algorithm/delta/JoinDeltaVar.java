@@ -117,4 +117,9 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 	public String getName() {
 		return "JoinDeltaVar";
 	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d_%d_%s", getName(), indexK, qSize, deltaMax, distFunc);
+	}
 }

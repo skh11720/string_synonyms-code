@@ -190,11 +190,6 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 	}
 
 	@Override
-	public String getName() {
-		return "JoinPkduckSet";
-	}
-
-	@Override
 	public String getVersion() {
 		/*
 		 * 1.0: initial version, transform s and compare to t
@@ -209,5 +204,15 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 		 * 1.09: enable the option for length filter
 		 */
 		return "1.09";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinPkduckSet";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%s_%s_%s", getName(), mode, verify, useRuleComp?"T":"F");
 	}
 }
