@@ -121,4 +121,9 @@ public class JoinSetNaive extends AbstractAlgorithm {
 		 */
 		return "1.01";
 	}
+	
+	@Override
+	public String getNameWithParam() {
+		return getName();
+	}
 }

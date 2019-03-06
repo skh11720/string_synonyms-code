@@ -54,11 +54,6 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 	protected void buildIndex() {
 		idx = new PassJoinIndexForSynonyms( query, deltaMax, stat );
 	}
-	
-	@Override
-	public String getName() {
-		return "PassJoin";
-	}
 
 	@Override
 	public String getVersion() {
@@ -68,5 +63,15 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
          * 1.02: modify from PassJoinExact to PassJoin
          */
 		return "1.02";
+	}
+	
+	@Override
+	public String getName() {
+		return "PassJoin";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d", getName(), deltaMax);
 	}
 }

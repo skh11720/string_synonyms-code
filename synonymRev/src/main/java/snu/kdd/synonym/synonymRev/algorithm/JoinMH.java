@@ -110,6 +110,18 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 		JoinMHIndex.useSTPQ = useSTPQ;
 	}
 
+	public double getGamma() {
+		return idx.getGamma();
+	}
+
+	public double getZeta() {
+		return idx.getZeta();
+	}
+
+	public double getEta() {
+		return idx.getEta();
+	}
+
 	@Override
 	public String getVersion() {
 		/*
@@ -124,16 +136,9 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 	public String getName() {
 		return "JoinMH";
 	}
-
-	public double getGamma() {
-		return idx.getGamma();
-	}
-
-	public double getZeta() {
-		return idx.getZeta();
-	}
-
-	public double getEta() {
-		return idx.getEta();
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d", getName(), indexK, qSize);
 	}
 }

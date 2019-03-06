@@ -226,8 +226,8 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	@Override
 	public StatContainer getStat() { return stat; }
 	
-	public String getOutputName() {
-		if ( query.selfJoin ) return getName()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0];
-		else return getName()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0]+"_"+query.dataInfo.dataTwoFileName.split("\\.")[0];
+	public final String getOutputName() {
+		if ( query.selfJoin ) return getNameWithParam()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0];
+		else return getNameWithParam()+"_"+query.dataInfo.dataOneFileName.split("\\.")[0]+"_"+query.dataInfo.dataTwoFileName.split("\\.")[0];
 	}
 }

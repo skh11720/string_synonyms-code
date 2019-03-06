@@ -110,17 +110,17 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 	}
 
 	@Override
-	public String getName() {
-		return alg.getName();
-	}
-	
-	@Override
 	public String getVersion() {
 		return alg.getVersion();
 	}
 
 	@Override
-	public String getOutputName() {
-		return getName()+"_merged_"+query.dataInfo.dataOneFileName.split("\\.")[0]+"_"+query.dataInfo.dataTwoFileName.split("\\.")[0];
+	public String getName() {
+		return alg.getName();
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("merged_%s", alg.getNameWithParam());
 	}
 }

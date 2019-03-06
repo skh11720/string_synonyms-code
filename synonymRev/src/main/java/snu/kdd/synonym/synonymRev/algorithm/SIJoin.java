@@ -89,4 +89,9 @@ public class SIJoin extends AbstractAlgorithm {
 	public String getName() {
 		return "SIJoin";
 	}
+	
+	@Override
+	public String getNameWithParam() {
+		return getName();
+	}
 }

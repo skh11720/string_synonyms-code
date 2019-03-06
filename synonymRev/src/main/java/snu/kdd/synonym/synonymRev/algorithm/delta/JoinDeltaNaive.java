@@ -59,4 +59,9 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 	public String getName() {
 		return "JoinDeltaNaive";
 	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%s", getName(), deltaMax, distFunc);
+	}
 }
