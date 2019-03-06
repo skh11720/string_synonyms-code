@@ -19,7 +19,6 @@ import snu.kdd.synonym.synonymRev.algorithm.AlgorithmFactory;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.data.Rule;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AlgorithmTest {
@@ -152,7 +151,6 @@ public class AlgorithmTest {
 	
 	private static void runAlgorithm( String param, int answer, boolean isSelfJoin ) throws ParseException, IOException {
 		Record.initStatic();
-		Rule.initStatic();
 		Query query = null;
 		if ( isSelfJoin ) query = AlgorithmTest.getSelfJoinQuery();
 		else query = TestUtils.getTestQuery("UNIV_1_2", -1);

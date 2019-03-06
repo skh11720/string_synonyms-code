@@ -153,7 +153,6 @@ public class ACAutomataR {
 		for( int i = 0; i < tokens.length; ++i ) {
 			// the set of applicable rules in each position
 			tmprslt[ i ] = new ObjectOpenHashSet<>();
-			tmprslt[ i ].add( Rule.getSelfRule( tokens[ i ] ) );
 		}
 
 		State curr = root;
