@@ -14,7 +14,7 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 	
 	public AlgorithmBidirectionWrapper( AlgorithmInterface alg ) {
 		this.alg = alg;
-		alg.setWriteResult(false);
+		alg.setWriteResult(true);
 	}
 	
 	@Override
@@ -106,6 +106,7 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 
 	@Override
 	public void setWriteResult(boolean flag) {
+		this.writeResultOn = flag;
 		alg.setWriteResult(flag);
 	}
 

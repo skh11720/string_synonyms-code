@@ -42,11 +42,14 @@ public class AlgorithmTest {
 			testJoinSetNaive();
 			testJoinPkduckSet();
 			testJoinBKPSet();
+			testJoinPkduckOriginal();
 			
 			testJoinDeltaNaive();
 			testJoinDeltaSimple();
 			testJoinDeltaVar();
 			testJoinDeltaVarBK();
+
+//			testSIJoinOriginal(); //FIXME: gc overhead limit issue
 		}
 	}
 
@@ -84,8 +87,10 @@ public class AlgorithmTest {
 		ANS_SEQ_NONSELF_DELTA.put("lcs", ANS_SEQ_NONSELF_DELTA_LCS);
 	}
 
-	private static final int[] ANS_SET_SELF_DELTA = new int[] {1028}; 
-	private static final int[] ANS_SET_NONSELF_DELTA = new int[] {105};
+	private static final int[] ANS_SET_REPLACE_SELF_DELTA = new int[] {1028, 1070, 1547}; 
+	private static final int[] ANS_SET_REPLACE_NONSELF_DELTA = new int[] {105, 105, 275};
+	private static final int[] ANS_SET_EXPAND_SELF_DELTA = new int[] {1028, 1028, 1028}; 
+	private static final int[] ANS_SET_EXPAND_NONSELF_DELTA = new int[] {105, 105, 105};
 	private static final String[] dist_list = new String[] {"edit", "lcs"};
 
 	
@@ -257,8 +262,8 @@ public class AlgorithmTest {
 		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get("edit")[0];
 		else answer = ANS_SEQ_NONSELF_DELTA.get("edit")[0];
 		int[] answer_list;
-		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-1, answer-1, answer, answer, answer-1, answer-1 };
-		else answer_list = new int[] {answer, answer, answer, answer, answer, answer, answer, answer};
+		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-2, answer-2, answer, answer, answer-2, answer-2 };
+		else answer_list = new int[] {answer, answer, answer-0, answer-0, answer, answer, answer-0, answer-0};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
 			runAlgorithm( param, answer_list[i] , isSelfJoin );
@@ -290,8 +295,8 @@ public class AlgorithmTest {
 				"\"-1\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
-		else answer = ANS_SET_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SET_REPLACE_SELF_DELTA[0];
+		else answer = ANS_SET_REPLACE_NONSELF_DELTA[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 
@@ -309,9 +314,15 @@ public class AlgorithmTest {
 				"\"-ord FF -verify greedy -rc true -lf false\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
-		else answer = ANS_SET_NONSELF_DELTA[0];
-		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+		if ( isSelfJoin ) answer = ANS_SET_REPLACE_SELF_DELTA[0];
+		else answer = ANS_SET_REPLACE_NONSELF_DELTA[0];
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-1, answer-1, answer, answer, answer-1, answer-1 };
+		else answer_list = new int[] {answer, answer, answer, answer, answer, answer, answer, answer};
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i], isSelfJoin );
+		}
 	}
 
 	@Ignore
@@ -324,9 +335,41 @@ public class AlgorithmTest {
 				"\"-K 2 -verify GR1\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
-		else answer = ANS_SET_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SET_REPLACE_SELF_DELTA[0];
+		else answer = ANS_SET_REPLACE_NONSELF_DELTA[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+
+	@Ignore
+	public void testJoinPkduckOriginal() throws ParseException, IOException {
+		args[1] = "JoinPkduckOriginal";
+		String[] param_list = {
+				"\"-ord FF -theta 1.0 -rc false -lf true\"",
+				"\"-ord FF -theta 0.8 -rc false -lf true\"",
+				"\"-ord FF -theta 0.6 -rc false -lf true\"",
+		};
+		int answer;
+		for ( int i=0; i<param_list.length; ++i ) {
+			if ( isSelfJoin ) answer = ANS_SET_REPLACE_SELF_DELTA[i]-1;
+			else answer = ANS_SET_REPLACE_NONSELF_DELTA[i];
+			runAlgorithm( param_list[i], answer, isSelfJoin );
+		}
+	}
+
+	@Ignore
+	public void testSIJoinOriginal() throws ParseException, IOException {
+		args[1] = "SIJoinOriginal";
+		String[] param_list = {
+				"\"-theta 1.0\"",
+				"\"-theta 0.8\"",
+				"\"-theta 0.6\"",
+		};
+		int answer;
+		for ( int i=0; i<param_list.length; ++i ) {
+			if ( isSelfJoin ) answer = ANS_SET_EXPAND_SELF_DELTA[i];
+			else answer = ANS_SET_EXPAND_NONSELF_DELTA[i];
+			runAlgorithm( param_list[i], answer, isSelfJoin );
+		}
 	}
 	
 	
