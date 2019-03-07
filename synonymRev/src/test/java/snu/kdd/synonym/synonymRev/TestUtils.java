@@ -84,6 +84,11 @@ public class TestUtils {
 			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_1000_1.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
+		else if ( name.equals( "NAMES" ) ) {
+			dataOnePath = prefix + String.format( "Names"+sep+"ver_4"+sep+"Names_freebase.txt" );
+			dataTwoPath = prefix + String.format( "Names"+sep+"ver_4"+sep+"Names_sport.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
 		else throw new RuntimeException();
 
 		String outputPath = "output";
