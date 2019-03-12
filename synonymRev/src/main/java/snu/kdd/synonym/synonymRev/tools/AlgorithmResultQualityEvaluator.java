@@ -86,7 +86,7 @@ public class AlgorithmResultQualityEvaluator {
 		for ( final IntegerPair ipair : groundSet ) {
 			if ( ipair.i1 == ipair.i2 ) continue;
 			if ( rslt.contains(ipair) ) {
-				if ( pw != null ) pw.println("TP\t"+getRecordPairStringFromIntPair(ipair));
+				if ( pw != null ) pw.println("TP"+(hasSameString(ipair)?"":"*")+"\t"+getRecordPairStringFromIntPair(ipair));
 				++tp;
 			}
 			else {
@@ -101,6 +101,10 @@ public class AlgorithmResultQualityEvaluator {
 				++fp;
 			}
 		}
+	}
+	
+	private boolean hasSameString( IntegerPair ipair ) {
+		return searchedSet.getRecord(ipair.i1).toString().equals( indexedSet.getRecord(ipair.i2).toString() );
 	}
 	
 	private String getRecordPairStringFromIntPair(IntegerPair ipair) {
