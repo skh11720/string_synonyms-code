@@ -199,8 +199,9 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 		 * 1.08: apply length filter, introduce TD validator
 		 * 1.09: use set based filtering (error)
 		 * 1.10: fix a bug
+		 * 1.11: major update
 		 */
-		return "1.10";
+		return "1.11";
 	}
 
 	@Override

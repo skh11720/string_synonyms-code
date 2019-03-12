@@ -260,10 +260,11 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		 * ---- rollback 2.61
 		 * 2.62: estimate by scaling up terms: 11/122/122
 		 * 2.63: estimate by scaling up terms: 11/112/112
-		 * 2.64: estimate using regression
-		 * 2.65: nEst, conduct regression at most twice
+		 * 2.64(deprecated): estimate using regression 
+		 * 2.65(deprecated): nEst, conduct regression at most twice
+		 * 2.66: major update
 		 */
-		return "2.63";
+		return "2.66";
 	}
 
 	@Override

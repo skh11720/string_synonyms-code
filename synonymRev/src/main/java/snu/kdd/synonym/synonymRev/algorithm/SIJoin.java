@@ -81,8 +81,9 @@ public class SIJoin extends AbstractAlgorithm {
 		 * 1.02: output stats
 		 * 1.03: fix bugs related to length filtering
 		 * 1.04: use token global order, modify signature generation
+		 * 1.05: major update
 		 */
-		return "1.04";
+		return "1.05";
 	}
 
 	@Override

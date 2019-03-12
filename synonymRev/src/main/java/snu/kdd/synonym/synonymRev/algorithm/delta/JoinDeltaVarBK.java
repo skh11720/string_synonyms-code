@@ -28,8 +28,9 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: major update
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override

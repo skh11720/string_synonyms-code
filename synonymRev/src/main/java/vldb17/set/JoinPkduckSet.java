@@ -202,8 +202,9 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 		 * 1.07: fix length filter
 		 * 1.08: ignore records with too many transformations
 		 * 1.09: enable the option for length filter
+		 * 1.10: major update
 		 */
-		return "1.09";
+		return "1.10";
 	}
 
 	@Override

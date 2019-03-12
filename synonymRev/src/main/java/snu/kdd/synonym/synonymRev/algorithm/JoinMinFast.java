@@ -32,8 +32,9 @@ public class JoinMinFast extends JoinMin {
 		/*
 		 * 1.00: initial version
 		 * 1.01: test for filtering power test
+		 * 1.02: major update
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override

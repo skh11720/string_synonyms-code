@@ -61,8 +61,9 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
          * 1.00: initial version
          * 1.01: ignore records with too many transformations
          * 1.02: modify from PassJoinExact to PassJoin
+		 * 1.03: major update
          */
-		return "1.02";
+		return "1.03";
 	}
 	
 	@Override

@@ -109,8 +109,9 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 		/*
 		 * 1.00: the initial version
 		 * 1.01: refactor, consider short strings
+		 * 1.02: major update
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override

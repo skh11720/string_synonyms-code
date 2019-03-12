@@ -141,8 +141,9 @@ public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 		 * 2.5: the latest version by yjpark
 		 * 2.51: checkpoint
 		 * 2.511: test for filtering power test
+		 * 2.52: major update
 		 */
-		return "2.511";
+		return "2.52";
 	}
 
 	@Override

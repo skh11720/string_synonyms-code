@@ -118,8 +118,9 @@ public class JoinSetNaive extends AbstractAlgorithm {
 		/*
 		 * 1.00: initial version
 		 * 1.01: ignore records with too many transformations
+		 * 1.02: major update
 		 */
-		return "1.01";
+		return "1.02";
 	}
 	
 	@Override
