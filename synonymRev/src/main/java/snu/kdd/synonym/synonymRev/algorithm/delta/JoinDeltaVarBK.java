@@ -20,7 +20,7 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 		JoinDeltaVarBKIndex.useLF = useLF;
 		JoinDeltaVarBKIndex.usePQF = usePQF;
 		JoinDeltaVarBKIndex.useSTPQ = useSTPQ;
-		idx = new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, sampleB);
+		idx = new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, distFunc, sampleB);
 		idx.build();
 	}
 

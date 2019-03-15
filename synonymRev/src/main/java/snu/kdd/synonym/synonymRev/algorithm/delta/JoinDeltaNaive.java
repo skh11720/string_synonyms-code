@@ -36,7 +36,7 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 	@Override
 	protected void executeJoin() {
 		StopWatch stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
-		idx = new DeltaHashIndex(deltaMax, query, stat);
+		idx = new DeltaHashIndex(deltaMax, distFunc, query, stat);
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );

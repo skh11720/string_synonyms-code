@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -219,6 +218,17 @@ public class TestUtils {
 		// check the output
 		for ( IntArrayList comb : Util.getCombinationsAll( 7, 3 ) )
 			System.out.println( comb );
+	}
+	
+	@Test
+	public void testGetCombinationsAllByDelta() {
+		List<List<IntArrayList>> combListDelta = Util.getCombinationsAllByDelta( 7, 3 );
+		for ( int d=0; d<=3; ++d ) {
+			System.out.println("d: "+d);
+			for ( IntArrayList comb : combListDelta.get(d) ) {
+				System.out.println( comb );
+			}
+		}
 	}
 	
 	public static void main(String[] args) throws IOException {

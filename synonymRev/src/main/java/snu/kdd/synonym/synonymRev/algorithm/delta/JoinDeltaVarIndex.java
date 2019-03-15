@@ -54,6 +54,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	protected final int indexK;
 	protected final int qSize;
 	protected final int deltaMax;
+	protected final int idxForDist; // 0: lcs, 1: edit
 	protected final boolean isSelfJoin;
   
 	protected long candQGramCount = 0;
@@ -72,7 +73,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	
 	private final IntArrayList firstKPosArr; // does not need to be sorted
 
-	public JoinDeltaVarIndex( Query query, int indexK, int qSize, int deltaMax ) {
+	public JoinDeltaVarIndex( Query query, int indexK, int qSize, int deltaMax, String dist ) {
 		/*
 		 * methods called in here: insertRecordIntoIdxPD(Record)
 		 */
@@ -80,6 +81,8 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		this.indexK = indexK;
 		this.qSize = qSize;
 		this.deltaMax = deltaMax;
+		if ( dist.equals("lcs") ) idxForDist = 0;
+		else idxForDist = 1;
 		this.isSelfJoin = query.selfJoin;
 		this.qdgen = new QGramDeltaGenerator(qSize, deltaMax);
 
@@ -288,11 +291,12 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			Set<Record> kthCandidates = new WYK_HashSet<Record>();
 
 			for ( int delta_s=0; delta_s<=deltaMax; ++delta_s ) {
+				int delta_t_max = getDeltaTMax(delta_s);
 				if ( cand_qgrams_pos.size() <= delta_s ) break;
 				this.candQGramCount += cand_qgrams_pos.get( delta_s ).size();
 //				System.out.println("AKAJSKDLSD\t"+cand_qgrams_pos.get(delta_s).size() );
 				for ( QGram qgram : cand_qgrams_pos.get( delta_s ) ) {
-					for ( int delta_t=0; delta_t<=deltaMax; ++delta_t ) {
+					for ( int delta_t=0; delta_t<=delta_t_max; ++delta_t ) {
 						List<Record> recordList = map.get( delta_t ).get( qgram );
 						if ( recordList == null ) continue;
 
@@ -385,5 +389,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			}
 		}
 		return n;
+	}
+
+	protected int getDeltaTMax( int delta_s ) {
+		if ( this.idxForDist == 0 ) return this.deltaMax - delta_s;
+		else return this.deltaMax;
 	}
 }

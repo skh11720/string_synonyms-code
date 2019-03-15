@@ -24,11 +24,14 @@ public class DeltaHashIndex extends AbstractIndex {
 	 * The range of d is 0~deltaMax.
 	 */
 	protected final int deltaMax;
+	protected final int idxForDist; // 0: lcs, 1: edit
 	protected final boolean isSelfJoin;
 	
-	public DeltaHashIndex( int deltaMax, Query query, StatContainer stat ) {
+	public DeltaHashIndex( int deltaMax, String dist, Query query, StatContainer stat ) {
 		this.deltaMax = deltaMax;
 		this.isSelfJoin = query.selfJoin;
+		if ( dist.equals("lcs") ) idxForDist = 0;
+		else idxForDist = 1;
 		idx = new ObjectArrayList<>();
 		for ( int d=0; d<=deltaMax; ++d ) idx.add(new Int2ObjectOpenHashMap<>());
 		int size = 0;
@@ -57,26 +60,12 @@ public class DeltaHashIndex extends AbstractIndex {
 		Set<Record> matched = new ObjectOpenHashSet<>();
 		for ( Record exp : recS.expandAll() ) {
 //			System.out.println("exp: "+exp);
-			Set<Record> candidates = new ObjectOpenHashSet<>();
-			List<IntArrayList> combList = Util.getCombinationsAll( exp.size(), deltaMax );
-			for ( IntArrayList idxList : combList ) {
-				int key = getKey(exp.getTokensArray(), idxList);
-				for ( int d_t=0; d_t<=deltaMax; ++d_t ) {
-					if ( idx.get(d_t).containsKey(key) ) {
-						for ( Record recT : idx.get(d_t).get(key) ) {
-							candidates.add(recT);
-						}
-					}
-				}
-//				System.out.println(d_s+", "+key+", "+candidates.size());
-			} // end for idxList
+			Set<Record> candidates;
+			if ( idxForDist == 0 ) candidates = getCandidateWithLCS(exp);
+			else candidates = getCandidateWithEdit(exp);
 
 			for ( Record recT : candidates ) {
 				if ( matched.contains(recT) ) continue;
-				/*
-				 * Even though exp and recT is equivalent, we have to compute the edit distance.
-				 * e.g., ABCDE and CDEFG with deltaMax=2
-				 */
 				++checker.checked;
 				if ( exp.equals(recT) ) matched.add(recT);
 				else if ( ((AbstractDeltaValidator)checker).distGivenThres.eval(exp.getTokensArray(), recT.getTokensArray(), deltaMax) <= deltaMax ) {
@@ -86,6 +75,40 @@ public class DeltaHashIndex extends AbstractIndex {
 		} // end for exp
 		
 		for ( Record recT : matched ) AbstractAlgorithm.addSeqResult(recS, recT, rslt, isSelfJoin);
+	}
+	
+	protected Set<Record> getCandidateWithLCS( Record exp ) {
+		Set<Record> candidates = new ObjectOpenHashSet<>();
+		List<List<IntArrayList>> combListDelta = Util.getCombinationsAllByDelta( exp.size(), deltaMax );
+		for ( int d_s=0; d_s<=deltaMax; ++d_s ) {
+			for ( IntArrayList idxList : combListDelta.get(d_s) ) {
+				int key = getKey(exp.getTokensArray(), idxList);
+				for ( int d_t=0; d_t<=deltaMax-d_s; ++d_t ) {
+					if ( idx.get(d_t).containsKey(key) ) {
+						for ( Record recT : idx.get(d_t).get(key) ) {
+							candidates.add(recT);
+						}
+					}
+				}
+			}
+		}
+		return candidates;
+	}
+	
+	protected Set<Record> getCandidateWithEdit( Record exp ) {
+		Set<Record> candidates = new ObjectOpenHashSet<>();
+		List<IntArrayList> combList = Util.getCombinationsAll( exp.size(), deltaMax );
+		for ( IntArrayList idxList : combList ) {
+			int key = getKey(exp.getTokensArray(), idxList);
+			for ( int d_t=0; d_t<=deltaMax; ++d_t ) {
+				if ( idx.get(d_t).containsKey(key) ) {
+					for ( Record recT : idx.get(d_t).get(key) ) {
+						candidates.add(recT);
+					}
+				}
+			}
+		}
+		return candidates;
 	}
 
 	@Override

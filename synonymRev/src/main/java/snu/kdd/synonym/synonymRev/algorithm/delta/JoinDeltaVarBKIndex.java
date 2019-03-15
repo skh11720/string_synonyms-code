@@ -48,8 +48,8 @@ public class JoinDeltaVarBKIndex extends JoinDeltaVarIndex {
 	
 	protected final double sampleB;
 
-	public JoinDeltaVarBKIndex( Query query, int indexK, int qSize, int deltaMax, double sampleB ) {
-		super(query, indexK, qSize, deltaMax);
+	public JoinDeltaVarBKIndex( Query query, int indexK, int qSize, int deltaMax, String dist, double sampleB ) {
+		super(query, indexK, qSize, deltaMax, dist);
 		this.sampleB = sampleB;
 		this.posCounter = new Int2IntOpenHashMap();
 		this.countMapVTPQ = countQGramsInSTPQ();
