@@ -156,20 +156,16 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		if (joinQGramRequired ) {
 			long candQGramCountSum = 0;
 			double candQGramAvgCount = 0;
-			long equivComparison = 0;
 			if( joinMinSelected ) {
 				candQGramCountSum = ((JoinMinIndex)joinMinIdx).getCandQGramCountSum();
-				equivComparison = joinMinIdx.getEquivComparisons();
 			}
 			else {
 				candQGramCountSum = ((JoinMHIndex)joinMHIdx).getCandQGramCountSum();
-				equivComparison = joinMHIdx.getEquivComparisons();
 			}
 
 			candQGramAvgCount = pqgramSearch == 0 ? 0 : 1.0 * candQGramCountSum / pqgramSearch;
 			stat.add( "Stat_CandQGram_Sum", candQGramCountSum );
 			stat.add( "Stat_CandQGram_Avg", candQGramAvgCount );
-			stat.add( "Stat_Equiv_Comparison", equivComparison );
 		}
 		
 		// evaluate the accuracy of estimation ???

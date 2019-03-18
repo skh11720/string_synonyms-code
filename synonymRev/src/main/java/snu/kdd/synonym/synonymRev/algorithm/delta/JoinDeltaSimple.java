@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
@@ -86,13 +87,13 @@ public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 			t_verify += afterVerifyTime - afterFilterTime;
 		}
 
-		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
-		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
+		stat.add( Stat.FILTER_TIME, t_filter/1e6 );
+		stat.add( Stat.VERIFY_TIME, t_verify/1e6 );
 	}
 
 	@Override
 	protected void buildIndex() {
-		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query, stat );
+		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query );
 		JoinDeltaSimpleIndex.useLF = useLF;
 		JoinDeltaSimpleIndex.usePQF = usePQF;
 	}

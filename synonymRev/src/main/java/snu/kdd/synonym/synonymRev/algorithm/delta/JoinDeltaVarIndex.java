@@ -17,6 +17,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -58,10 +59,9 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	protected final boolean isSelfJoin;
   
 	protected long candQGramCount = 0;
-	protected long equivComparisons = 0;
-
+	protected long nCandByPQF = 0;
+	protected long nCandByLen = 0;
 	protected long candQGramCountTime = 0;
-	protected long indexTime = 0;
 	protected long filterTime = 0;
 	protected long verifyTime = 0;
 	
@@ -102,7 +102,6 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	}
 	
 	public void build() {
-		long ts = System.nanoTime();
 		// build idxPD
 		for ( Record recT : query.indexedSet.recordList ) {
 			if ( recT.size() <= deltaMax ) shortList.add(recT);
@@ -116,7 +115,6 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			Set<QGram> qgramSet_k = pos2QGramSetMap.get(k);
 			for ( int d=0; d<idxPD_k.size(); ++d ) qgramSet_k.addAll( idxPD_k.get(d).keySet() );
 		}
-		indexTime = System.nanoTime() - ts;
 	}
 
 	protected void insertRecordIntoIdxPD( Record recT ) {
@@ -328,25 +326,21 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			}
 			else ++checker.pqgramFiltered;
 		}
+		final int thisNCandByPQF = candidates.size();
+		nCandByPQF += candidates.size();
+
+		if ( range[0] <= deltaMax ) {
+			candidates.addAll(shortList);
+		}
+		nCandByLen += candidates.size() - thisNCandByPQF;
 		long afterFilterTime = System.nanoTime();
 
-		equivComparisons += candidates.size();
 		for (Record recT : candidates) {
 //		    	try { bw.write( recS.getID()+"\t"+recR.getID()+"\n" ); bw.flush(); }
 //		    	catch ( IOException e ) { e.printStackTrace(); }
 			int compare = checker.isEqual(recS, recT);
 			if (compare >= 0) {
 				AbstractAlgorithm.addSeqResult( recS, recT, rslt, isSelfJoin );
-			}
-		}
-			
-		// use the idxByLen to add the equivalent pairs not covered by the filterings.
-		if ( range[0] <= deltaMax ) {
-			for ( Record recT : shortList ) {
-				int compare = checker.isEqual(recS, recT);
-				if (compare >= 0) {
-					AbstractAlgorithm.addSeqResult( recS, recT, rslt, isSelfJoin );
-				}
 			}
 		}
 		long afterEquivTime = System.nanoTime();
@@ -358,13 +352,14 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 
 	@Override
 	protected void postprocessAfterJoin( StatContainer stat ) {
-		stat.add("Stat_InvListCount", nInvList());
-		stat.add("Stat_InvSize", indexSize());
-		stat.add("Stat_EquivComparison", equivComparisons);
-		stat.add("Stat_CandQGramCount", candQGramCount );
-		stat.add("Stat_CandQGramCountTime", (long)(candQGramCountTime/1e6));
-		stat.add("Stat_FilterTime", (long)(filterTime/1e6));
-		stat.add("Stat_VerifyTime", (long)(verifyTime/1e6) );
+		stat.add(Stat.INDEX_SIZE, indexSize());
+		stat.add(Stat.LEN_INDEX_SIZE, shortList.size());
+		stat.add(Stat.CAND_PQGRAM_COUNT, candQGramCount );
+		stat.add(Stat.CAND_BY_PQGRAM, nCandByPQF);
+		stat.add(Stat.CAND_BY_LEN, nCandByLen);
+		stat.add(Stat.CAND_PQGRAM_TIME, candQGramCountTime/1e6);
+		stat.add(Stat.FILTER_TIME, filterTime/1e6);
+		stat.add(Stat.VERIFY_TIME, verifyTime/1e6);
 	}
 
 	protected int nInvList() {

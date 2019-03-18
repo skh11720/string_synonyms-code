@@ -21,6 +21,7 @@ import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
 public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
@@ -113,7 +114,7 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 		stepTime.stopAndAdd( stat );
 
 		stat.addMemory( "Mem_4_Joined" );
-		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
+		stat.add( Stat.NUM_VERIFY, treeS.verifyCount );
 	}
 
 	protected Set<IntegerPair> join( SI_Tree_Original<SIRecord> treeS, SI_Tree_Original<SIRecord> treeT, double threshold ) {

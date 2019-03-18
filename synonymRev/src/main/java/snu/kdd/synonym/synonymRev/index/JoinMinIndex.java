@@ -24,6 +24,7 @@ import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue.MinPosition;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -414,7 +415,6 @@ public class JoinMinIndex extends AbstractIndex {
 		this.candQGramAvgCount = 1.0 * this.candQGramCountSum / (query.searchedSet.size() - skipped);
 		stat.add( "Stat_CandQGram_Sum", this.candQGramCountSum );
 		stat.add( "Stat_CandQGram_Avg", this.candQGramAvgCount );
-		stat.add( "Stat_Equiv_Comparison", this.equivComparisons );
 		stat.add( "Stat_Skipped", skipped );
 
 		if( comparisonCount == 0 ) comparisonCount = 1;
@@ -426,8 +426,8 @@ public class JoinMinIndex extends AbstractIndex {
 		rhoPrime = joinTime / comparisonCount;
 
 		stat.add( "Stat_Length_Filtered", lengthFiltered );
-		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
-		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
+		stat.add( Stat.FILTER_TIME, filterTime/1e6 );
+		stat.add( Stat.VERIFY_TIME, verifyTime/1e6 );
 	}
 	
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {

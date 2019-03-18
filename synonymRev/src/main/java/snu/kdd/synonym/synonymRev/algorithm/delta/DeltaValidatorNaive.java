@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -60,10 +61,10 @@ public class DeltaValidatorNaive extends AbstractDeltaValidator {
 	@Override
 	public void addStat( StatContainer stat ) {
 		super.addStat(stat);
-		stat.add( "Val_NumEqual", numEqual );
-		stat.add( "Val_NumTrivial", numTrivial );
-		stat.add( "Val_NumDeltaEqual", numDeltaEqual );
-		stat.add( "Val_NumDeltaTransEqual", numDeltaTransEqual );
+		stat.add( Stat.NUM_VERIFY_EQUAL, numEqual );
+		stat.add( Stat.NUM_VERIFY_TRIVIAL, numTrivial );
+		stat.add( Stat.NUM_VERIFY_DELTA_EQUAL, numDeltaEqual );
+		stat.add( Stat.NUM_VERIFY_DELTA_TRANS_EQUAL, numDeltaTransEqual );
 	}
 
 	@Override
