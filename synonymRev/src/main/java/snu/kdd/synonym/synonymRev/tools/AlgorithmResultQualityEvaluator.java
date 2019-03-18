@@ -6,9 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Set;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmStatInterface;
 import snu.kdd.synonym.synonymRev.data.Dataset;
@@ -42,13 +40,13 @@ public class AlgorithmResultQualityEvaluator {
 		outputPath = "./tmp/EVAL_" + alg.getNameWithParam() + "_" + query.dataInfo.datasetName;
 		searchedSet = query.searchedSet;
 		indexedSet = query.indexedSet;
-		Set<IntegerPair> rslt = alg.getResult();
-		Set<IntegerPair> groundSet = getGroundTruthSet(groundPath);
+		ResultSet rslt = alg.getResult();
+		ResultSet groundSet = getGroundTruthSet(groundPath);
 		compareIntPairSetsWrapper(groundSet, rslt);
 	}
 
-	private Set<IntegerPair> getGroundTruthSet( String groundPath ) {
-		ObjectOpenHashSet<IntegerPair> groundSet = new ObjectOpenHashSet<>();
+	private ResultSet getGroundTruthSet( String groundPath ) {
+		ResultSet groundSet = new ResultSet(false);
 		try {
 			BufferedReader br = new BufferedReader( new FileReader(groundPath) 	);
 			for (String line = null; (line = br.readLine()) != null; ) {
@@ -66,7 +64,7 @@ public class AlgorithmResultQualityEvaluator {
 		return groundSet;
 	}
 
-	private void compareIntPairSetsWrapper( Set<IntegerPair> groundSet, Set<IntegerPair> rslt ) {
+	private void compareIntPairSetsWrapper( ResultSet groundSet, ResultSet rslt ) {
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(new BufferedWriter(new FileWriter(outputPath)));
@@ -78,7 +76,7 @@ public class AlgorithmResultQualityEvaluator {
 		pw.close();
 	}
 	
-	private void compareIntPairSets( Set<IntegerPair> groundSet, Set<IntegerPair> rslt, PrintWriter pw ) {
+	private void compareIntPairSets( ResultSet groundSet, ResultSet rslt, PrintWriter pw ) {
 		/*	
 		 * For the case of self joins, ipairs in the both sets are assumed to be orderd (i1 <= i2). 
 		 *  if something is wrong, check it out.

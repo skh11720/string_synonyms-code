@@ -11,6 +11,7 @@ import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class AlgorithmBidirectionWrapperTest {
@@ -34,13 +35,13 @@ public class AlgorithmBidirectionWrapperTest {
 
 		// searchedSet -> indexedSet
 		alg.run(query);
-		Set<IntegerPair> rslt1 = alg.getResult();
+		ResultSet rslt1 = alg.getResult();
 		StatContainer stat1 = alg.getStat();
 		long v_st_1 = stat1.getLong("Val_Comparisons");
 		
 		// indexedSet -> searchedSet
 		alg.run(queryRev);
-		Set<IntegerPair> rslt2 = alg.getResult();
+		ResultSet rslt2 = alg.getResult();
 		StatContainer stat2 = alg.getStat();
 		long v_st_2 = stat2.getLong("Val_Comparisons");
 		

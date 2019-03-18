@@ -5,7 +5,6 @@ import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class DeltaValidatorNaive extends AbstractDeltaValidator {
 	

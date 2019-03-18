@@ -18,6 +18,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -221,7 +222,7 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 	}
 	
 	@Override
-	protected void joinOneRecord(Record recS, Set<IntegerPair> rslt, Validator checker) {
+	protected void joinOneRecord(Record recS, ResultSet rslt, Validator checker) {
 		boolean debug = false;
 //			if ( searchedList.get( id ).getID() < 10 ) debug = true;
 //			if ( searchedList.get( id ).getID() == 677 ) debug = true;
@@ -304,7 +305,7 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 		// output the results
 		for ( int answer_id : answer_ids ) {
 			Record recT = indexedList.get( answer_id );
-			AbstractAlgorithm.addSeqResult( recS, recT, rslt, isSelfJoin );
+			rslt.add(recS, recT);;
 //				if (debug) System.out.println( rslt.size()+ " output: "+rec1.getID()+", "+rec2.getID() );
 		}
 		

@@ -7,11 +7,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import sigmod13.SIRecord;
 import sigmod13.SI_Tree_Original;
 import sigmod13.filter.ITF_Filter;
@@ -19,8 +17,8 @@ import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
@@ -117,7 +115,7 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 		stat.add( Stat.NUM_VERIFY, treeS.verifyCount );
 	}
 
-	protected Set<IntegerPair> join( SI_Tree_Original<SIRecord> treeS, SI_Tree_Original<SIRecord> treeT, double threshold ) {
+	protected ResultSet join( SI_Tree_Original<SIRecord> treeS, SI_Tree_Original<SIRecord> treeT, double threshold ) {
 		long startTime = System.currentTimeMillis();
 
 		List<Pair<SIRecord>> candidates = treeS.join( treeT, threshold );
@@ -136,10 +134,10 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 			System.out.println( "Similar pairs : " + candidates.size() );
 		}
 
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		ResultSet rslt = new ResultSet(query.selfJoin);
 
 		for( Pair<SIRecord> ip : candidates ) {
-			addSetResult( query.searchedSet.getRecord(ip.rec1.getID()), query.indexedSet.getRecord(ip.rec2.getID()), rslt, true, query.selfJoin );
+			rslt.add( query.searchedSet.getRecord(ip.rec1.getID()), query.indexedSet.getRecord(ip.rec2.getID()));
 		}
 		return rslt;
 	}

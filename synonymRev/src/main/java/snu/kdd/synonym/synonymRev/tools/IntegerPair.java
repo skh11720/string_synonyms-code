@@ -44,4 +44,8 @@ public class IntegerPair {
 		else
 			return this;
 	}
+	
+	public IntegerPair swap() {
+		return new IntegerPair( i2, i1 );
+	}
 }

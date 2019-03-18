@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,14 +15,13 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue.MinPosition;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
@@ -446,7 +444,8 @@ public class JoinMinIndex extends AbstractIndex {
 		return candidatePQGrams;
 	}
 
-	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
+	@Override
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
 		long ts = System.nanoTime();
 
 		long candQGramCount = 0;
@@ -527,6 +526,7 @@ public class JoinMinIndex extends AbstractIndex {
 //				debugArray.add( "Test " + recR + "\n" );
 //			}
 
+			if ( rslt.contains(recS, recR) ) continue;
 			long st = System.nanoTime();
 			int compare = checker.isEqual( recS, recR );
 			long duration = System.nanoTime() - st;
@@ -534,7 +534,7 @@ public class JoinMinIndex extends AbstractIndex {
 			verifyTime += duration;
 			if( compare >= 0 ) {
 //				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
-				AbstractAlgorithm.addSeqResult( recS, recR, rslt, query.selfJoin );
+				rslt.add(recS, recR);;
 				appliedRulesSum += compare;
 
 //				if( DEBUG.PrintJoinMinJoinON ) {

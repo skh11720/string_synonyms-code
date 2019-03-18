@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntTriple;
-import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class DeltaValidatorDPTopDown extends DeltaValidatorNaive {
 	

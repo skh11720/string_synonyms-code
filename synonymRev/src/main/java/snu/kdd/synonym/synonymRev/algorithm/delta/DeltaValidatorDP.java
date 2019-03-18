@@ -2,7 +2,6 @@ package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.tools.Util;
 
 @Deprecated
 public class DeltaValidatorDP extends DeltaValidatorNaive {

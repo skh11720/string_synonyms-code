@@ -1,19 +1,15 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.util.Set;
-
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
 /**
@@ -116,8 +112,8 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		buildIndex();
 		
 		// join
-		Set<IntegerPair> rsltNaive = new WYK_HashSet<IntegerPair>();
-		Set<IntegerPair> rsltPQGram = new WYK_HashSet<IntegerPair>();
+		ResultSet rsltNaive = new ResultSet(query.selfJoin);
+		ResultSet rsltPQGram = new ResultSet(query.selfJoin);
 		int pqgramSearch = 0;
 		int naiveSearch = 0;
 		int skipped = 0;
@@ -171,7 +167,7 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		// evaluate the accuracy of estimation ???
 		
 		// return the final result
-		rslt = new ObjectOpenHashSet<IntegerPair>();  
+		rslt = new ResultSet(query.selfJoin);
 		rslt.addAll( rsltNaive );
 		rslt.addAll( rsltPQGram );
 	}

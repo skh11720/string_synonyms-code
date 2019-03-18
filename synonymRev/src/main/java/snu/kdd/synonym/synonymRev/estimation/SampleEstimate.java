@@ -23,6 +23,7 @@ import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -167,7 +168,7 @@ public class SampleEstimate {
 		// Infer alpha and beta
 		NaiveIndex naiveinst;
 		StatContainer tmpStat = new StatContainer();
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		ResultSet rslt = new ResultSet(query.selfJoin);
 
 		long ts = System.nanoTime();
 		naiveinst = new NaiveIndex( sampleQuery, tmpStat, false );
@@ -216,7 +217,7 @@ public class SampleEstimate {
 	
 	protected long sampleJoinMH( JoinMHIndex joinmhinst, Validator checker ) {
 		long ts = System.nanoTime();
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
@@ -273,7 +274,7 @@ public class SampleEstimate {
 	}
 	
 	protected long sampleJoinMin( JoinMinIndex joinmininst, Validator checker, int indexK ) {
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		ResultSet rslt = new ResultSet(query.selfJoin);
 
 		long ts = System.nanoTime();
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {

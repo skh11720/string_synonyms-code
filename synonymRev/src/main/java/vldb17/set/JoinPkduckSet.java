@@ -16,6 +16,7 @@ import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
@@ -99,8 +100,8 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 //		if ( !query.selfJoin ) idxS = new PkduckSetIndex( query.searchedSet.recordList, query, stat, globalOrder, addStat );
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public ResultSet join(StatContainer stat, Query query, boolean addStat) {
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		if ( !query.oneSideJoin ) throw new RuntimeException("UNIMPLEMENTED CASE");
 		
 		// S -> S' ~ T
@@ -128,7 +129,7 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 		return rslt;
 	}
 
-	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
+	private void joinOneRecord( Record rec, ResultSet rslt, PkduckSetIndex idx ) {
 		long startTime = System.currentTimeMillis();
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
 		for (int i=0; i<rec.size(); i++) {
@@ -178,9 +179,10 @@ public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
 		
 		// verification
 		for (Record recOther : candidateAfterLF ) {
+			if ( rslt.contains(rec, recOther) ) continue;
 			int comp = checker.isEqual( rec, recOther );
 //			if (debug) System.out.println( "compare "+rec.getID()+" and "+recOther.getID()+": "+comp );
-			if (comp >= 0) addSetResult( rec, recOther, rslt, idx == idxT, query.selfJoin );
+			if ( comp >= 0 ) rslt.add(rec, recOther);;
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		

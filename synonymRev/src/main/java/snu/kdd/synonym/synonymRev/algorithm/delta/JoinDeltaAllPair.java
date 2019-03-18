@@ -1,13 +1,10 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.util.Set;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractParameterizedAlgorithm;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
@@ -63,7 +60,7 @@ public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 		long t_verify = 0;
 
 		@Override
-		protected void joinOneRecord(Record recS, Set<IntegerPair> rslt, Validator checker) {
+		protected void joinOneRecord(Record recS, ResultSet rslt, Validator checker) {
 			long ts = System.nanoTime();
 			int[] range = recS.getTransLengths();
 			ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
@@ -75,9 +72,10 @@ public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 			
 			long afterFilterTime = System.nanoTime();
 			for ( Record recT : candidates ) {
+				if ( rslt.contains(recS, recT) ) continue;
 				int compare = checker.isEqual(recS, recT);
 				if (compare >= 0) {
-					addSeqResult( recS, recT, (Set<IntegerPair>)rslt, query.selfJoin );
+					rslt.add(recS, recT);
 				}
 			}
 			long afterVerifyTime = System.nanoTime();

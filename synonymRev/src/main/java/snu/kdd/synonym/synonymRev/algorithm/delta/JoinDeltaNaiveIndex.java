@@ -7,11 +7,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -49,7 +48,7 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 	}
 
 	@Override
-	protected void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
+	protected void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
 		Set<Record> matched = new ObjectOpenHashSet<>();
 		for ( Record exp : recS.expandAll() ) {
 //			System.out.println("exp: "+exp);
@@ -67,7 +66,7 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 			}
 		} // end for exp
 		
-		for ( Record recT : matched ) AbstractAlgorithm.addSeqResult(recS, recT, rslt, isSelfJoin);
+		for ( Record recT : matched ) rslt.add(recS, recT);
 	}
 	
 	protected Set<Record> getCandidateWithLCS( Record exp ) {
