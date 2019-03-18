@@ -16,7 +16,7 @@ import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class DeltaHashIndex extends AbstractIndex {
+public class JoinDeltaNaiveIndex extends AbstractIndex {
 
 	protected final ObjectArrayList<Int2ObjectOpenHashMap<List<Record>>> idx; 
 	/*
@@ -27,7 +27,7 @@ public class DeltaHashIndex extends AbstractIndex {
 	protected final int idxForDist; // 0: lcs, 1: edit
 	protected final boolean isSelfJoin;
 	
-	public DeltaHashIndex( int deltaMax, String dist, Query query, StatContainer stat ) {
+	public JoinDeltaNaiveIndex( int deltaMax, String dist, Query query, StatContainer stat ) {
 		this.deltaMax = deltaMax;
 		this.isSelfJoin = query.selfJoin;
 		if ( dist.equals("lcs") ) idxForDist = 0;
