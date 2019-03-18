@@ -18,6 +18,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -202,7 +203,7 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 	
 	@Override
 	public void postprocessAfterJoin( StatContainer stat ) {
-		stat.add( "Stat_Equiv_Comparison", candNum );
+		stat.add( Stat.NUM_VERIFY, candNum );
 
 		// compute coefficients
 		coeff1 = indexTime/sumLenT;

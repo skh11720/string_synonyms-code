@@ -11,6 +11,7 @@ import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
@@ -61,7 +62,7 @@ public class SIJoin extends AbstractAlgorithm {
 		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		rslt = join( treeS, treeT, theta );
 		stepTime.stopAndAdd( stat );
-		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
+		stat.add( Stat.NUM_VERIFY, treeS.verifyCount );
 	}
 
 	protected Set<IntegerPair> join( SI_Tree<Record> treeS, SI_Tree<Record> treeT, double threshold ) {

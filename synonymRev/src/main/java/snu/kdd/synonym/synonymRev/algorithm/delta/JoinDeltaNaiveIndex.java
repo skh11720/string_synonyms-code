@@ -12,11 +12,12 @@ import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class DeltaHashIndex extends AbstractIndex {
+public class JoinDeltaNaiveIndex extends AbstractIndex {
 
 	protected final ObjectArrayList<Int2ObjectOpenHashMap<List<Record>>> idx; 
 	/*
@@ -27,14 +28,13 @@ public class DeltaHashIndex extends AbstractIndex {
 	protected final int idxForDist; // 0: lcs, 1: edit
 	protected final boolean isSelfJoin;
 	
-	public DeltaHashIndex( int deltaMax, String dist, Query query, StatContainer stat ) {
+	public JoinDeltaNaiveIndex( int deltaMax, String dist, Query query ) {
 		this.deltaMax = deltaMax;
 		this.isSelfJoin = query.selfJoin;
 		if ( dist.equals("lcs") ) idxForDist = 0;
 		else idxForDist = 1;
 		idx = new ObjectArrayList<>();
 		for ( int d=0; d<=deltaMax; ++d ) idx.add(new Int2ObjectOpenHashMap<>());
-		int size = 0;
 		
 		for ( Record recT : query.indexedSet.recordList ) {
 			List<IntArrayList> combList = Util.getCombinationsAll( recT.size(), deltaMax ); // indexes whose elements will be deleted
@@ -44,15 +44,8 @@ public class DeltaHashIndex extends AbstractIndex {
 				if ( !idx.get(d).containsKey(key) ) idx.get(d).put(key, new ObjectArrayList<Record>() );
 				idx.get(d).get(key).add(recT);
 //				System.out.println(d+", "+key+", "+recT);
-				++size;
 			}
 		}
-		
-		// check hash collision
-		int n_list = 0;
-		for ( Int2ObjectOpenHashMap<List<Record>> map : idx ) n_list += map.size();
-		stat.add("Stat_Index_Size", size );
-		stat.add("Stat_Index_nList", n_list );
 	}
 
 	@Override
@@ -113,6 +106,15 @@ public class DeltaHashIndex extends AbstractIndex {
 
 	@Override
 	protected void postprocessAfterJoin(StatContainer stat) {
+		int size = 0;
+		int nList = 0;
+		for ( int d=0; d<=deltaMax; ++d ) {
+			Int2ObjectOpenHashMap<List<Record>> map = idx.get(d);
+			for ( List<Record> list : map.values() ) size += list.size();
+			nList += map.size();
+		}
+		stat.add(Stat.INDEX_SIZE, size );
+		stat.add(Stat.AVG_LIST_LENGTH, size/nList);
 	}
 	
 	protected static int getKey( int[] arr, IntArrayList idxList ) {
