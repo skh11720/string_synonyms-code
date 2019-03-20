@@ -316,6 +316,21 @@ public class Util {
 		}
 	}
 	
+	public static int[] getSubsequenceNotIn( int[] arr, IntArrayList notInIdxList ) {
+		/*
+		 * Return the subsequence of arr with indexes in idxList.
+		 */
+		if ( notInIdxList.size() == arr.length ) return null;
+		else {
+			int[] out = new int[arr.length - notInIdxList.size()];
+			for ( int i=0, j=0; i<arr.length; ++i ) {
+				if ( j < notInIdxList.size() && i == notInIdxList.getInt(j) ) ++j;
+				else out[i-j] = arr[i];
+			}
+			return out;
+		}
+	}
+	
 	public static int lcs( int[] x, int[] y ) {
 		/*
 		 * Compute the length of the LCS.
