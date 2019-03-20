@@ -320,7 +320,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			// indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 //			if ( recS.getID() == 138 && recT.getID() == 0 ) System.out.println( indexedCountList.getInt(recT)+", "+availableQGrams.size()+", "+recordCount );
 
-			if ( !usePQF || ( indexedCountList.getInt(recT) <= recordCount || range[0]-deltaMax <= recordCount ) ) {
+			if ( !usePQF || ( indexedCountList.getInt(recT) <= recordCount || Math.max(range[0], recT.size())-deltaMax <= recordCount ) ) {
 				candidates.add(recT);
 			}
 			else ++checker.pqgramFiltered;
