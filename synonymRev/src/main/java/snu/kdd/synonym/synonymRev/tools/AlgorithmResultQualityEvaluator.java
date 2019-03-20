@@ -23,7 +23,7 @@ public class AlgorithmResultQualityEvaluator {
 
 	public static void evaluate( AlgorithmInterface alg, Query query, String groundPath ) {
 		if (groundPath == null ) {
-			System.err.println( "-groundPath option is not given. The quality evaluation skipped.");
+			System.out.println( "-groundPath option is not given. The quality evaluation skipped.");
 		}
 		else {
 			AlgorithmResultQualityEvaluator evaluator = new AlgorithmResultQualityEvaluator(alg, query, groundPath);
