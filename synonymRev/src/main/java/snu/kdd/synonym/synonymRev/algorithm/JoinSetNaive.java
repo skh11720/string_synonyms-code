@@ -1,15 +1,14 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.util.List;
-import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -67,8 +66,8 @@ public class JoinSetNaive extends AbstractAlgorithm {
 //		}
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public ResultSet join(StatContainer stat, Query query, boolean addStat) {
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		if ( !query.oneSideJoin ) throw new RuntimeException("UNIMPLEMENTED CASE");
 		
 		// S -> S' ~ T
@@ -87,7 +86,7 @@ public class JoinSetNaive extends AbstractAlgorithm {
 		return rslt;
 	}
 	
-	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<IntOpenHashSet, IntArrayList> idx ) {
+	private void joinOneRecord( Record rec, ResultSet rslt, WYK_HashMap<IntOpenHashSet, IntArrayList> idx ) {
 		final List<Record> expanded = rec.expandAll();
 		for ( final Record exp : expanded ) {
 			IntOpenHashSet key = new IntOpenHashSet( exp.getTokens() );
@@ -118,8 +117,9 @@ public class JoinSetNaive extends AbstractAlgorithm {
 		/*
 		 * 1.00: initial version
 		 * 1.01: ignore records with too many transformations
+		 * 1.02: major update
 		 */
-		return "1.01";
+		return "1.02";
 	}
 	
 	@Override

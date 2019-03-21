@@ -1,19 +1,15 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.util.Set;
-
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
 /**
@@ -116,8 +112,8 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		buildIndex();
 		
 		// join
-		Set<IntegerPair> rsltNaive = new WYK_HashSet<IntegerPair>();
-		Set<IntegerPair> rsltPQGram = new WYK_HashSet<IntegerPair>();
+		ResultSet rsltNaive = new ResultSet(query.selfJoin);
+		ResultSet rsltPQGram = new ResultSet(query.selfJoin);
 		int pqgramSearch = 0;
 		int naiveSearch = 0;
 		int skipped = 0;
@@ -156,26 +152,22 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		if (joinQGramRequired ) {
 			long candQGramCountSum = 0;
 			double candQGramAvgCount = 0;
-			long equivComparison = 0;
 			if( joinMinSelected ) {
 				candQGramCountSum = ((JoinMinIndex)joinMinIdx).getCandQGramCountSum();
-				equivComparison = joinMinIdx.getEquivComparisons();
 			}
 			else {
 				candQGramCountSum = ((JoinMHIndex)joinMHIdx).getCandQGramCountSum();
-				equivComparison = joinMHIdx.getEquivComparisons();
 			}
 
 			candQGramAvgCount = pqgramSearch == 0 ? 0 : 1.0 * candQGramCountSum / pqgramSearch;
 			stat.add( "Stat_CandQGram_Sum", candQGramCountSum );
 			stat.add( "Stat_CandQGram_Avg", candQGramAvgCount );
-			stat.add( "Stat_Equiv_Comparison", equivComparison );
 		}
 		
 		// evaluate the accuracy of estimation ???
 		
 		// return the final result
-		rslt = new ObjectOpenHashSet<IntegerPair>();  
+		rslt = new ResultSet(query.selfJoin);
 		rslt.addAll( rsltNaive );
 		rslt.addAll( rsltPQGram );
 	}
@@ -260,10 +252,11 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		 * ---- rollback 2.61
 		 * 2.62: estimate by scaling up terms: 11/122/122
 		 * 2.63: estimate by scaling up terms: 11/112/112
-		 * 2.64: estimate using regression
-		 * 2.65: nEst, conduct regression at most twice
+		 * 2.64(deprecated): estimate using regression 
+		 * 2.65(deprecated): nEst, conduct regression at most twice
+		 * 2.66: major update
 		 */
-		return "2.63";
+		return "2.66";
 	}
 
 	@Override

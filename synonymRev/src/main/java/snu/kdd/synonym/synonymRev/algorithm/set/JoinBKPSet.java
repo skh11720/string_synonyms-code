@@ -5,12 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -18,8 +16,8 @@ import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -98,8 +96,8 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 		stat.addMemory( "Mem_4_Joined" );
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public ResultSet join(StatContainer stat, Query query, boolean addStat) {
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		if ( !query.oneSideJoin ) throw new RuntimeException("UNIMPLEMENTED CASE");
 		
 		// S -> S' ~ T
@@ -172,7 +170,7 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 		}
 	}
 	
-	protected void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<Integer, List<Record>> idx, Object2IntOpenHashMap<Record> idxCount ) {
+	protected void joinOneRecord( Record rec, ResultSet rslt, WYK_HashMap<Integer, List<Record>> idx, Object2IntOpenHashMap<Record> idxCount ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate tokens of recS.
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
@@ -184,26 +182,29 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 		long afterCandidateTime = System.currentTimeMillis();
 		
 		// Count the number of matches.
+		int rec_maxlen = rec.getMaxTransLength();
 		Object2IntOpenHashMap<Record> count = getCount( rec, idx, candidateTokens );
 		List<Record> candidateAfterCount = new ObjectArrayList<Record>();
 		for ( Entry<Record, Integer> entry : count.entrySet() ) {
 			Record recOther = entry.getKey();
 			int recCount = entry.getValue();
-			if ( recCount >= idxCount.getInt( recOther ) ) candidateAfterCount.add( recOther );
+			if ( recCount >= idxCount.getInt( recOther ) ) {
+				if ( useLF ) {
+					if ( rec_maxlen >= recOther.getDistinctTokenCount() ) {
+						candidateAfterCount.add( recOther );
+					}
+					else ++checker.lengthFiltered;
+				}
+				
+			}
 		}
 		long afterCountTime = System.currentTimeMillis();
 		
 		// length filtering and verification
-		int rec_maxlen = rec.getMaxTransLength();
 		for ( Record recOther : candidateAfterCount ) {
-			if ( useLF ) {
-				if ( rec_maxlen < recOther.getDistinctTokenCount() ) {
-					++checker.lengthFiltered;
-					continue;
-				}
-			}
+			if ( rslt.contains(rec, recOther) ) continue;
 			int comp = checker.isEqual( rec, recOther );
-			if ( comp >= 0 ) addSetResult( rec, recOther, rslt, idx == idxT, query.selfJoin );
+			if ( comp >= 0 ) rslt.add(rec, recOther);;
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		
@@ -238,8 +239,9 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: major update
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override

@@ -1,11 +1,10 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.util.Set;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
@@ -58,7 +57,7 @@ public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 
 	@Override
 	protected void runAfterPreprocessWithoutIndex() {
-		rslt = new ObjectOpenHashSet<IntegerPair>();
+		rslt = new ResultSet(query.selfJoin);
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
 		long t_filter = 0;
 		long t_verify = 0;
@@ -76,9 +75,10 @@ public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 			
 			long afterFilterTime = System.nanoTime();
 			for ( Record recT : candidates ) {
+				if ( rslt.contains(recS, recT) ) continue;
 				int compare = checker.isEqual(recS, recT);
 				if (compare >= 0) {
-					addSeqResult( recS, recT, (Set<IntegerPair>)rslt, query.selfJoin );
+					rslt.add(recS, recT);
 				}
 			}
 			long afterVerifyTime = System.nanoTime();
@@ -86,13 +86,13 @@ public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 			t_verify += afterVerifyTime - afterFilterTime;
 		}
 
-		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
-		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
+		stat.add( Stat.FILTER_TIME, t_filter/1e6 );
+		stat.add( Stat.VERIFY_TIME, t_verify/1e6 );
 	}
 
 	@Override
 	protected void buildIndex() {
-		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query, stat );
+		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query );
 		JoinDeltaSimpleIndex.useLF = useLF;
 		JoinDeltaSimpleIndex.usePQF = usePQF;
 	}
@@ -101,8 +101,9 @@ public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: major update
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override

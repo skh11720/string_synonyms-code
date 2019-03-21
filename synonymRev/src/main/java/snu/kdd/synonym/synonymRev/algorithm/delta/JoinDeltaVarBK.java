@@ -20,7 +20,7 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 		JoinDeltaVarBKIndex.useLF = useLF;
 		JoinDeltaVarBKIndex.usePQF = usePQF;
 		JoinDeltaVarBKIndex.useSTPQ = useSTPQ;
-		idx = new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, sampleB);
+		idx = new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, distFunc, sampleB);
 		idx.build();
 	}
 
@@ -28,8 +28,10 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: major update
+		 * 1.02: fix bug in delta-q-gram generation
 		 */
-		return "1.00";
+		return "1.02";
 	}
 
 	@Override

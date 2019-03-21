@@ -5,11 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -102,7 +101,7 @@ public class NaiveIndex extends AbstractIndex {
 	}
 
 	@Override
-	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
 		/*
 		 * NOTE: checker is not used.
 		 */
@@ -130,8 +129,7 @@ public class NaiveIndex extends AbstractIndex {
 			
 		}
 		for( final Integer idx : candidates ) {
-//			rslt.add( new IntegerPair( recS.getID(), idx ) );
-			AbstractAlgorithm.addSeqResult( recS, idx, rslt, isSelfJoin );
+			rslt.add(recS, idx);
 		}
 
 		searchTime += System.nanoTime() - searchStartTime;

@@ -1,11 +1,10 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
 import java.io.IOException;
-import java.util.Set;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
@@ -39,12 +38,12 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 
 		// searchedSet -> indexedSet
 		alg.run(query);
-		Set<IntegerPair> rslt1 = alg.getResult();
+		ResultSet rslt1 = alg.getResult();
 		StatContainer stat1 = alg.getStat();
 		
 		// indexedSet -> searchedSet
 		alg.run(queryRev);
-		Set<IntegerPair> rslt2 = alg.getResult();
+		ResultSet rslt2 = alg.getResult();
 		StatContainer stat2 = alg.getStat();
 		
 //		 DEBUG: check unidirectional results
@@ -73,8 +72,8 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 		System.out.println("==============" + new String( new char[ alg.getName().length() ] ).replace( "\0", "=" ) + "====================" );
 	}
 	
-	private Set<IntegerPair> mergeResults(Set<IntegerPair> rslt1, Set<IntegerPair> rslt2) {
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<>();
+	private ResultSet mergeResults(ResultSet rslt1, ResultSet rslt2) {
+		ResultSet rslt = new ResultSet(false);
 		rslt.addAll(rslt1);
 		for ( IntegerPair ipair : rslt2 ) {
 			rslt.add(new IntegerPair(ipair.i2, ipair.i1));
@@ -95,7 +94,7 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 	}
 
 	@Override
-	public Set<IntegerPair> getResult() {
+	public ResultSet getResult() {
 		return rslt;
 	}
 

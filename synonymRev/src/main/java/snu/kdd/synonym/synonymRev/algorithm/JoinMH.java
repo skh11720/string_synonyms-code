@@ -1,12 +1,10 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.util.Set;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
@@ -66,7 +64,7 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 
 	@Override
 	protected void runAfterPreprocessWithoutIndex() {
-		rslt = new ObjectOpenHashSet<IntegerPair>();
+		rslt = new ResultSet(query.selfJoin);
 		long t_filter = 0;
 		long t_verify = 0;
 
@@ -84,9 +82,10 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 			
 			long afterFilterTime = System.nanoTime();
 			for ( Record recT : candidates ) {
+				if ( rslt.contains(recS, recT) ) continue;
 				int compare = checker.isEqual(recS, recT);
 				if (compare >= 0) {
-					addSeqResult( recS, recT, (Set<IntegerPair>)rslt, query.selfJoin );
+					rslt.add(recS, recT);
 				}
 			}
 			long afterVerifyTime = System.nanoTime();
@@ -128,8 +127,9 @@ public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 		 * 2.5: the latest version by yjpark
 		 * 2.51: checkpoint
 		 * 2.511: test for filtering power test
+		 * 2.52: major update
 		 */
-		return "2.511";
+		return "2.52";
 	}
 
 	@Override

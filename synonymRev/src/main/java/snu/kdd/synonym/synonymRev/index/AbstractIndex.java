@@ -2,11 +2,11 @@ package snu.kdd.synonym.synonymRev.index;
 
 import java.util.Set;
 
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
@@ -16,8 +16,8 @@ public abstract class AbstractIndex {
 	
 	protected long joinTime = 0;
 
-	public Set<IntegerPair> join( Query query, StatContainer stat, Validator checker, boolean writeResult ) {
-		final Set<IntegerPair> rslt = new ObjectOpenHashSet<>();
+	public ResultSet join( Query query, StatContainer stat, Validator checker, boolean writeResult ) {
+		final ResultSet rslt = new ResultSet(query.selfJoin);
 		final long ts = System.nanoTime();
 
 		for( Record recS : query.searchedSet.recordList ) {
@@ -39,7 +39,7 @@ public abstract class AbstractIndex {
 	
 //	protected abstract boolean isTargetRecord( Record rec );
 	
-	protected abstract void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker );
+	protected abstract void joinOneRecord( Record recS, ResultSet rslt, Validator checker );
 	
 	protected abstract void postprocessAfterJoin( StatContainer stat );
 }

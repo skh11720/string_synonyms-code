@@ -47,8 +47,9 @@ public class JoinNaive extends AbstractAlgorithm {
 		 * 2.00: the latest version by yjpark
 		 * 2.01: checkpoint
 		 * 2.02: ignore strings with too many transformations
+		 * 2.03: major update
 		 */
-		return "2.02";
+		return "2.03";
 	}
 
 	@Override

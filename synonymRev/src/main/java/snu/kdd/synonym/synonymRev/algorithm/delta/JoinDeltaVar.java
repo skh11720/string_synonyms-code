@@ -1,11 +1,9 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.util.Set;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
@@ -63,7 +61,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 
 	@Override
 	protected void runAfterPreprocessWithoutIndex() {
-		rslt = new ObjectOpenHashSet<IntegerPair>();
+		rslt = new ResultSet(query.selfJoin);
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
 		long t_filter = 0;
 		long t_verify = 0;
@@ -81,9 +79,10 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 			
 			long afterFilterTime = System.nanoTime();
 			for ( Record recT : candidates ) {
+				if ( rslt.contains(recS, recT) ) continue;
 				int compare = checker.isEqual(recS, recT);
 				if (compare >= 0) {
-					addSeqResult( recS, recT, (Set<IntegerPair>)rslt, query.selfJoin );
+					rslt.add(recS, recT);
 				}
 			}
 			long afterVerifyTime = System.nanoTime();
@@ -100,7 +99,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 		JoinDeltaVarIndex.useLF = useLF;
 		JoinDeltaVarIndex.usePQF = usePQF;
 		JoinDeltaVarIndex.useSTPQ = useSTPQ;
-		idx = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax);
+		idx = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax, distFunc);
 		idx.build();
 	}
 
@@ -109,8 +108,10 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 		/*
 		 * 1.00: the initial version
 		 * 1.01: refactor, consider short strings
+		 * 1.02: major update
+		 * 1.03: fix bug in delta-q-gram generation
 		 */
-		return "1.01";
+		return "1.03";
 	}
 
 	@Override

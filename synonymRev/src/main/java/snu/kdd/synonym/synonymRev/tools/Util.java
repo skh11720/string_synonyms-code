@@ -271,6 +271,37 @@ public class Util {
 		}
 		return combList;
 	}
+	
+	public static List<List<IntArrayList>> getCombinationsAllByDelta( int n, int k) {
+		/*
+		 * Return a list of length (k+1) whose elements are
+		 * 		lists of n choose 0
+		 * 		lists of n choose 1
+		 *      ...
+		 * 		lists of n choose k
+		 */
+		List<List<IntArrayList>> combDeltaList = new ObjectArrayList<>();
+		for ( int d=0; d<=k; ++d ) combDeltaList.add(new ObjectArrayList<>());
+
+		ObjectArrayFIFOQueue<IntArrayList> stack_x_errors = new ObjectArrayFIFOQueue<IntArrayList>();
+		stack_x_errors.enqueue( new IntArrayList() );
+		
+		while ( !stack_x_errors.isEmpty() ) {
+			IntArrayList comb = stack_x_errors.dequeue();
+			combDeltaList.get(comb.size()).add( comb );
+			if ( comb.size() < k ) {
+				int max = comb.size() > 0 ? Collections.max( comb ) : -1;
+				for ( int i=max+1; i<n; ++i ) {
+					if ( !comb.contains( i )) {
+						IntArrayList comb2 = new IntArrayList( comb );
+						comb2.add( i );
+						stack_x_errors.enqueue( comb2 );
+					}
+				}
+			}
+		}
+		return combDeltaList;
+	}
 
 	public static int[] getSubsequence( int[] arr, IntArrayList idxList ) {
 		/*
@@ -281,6 +312,21 @@ public class Util {
 			int[] out = new int[idxList.size()];
 			int i = 0;
 			for ( int idx : idxList ) out[i++] = arr[idx];
+			return out;
+		}
+	}
+	
+	public static int[] getSubsequenceNotIn( int[] arr, IntArrayList notInIdxList ) {
+		/*
+		 * Return the subsequence of arr with indexes in idxList.
+		 */
+		if ( notInIdxList.size() == arr.length ) return null;
+		else {
+			int[] out = new int[arr.length - notInIdxList.size()];
+			for ( int i=0, j=0; i<arr.length; ++i ) {
+				if ( j < notInIdxList.size() && i == notInIdxList.getInt(j) ) ++j;
+				else out[i-j] = arr[i];
+			}
 			return out;
 		}
 	}

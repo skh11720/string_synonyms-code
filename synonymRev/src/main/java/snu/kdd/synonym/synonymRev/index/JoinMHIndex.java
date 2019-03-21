@@ -14,12 +14,12 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -266,7 +266,6 @@ public class JoinMHIndex extends AbstractIndex {
 		this.candQGramAvgCount = 1.0 * this.candQGramCountSum / (query.searchedSet.size() - skipped);
 		stat.add( "Stat_CandQGram_Sum", this.candQGramCountSum );
 		stat.add( "Stat_CandQGram_Avg", this.candQGramAvgCount );
-		stat.add( "Stat_Equiv_Comparison", this.equivComparisons );
 //		this.zeta = (double) totalCountTime / totalCountValue;
 		// totalCountTime: time for generating TPQ supersets
 		// totalCountValue: the size of TPQ supersets
@@ -274,11 +273,12 @@ public class JoinMHIndex extends AbstractIndex {
 //		this.eta = ((double) (this.joinTime - totalCountTime) / this.predictCount);
 		// this.joinTime: time for counting and verifications
 		// this.predictCount: the sum of minimum invokes (number of records in searchedSet to be verified) of records in indexedSet
-		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
-		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
+		stat.add( Stat.FILTER_TIME, filterTime/1e6 );
+		stat.add( Stat.NUM_VERIFY, verifyTime/1e6 );
 	}
 
-	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
+	@Override
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
 //	    boolean isUpperRecord = threshold <= 0 ? true : recS.getEstNumTransformed() > threshold;
 //	    if (!isUpperRecord) return;
 
@@ -374,10 +374,11 @@ public class JoinMHIndex extends AbstractIndex {
 
 		equivComparisons += candidates.size();
 		for (Record recR : candidates) {
+			if ( rslt.contains(recS, recR) ) continue;
 			int compare = checker.isEqual(recS, recR);
 			if (compare >= 0) {
 //				rslt.add(new IntegerPair(recS.getID(), recR.getID()));
-				AbstractAlgorithm.addSeqResult( recS, recR, rslt, query.selfJoin );
+				rslt.add(recS, recR);;
 			}
 		}
 		long afterVerifyTime = System.nanoTime();

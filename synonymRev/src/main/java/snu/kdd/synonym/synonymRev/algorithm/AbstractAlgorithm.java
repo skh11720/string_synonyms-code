@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Set;
 
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -12,6 +11,7 @@ import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.AbstractParam;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -23,7 +23,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	protected Query query;
 	protected Validator checker = null;
 	protected AbstractParam param;
-	public Set<IntegerPair> rslt = null;
+	public ResultSet rslt = null;
 	public boolean writeResultOn = true;
 
 	
@@ -185,35 +185,8 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	}
 
 	@Override
-	public Set<IntegerPair> getResult() {
+	public ResultSet getResult() {
 		return rslt;
-	}
-	
-	public static void addSeqResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean isSelfJoin ) {
-		addSeqResult( rec1, rec2.getID(), rslt, isSelfJoin );
-	}
-
-	public static void addSeqResult( Record rec1, int rec2id, Set<IntegerPair> rslt, boolean isSelfJoin ) {
-		if ( isSelfJoin ) {
-			int id_smaller = rec1.getID() < rec2id? rec1.getID() : rec2id;
-			int id_larger = rec1.getID() >= rec2id? rec1.getID() : rec2id;
-			rslt.add( new IntegerPair( id_smaller, id_larger) );
-		}
-		else rslt.add( new IntegerPair(rec1.getID(), rec2id) );
-	}
-	
-	public static void addSetResult( Record rec1, Record rec2, Set<IntegerPair> rslt, boolean leftFromS, boolean isSelfJoin ) {
-		if ( isSelfJoin ) {
-			int id_smaller = rec1.getID() < rec2.getID()? rec1.getID() : rec2.getID();
-			int id_larger = rec1.getID() >= rec2.getID()? rec1.getID() : rec2.getID();
-			rslt.add( new IntegerPair( id_smaller, id_larger) );
-		}
-		else {
-			// idx == idxT
-			if ( leftFromS ) rslt.add( new IntegerPair( rec1.getID(), rec2.getID()) );
-			// idx == idxS
-			else rslt.add( new IntegerPair( rec2.getID(), rec1.getID()) );
-		}
 	}
 	
 	@Override

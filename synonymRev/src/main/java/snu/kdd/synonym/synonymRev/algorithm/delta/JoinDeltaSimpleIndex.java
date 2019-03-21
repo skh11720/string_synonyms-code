@@ -7,12 +7,12 @@ import java.util.Set;
 
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AbstractAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -40,7 +40,6 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 	protected long candQGramCount = 0;
 	protected long nCandByPQF = 0;
 	protected long nCandByLen = 0;
-	protected long equivComparisons = 0;
 	protected long candQGramCountTime = 0;
 	protected long filterTime = 0;
 	protected long verifyTime = 0;
@@ -48,7 +47,7 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 	public static boolean useLF = true;
 	public static boolean usePQF = true;
 
-	public JoinDeltaSimpleIndex( int qSize, int deltaMax, Query query, StatContainer stat ) {
+	public JoinDeltaSimpleIndex( int qSize, int deltaMax, Query query ) {
 		this.qSize = qSize;
 		this.deltaMax = deltaMax;
 		this.qd = qSize * deltaMax;
@@ -76,18 +75,6 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 			}
 		}
 		indexTime = System.nanoTime() - ts;
-		
-		stat.add("Stat_IdxByPQgram_Size", sizeIdxByPQGram() );
-		stat.add("Stat_IdxByLen_Size", sizeIdxByLen() );
-	}
-
-	@Override
-	protected void postprocessAfterJoin(StatContainer stat) {
-		stat.add( "Stat_CandQGramCount", candQGramCount );
-		stat.add( "Stat_CandByPQF", nCandByPQF );
-		stat.add( "Stat_CandByLen", nCandByLen );
-		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
-		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
 	}
 
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
@@ -109,7 +96,7 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 		return candidatePQGrams;
 	}
 
-	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
 	    long ts = System.nanoTime();
 		List<List<QGram>> availableQGrams = getCandidatePQGrams( recS );
 		for (List<QGram> list : availableQGrams) {
@@ -127,7 +114,8 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 //					if ( recS.getID() == 3235 ) System.out.println(qgram+", "+kd);
 					if ( idxByPQgram.size() <= kd ) continue;
 					if ( !idxByPQgram.get(kd).containsKey(qgram ) ) continue;
-					for ( Record recT : idxByPQgram.get(kd).get(qgram) ) { kthCandidates.add( recT );
+					for ( Record recT : idxByPQgram.get(kd).get(qgram) ) { 
+						kthCandidates.add( recT );
 					}
 				}
 			} // end for qgram in availableQgrams.get(k)
@@ -154,9 +142,9 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 		
 		// utilize idxByLen for short strings
 		if ( rangeS[0] <= qd ) {
-			for ( int l=1; l<=qd; ++l ) {
+			for ( int l=1; l<=idxByLen.size(); ++l ) {
 				if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, l, l )) { // apply the length filtering 
-					if ( idxByLen.size() >= l ) candidates.addAll( idxByLen.get(l-1) );
+					candidates.addAll( idxByLen.get(l-1) );
 				}
 				else checker.lengthFiltered += idxByLen.get(l-1).size();
 			}
@@ -164,10 +152,10 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 		nCandByLen += candidates.size() - thisNCandByPQF;
 		long afterFilterTime = System.nanoTime();
 		
-		equivComparisons += candidates.size();
 		for ( Record recT : candidates ) {
+			if ( rslt.contains(recS, recT) ) continue;
 			if ( checker.isEqual( recS, recT ) >= 0 ) {
-				AbstractAlgorithm.addSeqResult(recS, recT, rslt, isSelfJoin );
+				rslt.add(recS, recT);
 			}
 		}
 		long afterVerifyTime = System.nanoTime();
@@ -175,6 +163,18 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 		candQGramCountTime += afterCandQgramTime - ts; // time to enumerate delta-variants of qgrams in STPQ for a string recS
 		filterTime += afterFilterTime - afterCandQgramTime; // time to filter out by applying the length and pos q-gram filtering
 		verifyTime += afterVerifyTime - afterFilterTime; // time to verify the remaining string pairs
+	}
+
+	@Override
+	protected void postprocessAfterJoin(StatContainer stat) {
+		stat.add(Stat.INDEX_SIZE, sizeIdxByPQGram() );
+		stat.add(Stat.LEN_INDEX_SIZE, sizeIdxByLen() );
+		stat.add(Stat.CAND_PQGRAM_COUNT, candQGramCount );
+		stat.add(Stat.CAND_BY_PQGRAM, nCandByPQF );
+		stat.add(Stat.CAND_BY_LEN, nCandByLen );
+		stat.add(Stat.CAND_PQGRAM_TIME, candQGramCountTime/1e6 );
+		stat.add(Stat.FILTER_TIME, filterTime/1e6 );
+		stat.add(Stat.VERIFY_TIME, verifyTime/1e6 );
 	}
 
 	protected int sizeIdxByPQGram() {
