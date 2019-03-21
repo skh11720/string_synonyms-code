@@ -29,8 +29,9 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 		/*
 		 * 1.00: the initial version
 		 * 1.01: major update
+		 * 1.02: fix bug in delta-q-gram generation
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override
