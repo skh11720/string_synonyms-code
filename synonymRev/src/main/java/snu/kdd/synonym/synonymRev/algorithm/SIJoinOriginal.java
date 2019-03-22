@@ -5,43 +5,41 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import sigmod13.SIRecord;
 import sigmod13.SI_Tree_Original;
 import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.Pair;
-import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 
-public class SIJoinOriginal extends AlgorithmTemplate {
+public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 
-	private final double theta;
-	private final ObjectArrayList<SIRecord> S, T;
-	private final Int2IntOpenHashMap tokenFreq;
+	public final double theta;
+	private ObjectArrayList<SIRecord> S, T;
+	private Int2IntOpenHashMap tokenFreq;
 
 	public static TokenIndex tokenMap;
 	public static PrintWriter pw = null;
 
-	public SIJoinOriginal(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new Param(args);
+	public SIJoinOriginal(String[] args) {
+		super(args);
 		theta = param.getDoubleParam("theta");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
+
 		S = new ObjectArrayList<>();
 		tokenFreq = new Int2IntOpenHashMap();
 		if ( query.selfJoin ) {
@@ -52,12 +50,13 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		}
 
 		tokenMap = query.tokenIndex;
+
 		try {
-			String[] tokens = query.searchedFile.split("\\"+File.separator);
+			String[] tokens = query.getSearchedPath().split("\\"+File.separator);
 			String data1Name = tokens[tokens.length-1].split("\\.")[0];
 			if ( query.selfJoin ) pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/SIJoinOriginal_verify_%s_%.3f.txt", data1Name, theta ) ) ) ); 
 			else {
-				tokens = query.indexedFile.split("\\"+File.separator);
+				tokens = query.getIndexedPath().split("\\"+File.separator);
 				String data2Name = tokens[tokens.length-1].split("\\.")[0];
 				pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/SIJoinOriginal_verify_%s_%s_%.3f.txt", data1Name, data2Name, theta) ) ) );
 			}
@@ -66,11 +65,15 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 	}
 
 	@Override
-	public void preprocess() {
-//		super.preprocess();
+	protected void reportParamsToStat() {
+		stat.add("Param_theta", theta);
+	}
 
+	@Override
+	public void preprocess() {
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
-		Map<String, Integer> str2int = query.tokenIndex.getMap();
+		Record.tokenIndex = query.tokenIndex;
+		Map<String, Integer> str2int = Record.tokenIndex.getMap();
 
 		for( Record recS : query.searchedSet.get() ) {
 			S.add( new SIRecord( recS.getID(), recS.toString(), str2int, automata) );
@@ -85,23 +88,10 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		}
 	}
 
-	public void run() {
-		long startTime = System.currentTimeMillis();
-
-		if( DEBUG.SIJoinON ) {
-			System.out.print( "Constructor finished" );
-			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		}
-
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-
-//		SI_Tree_Original<Record> treeR = new SI_Tree_Original<Record>( 1, null, query.searchedSet.recordList, checker );
-//		SI_Tree_Original<Record> treeS = new SI_Tree_Original<Record>( 1, null, query.indexedSet.recordList, checker );
-
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+	@Override
+	protected void executeJoin() {
+		StopWatch stepTime = null;
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 		ITF_Filter filter = new ITF_Filter(null, null) {
 			@Override
 			public int compare(int t1, boolean t1_from_record, int t2, boolean t2_from_record) {
@@ -117,26 +107,15 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_3_BuildIndex" );
 
-		if( DEBUG.SIJoinON ) {
-			System.out.println( "Node size : " + ( treeS.FEsize + treeS.LEsize ) );
-			System.out.println( "Sig size : " + treeS.sigsize );
-
-			System.out.print( "Building SI-Tree finished" );
-			System.out.println( " " + ( System.currentTimeMillis() - startTime ) );
-		}
-		// br.readLine();
-
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 		rslt = join( treeS, treeT, theta );
 		stepTime.stopAndAdd( stat );
 
 		stat.addMemory( "Mem_4_Joined" );
-		stat.add( "Stat_Equiv_Comparison", treeS.verifyCount );
-
-		writeResult();
+		stat.add( Stat.NUM_VERIFY, treeS.verifyCount );
 	}
 
-	public Set<IntegerPair> join( SI_Tree_Original<SIRecord> treeS, SI_Tree_Original<SIRecord> treeT, double threshold ) {
+	protected ResultSet join( SI_Tree_Original<SIRecord> treeS, SI_Tree_Original<SIRecord> treeT, double threshold ) {
 		long startTime = System.currentTimeMillis();
 
 		List<Pair<SIRecord>> candidates = treeS.join( treeT, threshold );
@@ -155,11 +134,10 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 			System.out.println( "Similar pairs : " + candidates.size() );
 		}
 
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		ResultSet rslt = new ResultSet(query.selfJoin);
 
 		for( Pair<SIRecord> ip : candidates ) {
-//			rslt.add( new IntegerPair( ip.rec1.getID(), ip.rec2.getID() ) );
-			addSetResult( query.searchedSet.getRecord(ip.rec1.getID()), query.indexedSet.getRecord(ip.rec2.getID()), rslt, true, query.selfJoin );
+			rslt.add( query.searchedSet.getRecord(ip.rec1.getID()), query.indexedSet.getRecord(ip.rec2.getID()));
 		}
 		return rslt;
 	}
@@ -168,17 +146,18 @@ public class SIJoinOriginal extends AlgorithmTemplate {
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: major update
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override
 	public String getName() {
 		return "SIJoinOriginal";
 	}
-
+	
 	@Override
-	public String getOutputName() {
-		return String.format( "%s_%.3f", super.getOutputName(), theta );
+	public String getNameWithParam() {
+		return String.format("%s_%.2f", getName(), theta);
 	}
 }

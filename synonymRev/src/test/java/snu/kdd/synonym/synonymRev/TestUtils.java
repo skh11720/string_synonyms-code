@@ -13,37 +13,34 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.tools.QGram;
 import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class TestUtils {
+	
+	static String prefix, sep;
+	
+	static {
+		String osName = System.getProperty( "os.name" );
+		if ( osName.startsWith( "Windows" ) ) {
+			prefix = "D:\\ghsong\\data\\synonyms\\";
+			sep = "\\\\";
+		}
+		else if ( osName.startsWith( "Linux" ) ) {
+			prefix = "run/data_store/";
+			sep = "/";
+		}
+	}
 
 	public static Query getTestQuery( long size ) throws IOException {
 		return getTestQuery( "AOL", size );
 	}
 
 	public static Query getTestQuery( String name, long size ) throws IOException {
-		String osName = System.getProperty( "os.name" );
-		String prefix = null;
-		if ( osName.startsWith( "Windows" ) ) {
-			prefix = "D:\\ghsong\\data\\synonyms\\";
-//			String dataOnePath = "C:/users/ghsong/data/aol/splitted/aol_"+size+"_data.txt";
-//			String dataTwoPath = "C:/users/ghsong/data/aol/splitted/aol_"+size+"_data.txt";
-//			String rulePath = "C:/users/ghsong/data/wordnet/rules.noun";
-		}
-		else if ( osName.startsWith( "Linux" ) ) {
-			prefix = "run/data_store/";
-//			String dataOnePath = "run/data_store/aol/splitted/aol_"+size+"_data.txt";
-//			String dataTwoPath = "run/data_store/aol/splitted/aol_"+size+"_data.txt";
-//			String rulePath = "run/data_store/wordnet/rules.noun";
-//			String outputPath = "output";
-		}
 		
-		String sep = "\\" + File.separator;
+//		String sep = "\\" + File.separator;
 		String dataOnePath, dataTwoPath, rulePath;
 		if ( name.equals( "AOL" )) {
 			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
@@ -75,31 +72,46 @@ public class TestUtils {
 			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
 			rulePath = prefix + "rule"+sep+"30000_2_2_1000000_0.0_0.txt";
 		}
+		else if ( name.equals( "UNIV_1_2" ) ) {
+			dataOnePath = prefix + String.format( "univ"+sep+"universities_list_1000_1.txt" );
+			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_1000_2.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "UNIV_2_1" ) ) {
+			dataOnePath = prefix + String.format( "univ"+sep+"universities_list_1000_2.txt" );
+			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_1000_1.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "NAMES" ) ) {
+			dataOnePath = prefix + String.format( "Names"+sep+"ver_4"+sep+"Names_freebase.txt" );
+			dataTwoPath = prefix + String.format( "Names"+sep+"ver_4"+sep+"Names_sport.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "CONF" ) ) {
+			dataOnePath = prefix + String.format( "CONF"+sep+"data.txt" );
+			dataTwoPath = prefix + String.format( "CONF"+sep+"data.txt" );
+			rulePath = prefix + "CONF"+sep+"rule.txt";
+		}
 		else throw new RuntimeException();
 
 		String outputPath = "output";
 		boolean oneSideJoin = true;
 		Query query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
 
-		final ACAutomataR automata = new ACAutomataR( query.ruleSet.get());
-		for ( Record record : query.searchedSet.recordList ) {
-			record.preprocessRules( automata );
-			record.preprocessSuffixApplicableRules();
-			record.preprocessTransformLength();
-			record.preprocessTransformLength();
-			record.preprocessEstimatedRecords();
-		}
-
-		if ( !query.selfJoin ) {
-			for ( Record record : query.indexedSet.recordList ) {
-				record.preprocessRules( automata );
-				record.preprocessSuffixApplicableRules();
-				record.preprocessTransformLength();
-				record.preprocessTransformLength();
-				record.preprocessEstimatedRecords();
-			}
-		}
 		return query;
+	}
+	
+	public static String getGroundTruthPath( String name ) {
+		if ( name.equals( "UNIV_1_2" ) ) {
+			return prefix + "univ"+sep+"groundtruth_1000_1_2.txt";
+		}
+		else if ( name.equals( "NAMES" ) ) {
+			return prefix + "Names"+sep+"ver_4"+sep+"Names_groundtruth.txt"	;
+		}
+		else if ( name.equals( "CONF" ) ) {
+			return prefix + "CONF"+sep+"groundtruth.txt";
+		}
+		else throw new RuntimeException("Unknown data name");
 	}
 
 	public static void inspect_record( final Record record, final Query query ) {
@@ -205,6 +217,17 @@ public class TestUtils {
 		// check the output
 		for ( IntArrayList comb : Util.getCombinationsAll( 7, 3 ) )
 			System.out.println( comb );
+	}
+	
+	@Test
+	public void testGetCombinationsAllByDelta() {
+		List<List<IntArrayList>> combListDelta = Util.getCombinationsAllByDelta( 7, 3 );
+		for ( int d=0; d<=3; ++d ) {
+			System.out.println("d: "+d);
+			for ( IntArrayList comb : combListDelta.get(d) ) {
+				System.out.println( comb );
+			}
+		}
 	}
 	
 	public static void main(String[] args) throws IOException {

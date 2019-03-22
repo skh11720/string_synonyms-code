@@ -7,14 +7,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntOpenCustomHashSet;
-import it.unimi.dsi.fastutil.ints.IntOpenHashBigSet;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -274,6 +271,37 @@ public class Util {
 		}
 		return combList;
 	}
+	
+	public static List<List<IntArrayList>> getCombinationsAllByDelta( int n, int k) {
+		/*
+		 * Return a list of length (k+1) whose elements are
+		 * 		lists of n choose 0
+		 * 		lists of n choose 1
+		 *      ...
+		 * 		lists of n choose k
+		 */
+		List<List<IntArrayList>> combDeltaList = new ObjectArrayList<>();
+		for ( int d=0; d<=k; ++d ) combDeltaList.add(new ObjectArrayList<>());
+
+		ObjectArrayFIFOQueue<IntArrayList> stack_x_errors = new ObjectArrayFIFOQueue<IntArrayList>();
+		stack_x_errors.enqueue( new IntArrayList() );
+		
+		while ( !stack_x_errors.isEmpty() ) {
+			IntArrayList comb = stack_x_errors.dequeue();
+			combDeltaList.get(comb.size()).add( comb );
+			if ( comb.size() < k ) {
+				int max = comb.size() > 0 ? Collections.max( comb ) : -1;
+				for ( int i=max+1; i<n; ++i ) {
+					if ( !comb.contains( i )) {
+						IntArrayList comb2 = new IntArrayList( comb );
+						comb2.add( i );
+						stack_x_errors.enqueue( comb2 );
+					}
+				}
+			}
+		}
+		return combDeltaList;
+	}
 
 	public static int[] getSubsequence( int[] arr, IntArrayList idxList ) {
 		/*
@@ -284,6 +312,21 @@ public class Util {
 			int[] out = new int[idxList.size()];
 			int i = 0;
 			for ( int idx : idxList ) out[i++] = arr[idx];
+			return out;
+		}
+	}
+	
+	public static int[] getSubsequenceNotIn( int[] arr, IntArrayList notInIdxList ) {
+		/*
+		 * Return the subsequence of arr with indexes in idxList.
+		 */
+		if ( notInIdxList.size() == arr.length ) return null;
+		else {
+			int[] out = new int[arr.length - notInIdxList.size()];
+			for ( int i=0, j=0; i<arr.length; ++i ) {
+				if ( j < notInIdxList.size() && i == notInIdxList.getInt(j) ) ++j;
+				else out[i-j] = arr[i];
+			}
 			return out;
 		}
 	}
@@ -319,6 +362,14 @@ public class Util {
 		return edit_all( x, y )[y.length];
 	}
 	
+	public static int lcs( int[] x, int[] y, int threshold ) {
+		/*
+		 * Compute and return the exact lcs distance between x and y if the value is at most threshold.
+		 * Otherwise, it returns any value larger then the threshold.
+		 */
+		return lcs(x, y, threshold, 0, 0, x.length, y.length );
+	}
+
 	public static int edit( int[] x, int[] y, int threshold ) {
 		/*
 		 * Compute and return the exact edit distance between x and y if the value is at most threshold.
@@ -345,6 +396,29 @@ public class Util {
 				D[j+1] = Math.min( D[j], D_prev[j+1] )+1;
 				if ( y[j] == x[i] ) D[j+1] = Math.min( D[j+1], D_prev[j] );
 				else D[j+1] = Math.min( D[j+1], D_prev[j]+1 );
+			}
+		}
+		return D;
+	}
+
+	public static int[] lcs_all( int[] x, int[] y, int j0 ) {
+		/*
+		 * Compute and return the lcs distances between x and y[j0:j0], y[j0:j0+1], y[j0:j0+2], ..., y[j0:y.length].
+		 * The range of j0 is 0 <= j0 <= y.length.
+		 */
+		int[] D = new int[y.length+1];
+		int[] D_prev = new int[y.length+1];
+		for ( int j=j0; j<=y.length; ++j ) D[j] = j-j0;
+		for ( int i=0; i<x.length; ++i ) {
+			// swap tables
+			int[] tmp = D_prev;
+			D_prev = D;
+			D = tmp;
+
+			D[j0] = i+1;
+			for ( int j=j0; j<y.length; ++j ) {
+				D[j+1] = Math.min( D[j], D_prev[j+1] )+1;
+				if ( y[j] == x[i] ) D[j+1] = Math.min( D[j+1], D_prev[j] );
 			}
 		}
 		return D;
@@ -409,7 +483,9 @@ public class Util {
 		}
 		return matrix[xlen][ylen - xlen + threshold];
 	}
-
+	
+	private static int[][] matrix = new int[1][1];
+	
 	public static int edit( int[] x, int[] y, int threshold, int xpos, int ypos, int xlen, int ylen ) {
 		/*
 		 *  G. Li, D. Deng, J. Wang, and J. Feng: PVLDB 2011
@@ -417,9 +493,13 @@ public class Util {
 		if (xlen == -1) xlen = x.length - xpos;
 		if (ylen == -1) ylen = y.length - ypos;
 		if ( xlen > ylen + threshold || ylen > xlen + threshold ) return threshold+1;
+		if ( xlen <= threshold && ylen <= threshold ) return threshold;
 		if ( xlen == 0 ) return ylen;
 
-		int[][] matrix = new int[xlen + 1][2 * threshold + 1];
+		if ( matrix.length < xlen+1 ) matrix = new int[xlen + 1][2 * threshold + 1];
+		else if ( matrix[0].length < 2*threshold+1 ) {
+			for ( int i=0; i<matrix.length; ++i ) matrix[i] = new int[2*threshold+1];
+		}
 		for (int k = 0; k <= threshold; k++) matrix[0][threshold + k] = k;
 
 		int right = (threshold + (ylen - xlen)) / 2;

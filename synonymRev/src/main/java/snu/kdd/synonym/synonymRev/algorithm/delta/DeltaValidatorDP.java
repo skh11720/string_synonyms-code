@@ -2,8 +2,8 @@ package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.tools.Util;
 
+@Deprecated
 public class DeltaValidatorDP extends DeltaValidatorNaive {
 	
 	private boolean[][][] M; 
@@ -11,8 +11,8 @@ public class DeltaValidatorDP extends DeltaValidatorNaive {
 
 	private int Lx = 5, Ly = 5;
 
-	public DeltaValidatorDP(int deltaMax) {
-		super(deltaMax);
+	public DeltaValidatorDP( int deltaMax, String strDistFunc ) {
+		super(deltaMax, strDistFunc );
 		M = new boolean[deltaMax+1][Lx+1][Ly+1];
 	}
 
@@ -48,7 +48,7 @@ public class DeltaValidatorDP extends DeltaValidatorNaive {
 				 * 0 <= j0 <= j1 and 1 <= j1 <= |t|.
 				 */
 				for ( int j0=0; j0<=ly; ++j0 ) {
-					D[j0] = Util.edit_all( rhs, y.getTokensArray(), j0 ); // D[j0][j0], D[j0][j0+1] ... are valid values
+					D[j0] = distAll.eval( rhs, y.getTokensArray(), j0 ); // D[j0][j0], D[j0][j0+1] ... are valid values
 				}
 				// given the current rule, find j0 which satisfies the condition in the recurrence equation for every 1 <= j <= |y|.
 				for ( int j=1; j<=ly; ++j ) {

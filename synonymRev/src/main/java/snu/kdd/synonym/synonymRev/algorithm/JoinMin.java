@@ -1,33 +1,19 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
-import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMin extends AlgorithmTemplate {
+public class JoinMin extends AbstractPosQGramBasedAlgorithm {
 
-	public int qSize;
-	public int indexK;
-
-	public Validator checker;
+	public final int indexK;
 
 	/**
 	 * Key: (2gram, index) pair<br/>
@@ -35,91 +21,48 @@ public class JoinMin extends AlgorithmTemplate {
 	 */
 	public JoinMinIndex idx;
 
-	protected boolean useLF, usePQF, useSTPQ;
-
 	
-	public JoinMin(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new Param(args);
-		checker = new TopDownOneSide();
+	public JoinMin(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
-		qSize = param.getIntParam("qSize");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
 	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
+		checker = new TopDownOneSide();
+	}
+	
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("Param_qSize", qSize);
+		stat.add("Param_useLF", useLF);
+		stat.add("Param_usePQF", usePQF);
+		stat.add("Param_useSTPQ", useSTPQ);
+	}
 
 	@Override
-	public void preprocess() {
-		super.preprocess();
-		for( Record rec : query.searchedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-	}
-
-	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResult );
-		JoinMinIndex.useLF = useLF;
-		JoinMinIndex.usePQF = usePQF;
-		JoinMinIndex.useSTPQ = useSTPQ;
-	}
-
-	public void statistics() {
-		long strlengthsum = 0;
-
-		int strs = 0;
-		int maxstrlength = 0;
-
-		long rhslengthsum = 0;
-		int rules = 0;
-		int maxrhslength = 0;
-
-		for( Record rec : query.searchedSet.get() ) {
-			int length = rec.getTokenCount();
-			++strs;
-			strlengthsum += length;
-			maxstrlength = Math.max( maxstrlength, length );
-		}
-
-		for( Record rec : query.indexedSet.get() ) {
-			int length = rec.getTokenCount();
-			++strs;
-			strlengthsum += length;
-			maxstrlength = Math.max( maxstrlength, length );
-		}
-
-		for( Rule rule : query.ruleSet.get() ) {
-			int length = rule.getRight().length;
-			++rules;
-			rhslengthsum += length;
-			maxrhslength = Math.max( maxrhslength, length );
-		}
-
-		Util.printLog( "Average str length: " + strlengthsum + "/" + strs );
-		Util.printLog( "Maximum str length: " + maxstrlength );
-		Util.printLog( "Average rhs length: " + rhslengthsum + "/" + rules );
-		Util.printLog( "Maximum rhs length: " + maxrhslength );
-	}
-
-	public void runWithoutPreprocess() {
-		// Retrieve statistics
+	public void runAfterPreprocess() {
 		StopWatch stepTime = null;
-		statistics();
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stepTime.stopAndAdd( stat );
 		stat.addMemory( "Mem_4_Joined" );
 
 		if( DEBUG.JoinMinON ) {
-			if( writeResult ) {
+			if( writeResultOn ) {
 				stat.add( "Counter_Final_1_HashCollision", WYK_HashSet.collision );
 				stat.add( "Counter_Final_1_HashResize", WYK_HashSet.resize );
 
@@ -130,15 +73,12 @@ public class JoinMin extends AlgorithmTemplate {
 				stat.add( "Sample_JoinMin_Result", rslt.size() );
 			}
 		}
+		idx.addStat( stat );
 	}
 
+	@Override
 	public void runAfterPreprocessWithoutIndex() {
-		rslt = new ObjectOpenHashSet<IntegerPair>();
-		StopWatch runTime = null;
-		//StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
+		rslt = new ResultSet(query.selfJoin);
 		long t_filter = 0;
 		long t_verify = 0;
 
@@ -156,9 +96,10 @@ public class JoinMin extends AlgorithmTemplate {
 			
 			long afterFilterTime = System.nanoTime();
 			for ( Record recT : candidates ) {
+				if ( rslt.contains(recS, recT) ) continue;
 				int compare = checker.isEqual(recS, recT);
 				if (compare >= 0) {
-					addSeqResult( recS, recT, (Set<IntegerPair>) rslt, query.selfJoin );
+					rslt.add(recS, recT);
 				}
 			}
 			long afterVerifyTime = System.nanoTime();
@@ -168,33 +109,14 @@ public class JoinMin extends AlgorithmTemplate {
 
 		stat.add( "Result_5_1_Filter_Time", t_filter/1e6 );
 		stat.add( "Result_5_2_Verify_Time", t_verify/1e6 );
-		
-		runTime.stopAndAdd( stat );
 	}
 
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
-		preprocess();
-
-		stepTime.stopAndAdd( stat );
-
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-
-		if ( usePQF ) {
-			runWithoutPreprocess();
-			idx.addStat( stat );
-		}
-		else runAfterPreprocessWithoutIndex();
-
-		stepTime.stopAndAdd( stat );
-
-		checker.addStat( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult();
-		stepTime.stopAndAdd( stat );
+	protected void buildIndex() {
+		idx = new JoinMinIndex( indexK, qSize, stat, query, 0, writeResultOn );
+		JoinMinIndex.useLF = useLF;
+		JoinMinIndex.usePQF = usePQF;
+		JoinMinIndex.useSTPQ = useSTPQ;
 	}
 
 	public double getLambda() {
@@ -218,12 +140,18 @@ public class JoinMin extends AlgorithmTemplate {
 		 * 2.5: the latest version by yjpark
 		 * 2.51: checkpoint
 		 * 2.511: test for filtering power test
+		 * 2.52: major update
 		 */
-		return "2.511";
+		return "2.52";
 	}
 
 	@Override
 	public String getName() {
 		return "JoinMin";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d", getName(), indexK, qSize);
 	}
 }

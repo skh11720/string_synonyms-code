@@ -10,10 +10,6 @@ public class SetTopDownOneSide extends AbstractSetValidator {
 	private Object2BooleanOpenHashMap<MemKey> isEquiv = new Object2BooleanOpenHashMap<MemKey>();
 	private Record leftRec, rightRec;
 	private IntOpenHashSet rightTokenSet;
-	
-	public SetTopDownOneSide( Boolean selfJoin ) {
-		super( selfJoin );
-	}
 
 	@Override
 	protected int isEqualOneSide( Record x, Record y ) {

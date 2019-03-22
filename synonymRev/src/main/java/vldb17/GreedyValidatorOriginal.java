@@ -7,7 +7,6 @@ import java.util.Set;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -19,7 +18,6 @@ public class GreedyValidatorOriginal extends Validator{
 	
 	private long nCorrect = 0;
 	private final double theta;
-	private final Query query;
 	
 	private final static Boolean getTime = false;
 	private final static Boolean debugPrint = false;
@@ -33,8 +31,9 @@ public class GreedyValidatorOriginal extends Validator{
 	public long reconstTime = 0;
 	public long compareTime = 0;
 	
-	public GreedyValidatorOriginal(Query query, double theta) {
-		this.query = query;
+	private static final boolean debug_print_transform = false;
+	
+	public GreedyValidatorOriginal(double theta) {
 		this.theta = theta;
 	}
 
@@ -53,18 +52,19 @@ public class GreedyValidatorOriginal extends Validator{
 		else {
 			double simx2y = getSimL2R( x, y, false );
 			if ( simx2y >= theta ) res = 1;
-			else {
-				double simy2x = getSimL2R( y, x, false );
-				if ( simy2x >= theta ) res = 2;
-				else res = -1;
-			}
+//			else {
+//				double simy2x = getSimL2R( y, x, false );
+//				if ( simy2x >= theta ) res = 2;
+//				else res = -1;
+//			}
+			else res = -1;
 		}
 		totalTime += System.nanoTime() - ts;
 		// print output for debugging
-		if ( res == 1 || res == 2 ) {
-			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString()+"\n"+y.getID()+"\t"+y.toString());
+		if ( debug_print_transform && (res == 1 || res == 2) ) {
+			JoinPkduckOriginal.pw.println(x.getID() +"\t" + x.toString()+"\t"+Arrays.toString(x.getTokensArray())+"\n"+y.getID()+"\t"+y.toString()+"\t"+Arrays.toString(y.getTokensArray()));
 			if ( res == 1 ) getSimL2R( x, y, true );
-			else getSimL2R( y, x, true );
+//			else getSimL2R( y, x, true );
 		}
 		return res;
 	}
@@ -78,6 +78,7 @@ public class GreedyValidatorOriginal extends Validator{
 		for (int i=0; i<x.size(); i++) {
 			for (Rule rule : x.getSuffixApplicableRules( i )) {
 				candidateRules.add( new PosRule(rule, i) );
+				if (expPrint) JoinPkduckOriginal.pw.println("cand rule: "+rule+"\t"+i);
 			}
 		}
 		if (getTime) ruleCopyTime += System.nanoTime() - ts;
@@ -166,6 +167,11 @@ public class GreedyValidatorOriginal extends Validator{
 				System.out.println( rule.rule+", "+rule.pos );
 			}
 		}
+		if (expPrint) {
+			for (PosRule rule : appliedRuleSet) {
+				JoinPkduckOriginal.pw.println( rule.rule+", "+rule.pos );
+			}
+		}
 		
 		for (int i=x.size()-1, j=transformedSize-1; i>=0;) {
 			for (PosRule rule : appliedRuleSet) {
@@ -188,6 +194,7 @@ public class GreedyValidatorOriginal extends Validator{
 		}
 
 		if (debugPrint) System.out.println( Arrays.toString( transformedRecord ) );
+		if (expPrint) JoinPkduckOriginal.pw.println("transformed: "+(new Record(transformedRecord)).toString(Record.tokenIndex));
 		IntOpenHashSet setTrans = new IntOpenHashSet(transformedRecord);
 		IntOpenHashSet setY = new IntOpenHashSet(y.getTokens());
 		double sim = Util.jaccard( transformedRecord, y.getTokensArray());

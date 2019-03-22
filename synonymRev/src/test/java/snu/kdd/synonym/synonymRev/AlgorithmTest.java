@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
@@ -13,26 +14,86 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import snu.kdd.synonym.synonymRev.algorithm.AlgorithmFactory;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AlgorithmTest {
+
+
+	@Test
+	public void testSelected() throws ParseException, IOException {
+		
+		boolean[] flags = {true, false};
+		for ( boolean flag : flags ) {
+			isSelfJoin = flag;
+			
+			testJoinNaive();
+			testJoinMH();
+			testJoinMin();
+			testJoinMinFast();
+			testJoinHybridAll();
+			testJoinPkduck();
+			testPassJoin();
+			
+			testJoinSetNaive();
+			testJoinPkduckSet();
+			testJoinBKPSet();
+			testJoinPkduckOriginal();
+			
+			testJoinDeltaNaive();
+			testJoinDeltaSimple();
+			testJoinDeltaVar();
+			testJoinDeltaVarBK();
+
+//			testSIJoinOriginal(); //FIXME: gc overhead limit issue
+		}
+	}
+
+	@Ignore
+	public void testSingleCase() throws IOException, ParseException {
+		args[1] = "JoinDeltaVar";
+		int K = 1;
+		int q = 2;
+		int d = 1;
+		String dist = "lcs";
+		boolean isSelfJoin = false;
+		String pstr = String.format("\"-K %d -qSize %d -delta %d -dist %s\"", K, q, d, dist);
+		int answer;
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get(dist)[d];
+		else answer = ANS_SEQ_NONSELF_DELTA.get(dist)[d];
+		runAlgorithm( pstr, answer, isSelfJoin );
+	}
 	
-//	private static Query query;
 	public static String[] args = {"-algorithm", "", "-oneSideJoin", "True", "-additional", ""};
 	public static boolean isSelfJoin = false;
 	
-	// answer values
-//	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 1190, 2447}; // LCS dist
-	private static final int[] ANS_SEQ_SELF_DELTA = new int[]{1014, 2126, 33711}; // edit dist
-//	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{4, 149, 3281}; // LCS dist, semi-uni
-	private static final int[] ANS_SEQ_NONSELF_DELTA = new int[]{2, 168, 1964};
-	private static final int[] ANS_SET_SELF_DELTA = new int[] {1028}; 
-	private static final int[] ANS_SET_NONSELF_DELTA = new int[] {2};
+	private static final Map<String, int[]> ANS_SEQ_SELF_DELTA = new Object2ObjectOpenHashMap<>();
+	static {
+		final int[] ANS_SEQ_SELF_DELTA_EDIT = new int[]{1014, 2126, 33711};
+		final int[] ANS_SEQ_SELF_DELTA_LCS = new int[]{1014, 1190, 2447};
+		ANS_SEQ_SELF_DELTA.put("edit", ANS_SEQ_SELF_DELTA_EDIT);
+		ANS_SEQ_SELF_DELTA.put("lcs", ANS_SEQ_SELF_DELTA_LCS);
+	}
+
+	private static final Map<String, int[]> ANS_SEQ_NONSELF_DELTA = new Object2ObjectOpenHashMap<>();
+	static {
+		final int[] ANS_SEQ_NONSELF_DELTA_EDIT = new int[]{105, 3938, 49322};
+		final int[] ANS_SEQ_NONSELF_DELTA_LCS = new int[]{105, 136, 4174};
+		ANS_SEQ_NONSELF_DELTA.put("edit", ANS_SEQ_NONSELF_DELTA_EDIT);
+		ANS_SEQ_NONSELF_DELTA.put("lcs", ANS_SEQ_NONSELF_DELTA_LCS);
+	}
+
+	private static final int[] ANS_SET_REPLACE_SELF_DELTA = new int[] {1028, 1070, 1547}; 
+	private static final int[] ANS_SET_REPLACE_NONSELF_DELTA = new int[] {105, 105, 275};
+	private static final int[] ANS_SET_EXPAND_SELF_DELTA = new int[] {1028, 1028, 1028}; 
+	private static final int[] ANS_SET_EXPAND_NONSELF_DELTA = new int[] {105, 105, 105};
+	private static final String[] dist_list = new String[] {"edit", "lcs"};
+
+	
 	
 	public static Query getSelfJoinQuery() throws ParseException, IOException {
 		String osName = System.getProperty( "os.name" );
@@ -54,7 +115,7 @@ public class AlgorithmTest {
 				"-outputPath output -algorithm * -oneSideJoin True -additional *").split( " ", 14 );
 		
 		CommandLine cmd = App.parseInput( args );
-		Query query = App.getQuery( cmd );
+		Query query = Query.parseQuery( cmd );
 		return query;
 	}
 	
@@ -78,7 +139,7 @@ public class AlgorithmTest {
 				"-outputPath output -algorithm * -oneSideJoin True -additional *").split( " ", 14 );
 		
 		CommandLine cmd = App.parseInput( args );
-		Query query = App.getQuery( cmd );
+		Query query = Query.parseQuery( cmd );
 		return query;
 	}
 	
@@ -93,56 +154,19 @@ public class AlgorithmTest {
 		return out;
 	}
 	
-//	private static void runAlgorithm( String param ) throws ParseException, IOException {
-//		args[5] = param;
-//		CommandLine cmd = App.parseInput( args );
-//		AlgorithmTemplate alg = App.getAlgorithm( query, stat, cmd );
-//		alg.writeResult = false;
-//		App.run( alg, query, cmd );
-//		assertEquals( 1014, alg.rsltSize );
-//	}
-
 	private static void runAlgorithm( String param, int answer, boolean isSelfJoin ) throws ParseException, IOException {
 		Record.initStatic();
-		Rule.initStatic();
 		Query query = null;
 		if ( isSelfJoin ) query = AlgorithmTest.getSelfJoinQuery();
-		else query = AlgorithmTest.get2WayJoinQuery();
-		StatContainer stat = new StatContainer();
+		else query = TestUtils.getTestQuery("UNIV_1_2", -1);
 		args[5] = param;
 		CommandLine cmd = App.parseInput( args );
-		AlgorithmInterface alg = (AlgorithmInterface)App.getAlgorithm( query, stat, cmd );
+		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd, query.selfJoin);
 		alg.setWriteResult( false );
 		System.out.println( alg.getName()+", "+param );
-		alg.run();
+		alg.run(query);
 		System.out.println( "Result size: "+alg.getResult().size() );
 		assertEquals( answer, alg.getResult().size() );
-	}
-	
-	@Test
-	public void testSelected() throws ParseException, IOException {
-		
-		boolean[] flags = {true, false};
-		for ( boolean flag : flags ) {
-			isSelfJoin = flag;
-			
-			testJoinNaive();
-			testJoinMH();
-			testJoinMin();
-			testJoinMinFast();
-			testJoinHybridAll(); // JoinHybridAll3
-			testJoinPkduck();
-			testPassJoin();
-			
-			testJoinSetNaive();
-			testJoinPkduckSet();
-			testJoinBKPSet();
-			
-			testJoinDeltaNaive();
-			testJoinDeltaSimple();
-			testJoinDeltaVar();
-			testJoinDeltaVarBK();
-		}
 	}
 	
 	
@@ -159,8 +183,8 @@ public class AlgorithmTest {
 				"\"-1\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
-		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get("edit")[0];
+		else answer = ANS_SEQ_NONSELF_DELTA.get("edit")[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 
@@ -173,8 +197,8 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1\""
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
-		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get("edit")[0];
+		else answer = ANS_SEQ_NONSELF_DELTA.get("edit")[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 
@@ -187,8 +211,8 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1\""
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
-		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get("edit")[0];
+		else answer = ANS_SEQ_NONSELF_DELTA.get("edit")[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 
@@ -201,14 +225,14 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 1 -sampleB 0.1\""
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
-		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get("edit")[0];
+		else answer = ANS_SEQ_NONSELF_DELTA.get("edit")[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 	
 	@Ignore
 	public void testJoinHybridAll() throws ParseException, IOException {
-		args[1] = "JoinHybridAll3";
+		args[1] = "JoinHybridAll";
 		String[] param_list = {
 				"\"-K 1 -qSize 1 -sampleH 0.01 -sampleB 0.01\"",
 				"\"-K 1 -qSize 2 -sampleH 0.01 -sampleB 0.01\"",
@@ -216,8 +240,8 @@ public class AlgorithmTest {
 				"\"-K 2 -qSize 2 -sampleH 0.01 -sampleB 0.01\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
-		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get("edit")[0];
+		else answer = ANS_SEQ_NONSELF_DELTA.get("edit")[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 	
@@ -235,11 +259,11 @@ public class AlgorithmTest {
 				"\"-ord FF -verify greedy -rc true -lf false\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
-		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get("edit")[0];
+		else answer = ANS_SEQ_NONSELF_DELTA.get("edit")[0];
 		int[] answer_list;
-		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-1, answer-1, answer, answer, answer-1, answer-1 };
-		else answer_list = new int[] {answer, answer, answer, answer, answer, answer, answer, answer};
+		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-2, answer-2, answer, answer, answer-2, answer-2 };
+		else answer_list = new int[] {answer, answer, answer-0, answer-0, answer, answer, answer-0, answer-0};
 		for ( int i=0; i<param_list.length; ++i ) {
 			String param = param_list[i];
 			runAlgorithm( param, answer_list[i] , isSelfJoin );
@@ -253,8 +277,8 @@ public class AlgorithmTest {
 				"\"-delta 0\""
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[0];
-		else answer = ANS_SEQ_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get("edit")[0];
+		else answer = ANS_SEQ_NONSELF_DELTA.get("edit")[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 	
@@ -271,8 +295,8 @@ public class AlgorithmTest {
 				"\"-1\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
-		else answer = ANS_SET_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SET_REPLACE_SELF_DELTA[0];
+		else answer = ANS_SET_REPLACE_NONSELF_DELTA[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
 	}
 
@@ -290,9 +314,15 @@ public class AlgorithmTest {
 				"\"-ord FF -verify greedy -rc true -lf false\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
-		else answer = ANS_SET_NONSELF_DELTA[0];
-		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+		if ( isSelfJoin ) answer = ANS_SET_REPLACE_SELF_DELTA[0];
+		else answer = ANS_SET_REPLACE_NONSELF_DELTA[0];
+		int[] answer_list;
+		if ( isSelfJoin ) answer_list = new int[]{answer, answer, answer-1, answer-1, answer, answer, answer-1, answer-1 };
+		else answer_list = new int[] {answer, answer, answer, answer, answer, answer, answer, answer};
+		for ( int i=0; i<param_list.length; ++i ) {
+			String param = param_list[i];
+			runAlgorithm( param, answer_list[i], isSelfJoin );
+		}
 	}
 
 	@Ignore
@@ -305,9 +335,41 @@ public class AlgorithmTest {
 				"\"-K 2 -verify GR1\"",
 		};
 		int answer;
-		if ( isSelfJoin ) answer = ANS_SET_SELF_DELTA[0];
-		else answer = ANS_SET_NONSELF_DELTA[0];
+		if ( isSelfJoin ) answer = ANS_SET_REPLACE_SELF_DELTA[0];
+		else answer = ANS_SET_REPLACE_NONSELF_DELTA[0];
 		for ( String param : param_list ) runAlgorithm( param, answer, isSelfJoin );
+	}
+
+	@Ignore
+	public void testJoinPkduckOriginal() throws ParseException, IOException {
+		args[1] = "JoinPkduckOriginal";
+		String[] param_list = {
+				"\"-ord FF -theta 1.0 -rc false -lf true\"",
+				"\"-ord FF -theta 0.8 -rc false -lf true\"",
+				"\"-ord FF -theta 0.6 -rc false -lf true\"",
+		};
+		int answer;
+		for ( int i=0; i<param_list.length; ++i ) {
+			if ( isSelfJoin ) answer = ANS_SET_REPLACE_SELF_DELTA[i]-1;
+			else answer = ANS_SET_REPLACE_NONSELF_DELTA[i];
+			runAlgorithm( param_list[i], answer, isSelfJoin );
+		}
+	}
+
+	@Ignore
+	public void testSIJoinOriginal() throws ParseException, IOException {
+		args[1] = "SIJoinOriginal";
+		String[] param_list = {
+				"\"-theta 1.0\"",
+				"\"-theta 0.8\"",
+				"\"-theta 0.6\"",
+		};
+		int answer;
+		for ( int i=0; i<param_list.length; ++i ) {
+			if ( isSelfJoin ) answer = ANS_SET_EXPAND_SELF_DELTA[i];
+			else answer = ANS_SET_EXPAND_NONSELF_DELTA[i];
+			runAlgorithm( param_list[i], answer, isSelfJoin );
+		}
 	}
 	
 	
@@ -319,38 +381,42 @@ public class AlgorithmTest {
 	@Ignore
 	public void testJoinDeltaNaive() throws IOException, ParseException {
 		args[1] = "JoinDeltaNaive";
-		String[] param_list = {
-				"\"-delta 0\"",
-				"\"-delta 1\"",
-				"\"-delta 2\"",
-		};
-		int answer;
-		for ( int i=0; i<param_list.length; ++i ) {
-			if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[i];
-			else answer = ANS_SEQ_NONSELF_DELTA[i];
-			runAlgorithm( param_list[i], answer, isSelfJoin );
+		for ( String dist : dist_list ) {
+			String[] param_list = {
+					"\"-delta 0 -dist "+dist+"\"",
+					"\"-delta 1 -dist "+dist+"\"",
+					"\"-delta 2 -dist "+dist+"\"",
+			};
+			int answer;
+			for ( int d=0; d<param_list.length; ++d ) {
+				if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get(dist)[d];
+				else answer = ANS_SEQ_NONSELF_DELTA.get(dist)[d];
+				runAlgorithm( param_list[d], answer, isSelfJoin );
+			}
 		}
 	}
 
 	@Ignore
 	public void testJoinDeltaSimple() throws IOException, ParseException {
 		args[1] = "JoinDeltaSimple";
-		String[][] param_list = new String[3][];
-		for ( int d=0; d<3; ++d ) {
-			List<String> pstr_list = new ArrayList<>();
-			for ( int q=1; q<=3; ++q ) {
-				pstr_list.add( String.format("\"-qSize %d -delta %d\"", q, d ) );
+		for ( String dist : dist_list ) {
+			String[][] param_list = new String[3][];
+			for ( int d=0; d<3; ++d ) {
+				List<String> pstr_list = new ArrayList<>();
+				for ( int q=1; q<=3; ++q ) {
+					pstr_list.add( String.format("\"-qSize %d -delta %d -dist %s\"", q, d, dist ) );
+				}
+				param_list[d] = new String[pstr_list.size()];
+				pstr_list.toArray( param_list[d] );
 			}
-			param_list[d] = new String[pstr_list.size()];
-			pstr_list.toArray( param_list[d] );
-		}
 
-		int answer;
-		for ( int d=0; d<param_list.length; ++d ) {
-			for ( int i=0; i<param_list[d].length; ++i ) {
-				if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[d];
-				else answer = ANS_SEQ_NONSELF_DELTA[d];
-				runAlgorithm( param_list[d][i], answer, isSelfJoin );
+			int answer;
+			for ( int d=0; d<param_list.length; ++d ) {
+				for ( int i=0; i<param_list[d].length; ++i ) {
+					if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get(dist)[d];
+					else answer = ANS_SEQ_NONSELF_DELTA.get(dist)[d];
+					runAlgorithm( param_list[d][i], answer, isSelfJoin );
+				}
 			}
 		}
 	}
@@ -358,25 +424,26 @@ public class AlgorithmTest {
 	@Ignore
 	public void testJoinDeltaVar() throws IOException, ParseException {
 		args[1] = "JoinDeltaVar";
-		String[][] param_list = new String[3][];
-		for ( int d=0; d<3; ++d ) {
-			List<String> pstr_list = new ArrayList<>();
-			for ( int k=1; k<=3; ++k ) {
-				for ( int q=1; q<=3; ++q ) {
-					pstr_list.add( String.format("\"-K %d -qSize %d -delta %d\"", k, q, d ) );
+		for ( String dist : dist_list ) {
+			String[][] param_list = new String[3][];
+			for ( int d=0; d<3; ++d ) {
+				List<String> pstr_list = new ArrayList<>();
+				for ( int k=1; k<=3; ++k ) {
+					for ( int q=1; q<=3; ++q ) {
+						pstr_list.add( String.format("\"-K %d -qSize %d -delta %d -dist %s\"", k, q, d, dist ) );
+					}
 				}
+				param_list[d] = new String[pstr_list.size()];
+				pstr_list.toArray( param_list[d] );
 			}
-			param_list[d] = new String[pstr_list.size()];
-			pstr_list.toArray( param_list[d] );
-		}
 
-		int answer;
-		for ( int d=0; d<param_list.length; ++d ) {
-			for ( int i=0; i<param_list[d].length; ++i ) {
-				if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[d];
-				else answer = ANS_SEQ_NONSELF_DELTA[d];
-				runAlgorithm( param_list[d][i], answer, isSelfJoin );
-			
+			int answer;
+			for ( int d=0; d<param_list.length; ++d ) {
+				for ( int i=0; i<param_list[d].length; ++i ) {
+					if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get(dist)[d];
+					else answer = ANS_SEQ_NONSELF_DELTA.get(dist)[d];
+					runAlgorithm( param_list[d][i], answer, isSelfJoin );
+				}
 			}
 		}
 	}
@@ -384,25 +451,26 @@ public class AlgorithmTest {
 	@Ignore
 	public void testJoinDeltaVarBK() throws IOException, ParseException {
 		args[1] = "JoinDeltaVarBK";
-		String[][] param_list = new String[3][];
-		for ( int d=0; d<3; ++d ) {
-			List<String> pstr_list = new ArrayList<>();
-			for ( int k=1; k<=3; ++k ) {
-				for ( int q=1; q<=3; ++q ) {
-					pstr_list.add( String.format("\"-K %d -qSize %d -delta %d -sampleB 0.01\"", k, q, d ) );
+		for ( String dist : dist_list ) {
+			String[][] param_list = new String[3][];
+			for ( int d=0; d<3; ++d ) {
+				List<String> pstr_list = new ArrayList<>();
+				for ( int k=1; k<=3; ++k ) {
+					for ( int q=1; q<=3; ++q ) {
+						pstr_list.add( String.format("\"-K %d -qSize %d -delta %d -dist %s -sampleB 0.01\"", k, q, d, dist ) );
+					}
 				}
+				param_list[d] = new String[pstr_list.size()];
+				pstr_list.toArray( param_list[d] );
 			}
-			param_list[d] = new String[pstr_list.size()];
-			pstr_list.toArray( param_list[d] );
-		}
 
-		int answer;
-		for ( int d=0; d<param_list.length; ++d ) {
-			for ( int i=0; i<param_list[d].length; ++i ) {
-				if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA[d];
-				else answer = ANS_SEQ_NONSELF_DELTA[d];
-				runAlgorithm( param_list[d][i], answer, isSelfJoin );
-			
+			int answer;
+			for ( int d=0; d<param_list.length; ++d ) {
+				for ( int i=0; i<param_list[d].length; ++i ) {
+					if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get(dist)[d];
+					else answer = ANS_SEQ_NONSELF_DELTA.get(dist)[d];
+					runAlgorithm( param_list[d][i], answer, isSelfJoin );
+				}
 			}
 		}
 	}

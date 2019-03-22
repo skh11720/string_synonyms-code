@@ -25,37 +25,42 @@ public class ParamPkduck extends AbstractParam {
 		argOptions = options;
 	}
 
-	public ParamPkduck( String[] args ) throws ParseException {
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd = parser.parse( argOptions, args );
+	public ParamPkduck( String[] args ) {
+		try {
+			CommandLineParser parser = new DefaultParser();
+			CommandLine cmd = parser.parse( argOptions, args );
 
-		if( cmd.hasOption( "ord" ) ) {
-			Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"PF", "TF", "FF"} );
-			String globalOrder = cmd.getOptionValue( "ord" );
-			if ( !possibleValues.contains( globalOrder ) )
-				throw new RuntimeException( "unexpected value for option -ord: "+globalOrder );
-			mapParamS.put("ord", globalOrder);
-		}
+			if( cmd.hasOption( "ord" ) ) {
+				Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"PF", "TF", "FF"} );
+				String globalOrder = cmd.getOptionValue( "ord" );
+				if ( !possibleValues.contains( globalOrder ) )
+					throw new RuntimeException( "unexpected value for option -ord: "+globalOrder );
+				mapParamS.put("ord", globalOrder);
+			}
 
-		if( cmd.hasOption( "verify" ) ) {
-			Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"naive", "greedy", "TD"} );
-			String verifier = cmd.getOptionValue( "verify" );
-			if ( !possibleValues.contains( verifier ) )
-				throw new RuntimeException("unexpected value for option -verify: "+verifier);
-			mapParamS.put("verify", verifier);
-		}
-		
-		if ( cmd.hasOption( "theta" ) ) {
-			double theta = Double.parseDouble( cmd.getOptionValue( "theta" ) );
-			mapParamD.put("theta", theta);
-		}
+			if( cmd.hasOption( "verify" ) ) {
+				Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"naive", "greedy", "TD"} );
+				String verifier = cmd.getOptionValue( "verify" );
+				if ( !possibleValues.contains( verifier ) )
+					throw new RuntimeException("unexpected value for option -verify: "+verifier);
+				mapParamS.put("verify", verifier);
+			}
+			
+			if ( cmd.hasOption( "theta" ) ) {
+				double theta = Double.parseDouble( cmd.getOptionValue( "theta" ) );
+				mapParamD.put("theta", theta);
+			}
 
-		boolean rc = false;
-		if ( cmd.hasOption( "rc" ) ) rc = Boolean.parseBoolean( cmd.getOptionValue( "rc" ) );
-		mapParamB.put("rc", rc);
-		
-		boolean useLF = true;
-		if ( cmd.hasOption( "lf" ) ) useLF = Boolean.valueOf( cmd.getOptionValue( "lf" ) );
-		mapParamB.put("useLF", useLF);
+			boolean rc = false;
+			if ( cmd.hasOption( "rc" ) ) rc = Boolean.parseBoolean( cmd.getOptionValue( "rc" ) );
+			mapParamB.put("rc", rc);
+			
+			boolean useLF = true;
+			if ( cmd.hasOption( "lf" ) ) useLF = Boolean.valueOf( cmd.getOptionValue( "lf" ) );
+			mapParamB.put("useLF", useLF);
+		}
+		catch ( ParseException e ) {
+			e.printStackTrace();
+		}
 	}
 }

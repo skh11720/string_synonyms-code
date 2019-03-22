@@ -1,36 +1,26 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.io.IOException;
-import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
-
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
-import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
-import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
-
 public class JoinDeltaVarBK extends JoinDeltaVar {
 	
 	protected final double sampleB;
 
-	public JoinDeltaVarBK(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinDeltaVarBK(String[] args) {
+		super(args);
 		sampleB = param.getDoubleParam("sampleB");
-		stat.add("sampleB", sampleB);
 	}
 
-	protected void buildIndex( boolean writeResult ) {
+	@Override
+	protected void reportParamsToStat() {
+		super.reportParamsToStat();
+		stat.add("Param_sampleB", sampleB);
+	}
+
+	@Override
+	protected void buildIndex() {
 		JoinDeltaVarBKIndex.useLF = useLF;
 		JoinDeltaVarBKIndex.usePQF = usePQF;
 		JoinDeltaVarBKIndex.useSTPQ = useSTPQ;
-		idx = new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, sampleB);
+		idx = new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, distFunc, sampleB);
 		idx.build();
 	}
 
@@ -38,8 +28,10 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: major update
+		 * 1.02: fix bug in delta-q-gram generation
 		 */
-		return "1.00";
+		return "1.02";
 	}
 
 	@Override
@@ -48,7 +40,7 @@ public class JoinDeltaVarBK extends JoinDeltaVar {
 	}
 	
 	@Override
-	public String getOutputName() {
-		return String.format( "%s_d%d", super.getOutputName(), deltaMax );
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d_%d_%s_%.2f", getName(), indexK, qSize, deltaMax, distFunc, sampleB);
 	}
 }

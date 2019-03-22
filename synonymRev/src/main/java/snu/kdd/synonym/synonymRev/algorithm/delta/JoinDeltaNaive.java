@@ -1,80 +1,49 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.io.IOException;
-
-import org.apache.commons.cli.ParseException;
-
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractParameterizedAlgorithm;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinDeltaNaive extends AlgorithmTemplate {
-	
-	protected DeltaHashIndex idx;
-	protected Validator checker;
-	protected int deltaMax;
-	
+public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
+
 	public static boolean useLF = true;
 
+	public final int deltaMax;
+	public final String distFunc;
 	
-	public JoinDeltaNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new Param(args);
+	protected JoinDeltaNaiveIndex idx;
+
+	
+	public JoinDeltaNaive(String[] args) {
+		super(args);
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
-	}
-
-	@Override
-	protected void preprocess() {
-		super.preprocess();
-
-		for( Record rec : query.indexedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
-		}
 	}
 	
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.stopAndAdd( stat );
-
-		runAfterPreprocess();
+	public void initialize() {
+		super.initialize();
+		checker = new DeltaValidatorNaive(deltaMax, distFunc);
 	}
 
-	public void runAfterPreprocess() {
-		StopWatch runTime = null;
-		StopWatch stepTime = null;
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_distFunct", distFunc);
+		stat.add("Param_useLF", useLF);
+	}
 
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		idx = new DeltaHashIndex(deltaMax, query, stat);
+	@Override
+	protected void executeJoin() {
+		StopWatch stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
+		idx = new JoinDeltaNaiveIndex(deltaMax, distFunc, query);
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
-		stepTime.stopAndAdd( stat );
-
-		runTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		writeResult();
-
 		stepTime.stopAndAdd( stat );
 	}
 
@@ -82,12 +51,19 @@ public class JoinDeltaNaive extends AlgorithmTemplate {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: major update
+		 * 1.02: two-level hashing
 		 */
-		return "1.00";
+		return "1.02";
 	}
 
 	@Override
 	public String getName() {
 		return "JoinDeltaNaive";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%s", getName(), deltaMax, distFunc);
 	}
 }

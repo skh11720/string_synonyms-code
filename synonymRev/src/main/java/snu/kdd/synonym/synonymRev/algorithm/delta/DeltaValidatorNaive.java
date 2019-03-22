@@ -2,20 +2,14 @@ package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class DeltaValidatorNaive extends Validator {
+public class DeltaValidatorNaive extends AbstractDeltaValidator {
 	
-	protected final int deltaMax;
-
-	protected long numEqual = 0;
-	protected long numDeltaEqual = 0;
-	protected long numDeltaTransEqual = 0;
-	
-	public DeltaValidatorNaive( int deltaMax ) {
-		this.deltaMax = deltaMax;
+	public DeltaValidatorNaive( int deltaMax, String strDistFunc ) {
+		super(deltaMax, strDistFunc);
 	}
 
 	@Override
@@ -28,7 +22,13 @@ public class DeltaValidatorNaive extends Validator {
 			++numEqual;
 			return 0; 
 		}
-		if ( Util.edit( x.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
+
+		if ( distTrivialCase.check(x, y) ) {
+			++numTrivial;
+			return 1;
+		}
+
+		if ( distGivenThres.eval( x.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
 			++numDeltaEqual;
 			return 1;
 		}
@@ -45,7 +45,7 @@ public class DeltaValidatorNaive extends Validator {
 	
 	protected boolean isDeltaTransEqual( Record x, Record y ) {
 		for ( Record exp : x.expandAll() ) {
-			if ( Util.edit( exp.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
+			if ( distGivenThres.eval( exp.getTokensArray(), y.getTokensArray(), deltaMax ) <= deltaMax ) {
 //				if ( y.size() > deltaMax ) {
 //					System.out.println("DKFJDLFKSDJFD\t"+x.getID()+", "+y.getID());
 //					try {System.in.read();}
@@ -60,9 +60,10 @@ public class DeltaValidatorNaive extends Validator {
 	@Override
 	public void addStat( StatContainer stat ) {
 		super.addStat(stat);
-		stat.add( "Val_NumEqual", numEqual );
-		stat.add( "Val_NumDeltaEqual", numDeltaEqual );
-		stat.add( "Val_NumDeltaTransEqual", numDeltaTransEqual );
+		stat.add( Stat.NUM_VERIFY_EQUAL, numEqual );
+		stat.add( Stat.NUM_VERIFY_TRIVIAL, numTrivial );
+		stat.add( Stat.NUM_VERIFY_DELTA_EQUAL, numDeltaEqual );
+		stat.add( Stat.NUM_VERIFY_DELTA_TRANS_EQUAL, numDeltaTransEqual );
 	}
 
 	@Override
@@ -79,5 +80,4 @@ public class DeltaValidatorNaive extends Validator {
 	public String getName() {
 		return "DeltaValidatorNaive";
 	}
-
 }

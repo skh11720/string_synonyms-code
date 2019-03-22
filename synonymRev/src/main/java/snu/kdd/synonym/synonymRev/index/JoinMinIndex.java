@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,14 +15,14 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue;
 import snu.kdd.synonym.synonymRev.tools.MinPositionQueue.MinPosition;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
@@ -292,7 +291,7 @@ public class JoinMinIndex extends AbstractIndex {
 	protected void findBestPositions(List<Object2IntOpenHashMap<QGram>> invokes, List<Object2IntOpenHashMap<QGram>> lowInvokes, boolean hybridIndex, int threshold, int nIndex ) {
 		// find best K positions for each string in T
 		indexedCountMap = new Object2IntOpenHashMap<>();
-		for( Record rec : query.targetIndexedSet.get() ) {
+		for( Record rec : query.indexedSet.get() ) {
 //			int[] range = rec.getTransLengths();
 
 			int searchmax;
@@ -414,7 +413,6 @@ public class JoinMinIndex extends AbstractIndex {
 		this.candQGramAvgCount = 1.0 * this.candQGramCountSum / (query.searchedSet.size() - skipped);
 		stat.add( "Stat_CandQGram_Sum", this.candQGramCountSum );
 		stat.add( "Stat_CandQGram_Avg", this.candQGramAvgCount );
-		stat.add( "Stat_Equiv_Comparison", this.equivComparisons );
 		stat.add( "Stat_Skipped", skipped );
 
 		if( comparisonCount == 0 ) comparisonCount = 1;
@@ -426,8 +424,8 @@ public class JoinMinIndex extends AbstractIndex {
 		rhoPrime = joinTime / comparisonCount;
 
 		stat.add( "Stat_Length_Filtered", lengthFiltered );
-		stat.add( "Result_5_1_Filter_Time", filterTime/1e6 );
-		stat.add( "Result_5_2_Verify_Time", verifyTime/1e6 );
+		stat.add( Stat.FILTER_TIME, filterTime/1e6 );
+		stat.add( Stat.VERIFY_TIME, verifyTime/1e6 );
 	}
 	
 	protected List<List<QGram>> getCandidatePQGrams( Record rec ) {
@@ -446,7 +444,8 @@ public class JoinMinIndex extends AbstractIndex {
 		return candidatePQGrams;
 	}
 
-	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
+	@Override
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
 		long ts = System.nanoTime();
 
 		long candQGramCount = 0;
@@ -527,6 +526,7 @@ public class JoinMinIndex extends AbstractIndex {
 //				debugArray.add( "Test " + recR + "\n" );
 //			}
 
+			if ( rslt.contains(recS, recR) ) continue;
 			long st = System.nanoTime();
 			int compare = checker.isEqual( recS, recR );
 			long duration = System.nanoTime() - st;
@@ -534,7 +534,7 @@ public class JoinMinIndex extends AbstractIndex {
 			verifyTime += duration;
 			if( compare >= 0 ) {
 //				rslt.add( new IntegerPair( recS.getID(), recR.getID() ) );
-				AlgorithmTemplate.addSeqResult( recS, recR, rslt, query.selfJoin );
+				rslt.add(recS, recR);;
 				appliedRulesSum += compare;
 
 //				if( DEBUG.PrintJoinMinJoinON ) {

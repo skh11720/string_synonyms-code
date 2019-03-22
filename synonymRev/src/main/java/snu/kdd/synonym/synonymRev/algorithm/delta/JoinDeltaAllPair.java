@@ -1,85 +1,56 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.io.IOException;
-import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractParameterizedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 @Deprecated
-public class JoinDeltaAllPair extends AlgorithmTemplate {
+public class JoinDeltaAllPair extends AbstractParameterizedAlgorithm {
 
-	protected Validator checker;
-	protected int qSize;
-	protected int deltaMax;
+	public final int qSize;
+	public final int deltaMax;
+	public final String distFunc;
 	
 	public static boolean useLF = true;
 
 	
-	public JoinDeltaAllPair(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
+	public JoinDeltaAllPair(String[] args) {
+		super(args);
 		qSize = param.getIntParam("qSize");
 		deltaMax = param.getIntParam("deltaMax");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
 	}
-
+	
 	@Override
-	protected void preprocess() {
-		super.preprocess();
-
-		for( Record rec : query.indexedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
-		}
+	public void initialize() {
+		super.initialize();
+		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.stopAndAdd( stat );
-
-		runAfterPreprocess();
+	protected void reportParamsToStat() {
+		stat.add("Param_qSize", qSize);
+		stat.add("Param_deltaMax", deltaMax);
 	}
 
-	public void runAfterPreprocess() {
-		StopWatch runTime = null;
-		StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
+	@Override
+	protected void executeJoin() {
+		StopWatch stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 		Index idx = new Index();
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
-		stepTime.stopAndAdd( stat );
-
-		runTime.stopAndAdd( stat );
-
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		writeResult();
-
 		stepTime.stopAndAdd( stat );
 	}
 	
@@ -89,7 +60,7 @@ public class JoinDeltaAllPair extends AlgorithmTemplate {
 		long t_verify = 0;
 
 		@Override
-		protected void joinOneRecord(Record recS, Set<IntegerPair> rslt, Validator checker) {
+		protected void joinOneRecord(Record recS, ResultSet rslt, Validator checker) {
 			long ts = System.nanoTime();
 			int[] range = recS.getTransLengths();
 			ObjectOpenHashSet<Record> candidates = new ObjectOpenHashSet<>();
@@ -101,9 +72,10 @@ public class JoinDeltaAllPair extends AlgorithmTemplate {
 			
 			long afterFilterTime = System.nanoTime();
 			for ( Record recT : candidates ) {
+				if ( rslt.contains(recS, recT) ) continue;
 				int compare = checker.isEqual(recS, recT);
 				if (compare >= 0) {
-					addSeqResult( recS, recT, (Set<IntegerPair>)rslt, query.selfJoin );
+					rslt.add(recS, recT);
 				}
 			}
 			long afterVerifyTime = System.nanoTime();
@@ -123,12 +95,18 @@ public class JoinDeltaAllPair extends AlgorithmTemplate {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: major update
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override
 	public String getName() {
 		return "JoinDeltaAllPair";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d_%s", getName(), qSize, deltaMax, distFunc);
 	}
 }

@@ -7,12 +7,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.text.NumberFormat;
 import java.util.Collection;
-import java.util.Iterator;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -25,43 +20,6 @@ public class StatContainer {
 	private final ObjectArrayList<String> primaryValueList = new ObjectArrayList<>();
 
 	private static Runtime runtime = Runtime.getRuntime();
-
-	public void add( CommandLine cmd ) {
-		final Iterator<Option> itr = cmd.iterator();
-
-		while( itr.hasNext() ) {
-			final Option opt = itr.next();
-
-			final String name = "cmd_" + opt.getOpt();
-
-			if( name.equals( "cmd_additional" ) ) {
-				// additional is not added there
-				continue;
-			}
-
-			String valueName = opt.getValue();
-
-			if( name.equals( "cmd_algorithm" ) ) {
-				continue;
-			}
-
-			if( valueName == null ) {
-				valueName = new String( "null" );
-			}
-			else if( valueName.startsWith( "data_store/" ) ) {
-				valueName = valueName.replaceAll( "data_store/", "" );
-				valueName = valueName.replaceAll( "splitted/", "" );
-				valueName = valueName.replaceAll( "removed/", "" );
-			}
-			else if( valueName.startsWith( "/home/" ) ) {
-				valueName = valueName.replaceAll( "/home/kddlab/wooyekim/", "" );
-				valueName = valueName.replaceAll( "Synonym", "" );
-				valueName = valueName.replaceAll( "removed/", "" );
-			}
-
-			addPrimary( name, valueName );
-		}
-	}
 
 	public void add( StopWatch time ) {
 		add( time.getName(), time.getTotalTime() );
@@ -81,7 +39,7 @@ public class StatContainer {
 		nameList.add( name );
 		valueList.add( Long.toString( value ) );
 	}
-
+	
 	public void addMemory( String name ) {
 		add( name, ( runtime.totalMemory() - runtime.freeMemory() ) / 1048576 );
 	}
@@ -110,6 +68,20 @@ public class StatContainer {
 		primaryNameList.add( name );
 		primaryValueList.add( value );
 	}
+	
+	public long getLong( String key ) {
+		for ( int i=0; i<nameList.size(); ++i ) {
+			if ( nameList.get(i).equals(key) ) return Long.parseLong(valueList.get(i));
+		}
+		throw new RuntimeException("StatContainer has no such key: "+key);
+	}
+	
+	public double getDouble( String key ) {
+		for ( int i=0; i<nameList.size(); ++i ) {
+			if ( nameList.get(i).equals(key) ) return Double.parseDouble(valueList.get(i));
+		}
+		throw new RuntimeException("StatContainer has no such key: "+key);
+	}
 
 	public String getLegend( int[] primarykeyblank, int[] keyblank ) {
 		final StringBuilder legendBuilder = new StringBuilder();
@@ -131,28 +103,6 @@ public class StatContainer {
 		}
 
 		return legendBuilder.toString();
-	}
-
-	public void printPrimaryResult() {
-		int maxKeyLength = 0;
-		for( int i = 0; i < primaryNameList.size(); i++ ) {
-			final int length = primaryNameList.get( i ).length();
-			if( maxKeyLength < length ) {
-				maxKeyLength = length;
-			}
-		}
-
-		for( int i = 0; i < primaryNameList.size(); i++ ) {
-			final int length = primaryNameList.get( i ).length();
-			System.out.print( primaryNameList.get( i ) );
-
-			for( int f = length; f < maxKeyLength; f++ ) {
-				System.out.print( ' ' );
-			}
-
-			System.out.print( "  " );
-			System.out.println( primaryValueList.get( i ) );
-		}
 	}
 
 	public void printResult() {
@@ -343,79 +293,24 @@ public class StatContainer {
 		return bld.toString();
 	}
 	
-	public static void merge( StatContainer stat1, StatContainer stat2, Collection<IntegerPair> rslt ) {
-		StatContainer merged = new StatContainer();
-		
-		// build primary(Name,Value)List
-		for ( int i=0; i< stat1.primaryNameList.size(); ++i ) {
-			String name = stat1.primaryNameList.get( i );
-			String value = stat1.primaryValueList.get( i );
-			if ( name.equals( "Final Result Size" ) ) value = String.valueOf( rslt.size() );
-			merged.primaryNameList.add( name );
-			merged.primaryValueList.add( value );
-		}
-		
-		// build secondary(Name,Value)List
-		Object2ObjectOpenHashMap<String, String> mapStat2 = new Object2ObjectOpenHashMap<>();
-		for ( int i=0; i< stat2.nameList.size(); ++i ) {
-			String name = stat2.nameList.get( i );
-			String value = stat2.valueList.get( i );
-			mapStat2.put( name, value );
-		}
-
-		for ( int i=0; i< stat1.nameList.size(); ++i ) {
-			String name = stat1.nameList.get( i );
-			String value = stat1.valueList.get( i );
-			if ( name.startsWith( "cmd_" ) || !mapStat2.containsKey( name ) ) {}
-			else if ( name.startsWith( "Mem_" ) ) {
-				String value2 = mapStat2.get( name );
-				value = String.valueOf( Long.max( Long.parseLong( value ),Long.parseLong( value2 ) ) );
+	public void setPrimaryValue( String key, String value ) {
+		for ( int i=0; i< this.primaryNameList.size(); ++i ) {
+			String name = this.primaryNameList.get( i );
+			if ( name.equals(key) ) {
+				this.primaryValueList.set(i, value);
+				return;
 			}
-			else {
-				String value2 = mapStat2.get( name );
-				value = String.valueOf( Long.parseLong( value ) + Long.parseLong( value2 ) );
-			}
-			merged.nameList.add( name );
-			merged.valueList.add( value );
 		}
-
-//		System.out.println( "primaryList1:" );
-//		for ( int i=0; i< stat1.primaryNameList.size(); ++i ) {
-//			System.out.println( "\t"+stat1.primaryNameList.get( i )+" : "+stat1.primaryValueList.get( i ) );
-//		}
-//
-//		System.out.println( "secondaryList1:" );
-//		for ( int i=0; i< stat1.nameList.size(); ++i ) {
-//			System.out.println( "\t"+stat1.nameList.get( i )+" : "+stat1.valueList.get( i ) );
-//		}
-//		
-//		System.out.println( "primaryList2:" );
-//		for ( int i=0; i< stat2.primaryNameList.size(); ++i ) {
-//			System.out.println( "\t"+stat2.primaryNameList.get( i )+" : "+stat2.primaryValueList.get( i ) );
-//		}
-//
-//		System.out.println( "secondaryList2:" );
-//		for ( int i=0; i< stat2.nameList.size(); ++i ) {
-//			System.out.println( "\t"+stat2.nameList.get( i )+" : "+stat2.valueList.get( i ) );
-//		}
-//
-//		System.out.println( "mergedPrimaryList2:" );
-//		for ( int i=0; i< merged.primaryNameList.size(); ++i ) {
-//			System.out.println( "\t"+merged.primaryNameList.get( i )+" : "+merged.primaryValueList.get( i ) );
-//		}
-//
-//		System.out.println( "mergedSecondaryList2:" );
-//		for ( int i=0; i< merged.nameList.size(); ++i ) {
-//			System.out.println( "\t"+merged.nameList.get( i )+" : "+merged.valueList.get( i ) );
-//		}
+		this.primaryNameList.add(key);
+		this.primaryValueList.add(value);
 	}
-
+	
 	public void merge( StatContainer statOther, Collection<IntegerPair> rslt ) {
 		// build primary(Name,Value)List
 		for ( int i=0; i< this.primaryNameList.size(); ++i ) {
 			String name = this.primaryNameList.get( i );
 			String value = this.primaryValueList.get( i );
-//			if ( name.equals( "Final Result Size" ) ) this.primaryValueList.set( i, String.valueOf( rslt.size() ) );
+//			if ( name.equals( "Final_Result_Size" ) ) this.primaryValueList.set( i, String.valueOf( rslt.size() ) );
 //			System.out.println( "\t"+name+" : "+value );
 		}
 		
@@ -445,5 +340,54 @@ public class StatContainer {
 			}
 			this.valueList.set( i, value );
 		}
+	}
+
+	public static StatContainer merge( StatContainer stat1, StatContainer stat2 ) {
+		StatContainer stat = new StatContainer();
+
+		// build primary(Name,Value)List
+		for ( int i=0; i< stat1.primaryNameList.size(); ++i ) {
+			String name1 = stat1.primaryNameList.get( i );
+			String value1 = stat1.primaryValueList.get( i );
+			String name2 = stat2.primaryNameList.get( i );
+			String value2 = stat2.primaryValueList.get( i );
+			if ( !name1.equals(name2) ) throw new RuntimeException(name1+", "+name2);
+			String value = value1;
+			try { value = String.valueOf( Long.parseLong(value1) + Long.parseLong(value2) ); }
+			catch ( NumberFormatException e ) {}
+			stat.primaryNameList.add(name1);
+			stat.primaryValueList.add(value);
+		}
+		
+		// build secondary(Name,Value)List
+		Object2ObjectOpenHashMap<String, String> mapStat2 = new Object2ObjectOpenHashMap<>();
+		for ( int i=0; i< stat2.nameList.size(); ++i ) {
+			String name = stat2.nameList.get( i );
+			String value = stat2.valueList.get( i );
+			mapStat2.put( name, value );
+		}
+
+		for ( int i=0; i< stat1.nameList.size(); ++i ) {
+			String name = stat1.nameList.get( i );
+			String value = stat1.valueList.get( i );
+			if ( !mapStat2.containsKey( name ) ) {}
+			else if ( name.startsWith("alg") || name.startsWith("Param_") ) {}
+			else if ( name.startsWith( "Mem_" ) ) {
+				String value2 = mapStat2.get( name );
+				value = String.valueOf( Long.max( Long.parseLong( value ),Long.parseLong( value2 ) ) );
+			}
+			else {
+				String value2 = mapStat2.get( name );
+				try { value = String.valueOf( Long.parseLong( value ) + Long.parseLong( value2 ) ); }
+				catch ( NumberFormatException e ) {
+					try { value = String.valueOf( Double.parseDouble( value ) + Double.parseDouble( value2 ) ); }
+					catch ( NumberFormatException e2 ) {}
+				}
+			}
+			stat.nameList.add(name);
+			stat.valueList.add(value);
+		}
+		
+		return stat;
 	}
 }

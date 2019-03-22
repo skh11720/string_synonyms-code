@@ -1,98 +1,63 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.io.IOException;
-import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
+import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinDeltaSimple extends AlgorithmTemplate {
+public class JoinDeltaSimple extends AbstractPosQGramBasedAlgorithm {
 
-	protected int qSize;
-	protected int deltaMax;
+	public final int deltaMax;
+	public final String distFunc;
 
-	public Validator checker;
 	protected JoinDeltaSimpleIndex idx;
 
-	protected boolean useLF, usePQF;
-	
-	
 
-	public JoinDeltaSimple(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new Param(args);
-		qSize = param.getIntParam("qSize");
+	public JoinDeltaSimple(String[] args) {
+		super(args);
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
-		checker = new DeltaValidatorDPTopDown(deltaMax);
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
+		checker = new DeltaValidatorDPTopDown(deltaMax, distFunc);
 	}
 
 	@Override
-	protected void preprocess() {
-		super.preprocess();
-
-		for( Record rec : query.indexedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		if( !query.selfJoin ) {
-			for( Record rec : query.searchedSet.get() ) {
-				rec.preprocessSuffixApplicableRules();
-			}
-		}
+	protected void reportParamsToStat() {
+		stat.add("Param_qSize", qSize);
+		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_distFunct", distFunc);
+		stat.add("Param_useLF", useLF);
+		stat.add("Param_usePQF", usePQF);
 	}
 
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stat.addMemory( "Mem_2_Preprocessed" );
+	protected void runAfterPreprocess() {
+		StopWatch stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 
-		stepTime.stopAndAdd( stat );
-
-		if ( usePQF ) runAfterPreprocess();
-		else runAfterPreprocessWithoutIndex();
-
-		checker.addStat( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult();
-		stepTime.stopAndAdd( stat );
-	}
-
-	public void runAfterPreprocess() {
-		StopWatch runTime = null;
-		StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-
-		runTime.stopAndAdd( stat );
 	}
 
-	public void runAfterPreprocessWithoutIndex() {
-		rslt = new ObjectOpenHashSet<IntegerPair>();
-		StopWatch runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
+	@Override
+	protected void runAfterPreprocessWithoutIndex() {
+		rslt = new ResultSet(query.selfJoin);
 		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
 		long t_filter = 0;
 		long t_verify = 0;
@@ -110,9 +75,10 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 			
 			long afterFilterTime = System.nanoTime();
 			for ( Record recT : candidates ) {
+				if ( rslt.contains(recS, recT) ) continue;
 				int compare = checker.isEqual(recS, recT);
 				if (compare >= 0) {
-					addSeqResult( recS, recT, (Set<IntegerPair>)rslt, query.selfJoin );
+					rslt.add(recS, recT);
 				}
 			}
 			long afterVerifyTime = System.nanoTime();
@@ -120,14 +86,13 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 			t_verify += afterVerifyTime - afterFilterTime;
 		}
 
-		stat.add( "Result_3_1_Filter_Time", t_filter/1e6 );
-		stat.add( "Result_3_2_Verify_Time", t_verify/1e6 );
-		
-		runTime.stopAndAdd( stat );
+		stat.add( Stat.FILTER_TIME, t_filter/1e6 );
+		stat.add( Stat.VERIFY_TIME, t_verify/1e6 );
 	}
 
-	protected void buildIndex( boolean writeResult ) {
-		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query, stat );
+	@Override
+	protected void buildIndex() {
+		idx = new JoinDeltaSimpleIndex( qSize, deltaMax, query );
 		JoinDeltaSimpleIndex.useLF = useLF;
 		JoinDeltaSimpleIndex.usePQF = usePQF;
 	}
@@ -136,8 +101,9 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: major update
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override
@@ -146,7 +112,7 @@ public class JoinDeltaSimple extends AlgorithmTemplate {
 	}
 	
 	@Override
-	public String getOutputName() {
-		return String.format( "%s_d%d", getName(), deltaMax );
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d_%s", getName(), qSize, deltaMax, distFunc);
 	}
 }

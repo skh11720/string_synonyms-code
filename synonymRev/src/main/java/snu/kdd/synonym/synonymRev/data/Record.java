@@ -24,6 +24,8 @@ import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class Record implements Comparable<Record>, RecordInterface, RecordInterface.Expanded {
+	
+	public static final Record EMPTY_RECORD = new Record(new int[0]);
 	public static int expandAllCount = 0;
 
 	private int[] tokens;
@@ -62,7 +64,8 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	public Record( int[] tokens ) {
 		this.id = -1;
 		this.tokens = tokens;
-		num_dist_tokens = new IntOpenHashSet( tokens ).size();
+		if (tokens != null ) num_dist_tokens = new IntOpenHashSet( tokens ).size();
+		else num_dist_tokens = 0;
 	}
 
 	@Override
@@ -98,7 +101,7 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 	 * Set applicable rules
 	 */
 
-	public void preprocessRules( ACAutomataR automata ) {
+	public void preprocessApplicableRules( ACAutomataR automata ) {
 		applicableRules = automata.applicableRules( tokens );
 	}
 
@@ -852,7 +855,6 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 
 	@Override
 	public Set<? extends Expanded> generateAll() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

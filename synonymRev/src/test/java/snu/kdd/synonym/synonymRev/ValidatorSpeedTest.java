@@ -9,25 +9,14 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang.ArrayUtils;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMin;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
 import snu.kdd.synonym.synonymRev.algorithm.set.SetGreedyOneSide;
 import snu.kdd.synonym.synonymRev.algorithm.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.algorithm.set.SetTopDownOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMinFastIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
-import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.validator.NaiveOneSide;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -63,13 +52,11 @@ public class ValidatorSpeedTest {
 			int[] arr_sidx = getSampleRecordsIdxArray( query.searchedSet.recordList, nSample, rand, true );
 			int[] arr_tidx = getSampleRecordsIdxArray( query.indexedSet.recordList, nSample, rand, false );
 
-			boolean isSelfJoin = true;
-			if ( dataset.equals( "SYN_100K" ) ) isSelfJoin = false;
 			NaiveOneSide valid_seq_n = new NaiveOneSide();
 			TopDownOneSide valid_seq_dp = new TopDownOneSide();
-			SetNaiveOneSide valid_set_n = new SetNaiveOneSide( isSelfJoin );
-			SetTopDownOneSide valid_set_dp = new SetTopDownOneSide( isSelfJoin );
-			SetGreedyOneSide valid_set_gd = new SetGreedyOneSide( isSelfJoin, 1 );
+			SetNaiveOneSide valid_set_n = new SetNaiveOneSide();
+			SetTopDownOneSide valid_set_dp = new SetTopDownOneSide();
+			SetGreedyOneSide valid_set_gd = new SetGreedyOneSide(1);
 			
 			Validator[] arr_validator = {valid_seq_n, valid_seq_dp, valid_set_n, valid_set_dp, valid_set_gd, };
 			for ( int idx_validator=0; idx_validator<arr_validator.length; ++idx_validator ) {
@@ -116,13 +103,11 @@ public class ValidatorSpeedTest {
 			int[] arr_sidx = getSampleRecordsIdxArray( query.searchedSet.recordList, nSample, rand, true );
 			int[] arr_tidx = getSampleRecordsIdxArray( query.indexedSet.recordList, nSample, rand, false );
 
-			boolean isSelfJoin = true;
-			if ( dataset.equals( "SYN_100K" ) ) isSelfJoin = false;
 			NaiveOneSide valid_seq_n = new NaiveOneSide();
 			TopDownOneSide valid_seq_dp = new TopDownOneSide();
-			SetNaiveOneSide valid_set_n = new SetNaiveOneSide( isSelfJoin );
-			SetTopDownOneSide valid_set_dp = new SetTopDownOneSide( isSelfJoin );
-			SetGreedyOneSide valid_set_gd = new SetGreedyOneSide( isSelfJoin, 1 );
+			SetNaiveOneSide valid_set_n = new SetNaiveOneSide();
+			SetTopDownOneSide valid_set_dp = new SetTopDownOneSide();
+			SetGreedyOneSide valid_set_gd = new SetGreedyOneSide(1);
 			Validator[] arr_validator = {valid_seq_n, valid_seq_dp, valid_set_n, valid_set_dp, valid_set_gd, };
 			
 			for ( int i=0; i<arr_sidx.length; ++i ) {

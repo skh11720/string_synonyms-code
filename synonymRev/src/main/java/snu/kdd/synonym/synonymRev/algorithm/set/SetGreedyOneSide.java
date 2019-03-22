@@ -18,8 +18,7 @@ public class SetGreedyOneSide extends AbstractSetValidator {
 	 * End of a loop: beam0', beam1', beam2'
 	 */
 	
-	public SetGreedyOneSide( Boolean selfJoin, int beamWidth ) {
-		super( selfJoin	 );
+	public SetGreedyOneSide( int beamWidth ) {
 		beamList = new Beam[beamWidth*beamWidth];
 		for ( int k=0; k<beamList.length; k++ ) beamList[k] = new Beam();
 		this.beamWidth = beamWidth;

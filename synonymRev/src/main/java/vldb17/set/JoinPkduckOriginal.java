@@ -5,41 +5,35 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.data.ACAutomataR;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
-import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.GreedyValidatorOriginal;
-import vldb17.ParamPkduck;
 
 
-public class JoinPkduckOriginal extends AlgorithmTemplate {
+public class JoinPkduckOriginal extends AbstractIndexBasedAlgorithm {
+
+	public final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
+	public final Ordering mode;
+	public final double theta;
+	public boolean useRuleComp;
 
 //	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
-	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
-	private final double theta;
 	AbstractGlobalOrder globalOrder;
-	private Boolean useRuleComp;
-	private final Validator checker;
 
 	// staticitics used for building indexes
 	double avgTransformed;
@@ -55,25 +49,30 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 	
 	public static PrintWriter pw = null;
 
-	public JoinPkduckOriginal(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new ParamPkduck(args);
-		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
+	public JoinPkduckOriginal(String[] args) {
+		super(args);
+		mode = Ordering.valueOf( param.getStringParam("ord") );
+		theta = param.getDoubleParam("theta");
+		useRuleComp = param.getBooleanParam("rc");
+		useLF = param.getBooleanParam("useLF");
+	}
+	
+	@Override
+	public void initialize() {
+		super.initialize();
 		switch(mode) {
 		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
 		default: throw new RuntimeException("Unexpected error");
 		}
-		theta = param.getDoubleParam("theta");
-		useRuleComp = param.getBooleanParam("rc");
-		useLF = param.getBooleanParam("useLF");
-		checker = new GreedyValidatorOriginal(query, theta);
+
+		checker = new GreedyValidatorOriginal(theta);
 
 		try {
-			String[] tokens = query.searchedFile.split("\\"+File.separator);
+			String[] tokens = query.getSearchedPath().split("\\"+File.separator);
 			String data1Name = tokens[tokens.length-1].split("\\.")[0];
 			if ( query.selfJoin ) pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/JoinPkduckOriginal_verify_%s_%.3f.txt", data1Name, theta ) ) ) ); 
 			else {
-				tokens = query.indexedFile.split("\\"+File.separator);
+				tokens = query.getIndexedPath().split("\\"+File.separator);
 				String data2Name = tokens[tokens.length-1].split("\\.")[0];
 				pw = new PrintWriter( new BufferedWriter( new FileWriter( String.format( "tmp/JoinPkduckOriginal_verify_%s_%s_%.3f.txt", data1Name, data2Name, theta) ) ) );
 			}
@@ -82,113 +81,40 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 	}
 	
 	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_mode", mode.toString());
+		stat.add("Param_theta", theta);
+		stat.add("Param_useRuleComp", useRuleComp);
+		stat.add("Param_useLF", useLF);
+	}
+
+	@Override
 	public void preprocess() {
 		super.preprocess();
-		
-		for ( Record rec : query.searchedSet.get()) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		if ( ! query.selfJoin ) {
-			Record prev = null;
-			ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
-			for ( Record rec : query.indexedSet.get() ) {
-				rec.preprocessRules( automata );
-				rec.preprocessTransformLength();
-				rec.preprocessEstimatedRecords();
-				rec.preprocessSuffixApplicableRules();
-				prev = rec;
-			}
-		}
 
-		globalOrder.initializeForSet( query, true );
-		Record.tokenIndex = globalOrder.tokenIndex;
-		
-//		double estTransformed = 0.0;
-//		for( Record rec : query.indexedSet.get() ) {
-//			estTransformed += rec.getEstNumTransformed();
-//		}
-//		avgTransformed = estTransformed / query.indexedSet.size();
+		globalOrder.initializeForSet( query );
 	}
 	
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
-		preprocess();
-		
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-
-		rslt = runAfterPreprocess( true );
-
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		this.writeResult();
-
-		stepTime.stopAndAdd( stat );
-	}
-
-	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
-		// Index building
+	protected void executeJoin() {
 		StopWatch stepTime = null;
-		if( addStat ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
-//			}
-			try { throw new Exception("UNIMPLEMENTED CASE"); }
-			catch( Exception e ) { e.printStackTrace(); }
-		}
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
+		buildIndex();
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
+		stat.addMemory( "Mem_3_BuildIndex" );
 
-		buildIndex( false );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-			stat.addMemory( "Mem_3_BuildIndex" );
-		}
-		else {
-			if( DEBUG.SampleStatON ) {
-				stepTime.stopAndAdd( stat );
-				stepTime.resetAndStart( "Sample_2_Pkduck_Join_Time" );
-			}
-		}
-
-		// Join
-		final Set<IntegerPair> rslt = join( stat, query, addStat );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stat.addMemory( "Mem_4_Joined" );
-		}
-//		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime.stopAndAdd( stat );
-//				stat.add( "Stat_Expanded", idx.totalExp );
-//			}
-//		}
-//
-//		if( DEBUG.NaiveON ) {
-//			if( addStat ) {
-//				idx.addStat( stat, "Counter_Join" );
-//			}
-//		}
-//		stat.add( "idx_skipped_counter", idx.skippedCount );
-
-		return rslt;
+		rslt = join( stat, query, writeResultOn );
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
 	}
 	
-	public void buildIndex(boolean addStat ) {
-		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, theta, stat, globalOrder, addStat );
-//		if ( !query.selfJoin ) idxS = new PkduckSetIndex( query.searchedSet.recordList, query, stat, globalOrder, addStat );
+	public void buildIndex() {
+		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, theta, stat, globalOrder, writeResultOn );
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public ResultSet join(StatContainer stat, Query query, boolean addStat) {
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		if ( !query.oneSideJoin ) throw new RuntimeException("UNIMPLEMENTED CASE");
 		
 		// S -> S' ~ T
@@ -196,14 +122,6 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			joinOneRecord( recS, rslt, idxT );
 		}
-		
-//		if ( !query.selfJoin ) {
-//			// T -> T' ~ S
-//			for ( Record recT : query.indexedSet.recordList ) {
-//				if ( recT.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-//				joinOneRecord( recT, rslt, idxS );
-//			}
-//		}
 		
 		if ( addStat ) {
 			stat.add( "Result_3_3_CandTokenTime", candTokenTime );
@@ -216,7 +134,7 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
+	private void joinOneRecord( Record rec, ResultSet rslt, PkduckSetIndex idx ) {
 		long startTime = System.currentTimeMillis();
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
 		for (int i=0; i<rec.size(); i++) {
@@ -229,7 +147,7 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		}
 		long afterCandTokenTime = System.currentTimeMillis();
 
-//		Boolean debug = true;
+//		boolean debug = true;
 //		if ( rec.getID() == 161 ) debug = true;
 //		if (debug) SampleDataTest.inspect_record( rec, query, 1 );
 //		if (debug) System.out.println(rec);
@@ -241,7 +159,7 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		else pkduckSetDP = new PkduckSetDP( rec, theta, globalOrder );
 		for (int token : candidateTokens) {
 			long startDPTime = System.nanoTime();
-			Boolean isInSigU = pkduckSetDP.isInSigU( token );
+			boolean isInSigU = pkduckSetDP.isInSigU( token );
 			++nRunDP;
 //			if (debug) try { bw.write( rec.getID()+", "+token+": "+isInSigU+"\n" ); bw.flush(); } catch (IOException e ) {}
 //			if (debug) System.out.println( rec.getID()+", "+token+": "+isInSigU );
@@ -267,11 +185,10 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 		
 		// verification
 		for (Record recOther : candidateAfterLF ) {
-			if ( rslt.contains( new IntegerPair( rec.getID(), recOther.getID() ) ) || rslt.contains( new IntegerPair( recOther.getID(), rec.getID() ) ) )
-				continue;
+			if ( rslt.contains(rec, recOther) ) continue;
 			int comp = checker.isEqual( rec, recOther );
 //			if (debug) System.out.println( "compare "+rec.getID()+" and "+recOther.getID()+": "+comp );
-			if (comp >= 0) addSetResult( rec, recOther, rslt, idx == idxT, query.selfJoin );
+			if ( comp >= 0 ) rslt.add(rec, recOther);;
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		
@@ -281,20 +198,21 @@ public class JoinPkduckOriginal extends AlgorithmTemplate {
 	}
 
 	@Override
-	public String getName() {
-		return "JoinPkduckOriginal";
-	}
-
-	@Override
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: major update
 		 */
-		return "1.00";
+		return "1.01";
 	}
 	
 	@Override
-	public String getOutputName() {
-		return String.format( "%s_%.3f", super.getOutputName(), theta );
+	public String getName() {
+		return "JoinPkduckOriginal";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format( "%s_%s_%.2f_%s", getName(), mode, theta, useRuleComp?"T":"F" );
 	}
 }

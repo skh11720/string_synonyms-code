@@ -1,5 +1,9 @@
 package snu.kdd.synonym.synonymRev.tools;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 public class DEBUG {
 	public static final boolean AlgorithmON = false;
 
@@ -41,4 +45,19 @@ public class DEBUG {
 	// index
 	public static final boolean bIndexWriteToFile = false;
 	
+	public static final boolean bAlgorithmResultQualityEvaluator = false;
+	
+	private static PrintWriter log = null;
+	static {
+		try {
+			log = new PrintWriter( new FileWriter("tmp/DEBUG.log"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void log(String str, String tag) {
+		if ( tag == null ) log.println(str);
+		else log.println(String.format("[%s] %s", tag, str));
+	}
 }

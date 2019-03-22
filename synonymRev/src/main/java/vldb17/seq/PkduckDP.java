@@ -8,6 +8,7 @@ import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.tools.QGram;
 
+@Deprecated
 public class PkduckDP {
 	
 	protected final AbstractGlobalOrder globalOrder;

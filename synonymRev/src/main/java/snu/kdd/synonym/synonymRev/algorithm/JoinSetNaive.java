@@ -1,24 +1,20 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 
 
-public class JoinSetNaive extends AlgorithmTemplate {
+public class JoinSetNaive extends AbstractAlgorithm {
 
 	// staticitics used for building indexes
 	double avgTransformed;
@@ -32,107 +28,22 @@ public class JoinSetNaive extends AlgorithmTemplate {
 //	private long nScanList = 0;
 
 
-	public JoinSetNaive(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-	}
-
-	@Override
-	public void preprocess() {
-		super.preprocess();
-		
-		for (Record rec : query.searchedSet.recordList) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		
-		if ( !query.selfJoin ) {
-			for ( Record rec : query.indexedSet.recordList) {
-				rec.preprocessSuffixApplicableRules();
-			}
-		}
-
-		
-//		double estTransformed = 0.0;
-//		for( Record rec : query.indexedSet.get() ) {
-//			estTransformed += rec.getEstNumTransformed();
-//		}
-//		avgTransformed = estTransformed / query.indexedSet.size();
+	public JoinSetNaive( String[] args) {
+		super(args);
 	}
 	
 	@Override
-	public void run() { 
-//		this.threshold = Long.valueOf( args[ 0 ] );
-//		ParamPkduck params = ParamPkduck.parseArgs( args, stat, query );
-//		this.threshold = -1;
-
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
-		preprocess();
-
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-
-		rslt = runAfterPreprocess( true );
-
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		this.writeResult();
-
-		stepTime.stopAndAdd( stat );
-//		checker.addStat( stat );
-	}
-
-	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
-		// Index building
+	protected void executeJoin() {
 		StopWatch stepTime = null;
-		if( addStat ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
-//			}
-			try { throw new Exception("UNIMPLEMENTED CASE"); }
-			catch( Exception e ) { e.printStackTrace(); }
-		}
-
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 		buildIndex( false );
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
+		stat.addMemory( "Mem_3_BuildIndex" );
 
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-			stat.addMemory( "Mem_3_BuildIndex" );
-		}
-		else {
-			if( DEBUG.SampleStatON ) {
-				stepTime.stopAndAdd( stat );
-				stepTime.resetAndStart( "Sample_2_Pkduck_Join_Time" );
-			}
-		}
-
-		// Join
-		final Set<IntegerPair> rslt = join( stat, query, addStat );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stat.addMemory( "Mem_4_Joined" );
-		}
-//		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime.stopAndAdd( stat );
-//				stat.add( "Stat_Expanded", idx.totalExp );
-//			}
-//		}
-//
-//		if( DEBUG.NaiveON ) {
-//			if( addStat ) {
-//				idx.addStat( stat, "Counter_Join" );
-//			}
-//		}
-//		stat.add( "idx_skipped_counter", idx.skippedCount );
-
-		return rslt;
+		rslt = join( stat, query, writeResultOn );
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
 	}
 	
 	public void buildIndex(boolean addStat ) {
@@ -155,8 +66,8 @@ public class JoinSetNaive extends AlgorithmTemplate {
 //		}
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public ResultSet join(StatContainer stat, Query query, boolean addStat) {
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		if ( !query.oneSideJoin ) throw new RuntimeException("UNIMPLEMENTED CASE");
 		
 		// S -> S' ~ T
@@ -175,7 +86,7 @@ public class JoinSetNaive extends AlgorithmTemplate {
 		return rslt;
 	}
 	
-	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<IntOpenHashSet, IntArrayList> idx ) {
+	private void joinOneRecord( Record rec, ResultSet rslt, WYK_HashMap<IntOpenHashSet, IntArrayList> idx ) {
 		final List<Record> expanded = rec.expandAll();
 		for ( final Record exp : expanded ) {
 			IntOpenHashSet key = new IntOpenHashSet( exp.getTokens() );
@@ -206,7 +117,13 @@ public class JoinSetNaive extends AlgorithmTemplate {
 		/*
 		 * 1.00: initial version
 		 * 1.01: ignore records with too many transformations
+		 * 1.02: major update
 		 */
-		return "1.01";
+		return "1.02";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return getName();
 	}
 }

@@ -1,14 +1,11 @@
 package vldb17.set;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.algorithm.set.SetNaiveOneSide;
 import snu.kdd.synonym.synonymRev.algorithm.set.SetTopDownOneSide;
 import snu.kdd.synonym.synonymRev.data.Query;
@@ -19,20 +16,21 @@ import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder.Ordering;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
-import snu.kdd.synonym.synonymRev.validator.Validator;
-import vldb17.ParamPkduck;
 
 
-public class JoinPkduckSet extends AlgorithmTemplate {
+public class JoinPkduckSet extends AbstractIndexBasedAlgorithm {
+
+	public final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
+	public final Ordering mode;
+	public final String verify;
+	public final Boolean useRuleComp;
 
 //	private PkduckSetIndex idxS = null;
 	private PkduckSetIndex idxT = null;
-	private final int qSize = 1; // a string is represented as a set of (token, pos) pairs.
 	AbstractGlobalOrder globalOrder;
-	private Boolean useRuleComp;
-	private Validator checker;
 
 	// staticitics used for building indexes
 	double avgTransformed;
@@ -47,126 +45,63 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 	private boolean useLF;
 
 
-	public JoinPkduckSet(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new ParamPkduck(args);
-		Ordering mode = Ordering.valueOf( param.getStringParam("ord") );
-		switch(mode) {
-		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
-		default: throw new RuntimeException("Unexpected error");
-		}
-		String verify = param.getStringParam("verify");
-		if (verify.equals( "naive" )) checker = new SetNaiveOneSide( query.selfJoin );
-		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator( query.oneSideJoin );
-		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide( query.selfJoin );
-		else throw new RuntimeException(getName()+" does not support verification: "+verify);
+	public JoinPkduckSet(String[] args) {
+		super(args);
+		mode = Ordering.valueOf( param.getStringParam("ord") );
+		verify = param.getStringParam("verify");
 		useRuleComp = param.getBooleanParam("rc");
 		useLF = param.getBooleanParam("useLF");
 	}
 	
 	@Override
-	public void preprocess() {
-		super.preprocess();
-		
-		for (Record rec : query.indexedSet.get()) {
-			rec.preprocessSuffixApplicableRules();
+	public void initialize() {
+		super.initialize();
+		switch(mode) {
+		case FF: globalOrder = new FrequencyFirstOrder( 1 ); break;
+		default: throw new RuntimeException("Unexpected error");
 		}
-		
-		if ( !query.selfJoin ) {
-			for ( Record rec : query.searchedSet.get()) {
-				rec.preprocessSuffixApplicableRules();
-			}
-		}
-
-		globalOrder.initializeForSet( query );
-		
-//		double estTransformed = 0.0;
-//		for( Record rec : query.indexedSet.get() ) {
-//			estTransformed += rec.getEstNumTransformed();
-//		}
-//		avgTransformed = estTransformed / query.indexedSet.size();
+		if (verify.equals( "naive" )) checker = new SetNaiveOneSide();
+		else if (verify.equals( "greedy" )) checker = new SetGreedyValidator();
+		else if (verify.equals( "TD" )) checker = new SetTopDownOneSide();
+		else throw new RuntimeException(getName()+" does not support verification: "+verify);
 	}
 	
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
-		preprocess();
-		
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-
-		rslt = runAfterPreprocess( true );
-
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		this.writeResult();
-
-		stepTime.stopAndAdd( stat );
-		checker.addStat( stat );
+	protected void reportParamsToStat() {
+		stat.add("Param_mode", mode.toString());
+		stat.add("Param_verify", verify);
+		stat.add("Param_useRuleComp", useRuleComp);
+		stat.add("Param_useLF", useLF);
 	}
 
-	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
-		// Index building
-		StopWatch stepTime = null;
-		if( addStat ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
-//			}
-			try { throw new Exception("UNIMPLEMENTED CASE"); }
-			catch( Exception e ) { e.printStackTrace(); }
-		}
-
-		buildIndex( false );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-			stat.addMemory( "Mem_3_BuildIndex" );
-		}
-		else {
-			if( DEBUG.SampleStatON ) {
-				stepTime.stopAndAdd( stat );
-				stepTime.resetAndStart( "Sample_2_Pkduck_Join_Time" );
-			}
-		}
-
-		// Join
-		final Set<IntegerPair> rslt = join( stat, query, addStat );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stat.addMemory( "Mem_4_Joined" );
-		}
-//		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime.stopAndAdd( stat );
-//				stat.add( "Stat_Expanded", idx.totalExp );
-//			}
-//		}
-//
-//		if( DEBUG.NaiveON ) {
-//			if( addStat ) {
-//				idx.addStat( stat, "Counter_Join" );
-//			}
-//		}
-//		stat.add( "idx_skipped_counter", idx.skippedCount );
-
-		return rslt;
+	@Override
+	public void preprocess() {
+		super.preprocess();
+		
+		globalOrder.initializeForSet( query );
 	}
 	
-	public void buildIndex(boolean addStat ) {
-		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, addStat );
+	@Override
+	protected void executeJoin() {
+		StopWatch stepTime = null;
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
+		buildIndex();
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
+		stat.addMemory( "Mem_3_BuildIndex" );
+
+		rslt = join( stat, query, writeResultOn );
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
+	}
+	
+	public void buildIndex() {
+		idxT = new PkduckSetIndex( query.indexedSet.recordList, query, 1, stat, globalOrder, writeResultOn );
 //		if ( !query.selfJoin ) idxS = new PkduckSetIndex( query.searchedSet.recordList, query, stat, globalOrder, addStat );
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public ResultSet join(StatContainer stat, Query query, boolean addStat) {
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		if ( !query.oneSideJoin ) throw new RuntimeException("UNIMPLEMENTED CASE");
 		
 		// S -> S' ~ T
@@ -194,7 +129,7 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	private void joinOneRecord( Record rec, Set<IntegerPair> rslt, PkduckSetIndex idx ) {
+	private void joinOneRecord( Record rec, ResultSet rslt, PkduckSetIndex idx ) {
 		long startTime = System.currentTimeMillis();
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
 		for (int i=0; i<rec.size(); i++) {
@@ -244,20 +179,16 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		
 		// verification
 		for (Record recOther : candidateAfterLF ) {
+			if ( rslt.contains(rec, recOther) ) continue;
 			int comp = checker.isEqual( rec, recOther );
 //			if (debug) System.out.println( "compare "+rec.getID()+" and "+recOther.getID()+": "+comp );
-			if (comp >= 0) addSetResult( rec, recOther, rslt, idx == idxT, query.selfJoin );
+			if ( comp >= 0 ) rslt.add(rec, recOther);;
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		
 		candTokenTime += afterCandTokenTime - startTime;
 		filteringTime += afterFilteringTime - afterCandTokenTime;
 		validateTime += afterValidateTime - afterFilteringTime;
-	}
-
-	@Override
-	public String getName() {
-		return "JoinPkduckSet";
 	}
 
 	@Override
@@ -273,7 +204,18 @@ public class JoinPkduckSet extends AlgorithmTemplate {
 		 * 1.07: fix length filter
 		 * 1.08: ignore records with too many transformations
 		 * 1.09: enable the option for length filter
+		 * 1.10: major update
 		 */
-		return "1.09";
+		return "1.10";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinPkduckSet";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%s_%s_%s", getName(), mode, verify, useRuleComp?"T":"F");
 	}
 }

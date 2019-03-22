@@ -5,11 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -25,10 +24,8 @@ public class NaiveIndex extends AbstractIndex {
 	public long expandTime = 0;
 	public long searchTime = 0;
 
-	public long idxsize = 0;
 	public double totalExp = 0;
 	public double totalExpLength = 0;
-	public int skippedCount = 0;
 	
 	public long sumTransLenS = 0;
 	public long sumLenT = 0;
@@ -36,10 +33,11 @@ public class NaiveIndex extends AbstractIndex {
 	public double alpha;
 	public double beta;
 
-	public NaiveIndex( Query query, StatContainer stat, boolean addStat, double avgTransformed ) {
+	public NaiveIndex( Query query, StatContainer stat, boolean addStat ) {
+		final long starttime = System.nanoTime();
 		isSelfJoin = query.selfJoin;
 
-		final long starttime = System.nanoTime();
+		double avgTransformed = getAvgNumTransform( query.searchedSet.recordList );
 		int initialSize = (int) ( query.indexedSet.size() * avgTransformed / 2 );
 		if ( initialSize > 10000 ) initialSize = 10000;
 		if ( initialSize < 10 ) initialSize = 10;
@@ -72,6 +70,14 @@ public class NaiveIndex extends AbstractIndex {
 		alpha = indexTime / totalExpLength;
 	}
 
+	private double getAvgNumTransform( List<Record> searchedList ) {
+		double estTransformed = 0.0;
+		for( Record rec : searchedList ) {
+			estTransformed += rec.getEstNumTransformed();
+		}
+		return estTransformed / searchedList.size();
+	}
+
 	protected void addExpaneded( Record expanded, int recordId ) {
 		ArrayList<Integer> list = idx.get( expanded );
 
@@ -95,7 +101,7 @@ public class NaiveIndex extends AbstractIndex {
 	}
 
 	@Override
-	public void joinOneRecord( Record recS, Set<IntegerPair> rslt, Validator checker ) {
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
 		/*
 		 * NOTE: checker is not used.
 		 */
@@ -123,8 +129,7 @@ public class NaiveIndex extends AbstractIndex {
 			
 		}
 		for( final Integer idx : candidates ) {
-//			rslt.add( new IntegerPair( recS.getID(), idx ) );
-			AlgorithmTemplate.addSeqResult( recS, idx, rslt, isSelfJoin );
+			rslt.add(recS, idx);
 		}
 
 		searchTime += System.nanoTime() - searchStartTime;

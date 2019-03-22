@@ -5,40 +5,35 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.algorithm.AlgorithmTemplate;
-import snu.kdd.synonym.synonymRev.data.Dataset;
+import snu.kdd.synonym.synonymRev.algorithm.AbstractIndexBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.order.AbstractGlobalOrder;
 import snu.kdd.synonym.synonymRev.order.FrequencyFirstOrder;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
 import snu.kdd.synonym.synonymRev.tools.QGram;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashMap;
 import snu.kdd.synonym.synonymRev.tools.WYK_HashSet;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 import vldb17.set.SetGreedyValidator;
 
-public class JoinBKPSet extends AlgorithmTemplate {
+public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 
-	public WYK_HashMap<Integer, List<Record>> idxS = null;
-	public WYK_HashMap<Integer, List<Record>> idxT = null;
-	public Object2IntOpenHashMap<Record> idxCountS = null;
-	public Object2IntOpenHashMap<Record> idxCountT = null;
-	public int indexK;
+//	public WYK_HashMap<Integer, List<Record>> idxS = null;
+	private WYK_HashMap<Integer, List<Record>> idxT = new WYK_HashMap<Integer, List<Record>>();
+//	public Object2IntOpenHashMap<Record> idxCountS = null;
+	private Object2IntOpenHashMap<Record> idxCountT = new Object2IntOpenHashMap<Record>();
 
-	protected Validator checker;
+	public final int indexK;
+	public final String verify;
+
 	protected long candTokenTime = 0;
 	protected long dpTime = 0;
 	protected long CountingTime = 0;
@@ -60,102 +55,49 @@ public class JoinBKPSet extends AlgorithmTemplate {
 	double avgTransformed;
 
 
-	public JoinBKPSet(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new ParamForSet(args);
+	public JoinBKPSet(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
-		String verify = param.getStringParam("verify");
-		if ( verify.equals( "TD" ) ) checker = new SetTopDownOneSide( query.selfJoin );
-		else if ( verify.startsWith( "GR" ) ) checker = new SetGreedyOneSide( query.selfJoin, param.getIntParam("beamWidth") );
-		else if ( verify.equals( "MIT_GR" ) ) checker = new SetGreedyValidator( query.selfJoin );
+		verify = param.getStringParam("verify");
+	}
+	
+	@Override
+		public void initialize() {
+			super.initialize();
+			if ( verify.equals( "TD" ) ) checker = new SetTopDownOneSide();
+			else if ( verify.startsWith( "GR" ) ) checker = new SetGreedyOneSide( param.getIntParam("beamWidth") );
+			else if ( verify.equals( "MIT_GR" ) ) checker = new SetGreedyValidator();
+		}
+
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("Param_verify", verify);
 	}
 
 	@Override
 	public void preprocess() {
 		super.preprocess();
 
-		for( Record rec : query.searchedSet.recordList ) {
-			rec.preprocessSuffixApplicableRules();
-		}
-		idxT = new WYK_HashMap<Integer, List<Record>>();
-		idxCountT = new Object2IntOpenHashMap<Record>(query.indexedSet.size());
-//		if( !query.selfJoin ) {
-//			for( Record rec : query.searchedSet.get() ) {
-//				rec.preprocessSuffixApplicableRules();
-//			}
-//			idxS = new WYK_HashMap<Integer, List<Record>>();
-//			idxCountS = new Object2IntOpenHashMap<Record>(query.searchedSet.size());
-//		}
 		globalOrder.initializeForSet( query );
 	}
-
+	
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-
-//		if( DEBUG.NaiveON ) {
-//			stat.addPrimary( "cmd_threshold", threshold );
-//		}
-
-		preprocess();
-
-		stepTime.stopAndAdd( stat );
-		stat.addMemory( "Mem_2_Preprocessed" );
-		stepTime.resetAndStart( "Result_3_Run_Time" );
-
-		rslt = runAfterPreprocess( true );
-
-		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-
-		this.writeResult();
-
-		stepTime.stopAndAdd( stat );
-		checker.addStat( stat );
-	}
-	
-	public Set<IntegerPair> runAfterPreprocess( boolean addStat ) {
-		// Index building
+	protected void executeJoin() {
 		StopWatch stepTime = null;
-		if( addStat ) {
-			stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime = StopWatch.getWatchStarted( "Sample_1_Naive_Index_Building_Time" );
-//			}
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
+		stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
+		buildIndex();
+		stepTime.stopAndAdd( stat );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
+		stat.addMemory( "Mem_3_BuildIndex" );
 
-		buildIndex( query.indexedSet );
-//		if ( !query.selfJoin ) buildIndex( query.searchedSet );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stepTime.resetAndStart( "Result_3_2_Join_Time" );
-			stat.addMemory( "Mem_3_BuildIndex" );
-		}
-		else {
-//			if( DEBUG.SampleStatON ) {
-//				stepTime.stopAndAdd( stat );
-//				stepTime.resetAndStart( "Sample_2_Naive_Join_Time" );
-//			}
-			throw new RuntimeException("UNIMPLEMENTED CASE");
-		}
-
-		// Join
-		final Set<IntegerPair> rslt = join( stat, query, addStat );
-
-		if( addStat ) {
-			stepTime.stopAndAdd( stat );
-			stat.addMemory( "Mem_4_Joined" );
-		}
-		
-		return rslt;
+		rslt = join( stat, query, writeResultOn );
+		stepTime.stopAndAdd( stat );
+		stat.addMemory( "Mem_4_Joined" );
 	}
 	
-	public Set<IntegerPair> join(StatContainer stat, Query query, boolean addStat) {
-		ObjectOpenHashSet<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+	public ResultSet join(StatContainer stat, Query query, boolean addStat) {
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		if ( !query.oneSideJoin ) throw new RuntimeException("UNIMPLEMENTED CASE");
 		
 		// S -> S' ~ T
@@ -182,21 +124,16 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		return rslt;
 	}
 
-	protected void buildIndex( Dataset indexedSet ) {
+	@Override
+	protected void buildIndex() {
 		WYK_HashMap<Integer, List<Record>> idx = null;
 		Object2IntOpenHashMap<Record> idxCount = null;
 
-		if ( indexedSet == query.indexedSet ) {
-			idx = idxT;
-			idxCount = idxCountT;
-		}
-		else if ( indexedSet == query.searchedSet ) {
-			idx = idxS;
-			idxCount = idxCountS;
-		}
+		idx = idxT;
+		idxCount = idxCountT;
 		idxCount.defaultReturnValue( 0 );
 
-		for ( Record rec : indexedSet.recordList ) {
+		for ( Record rec : query.indexedSet.recordList ) {
 			int[] tokens = rec.getTokensArray();
 			int j_max = Math.min( indexK, tokens.length );
 			IntOpenHashSet smallestK = new IntOpenHashSet(indexK);
@@ -218,8 +155,7 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		if (DEBUG.bIndexWriteToFile) {
 			try {
 				String name = "";
-				if ( idx == idxS ) name = "idxS";
-				else if ( idx == idxT ) name = "idxT";
+				name = "idxT";
 				BufferedWriter bw = new BufferedWriter( new FileWriter( "./tmp/PQFilterDPSetIndex_"+name+".txt" ) );
 				for ( int key : idx.keySet() ) {
 					bw.write( "token: "+query.tokenIndex.getToken( key )+" ("+key+")\n" );
@@ -234,7 +170,7 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		}
 	}
 	
-	protected void joinOneRecord( Record rec, Set<IntegerPair> rslt, WYK_HashMap<Integer, List<Record>> idx, Object2IntOpenHashMap<Record> idxCount ) {
+	protected void joinOneRecord( Record rec, ResultSet rslt, WYK_HashMap<Integer, List<Record>> idx, Object2IntOpenHashMap<Record> idxCount ) {
 		long startTime = System.currentTimeMillis();
 		// Enumerate candidate tokens of recS.
 		IntOpenHashSet candidateTokens = new IntOpenHashSet();
@@ -246,26 +182,29 @@ public class JoinBKPSet extends AlgorithmTemplate {
 		long afterCandidateTime = System.currentTimeMillis();
 		
 		// Count the number of matches.
+		int rec_maxlen = rec.getMaxTransLength();
 		Object2IntOpenHashMap<Record> count = getCount( rec, idx, candidateTokens );
 		List<Record> candidateAfterCount = new ObjectArrayList<Record>();
 		for ( Entry<Record, Integer> entry : count.entrySet() ) {
 			Record recOther = entry.getKey();
 			int recCount = entry.getValue();
-			if ( recCount >= idxCount.getInt( recOther ) ) candidateAfterCount.add( recOther );
+			if ( recCount >= idxCount.getInt( recOther ) ) {
+				if ( useLF ) {
+					if ( rec_maxlen >= recOther.getDistinctTokenCount() ) {
+						candidateAfterCount.add( recOther );
+					}
+					else ++checker.lengthFiltered;
+				}
+				
+			}
 		}
 		long afterCountTime = System.currentTimeMillis();
 		
 		// length filtering and verification
-		int rec_maxlen = rec.getMaxTransLength();
 		for ( Record recOther : candidateAfterCount ) {
-			if ( useLF ) {
-				if ( rec_maxlen < recOther.getDistinctTokenCount() ) {
-					++checker.lengthFiltered;
-					continue;
-				}
-			}
+			if ( rslt.contains(rec, recOther) ) continue;
 			int comp = checker.isEqual( rec, recOther );
-			if ( comp >= 0 ) addSetResult( rec, recOther, rslt, idx == idxT, query.selfJoin );
+			if ( comp >= 0 ) rslt.add(rec, recOther);;
 		}
 		long afterValidateTime = System.currentTimeMillis();
 		
@@ -297,15 +236,21 @@ public class JoinBKPSet extends AlgorithmTemplate {
 	}
 
 	@Override
-	public String getName() {
-		return "JoinBKPSet";
-	}
-
-	@Override
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: major update
 		 */
-		return "1.00";
+		return "1.01";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinBKPSet";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%s", getName(), indexK, verify);
 	}
 }

@@ -23,6 +23,7 @@ import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerPair;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -68,7 +69,6 @@ public class SampleEstimate {
 	public long[] min_term3;
 
 	protected boolean joinMinSelected = false;
-	protected double indexAvgTransform = 0;
 
 	protected Query query;
 	protected Query sampleQuery;
@@ -84,7 +84,7 @@ public class SampleEstimate {
 		this.sampleRatio = sampleRatio;
 
 		try { 
-			String[] tokenList = query.searchedFile.split( "\\"+(File.separator) );
+			String[] tokenList = query.getSearchedPath().split( "\\"+(File.separator) );
 			String dataAndSize = tokenList[tokenList.length-1].split( "\\.", 2)[0];
 			String nameTmp = String.format( "SampleEst_%s_%.2f", dataAndSize, sampleRatio );
 			bw_log = new BufferedWriter( new FileWriter( "tmp/"+nameTmp+".txt" ) );
@@ -154,11 +154,8 @@ public class SampleEstimate {
 		Dataset sampleIndexed = new Dataset( sampleIndexedList );
 		Dataset sampleSearched = new Dataset( sampleSearchedList );
 		sampleQuery = new Query( query.ruleSet, sampleIndexed, sampleSearched, query.tokenIndex, query.oneSideJoin,
-				query.selfJoin );
+				query.selfJoin, query.outputPath );
 		
-		for ( Record rec : sampleIndexed.recordList ) indexAvgTransform += rec.getEstNumTransformed();
-		indexAvgTransform /= sampleIndexed.size();
-
 		naive_term2 = new long[sampleSearchedList.size()];
 		mh_term2 = new long[sampleSearchedList.size()];
 		mh_term3 = new long[sampleSearchedList.size()];
@@ -171,10 +168,10 @@ public class SampleEstimate {
 		// Infer alpha and beta
 		NaiveIndex naiveinst;
 		StatContainer tmpStat = new StatContainer();
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		ResultSet rslt = new ResultSet(query.selfJoin);
 
 		long ts = System.nanoTime();
-		naiveinst = new NaiveIndex( sampleQuery, tmpStat, false, indexAvgTransform );
+		naiveinst = new NaiveIndex( sampleQuery, tmpStat, false );
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
@@ -220,7 +217,7 @@ public class SampleEstimate {
 	
 	protected long sampleJoinMH( JoinMHIndex joinmhinst, Validator checker ) {
 		long ts = System.nanoTime();
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		ResultSet rslt = new ResultSet(query.selfJoin);
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
@@ -277,7 +274,7 @@ public class SampleEstimate {
 	}
 	
 	protected long sampleJoinMin( JoinMinIndex joinmininst, Validator checker, int indexK ) {
-		Set<IntegerPair> rslt = new ObjectOpenHashSet<IntegerPair>();
+		ResultSet rslt = new ResultSet(query.selfJoin);
 
 		long ts = System.nanoTime();
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {

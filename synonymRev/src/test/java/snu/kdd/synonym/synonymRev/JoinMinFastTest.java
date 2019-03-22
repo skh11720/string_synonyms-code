@@ -14,7 +14,6 @@ import org.junit.Test;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import snu.kdd.synonym.synonymRev.algorithm.JoinMinFast;
 import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
 
 public class JoinMinFastTest {
 	
@@ -31,12 +30,11 @@ public class JoinMinFastTest {
 		for ( String dataset : datasetList ) {
 			for ( double sampleRatio : sampleRatioList ) {
 				Query query = TestUtils.getTestQuery( dataset, size );
-				StatContainer stat = new StatContainer();
-				JoinMinFast alg = new JoinMinFast( query, stat, String.format( "-K %d -qSize %d -sample %.4f", K, q, sampleRatio ).split( " " ) );
-				alg.run();
+				JoinMinFast alg = new JoinMinFast( String.format( "-K %d -qSize %d -sample %.4f", K, q, sampleRatio ).split( " " ) );
+				alg.run(query);
 				JSONParser jparser = new JSONParser();
-				stat.printResult();
-				JSONObject jobj = (JSONObject) jparser.parse( "{"+stat.toJson()+"}" );
+				alg.getStat().printResult();
+				JSONObject jobj = (JSONObject) jparser.parse( "{"+alg.getStat().toJson()+"}" );
 //				String result = dataset+"\t"+size+"\tJoinMH\t"+K+"\t"+q+"\t"+sampleRatio;
 				String strPosDist = (String) jobj.get( "posDistribution" );
 				System.out.println( strPosDist );

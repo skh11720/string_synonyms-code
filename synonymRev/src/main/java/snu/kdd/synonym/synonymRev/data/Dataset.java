@@ -7,38 +7,35 @@ import java.io.IOException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Dataset {
-	String name;
+	public final String path;
 	public ObjectArrayList<Record> recordList;
-	int nRecord;
 
-	public Dataset( String dataFile, TokenIndex tokenIndex ) throws IOException {
-		BufferedReader br = new BufferedReader( new FileReader( dataFile ) );
-		this.name = dataFile;
+	public Dataset( String dataPath, TokenIndex tokenIndex ) throws IOException {
+		this.path = dataPath;
+		this.recordList = new ObjectArrayList<>();
 
+		BufferedReader br = new BufferedReader( new FileReader( dataPath ) );
 		String line;
-		recordList = new ObjectArrayList<>();
-
-		nRecord = 0;
-		while( ( line = br.readLine() ) != null ) {
-			recordList.add( new Record( nRecord++, line, tokenIndex ) );
+		for ( int i=0; ( line = br.readLine() ) != null; ++i ) {
+			this.recordList.add( new Record( i, line, tokenIndex ) );
 		}
 		br.close();
 	}
 
 	public Dataset( ObjectArrayList<Record> record ) {
+		this.path = null;
 		this.recordList = record;
-		this.nRecord = record.size();
 	}
 
 	public Iterable<Record> get() {
-		return recordList;
+		return this.recordList;
 	}
 
 	public Record getRecord( int id ) {
-		return recordList.get( id );
+		return this.recordList.get( id );
 	}
 
 	public int size() {
-		return nRecord;
+		return this.recordList.size();
 	}
 }

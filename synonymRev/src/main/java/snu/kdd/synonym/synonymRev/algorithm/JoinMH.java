@@ -1,30 +1,18 @@
 package snu.kdd.synonym.synonymRev.algorithm;
 
-import java.io.IOException;
-import java.util.Set;
-
-import org.apache.commons.cli.ParseException;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
-import snu.kdd.synonym.synonymRev.tools.IntegerPair;
-import snu.kdd.synonym.synonymRev.tools.Param;
-import snu.kdd.synonym.synonymRev.tools.StatContainer;
+import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StaticFunctions;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
-import snu.kdd.synonym.synonymRev.validator.Validator;
 
-public class JoinMH extends AlgorithmTemplate {
+public class JoinMH extends AbstractPosQGramBasedAlgorithm {
 	// RecordIDComparator idComparator;
 
-	public int indexK;
-	public int qSize;
-
-	public Validator checker;
+	public final int indexK;
 
 	/**
 	 * Key: twogram<br/>
@@ -34,73 +22,49 @@ public class JoinMH extends AlgorithmTemplate {
 
 	protected JoinMHIndex idx;
 
-	protected boolean useLF, usePQF, useSTPQ;
 	
-	
-	public JoinMH(Query query, StatContainer stat, String[] args) throws IOException, ParseException {
-		super(query, stat, args);
-		param = new Param(args);
+	public JoinMH(String[] args) {
+		super(args);
 		indexK = param.getIntParam("indexK");
-		qSize = param.getIntParam("qSize");
-		checker = new TopDownOneSide();
 		useLF = param.getBooleanParam("useLF");
 		usePQF = param.getBooleanParam("usePQF");
 		useSTPQ = param.getBooleanParam("useSTPQ");
 	}
-
+	
 	@Override
-	protected void preprocess() {
-		super.preprocess();
-
-		for( Record rec : query.searchedSet.get() ) {
-			rec.preprocessSuffixApplicableRules();
-		}
+	public void initialize() {
+		super.initialize();
+		checker = new TopDownOneSide();
+	}
+	
+	@Override
+	protected void reportParamsToStat() {
+		stat.add("Param_indexK", indexK);
+		stat.add("Param_qSize", qSize);
+		stat.add("Param_useLF", useLF);
+		stat.add("Param_usePQF", usePQF);
+		stat.add("Param_useSTPQ", useSTPQ);
 	}
 
 	@Override
-	public void run() {
-		StopWatch stepTime = StopWatch.getWatchStarted( "Result_2_Preprocess_Total_Time" );
-		preprocess();
-		stat.addMemory( "Mem_2_Preprocessed" );
+	protected void runAfterPreprocess() {
+		StopWatch stepTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
 
-		stepTime.stopAndAdd( stat );
-
-		if ( usePQF ) runAfterPreprocess();
-		else runAfterPreprocessWithoutIndex();
-
-		checker.addStat( stat );
-		stepTime.resetAndStart( "Result_4_Write_Time" );
-		writeResult();
-		stepTime.stopAndAdd( stat );
-	}
-
-	public void runAfterPreprocess() {
-		StopWatch runTime = null;
-		StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		stepTime = StopWatch.getWatchStarted( "Result_3_1_Index_Building_Time" );
-
-		buildIndex( writeResult );
+		buildIndex();
 
 		stat.addMemory( "Mem_3_BuildIndex" );
 		stepTime.stopAndAdd( stat );
-		stepTime.resetAndStart( "Result_3_2_Join_Time" );
+		stepTime.resetAndStart( JOIN_AFTER_INDEX_TIME );
 
-		rslt = idx.join( query, stat, checker, writeResult );
+		rslt = idx.join( query, stat, checker, writeResultOn );
 
 		stat.addMemory( "Mem_4_Joined" );
 		stepTime.stopAndAdd( stat );
-		runTime.stopAndAdd( stat );
 	}
 
-	public void runAfterPreprocessWithoutIndex() {
-		rslt = new ObjectOpenHashSet<IntegerPair>();
-		StopWatch runTime = null;
-		//StopWatch stepTime = null;
-
-		runTime = StopWatch.getWatchStarted( "Result_3_Run_Time" );
-		//stepTime = StopWatch.getWatchStarted( "Result_3_1_Filter_Time" );
+	@Override
+	protected void runAfterPreprocessWithoutIndex() {
+		rslt = new ResultSet(query.selfJoin);
 		long t_filter = 0;
 		long t_verify = 0;
 
@@ -118,9 +82,10 @@ public class JoinMH extends AlgorithmTemplate {
 			
 			long afterFilterTime = System.nanoTime();
 			for ( Record recT : candidates ) {
+				if ( rslt.contains(recS, recT) ) continue;
 				int compare = checker.isEqual(recS, recT);
 				if (compare >= 0) {
-					addSeqResult( recS, recT, (Set<IntegerPair>)rslt, query.selfJoin );
+					rslt.add(recS, recT);
 				}
 			}
 			long afterVerifyTime = System.nanoTime();
@@ -130,34 +95,18 @@ public class JoinMH extends AlgorithmTemplate {
 
 		stat.add( "Result_5_1_Filter_Time", t_filter/1e6 );
 		stat.add( "Result_5_2_Verify_Time", t_verify/1e6 );
-		
-		runTime.stopAndAdd( stat );
 	}
 
-	protected void buildIndex( boolean writeResult ) {
+	@Override
+	protected void buildIndex() {
 		int[] indexPosition = new int[ indexK ];
 		for( int i = 0; i < indexK; i++ ) {
 			indexPosition[ i ] = i;
 		}
-		idx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, indexPosition, writeResult, true, 0 );
+		idx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, indexPosition, writeResultOn, true, 0 );
 		JoinMHIndex.useLF = useLF;
 		JoinMHIndex.usePQF = usePQF;
 		JoinMHIndex.useSTPQ = useSTPQ;
-	}
-
-	@Override
-	public String getVersion() {
-		/*
-		 * 2.5: the latest version by yjpark
-		 * 2.51: checkpoint
-		 * 2.511: test for filtering power test
-		 */
-		return "2.511";
-	}
-
-	@Override
-	public String getName() {
-		return "JoinMH";
 	}
 
 	public double getGamma() {
@@ -170,5 +119,26 @@ public class JoinMH extends AlgorithmTemplate {
 
 	public double getEta() {
 		return idx.getEta();
+	}
+
+	@Override
+	public String getVersion() {
+		/*
+		 * 2.5: the latest version by yjpark
+		 * 2.51: checkpoint
+		 * 2.511: test for filtering power test
+		 * 2.52: major update
+		 */
+		return "2.52";
+	}
+
+	@Override
+	public String getName() {
+		return "JoinMH";
+	}
+	
+	@Override
+	public String getNameWithParam() {
+		return String.format("%s_%d_%d", getName(), indexK, qSize);
 	}
 }
