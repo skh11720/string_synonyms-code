@@ -48,6 +48,7 @@ public class AlgorithmTest {
 			testJoinDeltaSimple();
 			testJoinDeltaVar();
 			testJoinDeltaVarBK();
+			testJoinDeltaPQVPQ();
 
 //			testSIJoinOriginal(); //FIXME: gc overhead limit issue
 		}
@@ -451,6 +452,33 @@ public class AlgorithmTest {
 	@Ignore
 	public void testJoinDeltaVarBK() throws IOException, ParseException {
 		args[1] = "JoinDeltaVarBK";
+		for ( String dist : dist_list ) {
+			String[][] param_list = new String[3][];
+			for ( int d=0; d<3; ++d ) {
+				List<String> pstr_list = new ArrayList<>();
+				for ( int k=1; k<=3; ++k ) {
+					for ( int q=1; q<=3; ++q ) {
+						pstr_list.add( String.format("\"-K %d -qSize %d -delta %d -dist %s -sampleB 0.01\"", k, q, d, dist ) );
+					}
+				}
+				param_list[d] = new String[pstr_list.size()];
+				pstr_list.toArray( param_list[d] );
+			}
+
+			int answer;
+			for ( int d=0; d<param_list.length; ++d ) {
+				for ( int i=0; i<param_list[d].length; ++i ) {
+					if ( isSelfJoin ) answer = ANS_SEQ_SELF_DELTA.get(dist)[d];
+					else answer = ANS_SEQ_NONSELF_DELTA.get(dist)[d];
+					runAlgorithm( param_list[d][i], answer, isSelfJoin );
+				}
+			}
+		}
+	}
+
+	@Ignore
+	public void testJoinDeltaPQVPQ() throws IOException, ParseException {
+		args[1] = "JoinDeltaPQVPQ";
 		for ( String dist : dist_list ) {
 			String[][] param_list = new String[3][];
 			for ( int d=0; d<3; ++d ) {
