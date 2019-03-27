@@ -75,6 +75,7 @@
 									<mainClass>snu.kdd.synonym.synonymRev.App</mainClass>
 								</manifest>
 							</archive>
+							<argLine>-Xmx:8g</argLine>
 						</configuration>
 					</execution>
 				</executions>

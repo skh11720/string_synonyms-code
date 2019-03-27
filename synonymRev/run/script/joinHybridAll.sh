@@ -4,17 +4,18 @@ rulefile=$3
 outputPath=$4
 logdir=$5
 LIBS=$6
-project=${7
+project=${7}
 oneSide=${8}
 split=${9}
 UPLOAD=${10}
 k=${11}
 qSize=${12}
-sample=${13}
+sampleB=${13}
+sampleH=${14}
 
-ADDITIONAL="-K $k -qSize $qSize -sample $sample"
+ADDITIONAL="-K $k -qSize $qSize -sampleB $sampleB -sampleH $sampleH"
 
-ALG=JoinHybridAll
+ALG=JoinHybridAll3
 
 
 if [[ -f xmx.txt ]];
@@ -26,7 +27,7 @@ else
 fi
 
 
-if [[ $# -ne 12 ]];
+if [[ $# -ne 14 ]];
 then
 	echo illegal number of parameters: [$ALG]
 	echo one $inputfile_one

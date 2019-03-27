@@ -5,7 +5,7 @@ then
     mkdir -p json/uploaded
 fi
 
-if [ ! -e uploader/ExperimentUploader/uploadExperiment.py ]
+if [ ! -e uploader/uploadExperiment.py ]
 then
         echo "Downloadling uploadExperiment.py"
         mkdir uploader
