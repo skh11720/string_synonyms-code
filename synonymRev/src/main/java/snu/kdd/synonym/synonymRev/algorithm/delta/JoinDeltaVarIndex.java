@@ -185,6 +185,34 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		return this.firstKPosArr;
 	}
 
+	@Override
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
+		long ts = System.nanoTime();
+
+		// build the available q-grams from recS.
+		List<List<Set<QGram>>> availableQGrams = getAvailableQGrams(recS);
+		long afterCandQGramTime = System.nanoTime();
+
+		Object2IntOpenHashMap<Record> candidatesCount = getCandidatesCount(recS, availableQGrams);
+
+		Set<Record> candidates = getCandidates(recS, candidatesCount);
+		long afterFilterTime = System.nanoTime();
+
+		verify(recS, candidates, checker, rslt);
+		long afterEquivTime = System.nanoTime();
+
+		this.candQGramCountTime += afterCandQGramTime - ts;
+		this.filterTime += afterFilterTime - afterCandQGramTime;
+		this.verifyTime += afterEquivTime - afterFilterTime;
+	} // end joinOneRecord
+
+	protected List<List<Set<QGram>>> getAvailableQGrams( final Record recS ) {
+		List<List<Set<QGram>>> availableQGrams = null;
+		if ( useSTPQ ) availableQGrams = getVarSTPQ(recS, true);
+		else availableQGrams = getVarTPQ(recS, true);
+		return availableQGrams;
+	}
+
 	protected List<List<Set<QGram>>> getVarSTPQ( Record rec, boolean usePruning ) {
 		/*
 		 * Return the lists of delta-variant positional qgrams in STPQ, where each list is indexed by pos and delta.
@@ -258,26 +286,11 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		}
 		return availableQGrams;
 	}
-	
-	@Override
-	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
-		long ts = System.nanoTime();
-		Set<Record> candidates = new WYK_HashSet<Record>(100);
+
+	protected Object2IntOpenHashMap<Record> getCandidatesCount(final Record recS, List<List<Set<QGram>>> availableQGrams, Set<Record> candidates ) {
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(0);
-
-		// build the available q-grams from recS.
-		List<List<Set<QGram>>> availableQGrams = null;
-		if ( useSTPQ ) availableQGrams = getVarSTPQ(recS, true);
-		else availableQGrams = getVarTPQ(recS, true);
-		long afterCandQGramTime = System.nanoTime();
-//		System.out.println("MBKDDFE");
-//		System.out.println(availableQGrams.size());
-//		for (List<Set<QGram>> qgram_k : availableQGrams ) {
-//			for ( Set<QGram> qgramSet : qgram_k ) System.out.println(qgramSet.size());
-//		}
-
-		int[] range = recS.getTransLengths();
+		int[] rangeS = recS.getTransLengths();
 		for ( int k=0; k<idxPD.size(); ++k ) {
 //			System.out.println(availableQGrams.size()+", "+k);
 			if ( availableQGrams.size() <= k ) break;
@@ -299,11 +312,11 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 
 						// Perform length filtering.
 						for ( Record recT : recordList ) {
-							if ( !useLF || StaticFunctions.overlap(range[0]-deltaMax, range[1]+deltaMax, recT.size(), recT.size())) {
+							if ( candidates != null && !candidates.contains(recT) ) continue;
+							if ( !useLF || StaticFunctions.overlap(rangeS[0]-deltaMax, rangeS[1]+deltaMax, recT.size(), recT.size())) {
 //		                        	if ( otherRecord.getID() == 5158 ) System.out.println( qgram+", "+i+", "+delta_s+", "+delta_t );
 								kthCandidates.add(recT);
 							}
-							else ++checker.lengthFiltered;
 						} // end for otherRecord in recordList
 					} // end for delta_t
 				} // end for qgram in cand_qgrams_pos
@@ -312,7 +325,16 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			for (Record recT : kthCandidates) candidatesCount.addTo( recT, 1 );
 //			System.out.println(k+", "+kthCandidates.size());
 		} // end for k
+		return candidatesCount;
+	}
 
+	protected Object2IntOpenHashMap<Record> getCandidatesCount(final Record recS, List<List<Set<QGram>>> availableQGrams ) {
+		return getCandidatesCount(recS, availableQGrams, null);
+	}
+
+	protected Set<Record> getCandidates(final Record recS, Object2IntOpenHashMap<Record> candidatesCount ) {
+		Set<Record> candidates = new WYK_HashSet<Record>(100);
+		int[] rangeS = recS.getTransLengths();
 		for ( Object2IntMap.Entry<Record> entry : candidatesCount.object2IntEntrySet() ) {
 			Record recT = entry.getKey();
 			int recordCount = entry.getIntValue();
@@ -320,20 +342,21 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 			// indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
 //			if ( recS.getID() == 138 && recT.getID() == 0 ) System.out.println( indexedCountList.getInt(recT)+", "+availableQGrams.size()+", "+recordCount );
 
-			if ( !usePQF || ( indexedCountList.getInt(recT) <= recordCount || Math.max(range[0], recT.size())-deltaMax <= recordCount ) ) {
+			if ( !usePQF || ( indexedCountList.getInt(recT) <= recordCount || Math.max(rangeS[0], recT.size())-deltaMax <= recordCount ) ) {
 				candidates.add(recT);
 			}
-			else ++checker.pqgramFiltered;
 		}
 		final int thisNCandByPQF = candidates.size();
 		nCandByPQF += candidates.size();
 
-		if ( range[0] <= deltaMax ) {
+		if ( rangeS[0] <= deltaMax ) {
 			candidates.addAll(shortList);
 		}
 		nCandByLen += candidates.size() - thisNCandByPQF;
-		long afterFilterTime = System.nanoTime();
+		return candidates;
+	}
 
+	protected void verify(final Record recS, Set<Record> candidates, Validator checker, ResultSet rslt ) {
 		for (Record recT : candidates) {
 //		    	try { bw.write( recS.getID()+"\t"+recR.getID()+"\n" ); bw.flush(); }
 //		    	catch ( IOException e ) { e.printStackTrace(); }
@@ -343,13 +366,8 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 				rslt.add(recS, recT);
 			}
 		}
-		long afterEquivTime = System.nanoTime();
-
-		this.candQGramCountTime += afterCandQGramTime - ts;
-		this.filterTime += afterFilterTime - afterCandQGramTime;
-		this.verifyTime += afterEquivTime - afterFilterTime;
-	} // end joinOneRecord
-
+	}
+	
 	@Override
 	protected void postprocessAfterJoin( StatContainer stat ) {
 		stat.add(Stat.INDEX_SIZE, indexSize());
