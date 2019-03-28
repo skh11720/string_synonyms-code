@@ -73,8 +73,8 @@ public class TestUtils {
 			rulePath = prefix + "rule"+sep+"30000_2_2_1000000_0.0_0.txt";
 		}
 		else if ( name.equals( "UNIV_1_2" ) ) {
-			dataOnePath = prefix + String.format( "univ"+sep+"universities_list_1000_1.txt" );
-			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_1000_2.txt" );
+			dataOnePath = prefix + String.format( "univ"+sep+"universities_list_refined.txt" );
+			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_refined.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.equals( "UNIV_2_1" ) ) {
@@ -103,7 +103,7 @@ public class TestUtils {
 	
 	public static String getGroundTruthPath( String name ) {
 		if ( name.equals( "UNIV_1_2" ) ) {
-			return prefix + "univ"+sep+"groundtruth_1000_1_2.txt";
+			return prefix + "univ"+sep+"groundtruth_refined.txt";
 		}
 		else if ( name.equals( "NAMES" ) ) {
 			return prefix + "Names"+sep+"ver_4"+sep+"Names_groundtruth.txt"	;
