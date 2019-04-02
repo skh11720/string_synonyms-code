@@ -35,7 +35,7 @@ public class QualityEvaluationMain {
 	private static PrintWriter pw;
 
 	public static void main(String[] args) throws IOException, ParseException {
-		pw = new PrintWriter(new BufferedWriter(new FileWriter("tmp/QualityEvaluationMain.txt")));
+		pw = new PrintWriter(new BufferedWriter(new FileWriter("tmp/QualityEvaluationMain.txt", true)));
 		
 		String dataName = args[0];
 		String alg = args[1];
