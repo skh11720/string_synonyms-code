@@ -18,10 +18,10 @@ import snu.kdd.synonym.synonymRev.tools.AlgorithmResultQualityEvaluator;
 
 public class QualityComparisonVaryingThresholdTest {
 
-	static final String[] dataNameArray = new String[] {"NAMES", "UNIV_1_2", "CONF"};
-	static final String[] distArray = new String[] {"lcs"};
+	static final String[] dataNameArray = new String[] {"NAMES_01", "UNIV_01", "CONF_01"};
+	static final String[] distArray = new String[] {"lcs", "edit"};
 	static final int[] deltaArray = new int[] {0, 1, 2};
-	static final double[] thresArray = new double[] {1.0, 0.8, 0.6, 0.4};
+	static final double[] thresArray = new double[] {1.0, 0.8, 0.6};
 	static final String[] argsTemplate = {"-algorithm", "", "-oneSideJoin", "True", "-additional", ""};
 //	static final String groundPath = "D:\\ghsong\\data\\synonyms\\Names\\ver_4\\Names_groundtruth.txt";
 	static final String[] measureLongArray = {
@@ -56,8 +56,8 @@ public class QualityComparisonVaryingThresholdTest {
 	private void runAlgorithms() throws IOException, ParseException {
 		for ( String dataName : dataNameArray ) {
 			runOurs(dataName);
-			runPrevs(dataName, "JoinPkduckOriginal");
-			runPrevs(dataName, "SIJoinOriginal");
+//			runPrevs(dataName, "JoinPkduckOriginal");
+//			runPrevs(dataName, "SIJoinOriginal");
 		}
 	}
 	
