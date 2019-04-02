@@ -39,17 +39,34 @@ public class QualityEvaluationMain {
 		
 		String dataName = args[0];
 		String alg = args[1];
-		int deltaMax = Integer.parseInt(args[2]);
+		int deltaMax = -1;
+		double thres = -1;
+		try {
+			deltaMax = Integer.parseInt(args[2]);
+		}
+		catch (NumberFormatException e) {
+			thres = Double.parseDouble(args[2]);
+		}
 		String dist = args[3];
+		String resultStr = null;
 		
 		String[] exe_args = Arrays.copyOf(argsTemplate, argsTemplate.length);
 		if (alg.equals("JoinDeltaVarBK")) {
 			exe_args[1] = alg;
 			exe_args[5] = String.format("\"-K 1 -qSize 2 -delta %d -dist %s -sampleB 0.01\"", deltaMax, dist);
+			resultStr = String.format("%s\t%s\t%d\t:", dataName, alg, deltaMax);
+		}
+		else if (alg.equals("JoinPkduck")) {
+			exe_args[1] = "JoinPkduckOriginal";
+			exe_args[5] = String.format("\"-ord FF -theta %.2f -rc false -lf true\"", thres);
+			resultStr = String.format("%s\t%s\t%.2f\t:", dataName, alg, thres);
+		}
+		else if (alg.equals("SIJoin")) {
+			exe_args[1] = "SIJoinOriginal";
+			exe_args[5] = String.format("\"-theta %.2f\"", thres);
+			resultStr = String.format("%s\t%s\t%.2f\t:", dataName, alg, thres);
 		}
 
-
-		String resultStr = String.format("%s\t%s\t%d\t:", dataName, alg, deltaMax);
 		resultStr += runAndGetResultString(dataName, exe_args);
 		pw.println(resultStr);
 		pw.flush();
