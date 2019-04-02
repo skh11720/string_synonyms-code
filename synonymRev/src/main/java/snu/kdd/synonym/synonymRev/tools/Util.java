@@ -552,7 +552,7 @@ public class Util {
 			sep = "\\\\";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			prefix = "run/data_store/";
+			prefix = "data_store/";
 			sep = "/";
 		}
 		
@@ -654,7 +654,7 @@ public class Util {
 			sep = "\\\\";
 		}
 		else if ( osName.startsWith( "Linux" ) ) {
-			prefix = "run/data_store/";
+			prefix = "data_store/";
 			sep = "/";
 		}
 		
