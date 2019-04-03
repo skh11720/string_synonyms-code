@@ -556,7 +556,6 @@ public class Util {
 			sep = "/";
 		}
 		
-//		String sep = "\\" + File.separator;
 		String dataOnePath, dataTwoPath, rulePath;
 		if ( name.equals( "AOL" )) {
 			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
@@ -606,34 +605,39 @@ public class Util {
 
 
 		else if ( name.equals( "NAMES_00" ) ) {
-			dataOnePath = prefix + String.format( "Names_00"+sep+"Names_freebase.txt" );
-			dataTwoPath = prefix + String.format( "Names_00"+sep+"Names_sport.txt" );
+			dataOnePath = prefix + String.format( "NAMES_00"+sep+"NAMES_00_freebase.txt" );
+			dataTwoPath = prefix + String.format( "NAMES_00"+sep+"NAMES_00_sport.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.equals( "NAMES_01" ) ) {
-			dataOnePath = prefix + String.format( "Names_01"+sep+"Names_freebase.txt" );
-			dataTwoPath = prefix + String.format( "Names_01"+sep+"Names_sport.txt" );
+			dataOnePath = prefix + String.format( "NAMES_01"+sep+"NAMES_01_freebase.txt" );
+			dataTwoPath = prefix + String.format( "NAMES_01"+sep+"NAMES_01_sport.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "NAMES_02" ) ) {
+			dataOnePath = prefix + String.format( "NAMES_02"+sep+"NAMES_02_freebase.txt" );
+			dataTwoPath = prefix + String.format( "NAMES_02"+sep+"NAMES_02_sport.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.equals( "UNIV_00" ) ) {
-			dataOnePath = prefix + String.format( "univ_00"+sep+"universities_list.txt" );
-			dataTwoPath = prefix + String.format( "univ_00"+sep+"universities_list.txt" );
+			dataOnePath = prefix + String.format( "UNIV_00"+sep+"UNIV_00_data.txt" );
+			dataTwoPath = prefix + String.format( "UNIV_00"+sep+"UNIV_00_data.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.equals( "UNIV_01" ) ) {
-			dataOnePath = prefix + String.format( "univ_01"+sep+"universities_list.txt" );
-			dataTwoPath = prefix + String.format( "univ_01"+sep+"universities_list.txt" );
+			dataOnePath = prefix + String.format( "UNIV_01"+sep+"UNIV_01_data.txt" );
+			dataTwoPath = prefix + String.format( "UNIV_01"+sep+"UNIV_01_data.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.equals( "CONF_00" ) ) {
-			dataOnePath = prefix + String.format( "CONF_00"+sep+"data.txt" );
-			dataTwoPath = prefix + String.format( "CONF_00"+sep+"data.txt" );
-			rulePath = prefix + "CONF_00"+sep+"rule.txt";
+			dataOnePath = prefix + String.format( "CONF_00"+sep+"CONF_00_data.txt" );
+			dataTwoPath = prefix + String.format( "CONF_00"+sep+"CONF_00_data.txt" );
+			rulePath = prefix + "CONF_00"+sep+"CONF_00_rule.txt";
 		}
 		else if ( name.equals( "CONF_01" ) ) {
-			dataOnePath = prefix + String.format( "CONF_01"+sep+"data.txt" );
-			dataTwoPath = prefix + String.format( "CONF_01"+sep+"data.txt" );
-			rulePath = prefix + "CONF_01"+sep+"rule.txt";
+			dataOnePath = prefix + String.format( "CONF_01"+sep+"CONF_01_data.txt" );
+			dataTwoPath = prefix + String.format( "CONF_01"+sep+"CONF_01_data.txt" );
+			rulePath = prefix + "CONF_01"+sep+"CONF_01_rule.txt";
 		}
 		else throw new RuntimeException();
 
@@ -670,22 +674,25 @@ public class Util {
 
 
 		else if ( name.equals( "NAMES_00" ) ) {
-			return prefix + "Names_00"+sep+"Names_groundtruth.txt"	;
+			return prefix + "NAMES_00"+sep+"NAMES_00_groundtruth.txt"	;
 		}
 		else if ( name.equals( "NAMES_01" ) ) {
-			return prefix + "Names_01"+sep+"Names_groundtruth.txt"	;
+			return prefix + "NAMES_01"+sep+"NAMES_01_groundtruth.txt"	;
+		}
+		else if ( name.equals( "NAMES_02" ) ) {
+			return prefix + "NAMES_02"+sep+"NAMES_02_groundtruth.txt"	;
 		}
 		else if ( name.equals( "UNIV_00" ) ) {
-			return prefix + "univ_00"+sep+"groundtruth.txt";
+			return prefix + "UNIV_00"+sep+"UNIV_00_groundtruth.txt";
 		}
 		else if ( name.equals( "UNIV_01" ) ) {
-			return prefix + "univ_01"+sep+"groundtruth.txt";
+			return prefix + "UNIV_01"+sep+"UNIV_01_groundtruth.txt";
 		}
 		else if ( name.equals( "CONF_00" ) ) {
-			return prefix + "CONF_00"+sep+"groundtruth.txt";
+			return prefix + "CONF_00"+sep+"CONF_00_groundtruth.txt";
 		}
 		else if ( name.equals( "CONF_01" ) ) {
-			return prefix + "CONF_01"+sep+"groundtruth.txt";
+			return prefix + "CONF_01"+sep+"CONF_01_groundtruth.txt";
 		}
 		else throw new RuntimeException("Unknown data name");
 	}
