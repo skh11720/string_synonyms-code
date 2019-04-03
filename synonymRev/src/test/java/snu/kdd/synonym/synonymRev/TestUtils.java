@@ -100,6 +100,19 @@ public class TestUtils {
 
 		return query;
 	}
+
+	public static Query getQueryWithPreprocessing( String name, int size ) throws IOException {
+		Query query = TestUtils.getTestQuery(name, size);
+		
+		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
+		for( final Record record : query.searchedSet.get() ) {
+			record.preprocessApplicableRules( automata );
+			record.preprocessSuffixApplicableRules();
+			record.preprocessTransformLength();
+			record.preprocessEstimatedRecords();
+		}
+		return query;
+	}
 	
 	public static String getGroundTruthPath( String name ) {
 		if ( name.equals( "UNIV_1_2" ) ) {
