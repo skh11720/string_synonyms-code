@@ -15,13 +15,14 @@ import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmStatInterface;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.tools.AlgorithmResultQualityEvaluator;
+import snu.kdd.synonym.synonymRev.tools.Util;
 
 public class QualityComparisonVaryingThresholdTest {
 
-	static final String[] dataNameArray = new String[] {"NAMES_01", "UNIV_01", "CONF_01"};
+	static final String[] dataNameArray = new String[] {"CONF_01"};
 	static final String[] distArray = new String[] {"lcs", "edit"};
-	static final int[] deltaArray = new int[] {0, 1, 2};
-	static final double[] thresArray = new double[] {1.0, 0.8, 0.6};
+	static final int[] deltaArray = new int[] {0};
+	static final double[] thresArray = new double[] {1.0};
 	static final String[] argsTemplate = {"-algorithm", "", "-oneSideJoin", "True", "-additional", ""};
 //	static final String groundPath = "D:\\ghsong\\data\\synonyms\\Names\\ver_4\\Names_groundtruth.txt";
 	static final String[] measureLongArray = {
@@ -56,8 +57,8 @@ public class QualityComparisonVaryingThresholdTest {
 	private void runAlgorithms() throws IOException, ParseException {
 		for ( String dataName : dataNameArray ) {
 			runOurs(dataName);
-//			runPrevs(dataName, "JoinPkduckOriginal");
-//			runPrevs(dataName, "SIJoinOriginal");
+			runPrevs(dataName, "JoinPkduckOriginal");
+			runPrevs(dataName, "SIJoinOriginal");
 		}
 	}
 	
@@ -92,8 +93,8 @@ public class QualityComparisonVaryingThresholdTest {
 	
 	private String runAndGetResultString( String dataName, String[] args ) throws ParseException, IOException {
 		CommandLine cmd = App.parseInput( args );
-		Query query = TestUtils.getTestQuery(dataName, 0);
-		String groundPath = TestUtils.getGroundTruthPath(dataName);
+		Query query = Util.getTestQuery(dataName, 0);
+		String groundPath = Util.getGroundTruthPath(dataName);
 		AlgorithmInterface alg = AlgorithmFactory.getAlgorithmInstance(cmd, query.selfJoin);
 		StringBuilder strbld = new StringBuilder();
 		try {
