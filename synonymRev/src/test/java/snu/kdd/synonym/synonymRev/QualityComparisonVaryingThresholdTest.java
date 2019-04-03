@@ -68,7 +68,7 @@ public class QualityComparisonVaryingThresholdTest {
 		for ( String dist : distArray ) {
 			for ( int delta : deltaArray ) {
 				args[5] = String.format("\"-K 1 -qSize 2 -delta %d -dist %s -sampleB 0.01\"", delta, dist);
-				String resultStr = String.format("%s\t%s\t%d\t:", dataName, args[1], delta);
+				String resultStr = String.format("%s\t%s\t%d\t%s\t:", dataName, args[1], delta, dist);
 				resultStr += runAndGetResultString(dataName, args);
 				pw.println(resultStr);
 				pw.flush();
@@ -84,7 +84,7 @@ public class QualityComparisonVaryingThresholdTest {
 				args[5] = String.format("\"-ord FF -theta %.2f -rc false -lf true\"", thres);
 			else if (algName.equals("SIJoinOriginal"))
 				args[5] = String.format("\"-theta %.2f\"", thres);
-			String resultStr = String.format("%s\t%s\t%.2f\t:", dataName, args[1], thres);
+			String resultStr = String.format("%s\t%s\t%.2f\t-\t:", dataName, args[1], thres);
 			resultStr += runAndGetResultString(dataName, args);
 			pw.println(resultStr);
 			pw.flush();
