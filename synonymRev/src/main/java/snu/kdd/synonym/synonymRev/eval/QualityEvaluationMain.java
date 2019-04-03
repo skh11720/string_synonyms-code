@@ -41,13 +41,14 @@ public class QualityEvaluationMain {
 		String alg = args[1];
 		int deltaMax = -1;
 		double thres = -1;
+		String dist = null;
 		try {
 			deltaMax = Integer.parseInt(args[2]);
+			dist = args[3];
 		}
 		catch (NumberFormatException e) {
 			thres = Double.parseDouble(args[2]);
 		}
-		String dist = args[3];
 		String resultStr = null;
 		
 		String[] exe_args = Arrays.copyOf(argsTemplate, argsTemplate.length);
