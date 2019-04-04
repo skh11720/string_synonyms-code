@@ -118,6 +118,10 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 	}
 
 	protected Object2IntOpenHashMap<Record> getCandidatesCount( final Record recS, final List<List<QGram>> availableQGrams ) {
+		return getCandidatesCount(recS, availableQGrams, null);
+	}
+
+	protected Object2IntOpenHashMap<Record> getCandidatesCount( final Record recS, final List<List<QGram>> availableQGrams, Set<Record> candidates ) {
 		int[] rangeS = recS.getTransLengths();
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(0);
@@ -135,6 +139,7 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 			} // end for qgram in availableQgrams.get(k)
 			
 			for ( Record recT : kthCandidates ) {
+				if ( candidates != null && !candidates.contains(recT) ) continue;
 				if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, recT.size(), recT.size())) {
 					candidatesCount.addTo(recT, 1);
 				}
