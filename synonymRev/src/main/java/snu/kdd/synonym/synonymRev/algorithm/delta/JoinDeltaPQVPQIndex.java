@@ -44,7 +44,7 @@ public class JoinDeltaPQVPQIndex extends JoinDeltaVarBKIndex {
 		// count candidates
 		Object2IntOpenHashMap<Record> candidatesCountVPQ = getCandidatesCount(recS, availableVQGrams);
 		Set<Record> candidates = getCandidates(recS, candidatesCountVPQ);
-		Object2IntOpenHashMap<Record> candidatesCountPQ = simpleIdx.getCandidatesCount(recS, availableQGrams);
+		Object2IntOpenHashMap<Record> candidatesCountPQ = simpleIdx.getCandidatesCount(recS, availableQGrams, candidates);
 		candidates = simpleIdx.getCandidates(recS, candidatesCountPQ);
 		long afterFilterTime = System.nanoTime();
 
