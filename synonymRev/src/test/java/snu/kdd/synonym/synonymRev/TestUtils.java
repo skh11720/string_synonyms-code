@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;

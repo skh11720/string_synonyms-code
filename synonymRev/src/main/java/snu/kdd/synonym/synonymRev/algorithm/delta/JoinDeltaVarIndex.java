@@ -213,7 +213,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		return availableQGrams;
 	}
 
-	protected List<List<Set<QGram>>> getVarSTPQ( Record rec, boolean usePruning ) {
+	public List<List<Set<QGram>>> getVarSTPQ( Record rec, boolean usePruning ) {
 		/*
 		 * Return the lists of delta-variant positional qgrams in STPQ, where each list is indexed by pos and delta.
 		 * If usePruning is true, prune qgrams which do not appear in the index (by referring idxPD and pos12QGramSetMap).
