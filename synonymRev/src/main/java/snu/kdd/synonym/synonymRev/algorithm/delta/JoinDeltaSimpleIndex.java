@@ -149,10 +149,15 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 	}
 	
 	protected Set<Record> getCandidates( final Record recS, final Object2IntOpenHashMap<Record> candidatesCount ) {
+		return getCandidates(recS, candidatesCount, null);
+	}
+
+	protected Set<Record> getCandidates( final Record recS, final Object2IntOpenHashMap<Record> candidatesCount, Set<Record> oldCandidates ) {
 		int[] rangeS = recS.getTransLengths();
 		Set<Record> candidates = new WYK_HashSet<>();
 		for ( Map.Entry<Record, Integer> entry : candidatesCount.entrySet() ) {
 			Record recT = entry.getKey();
+			if ( oldCandidates != null && !oldCandidates.contains(recT) ) continue;
 			int count = entry.getValue().intValue();
 //			if ( recS.getID() == 3235 ) System.out.println(recT.getID()+", "+count);
 			if ( !usePQF || count >= Math.max(rangeS[0], recT.size()) - qd ) {
@@ -166,7 +171,10 @@ public class JoinDeltaSimpleIndex extends AbstractIndex {
 		if ( rangeS[0] <= qd ) {
 			for ( int l=1; l<=idxByLen.size(); ++l ) {
 				if ( !useLF || StaticFunctions.overlap(rangeS[0] - deltaMax, rangeS[1] + deltaMax, l, l )) { // apply the length filtering 
-					candidates.addAll( idxByLen.get(l-1) );
+					for ( Record recT : idxByLen.get(l-1)) {
+						if ( oldCandidates != null && !oldCandidates.contains(recT) ) continue;
+						candidates.add(recT);
+					}
 				}
 			}
 		}

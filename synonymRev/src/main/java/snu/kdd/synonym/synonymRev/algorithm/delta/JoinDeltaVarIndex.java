@@ -287,6 +287,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		return availableQGrams;
 	}
 
+	protected Object2IntOpenHashMap<Record> getCandidatesCount(final Record recS, List<List<Set<QGram>>> availableQGrams ) {
+		return getCandidatesCount(recS, availableQGrams, null);
+	}
+
 	protected Object2IntOpenHashMap<Record> getCandidatesCount(final Record recS, List<List<Set<QGram>>> availableQGrams, Set<Record> candidates ) {
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(0);
@@ -328,15 +332,16 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		return candidatesCount;
 	}
 
-	protected Object2IntOpenHashMap<Record> getCandidatesCount(final Record recS, List<List<Set<QGram>>> availableQGrams ) {
-		return getCandidatesCount(recS, availableQGrams, null);
+	protected Set<Record> getCandidates(final Record recS, Object2IntOpenHashMap<Record> candidatesCount ) {
+		return getCandidates(recS, candidatesCount, null);
 	}
 
-	protected Set<Record> getCandidates(final Record recS, Object2IntOpenHashMap<Record> candidatesCount ) {
+	protected Set<Record> getCandidates(final Record recS, Object2IntOpenHashMap<Record> candidatesCount, Set<Record> oldCandidates ) {
 		Set<Record> candidates = new WYK_HashSet<Record>(100);
 		int[] rangeS = recS.getTransLengths();
 		for ( Object2IntMap.Entry<Record> entry : candidatesCount.object2IntEntrySet() ) {
 			Record recT = entry.getKey();
+			if ( oldCandidates != null && !oldCandidates.contains(recT) ) continue;
 			int recordCount = entry.getIntValue();
 			// recordCount: number of lists containing the target record given recS
 			// indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
@@ -350,7 +355,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		nCandByPQF += candidates.size();
 
 		if ( rangeS[0] <= deltaMax ) {
-			candidates.addAll(shortList);
+			for ( Record recT : shortList ) {
+				if ( oldCandidates != null && !oldCandidates.contains(recT) ) continue;
+				candidates.add(recT);
+			}
 		}
 		nCandByLen += candidates.size() - thisNCandByPQF;
 		return candidates;
