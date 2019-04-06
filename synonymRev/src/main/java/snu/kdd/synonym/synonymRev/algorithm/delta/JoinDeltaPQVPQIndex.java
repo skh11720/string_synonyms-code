@@ -18,6 +18,8 @@ public class JoinDeltaPQVPQIndex extends JoinDeltaVarBKIndex {
 	 */
 	
 	JoinDeltaSimpleIndex simpleIdx;
+	private long nCand1 = 0;
+	private long nCand2 = 0;
 
 	public JoinDeltaPQVPQIndex( Query query, int indexK, int qSize, int deltaMax, String dist, double sampleB ) {
 		super(query, indexK, qSize, deltaMax, dist, sampleB);
@@ -42,10 +44,13 @@ public class JoinDeltaPQVPQIndex extends JoinDeltaVarBKIndex {
 		long afterCandQgramTime = System.nanoTime();
 		
 		// count candidates
-		Object2IntOpenHashMap<Record> candidatesCountVPQ = getCandidatesCount(recS, availableVQGrams);
-		Set<Record> candidates = getCandidates(recS, candidatesCountVPQ);
+		Set<Record> candidates = null;
+		Object2IntOpenHashMap<Record> candidatesCountVPQ = getCandidatesCount(recS, availableVQGrams, candidates);
+		candidates = getCandidates(recS, candidatesCountVPQ, candidates);
+		nCand1 += candidates.size();
 		Object2IntOpenHashMap<Record> candidatesCountPQ = simpleIdx.getCandidatesCount(recS, availableQGrams, candidates);
-		candidates = simpleIdx.getCandidates(recS, candidatesCountPQ);
+		candidates = simpleIdx.getCandidates(recS, candidatesCountPQ, candidates);
+		nCand2 += candidates.size();
 		long afterFilterTime = System.nanoTime();
 
 		verify(recS, candidates, checker, rslt);
@@ -63,6 +68,8 @@ public class JoinDeltaPQVPQIndex extends JoinDeltaVarBKIndex {
 		stat.add(Stat.CAND_PQGRAM_COUNT, candQGramCount );
 		stat.add(Stat.CAND_BY_PQGRAM, nCandByPQF );
 		stat.add(Stat.CAND_BY_LEN, nCandByLen );
+		stat.add("Stat_Cand1", nCand1);
+		stat.add("Stat_Cand2", nCand2);
 		stat.add(Stat.CAND_PQGRAM_TIME, candQGramCountTime/1e6 );
 		stat.add(Stat.FILTER_TIME, filterTime/1e6 );
 		stat.add(Stat.VERIFY_TIME, verifyTime/1e6 );
