@@ -2,7 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm.delta;
 
 import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Record;
-import snu.kdd.synonym.synonymRev.estimation.SampleEstimate;
+import snu.kdd.synonym.synonymRev.estimation.DeltaEstimate;
 import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
 import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
 import snu.kdd.synonym.synonymRev.index.NaiveIndex;
@@ -11,11 +11,10 @@ import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.StopWatch;
 import snu.kdd.synonym.synonymRev.tools.Util;
-import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
 
 public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 
-	SampleEstimate estimate;
+	DeltaEstimate estimate;
 
 	public final int indexK;
 	public final int deltaMax;
@@ -23,7 +22,7 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	public final double sampleB;
 	public final double sampleH;
 
-	protected int nEst;
+	protected int nEst = 1;
 	protected int joinThreshold = 1;
 	protected boolean joinQGramRequired = true;
 	protected boolean joinMinSelected = false;
@@ -218,9 +217,8 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 
 	protected void findConstants( double sampleratio, StatContainer stat ) {
 		// Sample
-		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
-//		estimate = new SampleEstimateByRegression( query, sampleratio, query.selfJoin );
-		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
+		estimate = new DeltaEstimate(query, this);
+		estimate.estimateJoinHybridWithSample();
 		
 		this.stat.add( "Estimate_Coeff1_Naive", estimate.coeff_naive_1);
 		this.stat.add( "Estimate_Coeff2_Naive", estimate.coeff_naive_2);

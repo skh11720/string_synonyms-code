@@ -27,6 +27,8 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 	protected final int idxForDist; // 0: lcs, 1: edit
 	protected final boolean isSelfJoin;
 	
+	public AlgStat algstat = new AlgStat();
+	
 	public JoinDeltaNaiveIndex( int deltaMax, String dist, Query query ) {
 		this.deltaMax = deltaMax;
 		this.isSelfJoin = query.selfJoin;
@@ -35,6 +37,10 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 		idx = new ObjectArrayList<>();
 		for ( int d=0; d<=deltaMax; ++d ) idx.add(new Int2ObjectOpenHashMap<>());
 		
+		build(query);
+	}
+	
+	public void build( Query query ) {
 		for ( Record recT : query.indexedSet.recordList ) {
 			List<IntArrayList> combList = Util.getCombinationsAll( recT.size(), deltaMax ); // indexes whose elements will be deleted
 			for ( IntArrayList idxList : combList ) {
@@ -43,12 +49,14 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 				if ( !idx.get(d).containsKey(key) ) idx.get(d).put(key, new ObjectArrayList<Record>() );
 				idx.get(d).get(key).add(recT);
 //				System.out.println(d+", "+key+", "+recT);
+				++algstat.sumLenT;
 			}
 		}
 	}
+	
 
 	@Override
-	protected void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
 		Set<Record> matched = new ObjectOpenHashSet<>();
 		for ( Record exp : recS.expandAll() ) {
 //			System.out.println("exp: "+exp);
@@ -64,6 +72,7 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 					matched.add(recT);
 				}
 			}
+			algstat.sumTransLenS += candidates.size();
 		} // end for exp
 		
 		for ( Record recT : matched ) rslt.add(recS, recT);
@@ -137,5 +146,10 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 		}
 //		key %= Integer.MAX_VALUE; // is this line necessary?
 		return key;
+	}
+	
+	public class AlgStat {
+		public long sumTransLenS = 0;
+		public long sumLenT = 0;
 	}
 }

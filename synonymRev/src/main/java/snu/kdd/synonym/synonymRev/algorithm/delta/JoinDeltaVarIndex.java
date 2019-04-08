@@ -71,6 +71,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	public static boolean useSTPQ = true;
 	
 	private final IntArrayList firstKPosArr; // does not need to be sorted
+	public AlgStat algstat = new AlgStat();
 
 	public JoinDeltaVarIndex( Query query, int indexK, int qSize, int deltaMax, String dist ) {
 		/*
@@ -168,6 +169,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 				 */
 
 				for ( Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram ) ) {
+					++algstat.idxQGramCount;
 					QGram qgramDelta = entry.getKey();
 					int delta = entry.getValue();
 					WYK_HashMap<QGram, List<Record>> idxPD_kd =  idxPD_k.get(delta);
@@ -204,6 +206,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		this.candQGramCountTime += afterCandQGramTime - ts;
 		this.filterTime += afterFilterTime - afterCandQGramTime;
 		this.verifyTime += afterEquivTime - afterFilterTime;
+		algstat.candQGramCount = this.candQGramCount;
+		algstat.numVerified = checker.checked;
+		algstat.candFilterTime = (this.candQGramCountTime + this.filterTime)/1e6;
+		algstat.verifyTime = this.verifyTime/1e6;
 	} // end joinOneRecord
 
 	protected List<List<Set<QGram>>> getAvailableQGrams( final Record recS ) {
@@ -415,5 +421,13 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	protected int getDeltaTMax( int delta_s ) {
 		if ( this.idxForDist == 0 ) return this.deltaMax - delta_s;
 		else return this.deltaMax;
+	}
+	
+	public class AlgStat {
+		public long idxQGramCount = 0;
+		public long candQGramCount = 0;
+		public long numVerified = 0;
+		public double candFilterTime = 0;
+		public double verifyTime = 0;
 	}
 }
