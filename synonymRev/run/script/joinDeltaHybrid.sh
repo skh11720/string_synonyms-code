@@ -9,7 +9,7 @@ oneSide=$8
 split=$9
 UPLOAD=${10}
 
-ADDITIONAL="-delta ${11} -K ${12} -qSize ${13} -sampleB ${14} sampleH ${15} -dist ${16}"
+ADDITIONAL="-delta ${11} -K ${12} -qSize ${13} -sampleB ${14} -sampleH ${15} -dist ${16}"
 
 ALG=JoinDeltaHybrid
 
