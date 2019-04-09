@@ -159,17 +159,17 @@ public class DeltaEstimate {
 			}
 			else {
 				naiveinst.joinOneRecord( recS, rslt, checker );
-				naive_term2[i] = naiveinst.algstat.sumTransLenS;
+				naive_term2[i] = naiveinst.algstat.numCand;
 //				naive_term3[i] = naiveinst.verifyCost;
 //				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
 			}
 		} // end for id
 		double joinTime = (System.nanoTime() - ts)/1e6;
-		naive_term1 = naiveinst.algstat.sumLenT;
+		naive_term1 = naiveinst.algstat.numVPQt;
 
 		// compute coefficients
-		coeff_naive_1 = indexTime/(naiveinst.algstat.sumLenT+1);
-		coeff_naive_2 = joinTime/(naiveinst.algstat.sumTransLenS+1);
+		coeff_naive_1 = indexTime/(naiveinst.algstat.numVPQt+1);
+		coeff_naive_2 = joinTime/(naiveinst.algstat.numCand+1);
 		
 		System.out.println( "estimateJoinNaive" );
 		System.out.println( "coeff_naive1: "+coeff_naive_1 );

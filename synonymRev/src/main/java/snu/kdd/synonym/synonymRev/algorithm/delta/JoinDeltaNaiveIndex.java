@@ -49,7 +49,7 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 				if ( !idx.get(d).containsKey(key) ) idx.get(d).put(key, new ObjectArrayList<Record>() );
 				idx.get(d).get(key).add(recT);
 //				System.out.println(d+", "+key+", "+recT);
-				++algstat.sumLenT;
+				++algstat.numVPQt;
 			}
 		}
 	}
@@ -72,7 +72,8 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 					matched.add(recT);
 				}
 			}
-			algstat.sumTransLenS += candidates.size();
+			++algstat.numTransS;
+			algstat.numCand += candidates.size();
 		} // end for exp
 		
 		for ( Record recT : matched ) rslt.add(recS, recT);
@@ -149,7 +150,11 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 	}
 	
 	public class AlgStat {
-		public long sumTransLenS = 0;
-		public long sumLenT = 0;
+		// term1
+		public long numVPQt = 0;
+
+		// term2
+		public long numTransS = 0;
+		public long numCand = 0;
 	}
 }

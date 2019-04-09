@@ -427,6 +427,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		public long idxQGramCount = 0;
 		public long candQGramCount = 0;
 		public long numVerified = 0;
+
 		public double candFilterTime = 0;
 		public double verifyTime = 0;
 	}
