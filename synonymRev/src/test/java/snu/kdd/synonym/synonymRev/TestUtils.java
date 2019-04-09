@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
@@ -125,6 +126,19 @@ public class TestUtils {
 		boolean oneSideJoin = true;
 		Query query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
 
+		return query;
+	}
+
+	public static Query getQueryWithPreprocessing( String name, int size ) throws IOException {
+		Query query = TestUtils.getTestQuery(name, size);
+		
+		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
+		for( final Record record : query.searchedSet.get() ) {
+			record.preprocessApplicableRules( automata );
+			record.preprocessSuffixApplicableRules();
+			record.preprocessTransformLength();
+			record.preprocessEstimatedRecords();
+		}
 		return query;
 	}
 	
