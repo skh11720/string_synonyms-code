@@ -3,9 +3,6 @@ package snu.kdd.synonym.synonymRev.algorithm.delta;
 import snu.kdd.synonym.synonymRev.algorithm.AbstractPosQGramBasedAlgorithm;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.estimation.DeltaEstimate;
-import snu.kdd.synonym.synonymRev.index.JoinMHIndex;
-import snu.kdd.synonym.synonymRev.index.JoinMinIndex;
-import snu.kdd.synonym.synonymRev.index.NaiveIndex;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.ResultSet;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
@@ -27,9 +24,9 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	protected boolean joinQGramRequired = true;
 	protected boolean joinMinSelected = false;
 
-	protected NaiveIndex naiveIndex;
-	protected JoinMinIndex joinMinIdx = null;
-	protected JoinMHIndex joinMHIdx = null;
+	protected JoinDeltaNaiveIndex naiveIndex;
+	protected JoinDeltaVarBKIndex joinMinIdx = null;
+	protected JoinDeltaVarIndex joinMHIdx = null;
 
 	protected long maxSearchedEstNumRecords = 0;
 	protected long maxIndexedEstNumRecords = 0;
@@ -129,7 +126,7 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 				joinPQGramTime += System.nanoTime() - joinStartOne;
 			}
 			else {
-				naiveIndex.joinOneRecord( s, rsltNaive, null );
+				naiveIndex.joinOneRecord( s, rsltNaive, checker );
 				++naiveSearch;
 				joinNaiveTime += System.nanoTime() - joinStartOne;
 			}
@@ -144,22 +141,15 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 		stat.add( "Stat_Naive_Search", naiveSearch );
 		stat.add( "Stat_PQGram_Search", pqgramSearch );
 		stat.add( "Stat_Skipped", skipped );
-		if (joinQGramRequired ) {
+		if ( joinQGramRequired ) {
 			long candQGramCountSum = 0;
 			double candQGramAvgCount = 0;
-			if( joinMinSelected ) {
-				candQGramCountSum = ((JoinMinIndex)joinMinIdx).getCandQGramCountSum();
-			}
-			else {
-				candQGramCountSum = ((JoinMHIndex)joinMHIdx).getCandQGramCountSum();
-			}
-
+			if ( joinMinSelected ) candQGramCountSum = joinMinIdx.algstat.candQGramCount;
+			else candQGramCountSum = joinMHIdx.algstat.candQGramCount;
 			candQGramAvgCount = pqgramSearch == 0 ? 0 : 1.0 * candQGramCountSum / pqgramSearch;
 			stat.add( "Stat_CandQGram_Sum", candQGramCountSum );
 			stat.add( "Stat_CandQGram_Avg", candQGramAvgCount );
 		}
-		
-		// evaluate the accuracy of estimation ???
 		
 		// return the final result
 		rslt = new ResultSet(query.selfJoin);
@@ -167,21 +157,6 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 		rslt.addAll( rsltPQGram );
 	}
 	
-	private void estimate() {
-		maxSearchedEstNumRecords = computeMaxEstTransNum();
-	}
-	
-	private long computeMaxEstTransNum() {
-		long estTransNum = 0;
-		for( Record rec : query.searchedSet.get() ) {
-			if( estTransNum < rec.getEstNumTransformed() ) {
-				estTransNum = rec.getEstNumTransformed();
-			}
-		}
-		stat.add( "MaxSearchedEstNumRecords", estTransNum );
-		return estTransNum;
-	}
-
 	@Override
 	protected void buildIndex() {
 		StopWatch buildTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
@@ -198,25 +173,18 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	}
 
 	protected void buildJoinMinIndex() {
-		// Build an index
-		joinMinIdx = new JoinMinIndex( indexK, qSize, stat, query, joinThreshold, true );
+		joinMinIdx= new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, distFunc, sampleB);
 	}
 
 	protected void buildJoinMHIndex() {
-		// Build an index
-		int[] index = new int[ indexK ];
-		for( int i = 0; i < indexK; i++ ) {
-			index[ i ] = i;
-		}
-		joinMHIdx = new JoinMHIndex( indexK, qSize, query.indexedSet.get(), query, stat, index, true, true, joinThreshold );
+		joinMHIdx = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax, distFunc);
 	}
 
 	protected void buildNaiveIndex() {
-		naiveIndex = new NaiveIndex( query, stat, true );
+		naiveIndex = new JoinDeltaNaiveIndex(deltaMax, distFunc, query);
 	}
 
 	protected void findConstants( double sampleratio, StatContainer stat ) {
-		// Sample
 		estimate = new DeltaEstimate(query, this);
 		estimate.estimateJoinHybridWithSample();
 		
