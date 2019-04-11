@@ -41,21 +41,21 @@ public class DeltaEstimate {
 	public double coeff_naive_1;
 	public double coeff_naive_2;
 
-	public double estTime_mh;
-	// gamma : JoinMH indexing time per pogram of table T
-	public double coeff_mh_1;
-	// zeta: JoinMH time for counting TPQ supersets per pqgram of table S
-	public double coeff_mh_2;
-	// eta : JoinMH join time per record of table T
-	public double coeff_mh_3;
+	public double estTime_FK;
+	// gamma : JoinFK indexing time per pogram of table T
+	public double coeff_FK_1;
+	// zeta: JoinFK time for counting TPQ supersets per pqgram of table S
+	public double coeff_FK_2;
+	// eta : JoinFK join time per record of table T
+	public double coeff_FK_3;
 
-	public double estTime_min;
-	// lambda: JoinMin indexing time per twograms of table T
-	public double coeff_min_1;
-	// mu: JoinMin counting twogram time per twograms of table S
-	public double coeff_min_2;
-	// rho: JoinMin join time per candidate of table S
-	public double coeff_min_3;
+	public double estTime_BK;
+	// lambda: JoinBK indexing time per twograms of table T
+	public double coeff_BK_1;
+	// mu: JoinBK counting twogram time per twograms of table S
+	public double coeff_BK_2;
+	// rho: JoinBK join time per candidate of table S
+	public double coeff_BK_3;
 
 
 	public double sampleRatio;
@@ -66,14 +66,14 @@ public class DeltaEstimate {
 	
 	public long naive_term1;
 	public long[] naive_term2;
-	public long mh_term1;
-	public long[] mh_term2;
-	public long[] mh_term3;
-	public long min_term1;
-	public long[] min_term2;
-	public long[] min_term3;
+	public long fk_term1;
+	public long[] fk_term2;
+	public long[] fk_term3;
+	public long bk_term1;
+	public long[] bk_term2;
+	public long[] bk_term3;
 
-	protected boolean joinMinSelected = false;
+	protected boolean joinBKSelected = false;
 
 	protected Query sampleQuery;
 	protected boolean stratified = false;
@@ -89,8 +89,7 @@ public class DeltaEstimate {
 		this.deltaMax = alg.deltaMax;
 		this.dist = alg.distFunc;
 		this.sampleRatio = alg.sampleH;
-//		this.sampleB = alg.sampleB;
-		this.sampleB = 1.00;
+		this.sampleB = alg.sampleB;
 
 		try { 
 			String logFileName = String.format( "SampleEst_%s_%.2f", query.dataInfo.getName(), sampleRatio );
@@ -135,10 +134,10 @@ public class DeltaEstimate {
 				query.selfJoin, query.outputPath );
 		
 		naive_term2 = new long[sampleSearchedList.size()];
-		mh_term2 = new long[sampleSearchedList.size()];
-		mh_term3 = new long[sampleSearchedList.size()];
-		min_term2 = new long[sampleSearchedList.size()];
-		min_term3 = new long[sampleSearchedList.size()];
+		fk_term2 = new long[sampleSearchedList.size()];
+		fk_term3 = new long[sampleSearchedList.size()];
+		bk_term2 = new long[sampleSearchedList.size()];
+		bk_term3 = new long[sampleSearchedList.size()];
 	}
 	
 	public Object2DoubleMap<String> estimateJoinNaive() {
@@ -192,65 +191,65 @@ public class DeltaEstimate {
 		return output;
 	}
 	
-	protected double sampleJoinMH( JoinDeltaVarIndex joinmhinst ) {
+	protected double sampleJoinMH( JoinDeltaVarIndex joinFKInst ) {
 		DeltaValidatorDPTopDown checker = new DeltaValidatorDPTopDown(deltaMax, dist);
 		long ts = System.nanoTime();
 		ResultSet rslt = new ResultSet(sampleQuery.selfJoin);
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
-				mh_term2[i] = (i == 0 ? 0 : mh_term2[i-1]);
-				mh_term3[i] = (i == 0 ? 0 : mh_term3[i-1]);
+				fk_term2[i] = (i == 0 ? 0 : fk_term2[i-1]);
+				fk_term3[i] = (i == 0 ? 0 : fk_term3[i-1]);
 			}
 			else {
-				joinmhinst.joinOneRecord( recS, rslt, checker );
-				mh_term2[i] =  joinmhinst.algstat.candQGramCount;
-				mh_term3[i] =  joinmhinst.algstat.numVerified;
+				joinFKInst.joinOneRecord( recS, rslt, checker );
+				fk_term2[i] =  joinFKInst.algstat.candQGramCount;
+				fk_term3[i] =  joinFKInst.algstat.numVerified;
 			}
 		} // for sid in in searchedSet
 		double joinTime = (System.nanoTime() - ts)/1e6;
 		return joinTime;
 	}
 
-	public Object2DoubleMap<String> estimateJoinMH() {
+	public Object2DoubleMap<String> estimateJoinFK() {
 		int[] indexPosition = new int[indexK];
 		for (int i=0; i<indexK; ++i ) indexPosition[i] = i;
 
 		long ts = System.nanoTime();
-		JoinDeltaVarIndex joinmhinst = new JoinDeltaVarIndex(sampleQuery, indexK, qSize, deltaMax, dist);
-		joinmhinst.build();
+		JoinDeltaVarIndex joinFKInst = new JoinDeltaVarIndex(sampleQuery, indexK, qSize, deltaMax, dist);
+		joinFKInst.build();
 		double indexTime = (System.nanoTime() - ts)/1e6;
-		double joinTime = sampleJoinMH(joinmhinst);
+		double joinTime = sampleJoinMH(joinFKInst);
 
-		mh_term1 = joinmhinst.algstat.idxQGramCount;
-		coeff_mh_1 = indexTime / (mh_term1+1);
-		coeff_mh_2 = joinmhinst.algstat.candFilterTime / (joinmhinst.algstat.candQGramCount+1);
-		coeff_mh_3 = joinmhinst.algstat.verifyTime / (joinmhinst.algstat.numVerified+1);
-		estTime_mh = getEstimateJoinMH( mh_term1, mh_term2[sampleSearchedList.size()-1], mh_term3[sampleSearchedList.size()-1] );
+		fk_term1 = joinFKInst.algstat.idxQGramCount;
+		coeff_FK_1 = indexTime / (fk_term1+1);
+		coeff_FK_2 = joinFKInst.algstat.candFilterTime / (joinFKInst.algstat.candQGramCount+1);
+		coeff_FK_3 = joinFKInst.algstat.verifyTime / (joinFKInst.algstat.numVerified+1);
+		estTime_FK = getEstimateJoinFK( fk_term1, fk_term2[sampleSearchedList.size()-1], fk_term3[sampleSearchedList.size()-1] );
 
-		System.out.println( "estimateJoinMH" );
-		System.out.println( "coeff_mh_1: "+coeff_mh_1 );
-		System.out.println( "coeff_mh_2: "+coeff_mh_2 );
-		System.out.println( "coeff_mh_3: "+coeff_mh_3 );
-		System.out.println( "MH_Term_1: "+ mh_term1 );
-		System.out.println( "MH_Term_2: "+ mh_term2[sampleSearchedList.size()-1] );
-		System.out.println( "MH_Term_3: "+ mh_term3[sampleSearchedList.size()-1] );
-		System.out.println( "Est_Time: "+ estTime_mh );
+		System.out.println( "estimateJoinFK" );
+		System.out.println( "coeff_FK_1: "+coeff_FK_1 );
+		System.out.println( "coeff_FK_2: "+coeff_FK_2 );
+		System.out.println( "coeff_FK_3: "+coeff_FK_3 );
+		System.out.println( "FK_Term_1: "+ fk_term1 );
+		System.out.println( "FK_Term_2: "+ fk_term2[sampleSearchedList.size()-1] );
+		System.out.println( "FK_Term_3: "+ fk_term3[sampleSearchedList.size()-1] );
+		System.out.println( "Est_Time: "+ estTime_FK );
 		System.out.println( "Join_Time: "+String.format( "%.10e", joinTime ) );
 
 		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
-		output.put( "MH_Coeff_1", coeff_mh_1 );
-		output.put( "MH_Coeff_2", coeff_mh_2 );
-		output.put( "MH_Coeff_3", coeff_mh_3 );
-		output.put( "MH_Term_1", mh_term1 );
-		output.put( "MH_Term_2", mh_term2[sampleSearchedList.size()-1] );
-		output.put( "MH_Term_3", mh_term3[sampleSearchedList.size()-1] );
-		output.put( "MH_Est_Time", estTime_mh );
-		output.put( "MH_Join_Time", joinTime );
+		output.put( "FK_Coeff_1", coeff_FK_1 );
+		output.put( "FK_Coeff_2", coeff_FK_2 );
+		output.put( "FK_Coeff_3", coeff_FK_3 );
+		output.put( "FK_Term_1", fk_term1 );
+		output.put( "FK_Term_2", fk_term2[sampleSearchedList.size()-1] );
+		output.put( "FK_Term_3", fk_term3[sampleSearchedList.size()-1] );
+		output.put( "FK_Est_Time", estTime_FK );
+		output.put( "FK_Join_Time", joinTime );
 		return output;
 	}
 	
-	protected double sampleJoinMin( JoinDeltaVarBKIndex joinmininst ) {
+	protected double sampleJoinBK( JoinDeltaVarBKIndex joinBKInst ) {
 		ResultSet rslt = new ResultSet(sampleQuery.selfJoin);
 		DeltaValidatorDPTopDown checker = new DeltaValidatorDPTopDown(deltaMax, dist);
 
@@ -258,68 +257,68 @@ public class DeltaEstimate {
 		for (int i = 0; i < sampleQuery.searchedSet.size(); i++) {
 			Record recS = sampleQuery.searchedSet.getRecord( i );
 			if ( recS.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) {
-				min_term2[i] = ( i== 0? 0 : min_term2[i-1]);
-				min_term3[i] = ( i== 0? 0 : min_term3[i-1]);
+				bk_term2[i] = ( i== 0? 0 : bk_term2[i-1]);
+				bk_term3[i] = ( i== 0? 0 : bk_term3[i-1]);
 			}
 			else {
-				joinmininst.joinOneRecord( recS, rslt, checker );
-				min_term2[i] = joinmininst.algstat.candQGramCount;
-				min_term3[i] = joinmininst.algstat.numVerified;
+				joinBKInst.joinOneRecord( recS, rslt, checker );
+				bk_term2[i] = joinBKInst.algstat.candQGramCount;
+				bk_term3[i] = joinBKInst.algstat.numVerified;
 			}
 		}
 		double joinTime = (System.nanoTime() - ts)/1e6;
 		return joinTime;
 	}
 
-	public Object2DoubleMap<String> estimateJoinMin() {
+	public Object2DoubleMap<String> estimateJoinBK() {
 		long ts = System.nanoTime();
-		JoinDeltaVarBKIndex joinmininst = new JoinDeltaVarBKIndex(sampleQuery, indexK, qSize, indexK, dist, sampleB);
-		joinmininst.build();
+		JoinDeltaVarBKIndex joinBKInst = new JoinDeltaVarBKIndex(sampleQuery, indexK, qSize, indexK, dist, sampleB);
+		joinBKInst.build();
 		double indexTime = (System.nanoTime() - ts)/1e6;
-		double joinTime = sampleJoinMin(joinmininst);
+		double joinTime = sampleJoinBK(joinBKInst);
 
-		min_term1 = joinmininst.algstat.idxQGramCount+1;
-		coeff_min_1 = indexTime / min_term1;
-		coeff_min_2 = joinmininst.algstat.candFilterTime / (joinmininst.algstat.candQGramCount+1);
-		coeff_min_3 = joinmininst.algstat.verifyTime / (joinmininst.algstat.numVerified+1);
-		estTime_min = getEstimateJoinMin( min_term1, min_term2[sampleSearchedList.size()-1], min_term3[sampleSearchedList.size()-1]);
+		bk_term1 = joinBKInst.algstat.idxQGramCount+1;
+		coeff_BK_1 = indexTime / bk_term1;
+		coeff_BK_2 = joinBKInst.algstat.candFilterTime / (joinBKInst.algstat.candQGramCount+1);
+		coeff_BK_3 = joinBKInst.algstat.verifyTime / (joinBKInst.algstat.numVerified+1);
+		estTime_BK = getEstimateJoinBK( bk_term1, bk_term2[sampleSearchedList.size()-1], bk_term3[sampleSearchedList.size()-1]);
 
-		System.out.println( "estimateJoinMin" );
-		System.out.println( "coeff_min_1: "+coeff_min_1 );
-		System.out.println( "coeff_min_2: "+coeff_min_2 );
-		System.out.println( "coeff_min_3: "+coeff_min_3 );
-		System.out.println( "Min_Term_1: "+ min_term1 );
-		System.out.println( "Min_Term_2: "+ min_term2[sampleSearchedList.size()-1] );
-		System.out.println( "Min_Term_3: "+ min_term3[sampleSearchedList.size()-1] );
-		System.out.println( "Est_Time: "+ estTime_min );
+		System.out.println( "estimateJoinBK" );
+		System.out.println( "coeff_BK_1: "+coeff_BK_1 );
+		System.out.println( "coeff_BK_2: "+coeff_BK_2 );
+		System.out.println( "coeff_BK_3: "+coeff_BK_3 );
+		System.out.println( "BK_Term_1: "+ bk_term1 );
+		System.out.println( "BK_Term_2: "+ bk_term2[sampleSearchedList.size()-1] );
+		System.out.println( "BK_Term_3: "+ bk_term3[sampleSearchedList.size()-1] );
+		System.out.println( "Est_Time: "+ estTime_BK );
 		System.out.println( "Join_Time: "+String.format( "%.10e", joinTime ) );
 
 		Object2DoubleOpenHashMap<String> output = new Object2DoubleOpenHashMap<>();
-		output.put( "Min_Coeff_1", coeff_min_1 );
-		output.put( "Min_Coeff_2", coeff_min_2 );
-		output.put( "Min_Coeff_3", coeff_min_3 );
-		output.put( "Min_Term_1", min_term1 );
-		output.put( "Min_Term_2", min_term2[sampleSearchedList.size()-1] );
-		output.put( "Min_Term_3", min_term3[sampleSearchedList.size()-1] );
-		output.put( "Min_Est_Time", estTime_min );
-		output.put( "Min_Join_Time", joinTime );
+		output.put( "BK_Coeff_1", coeff_BK_1 );
+		output.put( "BK_Coeff_2", coeff_BK_2 );
+		output.put( "BK_Coeff_3", coeff_BK_3 );
+		output.put( "BK_Term_1", bk_term1 );
+		output.put( "BK_Term_2", bk_term2[sampleSearchedList.size()-1] );
+		output.put( "BK_Term_3", bk_term3[sampleSearchedList.size()-1] );
+		output.put( "BK_Est_Time", estTime_BK );
+		output.put( "BK_Join_Time", joinTime );
 		return output;
 	}
 
-    public void estimateJoinMHNaiveWithSample() {
-        estimateJoinMH();
+    public void estimateJoinFKNaiveWithSample() {
         estimateJoinNaive();
+        estimateJoinFK();
     }
 
-    public void estimateJoinMinNaiveWithSample() {
-        estimateJoinMin();
+    public void estimateJoinBKNaiveWithSample() {
         estimateJoinNaive();
+        estimateJoinBK();
     }
 
 	public void estimateJoinHybridWithSample() {
 		estimateJoinNaive();
-		estimateJoinMH();
-		estimateJoinMin();
+		estimateJoinFK();
+		estimateJoinBK();
 	}
 
 	/*
@@ -330,16 +329,16 @@ public class DeltaEstimate {
 				+ coeff_naive_2 * term2 / sampleRatio;
 	}
 
-	public double getEstimateJoinMH( double term1, double term2, double term3 ) {
-		return coeff_mh_1 * term1 / sampleRatio 
-				+ coeff_mh_2 * term2 / sampleRatio
-				+ coeff_mh_3 * term3 / sampleRatio / sampleRatio;
+	public double getEstimateJoinFK( double term1, double term2, double term3 ) {
+		return coeff_FK_1 * term1 / sampleRatio 
+				+ coeff_FK_2 * term2 / sampleRatio
+				+ coeff_FK_3 * term3 / sampleRatio / sampleRatio;
 	}
 
-	public double getEstimateJoinMin( double term1, double term2, double term3 ) {
-		return coeff_min_1 * term1 / sampleRatio 
-				+ coeff_min_2 * term2 / sampleRatio
-				+ coeff_min_3 * term3 / sampleRatio / sampleRatio;
+	public double getEstimateJoinBK( double term1, double term2, double term3 ) {
+		return coeff_BK_1 * term1 / sampleRatio 
+				+ coeff_BK_2 * term2 / sampleRatio
+				+ coeff_BK_3 * term3 / sampleRatio / sampleRatio;
 	}
 	
 	public int findThetaJoinHybridAll( int qSize, int indexK, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords, boolean oneSideJoin ) {
@@ -403,44 +402,44 @@ public class DeltaEstimate {
 			}
 
 			long curr_naive_term2 = (sidx==0?0:naive_term2[sidx-1]);
-			long curr_mh_term2 = (mh_term2[tableSearchedSize-1] - (sidx==0?0:mh_term2[sidx-1]));
-			long curr_mh_term3 = (mh_term3[tableSearchedSize-1] - (sidx==0?0:mh_term3[sidx-1]));
-			long curr_min_term2 = (min_term2[tableSearchedSize-1] - (sidx==0?0:min_term2[sidx-1]));
-			long curr_min_term3 = (min_term3[tableSearchedSize-1] - (sidx==0?0:min_term3[sidx-1]));
+			long curr_FK_term2 = (fk_term2[tableSearchedSize-1] - (sidx==0?0:fk_term2[sidx-1]));
+			long curr_FK_term3 = (fk_term3[tableSearchedSize-1] - (sidx==0?0:fk_term3[sidx-1]));
+			long curr_BK_term2 = (bk_term2[tableSearchedSize-1] - (sidx==0?0:bk_term2[sidx-1]));
+			long curr_BK_term3 = (bk_term3[tableSearchedSize-1] - (sidx==0?0:bk_term3[sidx-1]));
 			
 			double naiveEstimation = this.getEstimateNaive( naive_term1, curr_naive_term2);
 			// currExpLengthSize: sum of lengths of records in sampleIndexedSet
 			// currExpSize: sum of estimated number of transformations of records in sampleSearchedSet
 
-			double joinmhEstimation = this.getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3);
+			double joinFKEstimation = this.getEstimateJoinFK( fk_term1, curr_FK_term2, curr_FK_term3);
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 			// totalJoinMHInvokes: the sum of the minimum number of records to be verified with t for every t in sampleIndexedSet
 			// removedJoinMHComparison: 
 
-			double joinminEstimation = this.getEstimateJoinMin( min_term1, curr_min_term2, curr_min_term3);
+			double joinBKEstimation = this.getEstimateJoinBK( bk_term1, curr_BK_term2, curr_BK_term3);
 			// searchedTotalSigCount: the sum of the size of TPQ superset of records in sampleSearchedSet
 			// indexedTotalSigCount: the number of pos qgrams from records in sampleIndexedSet
 
-			boolean tempJoinMinSelected = joinminEstimation < joinmhEstimation;
+			boolean tempJoinBKSelected = joinBKEstimation < joinFKEstimation;
 
 			System.out.print( (sidx)+"\t" );
 			System.out.print( sampleSearchedNumEstTrans+"\t" );
 			System.out.print(naive_term1+"\t");
 			System.out.print(curr_naive_term2+"\t");
-			System.out.print( mh_term1+"\t");
-			System.out.print( curr_mh_term2+"\t" );
-			System.out.print( curr_mh_term3+"\t" );
-			System.out.print(min_term1+"\t");
-			System.out.print(curr_min_term2+"\t");
-			System.out.print(curr_min_term3+"\t");
+			System.out.print( fk_term1+"\t");
+			System.out.print( curr_FK_term2+"\t" );
+			System.out.print( curr_FK_term3+"\t" );
+			System.out.print(bk_term1+"\t");
+			System.out.print(curr_BK_term2+"\t");
+			System.out.print(curr_BK_term3+"\t");
 			System.out.print("|\t");
 			System.out.print(currentThreshold+"\t");
 			System.out.print(naiveEstimation+"\t");
-			System.out.print(joinmhEstimation+"\t");
-			System.out.print((naiveEstimation+joinmhEstimation)+"\t");
-			System.out.print(joinminEstimation+"\t");
-			System.out.print((naiveEstimation+joinminEstimation)+"\t");
+			System.out.print(joinFKEstimation+"\t");
+			System.out.print((naiveEstimation+joinFKEstimation)+"\t");
+			System.out.print(joinBKEstimation+"\t");
+			System.out.print((naiveEstimation+joinBKEstimation)+"\t");
 			System.out.println(  );
 			
 			try {
@@ -456,22 +455,22 @@ public class DeltaEstimate {
 
 				// FKP
 				bw_log.write( String.format( "%d\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
-						mh_term1, curr_mh_term2, curr_mh_term3,
-						coeff_mh_1*mh_term1/1e6, coeff_mh_2*curr_mh_term2/1e6, coeff_mh_3*curr_mh_term3/1e6,
-						getEstimateJoinMH( mh_term1, curr_mh_term2, curr_mh_term3)/1e6,
-						coeff_mh_1*mh_term1/sampleRatio/1e6, coeff_mh_2*curr_mh_term2/sampleRatio/1e6, 
-						coeff_mh_3*curr_mh_term3/sampleRatio/sampleRatio/1e6, 
-						getEstimateJoinMH( mh_term1/sampleRatio, curr_mh_term2/sampleRatio, curr_mh_term3/sampleRatio/sampleRatio)/1e6
+						fk_term1, curr_FK_term2, curr_FK_term3,
+						coeff_FK_1*fk_term1/1e6, coeff_FK_2*curr_FK_term2/1e6, coeff_FK_3*curr_FK_term3/1e6,
+						getEstimateJoinFK( fk_term1, curr_FK_term2, curr_FK_term3)/1e6,
+						coeff_FK_1*fk_term1/sampleRatio/1e6, coeff_FK_2*curr_FK_term2/sampleRatio/1e6, 
+						coeff_FK_3*curr_FK_term3/sampleRatio/sampleRatio/1e6, 
+						getEstimateJoinFK( fk_term1/sampleRatio, curr_FK_term2/sampleRatio, curr_FK_term3/sampleRatio/sampleRatio)/1e6
 						) );
 
 				// BKP
 				bw_log.write( String.format( "%d\t%d\t%d\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t|\t", 
-						min_term1, curr_min_term2, curr_min_term3, 
-						coeff_min_1*min_term1/1e6, coeff_min_2*curr_min_term2/1e6, coeff_min_3*curr_min_term3/1e6,
-						getEstimateJoinMin( min_term1, curr_min_term2, curr_min_term3 )/1e6,
-						coeff_min_1*min_term1/sampleRatio/1e6, coeff_min_2*curr_min_term2/sampleRatio/1e6, 
-						coeff_min_3*curr_min_term3/sampleRatio/sampleRatio/1e6, 
-						getEstimateJoinMin( min_term1/sampleRatio, curr_min_term2/sampleRatio, curr_min_term3/sampleRatio/sampleRatio)/1e6
+						bk_term1, curr_BK_term2, curr_BK_term3, 
+						coeff_BK_1*bk_term1/1e6, coeff_BK_2*curr_BK_term2/1e6, coeff_BK_3*curr_BK_term3/1e6,
+						getEstimateJoinBK( bk_term1, curr_BK_term2, curr_BK_term3 )/1e6,
+						coeff_BK_1*bk_term1/sampleRatio/1e6, coeff_BK_2*curr_BK_term2/sampleRatio/1e6, 
+						coeff_BK_3*curr_BK_term3/sampleRatio/sampleRatio/1e6, 
+						getEstimateJoinBK( bk_term1/sampleRatio, curr_BK_term2/sampleRatio, curr_BK_term3/sampleRatio/sampleRatio)/1e6
 						) );
 
 				bw_log.write( "\n" );
@@ -479,20 +478,14 @@ public class DeltaEstimate {
 			}
 			catch ( IOException e ) { e.printStackTrace(); }
 
-//			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMH): %.10e TT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
-//					naiveEstimation, joinmhEstimation, naiveEstimation + joinmhEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
-//			Util.printLog( String.format( "T: %d nT: %d NT: %.10e JT(JoinMin): %.10e TT: %.10e", currentThreshold, nextThreshold,
-//					naiveEstimation, joinminEstimation, naiveEstimation + joinminEstimation ) );
-//			Util.printLog( "JoinMin Selected " + tempJoinMinSelected );
-
 			double tempBestTime = naiveEstimation;
 
-			if( tempJoinMinSelected ) tempBestTime += joinminEstimation;
-			else tempBestTime += joinmhEstimation;
+			if( tempJoinBKSelected ) tempBestTime += joinBKEstimation;
+			else tempBestTime += joinFKEstimation;
 
 			if( bestEstTime > tempBestTime ) {
 				bestEstTime = tempBestTime;
-				joinMinSelected = tempJoinMinSelected;
+				joinBKSelected = tempJoinBKSelected;
 
 				if( currentThreshold < Integer.MAX_VALUE ) {
 					bestThreshold = (int) currentThreshold;
@@ -502,7 +495,7 @@ public class DeltaEstimate {
 				}
 
 				if( DEBUG.SampleStatON ) {
-					Util.printLog( "New Best " + bestThreshold + " with " + joinMinSelected );
+					Util.printLog( "New Best " + bestThreshold + " with " + joinBKSelected );
 				}
 			}
 
@@ -518,12 +511,12 @@ public class DeltaEstimate {
 
 		stat.add( "Auto_Best_Threshold", bestThreshold );
 		stat.add( "Auto_Best_Estimated_Time", bestEstTime );
-		stat.add( "Auto_JoinMin_Selected", "" + joinMinSelected );
+		stat.add( "Auto_JoinBK_Selected", "" + joinBKSelected );
 		return bestThreshold;
 	}
 
-	public boolean getJoinMinSelected() {
-		return joinMinSelected;
+	public boolean getJoinBKSelected() {
+		return joinBKSelected;
 	}
 
 	protected ObjectArrayList<Record> sampleRecords( List<Record> recordList, Random rn ) {
