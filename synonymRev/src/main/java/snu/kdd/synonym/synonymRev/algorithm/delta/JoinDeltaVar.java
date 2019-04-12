@@ -99,8 +99,7 @@ public class JoinDeltaVar extends AbstractPosQGramBasedAlgorithm {
 		JoinDeltaVarIndex.useLF = useLF;
 		JoinDeltaVarIndex.usePQF = usePQF;
 		JoinDeltaVarIndex.useSTPQ = useSTPQ;
-		idx = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax, distFunc);
-		idx.build();
+		idx = JoinDeltaVarIndex.getInstance(query, indexK, qSize, deltaMax, distFunc);
 	}
 
 	@Override

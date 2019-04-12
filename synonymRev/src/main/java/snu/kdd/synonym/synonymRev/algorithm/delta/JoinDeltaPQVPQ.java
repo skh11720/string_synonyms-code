@@ -12,7 +12,6 @@ public class JoinDeltaPQVPQ extends JoinDeltaVarBK {
 		JoinDeltaPQVPQIndex.usePQF = usePQF;
 		JoinDeltaPQVPQIndex.useSTPQ = useSTPQ;
 		idx = new JoinDeltaPQVPQIndex(query, indexK, qSize, deltaMax, distFunc, sampleB);
-		idx.build();
 	}
 
 	@Override

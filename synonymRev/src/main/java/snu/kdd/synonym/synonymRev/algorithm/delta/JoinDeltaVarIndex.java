@@ -72,8 +72,14 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	
 	private final IntArrayList firstKPosArr; // does not need to be sorted
 	public AlgStat algstat = new AlgStat();
+	
+	public static JoinDeltaVarIndex getInstance( Query query, int indexK, int qSize, int deltaMax, String dist ) {
+		JoinDeltaVarIndex index = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax, dist);
+		index.build();
+		return index;
+	}
 
-	public JoinDeltaVarIndex( Query query, int indexK, int qSize, int deltaMax, String dist ) {
+	protected JoinDeltaVarIndex( Query query, int indexK, int qSize, int deltaMax, String dist ) {
 		/*
 		 * methods called in here: insertRecordIntoIdxPD(Record)
 		 */
@@ -101,7 +107,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		qgramDelta_pad = new QGram( tokens );
 	}
 	
-	public void build() {
+	protected void build() {
 		// build idxPD
 		for ( Record recT : query.indexedSet.recordList ) {
 			if ( recT.size() <= deltaMax ) shortList.add(recT);

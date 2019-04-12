@@ -138,6 +138,36 @@ public class DeltaEstimate {
 		fk_term3 = new long[sampleSearchedList.size()];
 		bk_term2 = new long[sampleSearchedList.size()];
 		bk_term3 = new long[sampleSearchedList.size()];
+		inspectSample(query);
+	}
+	
+	public void inspectSample( final Query query ) {
+		
+		double avgTrans0 = getAvgEstTrans(query);
+		double avgTrans1 = getAvgEstTrans(sampleQuery);
+		double avgNAR0 = getAvgNumAppRules(query);
+		double avgNAR1 = getAvgNumAppRules(sampleQuery);
+		
+		System.out.println(String.format("AvgEstTrans: %.6f\t%.6f", avgTrans0, avgTrans1));
+		System.out.println(String.format("AvgNAR: %.6f\t%.6f", avgNAR0, avgNAR1));
+	}
+	
+	public double getAvgEstTrans( final Query query ) {
+		double avgTrans = 0;
+		for ( Record recS : query.searchedSet.recordList ) {
+			avgTrans += recS.getEstNumTransformed();
+		}
+		avgTrans /= query.searchedSet.size();
+		return avgTrans;
+	}
+	
+	public double getAvgNumAppRules( final Query query ) {
+		double avgNAR = 0;
+		for ( Record recS : query.searchedSet.recordList ) {
+			avgNAR += recS.getNumApplicableRules();
+		}
+		avgNAR /= query.searchedSet.size();
+		return avgNAR;
 	}
 	
 	public Object2DoubleMap<String> estimateJoinNaive() {
@@ -216,8 +246,7 @@ public class DeltaEstimate {
 		for (int i=0; i<indexK; ++i ) indexPosition[i] = i;
 
 		long ts = System.nanoTime();
-		JoinDeltaVarIndex joinFKInst = new JoinDeltaVarIndex(sampleQuery, indexK, qSize, deltaMax, dist);
-		joinFKInst.build();
+		JoinDeltaVarIndex joinFKInst = JoinDeltaVarIndex.getInstance(sampleQuery, indexK, qSize, deltaMax, dist);
 		double indexTime = (System.nanoTime() - ts)/1e6;
 		double joinTime = sampleJoinMH(joinFKInst);
 
@@ -272,8 +301,7 @@ public class DeltaEstimate {
 
 	public Object2DoubleMap<String> estimateJoinBK() {
 		long ts = System.nanoTime();
-		JoinDeltaVarBKIndex joinBKInst = new JoinDeltaVarBKIndex(sampleQuery, indexK, qSize, indexK, dist, sampleB);
-		joinBKInst.build();
+		JoinDeltaVarBKIndex joinBKInst = JoinDeltaVarBKIndex.getInstance(sampleQuery, indexK, qSize, indexK, dist, sampleB);
 		double indexTime = (System.nanoTime() - ts)/1e6;
 		double joinTime = sampleJoinBK(joinBKInst);
 
@@ -341,7 +369,7 @@ public class DeltaEstimate {
 				+ coeff_BK_3 * term3 / sampleRatio / sampleRatio;
 	}
 	
-	public int findThetaJoinHybridAll( int qSize, int indexK, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords, boolean oneSideJoin ) {
+	public int findThetaJoinHybridAll( StatContainer stat ) {
 		// Find the best threshold
 		int bestThreshold = 0;
 //		double bestEstTime = Double.MAX_VALUE;
@@ -353,15 +381,10 @@ public class DeltaEstimate {
 		sampleSearchedNumEstTrans = 0;
 //		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
 		long currentThreshold = 0;
-		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 //		int tableIndexedSize = sampleIndexedList.size();
 		int tableSearchedSize = sampleSearchedList.size();
 
 		boolean stop = false;
-		if( maxThreshold == Long.MAX_VALUE ) {
-			stop = true;
-		}
-
 		while( sidx < tableSearchedSize ) {
 			if( currentThreshold > 100000 ) {
 //				Util.printLog( "Current Threshold is more than 100000" );
@@ -541,21 +564,35 @@ public class DeltaEstimate {
 		ObjectArrayList<Record> sampledList = new ObjectArrayList<Record>();
 		List<Record> searchedList = new ArrayList<Record>( recordList );
 		Collections.sort( searchedList, comp );
-		int n_stratum = 20;
-		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
-			System.out.println( stratum_idx+"\t"+searchedList.size()/n_stratum*stratum_idx+"\t"+searchedList.get( searchedList.size()/n_stratum*stratum_idx ).getEstNumTransformed() );
-		}
 		
-		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
-			int start = searchedList.size()/n_stratum*stratum_idx;
-			int end = searchedList.size()/n_stratum*(stratum_idx+1);
-			for ( int i=start; i<end; ++i ) {
-				if (rn.nextDouble() < this.sampleRatio) {
-					sampledList.add( searchedList.get( i ) );
+		int n_strat = getStratID( searchedList.get(searchedList.size()-1) ) + 1;
+		int[] bound = new int[n_strat+1]; // right exclusive
+		for ( int i=0; i<searchedList.size(); ++i ) {
+			int strat_id = getStratID(searchedList.get(i));
+			bound[strat_id+1] = i+1;
+		}
+		bound[bound.length-1] = searchedList.size();
+		for ( int j=0; j<n_strat; ++j ) {
+			if ( bound[j+1]	== 0 ) bound[j+1] = bound[j];
+		}
+
+		for ( int j=0; j<n_strat; ++j ) {
+			if (bound[j+1] - bound[j] == 0) continue;
+			// NOTE: sample at least one item from each strata.
+			int strat_size = Math.max(1, (int)((bound[j+1]-bound[j])*sampleRatio));
+			double p = 1.0*strat_size/(bound[j+1]-bound[j]);
+			
+			for ( int i=bound[j]; i<bound[j+1]; ++i ) {
+				if ( rn.nextDouble() < p ) {
+					sampledList.add( searchedList.get(i) );
 				}
 			}
 		}
 		return sampledList;
+	}
+
+	protected int getStratID( Record rec ) {
+		return (int)Math.floor( Math.log10( rec.getEstNumTransformed() ) );
 	}
 
 	protected class RecordComparator implements Comparator<Record> {
