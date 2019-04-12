@@ -76,7 +76,7 @@ public class DeltaEstimate {
 	protected boolean joinBKSelected = false;
 
 	protected Query sampleQuery;
-	protected boolean stratified = true;
+	protected boolean stratified = false;
 	public int sampleSearchedSize;
 	public long sampleSearchedNumEstTrans;
 	protected ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
@@ -564,21 +564,35 @@ public class DeltaEstimate {
 		ObjectArrayList<Record> sampledList = new ObjectArrayList<Record>();
 		List<Record> searchedList = new ArrayList<Record>( recordList );
 		Collections.sort( searchedList, comp );
-		int n_stratum = 20;
-		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
-			System.out.println( stratum_idx+"\t"+searchedList.size()/n_stratum*stratum_idx+"\t"+searchedList.get( searchedList.size()/n_stratum*stratum_idx ).getEstNumTransformed() );
-		}
 		
-		for ( int stratum_idx=0; stratum_idx<n_stratum; ++stratum_idx ) {
-			int start = searchedList.size()/n_stratum*stratum_idx;
-			int end = searchedList.size()/n_stratum*(stratum_idx+1);
-			for ( int i=start; i<end; ++i ) {
-				if (rn.nextDouble() < this.sampleRatio) {
-					sampledList.add( searchedList.get( i ) );
+		int n_strat = getStratID( searchedList.get(searchedList.size()-1) ) + 1;
+		int[] bound = new int[n_strat+1]; // right exclusive
+		for ( int i=0; i<searchedList.size(); ++i ) {
+			int strat_id = getStratID(searchedList.get(i));
+			bound[strat_id+1] = i+1;
+		}
+		bound[bound.length-1] = searchedList.size();
+		for ( int j=0; j<n_strat; ++j ) {
+			if ( bound[j+1]	== 0 ) bound[j+1] = bound[j];
+		}
+
+		for ( int j=0; j<n_strat; ++j ) {
+			if (bound[j+1] - bound[j] == 0) continue;
+			// NOTE: sample at least one item from each strata.
+			int strat_size = Math.max(1, (int)((bound[j+1]-bound[j])*sampleRatio));
+			double p = 1.0*strat_size/(bound[j+1]-bound[j]);
+			
+			for ( int i=bound[j]; i<bound[j+1]; ++i ) {
+				if ( rn.nextDouble() < p ) {
+					sampledList.add( searchedList.get(i) );
 				}
 			}
 		}
 		return sampledList;
+	}
+
+	protected int getStratID( Record rec ) {
+		return (int)Math.floor( Math.log10( rec.getEstNumTransformed() ) );
 	}
 
 	protected class RecordComparator implements Comparator<Record> {
