@@ -138,6 +138,36 @@ public class DeltaEstimate {
 		fk_term3 = new long[sampleSearchedList.size()];
 		bk_term2 = new long[sampleSearchedList.size()];
 		bk_term3 = new long[sampleSearchedList.size()];
+		inspectSample(query);
+	}
+	
+	public void inspectSample( final Query query ) {
+		
+		double avgTrans0 = getAvgEstTrans(query);
+		double avgTrans1 = getAvgEstTrans(sampleQuery);
+		double avgNAR0 = getAvgNumAppRules(query);
+		double avgNAR1 = getAvgNumAppRules(sampleQuery);
+		
+		System.out.println(String.format("AvgEstTrans: %.6f\t%.6f", avgTrans0, avgTrans1));
+		System.out.println(String.format("AvgNAR: %.6f\t%.6f", avgNAR0, avgNAR1));
+	}
+	
+	public double getAvgEstTrans( final Query query ) {
+		double avgTrans = 0;
+		for ( Record recS : query.searchedSet.recordList ) {
+			avgTrans += recS.getEstNumTransformed();
+		}
+		avgTrans /= query.searchedSet.size();
+		return avgTrans;
+	}
+	
+	public double getAvgNumAppRules( final Query query ) {
+		double avgNAR = 0;
+		for ( Record recS : query.searchedSet.recordList ) {
+			avgNAR += recS.getNumApplicableRules();
+		}
+		avgNAR /= query.searchedSet.size();
+		return avgNAR;
 	}
 	
 	public Object2DoubleMap<String> estimateJoinNaive() {
