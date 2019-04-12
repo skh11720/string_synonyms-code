@@ -28,9 +28,6 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	protected JoinDeltaVarBKIndex joinBKIndex = null;
 	protected JoinDeltaVarIndex joinFKIndex = null;
 
-	protected long maxSearchedEstNumRecords = 0;
-	protected long maxIndexedEstNumRecords = 0;
-
 
 	public JoinDeltaHybrid(String[] args) {
 		super(args);
@@ -62,17 +59,19 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 		stat.add("Param_usePQF", usePQF);
 		stat.add("Param_useSTPQ", useSTPQ);
 	}
-
+	
 	@Override
-	protected void executeJoin() {
-		StopWatch estimateTime = StopWatch.getWatchStarted( "Result_2_1_Estimation_Time" );
+	protected void preprocess() {
+		super.preprocess();
+
+		StopWatch estimateTime = StopWatch.getWatchStarted(ESTIMATION_TIME);
 		StatContainer statEst = new StatContainer();
 		int[] list_thres = new int[nEst];
 		double[] list_bestTime = new double[nEst];
 		boolean[] list_bkSelected= new boolean[nEst];
 		for ( int i=0; i<nEst; ++i ) {
 			findConstants( sampleH, statEst );
-			list_thres[i] = estimate.findThetaJoinHybridAll( qSize, indexK, statEst, maxIndexedEstNumRecords, maxSearchedEstNumRecords, query.oneSideJoin );
+			list_thres[i] = estimate.findThetaJoinHybridAll(statEst);
 			list_bkSelected[i] = estimate.getJoinBKSelected();
 			list_bestTime[i] = estimate.bestEstTime;
 		}
@@ -88,7 +87,7 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 				joinThreshold = list_thres[i];
 				joinBKSelected = list_bkSelected[i];
 			}
-			System.out.println( list_thres[i]+"\t"+list_bestTime[i]+"\t"+list_bkSelected[i] );
+//			System.out.println( list_thres[i]+"\t"+list_bestTime[i]+"\t"+list_bkSelected[i] );
 		}
 
 		Util.printLog( "Selected Threshold: " + joinThreshold );
@@ -100,7 +99,10 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 		stat.add( "Estimate_Var_Threshold", var );
 		stat.add( "Estimate_JoinBKSelected", joinBKSelected? "true":"false" );
 		estimateTime.stopAndAdd( stat );
-		
+	}
+
+	@Override
+	protected void executeJoin() {
 		buildIndex();
 		
 		// join
@@ -160,9 +162,11 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	@Override
 	protected void buildIndex() {
 		StopWatch buildTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
+		long maxSearchedEstNumRecords = computeMaxEstTransNum();
 		if ( maxSearchedEstNumRecords <= joinThreshold ) {
 			joinQGramRequired = false; // in this case both joinFK and joinBK are not used.
 		}
+		stat.add("JoinQGramRequired:", joinQGramRequired);
 
 		if( joinQGramRequired ) {
 			if( joinBKSelected ) buildJoinBKIndex();
@@ -172,12 +176,23 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 		buildTime.stopAndAdd( stat );
 	}
 
+    private long computeMaxEstTransNum() {
+        long estTransNum = 0;
+        for( Record rec : query.searchedSet.get() ) {
+            if( estTransNum < rec.getEstNumTransformed() ) {
+                estTransNum = rec.getEstNumTransformed();
+            }
+        }
+        stat.add( "MaxSearchedEstNumRecords", estTransNum );
+        return estTransNum;
+    }
+
 	protected void buildJoinBKIndex() {
-		joinBKIndex= new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, distFunc, sampleB);
+		joinBKIndex= JoinDeltaVarBKIndex.getInstance(query, indexK, qSize, deltaMax, distFunc, sampleB);
 	}
 
 	protected void buildJoinFKIndex() {
-		joinFKIndex = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax, distFunc);
+		joinFKIndex = JoinDeltaVarIndex.getInstance(query, indexK, qSize, deltaMax, distFunc);
 	}
 
 	protected void buildNaiveIndex() {

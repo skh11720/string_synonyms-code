@@ -47,29 +47,22 @@ public class JoinDeltaVarBKIndex extends JoinDeltaVarIndex {
 	 */
 	
 	protected final double sampleB;
+	
+	
+	
+	public static JoinDeltaVarBKIndex getInstance( Query query, int indexK, int qSize, int deltaMax, String dist, double sampleB ) {
+		JoinDeltaVarBKIndex index = new JoinDeltaVarBKIndex(query, indexK, qSize, deltaMax, dist, sampleB);
+		index.build();
+		return index;
+	}
 
-	public JoinDeltaVarBKIndex( Query query, int indexK, int qSize, int deltaMax, String dist, double sampleB ) {
+	protected JoinDeltaVarBKIndex( Query query, int indexK, int qSize, int deltaMax, String dist, double sampleB ) {
 		super(query, indexK, qSize, deltaMax, dist);
 		this.sampleB = sampleB;
 		this.posCounter = new Int2IntOpenHashMap();
 		this.countMapVTPQ = countQGramsInSTPQ();
 	}
 	
-	protected List<Record> prepareCountQGrams() {
-		/*
-		 * return a sample of records, instead of the whole records in searchedSet.
-		 */
-		Random rn = new Random( System.currentTimeMillis() );
-		ObjectArrayList<Record> searchedList = new ObjectArrayList<>();
-		for( Record r : query.searchedSet.recordList ) {
-			if ( r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
-			if( rn.nextDouble() < this.sampleB ) {
-				searchedList.add( r );
-			}
-		}
-		return searchedList;
-	}
-
 	@Deprecated
 	protected List<Set<QGram>> getVarPQ( Record rec ) {
 		/*
@@ -119,6 +112,27 @@ public class JoinDeltaVarBKIndex extends JoinDeltaVarIndex {
 		} // end for rec in searchedSet
 		
 		return countMapVTPQ;
+	}
+
+	protected List<Record> prepareCountQGrams() {
+		/*
+		 * return a sample of records, instead of the whole records in searchedSet.
+		 */
+		Random rn = new Random( System.currentTimeMillis() );
+		ObjectArrayList<Record> searchedList = new ObjectArrayList<>();
+		
+		for( Record r : query.searchedSet.recordList ) {
+			if ( r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if( rn.nextDouble() < this.sampleB ) {
+				searchedList.add( r );
+			}
+		}
+		
+		// prevent empty sample list
+		if ( searchedList.size() == 0 )
+			searchedList.add( query.searchedSet.getRecord( rn.nextInt( query.searchedSet.size() ) ) );
+
+		return searchedList;
 	}
 
 	@Override

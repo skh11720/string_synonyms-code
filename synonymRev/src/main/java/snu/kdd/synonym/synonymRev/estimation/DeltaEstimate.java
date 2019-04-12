@@ -76,7 +76,7 @@ public class DeltaEstimate {
 	protected boolean joinBKSelected = false;
 
 	protected Query sampleQuery;
-	protected boolean stratified = false;
+	protected boolean stratified = true;
 	public int sampleSearchedSize;
 	public long sampleSearchedNumEstTrans;
 	protected ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
@@ -246,8 +246,7 @@ public class DeltaEstimate {
 		for (int i=0; i<indexK; ++i ) indexPosition[i] = i;
 
 		long ts = System.nanoTime();
-		JoinDeltaVarIndex joinFKInst = new JoinDeltaVarIndex(sampleQuery, indexK, qSize, deltaMax, dist);
-		joinFKInst.build();
+		JoinDeltaVarIndex joinFKInst = JoinDeltaVarIndex.getInstance(sampleQuery, indexK, qSize, deltaMax, dist);
 		double indexTime = (System.nanoTime() - ts)/1e6;
 		double joinTime = sampleJoinMH(joinFKInst);
 
@@ -302,8 +301,7 @@ public class DeltaEstimate {
 
 	public Object2DoubleMap<String> estimateJoinBK() {
 		long ts = System.nanoTime();
-		JoinDeltaVarBKIndex joinBKInst = new JoinDeltaVarBKIndex(sampleQuery, indexK, qSize, indexK, dist, sampleB);
-		joinBKInst.build();
+		JoinDeltaVarBKIndex joinBKInst = JoinDeltaVarBKIndex.getInstance(sampleQuery, indexK, qSize, indexK, dist, sampleB);
 		double indexTime = (System.nanoTime() - ts)/1e6;
 		double joinTime = sampleJoinBK(joinBKInst);
 
@@ -371,7 +369,7 @@ public class DeltaEstimate {
 				+ coeff_BK_3 * term3 / sampleRatio / sampleRatio;
 	}
 	
-	public int findThetaJoinHybridAll( int qSize, int indexK, StatContainer stat, long maxIndexedEstNumRecords, long maxSearchedEstNumRecords, boolean oneSideJoin ) {
+	public int findThetaJoinHybridAll( StatContainer stat ) {
 		// Find the best threshold
 		int bestThreshold = 0;
 //		double bestEstTime = Double.MAX_VALUE;
@@ -383,15 +381,10 @@ public class DeltaEstimate {
 		sampleSearchedNumEstTrans = 0;
 //		long currentThreshold = Math.min( sampleSearchedList.get( 0 ).getEstNumTransformed(), sampleIndexedList.get( 0 ).getEstNumTransformed() );
 		long currentThreshold = 0;
-		long maxThreshold = Long.min( maxIndexedEstNumRecords, maxSearchedEstNumRecords );
 //		int tableIndexedSize = sampleIndexedList.size();
 		int tableSearchedSize = sampleSearchedList.size();
 
 		boolean stop = false;
-		if( maxThreshold == Long.MAX_VALUE ) {
-			stop = true;
-		}
-
 		while( sidx < tableSearchedSize ) {
 			if( currentThreshold > 100000 ) {
 //				Util.printLog( "Current Threshold is more than 100000" );

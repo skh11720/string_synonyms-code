@@ -124,8 +124,7 @@ public class DeltaHybridEstimationTest {
 	String[] getStatJoinVB( Query query, int deltaMax, double sampleRatio ) {
 		Query sampleQuery = getSampleQuery(query, sampleRatio);
 		long ts = System.nanoTime();
-		JoinDeltaVarBKIndex idx = new JoinDeltaVarBKIndex(sampleQuery, indexK, qSize, deltaMax, dist, 1);
-		idx.build();
+		JoinDeltaVarBKIndex idx = JoinDeltaVarBKIndex.getInstance(sampleQuery, indexK, qSize, deltaMax, dist, 1);
 		double t_index = (System.nanoTime()-ts)/1e6;
 		DeltaValidatorDPTopDown checker = new DeltaValidatorDPTopDown(deltaMax, dist);
 		StatContainer stat = new StatContainer();
