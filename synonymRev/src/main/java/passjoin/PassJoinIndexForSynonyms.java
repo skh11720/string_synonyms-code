@@ -70,7 +70,7 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 	public double coeff2; // substring enumeration time / sum of len(searched record)
 	public double coeff3; // verification time / sum of (len(searched record) * #verified indexed records))
 	
-	public PassJoinIndexForSynonyms( Query query, int deltaMax, StatContainer stat ) {
+	public PassJoinIndexForSynonyms( Query query, int deltaMax, String distFunc, StatContainer stat ) {
 		indexedList = new ObjectArrayList<>(query.indexedSet.recordList);
 		searchedList = new ObjectArrayList<>(query.searchedSet.recordList);
 //		indexedList = query.indexedSet.recordList;
@@ -281,9 +281,9 @@ public class PassJoinIndexForSynonyms extends AbstractIndex {
 //								if (debug) System.out.println( "edit(x[Lo+pLen:], y[stPos+pLen:]): "+ Util.edit(x, y, D - partId, Lo + pLen, stPos + pLen, -1, -1) );
 //								if (debug) System.out.println( "edit(x, y): "+ Util.edit(x, y, D, 0, 0, -1, -1) );
 							if (partId == D) checked_ids.add(cand);
-							if (partId == 0 || Util.lcs(x, y, partId, 0, 0, Lo, stPos) <= partId) {
+							if (partId == 0 || ((PassJoinValidator)checker).partialDistGivenThres.eval(x, y, partId, 0, 0, Lo, stPos) <= partId) {
 								if (partId == 0) checked_ids.add(cand);
-								if (partId == D || Util.lcs(x, y, D - partId, Lo + pLen, stPos + pLen, -1, -1) <= D - partId) {
+								if (partId == D || ((PassJoinValidator)checker).partialDistGivenThres.eval(x, y, D - partId, Lo + pLen, stPos + pLen, -1, -1) <= D - partId) {
 //										if (debug) System.out.println( "d_edit: "+Util.edit(x, y, D, 0, 0, -1, -1) );
 									if ( checker.isEqual( candRecord, exp ) >= 0 ) {
 //									if (Util.edit(x, y, D, 0, 0, -1, -1) <= D) {

@@ -22,7 +22,7 @@ public class PassJoinIndexTest {
 	@Test
 	public void test() {
 		int deltaMax = 1;
-		PassJoinIndexForSynonyms index = new PassJoinIndexForSynonyms( query, deltaMax, new StatContainer() );
+		PassJoinIndexForSynonyms index = new PassJoinIndexForSynonyms( query, deltaMax, "lcs", new StatContainer() );
 		ResultSet rslt = index.join(query, null, null, true );
 		System.out.println( rslt.size() );
 	}
