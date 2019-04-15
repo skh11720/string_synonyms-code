@@ -636,6 +636,16 @@ public class Util {
 			dataTwoPath = prefix + String.format( "UNIV_01"+sep+"UNIV_01_data.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
+		else if ( name.equals( "UNIV_02" ) ) {
+			dataOnePath = prefix + String.format( "UNIV_02"+sep+"UNIV_02_data.txt" );
+			dataTwoPath = prefix + String.format( "UNIV_02"+sep+"UNIV_02_data.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "UNIV_03" ) ) {
+			dataOnePath = prefix + String.format( "UNIV_03"+sep+"UNIV_03_data.txt" );
+			dataTwoPath = prefix + String.format( "UNIV_03"+sep+"UNIV_03_data.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
 		else if ( name.equals( "CONF_00" ) ) {
 			dataOnePath = prefix + String.format( "CONF_00"+sep+"CONF_00_data.txt" );
 			dataTwoPath = prefix + String.format( "CONF_00"+sep+"CONF_00_data.txt" );
@@ -710,6 +720,12 @@ public class Util {
 		}
 		else if ( name.equals( "UNIV_01" ) ) {
 			return prefix + "UNIV_01"+sep+"UNIV_01_groundtruth.txt";
+		}
+		else if ( name.equals( "UNIV_02" ) ) {
+			return prefix + "UNIV_02"+sep+"UNIV_02_groundtruth.txt";
+		}
+		else if ( name.equals( "UNIV_03" ) ) {
+			return prefix + "UNIV_03"+sep+"UNIV_03_groundtruth.txt";
 		}
 		else if ( name.equals( "CONF_00" ) ) {
 			return prefix + "CONF_00"+sep+"CONF_00_groundtruth.txt";

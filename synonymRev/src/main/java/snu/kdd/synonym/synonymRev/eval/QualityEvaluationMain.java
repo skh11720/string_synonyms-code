@@ -55,7 +55,7 @@ public class QualityEvaluationMain {
 		if (alg.equals("JoinDeltaVarBK")) {
 			exe_args[1] = alg;
 			exe_args[5] = String.format("\"-K 1 -qSize 2 -delta %d -dist %s -sampleB 0.01\"", deltaMax, dist);
-			resultStr = String.format("%s\t%s\t%d\t:", dataName, alg, deltaMax);
+			resultStr = String.format("%s\t%s\t%d\t:", dataName, alg+"_"+dist, deltaMax);
 		}
 		else if (alg.equals("JoinPkduck")) {
 			exe_args[1] = "JoinPkduckOriginal";
