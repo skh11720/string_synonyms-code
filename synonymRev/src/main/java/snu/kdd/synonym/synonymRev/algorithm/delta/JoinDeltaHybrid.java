@@ -28,6 +28,11 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	protected JoinDeltaNaiveIndex naiveIndex;
 	protected JoinDeltaVarBKIndex joinBKIndex = null;
 	protected JoinDeltaVarIndex joinFKIndex = null;
+	
+	protected final int indexK_fk = 3;
+	protected final int qSize_fk = 4;
+	protected final int indexK_bk = 2;
+	protected final int qSize_bk = 2;
 
 
 	public JoinDeltaHybrid(String[] args) {
@@ -190,11 +195,11 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
     }
 
 	protected void buildJoinBKIndex() {
-		joinBKIndex= JoinDeltaVarBKIndex.getInstance(query, indexK, qSize, deltaMax, distFunc, sampleB);
+		joinBKIndex= JoinDeltaVarBKIndex.getInstance(query, indexK_bk, qSize_bk, deltaMax, distFunc, sampleB);
 	}
 
 	protected void buildJoinFKIndex() {
-		joinFKIndex = JoinDeltaVarIndex.getInstance(query, indexK, qSize, deltaMax, distFunc);
+		joinFKIndex = JoinDeltaVarIndex.getInstance(query, indexK_fk, qSize_fk, deltaMax, distFunc);
 	}
 
 	protected void buildNaiveIndex() {
@@ -242,8 +247,9 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
+		 * 1.01: change default paramters for fk and bk
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override
