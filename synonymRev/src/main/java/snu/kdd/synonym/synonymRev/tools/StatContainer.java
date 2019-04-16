@@ -82,6 +82,16 @@ public class StatContainer {
 		}
 		throw new RuntimeException("StatContainer has no such key: "+key);
 	}
+	
+	public String getString( String key ) {
+		for ( int i=0; i<primaryNameList.size(); ++i ) {
+			if ( primaryNameList.get(i).equals(key) ) return primaryValueList.get(i);
+		}
+		for ( int i=0; i<nameList.size(); ++i ) {
+			if ( nameList.get(i).equals(key) ) return valueList.get(i);
+		}
+		throw new RuntimeException("StatContainer has no such key: "+key);
+	}
 
 	public String getLegend( int[] primarykeyblank, int[] keyblank ) {
 		final StringBuilder legendBuilder = new StringBuilder();
