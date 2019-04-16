@@ -18,6 +18,7 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	public final String distFunc;
 	public final double sampleB;
 	public final double sampleH;
+	public final boolean stratified = false;
 
 	protected int nEst = 1;
 	protected int joinThreshold = 1;
@@ -98,6 +99,7 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 		stat.add( "Estimate_Mean_Threshold", mean );
 		stat.add( "Estimate_Var_Threshold", var );
 		stat.add( "Estimate_JoinBKSelected", joinBKSelected? "true":"false" );
+		stat.add( "EStimate_Stratified", stratified? "true":"false");
 		estimateTime.stopAndAdd( stat );
 	}
 

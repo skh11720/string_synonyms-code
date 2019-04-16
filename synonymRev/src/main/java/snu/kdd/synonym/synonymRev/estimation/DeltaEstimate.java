@@ -76,7 +76,7 @@ public class DeltaEstimate {
 	protected boolean joinBKSelected = false;
 
 	protected Query sampleQuery;
-	protected boolean stratified = false;
+	protected final boolean stratified;
 	public int sampleSearchedSize;
 	public long sampleSearchedNumEstTrans;
 	protected ObjectArrayList<Record> sampleSearchedList = new ObjectArrayList<Record>();
@@ -90,6 +90,7 @@ public class DeltaEstimate {
 		this.dist = alg.distFunc;
 		this.sampleRatio = alg.sampleH;
 		this.sampleB = alg.sampleB;
+		this.stratified = alg.stratified;
 
 		try { 
 			String logFileName = String.format( "SampleEst_%s_%.2f", query.dataInfo.getName(), sampleRatio );
