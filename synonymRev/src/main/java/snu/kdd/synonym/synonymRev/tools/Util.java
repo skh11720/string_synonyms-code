@@ -621,6 +621,11 @@ public class Util {
 			dataTwoPath = prefix + String.format( "NAMES_02"+sep+"NAMES_02_sport.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
+		else if ( name.equals( "NAMES_03" ) ) {
+			dataOnePath = prefix + String.format( "NAMES_03"+sep+"NAMES_03_freebase.txt" );
+			dataTwoPath = prefix + String.format( "NAMES_03"+sep+"NAMES_03_sport.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
 		else if ( name.equals( "UNIV_00" ) ) {
 			dataOnePath = prefix + String.format( "UNIV_00"+sep+"UNIV_00_data.txt" );
 			dataTwoPath = prefix + String.format( "UNIV_00"+sep+"UNIV_00_data.txt" );
@@ -629,6 +634,16 @@ public class Util {
 		else if ( name.equals( "UNIV_01" ) ) {
 			dataOnePath = prefix + String.format( "UNIV_01"+sep+"UNIV_01_data.txt" );
 			dataTwoPath = prefix + String.format( "UNIV_01"+sep+"UNIV_01_data.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "UNIV_02" ) ) {
+			dataOnePath = prefix + String.format( "UNIV_02"+sep+"UNIV_02_data.txt" );
+			dataTwoPath = prefix + String.format( "UNIV_02"+sep+"UNIV_02_data.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "UNIV_03" ) ) {
+			dataOnePath = prefix + String.format( "UNIV_03"+sep+"UNIV_03_data.txt" );
+			dataTwoPath = prefix + String.format( "UNIV_03"+sep+"UNIV_03_data.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.equals( "CONF_00" ) ) {
@@ -697,11 +712,20 @@ public class Util {
 		else if ( name.equals( "NAMES_02" ) ) {
 			return prefix + "NAMES_02"+sep+"NAMES_02_groundtruth.txt"	;
 		}
+		else if ( name.equals( "NAMES_03" ) ) {
+			return prefix + "NAMES_03"+sep+"NAMES_03_groundtruth.txt"	;
+		}
 		else if ( name.equals( "UNIV_00" ) ) {
 			return prefix + "UNIV_00"+sep+"UNIV_00_groundtruth.txt";
 		}
 		else if ( name.equals( "UNIV_01" ) ) {
 			return prefix + "UNIV_01"+sep+"UNIV_01_groundtruth.txt";
+		}
+		else if ( name.equals( "UNIV_02" ) ) {
+			return prefix + "UNIV_02"+sep+"UNIV_02_groundtruth.txt";
+		}
+		else if ( name.equals( "UNIV_03" ) ) {
+			return prefix + "UNIV_03"+sep+"UNIV_03_groundtruth.txt";
 		}
 		else if ( name.equals( "CONF_00" ) ) {
 			return prefix + "CONF_00"+sep+"CONF_00_groundtruth.txt";
