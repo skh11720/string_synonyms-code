@@ -8,16 +8,12 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.ParseException;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import snu.kdd.synonym.synonymRev.App;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmFactory;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmStatInterface;
-import snu.kdd.synonym.synonymRev.algorithm.JoinMH;
 import snu.kdd.synonym.synonymRev.data.Query;
-import snu.kdd.synonym.synonymRev.tools.AlgorithmResultQualityEvaluator;
 import snu.kdd.synonym.synonymRev.tools.Stat;
 import snu.kdd.synonym.synonymRev.tools.StatContainer;
 import snu.kdd.synonym.synonymRev.tools.Util;
@@ -62,7 +58,12 @@ public class FilterPowerTestMain {
 			alg.getStat().printResult();
 			StatContainer stat = alg.getStat();
 			for ( String key : new String[] {AlgorithmStatInterface.TOTAL_RUNNING_TIME, AlgorithmStatInterface.FINAL_RESULT_SIZE, Stat.CAND_PQGRAM_COUNT, Stat.NUM_VERIFY} ) {
-				strbld.append("\t"+stat.getString(key));
+				try {
+					strbld.append("\t"+stat.getString(key));
+				}
+				catch ( RuntimeException e 	) {
+					strbld.append("\t-");
+				}
 			}
 		}
 		catch ( OutOfMemoryError e ) {
