@@ -189,7 +189,7 @@ public class DeltaEstimate {
 			}
 			else {
 				naiveinst.joinOneRecord( recS, rslt, checker );
-				naive_term2[i] = naiveinst.algstat.numCand;
+				naive_term2[i] = naiveinst.algstat.numTransS;
 //				naive_term3[i] = naiveinst.verifyCost;
 //				naive_term3[i] = naiveinst.expCount*sampleIndexedList.size();
 			}
