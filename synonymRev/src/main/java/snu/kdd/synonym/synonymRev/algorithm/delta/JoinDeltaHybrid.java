@@ -247,7 +247,7 @@ public class JoinDeltaHybrid extends AbstractPosQGramBasedAlgorithm {
 	public String getVersion() {
 		/*
 		 * 1.00: initial version
-		 * 1.01: change default paramters for fk and bk
+		 * 1.01: change default paramters for fk and bk, set term2 = numTransS for JoinDeltaNaive
 		 */
 		return "1.01";
 	}
