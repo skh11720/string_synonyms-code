@@ -84,6 +84,7 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 		List<List<IntArrayList>> combListDelta = Util.getCombinationsAllByDelta( exp.size(), deltaMax );
 		for ( int d_s=0; d_s<=deltaMax; ++d_s ) {
 			for ( IntArrayList idxList : combListDelta.get(d_s) ) {
+				++algstat.numTransSD;
 				int key = getKey(exp.getTokensArray(), idxList);
 				for ( int d_t=0; d_t<=deltaMax-d_s; ++d_t ) {
 					if ( idx.get(d_t).containsKey(key) ) {
@@ -155,6 +156,7 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 
 		// term2
 		public long numTransS = 0;
+		public long numTransSD = 0;
 		public long numCand = 0;
 	}
 }
