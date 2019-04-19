@@ -74,6 +74,11 @@ public class QualityEvaluationMain {
 			exe_args[5] = String.format("\"-K 2 -verify GR1\"");
 			resultStr = String.format("%s\t%s\t:", dataName, alg);
 		}
+		else if (alg.equals("JoinSetNaive")) {
+			exe_args[1] = "JoinSetNaive";
+			exe_args[5] = String.format("\"\"");
+			resultStr = String.format("%s\t%s\t:", dataName, alg);
+		}
 
 		resultStr += runAndGetResultString(dataName, exe_args);
 		pw.println(resultStr);
