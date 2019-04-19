@@ -108,8 +108,8 @@ public class GreedyValidatorOriginal extends Validator{
 					bestRuleIdx = i;
 				}
 				
-				if (bestScore == 1) break;
-				if (debugPrint) System.out.println( rule.rule+"\t"+rule.pos+"\t"+score+"\t"+bestScore+"\t"+bestRuleIdx );
+				if (debugPrint) System.out.println( rule.rule.toOriginalString(Record.tokenIndex)+"\t"+rule.pos+"\t"+score+"\t"+bestScore+"\t"+bestRuleIdx );
+//				if (bestScore == 1) break;
 			}
 			
 			if (getTime) {
@@ -164,7 +164,7 @@ public class GreedyValidatorOriginal extends Validator{
 		if (debugPrint) {
 			System.out.println( "transformedSize: "+transformedSize );
 			for (PosRule rule : appliedRuleSet) {
-				System.out.println( rule.rule+", "+rule.pos );
+				System.out.println( rule.rule.toOriginalString(Record.tokenIndex)+", "+rule.pos );
 			}
 		}
 		if (expPrint) {
@@ -176,7 +176,7 @@ public class GreedyValidatorOriginal extends Validator{
 		for (int i=x.size()-1, j=transformedSize-1; i>=0;) {
 			for (PosRule rule : appliedRuleSet) {
 				if ( rule.pos == i ) {
-					if (debugPrint) System.out.println( rule.rule+", "+rule.pos );
+					if (debugPrint) System.out.println( rule.rule.toOriginalString(Record.tokenIndex)+", "+rule.pos );
 					for (int k=0; k<rule.rightSize(); k++) {
 						if (debugPrint) System.out.println( i+"\t"+j+"\t"+k+"\t"+(j-k)+"\t"+(rule.rightSize()-k-1) );
 						transformedRecord[j-k] = rule.getRight()[rule.rightSize()-k-1];
