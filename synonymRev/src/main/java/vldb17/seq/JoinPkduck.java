@@ -61,7 +61,7 @@ public class JoinPkduck extends AbstractIndexBasedAlgorithm {
 		}
 		if (verify.equals( "naive" )) checker = new NaiveOneSide();
 		else if (verify.equals( "greedy" )) checker = new GreedyValidatorEquiv();
-		else if (verify.equals( "TD" )) checker = new TopDownOneSide();
+		else if (verify.equals( "DP" )) checker = new TopDownOneSide();
 		else throw new RuntimeException(getName()+" does not support verification: "+verify);
 	}
 	
