@@ -631,6 +631,11 @@ public class Util {
 			dataTwoPath = prefix + String.format( "NAMES_03"+sep+"NAMES_03_sport.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
+		else if ( name.equals( "NAMES_04" ) ) {
+			dataOnePath = prefix + String.format( "NAMES_04"+sep+"NAMES_04_freebase.txt" );
+			dataTwoPath = prefix + String.format( "NAMES_04"+sep+"NAMES_04_sport.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
 		else if ( name.equals( "UNIV_00" ) ) {
 			dataOnePath = prefix + String.format( "UNIV_00"+sep+"UNIV_00_data.txt" );
 			dataTwoPath = prefix + String.format( "UNIV_00"+sep+"UNIV_00_data.txt" );
@@ -759,6 +764,9 @@ public class Util {
 		}
 		else if ( name.equals( "NAMES_03" ) ) {
 			return prefix + "NAMES_03"+sep+"NAMES_03_groundtruth.txt"	;
+		}
+		else if ( name.equals( "NAMES_04" ) ) {
+			return prefix + "NAMES_04"+sep+"NAMES_04_groundtruth.txt"	;
 		}
 		else if ( name.equals( "UNIV_00" ) ) {
 			return prefix + "UNIV_00"+sep+"UNIV_00_groundtruth.txt";
