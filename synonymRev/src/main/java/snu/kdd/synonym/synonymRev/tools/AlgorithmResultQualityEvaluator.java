@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmStatInterface;
+import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
@@ -85,6 +86,7 @@ public class AlgorithmResultQualityEvaluator {
 		 * For the case of self joins, ipairs in the both sets are assumed to be orderd (i1 <= i2). 
 		 *  if something is wrong, check it out.
 		 */
+		checkQuery(query);
 		for ( final IntegerPair ipair : groundSet ) {
 			if ( ipair.i1 == ipair.i2 ) continue;
 			if ( rslt.contains(ipair) ) {
@@ -143,6 +145,14 @@ public class AlgorithmResultQualityEvaluator {
 	
 	public int getFN() {
 		return fn;
+	}
+	
+	private void checkQuery( Query query ) {
+		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
+		for( final Record record : query.searchedSet.get() ) {
+			if ( record.getApplicableRules() == null ) record.preprocessApplicableRules( automata );
+			if ( record.getSuffixApplicableRules(0) == null ) record.preprocessSuffixApplicableRules();
+		}
 	}
 	
 	private boolean canbeTransformed( Record s, Record t ) {
