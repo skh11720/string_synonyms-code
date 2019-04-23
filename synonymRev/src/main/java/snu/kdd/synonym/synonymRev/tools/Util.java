@@ -579,61 +579,10 @@ public class Util {
 			dataTwoPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
-		else if ( name.equals( "SYN_100K" ) ) {
-			dataOnePath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_1.txt", size );
-			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
-			rulePath = prefix + "rule"+sep+"30000_2_2_100000_0.0_0.txt";
-		}
-		else if ( name.equals( "SYN_300K" ) ) {
-			dataOnePath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_1.txt", size );
-			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
-			rulePath = prefix + "rule"+sep+"30000_2_2_300000_0.0_0.txt";
-		}
-		else if ( name.equals( "SYN_1M" ) ) {
-			dataOnePath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_1.txt", size );
-			dataTwoPath = prefix + String.format( "data"+sep+"1000000_5_%d_1.0_0.0_2.txt", size );
-			rulePath = prefix + "rule"+sep+"30000_2_2_1000000_0.0_0.txt";
-		}
-		else if ( name.equals( "UNIV_1_2" ) ) {
-			dataOnePath = prefix + String.format( "univ"+sep+"universities_list_refined.txt" );
-			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_refined.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "UNIV_2_1" ) ) {
-			dataOnePath = prefix + String.format( "univ"+sep+"universities_list_1000_2.txt" );
-			dataTwoPath = prefix + String.format( "univ"+sep+"universities_list_1000_1.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "NAMES" ) ) {
-			dataOnePath = prefix + String.format( "Names"+sep+"ver_4"+sep+"Names_freebase.txt" );
-			dataTwoPath = prefix + String.format( "Names"+sep+"ver_4"+sep+"Names_sport.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-
-
-		else if ( name.equals( "NAMES_00" ) ) {
-			dataOnePath = prefix + String.format( "NAMES_00"+sep+"NAMES_00_freebase.txt" );
-			dataTwoPath = prefix + String.format( "NAMES_00"+sep+"NAMES_00_sport.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "NAMES_01" ) ) {
-			dataOnePath = prefix + String.format( "NAMES_01"+sep+"NAMES_01_freebase.txt" );
-			dataTwoPath = prefix + String.format( "NAMES_01"+sep+"NAMES_01_sport.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "NAMES_02" ) ) {
-			dataOnePath = prefix + String.format( "NAMES_02"+sep+"NAMES_02_freebase.txt" );
-			dataTwoPath = prefix + String.format( "NAMES_02"+sep+"NAMES_02_sport.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "NAMES_03" ) ) {
-			dataOnePath = prefix + String.format( "NAMES_03"+sep+"NAMES_03_freebase.txt" );
-			dataTwoPath = prefix + String.format( "NAMES_03"+sep+"NAMES_03_sport.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "NAMES_04" ) ) {
-			dataOnePath = prefix + String.format( "NAMES_04"+sep+"NAMES_04_freebase.txt" );
-			dataTwoPath = prefix + String.format( "NAMES_04"+sep+"NAMES_04_sport.txt" );
+		else if ( name.startsWith("NAMES") ) {
+			String idx = name.split("_")[1];
+			dataOnePath = prefix + String.format( "NAMES_"+idx+sep+"NAMES_"+idx+"_freebase.txt" );
+			dataTwoPath = prefix + String.format( "NAMES_"+idx+sep+"NAMES_"+idx+"_sport.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.equals( "UNIV_00" ) ) {
@@ -655,6 +604,11 @@ public class Util {
 			dataOnePath = prefix + String.format( "UNIV_03"+sep+"UNIV_03_data.txt" );
 			dataTwoPath = prefix + String.format( "UNIV_03"+sep+"UNIV_03_data.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.equals( "UNIV_04" ) ) {
+			dataOnePath = prefix + String.format( "UNIV_04"+sep+"UNIV_04_data.txt" );
+			dataTwoPath = prefix + String.format( "UNIV_04"+sep+"UNIV_04_data.txt" );
+			rulePath = prefix + String.format( "UNIV_04"+sep+"UNIV_04_rule.txt" );
 		}
 		else if ( name.equals( "CONF_00" ) ) {
 			dataOnePath = prefix + String.format( "CONF_00"+sep+"CONF_00_data.txt" );
@@ -741,75 +695,6 @@ public class Util {
 			prefix = "data_store/";
 			sep = "/";
 		}
-		
-		if ( name.equals( "UNIV_1_2" ) ) {
-			return prefix + "univ"+sep+"groundtruth_refined.txt";
-		}
-		else if ( name.equals( "NAMES" ) ) {
-			return prefix + "Names"+sep+"ver_4"+sep+"Names_groundtruth.txt"	;
-		}
-		else if ( name.equals( "CONF" ) ) {
-			return prefix + "CONF"+sep+"groundtruth.txt";
-		}
-
-
-		else if ( name.equals( "NAMES_00" ) ) {
-			return prefix + "NAMES_00"+sep+"NAMES_00_groundtruth.txt"	;
-		}
-		else if ( name.equals( "NAMES_01" ) ) {
-			return prefix + "NAMES_01"+sep+"NAMES_01_groundtruth.txt"	;
-		}
-		else if ( name.equals( "NAMES_02" ) ) {
-			return prefix + "NAMES_02"+sep+"NAMES_02_groundtruth.txt"	;
-		}
-		else if ( name.equals( "NAMES_03" ) ) {
-			return prefix + "NAMES_03"+sep+"NAMES_03_groundtruth.txt"	;
-		}
-		else if ( name.equals( "NAMES_04" ) ) {
-			return prefix + "NAMES_04"+sep+"NAMES_04_groundtruth.txt"	;
-		}
-		else if ( name.equals( "UNIV_00" ) ) {
-			return prefix + "UNIV_00"+sep+"UNIV_00_groundtruth.txt";
-		}
-		else if ( name.equals( "UNIV_01" ) ) {
-			return prefix + "UNIV_01"+sep+"UNIV_01_groundtruth.txt";
-		}
-		else if ( name.equals( "UNIV_02" ) ) {
-			return prefix + "UNIV_02"+sep+"UNIV_02_groundtruth.txt";
-		}
-		else if ( name.equals( "UNIV_03" ) ) {
-			return prefix + "UNIV_03"+sep+"UNIV_03_groundtruth.txt";
-		}
-		else if ( name.equals( "CONF_00" ) ) {
-			return prefix + "CONF_00"+sep+"CONF_00_groundtruth.txt";
-		}
-		else if ( name.equals( "CONF_01" ) ) {
-			return prefix + "CONF_01"+sep+"CONF_01_groundtruth.txt";
-		}
-		else if ( name.equals( "POLY_diseases" ) ) {
-			return prefix + "POLY_diseases"+sep+"POLY_diseases_groundtruth.txt";
-		}
-		else if ( name.equals( "POLY_drugs" ) ) {
-			return prefix + "POLY_drugs"+sep+"POLY_drugs_groundtruth.txt";
-		}
-		else if ( name.equals( "POLY_gene_ontology" ) ) {
-			return prefix + "POLY_gene_ontology"+sep+"POLY_gene_ontology_groundtruth.txt";
-		}
-		else if ( name.equals( "POLY_genes" ) ) {
-			return prefix + "POLY_genes"+sep+"POLY_genes_groundtruth.txt";
-		}
-		else if ( name.equals( "POLY_hmdb" ) ) {
-			return prefix + "POLY_hmdb"+sep+"POLY_hmdb_groundtruth.txt";
-		}
-		else if ( name.equals( "POLY_ICD10_code" ) ) {
-			return prefix + "POLY_ICD10_code"+sep+"POLY_ICD10_code_groundtruth.txt";
-		}
-		else if ( name.equals( "POLY_mesh_compounds" ) ) {
-			return prefix + "POLY_mesh_compounds"+sep+"POLY_mesh_compounds_groundtruth.txt";
-		}
-		else if ( name.equals( "POLY_mesh_terms" ) ) {
-			return prefix + "POLY_mesh_terms"+sep+"POLY_mesh_terms_groundtruth.txt";
-		}
-		else throw new RuntimeException("Unknown data name");
+		return prefix + name+sep+name+"_groundtruth.txt";
 	}
 }
