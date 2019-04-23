@@ -103,7 +103,7 @@ public class GreedyValidatorOriginal extends Validator{
 					if ( tokenSet.contains( token ) ) score++;
 				}
 				score /= rule.rightSize();
-				if (score > bestScore) {
+				if (score >= bestScore) {
 					bestScore = score;
 					bestRuleIdx = i;
 				}
