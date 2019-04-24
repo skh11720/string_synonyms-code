@@ -620,45 +620,10 @@ public class Util {
 			dataTwoPath = prefix + String.format( "CONF_01"+sep+"CONF_01_data.txt" );
 			rulePath = prefix + "CONF_01"+sep+"CONF_01_rule.txt";
 		}
-		else if ( name.equals( "POLY_diseases" ) ) {
-			dataOnePath = prefix + String.format( "POLY_diseases"+sep+"POLY_diseases_data.txt" );
-			dataTwoPath = prefix + String.format( "POLY_diseases"+sep+"POLY_diseases_data.txt" );
-			rulePath = prefix + "POLY_diseases"+sep+"POLY_diseases_rule.txt";
-		}
-		else if ( name.equals( "POLY_drugs" ) ) {
-			dataOnePath = prefix + String.format( "POLY_drugs"+sep+"POLY_drugs_data.txt" );
-			dataTwoPath = prefix + String.format( "POLY_drugs"+sep+"POLY_drugs_data.txt" );
-			rulePath = prefix + "POLY_drugs"+sep+"POLY_drugs_rule.txt";
-		}
-		else if ( name.equals( "POLY_gene_ontology" ) ) {
-			dataOnePath = prefix + String.format( "POLY_gene_ontology"+sep+"POLY_gene_ontology_data.txt" );
-			dataTwoPath = prefix + String.format( "POLY_gene_ontology"+sep+"POLY_gene_ontology_data.txt" );
-			rulePath = prefix + "POLY_gene_ontology"+sep+"POLY_gene_ontology_rule.txt";
-		}
-		else if ( name.equals( "POLY_genes" ) ) {
-			dataOnePath = prefix + String.format( "POLY_genes"+sep+"POLY_genes_data.txt" );
-			dataTwoPath = prefix + String.format( "POLY_genes"+sep+"POLY_genes_data.txt" );
-			rulePath = prefix + "POLY_genes"+sep+"POLY_genes_rule.txt";
-		}
-		else if ( name.equals( "POLY_hmdb" ) ) {
-			dataOnePath = prefix + String.format( "POLY_hmdb"+sep+"POLY_hmdb_data.txt" );
-			dataTwoPath = prefix + String.format( "POLY_hmdb"+sep+"POLY_hmdb_data.txt" );
-			rulePath = prefix + "POLY_hmdb"+sep+"POLY_hmdb_rule.txt";
-		}
-		else if ( name.equals( "POLY_ICD10_code" ) ) {
-			dataOnePath = prefix + String.format( "POLY_ICD10_code"+sep+"POLY_ICD10_code_data.txt" );
-			dataTwoPath = prefix + String.format( "POLY_ICD10_code"+sep+"POLY_ICD10_code_data.txt" );
-			rulePath = prefix + "POLY_ICD10_code"+sep+"POLY_ICD10_code_rule.txt";
-		}
-		else if ( name.equals( "POLY_mesh_compounds" ) ) {
-			dataOnePath = prefix + String.format( "POLY_mesh_compounds"+sep+"POLY_mesh_compounds_data.txt" );
-			dataTwoPath = prefix + String.format( "POLY_mesh_compounds"+sep+"POLY_mesh_compounds_data.txt" );
-			rulePath = prefix + "POLY_mesh_compounds"+sep+"POLY_mesh_compounds_rule.txt";
-		}
-		else if ( name.equals( "POLY_mesh_terms" ) ) {
-			dataOnePath = prefix + String.format( "POLY_mesh_terms"+sep+"POLY_mesh_terms_data.txt" );
-			dataTwoPath = prefix + String.format( "POLY_mesh_terms"+sep+"POLY_mesh_terms_data.txt" );
-			rulePath = prefix + "POLY_mesh_terms"+sep+"POLY_mesh_terms_rule.txt";
+		else if ( name.startsWith("POLY") ) {
+			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
+			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			rulePath = prefix + name+sep+name+"_rule.txt";
 		}
 		else throw new RuntimeException();
 
