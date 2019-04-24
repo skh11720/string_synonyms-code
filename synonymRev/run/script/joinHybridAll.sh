@@ -15,7 +15,7 @@ sampleH=${14}
 
 ADDITIONAL="-K $k -qSize $qSize -sampleB $sampleB -sampleH $sampleH"
 
-ALG=JoinHybridAll3
+ALG=JoinHybridAll
 
 
 if [[ -f xmx.txt ]];
