@@ -39,45 +39,37 @@ public class QualityEvaluationMain {
 		
 		String dataName = args[0];
 		String alg = args[1];
-		int deltaMax = -1;
-		double thres = -1;
-		String dist = null;
 		String resultStr = null;
 		
+		resultStr = String.format("%s\t%s\t:", dataName, alg);
 		String[] exe_args = Arrays.copyOf(argsTemplate, argsTemplate.length);
 		if (alg.equals("JoinDeltaVarBK")) {
-			deltaMax = Integer.parseInt(args[2]);
-			dist = args[3];
 			exe_args[1] = alg;
-			exe_args[5] = String.format("\"-K 1 -qSize 2 -delta %d -dist %s -sampleB 0.01\"", deltaMax, dist);
-			resultStr = String.format("%s\t%s\t%d\t:", dataName, alg+"_"+dist, deltaMax);
+			exe_args[5] = String.format("\"-K 1 -qSize 2 -delta 0 -dist lcs -sampleB 0.01\"");
+		}
+		else if (alg.equals("PassJoin")) {
+			exe_args[1] = "PassJoin";
+			exe_args[5] = String.format("\"-delta 0 -dist edit\"");
 		}
 		else if (alg.equals("JoinPkduck")) {
-			thres = Double.parseDouble(args[2]);
 			exe_args[1] = "JoinPkduckOriginal";
-			exe_args[5] = String.format("\"-ord FF -theta %.2f -rc false -lf true\"", thres);
-			resultStr = String.format("%s\t%s\t%.2f\t:", dataName, alg, thres);
+			exe_args[5] = String.format("\"-ord FF -theta 1.0 -rc false -lf true\"");
 		}
 		else if (alg.equals("SIJoin")) {
-			thres = Double.parseDouble(args[2]);
 			exe_args[1] = "SIJoinOriginal";
-			exe_args[5] = String.format("\"-theta %.2f\"", thres);
-			resultStr = String.format("%s\t%s\t%.2f\t:", dataName, alg, thres);
+			exe_args[5] = String.format("\"-theta 1.0\"");
 		}
 		else if (alg.equals("JoinBKPSet_DP")) {
 			exe_args[1] = "JoinBKPSet";
 			exe_args[5] = String.format("\"-K 2 -verify DP\"");
-			resultStr = String.format("%s\t%s\t:", dataName, alg);
 		}
 		else if (alg.equals("JoinBKPSet_GR")) {
 			exe_args[1] = "JoinBKPSet";
 			exe_args[5] = String.format("\"-K 2 -verify GR1\"");
-			resultStr = String.format("%s\t%s\t:", dataName, alg);
 		}
 		else if (alg.equals("JoinSetNaive")) {
 			exe_args[1] = "JoinSetNaive";
 			exe_args[5] = String.format("\"\"");
-			resultStr = String.format("%s\t%s\t:", dataName, alg);
 		}
 
 		resultStr += runAndGetResultString(dataName, exe_args);
@@ -106,7 +98,7 @@ public class QualityEvaluationMain {
 			}
 		}
 		catch ( OutOfMemoryError e ) {
-			strbld.append("\tOOM");
+			strbld.append("\t-");
 		}
 		return strbld.toString();
 	}
