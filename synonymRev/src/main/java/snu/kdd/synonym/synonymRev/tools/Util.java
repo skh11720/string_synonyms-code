@@ -580,29 +580,8 @@ public class Util {
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.startsWith("NAMES") ) {
-			String idx = name.split("_")[1];
-			dataOnePath = prefix + String.format( "NAMES_"+idx+sep+"NAMES_"+idx+"_freebase.txt" );
-			dataTwoPath = prefix + String.format( "NAMES_"+idx+sep+"NAMES_"+idx+"_sport.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "UNIV_00" ) ) {
-			dataOnePath = prefix + String.format( "UNIV_00"+sep+"UNIV_00_data.txt" );
-			dataTwoPath = prefix + String.format( "UNIV_00"+sep+"UNIV_00_data.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "UNIV_01" ) ) {
-			dataOnePath = prefix + String.format( "UNIV_01"+sep+"UNIV_01_data.txt" );
-			dataTwoPath = prefix + String.format( "UNIV_01"+sep+"UNIV_01_data.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "UNIV_02" ) ) {
-			dataOnePath = prefix + String.format( "UNIV_02"+sep+"UNIV_02_data.txt" );
-			dataTwoPath = prefix + String.format( "UNIV_02"+sep+"UNIV_02_data.txt" );
-			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
-		}
-		else if ( name.equals( "UNIV_03" ) ) {
-			dataOnePath = prefix + String.format( "UNIV_03"+sep+"UNIV_03_data.txt" );
-			dataTwoPath = prefix + String.format( "UNIV_03"+sep+"UNIV_03_data.txt" );
+			dataOnePath = prefix + String.format( name+sep+name+"_freebase.txt" );
+			dataTwoPath = prefix + String.format( name+sep+name+"_sport.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
 		else if ( name.equals( "UNIV_04" ) ) {
@@ -610,15 +589,10 @@ public class Util {
 			dataTwoPath = prefix + String.format( "UNIV_04"+sep+"UNIV_04_data.txt" );
 			rulePath = prefix + String.format( "UNIV_04"+sep+"UNIV_04_rule.txt" );
 		}
-		else if ( name.equals( "CONF_00" ) ) {
-			dataOnePath = prefix + String.format( "CONF_00"+sep+"CONF_00_data.txt" );
-			dataTwoPath = prefix + String.format( "CONF_00"+sep+"CONF_00_data.txt" );
-			rulePath = prefix + "CONF_00"+sep+"CONF_00_rule.txt";
-		}
-		else if ( name.equals( "CONF_01" ) ) {
-			dataOnePath = prefix + String.format( "CONF_01"+sep+"CONF_01_data.txt" );
-			dataTwoPath = prefix + String.format( "CONF_01"+sep+"CONF_01_data.txt" );
-			rulePath = prefix + "CONF_01"+sep+"CONF_01_rule.txt";
+		else if ( name.startsWith( "CONF" ) ) {
+			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
+			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			rulePath = prefix + name+sep+name+"_rule.txt";
 		}
 		else if ( name.startsWith("POLY") ) {
 			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
