@@ -22,6 +22,7 @@ public class AlgorithmFactory {
 		JoinMin,
 		JoinMinFast,
 		JoinHybridAll,
+		JoinHybridAll3,
 		SIJoin,
 		JoinPkduck,
 		
@@ -68,6 +69,10 @@ public class AlgorithmFactory {
 
 		case JoinHybridAll:
 			alg = new JoinHybridAll( additionalArgs );
+			break;
+
+		case JoinHybridAll3:
+			alg = new JoinHybridAll3( additionalArgs );
 			break;
 
 		case SIJoin:

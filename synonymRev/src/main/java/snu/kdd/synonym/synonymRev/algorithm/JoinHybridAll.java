@@ -23,10 +23,10 @@ import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
  */
 public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 
-	SampleEstimate estimate;
 	public final int indexK;
 	public final double sampleH;
-	protected int nEst;
+	protected SampleEstimate estimate;
+	protected int nEst = 1;
 	protected int joinThreshold = 1;
 	protected boolean joinQGramRequired = true;
 	protected boolean joinMinSelected = false;
@@ -63,23 +63,13 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 	public void preprocess() {
 		super.preprocess();
 
-		for( Record rec : query.searchedSet.get() ) {
-			if( maxSearchedEstNumRecords < rec.getEstNumTransformed() ) {
-				maxSearchedEstNumRecords = rec.getEstNumTransformed();
-			}
-		}
-		stat.add( "MaxSearchedEstNumRecords", maxSearchedEstNumRecords );
-	}
-	
-	@Override
-	protected void executeJoin() {
-		StopWatch estimateTime = StopWatch.getWatchStarted( "Result_2_1_Estimation_Time" );
+		StopWatch estimateTime = StopWatch.getWatchStarted(ESTIMATION_TIME);
 		StatContainer statEst = new StatContainer();
 		int[] list_thres = new int[nEst];
 		double[] list_bestTime = new double[nEst];
 		boolean[] list_minSelected= new boolean[nEst];
 		for ( int i=0; i<nEst; ++i ) {
-			findConstants( sampleH, statEst );
+			findConstants( statEst );
 			list_thres[i] = estimate.findThetaJoinHybridAll( qSize, indexK, statEst, maxIndexedEstNumRecords, maxSearchedEstNumRecords, query.oneSideJoin );
 			list_minSelected[i] = estimate.getJoinMinSelected();
 			list_bestTime[i] = estimate.bestEstTime;
@@ -108,7 +98,10 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		stat.add( "Estimate_Var_Threshold", var );
 		stat.add( "Estimate_JoinMinSelected", joinMinSelected? "true":"false" );
 		estimateTime.stopAndAdd( stat );
-		
+	}
+	
+	@Override
+	protected void executeJoin() {
 		buildIndex();
 		
 		// join
@@ -185,6 +178,7 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 	@Override
 	protected void buildIndex() {
 		StopWatch buildTime = StopWatch.getWatchStarted( INDEX_BUILD_TIME );
+		long maxSearchedEstNumRecords = computeMaxEstTransNum();
 		if ( maxSearchedEstNumRecords <= joinThreshold ) {
 			joinQGramRequired = false; // in this case both joinmh and joinmin are not used.
 		}
@@ -195,6 +189,17 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		}
 		buildNaiveIndex();
 		buildTime.stopAndAdd( stat );
+	}
+	
+	protected long computeMaxEstTransNum() {
+		long estTransNum = 0;
+		for( Record rec : query.searchedSet.get() ) {
+			if( estTransNum < rec.getEstNumTransformed() ) {
+				estTransNum = rec.getEstNumTransformed();
+			}
+		}
+		stat.add( "MaxSearchedEstNumRecords", estTransNum );
+		return estTransNum;
 	}
 
 	protected void buildJoinMinIndex() {
@@ -215,9 +220,9 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		naiveIndex = new NaiveIndex( query, stat, true );
 	}
 
-	protected void findConstants( double sampleratio, StatContainer stat ) {
+	protected void findConstants( StatContainer stat ) {
 		// Sample
-		estimate = new SampleEstimate( query, sampleratio, query.selfJoin );
+		estimate = new SampleEstimate( query, sampleH, query.selfJoin );
 //		estimate = new SampleEstimateByRegression( query, sampleratio, query.selfJoin );
 		estimate.estimateJoinHybridWithSample( stat, checker, indexK, qSize );
 		
@@ -242,6 +247,10 @@ public class JoinHybridAll extends AbstractPosQGramBasedAlgorithm {
 		this.stat.add( "Estimate_Term2_Min", estimate.min_term2[estimate.sampleSearchedSize-1]);
 		this.stat.add( "Estimate_Term3_Min", estimate.min_term3[estimate.sampleSearchedSize-1]);
 		this.stat.add( "Estimate_Time_Min", estimate.estTime_min );
+	}
+	
+	protected void addToStatEstimationResult( StatContainer stat, SampleEstimate estimate ) {
+		
 	}
 
 	@Override
