@@ -149,7 +149,7 @@ public class SampleEstimate {
 
 		Comparator<Record> comp = new RecordComparator();
 		Collections.sort( sampleSearchedList, comp );
-		Collections.sort( sampleIndexedList, comp );
+//		Collections.sort( sampleIndexedList, comp );
 
 		Dataset sampleIndexed = new Dataset( sampleIndexedList );
 		Dataset sampleSearched = new Dataset( sampleSearchedList );
@@ -570,7 +570,7 @@ public class SampleEstimate {
 	protected ObjectArrayList<Record> sampleRecordsNaive( List<Record> recordList, Random rn ) {
 		ObjectArrayList<Record> sampledList = new ObjectArrayList<>();
 		for( Record r : recordList ) {
-			if ( r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
+			if ( r.getEstNumTransformedArray() != null && r.getEstNumTransformed() > DEBUG.EstTooManyThreshold ) continue;
 			if( rn.nextDouble() < this.sampleRatio ) {
 				sampledList.add( r );
 			}

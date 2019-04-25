@@ -183,6 +183,10 @@ public class Record implements Comparable<Record>, RecordInterface, RecordInterf
 		}
 	}
 
+	public long[] getEstNumTransformedArray() {
+		return estTrans;
+	}
+
 	public long getEstNumTransformed() {
 		return estTrans[ estTrans.length - 1 ];
 	}
