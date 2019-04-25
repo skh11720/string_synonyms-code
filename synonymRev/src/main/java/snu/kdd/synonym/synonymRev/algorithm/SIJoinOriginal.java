@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Map;
 
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -73,16 +72,19 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 	public void preprocess() {
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 		Record.tokenIndex = query.tokenIndex;
-		Map<String, Integer> str2int = Record.tokenIndex.getMap();
 
 		for( Record recS : query.searchedSet.get() ) {
-			S.add( new SIRecord( recS.getID(), recS.toString(), str2int, automata) );
+			SIRecord sirec = new SIRecord( recS.getID(), recS.toString(), Record.tokenIndex);
+			sirec.preprocess(automata);
+			S.add(sirec);
 			for ( int token : recS.getTokens() ) tokenFreq.addTo(token, 1);
 		}
 
 		if( !query.selfJoin ) {
 			for( Record recT : query.indexedSet.get() ) {
-				T.add( new SIRecord( recT.getID(), recT.toString(), str2int, automata) );
+				SIRecord sirec =  new SIRecord( recT.getID(), recT.toString(), Record.tokenIndex);
+				sirec.preprocess(automata);
+				T.add(sirec);
 				for ( int token : recT.getTokens() ) tokenFreq.addTo(token, 1);
 			}
 		}

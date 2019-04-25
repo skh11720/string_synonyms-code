@@ -10,22 +10,25 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
  * Expanded record
  */
 public class SIRecordExpanded implements SIRecord.Expanded {
+	private final SIRecord rec;
 	private final Collection<Integer> originalTokens;
 	private final IntegerSet expandedTokens;
 
 	public SIRecordExpanded( SIRecord rec ) {
+		this.rec = rec;
 		originalTokens = rec.getTokens();
 		expandedTokens = new IntegerSet();
 	}
 
-	public SIRecordExpanded( SIRecordExpanded rec ) {
-		originalTokens = new IntegerSet( rec.originalTokens );
-		expandedTokens = new IntegerSet( rec.expandedTokens );
+	public SIRecordExpanded( SIRecordExpanded rec_exp ) {
+		this.rec = rec_exp.rec;
+		originalTokens = new IntegerSet( rec_exp.originalTokens );
+		expandedTokens = new IntegerSet( rec_exp.expandedTokens );
 	}
 
 	@Override
 	public SIRecord toRecord() {
-		return new SIRecord( this );
+		return rec;
 	}
 
 	public Collection<Integer> getOriginalTokens() {
