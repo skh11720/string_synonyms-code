@@ -75,13 +75,14 @@ public class JoinHybridAll extends JoinHybridAll_old {
 		/*
 		 * 1.00: the initial version
 		 * 1.01: use JoinFK
+		 * 1.02: fix bug
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override
 	public String getName() {
-		return "JoinHybridAll3";
+		return "JoinHybridAll";
 	}
 }
 

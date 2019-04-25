@@ -44,15 +44,11 @@ public class ResultSet implements Iterable<IntegerPair> {
 	}
 	
 	public void addAll( ResultSet otherSet ) {
-		for ( IntegerPair ipair : otherSet ) {
-			this.add(ipair);
-		}
+		pairSet.addAll(otherSet.pairSet);
 	}
 	
 	public void addAll( Set<IntegerPair> otherSet ) {
-		for ( IntegerPair ipair : otherSet ) {
-			this.add(ipair);
-		}
+		pairSet.addAll(otherSet);
 	}
 	
 	public int size() {
