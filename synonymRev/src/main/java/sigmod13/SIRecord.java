@@ -1,19 +1,26 @@
 package sigmod13;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.synonymRev.data.ACAutomataR;
+import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.data.TokenIndex;
 import snu.kdd.synonym.synonymRev.tools.IntegerSet;
+import snu.kdd.synonym.synonymRev.tools.Util;
 import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class SIRecord implements RecordInterface, Comparable<SIRecord> {
@@ -21,7 +28,8 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	private final int[] tokens;
 	private final IntegerSet tokenSet;
 	final IntegerSet fullExpanded;
-	final HashSet<Rule> applicableRules;
+	final ObjectArrayList<Rule> applicableRules;
+	final ObjectArrayList<Rule> applicableNonSelfRules;
 	
 	public String str;
 
@@ -39,7 +47,8 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 			this.tokenSet.add( tokens[ i ] );
 		}
 
-		applicableRules = new HashSet<Rule>();
+		applicableRules = new ObjectArrayList<Rule>();
+		applicableNonSelfRules = new ObjectArrayList<Rule>();
 		fullExpanded = this.tokenSet.copy();
 	}
 
@@ -49,6 +58,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 		tokenSet = rec.tokenSet.copy();
 		// Applicable rules does not change
 		applicableRules = rec.applicableRules;
+		applicableNonSelfRules = getNonSelfRules(applicableRules);
 		fullExpanded = rec.fullExpanded;
 	}
 
@@ -61,10 +71,19 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 		return id;
 	}
 	
+	public ObjectArrayList<Rule> getNonSelfRules( ObjectArrayList<Rule> applicableRules ) {
+		ObjectArrayList<Rule> output = new ObjectArrayList<>();
+		for ( Rule rule : applicableRules ) {
+			if ( !rule.isSelfRule() ) output.add(rule);
+		}
+		return output;
+	}
+	
 	public void preprocess( ACAutomataR automata ) {
 		// Rules
 		for( Rule rule : automata.applicableRulesSIRecord( tokens ) ) {
 			applicableRules.add( rule );
+			if ( !rule.isSelfRule() ) applicableNonSelfRules.add(rule);
 		}
 
 		// Full expand
@@ -73,7 +92,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 				fullExpanded.add( s );
 	}
 
-	public final HashSet<Rule> getApplicableRules() {
+	public final ObjectArrayList<Rule> getApplicableRules() {
 		return applicableRules;
 	}
 
@@ -82,15 +101,12 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	 */
 	@Override
 	public HashSet<SIRecordExpanded> generateAll() {
-//		if ( applicableRules.size() > 10 ) return null;
 		try {
 			Queue<SIRecordExpanded> queue = new LinkedList<SIRecordExpanded>();
 			queue.add( new SIRecordExpanded( this ) );
 
 			Queue<SIRecordExpanded> bufferQueue = new LinkedList<SIRecordExpanded>();
 			for( Rule rule : applicableRules ) {
-//				System.out.println(rule.toOriginalString(Record.tokenIndex));
-				//if ( queue.size() > 1_000_000 ) return null;
 				if( rule.getLeft().length == 1 && rule.getRight().length == 1 && rule.getLeft()[ 0 ] == rule.getRight()[ 0 ] )
 					continue;
 				while( !queue.isEmpty() ) {
@@ -202,9 +218,11 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 //			signature.addAll( filter.filter( new SIRecordExpanded( this ), 1 ) );
 //			return signature;
 //		}
-		HashSet<SIRecordExpanded> expanded = generateAll();
+//		HashSet<SIRecordExpanded> expanded = generateAll();
+		Iterator<SIRecordExpanded> iter = getExpandIterator();
 //		if ( expanded == null ) return null;
-		for( SIRecordExpanded exp : expanded ) {
+		while ( iter.hasNext() ) {
+			SIRecordExpanded exp = iter.next();
 			// In the paper the number of signature is states as belows.
 			// int cut = (int) Math.ceil((1.0 - theta) * exp.size());
 			// However, it should be
@@ -226,5 +244,92 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	@Override
 	public int compareTo( SIRecord o ) {
 		return Integer.compare( id, o.id );
+	}
+	
+	public Iterator<SIRecordExpanded> getExpandIterator() {
+		return new ExpandIterator();
+	}
+	
+	class ExpandIterator implements Iterator<SIRecordExpanded> {
+		
+		private int rptr = -1;
+		private final ObjectArrayList<Rule> ruleList = SIRecord.this.applicableNonSelfRules;
+		private final int nRule = ruleList.size();
+		private SIRecordExpanded[] stackExp = new SIRecordExpanded[nRule+1];
+		private int[] stack = new int[nRule+1];
+		private int sptr = 0;
+		private boolean hasNext = true;
+		
+		public ExpandIterator() {
+			stackExp[0] = new SIRecordExpanded(SIRecord.this);
+			stack[0] = -1;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return hasNext;
+		}
+
+		@Override
+		public SIRecordExpanded next() {
+			SIRecordExpanded exp = stackExp[sptr];
+			if ( rptr == nRule-1 ) {
+				if ( --sptr <= 0 ) hasNext = false;
+				else {
+					rptr = ++stack[sptr];
+					stackExp[sptr] = new SIRecordExpanded(stackExp[sptr-1]);
+					stackExp[sptr].applyRule(ruleList.get(rptr));
+				}
+			}
+			else {
+				stack[++sptr] = ++rptr;
+				stackExp[sptr] = new SIRecordExpanded(stackExp[sptr-1]);
+				stackExp[sptr].applyRule(ruleList.get(rptr));
+			}
+			return exp;
+		}
+	}
+	
+	public static void enumerateExample() {
+//	public static void main( String[] args ) {
+		int n = 4;
+		int i = -1;
+		int[] stack = new int[n+1];
+		Arrays.fill(stack, -1);
+		int depth = 0;
+		
+		while (true) {
+			System.out.println(Arrays.toString(ArrayUtils.subarray(stack, 0, depth+1)));
+			if ( i == n-1 ) { // have the last element
+				if ( --depth == 0 ) break;
+				else i = ++stack[depth];
+			}
+			else stack[++depth] = ++i;
+		}
+	}
+	
+//	public static void main( String[] args ) throws IOException {
+	public static void enumerateExample2() throws IOException {
+		Query query = Util.getTestQuery( "AOL", 10000 );
+		ACAutomataR automata = new ACAutomataR(query.ruleSet.get());
+		Record.tokenIndex = query.tokenIndex;
+		for ( int i=0; i<query.searchedSet.size(); ++i 	) {
+			Record rec = query.searchedSet.getRecord(i);
+			SIRecord sirec = new SIRecord( rec.getID(), rec.toString(), Record.tokenIndex);
+			sirec.preprocess(automata);
+			if ( sirec.applicableRules.size() == 6) {
+				System.out.println(sirec.id);
+				System.out.println(sirec);
+				System.out.println(sirec.applicableNonSelfRules);
+
+				Iterator<SIRecordExpanded> iter = sirec.getExpandIterator();
+				while (iter.hasNext()) {
+					System.out.println(iter.next());
+				}
+
+
+				break;
+			}
+		}
 	}
 }

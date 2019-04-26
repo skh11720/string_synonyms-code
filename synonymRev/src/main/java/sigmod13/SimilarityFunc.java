@@ -40,12 +40,16 @@ public class SimilarityFunc {
 
 	public static double exactSelectiveExp( SIRecord rec1, SIRecord rec2 ) {
 		double max = 0;
-		HashSet<SIRecordExpanded> expanded = rec1.generateAll();
-		for( SIRecordExpanded exp2 : rec2.generateAll() )
-			for( SIRecordExpanded exp : expanded ) {
-				double sim = exp2.jaccard( exp );
+		Iterator<SIRecordExpanded> iter2 = rec2.getExpandIterator();
+		while ( iter2.hasNext() ) {
+			SIRecordExpanded exp2 = iter2.next();
+			Iterator<SIRecordExpanded> iter1 = rec1.getExpandIterator();
+			while ( iter1.hasNext() ) {
+				SIRecordExpanded exp1 = iter1.next();
+				double sim = exp2.jaccard( exp1 );
 				max = Math.max( sim, max );
 			}
+		}
 		return max;
 	}
 

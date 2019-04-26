@@ -149,8 +149,9 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 		/*
 		 * 1.00: initial version
 		 * 1.01: major update
+		 * 1.02: use ExpandIterator
 		 */
-		return "1.01";
+		return "1.02";
 	}
 
 	@Override

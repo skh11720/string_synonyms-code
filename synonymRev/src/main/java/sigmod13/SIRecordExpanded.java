@@ -2,6 +2,8 @@ package sigmod13;
 
 import java.util.Collection;
 
+import javax.management.RuntimeErrorException;
+
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -39,10 +41,10 @@ public class SIRecordExpanded implements SIRecord.Expanded {
 		return expandedTokens;
 	}
 
-	public void applyRule( Rule rule ) throws Exception {
+	public void applyRule( Rule rule ) {
 		for( int s : rule.getLeft() ) {
 			if( !originalTokens.contains( s ) ) {
-				throw new Exception( "Not applicable rule" );
+				throw new RuntimeException( "Not applicable rule" );
 			}
 		}
 		for( int s : rule.getRight() ) {
