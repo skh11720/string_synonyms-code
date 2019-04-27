@@ -13,6 +13,7 @@ import java.util.Set;
 
 import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerMap;
 import snu.kdd.synonym.synonymRev.tools.Pair;
@@ -95,8 +96,16 @@ public class SI_Tree_Original<T extends RecordInterface & Comparable<T>> {
 
 	public SI_Tree_Original( double theta, ITF_Filter filter, List<T> tableT, Validator checker ) {
 		this( theta, filter, checker );
-		for( T rec : tableT )
+		for( T rec : tableT ) {
+			SIRecord sirec = (SIRecord)rec;
+			long ts = System.nanoTime();
+			System.out.println( sirec.getID()+"\t"+sirec.str+"\t"+sirec.applicableNonSelfRules.size());
+			for ( Rule rule : sirec.applicableNonSelfRules ) {
+				System.out.println(rule.toOriginalString(Record.tokenIndex));
+			}
 			add( rec );
+			System.out.println((System.nanoTime()-ts)/1e6);
+		}
 	}
 
 	/**
