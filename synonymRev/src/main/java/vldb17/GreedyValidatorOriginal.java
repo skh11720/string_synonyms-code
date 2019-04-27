@@ -77,6 +77,7 @@ public class GreedyValidatorOriginal extends Validator{
 		List<PosRule> candidateRules = new ObjectArrayList<PosRule>( x.getNumApplicableRules() );
 		for (int i=0; i<x.size(); i++) {
 			for (Rule rule : x.getSuffixApplicableRules( i )) {
+				if ( rule.isSelfRule() ) continue;
 				candidateRules.add( new PosRule(rule, i) );
 				if (expPrint) JoinPkduckOriginal.pw.println("cand rule: "+rule+"\t"+i);
 			}
@@ -89,12 +90,12 @@ public class GreedyValidatorOriginal extends Validator{
 		Set<Integer> tokenSet = new IntOpenHashSet( y.getTokensArray() );
 		Set<PosRule> appliedRuleSet = new ObjectOpenHashSet<PosRule>();
 		
-		while (!bTransformedAll) {
+		while ( candidateRules.size() > 0 ) {
 			if (getTime) ts = System.nanoTime();
 			if (debugPrint) System.out.println( "loop start" );
 			if (debugPrint) System.out.println( "bAvailable: "+Arrays.toString( bAvailable ) );
 			// Compute scores of the remaining candidate rules.
-			float bestScore = -1;
+			float bestScore = 0;
 			int bestRuleIdx = -1;
 			for (int i=0; i<candidateRules.size(); i++) {
 				PosRule rule = candidateRules.get( i );
@@ -103,19 +104,21 @@ public class GreedyValidatorOriginal extends Validator{
 					if ( tokenSet.contains( token ) ) score++;
 				}
 				score /= rule.rightSize();
-				if (score >= bestScore) {
+				if (score > bestScore) {
 					bestScore = score;
 					bestRuleIdx = i;
 				}
 				
 				if (debugPrint) System.out.println( rule.rule.toOriginalString(Record.tokenIndex)+"\t"+rule.pos+"\t"+score+"\t"+bestScore+"\t"+bestRuleIdx );
-//				if (bestScore == 1) break;
+				if (bestScore == 1) break;
 			}
 			
 			if (getTime) {
 				computeScoreTime += System.nanoTime() - ts;
 				ts = System.nanoTime();
 			}
+			
+			if (bestScore == 0) break;
 			
 			// Apply a rule with the largest score.
 			PosRule bestRule = candidateRules.get( bestRuleIdx );
@@ -157,7 +160,7 @@ public class GreedyValidatorOriginal extends Validator{
 		} // end while
 
 		// Construct the transformed string.
-		int transformedSize = 0;
+		int transformedSize = (int)(Arrays.stream(bAvailable).filter(b -> b).count());
 		for (PosRule rule : appliedRuleSet) transformedSize += rule.rightSize();
 		int[] transformedRecord = new int[transformedSize];
 
@@ -174,6 +177,7 @@ public class GreedyValidatorOriginal extends Validator{
 		}
 		
 		for (int i=x.size()-1, j=transformedSize-1; i>=0;) {
+			boolean isTransformed = false;
 			for (PosRule rule : appliedRuleSet) {
 				if ( rule.pos == i ) {
 					if (debugPrint) System.out.println( rule.rule.toOriginalString(Record.tokenIndex)+", "+rule.pos );
@@ -183,8 +187,14 @@ public class GreedyValidatorOriginal extends Validator{
 					}
 					i -= rule.leftSize();
 					j -= rule.rightSize();
+					isTransformed = true;
 					break;
 				}
+			}
+			if (!isTransformed) {
+				transformedRecord[j] = x.getTokensArray()[i];
+				--i;
+				--j;
 			}
 		}
 
