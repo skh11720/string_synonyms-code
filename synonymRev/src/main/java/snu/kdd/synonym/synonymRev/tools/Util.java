@@ -584,10 +584,10 @@ public class Util {
 			dataTwoPath = prefix + String.format( name+sep+name+"_sport.txt" );
 			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
 		}
-		else if ( name.equals( "UNIV_04" ) ) {
-			dataOnePath = prefix + String.format( "UNIV_04"+sep+"UNIV_04_data.txt" );
-			dataTwoPath = prefix + String.format( "UNIV_04"+sep+"UNIV_04_data.txt" );
-			rulePath = prefix + String.format( "UNIV_04"+sep+"UNIV_04_rule.txt" );
+		else if ( name.startsWith( "UNIV" ) ) {
+			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
+			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			rulePath = prefix + String.format( name+sep+name+"_rule.txt" );
 		}
 		else if ( name.startsWith( "CONF" ) ) {
 			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
