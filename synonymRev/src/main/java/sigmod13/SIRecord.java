@@ -29,7 +29,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	private final IntegerSet tokenSet;
 	final IntegerSet fullExpanded;
 	final ObjectArrayList<Rule> applicableRules;
-	public final ObjectArrayList<Rule> applicableNonSelfRules;
+	final ObjectArrayList<Rule> applicableNonSelfRules;
 	
 	public String str;
 
@@ -86,14 +86,6 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 			if ( !rule.isSelfRule() ) applicableNonSelfRules.add(rule);
 		}
 		
-//		if ( applicableNonSelfRules.size() > 20 ) {
-//			System.out.println(applicableNonSelfRules.size());
-//			for ( int i=0; i<applicableNonSelfRules.size(); ++i ) {
-//				Rule rule = applicableNonSelfRules.get(i);
-//				System.out.println(i+"\t"+rule.toOriginalString(Record.tokenIndex));
-//			}
-//		}
-
 		// Full expand
 		for( Rule rule : applicableRules )
 			for( int s : rule.getRight() )

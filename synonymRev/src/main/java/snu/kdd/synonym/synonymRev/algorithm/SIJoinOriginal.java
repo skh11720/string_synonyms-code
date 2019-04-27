@@ -74,7 +74,6 @@ public class SIJoinOriginal extends AbstractParameterizedAlgorithm {
 		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
 		Record.tokenIndex = query.tokenIndex;
 
-		long ts = System.nanoTime();
 		for( Record recS : query.searchedSet.get() ) {
 			SIRecord sirec = new SIRecord( recS.getID(), recS.toString(), Record.tokenIndex);
 			sirec.preprocess(automata);
