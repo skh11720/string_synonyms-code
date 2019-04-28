@@ -30,6 +30,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 	final IntegerSet fullExpanded;
 	final ObjectArrayList<Rule> applicableRules;
 	final ObjectArrayList<Rule> applicableNonSelfRules;
+	IntOpenHashSet signature = null;
 	
 	public String str;
 
@@ -211,7 +212,8 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 
 	@Override
 	public Set<Integer> getSignatures( ITF_Filter filter, double theta ) {
-		IntOpenHashSet signature = new IntOpenHashSet();
+		if ( signature != null ) return signature;
+		signature = new IntOpenHashSet();
 		// 19.01.09. commented out: why this fi block is used?????
 		// this block does not generate the correct signature since it does not expand the record.
 //		if( theta == 1 ) { 
@@ -254,7 +256,7 @@ public class SIRecord implements RecordInterface, Comparable<SIRecord> {
 		
 		private int rptr = -1;
 		private final ObjectArrayList<Rule> ruleList = SIRecord.this.applicableNonSelfRules;
-		private final int nRule = ruleList.size();
+		private int nRule = ruleList.size();
 		private SIRecordExpanded[] stackExp = new SIRecordExpanded[nRule+1];
 		private int[] stack = new int[nRule+1];
 		private int sptr = 0;
