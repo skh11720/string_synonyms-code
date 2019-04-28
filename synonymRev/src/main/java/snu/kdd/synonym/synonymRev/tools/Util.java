@@ -1,5 +1,6 @@
 package snu.kdd.synonym.synonymRev.tools;
 
+import java.io.IOException;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.util.Arrays;
@@ -15,6 +16,9 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayFIFOQueue;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import snu.kdd.synonym.synonymRev.data.ACAutomataR;
+import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.data.Record;
 
 public class Util {
 	public static final int bigprime = 1645333507;
@@ -538,5 +542,98 @@ public class Util {
 		for ( int token : setShorter ) if (setLonger.contains(token)) ++common;
 		double sim = 1.0*common/(setLonger.size() + setShorter.size() - common);
 		return sim;
+	}
+
+	public static Query getTestQuery( String name, long size ) throws IOException {
+
+		String osName = System.getProperty( "os.name" );
+		String prefix = null;
+		String sep = null;
+		if ( osName.startsWith( "Windows" ) ) {
+			prefix = "D:\\ghsong\\data\\synonyms\\";
+			sep = "\\\\";
+		}
+		else if ( osName.startsWith( "Linux" ) ) {
+			prefix = "data_store/";
+			sep = "/";
+		}
+		
+		String dataOnePath, dataTwoPath, rulePath;
+		if ( name.equals( "AOL" )) {
+			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
+			dataTwoPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_%d_data.txt", size );
+			rulePath = prefix + "wordnet"+sep+"rules.noun";
+		}
+		else if ( name.equals( "AOL_1K" )) {
+			dataOnePath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
+			dataTwoPath = prefix + String.format( "aol"+sep+"splitted"+sep+"aol_1000_data.txt" );
+			rulePath = prefix + "wordnet"+sep+"rules.noun";
+		}
+		else if ( name.equals( "SPROT" ) ) {
+			dataOnePath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
+			dataTwoPath = prefix + String.format( "sprot"+sep+"splitted"+sep+"SPROT_two_%d.txt", size );
+			rulePath = prefix + "sprot"+sep+"rule.txt";
+		}
+		else if ( name.equals( "USPS" ) ) {
+			dataOnePath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+			dataTwoPath = prefix + String.format( "JiahengLu"+sep+"splitted"+sep+"USPS_%d.txt", size );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.startsWith("NAMES") ) {
+			dataOnePath = prefix + String.format( name+sep+name+"_freebase.txt" );
+			dataTwoPath = prefix + String.format( name+sep+name+"_sport.txt" );
+			rulePath = prefix + "JiahengLu"+sep+"USPS_rule.txt";
+		}
+		else if ( name.startsWith( "UNIV" ) ) {
+			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
+			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			rulePath = prefix + String.format( name+sep+name+"_rule.txt" );
+		}
+		else if ( name.startsWith( "CONF" ) ) {
+			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
+			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			rulePath = prefix + name+sep+name+"_rule.txt";
+		}
+		else if ( name.startsWith("POLY") ) {
+			dataOnePath = prefix + String.format( name+sep+name+"_data.txt" );
+			dataTwoPath = prefix + String.format( name+sep+name+"_data.txt" );
+			rulePath = prefix + name+sep+name+"_rule.txt";
+		}
+		else throw new RuntimeException();
+
+		String outputPath = "output";
+		boolean oneSideJoin = true;
+		Query query = new Query(rulePath, dataOnePath, dataTwoPath, oneSideJoin, outputPath);
+
+		return query;
+	}
+
+	public static Query getQueryWithPreprocessing( String name, int size ) throws IOException {
+		Query query = getTestQuery(name, size);
+		
+		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
+		for( final Record record : query.searchedSet.get() ) {
+			record.preprocessApplicableRules( automata );
+			record.preprocessSuffixApplicableRules();
+			record.preprocessTransformLength();
+			record.preprocessEstimatedRecords();
+		}
+		return query;
+	}
+
+	public static String getGroundTruthPath( String name ) {
+
+		String osName = System.getProperty( "os.name" );
+		String prefix = null;
+		String sep = null;
+		if ( osName.startsWith( "Windows" ) ) {
+			prefix = "D:\\ghsong\\data\\synonyms\\";
+			sep = "\\\\";
+		}
+		else if ( osName.startsWith( "Linux" ) ) {
+			prefix = "data_store/";
+			sep = "/";
+		}
+		return prefix + name+sep+name+"_groundtruth.txt";
 	}
 }

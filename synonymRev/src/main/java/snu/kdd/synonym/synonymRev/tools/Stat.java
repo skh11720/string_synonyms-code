@@ -14,6 +14,7 @@ public final class Stat {
 	public static String CAND_PQGRAM_TIME = "Stat_Cand_PQgram_Time";
 	public static String FILTER_TIME = "Stat_Filter_Time";
 	public static String VERIFY_TIME = "Stat_Verify_Time";
+	public static String ESTIMATE_TIME = "Stat_Estimate_Time";
 
 	public static String POS_DIST = "Stat_Pos_Dist";
 

@@ -9,8 +9,12 @@ import java.io.PrintWriter;
 
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmInterface;
 import snu.kdd.synonym.synonymRev.algorithm.AlgorithmStatInterface;
+import snu.kdd.synonym.synonymRev.data.ACAutomataR;
 import snu.kdd.synonym.synonymRev.data.Dataset;
 import snu.kdd.synonym.synonymRev.data.Query;
+import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.validator.TopDownOneSide;
+import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class AlgorithmResultQualityEvaluator {
 	
@@ -20,6 +24,7 @@ public class AlgorithmResultQualityEvaluator {
 	private final String outputPath;
 	private final Dataset searchedSet;
 	private final Dataset indexedSet;
+	private static Validator checker = new TopDownOneSide();
 
 	public static void evaluate( AlgorithmInterface alg, Query query, String groundPath ) {
 		if (groundPath == null ) {
@@ -42,7 +47,7 @@ public class AlgorithmResultQualityEvaluator {
 		indexedSet = query.indexedSet;
 		ResultSet rslt = alg.getResult();
 		ResultSet groundSet = getGroundTruthSet(groundPath);
-		compareIntPairSetsWrapper(groundSet, rslt);
+		compareIntPairSetsWrapper(groundSet, rslt, query);
 	}
 
 	private ResultSet getGroundTruthSet( String groundPath ) {
@@ -64,7 +69,7 @@ public class AlgorithmResultQualityEvaluator {
 		return groundSet;
 	}
 
-	private void compareIntPairSetsWrapper( ResultSet groundSet, ResultSet rslt ) {
+	private void compareIntPairSetsWrapper( ResultSet groundSet, ResultSet rslt, Query query ) {
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(new BufferedWriter(new FileWriter(outputPath)));
@@ -72,15 +77,16 @@ public class AlgorithmResultQualityEvaluator {
 		catch ( IOException e ) {
 			e.printStackTrace();
 		}
-		compareIntPairSets(groundSet, rslt, pw);
+		compareIntPairSets(groundSet, rslt, query, pw);
 		pw.close();
 	}
 	
-	private void compareIntPairSets( ResultSet groundSet, ResultSet rslt, PrintWriter pw ) {
+	private void compareIntPairSets( ResultSet groundSet, ResultSet rslt, Query query, PrintWriter pw ) {
 		/*	
 		 * For the case of self joins, ipairs in the both sets are assumed to be orderd (i1 <= i2). 
 		 *  if something is wrong, check it out.
 		 */
+		checkQuery(query);
 		for ( final IntegerPair ipair : groundSet ) {
 			if ( ipair.i1 == ipair.i2 ) continue;
 			if ( rslt.contains(ipair) ) {
@@ -94,6 +100,7 @@ public class AlgorithmResultQualityEvaluator {
 		}
 		for ( final IntegerPair ipair : rslt ) {
 			if ( ipair.i1 == ipair.i2 ) continue;
+			if ( canbeTransformed(ipair, query) ) continue;
 			if ( !groundSet.contains(ipair) ) {
 				if ( pw != null ) pw.println("FP\t"+getRecordPairStringFromIntPair(ipair));
 				++fp;
@@ -138,5 +145,31 @@ public class AlgorithmResultQualityEvaluator {
 	
 	public int getFN() {
 		return fn;
+	}
+	
+	private void checkQuery( Query query ) {
+		ACAutomataR automata = new ACAutomataR( query.ruleSet.get() );
+		for( final Record record : query.searchedSet.get() ) {
+			if ( record.getApplicableRules() == null ) record.preprocessApplicableRules( automata );
+			if ( record.getSuffixApplicableRules(0) == null ) record.preprocessSuffixApplicableRules();
+		}
+	}
+	
+	private boolean canbeTransformed( Record s, Record t ) {
+		return ( checker.isEqual(s, t) >= 0 );
+	}
+	
+	private boolean canbeTransformed( IntegerPair ipair, Query query ) {
+		Record s = query.searchedSet.getRecord(ipair.i1);
+		Record t = query.indexedSet.getRecord(ipair.i2);
+		return canbeTransformed(s, t);
+	}
+	
+	private ResultSet filterOutTransEquivPairs( ResultSet rslt, Query query ) {
+		ResultSet rslt_new = new ResultSet(query.selfJoin);
+		for ( final IntegerPair ipair : rslt ) {
+			if ( canbeTransformed(ipair, query) ) rslt_new.add(ipair);;
+		}
+		return rslt_new;
 	}
 }

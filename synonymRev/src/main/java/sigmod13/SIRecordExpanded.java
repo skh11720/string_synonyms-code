@@ -2,6 +2,8 @@ package sigmod13;
 
 import java.util.Collection;
 
+import javax.management.RuntimeErrorException;
+
 import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.IntegerSet;
 import snu.kdd.synonym.synonymRev.validator.Validator;
@@ -10,22 +12,25 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
  * Expanded record
  */
 public class SIRecordExpanded implements SIRecord.Expanded {
+	private final SIRecord rec;
 	private final Collection<Integer> originalTokens;
 	private final IntegerSet expandedTokens;
 
 	public SIRecordExpanded( SIRecord rec ) {
+		this.rec = rec;
 		originalTokens = rec.getTokens();
 		expandedTokens = new IntegerSet();
 	}
 
-	public SIRecordExpanded( SIRecordExpanded rec ) {
-		originalTokens = new IntegerSet( rec.originalTokens );
-		expandedTokens = new IntegerSet( rec.expandedTokens );
+	public SIRecordExpanded( SIRecordExpanded rec_exp ) {
+		this.rec = rec_exp.rec;
+		originalTokens = new IntegerSet( rec_exp.originalTokens );
+		expandedTokens = new IntegerSet( rec_exp.expandedTokens );
 	}
 
 	@Override
 	public SIRecord toRecord() {
-		return new SIRecord( this );
+		return rec;
 	}
 
 	public Collection<Integer> getOriginalTokens() {
@@ -36,10 +41,10 @@ public class SIRecordExpanded implements SIRecord.Expanded {
 		return expandedTokens;
 	}
 
-	public void applyRule( Rule rule ) throws Exception {
+	public void applyRule( Rule rule ) {
 		for( int s : rule.getLeft() ) {
 			if( !originalTokens.contains( s ) ) {
-				throw new Exception( "Not applicable rule" );
+				throw new RuntimeException( "Not applicable rule" );
 			}
 		}
 		for( int s : rule.getRight() ) {

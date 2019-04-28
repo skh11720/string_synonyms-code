@@ -8,22 +8,25 @@ import snu.kdd.synonym.synonymRev.tools.StopWatch;
 public class PassJoin extends AbstractIndexBasedAlgorithm {
 	
 	public final int deltaMax;
+	public final String distFunc;
 	protected PassJoinIndexForSynonyms idx = null;
 
 	public PassJoin(String[] args) {
 		super(args);
 		deltaMax = param.getIntParam("deltaMax");
+		distFunc = param.getStringParam("dist");
 	}
 	
 	@Override
 	public void initialize() {
 		super.initialize();
-		checker = new PassJoinValidator(deltaMax);
+		checker = new PassJoinValidator(deltaMax, distFunc);
 	}
 	
 	@Override
 	protected void reportParamsToStat() {
 		stat.add("Param_deltaMax", deltaMax);
+		stat.add("Param_distFunct", distFunc);
 	}
 
 	@Override
@@ -52,7 +55,7 @@ public class PassJoin extends AbstractIndexBasedAlgorithm {
 	
 	@Override
 	protected void buildIndex() {
-		idx = new PassJoinIndexForSynonyms( query, deltaMax, stat );
+		idx = new PassJoinIndexForSynonyms( query, deltaMax, distFunc, stat );
 	}
 
 	@Override

@@ -38,8 +38,13 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	public void run( Query query ) {
 		StopWatch totalTime = StopWatch.getWatchStarted(TOTAL_RUNNING_TIME);
 		this.query = query;
+
+		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_TOTAL_TIME);
 		initialize();
 		preprocess();
+		watch.stopQuietAndAdd(stat);
+		stat.addMemory("Mem_2_Preprocessed");
+
 		executeJoinWrapper();
 		totalTime.stop();
 		stat.addPrimary(totalTime);
@@ -58,12 +63,9 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 	}
 
 	protected void preprocess() {
-		StopWatch watch = StopWatch.getWatchStarted(PREPROCESS_TOTAL_TIME);
 		preprocessRules();
 		computeTransformLengths();
 		estimateNumTransforms();
-		watch.stopQuietAndAdd(stat);
-		stat.addMemory("Mem_2_Preprocessed");
 	}
 	
 	private void preprocessRules() {

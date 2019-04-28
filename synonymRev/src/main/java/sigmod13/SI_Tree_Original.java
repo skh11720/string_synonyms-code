@@ -13,6 +13,7 @@ import java.util.Set;
 
 import sigmod13.filter.ITF_Filter;
 import snu.kdd.synonym.synonymRev.data.Record;
+import snu.kdd.synonym.synonymRev.data.Rule;
 import snu.kdd.synonym.synonymRev.tools.DEBUG;
 import snu.kdd.synonym.synonymRev.tools.IntegerMap;
 import snu.kdd.synonym.synonymRev.tools.Pair;
@@ -473,54 +474,54 @@ public class SI_Tree_Original<T extends RecordInterface & Comparable<T>> {
 	 * in runtime. <br/>
 	 * Note that this method should be used if threshold == 1
 	 */
-	@SuppressWarnings( "unchecked" )
-	public HashSet<Pair<T>> naivejoin( List<T> tableS, boolean is_selfjoin ) {
-		HashSet<Pair<T>> results = new HashSet<Pair<T>>();
-		long count = 0;
-		for( T rec : tableS ) {
-			int id1 = rec.getID();
-			Set<T.Expanded> expanded = (Set<T.Expanded>) rec.generateAll();
-			for( T.Expanded exp : expanded ) {
-				RecordInterface rec1 = exp.toRecord();
-				Set<Integer> sig = rec1.getSignatures( filter, 1 );
-				// Number of sig must be 1
-				if( sig.size() != 1 )
-					throw new RuntimeException();
-				// For all fence entries
-				for( FenceEntry fe : root.values() ) {
-					// Check length condition
-					if( fe.v < exp.size() || exp.size() < fe.u )
-						continue;
-					// For all leaf entries
-					for( LeafEntry le : fe.P.values() ) {
-						// Check length condition
-						if( le.t < exp.size() )
-							continue;
-						Integer key = sig.iterator().next();
-						ArrayList<T> values = le.P.getI( key );
-						if( values == null )
-							continue;
-						// Check if similarity equals to 1
-						for( T rec2 : values ) {
-							int id2 = rec2.getID();
-							if( is_selfjoin && id1 <= id2 )
-								break;
-							// Similarity check
-							double sim = rec1.similarity( rec2, checker );
-							if( sim == 1 ) {
-								Pair<T> sirp = new Pair<T>( rec, rec2 );
-								results.add( sirp );
-							}
-							++count;
-						}
-					}
-				}
-			}
-		}
-
-		System.out.println( "Comparisons : " + count );
-		return results;
-	}
+//	@SuppressWarnings( "unchecked" )
+//	public HashSet<Pair<T>> naivejoin( List<T> tableS, boolean is_selfjoin ) {
+//		HashSet<Pair<T>> results = new HashSet<Pair<T>>();
+//		long count = 0;
+//		for( T rec : tableS ) {
+//			int id1 = rec.getID();
+//			Set<T.Expanded> expanded = (Set<T.Expanded>) rec.generateAll();
+//			for( T.Expanded exp : expanded ) {
+//				RecordInterface rec1 = exp.toRecord();
+//				Set<Integer> sig = rec1.getSignatures( filter, 1 );
+//				// Number of sig must be 1
+//				if( sig.size() != 1 )
+//					throw new RuntimeException();
+//				// For all fence entries
+//				for( FenceEntry fe : root.values() ) {
+//					// Check length condition
+//					if( fe.v < exp.size() || exp.size() < fe.u )
+//						continue;
+//					// For all leaf entries
+//					for( LeafEntry le : fe.P.values() ) {
+//						// Check length condition
+//						if( le.t < exp.size() )
+//							continue;
+//						Integer key = sig.iterator().next();
+//						ArrayList<T> values = le.P.getI( key );
+//						if( values == null )
+//							continue;
+//						// Check if similarity equals to 1
+//						for( T rec2 : values ) {
+//							int id2 = rec2.getID();
+//							if( is_selfjoin && id1 <= id2 )
+//								break;
+//							// Similarity check
+//							double sim = rec1.similarity( rec2, checker );
+//							if( sim == 1 ) {
+//								Pair<T> sirp = new Pair<T>( rec, rec2 );
+//								results.add( sirp );
+//							}
+//							++count;
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		System.out.println( "Comparisons : " + count );
+//		return results;
+//	}
 
 	public int size() {
 		return size;

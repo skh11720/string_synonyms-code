@@ -2,6 +2,7 @@ package snu.kdd.synonym.synonymRev.algorithm;
 
 import org.apache.commons.cli.CommandLine;
 
+import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaHybrid;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaNaive;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaPQVPQ;
 import snu.kdd.synonym.synonymRev.algorithm.delta.JoinDeltaSimple;
@@ -37,6 +38,7 @@ public class AlgorithmFactory {
 		JoinDeltaVar,
 		JoinDeltaVarBK,
 		JoinDeltaPQVPQ,
+		JoinDeltaHybrid,
 	}
 
 	public static AlgorithmInterface getAlgorithmInstance( CommandLine cmd, boolean isSelfJoin ) {
@@ -118,6 +120,10 @@ public class AlgorithmFactory {
 		
 		case JoinDeltaPQVPQ:
 			alg = new JoinDeltaPQVPQ( additionalArgs );
+			break;
+		
+		case JoinDeltaHybrid:
+			alg = new JoinDeltaHybrid( additionalArgs );
 			break;
 		
 		default:

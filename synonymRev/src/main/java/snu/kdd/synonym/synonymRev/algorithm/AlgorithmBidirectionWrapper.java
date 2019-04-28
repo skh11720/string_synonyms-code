@@ -36,15 +36,15 @@ public class AlgorithmBidirectionWrapper extends AbstractAlgorithm {
 			throw new RuntimeException();
 		}
 
-		// searchedSet -> indexedSet
-		alg.run(query);
-		ResultSet rslt1 = alg.getResult();
-		StatContainer stat1 = alg.getStat();
-		
 		// indexedSet -> searchedSet
 		alg.run(queryRev);
 		ResultSet rslt2 = alg.getResult();
 		StatContainer stat2 = alg.getStat();
+		
+		// searchedSet -> indexedSet
+		alg.run(query);
+		ResultSet rslt1 = alg.getResult();
+		StatContainer stat1 = alg.getStat();
 		
 //		 DEBUG: check unidirectional results
 		checkUnidirResults(stat1, stat2);

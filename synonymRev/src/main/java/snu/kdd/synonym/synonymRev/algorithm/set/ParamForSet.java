@@ -37,7 +37,7 @@ public class ParamForSet extends AbstractParam {
 
 			if( cmd.hasOption( "verify" ) ) {
 				String verifier = cmd.getOptionValue( "verify" );
-				Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"TD", "MIT_GR"} );
+				Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"DP", "MIT_GR"} );
 				if ( verifier.startsWith( "GR" ) ) {
 					int beamWidth = Integer.parseInt( verifier.substring( 2 ) );
 					mapParamI.put("beamWidth", beamWidth);

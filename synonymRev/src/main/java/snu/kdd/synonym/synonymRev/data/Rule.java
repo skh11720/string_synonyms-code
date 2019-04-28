@@ -66,7 +66,7 @@ public class Rule implements Comparable<Rule> {
 	}
 
 	public boolean isSelfRule() {
-		return isSelfRule;
+		return Arrays.equals(lefths,  righths);
 	}
 
 	public int[] getLeft() {

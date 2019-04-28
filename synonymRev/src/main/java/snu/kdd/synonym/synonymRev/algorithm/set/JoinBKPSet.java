@@ -64,7 +64,7 @@ public class JoinBKPSet extends AbstractIndexBasedAlgorithm {
 	@Override
 		public void initialize() {
 			super.initialize();
-			if ( verify.equals( "TD" ) ) checker = new SetTopDownOneSide();
+			if ( verify.equals( "DP" ) ) checker = new SetTopDownOneSide();
 			else if ( verify.startsWith( "GR" ) ) checker = new SetGreedyOneSide( param.getIntParam("beamWidth") );
 			else if ( verify.equals( "MIT_GR" ) ) checker = new SetGreedyValidator();
 		}

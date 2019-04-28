@@ -52,9 +52,9 @@ public class JoinDeltaNaive extends AbstractParameterizedAlgorithm {
 		/*
 		 * 1.00: the initial version
 		 * 1.01: major update
-		 * 1.02: two-level hashing
+		 * 1.02: two-level hashing (DEPRECATED)
 		 */
-		return "1.02";
+		return "1.01";
 	}
 
 	@Override

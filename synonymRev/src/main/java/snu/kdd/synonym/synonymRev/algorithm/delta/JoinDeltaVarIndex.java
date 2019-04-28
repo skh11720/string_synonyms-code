@@ -71,8 +71,15 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	public static boolean useSTPQ = true;
 	
 	private final IntArrayList firstKPosArr; // does not need to be sorted
+	public AlgStat algstat = new AlgStat();
+	
+	public static JoinDeltaVarIndex getInstance( Query query, int indexK, int qSize, int deltaMax, String dist ) {
+		JoinDeltaVarIndex index = new JoinDeltaVarIndex(query, indexK, qSize, deltaMax, dist);
+		index.build();
+		return index;
+	}
 
-	public JoinDeltaVarIndex( Query query, int indexK, int qSize, int deltaMax, String dist ) {
+	protected JoinDeltaVarIndex( Query query, int indexK, int qSize, int deltaMax, String dist ) {
 		/*
 		 * methods called in here: insertRecordIntoIdxPD(Record)
 		 */
@@ -100,7 +107,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		qgramDelta_pad = new QGram( tokens );
 	}
 	
-	public void build() {
+	protected void build() {
 		// build idxPD
 		for ( Record recT : query.indexedSet.recordList ) {
 			if ( recT.size() <= deltaMax ) shortList.add(recT);
@@ -168,6 +175,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 				 */
 
 				for ( Entry<QGram, Integer> entry : qdgen.getQGramDelta( qgram ) ) {
+					++algstat.idxQGramCount;
 					QGram qgramDelta = entry.getKey();
 					int delta = entry.getValue();
 					WYK_HashMap<QGram, List<Record>> idxPD_kd =  idxPD_k.get(delta);
@@ -204,6 +212,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		this.candQGramCountTime += afterCandQGramTime - ts;
 		this.filterTime += afterFilterTime - afterCandQGramTime;
 		this.verifyTime += afterEquivTime - afterFilterTime;
+		algstat.candQGramCount = this.candQGramCount;
+		algstat.numVerified = checker.checked;
+		algstat.candFilterTime = (this.candQGramCountTime + this.filterTime)/1e6;
+		algstat.verifyTime = this.verifyTime/1e6;
 	} // end joinOneRecord
 
 	protected List<List<Set<QGram>>> getAvailableQGrams( final Record recS ) {
@@ -213,7 +225,7 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		return availableQGrams;
 	}
 
-	protected List<List<Set<QGram>>> getVarSTPQ( Record rec, boolean usePruning ) {
+	public List<List<Set<QGram>>> getVarSTPQ( Record rec, boolean usePruning ) {
 		/*
 		 * Return the lists of delta-variant positional qgrams in STPQ, where each list is indexed by pos and delta.
 		 * If usePruning is true, prune qgrams which do not appear in the index (by referring idxPD and pos12QGramSetMap).
@@ -287,6 +299,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		return availableQGrams;
 	}
 
+	protected Object2IntOpenHashMap<Record> getCandidatesCount(final Record recS, List<List<Set<QGram>>> availableQGrams ) {
+		return getCandidatesCount(recS, availableQGrams, null);
+	}
+
 	protected Object2IntOpenHashMap<Record> getCandidatesCount(final Record recS, List<List<Set<QGram>>> availableQGrams, Set<Record> candidates ) {
 		Object2IntOpenHashMap<Record> candidatesCount = new Object2IntOpenHashMap<Record>();
 		candidatesCount.defaultReturnValue(0);
@@ -328,15 +344,16 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		return candidatesCount;
 	}
 
-	protected Object2IntOpenHashMap<Record> getCandidatesCount(final Record recS, List<List<Set<QGram>>> availableQGrams ) {
-		return getCandidatesCount(recS, availableQGrams, null);
+	protected Set<Record> getCandidates(final Record recS, Object2IntOpenHashMap<Record> candidatesCount ) {
+		return getCandidates(recS, candidatesCount, null);
 	}
 
-	protected Set<Record> getCandidates(final Record recS, Object2IntOpenHashMap<Record> candidatesCount ) {
+	protected Set<Record> getCandidates(final Record recS, Object2IntOpenHashMap<Record> candidatesCount, Set<Record> oldCandidates ) {
 		Set<Record> candidates = new WYK_HashSet<Record>(100);
 		int[] rangeS = recS.getTransLengths();
 		for ( Object2IntMap.Entry<Record> entry : candidatesCount.object2IntEntrySet() ) {
 			Record recT = entry.getKey();
+			if ( oldCandidates != null && !oldCandidates.contains(recT) ) continue;
 			int recordCount = entry.getIntValue();
 			// recordCount: number of lists containing the target record given recS
 			// indexedCountList.getInt(record): number of pos qgrams which are keys of the target record in the index
@@ -350,7 +367,10 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 		nCandByPQF += candidates.size();
 
 		if ( rangeS[0] <= deltaMax ) {
-			candidates.addAll(shortList);
+			for ( Record recT : shortList ) {
+				if ( oldCandidates != null && !oldCandidates.contains(recT) ) continue;
+				candidates.add(recT);
+			}
 		}
 		nCandByLen += candidates.size() - thisNCandByPQF;
 		return candidates;
@@ -407,5 +427,14 @@ public class JoinDeltaVarIndex extends AbstractIndex {
 	protected int getDeltaTMax( int delta_s ) {
 		if ( this.idxForDist == 0 ) return this.deltaMax - delta_s;
 		else return this.deltaMax;
+	}
+	
+	public class AlgStat {
+		public long idxQGramCount = 0;
+		public long candQGramCount = 0;
+		public long numVerified = 0;
+
+		public double candFilterTime = 0;
+		public double verifyTime = 0;
 	}
 }

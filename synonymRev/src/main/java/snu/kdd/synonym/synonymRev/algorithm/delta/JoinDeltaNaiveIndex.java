@@ -1,13 +1,12 @@
 package snu.kdd.synonym.synonymRev.algorithm.delta;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import snu.kdd.synonym.synonymRev.data.Query;
 import snu.kdd.synonym.synonymRev.data.Record;
 import snu.kdd.synonym.synonymRev.index.AbstractIndex;
@@ -19,7 +18,7 @@ import snu.kdd.synonym.synonymRev.validator.Validator;
 
 public class JoinDeltaNaiveIndex extends AbstractIndex {
 
-	private HashTable idx;
+	protected final ObjectArrayList<Int2ObjectOpenHashMap<List<Record>>> idx; 
 	/*
 	 * idx is a list of hash tables. idx[d] is a hash table for d-variants of strings in the indexedSet.
 	 * The range of d is 0~deltaMax.
@@ -28,54 +27,88 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 	protected final int idxForDist; // 0: lcs, 1: edit
 	protected final boolean isSelfJoin;
 	
+	public AlgStat algstat = new AlgStat();
+	
 	public JoinDeltaNaiveIndex( int deltaMax, String dist, Query query ) {
 		this.deltaMax = deltaMax;
 		this.isSelfJoin = query.selfJoin;
 		if ( dist.equals("lcs") ) idxForDist = 0;
 		else idxForDist = 1;
+		idx = new ObjectArrayList<>();
+		for ( int d=0; d<=deltaMax; ++d ) idx.add(new Int2ObjectOpenHashMap<>());
 		
-		idx = new HashTable(query.indexedSet.size());
+		build(query);
+	}
+	
+	public void build( Query query ) {
 		for ( Record recT : query.indexedSet.recordList ) {
 			List<IntArrayList> combList = Util.getCombinationsAll( recT.size(), deltaMax ); // indexes whose elements will be deleted
-			for ( IntArrayList idxListNotIn : combList ) {
-				idx.put(recT.getID(), recT.getTokensArray(), idxListNotIn);
+			for ( IntArrayList idxList : combList ) {
+				int key = getKey(recT.getTokensArray(), idxList);
+				int d = idxList.size();
+				if ( !idx.get(d).containsKey(key) ) idx.get(d).put(key, new ObjectArrayList<Record>() );
+				idx.get(d).get(key).add(recT);
+//				System.out.println(d+", "+key+", "+recT);
+				++algstat.numVPQt;
 			}
 		}
 	}
+	
 
 	@Override
-	protected void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
+	public void joinOneRecord( Record recS, ResultSet rslt, Validator checker ) {
+		Set<Record> matched = new ObjectOpenHashSet<>();
 		for ( Record exp : recS.expandAll() ) {
 //			System.out.println("exp: "+exp);
-			Set<Integer> candidates;
+			Set<Record> candidates;
 			if ( idxForDist == 0 ) candidates = getCandidateWithLCS(exp);
 			else candidates = getCandidateWithEdit(exp);
 
-			for ( int recTID : candidates ) {
-				rslt.add(recS, recTID);
+			for ( Record recT : candidates ) {
+				if ( matched.contains(recT) ) continue;
+				++checker.checked;
+				if ( exp.equals(recT) ) matched.add(recT);
+				else if ( ((AbstractDeltaValidator)checker).distGivenThres.eval(exp.getTokensArray(), recT.getTokensArray(), deltaMax) <= deltaMax ) {
+					matched.add(recT);
+				}
 			}
+			++algstat.numTransS;
+			algstat.numCand += candidates.size();
 		} // end for exp
+		
+		for ( Record recT : matched ) rslt.add(recS, recT);
 	}
 	
-	protected Set<Integer> getCandidateWithLCS( Record exp ) {
-		Set<Integer> candidates = new IntOpenHashSet();
+	protected Set<Record> getCandidateWithLCS( Record exp ) {
+		Set<Record> candidates = new ObjectOpenHashSet<>();
 		List<List<IntArrayList>> combListDelta = Util.getCombinationsAllByDelta( exp.size(), deltaMax );
 		for ( int d_s=0; d_s<=deltaMax; ++d_s ) {
-			for ( IntArrayList idxListNotIn : combListDelta.get(d_s) ) {
-				for ( int rid : idx.get(0, deltaMax-d_s, exp.getTokensArray(), idxListNotIn) ) {
-					candidates.add(rid);
+			for ( IntArrayList idxList : combListDelta.get(d_s) ) {
+				++algstat.numTransSD;
+				int key = getKey(exp.getTokensArray(), idxList);
+				for ( int d_t=0; d_t<=deltaMax-d_s; ++d_t ) {
+					if ( idx.get(d_t).containsKey(key) ) {
+						for ( Record recT : idx.get(d_t).get(key) ) {
+							candidates.add(recT);
+						}
+					}
 				}
 			}
 		}
 		return candidates;
 	}
 	
-	protected Set<Integer> getCandidateWithEdit( Record exp ) {
-		Set<Integer> candidates = new IntOpenHashSet();
+	protected Set<Record> getCandidateWithEdit( Record exp ) {
+		Set<Record> candidates = new ObjectOpenHashSet<>();
 		List<IntArrayList> combList = Util.getCombinationsAll( exp.size(), deltaMax );
-		for ( IntArrayList idxListNotIn : combList ) {
-			for ( int rid : idx.get(0, deltaMax, exp.getTokensArray(), idxListNotIn) ) {
-				candidates.add(rid);
+		for ( IntArrayList idxList : combList ) {
+			int key = getKey(exp.getTokensArray(), idxList);
+			for ( int d_t=0; d_t<=deltaMax; ++d_t ) {
+				if ( idx.get(d_t).containsKey(key) ) {
+					for ( Record recT : idx.get(d_t).get(key) ) {
+						candidates.add(recT);
+					}
+				}
 			}
 		}
 		return candidates;
@@ -83,102 +116,47 @@ public class JoinDeltaNaiveIndex extends AbstractIndex {
 
 	@Override
 	protected void postprocessAfterJoin(StatContainer stat) {
-		int size = idx.size();
-		int nList = idx.numEntries();
+		int size = 0;
+		int nList = 0;
+		for ( int d=0; d<=deltaMax; ++d ) {
+			Int2ObjectOpenHashMap<List<Record>> map = idx.get(d);
+			for ( List<Record> list : map.values() ) size += list.size();
+			nList += map.size();
+		}
 		stat.add(Stat.INDEX_SIZE, size );
 		stat.add(Stat.AVG_LIST_LENGTH, size/nList);
 	}
 	
-	protected static int getIntKey( int[] arr, IntArrayList idxListNotIn ) {
+	protected static int getKey( int[] arr, IntArrayList idxList ) {
+		/*
+		 * Return the key value of the subsequence of arr WITHOUT indexes in idxList.
+		 * (i.e., idxList represents the positions of elements in arr to be deleted.)
+		 * This function is similar to the hash function of Record class.
+		 */
 		int key = 0;
-		for ( int i=0, j=0; i<arr.length; ++i ) {
-			if ( j < idxListNotIn.size() && i == idxListNotIn.getInt(j) ) ++j;
-			else key = ((key + arr[i]) << 32) % Util.bigprime;
+		int j = 0;
+		int idx = idxList.size() > 0 ? idxList.getInt(j) : -1;
+		for ( int i=0; i<arr.length; ++i ) {
+			if ( idx == i ) {
+				if ( j < idxList.size()-1 ) idx = idxList.getInt(++j);
+				else idx = -1;
+			}
+			else {
+				key = ( key << 3 ) + arr[i];
+				key %= Util.bigprime;
+			}
 		}
+//		key %= Integer.MAX_VALUE; // is this line necessary?
 		return key;
 	}
 	
-    protected static Record getRecordKey( int[] arr, IntArrayList idxListNotIn ) {
-        int[] token = Util.getSubsequenceNotIn(arr, idxListNotIn);
-        if ( token == null ) return Record.EMPTY_RECORD;
-        else return new Record(token);
-    }
-    
-    private final class HashTable {
-    	private final Int2ObjectOpenHashMap<Int2ObjectOpenHashMap<HashTableEntry>> table;
-    	
-    	public HashTable( int initCapacity ) {
-    		table = new Int2ObjectOpenHashMap<>();
-    		for ( int d=0; d<=deltaMax; ++d ) table.put(d, new Int2ObjectOpenHashMap<>(initCapacity*(d+1)));
-		}
-    	
-    	public void put( int rid, int[] arr, IntArrayList idxListNotIn ) {
-    		int d = idxListNotIn.size();
-    		int intKey = getIntKey(arr, idxListNotIn);
-    		Int2ObjectOpenHashMap<HashTableEntry> table_d = table.get(d);
-    		if (!table_d.containsKey(intKey)) table_d.put(intKey, new HashTableEntry());
-    		table_d.get(intKey).put(rid, arr, idxListNotIn);
-    	}
-    	
-    	public Iterable<Integer> get( int d_min, int d_max, int[] arr, IntArrayList idxListNotIn ) {
-    		Set<Integer> outputSet = new IntOpenHashSet();
-    		int intKey = getIntKey(arr, idxListNotIn);
-    		for ( int d=d_min; d<=d_max; ++d ) {
-    			if (table.get(d).containsKey(intKey)) {
-    				HashTableEntry entry = table.get(d).get(intKey);
-    				for ( int rid : entry.get(arr, idxListNotIn) ) outputSet.add(rid);
-    			}
-    		}
-    		return outputSet;
-    	}
-    	
-    	public int size() {
-    		int n = 0;
-    		for ( int d=0; d<=deltaMax; ++d ) {
-    			for ( HashTableEntry entry : table.get(d).values()) n += entry.size();
-    		}
-    		return n;
-    	}
-    	
-    	public int numEntries() {
-    		int n = 0;
-    		for ( int d=0; d<=deltaMax; ++d ) {
-    			n += table.get(d).size();
-    		}
-    		return n;
-    	}
-    }
+	public class AlgStat {
+		// term1
+		public long numVPQt = 0;
 
-    private final class HashTableEntry {
-    	private IntArrayList firstList;
-    	private final Object2ObjectOpenHashMap<Record, IntArrayList> recordMap;
-    	
-    	public HashTableEntry() {
-    		recordMap = new Object2ObjectOpenHashMap<>();
-		}
-    	
-    	public void put( int rid, int[] arr, IntArrayList idxListNotIn ) {
-    		Record recordKey = getRecordKey(arr, idxListNotIn);
-    		if (!recordMap.containsKey(recordKey)) {
-    			recordMap.put(recordKey, new IntArrayList());
-    			if ( firstList == null ) firstList = recordMap.get(recordKey);
-    		}
-    		recordMap.get(recordKey).add(rid);
-    	}
-    	
-    	public Iterable<Integer> get( int[] arr, IntArrayList idxListNotIn ) {
-    		if (recordMap.size() == 0 ) return Collections.emptyList();
-//    		if (recordMap.size() == 1) return firstList;
-    		Record recordKey = getRecordKey(arr, idxListNotIn);
-    		if (recordMap.containsKey(recordKey)) return recordMap.get(recordKey);
-    		else return Collections.emptyList();
-    	}
-    	
-    	public int size() {
-    		int n = 0;
-    		for ( IntArrayList list : recordMap.values() ) n += list.size();
-    		return n;
-    	}
-    }
-    
+		// term2
+		public long numTransS = 0;
+		public long numTransSD = 0;
+		public long numCand = 0;
+	}
 }

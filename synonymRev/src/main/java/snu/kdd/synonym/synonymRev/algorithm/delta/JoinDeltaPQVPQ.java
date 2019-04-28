@@ -12,15 +12,15 @@ public class JoinDeltaPQVPQ extends JoinDeltaVarBK {
 		JoinDeltaPQVPQIndex.usePQF = usePQF;
 		JoinDeltaPQVPQIndex.useSTPQ = useSTPQ;
 		idx = new JoinDeltaPQVPQIndex(query, indexK, qSize, deltaMax, distFunc, sampleB);
-		idx.build();
 	}
 
 	@Override
 	public String getVersion() {
 		/*
 		 * 1.00: the initial version
+		 * 1.01: apply filter in JoinDeltaVar first
 		 */
-		return "1.00";
+		return "1.01";
 	}
 
 	@Override

@@ -39,7 +39,7 @@ public class ParamPkduck extends AbstractParam {
 			}
 
 			if( cmd.hasOption( "verify" ) ) {
-				Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"naive", "greedy", "TD"} );
+				Set<String> possibleValues = new ObjectOpenHashSet<String>( new String[] {"naive", "greedy", "DP"} );
 				String verifier = cmd.getOptionValue( "verify" );
 				if ( !possibleValues.contains( verifier ) )
 					throw new RuntimeException("unexpected value for option -verify: "+verifier);

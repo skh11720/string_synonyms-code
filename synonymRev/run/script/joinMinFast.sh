@@ -10,11 +10,11 @@ split=${9}
 UPLOAD=${10}
 k=${11}
 qSize=${12}
-sample=${13}
+sampleB=${13}
 
-ADDITIONAL="-K $k -qSize $qSize -sample $sample"
+ADDITIONAL="-K $k -qSize $qSize -sampleB $sampleB"
 
-ALG=JoinMin
+ALG=JoinMinFast
 
 
 if [[ -f xmx.txt ]];
