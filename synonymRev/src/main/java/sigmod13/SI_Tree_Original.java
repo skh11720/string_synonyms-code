@@ -97,14 +97,14 @@ public class SI_Tree_Original<T extends RecordInterface & Comparable<T>> {
 	public SI_Tree_Original( double theta, ITF_Filter filter, List<T> tableT, Validator checker ) {
 		this( theta, filter, checker );
 		for( T rec : tableT ) {
-			SIRecord sirec = (SIRecord)rec;
-			long ts = System.nanoTime();
-			System.out.println( sirec.getID()+"\t"+sirec.str+"\t"+sirec.applicableNonSelfRules.size());
-			for ( Rule rule : sirec.applicableNonSelfRules ) {
-				System.out.println(rule.toOriginalString(Record.tokenIndex));
-			}
+//			SIRecord sirec = (SIRecord)rec;
+//			long ts = System.nanoTime();
+//			System.out.println( sirec.getID()+"\t"+sirec.str+"\t"+sirec.applicableNonSelfRules.size());
+//			for ( Rule rule : sirec.applicableNonSelfRules ) {
+//				System.out.println(rule.toOriginalString(Record.tokenIndex));
+//			}
 			add( rec );
-			System.out.println((System.nanoTime()-ts)/1e6);
+//			System.out.println((System.nanoTime()-ts)/1e6);
 		}
 	}
 
@@ -466,13 +466,13 @@ public class SI_Tree_Original<T extends RecordInterface & Comparable<T>> {
 								}
 							}
 						}
-						System.out.println("LeafEntry le_other : "+le_other.t);
+//						System.out.println("LeafEntry le_other : "+le_other.t);
 					}
-					System.out.println("LeafEntry le_this : "+le_this.t);
+//					System.out.println("LeafEntry le_this : "+le_this.t);
 				}
-				System.out.println("FenceEntry fe_other : "+fe_other.v);
+//				System.out.println("FenceEntry fe_other : "+fe_other.v);
 			}
-			System.out.println("FenceEntry fe_this : "+fe_this.v);
+//			System.out.println("FenceEntry fe_this : "+fe_this.v);
 		}
 
 		System.out.println( "Comparisons : " + count );
