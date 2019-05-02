@@ -1,7 +1,0 @@
-/target/
-/run/data_store
-/run/err.log
-/run/test.sh
-/run/uploader/
-/run/logs/
-/run/backup/

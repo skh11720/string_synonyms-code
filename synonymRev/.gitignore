@@ -1,0 +1,17 @@
+/target/
+/run/data_store
+/run/err.log
+/run/test.sh
+/run/uploader/
+/run/logs/
+/run/backup/
+/run/assign
+/run/*.json
+/run/known_hosts
+/run/encrypted.bin
+/run/sandbox.py
+/result/
+/json/
+*.pyc
+
+/run/assign_test.py
