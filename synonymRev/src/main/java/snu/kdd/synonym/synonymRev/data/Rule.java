@@ -19,7 +19,7 @@ public class Rule implements Comparable<Rule> {
 
 	public Rule( String str, TokenIndex tokenIndex ) {
 		int hash = 0;
-		String[] pstr = str.split( ", " );
+		String[] pstr = str.split( "|||" );
 		String[] fpstr = pstr[ 0 ].trim().split( " " );
 
 		lefths = new int[ fpstr.length ];
