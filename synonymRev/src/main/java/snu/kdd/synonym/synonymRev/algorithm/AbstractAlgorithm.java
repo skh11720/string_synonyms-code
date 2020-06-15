@@ -120,7 +120,7 @@ public abstract class AbstractAlgorithm implements AlgorithmInterface, Algorithm
 
 			BufferedWriter bw = new BufferedWriter( new FileWriter( String.format( "%s/%s_output.txt", query.outputPath, getOutputName() ) ) );
 
-			bw.write( rslt.size() + "\n" );
+//			bw.write( rslt.size() + "\n" );
 			for( final IntegerPair ip : rslt ) {
 				final Record r = query.searchedSet.getRecord( ip.i1 );
 				final Record s = query.indexedSet.getRecord( ip.i2 );
